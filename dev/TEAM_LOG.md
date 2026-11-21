@@ -119,3 +119,82 @@ The workflow still has no automated test step because the repository has no test
 - Golden records remain a useful proposal, but their expected outcomes must come from approved GDD/runtime rules. Do not create a second authoritative Python rules engine.
 
 No other gameplay mechanic or economy rule was changed.
+
+
+## 2026-11-21 — Design review: adopting the research conclusions
+
+**Contributor:** Chad (AI)  
+**Status:** Discussion
+
+The comparative research, information-fairness work, and focused studies of Wildermyth and RimWorld give us a useful basis for reviewing the direction of Scribe of Eras. This entry opens that review; it does **not** approve new design requirements or amend the GDD.
+
+The central proposition under review is:
+
+> Professional work can generate consequential narrative when the player's judgments become records, those records affect people and institutions, and the resulting changes shape later work.
+
+The research supports this as a promising design direction. It does not establish that every proposed mechanism is necessary, nor that the prototype currently implements it.
+
+### 1. Principles to consider adopting
+
+These appear to be the strongest cross-study conclusions. The team should decide whether to adopt them as design principles, not yet as detailed implementation specifications.
+
+1. **Professional work is a primary narrative interface.** Routine work should involve observation, comparison, interpretation, and responsibility. Exceptional circumstances should complicate familiar work rather than routinely interrupt it with unrelated quest or dialogue systems.
+2. **The record connects judgment to continuity.** Preserve what was recorded, the evidence or sources supporting it, the scope of the claim, and what remains unresolved. A record should be capable of changing what people and institutions can do.
+3. **Separate an event from its record and from knowledge of it.** What happened, what was documented, and who has learned what are distinct facts. The distinction matters when records are copied, circulated, withheld, amended, or misinterpreted.
+4. **Persistent characters need persistent identity and relevant state.** Returning people should be selected because they are connected to the current situation or an earlier case—not merely because a generic role needs filling.
+5. **Procedural systems should create circumstances; authored content should give those circumstances human meaning.** Reusable rules can determine eligibility, participants, and consequences while authored encounters provide specific context and voice.
+6. **Consequences should usually be systemic and sometimes authored.** Most decisions should affect later work through reusable rules; a smaller number should receive direct character responses or substantial authored follow-ups.
+
+### 2. Principles that may need modification before adoption
+
+These ideas are useful, but their wording or scope risks implying more simulation than the research justifies.
+
+- **“The world operates independently of the player.”** Consider narrowing this to: relevant people, institutions, and circumstances continue to change without waiting for the player, at a level of simulation justified by gameplay. This does not imply a fully autonomous population or a simulated history of every person.
+- **“The game remembers the player's decisions.”** Memory should be selective and consequential, not an unlimited transcript. Retain details when they affect obligations, disputes, relationships, access to information, or plausible future work. A searchable archive and active narrative state need not be the same system.
+- **“NPCs are the primary human interface to the world.”** This is a promising presentation principle, but should not mean every interaction is a trigger, negotiation, or skill check. Some people should simply be present, busy, friendly, difficult, or unremarkable.
+- **“Event pacing responds to player circumstances.”** Pacing should regulate when an eligible opportunity is presented, not rewrite causal history or silently move a genuine deadline. An empty presentation slot should remain possible.
+- **“The player should be able to make a fair judgment.”** Fairness should mean that the player can understand what a record or action asserts and can identify the evidence available to support a defensible response. It should not mean every historical event has one discoverable answer or that every consequence is predictable.
+
+These are suggested refinements for discussion, not settled wording.
+
+### 3. Questions that need investigation before becoming requirements
+
+1. **Record and case identity:** Which decisions need a durable case identity across multiple assignments or eras? When is a record simply an archive entry, and when does it remain an active matter?
+2. **Evidence and provenance:** Which source details must be explicit to support fair judgment? How should the interface distinguish observation, attributed testimony, inference, disputed claims, and unresolved questions without making every routine task cumbersome?
+3. **Evaluation:** What exactly is evaluated—evidence handling, scope of claim, procedural compliance, disclosure, or consequences? Can more than one conclusion be defensible? How should the game distinguish a reasonable judgment later contradicted by new evidence from a careless judgment that ignored accessible evidence?
+4. **Knowledge and circulation:** Which knowledge states are meaningful enough to model? Is it sufficient to track who was present, who received or consulted a record, and what became public, or do particular gameplay situations require more?
+5. **Relationships and memory:** What should persist about a relationship: a score, specific reasons for trust or grievance, shared events, obligations, or some combination? Which of these should influence later work?
+6. **Event scheduling and selection:** What should count as an ambient opportunity, a committed follow-up, or a world-driven event? What load signals should pacing consider, and how should cooldowns and revalidation prevent repetition or impossible follow-ups?
+7. **Procedural versus authored content:** Which parts can safely be generated from templates and conditions, and which need authored context to remain legible and human? How much variation can the solo content pipeline actually support?
+8. **Historical and generational continuity:** How do records, relationships, institutional knowledge, and professional identity remain meaningful across eras and possible successors? The research suggests useful mechanisms but does not settle Scribe's continuity model.
+9. **Testing fairness and coherence:** What playtest evidence would show that players can explain their judgments from encountered information, understand why an event appeared, and recognize how a prior decision changed later circumstances?
+
+### 4. Suggested order for this discussion
+
+To avoid turning every open question into a simultaneous architecture project, I suggest resolving the design at the conceptual level in this order:
+
+1. Agree on the core relationship between work, evidence, judgment, record, and consequence.
+2. Agree on the minimum distinctions the player must understand when making and reading a record.
+3. Decide what makes a matter persist and what makes a person return.
+4. Define the broad responsibilities of event eligibility, participant selection, pacing, and follow-up.
+5. Only then discuss the minimum data and systems needed to support those principles.
+
+This order is a discussion aid, not a development milestone or implementation commitment.
+
+### 5. What this entry does not decide
+
+- It does not replace or revise any section of `docs/GDD.md`.
+- It does not approve a general-purpose narrative engine, autonomous NPC simulation, complete information-circulation simulation, universal case system, or universal Work template.
+- It does not assume that every Assignment must produce a Challenge or a permanent narrative consequence.
+- It does not change the six-AP Workday, the three-resource player economy, or the distinction between Assignments, Challenges, and Works.
+- It does not turn the research examples from RimWorld, Wildermyth, Crusader Kings, Dwarf Fortress, or Papers, Please into requirements to reproduce their mechanics.
+
+**Questions for the owner and team**
+
+- Which of the six principles in Section 1 should be adopted as design principles?
+- Which refinements in Section 2 are necessary, and what wording would better express the intended experience?
+- Which unresolved question in Section 3 is most important to settle before further design or implementation work?
+
+**Next action**
+
+Discuss the principles and their boundaries here. Once a principle is agreed, record the decision clearly and update `docs/GDD.md` only if it changes or clarifies approved game design. Keep unresolved questions marked as unresolved.
