@@ -55,14 +55,35 @@ export type RegisterDesignType = 'movement_ledger' | 'compact_balance';
 
 export interface StorehouseWorkState {
   stage: 'A_INVESTIGATE' | 'B_DESIGN' | 'C_TEST' | 'D_ADOPT' | 'COMPLETED';
-  examinedEvidence: string[]; // evidence IDs
+  examinedEvidence: string[];
   registerDesign: RegisterDesignType | null;
   registerConfigured: boolean;
-  testC1Passed: boolean; // Held stock release
-  testC2Passed: boolean; // Short delivery
+  testC1Passed: boolean;
+  testC2Passed: boolean;
   auditCompleted: boolean;
   adopted: boolean;
   adoptionType: RegisterDesignType | 'provisional' | 'rejected' | null;
+  completedActions?: string[];
+  findingRuling?: 'status_change_cause_unestablished' | 'roof_leak_reported_unproven' | 'stock_loss' | 'carrier_blame' | null;
+  initialEntriesDrafted?: boolean;
+  sourceNotationAdded?: boolean;
+  seniorReviewCompleted?: boolean;
+  c1EvidenceRetrieved?: boolean;
+  c1EntryRecorded?: boolean;
+  c1Ruling?: 'status_transfer' | 'new_receipt' | null;
+  c1SupplementAdded?: boolean;
+  c1AuditAttempts?: number;
+  c2EvidenceRetrieved?: boolean;
+  c2EntryRecorded?: boolean;
+  c2Ruling?: 'discrepancy_pending' | 'full_receipt' | 'carrier_at_fault' | null;
+  c2SupplementAdded?: boolean;
+  c2AuditAttempts?: number;
+  finalAuditPassed?: boolean;
+  institutionalReviewCompleted?: boolean;
+  presentationCompleted?: boolean;
+  revisionPasses?: number;
+  adoptionCondition?: string | null;
+  rewardGranted?: boolean;
 }
 
 export interface NpcRelation {
