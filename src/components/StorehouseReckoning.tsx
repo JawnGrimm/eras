@@ -249,7 +249,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
       return;
     }
     commit('Revise register: ' + descriptions[state.revisionFocus], 1,
-      { registerEnhancements: [...enhancements, state.revisionFocus], revisionApplied: true,
+      { registerEnhancements: [...enhancements, state.revisionFocus],
         finalAuditPassed: false, auditCompleted: false, institutionalReviewCompleted: false,
         presentationCompleted: false, adopted: false, adoptionType: null,
         revisionPasses: (state.revisionPasses ?? 0) + 1 },
