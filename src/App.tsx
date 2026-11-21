@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PlayerProfile, Assignment, StorehouseWorkState } from './types';
 import { createInitialPlayer, createInitialAssignments } from './data/initialData';
-import { CareerLogEntry, createCareerLog, appendCareerLogEntry } from './engine/CareerWorkLog';
+import { CareerLogEntry, CareerRecordState, createCareerLog, migrateCareerLog, normalizeCareerRecords, recordAssignmentCompletion } from './engine/CareerWorkLog';
 import { ChallengeOpportunity, createInitialChallenges, evaluateChallenges } from './engine/ChallengeDirector';
 import { ProfessionalReputation, createInitialReputation } from './engine/CharacterSystem';
 import { Header } from './components/Header';
@@ -50,14 +50,23 @@ export default function App() {
     return createInitialAssignments();
   });
 
-  const [workLog, setWorkLog] = useState<CareerLogEntry[]>(() => {
-    const saved = loadGameState<CareerLogEntry[]>('scribe_worklog');
-    return saved ?? createCareerLog();
+  const [careerRecords, setCareerRecords] = useState<CareerRecordState>(() => {
+    const saved = loadGameState<CareerRecordState>('scribe_career_records');
+    if (saved) return normalizeCareerRecords(saved);
+    const legacyLog = loadGameState<CareerLogEntry[]>('scribe_worklog') ?? [];
+    return migrateCareerLog(legacyLog);
   });
 
   const [challenges, setChallenges] = useState<ChallengeOpportunity[]>(() => {
     const saved = loadGameState<ChallengeOpportunity[]>('scribe_challenges');
-    return saved ?? createInitialChallenges();
+    return (saved ?? createInitialChallenges()).filter((challenge) => challenge.status !== 'completed');
+  });
+
+  const [completedChallenges, setCompletedChallenges] = useState<ChallengeOpportunity[]>(() => {
+    const archived = loadGameState<ChallengeOpportunity[]>('scribe_completed_challenges');
+    if (archived) return archived;
+    const legacy = loadGameState<ChallengeOpportunity[]>('scribe_challenges') ?? [];
+    return legacy.filter((challenge) => challenge.status === 'completed');
   });
 
   const [reputation, setReputation] = useState<ProfessionalReputation>(() => {
@@ -112,12 +121,16 @@ export default function App() {
   }, [workState]);
 
   useEffect(() => {
-    saveGameState('scribe_worklog', workLog);
-  }, [workLog]);
+    saveGameState('scribe_career_records', careerRecords);
+  }, [careerRecords]);
 
   useEffect(() => {
     saveGameState('scribe_challenges', challenges);
   }, [challenges]);
+
+  useEffect(() => {
+    saveGameState('scribe_completed_challenges', completedChallenges);
+  }, [completedChallenges]);
 
   // Remove the temporary event-by-event Challenge journal from earlier builds.
   useEffect(() => {
@@ -199,8 +212,9 @@ export default function App() {
     }));
     handleAwardXp(assignment.rewardCareerXp, 0);
 
-    // Append immutable entry to Career Work Log
-    const newLog = appendCareerLogEntry(workLog, {
+    // Keep a bounded recent activity window and update compact pattern counters.
+    const newEntry: CareerLogEntry = {
+      id: `log-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
       assignmentId: assignment.id,
       title: assignment.title,
       employer: assignment.employer,
@@ -217,11 +231,14 @@ export default function App() {
       dateString: player.dateString,
       dayNumber: player.currentDay,
       characterName: player.name,
-    });
-    setWorkLog(newLog);
+      eraName: player.eraName,
+      archiveLevel: 'routine',
+    };
+    const updatedCareerRecords = recordAssignmentCompletion(careerRecords, newEntry);
+    setCareerRecords(updatedCareerRecords);
 
-    // Evaluate Challenge Director for emergent narrative opportunities
-    const updatedChallenges = evaluateChallenges(challenges, newLog, player.currentDay);
+    // Evaluate Challenge Director against aggregates, not the full activity history.
+    const updatedChallenges = evaluateChallenges(challenges, updatedCareerRecords.summary);
     setChallenges(updatedChallenges);
     const newlyOfferedChallenges = updatedChallenges.filter(
       (challenge, idx) => challenge.status === 'offered' && challenges[idx]?.status === 'candidate'
@@ -249,13 +266,17 @@ export default function App() {
       return;
     }
     handleConsumeBlocks(chal.blockCost);
-    setChallenges((prev) => prev.map((c) => (c.id === id ? {
-      ...c,
+    const completedRecord: ChallengeOpportunity = {
+      ...chal,
       status: 'completed',
       completedDay: player.currentDay,
       completedDate: player.dateString,
       completedBy: player.name,
-    } : c)));
+      completedEra: player.eraName,
+    };
+    // Completed outcomes move to the permanent archive and leave operational state.
+    setChallenges((prev) => prev.filter((challenge) => challenge.id !== id));
+    setCompletedChallenges((prev) => [completedRecord, ...prev]);
     setPlayer((prev) => ({
       ...prev,
       silver: prev.silver + chal.rewardSilver,
@@ -361,8 +382,9 @@ export default function App() {
     localStorage.clear();
     setPlayer(createInitialPlayer());
     setAssignments(createInitialAssignments());
-    setWorkLog(createCareerLog());
+    setCareerRecords(createCareerLog());
     setChallenges(createInitialChallenges());
+    setCompletedChallenges([]);
     setReputation(createInitialReputation());
     setWorkState({
       stage: 'A_INVESTIGATE',
@@ -423,8 +445,9 @@ export default function App() {
         )}
         {activeTab === 'journal' && (
           <CareerJournalModal
-            workLog={workLog}
+            careerRecords={careerRecords}
             challenges={challenges}
+            completedChallenges={completedChallenges}
             reputation={reputation}
             onAcceptChallenge={handleAcceptChallenge}
             onCompleteChallenge={handleCompleteChallenge}
