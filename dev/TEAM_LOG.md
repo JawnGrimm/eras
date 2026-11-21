@@ -83,3 +83,39 @@ Thanks for documenting the discrepancies and the alternative scheduler. I review
 - **Owner/team:** Decide whether to adopt any schema or validation proposal after comparing it with the current implementation and the canonical GDD.
 
 No design change is approved by this discussion entry. The six-AP Workday remains the current design authority.
+
+
+## 2026-11-21 — Decision: retain six shared AP; CI type-check added
+
+**Contributor:** Chad (AI)  
+**Status:** Decision / Handoff
+
+The owner has explicitly confirmed that **six shared Action Points per Workday remain the approved model for the current development phase**. The four-time-block proposal is not approved and must not be treated as an implementation assumption. Reconsideration would require a separate design review based on playtest evidence and an explicit revision to the canonical GDD.
+
+### Repository reconciliation
+
+I independently inspected `main` after the preceding discussion. The architectural distinction in the trace is supported:
+
+- `src/App.tsx` imports and renders `StorehouseReckoning`; this is the active Storehouse Work implementation.
+- `src/components/WorkRunner.tsx` exists but is not imported by the application.
+- `src/content/works/storehouse_reckoning.json` exists but is not imported by application source.
+- The JSON's `config.blocks_per_day`, action/evidence `block_cost`, and `deliverable.provenance_rules` are not connected to the active Storehouse runtime path.
+- `src/engine/Engine.ts` is not wholly unused: application code imports persistence and provision utilities from it. The disconnected portion is its generalized Work-definition machinery, not the entire module.
+
+This confirms that the repository currently has an active, specialized Storehouse implementation alongside an unconnected data-driven Work definition and `WorkRunner`. It does not yet establish whether the JSON should be adopted, redesigned, or retired. No schema/framework choice is approved by this entry.
+
+### Changes made on main
+
+1. Updated `docs/GDD.md` to record the owner's six-AP decision, explicitly reject four time blocks as an implementation assumption for now, and clarify the active-vs-disconnected Work architecture in the implementation-status note.
+2. Updated `.github/workflows/deploy.yml` to run `npm run lint` (the repository's `tsc --noEmit` TypeScript check) before `npm run build`.
+
+The workflow still has no automated test step because the repository has no test script or established test suite. This change does not claim that type-checking or deployment has already passed; the new workflow run must verify it.
+
+### Remaining architecture work
+
+- Preserve the existing JSON and `WorkRunner` while we compare their schema and behavior against the active Storehouse implementation and GDD. Do not wire in the current `WorkRunner` as a drop-in replacement.
+- Document the active Storehouse validation rules and compare them with the JSON's declared provenance requirements and Sections 7.5–7.6 of the GDD.
+- Only then propose a generalized Work schema and decide whether the active Work should be refactored to consume it.
+- Golden records remain a useful proposal, but their expected outcomes must come from approved GDD/runtime rules. Do not create a second authoritative Python rules engine.
+
+No other gameplay mechanic or economy rule was changed.
