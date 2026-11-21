@@ -1,14 +1,14 @@
-> **Canonical repository GDD.** This is the primary design reference for Scribe of Eras. Prototype code may lag behind or contradict this document; implementation decisions should be checked against the GDD rather than inferred from existing prototype behavior. Update this document when a design decision is deliberately changed.
->
-> **Known implementation discrepancy to resolve during the rebuild:** this GDD specifies six shared Action Points per Workday. The current prototype displays four Time Blocks. The six-AP rule in this GDD is the current design intent; the four-block prototype display is not an approved replacement unless this document is revised.
-
----
-
 ---
 title: "Scribe of Eras"
 subtitle: "Game Design Document — Revised Draft v1.2"
 date: "20 November 2026"
 lang: en-US
+---
+
+> **Canonical repository GDD.** This is the primary design reference for Scribe of Eras. Prototype code may lag behind or contradict this document; implementation decisions should be checked against the GDD rather than inferred from existing prototype behavior. Update this document when a design decision is deliberately changed.
+>
+> **Known implementation discrepancy to resolve during the rebuild:** this GDD specifies six shared Action Points per Workday. The current prototype displays four Time Blocks. The six-AP rule in this GDD is the current design intent; the four-block prototype display is not an approved replacement unless this document is revised.
+
 ---
 
 **Genre:** Historical career role-playing game / administrative simulation  
@@ -237,6 +237,8 @@ Challenges may arise from:
 Behavioral triggers should consider opportunities presented as well as choices made. A history that records only completed assignments can misread player behavior. For example, repeatedly choosing routine grain records means something different if the player was never offered other kinds of work. Challenge logic should distinguish what the player could have chosen from what they actually chose, accepted, declined, or ignored.
 
 Challenges can grant Career XP, resources, relationship changes, faction changes, knowledge, or consequences. They do not award Historical Progress XP and cannot be required to complete a mandatory Work or advance an era.
+
+The player-facing Career Journal is an outcome archive, not a complete event log. It records **completed Challenges only**, including their outcome and completion details where available. Offers, acceptances, declines, and lapses remain operational Challenge state where needed for simulation and behavioral triggers, but they are not permanent Career Journal entries.
 
 Challenge outcomes must reflect the player's decisions. Different rulings or resolutions should produce meaningfully different consequences, not merely different text followed by the same reward and epilogue.
 
