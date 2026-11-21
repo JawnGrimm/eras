@@ -11,57 +11,64 @@ import { StorehouseReckoning } from './components/StorehouseReckoning';
 import { CareerJournalModal } from './components/CareerJournalModal';
 import { CodexModal } from './components/CodexModal';
 import { CheckCircle2, X } from 'lucide-react';
+import { loadGameState, saveGameState, calculateProvision } from './engine/Engine';
 
 export default function App() {
   // LocalStorage state persistence
   const [player, setPlayer] = useState<PlayerProfile>(() => {
-    const saved = localStorage.getItem('scribe_player');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (parsed.dailyAp !== undefined) {
-        // Migrate from AP to Time Blocks
-        delete parsed.dailyAp;
-        delete parsed.maxAp;
-        parsed.currentBlock = parsed.currentBlock || 1;
-        parsed.blocksRemaining = parsed.blocksRemaining !== undefined ? parsed.blocksRemaining : 4;
-        parsed.workingLate = parsed.workingLate || false;
-      }
-      return parsed;
+    const saved = loadGameState<Partial<PlayerProfile> & Record<string, unknown>>('scribe_player');
+    if (!saved) return createInitialPlayer();
+
+    const parsed = { ...saved } as PlayerProfile & Record<string, unknown>;
+    if (parsed.actionPointsPerDay !== 6) {
+      // Preserve AP already spent when migrating a legacy four-block Workday.
+      const legacyRemaining = typeof parsed.blocksRemaining === 'number'
+        ? Math.max(0, Math.min(4, parsed.blocksRemaining))
+        : 4;
+      const spentToday = 4 - legacyRemaining;
+      parsed.blocksRemaining = Math.max(0, 6 - spentToday);
+      parsed.currentBlock = 7 - parsed.blocksRemaining;
+      parsed.actionPointsPerDay = 6;
     }
-    return createInitialPlayer();
+    parsed.currentBlock = Math.max(1, Math.min(7, parsed.currentBlock || 1));
+    parsed.blocksRemaining = Math.max(0, Math.min(6, parsed.blocksRemaining ?? 6));
+    parsed.workApSpentToday = Math.max(0, parsed.workApSpentToday ?? 0);
+    parsed.workingLate = parsed.workingLate || false;
+    delete parsed.dailyAp;
+    delete parsed.maxAp;
+    return parsed;
   });
 
   const [assignments, setAssignments] = useState<Assignment[]>(() => {
-    const saved = localStorage.getItem('scribe_assignments');
+    const saved = loadGameState<Assignment[]>('scribe_assignments');
     if (saved) {
-      const parsed = JSON.parse(saved);
-      return parsed.map((a: any) => ({
-        ...a,
-        blockCost: a.blockCost !== undefined ? a.blockCost : (a.apCost ? Math.ceil(a.apCost / 2) : 1),
+      return saved.map((assignment) => ({
+        ...assignment,
+        blockCost: assignment.blockCost ?? (assignment as Assignment & { apCost?: number }).apCost ?? 1,
       }));
     }
     return createInitialAssignments();
   });
 
   const [workLog, setWorkLog] = useState<CareerLogEntry[]>(() => {
-    const saved = localStorage.getItem('scribe_worklog');
-    return saved ? JSON.parse(saved) : createCareerLog();
+    const saved = loadGameState<CareerLogEntry[]>('scribe_worklog');
+    return saved ?? createCareerLog();
   });
 
   const [challenges, setChallenges] = useState<ChallengeOpportunity[]>(() => {
-    const saved = localStorage.getItem('scribe_challenges');
-    return saved ? JSON.parse(saved) : createInitialChallenges();
+    const saved = loadGameState<ChallengeOpportunity[]>('scribe_challenges');
+    return saved ?? createInitialChallenges();
   });
 
   const [reputation, setReputation] = useState<ProfessionalReputation>(() => {
-    const saved = localStorage.getItem('scribe_reputation');
-    return saved ? JSON.parse(saved) : createInitialReputation();
+    const saved = loadGameState<ProfessionalReputation>('scribe_reputation');
+    return saved ?? createInitialReputation();
   });
 
   const [workState, setWorkState] = useState<StorehouseWorkState>(() => {
-    const saved = localStorage.getItem('scribe_workstate');
+    const saved = loadGameState<StorehouseWorkState>('scribe_workstate');
     return saved
-      ? JSON.parse(saved)
+      ? saved
       : {
           stage: 'A_INVESTIGATE',
           examinedEvidence: [],
@@ -86,23 +93,23 @@ export default function App() {
   };
 
   useEffect(() => {
-    localStorage.setItem('scribe_player', JSON.stringify(player));
+    saveGameState('scribe_player', player);
   }, [player]);
 
   useEffect(() => {
-    localStorage.setItem('scribe_assignments', JSON.stringify(assignments));
+    saveGameState('scribe_assignments', assignments);
   }, [assignments]);
 
   useEffect(() => {
-    localStorage.setItem('scribe_workstate', JSON.stringify(workState));
+    saveGameState('scribe_workstate', workState);
   }, [workState]);
 
   useEffect(() => {
-    localStorage.setItem('scribe_worklog', JSON.stringify(workLog));
+    saveGameState('scribe_worklog', workLog);
   }, [workLog]);
 
   useEffect(() => {
-    localStorage.setItem('scribe_challenges', JSON.stringify(challenges));
+    saveGameState('scribe_challenges', challenges);
   }, [challenges]);
 
   // Remove the temporary event-by-event Challenge journal from earlier builds.
@@ -111,17 +118,17 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('scribe_reputation', JSON.stringify(reputation));
+    saveGameState('scribe_reputation', reputation);
   }, [reputation]);
 
-  const handleConsumeBlocks = (amount: number) => {
+  const handleConsumeBlocks = (amount: number, isWorkAction = false) => {
     setPlayer((prev) => {
-      const newBlocks = Math.max(0, prev.blocksRemaining - amount);
-      const newCurrentBlock = Math.min(4, prev.currentBlock + amount);
+      const spent = Math.max(0, Math.min(prev.blocksRemaining, amount));
       return {
         ...prev,
-        blocksRemaining: newBlocks,
-        currentBlock: newCurrentBlock,
+        blocksRemaining: Math.max(0, prev.blocksRemaining - spent),
+        currentBlock: Math.min(7, prev.currentBlock + spent),
+        workApSpentToday: (prev.workApSpentToday ?? 0) + (isWorkAction ? spent : 0),
       };
     });
   };
@@ -312,15 +319,14 @@ export default function App() {
         stress: Math.min(100, prev.stress + 5),
         workingLate: true,
         blocksRemaining: Math.max(0, prev.blocksRemaining - 1),
+        currentBlock: Math.min(7, prev.currentBlock + 1),
       };
     });
     showToast('Worked late into the night. +5% Stress gained. Tomorrow morning block 1 will be skipped.');
   };
 
   const handleEndDay = () => {
-    const breadDeduction = 1;
-    const workProvision = workState.stage !== 'COMPLETED' ? 1 : 0;
-    const netBreadChange = workProvision - breadDeduction;
+    const settlement = calculateProvision(workState.stage !== 'COMPLETED', player.workApSpentToday ?? 0);
 
     setPlayer((prev) => {
       const nextDayWorkingLate = prev.workingLate;
@@ -329,8 +335,10 @@ export default function App() {
         currentDay: prev.currentDay + 1,
         dateString: `Day ${prev.currentDay + 1}, Early Season of Inundation (c. 3200 BCE)`,
         currentBlock: nextDayWorkingLate ? 2 : 1,
-        blocksRemaining: nextDayWorkingLate ? 3 : 4,
-        bread: Math.max(0, prev.bread + netBreadChange),
+        blocksRemaining: nextDayWorkingLate ? 5 : 6,
+        actionPointsPerDay: 6,
+        workApSpentToday: 0,
+        bread: Math.max(0, prev.bread + settlement.breadChange),
         workingLate: false,
       };
     });
@@ -417,7 +425,7 @@ export default function App() {
             player={player}
             workState={workState}
             onUpdateWorkState={(newState) => setWorkState((prev) => ({ ...prev, ...newState }))}
-            onConsumeBlocks={handleConsumeBlocks}
+            onConsumeBlocks={(amount) => handleConsumeBlocks(amount, true)}
             onAwardXp={handleAwardXp}
             onShowToast={showToast}
           />
