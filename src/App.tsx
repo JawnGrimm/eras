@@ -280,12 +280,21 @@ export default function App() {
   };
 
   const handleWorkLate = () => {
-    setPlayer((prev) => ({
-      ...prev,
-      stress: Math.min(100, prev.stress + 5),
-      workingLate: true,
-      blocksRemaining: Math.max(0, prev.blocksRemaining - 1),
-    }));
+    if (player.workingLate) {
+      showToast('You have already worked overtime today. Tomorrow morning block 1 will be skipped.');
+      return;
+    }
+
+    setPlayer((prev) => {
+      // Defend against repeat clicks before the UI has re-rendered.
+      if (prev.workingLate) return prev;
+      return {
+        ...prev,
+        stress: Math.min(100, prev.stress + 5),
+        workingLate: true,
+        blocksRemaining: Math.max(0, prev.blocksRemaining - 1),
+      };
+    });
     showToast('Worked late into the night. +5% Stress gained. Tomorrow morning block 1 will be skipped.');
   };
 
