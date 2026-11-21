@@ -187,7 +187,9 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
       onShowToast('The compact register needs a linked supplemental movement note before this test can pass. Add that note for 1 AP.');
       return;
     }
-    const valid = isC1 ? ruling === 'status_transfer' : ruling === 'discrepancy_pending';
+    const valid = isC1
+      ? ruling === 'status_transfer' && state.c1Record?.transferred === 5 && state.c1Record?.heldRemaining === 2 && state.c1Record?.totalStockChange === 0
+      : ruling === 'discrepancy_pending' && state.c2Record?.dispatched === 20 && state.c2Record?.received === 18 && state.c2Record?.discrepancy === 2;
     const count = (isC1 ? state.c1AuditAttempts : state.c2AuditAttempts) ?? 0;
     commit('Audit test ' + which.toUpperCase(), 1,
       isC1
@@ -206,8 +208,8 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
     const isC1 = which === 'c1';
     commit('Revise test ' + which.toUpperCase() + ' entry', 1,
       isC1
-        ? { c1Ruling: 'status_transfer', c1EntryRecorded: true, testC1Passed: false, c1AuditAttempts: 0, revisionPasses: (state.revisionPasses ?? 0) + 1 }
-        : { c2Ruling: 'discrepancy_pending', c2EntryRecorded: true, testC2Passed: false, c2AuditAttempts: 0, revisionPasses: (state.revisionPasses ?? 0) + 1 },
+        ? { c1Ruling: 'status_transfer', c1Record: { transferred: 5, heldRemaining: 2, totalStockChange: 0 }, c1EntryRecorded: true, testC1Passed: false, c1AuditAttempts: 0, revisionPasses: (state.revisionPasses ?? 0) + 1 }
+        : { c2Ruling: 'discrepancy_pending', c2Record: { dispatched: 20, received: 18, discrepancy: 2 }, c2EntryRecorded: true, testC2Passed: false, c2AuditAttempts: 0, revisionPasses: (state.revisionPasses ?? 0) + 1 },
       'The entry has been corrected and must be audited again.');
   };
 
@@ -461,8 +463,15 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
               <div className="bg-[#FAF7F0] dark:bg-stone-800 p-3 rounded-lg text-xs space-y-1"><p>C1-E01: Inspection establishes 5 of 7 held measures have dried; 2 remain held.</p><p>C1-E02: Steward authorizes 5 measures to return to usable stock.</p></div>}
             {state.c1EvidenceRetrieved && <>
               <div className="space-y-2 text-xs">
-                <label className="flex gap-2"><input type="radio" name="c1" disabled={state.testC1Passed} disabled={state.c1EntryRecorded || state.testC1Passed} checked={state.c1Ruling === 'status_transfer'} onChange={() => onUpdateWorkState({c1Ruling:'status_transfer',c1EntryRecorded:false,testC1Passed:false})}/> Record 5 transferred from held to usable; no new receipt.</label>
-                <label className="flex gap-2"><input type="radio" name="c1" disabled={state.testC1Passed} disabled={state.c1EntryRecorded || state.testC1Passed} checked={state.c1Ruling === 'new_receipt'} onChange={() => onUpdateWorkState({c1Ruling:'new_receipt',c1EntryRecorded:false,testC1Passed:false})}/> Record 5 as a new receipt.</label>
+                <label className="flex gap-2"><input type="radio" name="c1" disabled={state.c1EntryRecorded || state.testC1Passed} checked={state.c1Ruling === 'status_transfer'} onChange={() => onUpdateWorkState({c1Ruling:'status_transfer',c1EntryRecorded:false,testC1Passed:false})}/> Record 5 transferred from held to usable; no new receipt.</label>
+                <label className="flex gap-2"><input type="radio" name="c1" disabled={state.c1EntryRecorded || state.testC1Passed} checked={state.c1Ruling === 'new_receipt'} onChange={() => onUpdateWorkState({c1Ruling:'new_receipt',c1EntryRecorded:false,testC1Passed:false})}/> Record 5 as a new receipt.</label>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {([
+                  ['transferred','Returned to usable'],
+                  ['heldRemaining','Still held'],
+                  ['totalStockChange','Total stock change'],
+                ] as const).map(([field,label]) => <label key={field} className="text-xs text-stone-500">{label}<input type="number" min="0" disabled={state.c1EntryRecorded || state.testC1Passed} value={state.c1Record?.[field] ?? ''} onChange={(event) => onUpdateWorkState({c1Record:{...state.c1Record,[field]:event.target.value === '' ? undefined : Number(event.target.value)}})} className="w-full mt-1 rounded border bg-white dark:bg-stone-800 px-2 py-1"/></label>)}
               </div>
               <button disabled={!state.c1Ruling || state.c1EntryRecorded || state.testC1Passed || !canAct(1)} onClick={() => enterTest('c1')} className="px-3 py-2 rounded-lg bg-[#2B1B17] text-white text-xs disabled:opacity-40">Enter C-1 · 1 AP</button>
               {state.registerDesign === 'compact_balance' && !state.c1SupplementAdded && <button disabled={!state.c1EntryRecorded || state.testC1Passed || !canAct(1)} onClick={() => addSupplement('c1')} className="px-3 py-2 rounded-lg border text-xs disabled:opacity-40">Add linked movement note · 1 AP</button>}
@@ -480,6 +489,13 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
                 <label className="flex gap-2"><input type="radio" name="c2" disabled={state.c2EntryRecorded || state.testC2Passed} checked={state.c2Ruling === 'discrepancy_pending'} onChange={() => onUpdateWorkState({c2Ruling:'discrepancy_pending',c2EntryRecorded:false,testC2Passed:false})}/> Record 20 dispatched, 18 received, 2 pending inquiry; no blame assigned.</label>
                 <label className="flex gap-2"><input type="radio" name="c2" disabled={state.c2EntryRecorded || state.testC2Passed} checked={state.c2Ruling === 'full_receipt'} onChange={() => onUpdateWorkState({c2Ruling:'full_receipt',c2EntryRecorded:false,testC2Passed:false})}/> Record all 20 as received.</label>
                 <label className="flex gap-2"><input type="radio" name="c2" disabled={state.c2EntryRecorded || state.testC2Passed} checked={state.c2Ruling === 'carrier_at_fault'} onChange={() => onUpdateWorkState({c2Ruling:'carrier_at_fault',c2EntryRecorded:false,testC2Passed:false})}/> Assign the 2-measure shortage to the carrier.</label>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {([
+                  ['dispatched','Dispatched'],
+                  ['received','Received'],
+                  ['discrepancy','Discrepancy'],
+                ] as const).map(([field,label]) => <label key={field} className="text-xs text-stone-500">{label}<input type="number" min="0" disabled={state.c2EntryRecorded || state.testC2Passed} value={state.c2Record?.[field] ?? ''} onChange={(event) => onUpdateWorkState({c2Record:{...state.c2Record,[field]:event.target.value === '' ? undefined : Number(event.target.value)}})} className="w-full mt-1 rounded border bg-white dark:bg-stone-800 px-2 py-1"/></label>)}
               </div>
               <button disabled={!state.c2Ruling || state.c2EntryRecorded || state.testC2Passed || !canAct(1)} onClick={() => enterTest('c2')} className="px-3 py-2 rounded-lg bg-[#2B1B17] text-white text-xs disabled:opacity-40">Enter C-2 · 1 AP</button>
               {state.registerDesign === 'compact_balance' && !state.c2SupplementAdded && <button disabled={!state.c2EntryRecorded || state.testC2Passed || !canAct(1)} onClick={() => addSupplement('c2')} className="px-3 py-2 rounded-lg border text-xs disabled:opacity-40">Add linked dispatch/receipt note · 1 AP</button>}
