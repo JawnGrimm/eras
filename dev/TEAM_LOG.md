@@ -332,3 +332,74 @@ This decision establishes the evaluation principle, not its implementation. Scor
 
 - `docs/GDD.md`: clarified the fairness principle, expanded Section 9.2, and revised Remaining Design Work item 21 to focus on implementation mechanics.
 - No runtime code, schema, scoring, validator, or gameplay behavior changed.
+
+## 2026-11-21 — Decision: establish the initial character framework
+
+**Contributor:** Chad (AI)  
+**Status:** Decision / design baseline
+
+The owner asked that the current character-design decisions be recorded in the repository so they are not lost during continued design work. The following framework reflects the decisions reached in discussion. It is a design baseline, not a complete character-system specification.
+
+### Character-action model
+
+The agreed organizing principle is:
+
+> **Character + Skills + Equipment + Conditions + Circumstances → Available Actions and Outcomes**
+
+These elements should interact to change what a character can do, perceive, access, withstand, and accomplish. They should not become disconnected collections of numerical bonuses. The exact action-resolution formula and numerical scales remain open.
+
+### Initial career paths
+
+The four initial career paths are:
+
+- Government
+- Military
+- Religious
+- Merchant
+
+The owner clarified that these are selected as the character's **initial career path** for now. They establish starting professional identity and context; they are not permanent restrictions on future learning or activity. Class-specific starting benefits and any later movement between paths remain undecided.
+
+### Attributes
+
+The agreed six broad character attributes are:
+
+1. **Precision** — accuracy, attention to detail, exactness, and fine control.
+2. **Perception** — noticing details, listening, reading situations, and recognizing inconsistencies.
+3. **Reasoning** — interpreting information, synthesizing ideas, comparing possibilities, and drawing conclusions.
+4. **Expression** — communicating clearly, organizing thoughts, and conveying intent.
+5. **Endurance** — sustaining effort, concentration, and performance over time.
+6. **Composure** — maintaining control under pressure, handling difficult situations, and resisting distraction.
+
+These are general character capabilities, not professional ranks or moral ratings.
+
+### Core skills and primary attribute pairings
+
+The current six-skill framework and its primary pairings are:
+
+| Core skill | Primary attribute |
+|---|---|
+| Reading & Scripts | Perception |
+| Recordkeeping & Accounts | Precision |
+| Analysis & Research | Reasoning |
+| Writing & Composition | Expression |
+| Administration & Procedure | Composure |
+| Communication & Instruction | Expression |
+
+These pairings are primary defaults, not exclusive dependencies. The relevant attribute may vary with the demands of a particular action. Endurance may matter when a skill must be sustained through prolonged effort.
+
+Skills represent learned competencies that can develop across career paths. The detailed skill scale, advancement rules, and specializations have not been settled.
+
+### Still open
+
+- What each career path provides at character creation: starting skills, equipment, relationships, responsibilities, and circumstances.
+- Whether and how characters can move between career paths later.
+- Specialization structure and content.
+- Skill scales, training, and advancement.
+- Equipment effects, item progression, and condition mechanics.
+- The action-resolution formula connecting attributes, skills, equipment, conditions, and circumstances.
+
+### Repository changes
+
+- `docs/GDD.md`: replaced the statement that elaborate class selection was not required; recorded the four initial career paths, six attributes, six core skills and primary attribute pairings, and the agreed character-action model. Added the remaining character-system decisions to the open design-work list.
+- No runtime code, save schema, numerical mechanics, or gameplay behavior changed.
+
