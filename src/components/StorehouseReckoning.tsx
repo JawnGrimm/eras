@@ -335,6 +335,18 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
       </div>
     </header>
 
+    {state.stage !== 'A_INVESTIGATE' && (examined.length > 0 || state.c1EvidenceRetrieved || state.c2EvidenceRetrieved) && <details className="bg-white dark:bg-stone-900 border border-[#D6CEBE] dark:border-stone-800 rounded-xl p-4">
+      <summary className="cursor-pointer text-sm font-semibold">Review acquired evidence and test records · Free</summary>
+      <div className="grid md:grid-cols-2 gap-2 mt-3">
+        {evidence.filter((item) => examined.includes(item.id)).map((item) => <div key={item.id} className="rounded-lg bg-[#FAF7F0] dark:bg-stone-800 p-3">
+          <div className="text-xs font-mono text-[#C86D33]">{item.code} · {item.title}</div>
+          <div className="text-xs text-stone-500 mt-1">{item.content}</div>
+          <div className="text-xs text-stone-400 mt-1">Source: {item.source}</div>
+        </div>)}
+        {state.c1EvidenceRetrieved && <div className="rounded-lg bg-[#FAF7F0] dark:bg-stone-800 p-3 text-xs"><strong>C-1 evidence</strong><p>C1-E01: 5 of 7 held measures have dried; 2 remain held.</p><p>C1-E02: The Steward authorizes return of 5 measures to usable stock.</p></div>}
+        {state.c2EvidenceRetrieved && <div className="rounded-lg bg-[#FAF7F0] dark:bg-stone-800 p-3 text-xs"><strong>C-2 evidence</strong><p>C2-E01: 20 measures dispatched.</p><p>C2-E02: 18 measures received.</p><p>C2-E03: No reliable evidence locates the 2-measure discrepancy.</p></div>}
+      </div>
+    </details>}
     {state.stage === 'A_INVESTIGATE' && <>
       {section('Stage A — Investigate the discrepancy',
         'Each retrieval, comparison, recount, and consultation costs AP. Once acquired, evidence can be reread without cost.',
