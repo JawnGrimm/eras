@@ -26,6 +26,7 @@ lang: en-US
 - High Concept
 - Design Pillars
 - Genre, Structure, and Point of View
+- Character Foundations and Initial Career Paths
 - Historical Scope and Era Progression
 - The Three Gameplay Layers
 - Workday and Action Economy
@@ -158,9 +159,60 @@ The experience is centered on a continuing professional tradition and the people
 
 ### 3.3 Player role
 
-The starting role is an apprentice scribe in Uruk. The player's precise name, family background, and early personal circumstances can be established during the opening of the game. The professional identity of a scribe is the essential starting point; elaborate class selection is not required to establish the core experience.
+The player begins as an apprentice scribe in Uruk. The player's precise name, family background, and early personal circumstances can be established during the opening of the game.
 
-### 3.4 Tone
+### 3.4 Character foundations and initial career paths
+
+The character system is built around the following interaction model:
+
+**Character + Skills + Equipment + Conditions + Circumstances → Available Actions and Outcomes**
+
+These elements should interact to change what a character can do, perceive, access, withstand, and accomplish. They are not intended as disconnected lists of bonuses. The exact action-resolution formula and numerical scales remain open.
+
+#### Initial career paths
+
+Character creation offers four initial career paths:
+
+- **Government**
+- **Military**
+- **Religious**
+- **Merchant**
+
+A career path establishes the player's initial professional identity and context. It should shape the institutions, people, responsibilities, opportunities, and likely areas of expertise encountered at the beginning of play. These are starting paths, not permanent restrictions on what the character may learn or do. The starting benefits and any later movement between career paths have not yet been defined.
+
+#### Attributes
+
+The six broad character attributes are:
+
+| Attribute | Scope |
+|---|---|
+| **Precision** | Accuracy, attention to detail, exactness, and fine control. |
+| **Perception** | Noticing details, listening, reading situations, and recognizing inconsistencies. |
+| **Reasoning** | Interpreting information, synthesizing ideas, comparing possibilities, and drawing conclusions. |
+| **Expression** | Communicating clearly, organizing thoughts, and conveying intent. |
+| **Endurance** | Sustaining effort, concentration, and performance over time. |
+| **Composure** | Maintaining control under pressure, handling difficult situations, and resisting distraction. |
+
+These are broad character capabilities, not measures of moral worth or professional rank.
+
+#### Core skills and primary attribute pairings
+
+The current six-skill framework is:
+
+| Core skill | Primary attribute | Scope |
+|---|---|---|
+| **Reading & Scripts** | Perception | Recognizing and interpreting written signs, scripts, and textual features. |
+| **Recordkeeping & Accounts** | Precision | Maintaining records, tracking transactions, and reconciling quantities. |
+| **Analysis & Research** | Reasoning | Comparing information, identifying patterns, and drawing supported conclusions. |
+| **Writing & Composition** | Expression | Producing clear, coherent documents and written communication. |
+| **Administration & Procedure** | Composure | Handling institutional responsibilities and applying procedures under pressure. |
+| **Communication & Instruction** | Expression | Listening, explaining, teaching, and conveying information to others. |
+
+These are primary pairings, not exclusive attribute-to-skill dependencies. The attribute relevant to an action may change with its specific demands and circumstances. Endurance, for example, may matter when an otherwise familiar skill must be sustained through prolonged effort.
+
+Skills represent learned competencies and can develop across career paths. The detailed skill scale, training and advancement rules, and the specialization structure remain open design work.
+
+### 3.5 Tone
 
 The tone is grounded, human, and occasionally wry. The game can contain bureaucracy, absurdity, petty rivalries, corruption, friendship, ambition, generosity, grief, and discovery. It should avoid presenting ancient people as caricatures or treating every event as a grand epic. Much of history is made through ordinary people doing consequential work.
 
@@ -1138,6 +1190,7 @@ The following details require further design before they can be treated as fixed
 19. A defined minimum viable product (MVP): which era, Works, Assignments, characters, systems, and content must exist for a complete first release.
 20. Content-authoring and validation pipeline: scenario state schemas, evidence generation, invariant checks, branch coverage, historical review, and automated QA for authored or AI-assisted drafts.
 21. Evaluation implementation: define how the approved judgment principles are expressed through player-facing feedback, scoring or outcome tiers, and scenario validators. Preserve the distinction between a reasonable judgment based on evidence available at decision time and a careless or unsupported conclusion. Do not assume every scenario has one correct ruling; determine how task purpose and required information shape completeness. The evaluation principle is approved, but scoring weights, feedback language, and validator behavior remain undecided.
+22. Complete the character system: define skill scales and advancement, specializations, class-specific starting circumstances and benefits, conditions, equipment effects, and the action-resolution model that connects attributes, skills, equipment, conditions, and circumstances. The four initial career paths, six attributes, six core skills, and primary attribute pairings are established as the current framework; the remaining mechanics are not yet fixed.
 
 These are open design tasks, not invitations to fill gaps with arbitrary placeholder systems.
 
