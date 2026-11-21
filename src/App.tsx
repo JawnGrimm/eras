@@ -241,7 +241,7 @@ export default function App() {
       ...prev,
       silver: prev.silver + chal.rewardSilver,
     }));
-    handleAwardXp(chal.rewardCareerXp, 500);
+    handleAwardXp(chal.rewardCareerXp, 0);
     setReputation((prev) => ({
       ...prev,
       competence: Math.min(100, prev.competence + 5),
