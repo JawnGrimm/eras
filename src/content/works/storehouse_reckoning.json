@@ -1,0 +1,433 @@
+{
+  "schema_version": "0.2",
+  "work_id": "W-I-01",
+  "title": "The Storehouse Reckoning",
+  "era": "I",
+  "gdd_version": "1.2",
+  "config": {
+    "blocks_per_day": 4,
+    "costs_shown_before_commit": true,
+    "hidden_costs_allowed": false
+  },
+  "roles": [
+    {
+      "id": "senior_scribe",
+      "name": "Senior Scribe",
+      "interest": "Wants a reliable record that can be checked and reused; approves the apprentice's work.",
+      "required_interaction": "Reviews the proposed register and rules on adoption."
+    },
+    {
+      "id": "storehouse_steward",
+      "name": "Storehouse Steward",
+      "interest": "Needs to know what is available for allocation and what remains held or disputed.",
+      "required_interaction": "Explains how stock status affects allocations and tests whether the register can be used."
+    },
+    {
+      "id": "receiving_official",
+      "name": "Receiving Official",
+      "interest": "Wants arrival and condition recorded accurately; witnessed intake but cannot establish later cause.",
+      "required_interaction": "Explains the intake procedure and the limits of the initial inspection."
+    },
+    {
+      "id": "carrier_foreman",
+      "name": "Carrier Foreman",
+      "interest": "Wants the dispatched quantity and completed delivery recognized; disputes unsupported claims that the carrier caused later damage.",
+      "required_interaction": "Supplies dispatch-side corroboration and responds to the player's proposed finding."
+    },
+    {
+      "id": "brewing_house_rep",
+      "name": "Brewing-House Representative",
+      "interest": "Needs an accurate account of the grain issued and wants the operation credited for what it actually received.",
+      "required_interaction": "Confirms the issue and tests whether the register identifies recipient and authority correctly."
+    }
+  ],
+  "state": {
+    "quantities": {
+      "opening_usable": 24,
+      "dispatch_qty": 60,
+      "received_qty": 60,
+      "intake_usable": 56,
+      "intake_held": 4,
+      "issue_qty": 30,
+      "status_change_qty": 3,
+      "recount_usable": 47,
+      "recount_held": 7,
+      "c1_dried": 5,
+      "c1_remaining_held": 2,
+      "c2_dispatch": 20,
+      "c2_received": 18,
+      "c2_discrepancy": 2
+    }
+  },
+  "evidence": [
+    {
+      "id": "E-01",
+      "source": "Prior closing-balance tablet",
+      "reliability": "primary_record",
+      "visible_in_stage": "A",
+      "establishes": "The storehouse began the period with 24 usable standard institutional measures.",
+      "facts": ["opening_usable"],
+      "block_cost": 0
+    },
+    {
+      "id": "E-02",
+      "source": "Dispatch tablet",
+      "reliability": "primary_record",
+      "visible_in_stage": "A",
+      "establishes": "60 measures were dispatched to the storehouse by the sending institution under a named dispatch authority.",
+      "facts": ["dispatch_qty"],
+      "block_cost": 0
+    },
+    {
+      "id": "E-03",
+      "source": "Arrival tally",
+      "reliability": "primary_record",
+      "visible_in_stage": "A",
+      "establishes": "60 measures were physically unloaded and counted at intake.",
+      "facts": ["received_qty"],
+      "block_cost": 0
+    },
+    {
+      "id": "E-04",
+      "source": "Initial receiving inspection tally (sealed intake record)",
+      "reliability": "primary_record",
+      "visible_in_stage": "A",
+      "establishes": "At intake, 56 measures were classified as usable and 4 as damp and held separately.",
+      "facts": ["intake_usable", "intake_held"],
+      "block_cost": 0
+    },
+    {
+      "id": "E-05",
+      "source": "Issue instruction and recipient acknowledgment",
+      "reliability": "primary_record",
+      "visible_in_stage": "A",
+      "establishes": "30 usable measures were authorized and issued to the brewing-house operation; the representative confirms receipt.",
+      "facts": ["issue_qty"],
+      "block_cost": 0
+    },
+    {
+      "id": "E-06",
+      "source": "Custody and maintenance notes",
+      "reliability": "testimony",
+      "visible_in_stage": "A",
+      "establishes": "A roof leak was reported after intake but before the later recount.",
+      "limits": "Does not establish when moisture spread or who was responsible for the roof condition.",
+      "facts": [],
+      "block_cost": 0
+    },
+    {
+      "id": "E-07",
+      "source": "Current physical recount (witnessed)",
+      "reliability": "physical_inspection",
+      "visible_in_stage": "A",
+      "establishes": "47 measures are still usable and 7 are now damp and held. Since intake, 30 usable measures were issued and 3 more measures changed from usable to held. Remaining physical stock is 54.",
+      "facts": ["recount_usable", "recount_held", "status_change_qty"],
+      "block_cost": 0
+    },
+    {
+      "id": "C1-E01",
+      "source": "Drying inspection",
+      "reliability": "physical_inspection",
+      "visible_in_stage": "C",
+      "test_id": "C-1",
+      "establishes": "5 of the 7 held measures have dried and are usable; 2 remain held.",
+      "facts": ["c1_dried", "c1_remaining_held"],
+      "block_cost": 0
+    },
+    {
+      "id": "C1-E02",
+      "source": "Release authorization",
+      "reliability": "primary_record",
+      "visible_in_stage": "C",
+      "test_id": "C-1",
+      "establishes": "The Steward authorizes the 5 dried measures to return to usable stock.",
+      "facts": ["c1_dried"],
+      "block_cost": 0
+    },
+    {
+      "id": "C2-E01",
+      "source": "Dispatch instruction (second delivery)",
+      "reliability": "primary_record",
+      "visible_in_stage": "C",
+      "test_id": "C-2",
+      "establishes": "A separate dispatch authorizes 20 measures.",
+      "facts": ["c2_dispatch"],
+      "block_cost": 0
+    },
+    {
+      "id": "C2-E02",
+      "source": "Receiving tally (second delivery)",
+      "reliability": "primary_record",
+      "visible_in_stage": "C",
+      "test_id": "C-2",
+      "establishes": "Only 18 measures were physically unloaded.",
+      "facts": ["c2_received"],
+      "block_cost": 0
+    },
+    {
+      "id": "C2-E03",
+      "source": "Custody note (second delivery)",
+      "reliability": "testimony",
+      "visible_in_stage": "C",
+      "test_id": "C-2",
+      "establishes": "No reliable departure-condition or route inspection establishes where the 2-measure discrepancy arose.",
+      "limits": "Does not support blaming the carrier or anyone else.",
+      "facts": [],
+      "block_cost": 0
+    }
+  ],
+  "actions": [
+    {
+      "id": "A-01",
+      "stage": "A",
+      "label": "Retrieve and examine the prior closing-balance tablet",
+      "block_cost": 0,
+      "grants_evidence": ["E-01"],
+      "required_for_stage_completion": true
+    },
+    {
+      "id": "A-02",
+      "stage": "A",
+      "label": "Consult the Carrier Foreman about the dispatch record",
+      "block_cost": 0,
+      "roles": ["carrier_foreman"],
+      "grants_evidence": ["E-02"],
+      "required_for_stage_completion": true
+    },
+    {
+      "id": "A-03",
+      "stage": "A",
+      "label": "Examine the arrival tally and compare it with the dispatch tablet",
+      "block_cost": 0,
+      "prerequisites": ["A-02"],
+      "grants_evidence": ["E-03"],
+      "required_for_stage_completion": true
+    },
+    {
+      "id": "A-04",
+      "stage": "A",
+      "label": "Retrieve the sealed intake record from the Receiving Official",
+      "block_cost": 0,
+      "roles": ["receiving_official"],
+      "grants_evidence": ["E-04"],
+      "required_for_stage_completion": true
+    },
+    {
+      "id": "A-05",
+      "stage": "A",
+      "label": "Conduct the physical recount with the Steward",
+      "block_cost": 0,
+      "roles": ["storehouse_steward"],
+      "prerequisites": ["A-04"],
+      "grants_evidence": ["E-07"],
+      "required_for_stage_completion": true
+    },
+    {
+      "id": "A-06",
+      "stage": "A",
+      "label": "Ask the Steward for custody and maintenance notes",
+      "block_cost": 0,
+      "roles": ["storehouse_steward"],
+      "grants_evidence": ["E-06"],
+      "required_for_stage_completion": false
+    },
+    {
+      "id": "A-07",
+      "stage": "A",
+      "label": "Confirm the issue with the Brewing-House Representative",
+      "block_cost": 0,
+      "roles": ["brewing_house_rep"],
+      "grants_evidence": ["E-05"],
+      "required_for_stage_completion": true
+    },
+    {
+      "id": "B-01",
+      "stage": "B",
+      "label": "Select and configure one register design",
+      "block_cost": 1,
+      "grants_evidence": [],
+      "required_for_stage_completion": true
+    },
+    {
+      "id": "B-02",
+      "stage": "B",
+      "label": "Draft opening balance, receipt, intake condition, later status change and issue entries",
+      "block_cost": 1,
+      "prerequisites": ["B-01"],
+      "grants_evidence": [],
+      "required_for_stage_completion": true
+    },
+    {
+      "id": "B-03",
+      "stage": "B",
+      "label": "Add source references and unresolved-cause notation",
+      "block_cost": 1,
+      "prerequisites": ["B-02"],
+      "grants_evidence": [],
+      "required_for_stage_completion": true
+    },
+    {
+      "id": "B-04",
+      "stage": "B",
+      "label": "Ask the Senior Scribe to review the proposed fields",
+      "block_cost": 1,
+      "roles": ["senior_scribe"],
+      "prerequisites": ["B-01"],
+      "grants_evidence": [],
+      "required_for_stage_completion": true
+    },
+    {
+      "id": "C1-01",
+      "stage": "C",
+      "label": "Retrieve the evidence for Test C-1 (held-stock release)",
+      "block_cost": 0,
+      "test_id": "C-1",
+      "prerequisites": ["B-03"],
+      "grants_evidence": ["C1-E01", "C1-E02"],
+      "required_for_stage_completion": true
+    },
+    {
+      "id": "C1-02",
+      "stage": "C",
+      "label": "Enter Test C-1 in the proposed register",
+      "block_cost": 1,
+      "test_id": "C-1",
+      "prerequisites": ["C1-01"],
+      "grants_evidence": [],
+      "required_for_stage_completion": true
+    },
+    {
+      "id": "C2-01",
+      "stage": "C",
+      "label": "Retrieve the evidence for Test C-2 (short delivery)",
+      "block_cost": 0,
+      "test_id": "C-2",
+      "prerequisites": ["B-03"],
+      "grants_evidence": ["C2-E01", "C2-E02", "C2-E03"],
+      "required_for_stage_completion": true
+    },
+    {
+      "id": "C2-02",
+      "stage": "C",
+      "label": "Enter Test C-2 in the proposed register",
+      "block_cost": 1,
+      "test_id": "C-2",
+      "prerequisites": ["C2-01"],
+      "grants_evidence": [],
+      "required_for_stage_completion": true
+    },
+    {
+      "id": "D-01",
+      "stage": "D",
+      "label": "Run the final audit against all completed test cases",
+      "block_cost": 1,
+      "prerequisites": ["C1-02", "C2-02"],
+      "grants_evidence": [],
+      "required_for_stage_completion": true
+    },
+    {
+      "id": "D-02",
+      "stage": "D",
+      "label": "Ask the Steward and Senior Scribe to review the register",
+      "block_cost": 1,
+      "roles": ["storehouse_steward", "senior_scribe"],
+      "prerequisites": ["D-01"],
+      "grants_evidence": [],
+      "required_for_stage_completion": true
+    },
+    {
+      "id": "D-04",
+      "stage": "D",
+      "label": "Present the register for institutional approval",
+      "block_cost": 1,
+      "prerequisites": ["D-02"],
+      "grants_evidence": [],
+      "required_for_stage_completion": true
+    }
+  ],
+  "stages": [
+    {
+      "id": "A",
+      "name": "Investigate the discrepancy",
+      "objective": "Determine why the current stock condition differs from the intake record.",
+      "deliverable": "A structured finding separating dispatch, physical receipt, intake condition, later condition, issue and current balance.",
+      "completion": {
+        "evidence_all_of": ["E-01", "E-02", "E-03", "E-04", "E-05", "E-07"],
+        "actions_all_of": ["A-01", "A-02", "A-03", "A-04", "A-05", "A-07"]
+      }
+    },
+    {
+      "id": "B",
+      "name": "Design the register",
+      "objective": "Choose a record structure that preserves provenance.",
+      "deliverable": "A draft register preserving condition snapshots.",
+      "completion": {
+        "actions_all_of": ["B-01", "B-02", "B-03", "B-04"]
+      }
+    },
+    {
+      "id": "C",
+      "name": "Test the register against unseen transactions",
+      "objective": "Prove the structure works beyond the example.",
+      "deliverable": "Both test transactions entered and passed.",
+      "completion": {
+        "evidence_all_of": ["C1-E01", "C1-E02", "C2-E01", "C2-E02", "C2-E03"],
+        "actions_all_of": ["C1-01", "C1-02", "C2-01", "C2-02"]
+      }
+    },
+    {
+      "id": "D",
+      "name": "Audit, revise and obtain adoption",
+      "objective": "Secure a documented institutional decision.",
+      "deliverable": "A tested register and recorded adoption decision.",
+      "completion": {
+        "actions_all_of": ["D-01", "D-02", "D-04"]
+      }
+    }
+  ],
+  "design_choices": [
+    {
+      "id": "compact",
+      "label": "Compact balance register",
+      "time_cost": 1,
+      "strength": "Fast to enter; records opening balance, receipt, totals, issue, and closing balance.",
+      "limitation": "Status changes need notes.",
+      "handles_cases": ["C-1", "C-2"]
+    },
+    {
+      "id": "ledger",
+      "label": "Movement ledger",
+      "time_cost": 2,
+      "strength": "Each movement or status change is a dated, sourced line with quantity, status, and authority.",
+      "limitation": "Takes longer to establish.",
+      "handles_cases": ["C-1", "C-2"]
+    }
+  ],
+  "cases": [
+    {
+      "id": "C-1",
+      "label": "Release of held stock",
+      "capability": "Record a status transfer without inventing a new receipt.",
+      "evidence": ["C1-E01", "C1-E02"],
+      "expected": { "held_to_usable": 5, "still_held": 2, "total_stock_change": 0 }
+    },
+    {
+      "id": "C-2",
+      "label": "Short delivery",
+      "capability": "Keep dispatch quantity distinct from physical receipt.",
+      "evidence": ["C2-E01", "C2-E02", "C2-E03"],
+      "expected": { "dispatched": 20, "received": 18, "discrepancy": 2, "discrepancy_status": "pending inquiry" }
+    }
+  ],
+  "invariants": [
+    { "id": "INV-01", "kind": "arithmetic", "lhs": "dispatch_qty", "op": "==", "rhs": "received_qty" },
+    { "id": "INV-02", "kind": "arithmetic", "lhs": "intake_usable + intake_held", "op": "==", "rhs": "received_qty" },
+    { "id": "INV-03", "kind": "arithmetic", "lhs": "recount_usable + recount_held", "op": "==", "rhs": "opening_usable + received_qty - issue_qty" },
+    { "id": "INV-04", "kind": "arithmetic", "lhs": "intake_held + status_change_qty", "op": "==", "rhs": "recount_held" },
+    { "id": "INV-05", "kind": "arithmetic", "lhs": "opening_usable + intake_usable - issue_qty - status_change_qty", "op": "==", "rhs": "recount_usable" }
+  ],
+  "deliverable": {
+    "title": "Storehouse Register Entry",
+    "provenance_rules": ["Every material quantity must cite an arrival or dispatch evidence ID.", "Condition changes must be logged separately from receipts."]
+  }
+}

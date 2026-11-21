@@ -1,6 +1,6 @@
 import { PlayerProfile, Assignment, EvidenceItem, NpcRelation } from '../types';
 
-export const initialPlayer: PlayerProfile = {
+export const createInitialPlayer = (): PlayerProfile => ({
   name: 'Enlil-barni',
   title: 'Apprentice Scribe',
   era: 'era-1',
@@ -18,9 +18,9 @@ export const initialPlayer: PlayerProfile = {
   currentBlock: 1,
   blocksRemaining: 4,
   workingLate: false,
-};
+});
 
-export const initialAssignments: Assignment[] = [
+export const createInitialAssignments = (): Assignment[] => [
   {
     id: 'asgn-01',
     title: 'Temple Granary Tally Reconciliation',
@@ -56,10 +56,10 @@ export const initialAssignments: Assignment[] = [
     blockCost: 2,
     daysRemaining: 3,
     status: 'available',
-  }
+  },
 ];
 
-export const storehouseEvidence: EvidenceItem[] = [
+export const createStorehouseEvidence = (): EvidenceItem[] => [
   {
     id: 'ev-01',
     code: 'E-01',
@@ -67,7 +67,7 @@ export const storehouseEvidence: EvidenceItem[] = [
     source: 'Temple Archive (Signed by Senior Scribe)',
     content: 'The storehouse began the accounting period with exactly 24 usable standard institutional measures of clean barley.',
     examined: false,
-    blockCost: 0, // Free thinking
+    blockCost: 0,
   },
   {
     id: 'ev-02',
@@ -125,7 +125,7 @@ export const storehouseEvidence: EvidenceItem[] = [
   },
 ];
 
-export const testCaseC1: EvidenceItem = {
+export const createTestCaseC1 = (): EvidenceItem => ({
   id: 'test-c1',
   code: 'C1',
   title: 'Test C-1: Release of Held Stock',
@@ -133,9 +133,9 @@ export const testCaseC1: EvidenceItem = {
   content: 'Subsequent drying inspection establishes that 5 of the 7 held measures have dried and returned to usable condition; 2 remain held. Steward authorizes return to usable balance without new receipt.',
   examined: false,
   blockCost: 0,
-};
+});
 
-export const testCaseC2: EvidenceItem = {
+export const createTestCaseC2 = (): EvidenceItem => ({
   id: 'test-c2',
   code: 'C2',
   title: 'Test C-2: Short Delivery Discrepancy',
@@ -143,9 +143,9 @@ export const testCaseC2: EvidenceItem = {
   content: 'A separate dispatch authorized 20 measures, but physical unloading counted only 18 measures. No departure or route inspection establishes where the 2-measure shortage arose.',
   examined: false,
   blockCost: 0,
-};
+});
 
-export const initialNpcs: NpcRelation[] = [
+export const createInitialNpcs = (): NpcRelation[] => [
   {
     id: 'npc-senior-scribe',
     name: 'Shuruppak-ilu',
@@ -192,3 +192,11 @@ export const initialNpcs: NpcRelation[] = [
     dialogueUnlocked: true,
   },
 ];
+
+// Backward-compatibility aliases (using factory functions or frozen clones if needed, or keeping them as factory calls)
+export const initialPlayer = createInitialPlayer();
+export const initialAssignments = createInitialAssignments();
+export const storehouseEvidence = createStorehouseEvidence();
+export const testCaseC1 = createTestCaseC1();
+export const testCaseC2 = createTestCaseC2();
+export const initialNpcs = createInitialNpcs();

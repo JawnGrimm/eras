@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StorehouseWorkState, EvidenceItem, PlayerProfile, NpcRelation } from '../types';
-import { storehouseEvidence, testCaseC1, testCaseC2, initialNpcs } from '../data/initialData';
+import { createStorehouseEvidence, createTestCaseC1, createTestCaseC2, createInitialNpcs } from '../data/initialData';
 import { ShieldCheck, BookOpen, CheckCircle2, AlertCircle, ArrowRight, FileText, Scale, Zap, Users, Clock } from 'lucide-react';
 
 interface StorehouseReckoningProps {
@@ -21,15 +21,15 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
   onShowToast,
 }) => {
   const [evidenceList, setEvidenceList] = useState<EvidenceItem[]>(() => {
-    return storehouseEvidence.map((e) => ({
+    return createStorehouseEvidence().map((e) => ({
       ...e,
       examined: workState.examinedEvidence.includes(e.id),
     }));
   });
   const [selectedEvidence, setSelectedEvidence] = useState<EvidenceItem | null>(null);
-  const [testC1, setTestC1] = useState<EvidenceItem>(testCaseC1);
-  const [testC2, setTestC2] = useState<EvidenceItem>(testCaseC2);
-  const [npcs] = useState<NpcRelation[]>(initialNpcs);
+  const [testC1, setTestC1] = useState<EvidenceItem>(createTestCaseC1());
+  const [testC2, setTestC2] = useState<EvidenceItem>(createTestCaseC2());
+  const [npcs] = useState<NpcRelation[]>(createInitialNpcs());
   const [activeNpc, setActiveNpc] = useState<NpcRelation | null>(null);
 
   // Register construction state for Stage B

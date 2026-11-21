@@ -58,6 +58,16 @@ export const Header: React.FC<HeaderProps> = ({
             Commissions
           </button>
           <button
+            onClick={() => setActiveTab('journal')}
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all whitespace-nowrap shrink-0 ${
+              activeTab === 'journal'
+                ? 'bg-white dark:bg-stone-800 text-[#2B1B17] dark:text-stone-100 shadow-sm font-semibold'
+                : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
+            }`}
+          >
+            Career & Challenges
+          </button>
+          <button
             onClick={() => setActiveTab('work')}
             className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all whitespace-nowrap shrink-0 relative ${
               activeTab === 'work'

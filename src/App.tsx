@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { PlayerProfile, Assignment, StorehouseWorkState } from './types';
-import { initialPlayer, initialAssignments } from './data/initialData';
+import { createInitialPlayer, createInitialAssignments } from './data/initialData';
+import { CareerLogEntry, createCareerLog, appendCareerLogEntry } from './engine/CareerWorkLog';
+import { ChallengeOpportunity, createInitialChallenges, evaluateChallenges } from './engine/ChallengeDirector';
+import { ProfessionalReputation, createInitialReputation } from './engine/CharacterSystem';
 import { Header } from './components/Header';
 import { WorkdayHub } from './components/WorkdayHub';
 import { AssignmentBoard } from './components/AssignmentBoard';
 import { StorehouseReckoning } from './components/StorehouseReckoning';
+import { CareerJournalModal } from './components/CareerJournalModal';
 import { CodexModal } from './components/CodexModal';
 import { CheckCircle2, X } from 'lucide-react';
 
@@ -24,7 +28,7 @@ export default function App() {
       }
       return parsed;
     }
-    return initialPlayer;
+    return createInitialPlayer();
   });
 
   const [assignments, setAssignments] = useState<Assignment[]>(() => {
@@ -36,7 +40,22 @@ export default function App() {
         blockCost: a.blockCost !== undefined ? a.blockCost : (a.apCost ? Math.ceil(a.apCost / 2) : 1),
       }));
     }
-    return initialAssignments;
+    return createInitialAssignments();
+  });
+
+  const [workLog, setWorkLog] = useState<CareerLogEntry[]>(() => {
+    const saved = localStorage.getItem('scribe_worklog');
+    return saved ? JSON.parse(saved) : createCareerLog();
+  });
+
+  const [challenges, setChallenges] = useState<ChallengeOpportunity[]>(() => {
+    const saved = localStorage.getItem('scribe_challenges');
+    return saved ? JSON.parse(saved) : createInitialChallenges();
+  });
+
+  const [reputation, setReputation] = useState<ProfessionalReputation>(() => {
+    const saved = localStorage.getItem('scribe_reputation');
+    return saved ? JSON.parse(saved) : createInitialReputation();
   });
 
   const [workState, setWorkState] = useState<StorehouseWorkState>(() => {
@@ -77,6 +96,18 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('scribe_workstate', JSON.stringify(workState));
   }, [workState]);
+
+  useEffect(() => {
+    localStorage.setItem('scribe_worklog', JSON.stringify(workLog));
+  }, [workLog]);
+
+  useEffect(() => {
+    localStorage.setItem('scribe_challenges', JSON.stringify(challenges));
+  }, [challenges]);
+
+  useEffect(() => {
+    localStorage.setItem('scribe_reputation', JSON.stringify(reputation));
+  }, [reputation]);
 
   const handleConsumeBlocks = (amount: number) => {
     setPlayer((prev) => {
@@ -148,7 +179,69 @@ export default function App() {
       silver: prev.silver + assignment.rewardSilver,
     }));
     handleAwardXp(assignment.rewardCareerXp, 0);
-    showToast(`Commission completed! Earned +${assignment.rewardSilver} silver and +${assignment.rewardCareerXp} Career XP.`);
+
+    // Append immutable entry to Career Work Log
+    const newLog = appendCareerLogEntry(workLog, {
+      assignmentId: assignment.id,
+      title: assignment.title,
+      employer: assignment.employer,
+      npcsInvolved: [assignment.employer.split(' ')[0]],
+      commodity: assignment.title.toLowerCase().includes('wool') ? 'Wool' : assignment.title.toLowerCase().includes('barley') ? 'Barley' : 'Silver/General',
+      documentType: 'Certified Reed-Stylus Clay Tablet',
+      location: 'E-anna District Scriptorium',
+      category: assignment.tier,
+      activity: assignment.description,
+      decisionsMade: ['Verified quantities against official seal', 'Certified document in canonical script'],
+      outcome: 'Successfully audited and sealed. Commission accepted by employer.',
+      silverEarned: assignment.rewardSilver,
+      careerXpEarned: assignment.rewardCareerXp,
+      dateString: player.dateString,
+      dayNumber: player.currentDay,
+      characterName: player.name,
+    });
+    setWorkLog(newLog);
+
+    // Evaluate Challenge Director for emergent narrative opportunities
+    const updatedChallenges = evaluateChallenges(challenges, newLog, player.currentDay);
+    setChallenges(updatedChallenges);
+    const newlyOffered = updatedChallenges.some((c, idx) => c.status === 'offered' && challenges[idx].status === 'candidate');
+    if (newlyOffered) {
+      showToast('New emergent challenge unlocked in Career & Challenges based on your professional history!');
+    } else {
+      showToast(`Commission completed! Earned +${assignment.rewardSilver} silver and +${assignment.rewardCareerXp} Career XP.`);
+    }
+  };
+
+  const handleAcceptChallenge = (id: string) => {
+    setChallenges((prev) => prev.map((c) => (c.id === id ? { ...c, status: 'accepted' } : c)));
+    showToast('Emergent challenge accepted. Review requirements and allocate time blocks.');
+  };
+
+  const handleCompleteChallenge = (id: string) => {
+    const chal = challenges.find((c) => c.id === id);
+    if (!chal) return;
+    if (player.blocksRemaining < chal.blockCost) {
+      showToast('Not enough time blocks remaining today to complete this challenge.');
+      return;
+    }
+    handleConsumeBlocks(chal.blockCost);
+    setChallenges((prev) => prev.map((c) => (c.id === id ? { ...c, status: 'completed' } : c)));
+    setPlayer((prev) => ({
+      ...prev,
+      silver: prev.silver + chal.rewardSilver,
+    }));
+    handleAwardXp(chal.rewardCareerXp, 500);
+    setReputation((prev) => ({
+      ...prev,
+      competence: Math.min(100, prev.competence + 5),
+      judgment: Math.min(100, prev.judgment + 5),
+    }));
+    showToast(`Challenge successfully resolved! +${chal.rewardSilver} silver, +${chal.rewardCareerXp} Career XP, and reputation increased.`);
+  };
+
+  const handleDeclineChallenge = (id: string) => {
+    setChallenges((prev) => prev.map((c) => (c.id === id ? { ...c, status: 'declined' } : c)));
+    showToast('Challenge opportunity declined and archived.');
   };
 
   const handleCancelAssignment = (id: string) => {
@@ -219,8 +312,11 @@ export default function App() {
 
   const handleResetGame = () => {
     localStorage.clear();
-    setPlayer(initialPlayer);
-    setAssignments(initialAssignments);
+    setPlayer(createInitialPlayer());
+    setAssignments(createInitialAssignments());
+    setWorkLog(createCareerLog());
+    setChallenges(createInitialChallenges());
+    setReputation(createInitialReputation());
     setWorkState({
       stage: 'A_INVESTIGATE',
       examinedEvidence: [],
@@ -276,6 +372,16 @@ export default function App() {
             onAcceptAssignment={handleAcceptAssignment}
             onCompleteAssignment={handleCompleteAssignment}
             onCancelAssignment={handleCancelAssignment}
+          />
+        )}
+        {activeTab === 'journal' && (
+          <CareerJournalModal
+            workLog={workLog}
+            challenges={challenges}
+            reputation={reputation}
+            onAcceptChallenge={handleAcceptChallenge}
+            onCompleteChallenge={handleCompleteChallenge}
+            onDeclineChallenge={handleDeclineChallenge}
           />
         )}
         {activeTab === 'work' && (

@@ -60,7 +60,7 @@ export interface StorehouseWorkState {
   testC2Passed: boolean; // Short delivery
   auditCompleted: boolean;
   adopted: boolean;
-  adoptionType: 'movement_ledger' | 'compact_balance' | 'provisional' | 'rejected' | null;
+  adoptionType: RegisterDesignType | 'provisional' | 'rejected' | null;
 }
 
 export interface NpcRelation {
