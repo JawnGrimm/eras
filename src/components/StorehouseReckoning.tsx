@@ -182,6 +182,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
     const entered = isC1 ? state.c1EntryRecorded : state.c2EntryRecorded;
     const ruling = isC1 ? state.c1Ruling : state.c2Ruling;
     const supplemental = isC1 ? state.c1SupplementAdded : state.c2SupplementAdded;
+    const testSources = isC1 ? (state.c1Sources ?? []) : (state.c2Sources ?? []);
     if (!retrieved || !entered) {
       onShowToast('Retrieve the evidence and enter the transaction before auditing it.');
       return;
@@ -191,8 +192,8 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
       return;
     }
     const valid = isC1
-      ? ruling === 'status_transfer' && state.c1Record?.transferred === 5 && state.c1Record?.heldRemaining === 2 && state.c1Record?.totalStockChange === 0 && state.c1Record.transferred + state.c1Record.heldRemaining === 7
-      : ruling === 'discrepancy_pending' && state.c2Record?.dispatched === 20 && state.c2Record?.received === 18 && state.c2Record?.discrepancy === 2 && state.c2Record.dispatched - state.c2Record.received === state.c2Record.discrepancy;
+      ? ruling === 'status_transfer' && state.c1Record?.transferred === 5 && state.c1Record?.heldRemaining === 2 && state.c1Record?.totalStockChange === 0 && state.c1Record.transferred + state.c1Record.heldRemaining === 7 && ['C1-E01','C1-E02'].every((id) => testSources.includes(id))
+      : ruling === 'discrepancy_pending' && state.c2Record?.dispatched === 20 && state.c2Record?.received === 18 && state.c2Record?.discrepancy === 2 && state.c2Record.dispatched - state.c2Record.received === state.c2Record.discrepancy && ['C2-E01','C2-E02','C2-E03'].every((id) => testSources.includes(id));
     const count = (isC1 ? state.c1AuditAttempts : state.c2AuditAttempts) ?? 0;
     commit('Audit test ' + which.toUpperCase(), 1,
       isC1
@@ -488,6 +489,9 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
                 <label className="flex gap-2"><input type="radio" name="c1" disabled={state.c1EntryRecorded || state.testC1Passed} checked={state.c1Ruling === 'status_transfer'} onChange={() => onUpdateWorkState({c1Ruling:'status_transfer',c1EntryRecorded:false,testC1Passed:false})}/> Record 5 transferred from held to usable; no new receipt.</label>
                 <label className="flex gap-2"><input type="radio" name="c1" disabled={state.c1EntryRecorded || state.testC1Passed} checked={state.c1Ruling === 'new_receipt'} onChange={() => onUpdateWorkState({c1Ruling:'new_receipt',c1EntryRecorded:false,testC1Passed:false})}/> Record 5 as a new receipt.</label>
               </div>
+              <div className="flex flex-wrap gap-3 text-xs">
+                {['C1-E01','C1-E02'].map((id) => <label key={id} className="flex gap-1"><input type="checkbox" disabled={state.c1EntryRecorded || state.testC1Passed} checked={(state.c1Sources ?? []).includes(id)} onChange={(event) => onUpdateWorkState({c1Sources:event.target.checked ? [...(state.c1Sources ?? []),id] : (state.c1Sources ?? []).filter((item) => item !== id)})}/>{id}</label>)}
+              </div>
               <div className="grid grid-cols-3 gap-2">
                 {([
                   ['transferred','Returned to usable'],
@@ -510,6 +514,9 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
                 <label className="flex gap-2"><input type="radio" name="c2" disabled={state.c2EntryRecorded || state.testC2Passed} checked={state.c2Ruling === 'discrepancy_pending'} onChange={() => onUpdateWorkState({c2Ruling:'discrepancy_pending',c2EntryRecorded:false,testC2Passed:false})}/> Record 20 dispatched, 18 received, 2 pending inquiry; no blame assigned.</label>
                 <label className="flex gap-2"><input type="radio" name="c2" disabled={state.c2EntryRecorded || state.testC2Passed} checked={state.c2Ruling === 'full_receipt'} onChange={() => onUpdateWorkState({c2Ruling:'full_receipt',c2EntryRecorded:false,testC2Passed:false})}/> Record all 20 as received.</label>
                 <label className="flex gap-2"><input type="radio" name="c2" disabled={state.c2EntryRecorded || state.testC2Passed} checked={state.c2Ruling === 'carrier_at_fault'} onChange={() => onUpdateWorkState({c2Ruling:'carrier_at_fault',c2EntryRecorded:false,testC2Passed:false})}/> Assign the 2-measure shortage to the carrier.</label>
+              </div>
+              <div className="flex flex-wrap gap-3 text-xs">
+                {['C2-E01','C2-E02','C2-E03'].map((id) => <label key={id} className="flex gap-1"><input type="checkbox" disabled={state.c2EntryRecorded || state.testC2Passed} checked={(state.c2Sources ?? []).includes(id)} onChange={(event) => onUpdateWorkState({c2Sources:event.target.checked ? [...(state.c2Sources ?? []),id] : (state.c2Sources ?? []).filter((item) => item !== id)})}/>{id}</label>)}
               </div>
               <div className="grid grid-cols-3 gap-2">
                 {([
