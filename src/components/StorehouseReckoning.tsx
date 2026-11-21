@@ -214,9 +214,9 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
     const isC1 = which === 'c1';
     commit('Revise test ' + which.toUpperCase() + ' entry', 1,
       isC1
-        ? { c1Ruling: 'status_transfer', c1Record: { transferred: 5, heldRemaining: 2, totalStockChange: 0 }, c1EntryRecorded: true, testC1Passed: false, c1AuditAttempts: 0, revisionPasses: (state.revisionPasses ?? 0) + 1 }
-        : { c2Ruling: 'discrepancy_pending', c2Record: { dispatched: 20, received: 18, discrepancy: 2 }, c2EntryRecorded: true, testC2Passed: false, c2AuditAttempts: 0, revisionPasses: (state.revisionPasses ?? 0) + 1 },
-      'The entry has been corrected and must be audited again.');
+        ? { c1EntryRecorded: false, testC1Passed: false, c1AuditAttempts: 0, revisionPasses: (state.revisionPasses ?? 0) + 1 }
+        : { c2EntryRecorded: false, testC2Passed: false, c2AuditAttempts: 0, revisionPasses: (state.revisionPasses ?? 0) + 1 },
+      'The entry is reopened for correction. Edit its values and ruling, then enter and audit it again.');
   };
 
   const finalAudit = () => {
@@ -246,11 +246,17 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
       status_history: 'Added a linked movement-history field for stock-status changes.',
       responsibility: 'Added an explicit responsibility and unresolved-cause qualification.',
     };
+    const enhancements = state.registerEnhancements ?? [];
+    if (enhancements.includes(state.revisionFocus)) {
+      onShowToast('That register enhancement has already been applied.');
+      return;
+    }
     commit('Revise register: ' + descriptions[state.revisionFocus], 1,
-      { revisionApplied: true, finalAuditPassed: false, auditCompleted: false,
-        institutionalReviewCompleted: false, presentationCompleted: false,
+      { registerEnhancements: [...enhancements, state.revisionFocus], revisionApplied: true,
+        finalAuditPassed: false, auditCompleted: false, institutionalReviewCompleted: false,
+        presentationCompleted: false, adopted: false, adoptionType: null,
         revisionPasses: (state.revisionPasses ?? 0) + 1 },
-      'The selected register field has been added. Run the final audit and institutional review again.');
+      'The selected field has been added to the register schema. Run the final audit and institutional review again.');
   };
 
   const present = (decision: 'full' | 'provisional' | 'decline') => {
@@ -552,11 +558,11 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
               ['status_history','Add linked stock-status movement history'],
               ['responsibility','Clarify responsibility and unresolved-cause notation'],
             ] as const).map(([value,label]) => <label key={value} className="flex gap-2 text-xs">
-              <input type="radio" name="revisionFocus" checked={state.revisionFocus === value} onChange={() => onUpdateWorkState({revisionFocus:value})}/>
+              <input type="radio" name="revisionFocus" disabled={(state.registerEnhancements ?? []).includes(value)} checked={state.revisionFocus === value} onChange={() => onUpdateWorkState({revisionFocus:value})}/>
               <span>{label}</span>
             </label>)}
-            <button disabled={!state.revisionFocus || !canAct(1)} onClick={reviseRegister} className="px-3 py-2 rounded-lg border text-xs disabled:opacity-40">Apply revision · 1 AP</button>
-            {state.revisionApplied && <p className="text-xs text-emerald-600">Revision applied: {state.revisionFocus === 'dispatch_receipt' ? 'dispatch / receipt references' : state.revisionFocus === 'status_history' ? 'stock-status history' : 'responsibility qualification'}.</p>}
+            <button disabled={!state.revisionFocus || (state.registerEnhancements ?? []).includes(state.revisionFocus) || (!state.finalAuditPassed && state.adoptionType !== 'rejected') || !canAct(1)} onClick={reviseRegister} className="px-3 py-2 rounded-lg border text-xs disabled:opacity-40">Apply revision · 1 AP</button>
+            {(state.registerEnhancements ?? []).length > 0 && <p className="text-xs text-emerald-600">Register enhancements: {(state.registerEnhancements ?? []).map((item) => item === 'dispatch_receipt' ? 'dispatch/receipt references' : item === 'status_history' ? 'stock-status history' : 'responsibility qualification').join('; ')}.</p>}
           </div>
           <div className="border-t border-stone-200 dark:border-stone-700 pt-4 space-y-3">
             <h4 className="font-semibold text-sm">Present for institutional decision · 1 AP</h4>
