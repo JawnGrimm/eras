@@ -178,7 +178,7 @@ export default function App() {
     if (!assignment) return;
 
     if (player.blocksRemaining < assignment.blockCost) {
-      showToast('Not enough time blocks remaining today to complete this commission.');
+      showToast('Not enough AP remaining today to complete this commission.');
       return;
     }
 
@@ -231,14 +231,14 @@ export default function App() {
     if (!challenge || challenge.status !== 'offered') return;
 
     setChallenges((prev) => prev.map((c) => (c.id === id ? { ...c, status: 'accepted' } : c)));
-    showToast('Emergent challenge accepted. Review requirements and allocate time blocks.');
+    showToast('Emergent challenge accepted. Review requirements and allocate AP.');
   };
 
   const handleCompleteChallenge = (id: string) => {
     const chal = challenges.find((c) => c.id === id);
     if (!chal || chal.status !== 'accepted') return;
     if (player.blocksRemaining < chal.blockCost) {
-      showToast('Not enough time blocks remaining today to complete this challenge.');
+      showToast('Not enough AP remaining today to complete this challenge.');
       return;
     }
     handleConsumeBlocks(chal.blockCost);
@@ -272,7 +272,7 @@ export default function App() {
 
   const handleCancelAssignment = (id: string) => {
     if (player.blocksRemaining < 1) {
-      showToast('Not enough time blocks to process cancellation.');
+      showToast('Not enough AP to process cancellation.');
       return;
     }
     handleConsumeBlocks(1);
@@ -284,7 +284,7 @@ export default function App() {
 
   const handleStudy = () => {
     if (player.blocksRemaining < 1) {
-      showToast('Not enough time blocks remaining today.');
+      showToast('Not enough AP remaining today.');
       return;
     }
     handleConsumeBlocks(1);
@@ -294,7 +294,7 @@ export default function App() {
 
   const handleRest = () => {
     if (player.blocksRemaining < 1) {
-      showToast('Not enough time blocks remaining today.');
+      showToast('Not enough AP remaining today.');
       return;
     }
     handleConsumeBlocks(1);
@@ -307,7 +307,7 @@ export default function App() {
 
   const handleWorkLate = () => {
     if (player.workingLate) {
-      showToast('You have already worked overtime today. Tomorrow morning block 1 will be skipped.');
+      showToast('You have already worked overtime today. Tomorrow morning first AP will be skipped.');
       return;
     }
 
@@ -322,7 +322,7 @@ export default function App() {
         currentBlock: Math.min(7, prev.currentBlock + 1),
       };
     });
-    showToast('Worked late into the night. +5% Stress gained. Tomorrow morning block 1 will be skipped.');
+    showToast('Worked late into the night. +5% Stress gained. Tomorrow morning first AP will be skipped.');
   };
 
   const handleEndDay = () => {
