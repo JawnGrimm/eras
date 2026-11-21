@@ -77,16 +77,10 @@ export interface WorkDefinition {
 }
 
 /**
- * Calendar & Time Blocks Engine
+ * Workday Action Point position helper.
  */
-export function getBlockName(block: number): string {
-  switch (block) {
-    case 1: return 'Morning (1/4)';
-    case 2: return 'Midday (2/4)';
-    case 3: return 'Afternoon (3/4)';
-    case 4: return 'Evening (4/4)';
-    default: return 'Night';
-  }
+export function getActionPointLabel(actionPoint: number): string {
+  return `Action ${Math.max(1, Math.min(6, actionPoint))} of 6`;
 }
 
 /**
