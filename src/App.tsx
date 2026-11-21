@@ -105,6 +105,11 @@ export default function App() {
     localStorage.setItem('scribe_challenges', JSON.stringify(challenges));
   }, [challenges]);
 
+  // Remove the temporary event-by-event Challenge journal from earlier builds.
+  useEffect(() => {
+    localStorage.removeItem('scribe_journal_events');
+  }, []);
+
   useEffect(() => {
     localStorage.setItem('scribe_reputation', JSON.stringify(reputation));
   }, [reputation]);
