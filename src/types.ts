@@ -102,6 +102,7 @@ export interface StorehouseWorkState {
   c2Ruling?: 'discrepancy_pending' | 'full_receipt' | 'carrier_at_fault' | null;
   c2Record?: { dispatched?: number; received?: number; discrepancy?: number };
   c2Sources?: string[];
+  c2ReaderConsulted?: boolean;
   c2SupplementAdded?: boolean;
   c2AuditAttempts?: number;
   finalAuditPassed?: boolean;
