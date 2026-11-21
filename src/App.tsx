@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { PlayerProfile, Assignment, StorehouseWorkState } from './types';
 import { createInitialPlayer, createInitialAssignments } from './data/initialData';
 import { CareerLogEntry, createCareerLog, appendCareerLogEntry } from './engine/CareerWorkLog';
+import { CareerJournalEvent, CareerJournalEventType, createCareerJournal, appendCareerJournalEvent } from './engine/CareerJournal';
 import { ChallengeOpportunity, createInitialChallenges, evaluateChallenges } from './engine/ChallengeDirector';
 import { ProfessionalReputation, createInitialReputation } from './engine/CharacterSystem';
 import { Header } from './components/Header';
@@ -46,6 +47,11 @@ export default function App() {
   const [workLog, setWorkLog] = useState<CareerLogEntry[]>(() => {
     const saved = localStorage.getItem('scribe_worklog');
     return saved ? JSON.parse(saved) : createCareerLog();
+  });
+
+  const [journalEvents, setJournalEvents] = useState<CareerJournalEvent[]>(() => {
+    const saved = localStorage.getItem('scribe_journal_events');
+    return saved ? JSON.parse(saved) : createCareerJournal();
   });
 
   const [challenges, setChallenges] = useState<ChallengeOpportunity[]>(() => {
@@ -100,6 +106,10 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('scribe_worklog', JSON.stringify(workLog));
   }, [workLog]);
+
+  useEffect(() => {
+    localStorage.setItem('scribe_journal_events', JSON.stringify(journalEvents));
+  }, [journalEvents]);
 
   useEffect(() => {
     localStorage.setItem('scribe_challenges', JSON.stringify(challenges));
@@ -204,22 +214,57 @@ export default function App() {
     // Evaluate Challenge Director for emergent narrative opportunities
     const updatedChallenges = evaluateChallenges(challenges, newLog, player.currentDay);
     setChallenges(updatedChallenges);
-    const newlyOffered = updatedChallenges.some((c, idx) => c.status === 'offered' && challenges[idx].status === 'candidate');
-    if (newlyOffered) {
+    const newlyOfferedChallenges = updatedChallenges.filter(
+      (challenge, idx) => challenge.status === 'offered' && challenges[idx]?.status === 'candidate'
+    );
+    newlyOfferedChallenges.forEach((challenge) => {
+      recordChallengeEvent(
+        challenge,
+        'challenge_offered',
+        'Your professional history brought this challenge to your attention.',
+      );
+    });
+    if (newlyOfferedChallenges.length > 0) {
       showToast('New emergent challenge unlocked in Career & Challenges based on your professional history!');
     } else {
       showToast(`Commission completed! Earned +${assignment.rewardSilver} silver and +${assignment.rewardCareerXp} Career XP.`);
     }
   };
 
+  const recordChallengeEvent = (
+    challenge: ChallengeOpportunity,
+    eventType: CareerJournalEventType,
+    outcome: string,
+    silverEarned = 0,
+    careerXpEarned = 0,
+  ) => {
+    setJournalEvents((prev) => appendCareerJournalEvent(prev, {
+      eventType,
+      challengeId: challenge.id,
+      title: challenge.title,
+      employer: challenge.employer,
+      description: challenge.description,
+      outcome,
+      dayNumber: player.currentDay,
+      dateString: player.dateString,
+      characterName: player.name,
+      silverEarned,
+      careerXpEarned,
+    }));
+  };
+
   const handleAcceptChallenge = (id: string) => {
+    const challenge = challenges.find((c) => c.id === id);
+    if (!challenge || challenge.status !== 'offered') return;
+
     setChallenges((prev) => prev.map((c) => (c.id === id ? { ...c, status: 'accepted' } : c)));
+    recordChallengeEvent(challenge, 'challenge_accepted', 'You accepted this challenge and took responsibility for resolving it.');
     showToast('Emergent challenge accepted. Review requirements and allocate time blocks.');
   };
 
   const handleCompleteChallenge = (id: string) => {
     const chal = challenges.find((c) => c.id === id);
-    if (!chal) return;
+    if (!chal || chal.status !== 'accepted') return;
     if (player.blocksRemaining < chal.blockCost) {
       showToast('Not enough time blocks remaining today to complete this challenge.');
       return;
@@ -236,11 +281,22 @@ export default function App() {
       competence: Math.min(100, prev.competence + 5),
       judgment: Math.min(100, prev.judgment + 5),
     }));
+    recordChallengeEvent(
+      chal,
+      'challenge_completed',
+      chal.narrativeOutcome || 'You resolved the challenge and completed the undertaking.',
+      chal.rewardSilver,
+      chal.rewardCareerXp,
+    );
     showToast(`Challenge successfully resolved! +${chal.rewardSilver} silver, +${chal.rewardCareerXp} Career XP, and reputation increased.`);
   };
 
   const handleDeclineChallenge = (id: string) => {
+    const challenge = challenges.find((c) => c.id === id);
+    if (!challenge || challenge.status !== 'offered') return;
+
     setChallenges((prev) => prev.map((c) => (c.id === id ? { ...c, status: 'declined' } : c)));
+    recordChallengeEvent(challenge, 'challenge_declined', 'You declined this challenge. The decision has been retained in your career record.');
     showToast('Challenge opportunity declined and archived.');
   };
 
@@ -324,6 +380,7 @@ export default function App() {
     setPlayer(createInitialPlayer());
     setAssignments(createInitialAssignments());
     setWorkLog(createCareerLog());
+    setJournalEvents(createCareerJournal());
     setChallenges(createInitialChallenges());
     setReputation(createInitialReputation());
     setWorkState({
@@ -386,6 +443,7 @@ export default function App() {
         {activeTab === 'journal' && (
           <CareerJournalModal
             workLog={workLog}
+            journalEvents={journalEvents}
             challenges={challenges}
             reputation={reputation}
             onAcceptChallenge={handleAcceptChallenge}
