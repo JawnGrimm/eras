@@ -337,6 +337,8 @@ An expired or declined offer may contribute to a later Challenge only when the u
 
 Study, mentorship, rest, relationship visits, family responsibilities, and preparation use the same daily AP budget when they require meaningful time. There is no separate unlimited evening action phase. This prevents the player from completing every available activity and then receiving all benefits without trade-offs.
 
+Overtime is an end-of-day option, not an activity available during normal AP allocation. It may be offered only after the player has spent all six daily Action Points, before the day is settled. The interface and action handler must both enforce this condition.
+
 The established study reward of 15 Career XP once per day remains provisional. It must be rebalanced against the AP cost and actual Career XP earned through Assignments, Challenges, and Works before rank pacing is considered final.
 
 ### 6.5 Ending the day
