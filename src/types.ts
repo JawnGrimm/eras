@@ -84,6 +84,7 @@ export interface StorehouseWorkState {
     issuePurpose?: 'brewing_operation' | 'unknown';
     recordLocation?: 'central_storehouse' | 'unknown';
     responsibleRecorder?: 'apprentice_under_senior_scribe' | 'unknown';
+    recordSequence?: 'opening_dispatch_intake_issue_recount' | 'unknown';
   };
   sourceReferences?: string[];
   sourceNotationAdded?: boolean;
