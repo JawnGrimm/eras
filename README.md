@@ -14,7 +14,7 @@ The GDD is the canonical design reference for this repository. The current appli
 - **Challenges** are optional narrative scenarios. They may award Career XP and scenario-specific consequences, but never Historical Progress XP.
 - **Works** are mandatory, substantial historical undertakings and the sole ordinary source of Historical Progress XP.
 - The player's personal economy has exactly three resources: **silver, bread, and beer**. Grain is a world and institutional commodity, not a personal player resource.
-- The GDD currently specifies **six shared Action Points per Workday**. The existing prototype still displays four Time Blocks; that discrepancy is documented in the GDD and must be resolved in the production implementation.
+- The prototype uses **six shared Action Points per Workday**. The Storehouse Reckoning action sequence is being aligned to the costed stages and validation requirements in GDD sections 7.5–7.6.
 
 ## Project status
 
