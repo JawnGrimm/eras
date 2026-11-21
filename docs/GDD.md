@@ -7,7 +7,7 @@ lang: en-US
 
 > **Canonical repository GDD.** This is the primary design reference for Scribe of Eras. Prototype code may lag behind or contradict this document; implementation decisions should be checked against the GDD rather than inferred from existing prototype behavior. Update this document when a design decision is deliberately changed.
 >
-> **Known implementation discrepancy to resolve during the rebuild:** this GDD specifies six shared Action Points per Workday. The current prototype displays four Time Blocks. The six-AP rule in this GDD is the current design intent; the four-block prototype display is not an approved replacement unless this document is revised.
+> **Implementation status:** the stabilization branch now displays and initializes six shared Action Points per Workday. The Storehouse Work's evidence-retrieval costs and several procedural requirements still need to be reconciled with sections 7.5–7.6; this note describes implementation status, not a change to the approved six-AP rule.
 
 ---
 
