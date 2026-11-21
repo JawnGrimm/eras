@@ -15,8 +15,10 @@ export interface PlayerProfile {
   stress: number; // 0 to 100
   currentDay: number; // in-game days
   dateString: string; // e.g. "Year 1, Month 3, Day 12 (c. 3200 BCE)"
-  currentBlock: number; // 1: Morning, 2: Midday, 3: Afternoon, 4: Evening
-  blocksRemaining: number; // total blocks left today (max 4)
+  currentBlock: number; // 1–6: ordinal position in the current Workday
+  blocksRemaining: number; // remaining Action Points (maximum 6)
+  actionPointsPerDay?: number; // save-schema marker for the six-AP economy
+  workApSpentToday?: number; // AP spent on the active mandatory Work today
   workingLate: boolean;
 }
 
