@@ -38,6 +38,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
   const state = workState;
   const completed = state.completedActions ?? [];
   const examined = state.examinedEvidence ?? [];
+  const sourceReferences = state.sourceReferences ?? [];
   const evidence = createStorehouseEvidence();
   const has = (id: string) => completed.includes(id);
   const stageAReady = has('opening') && has('dispatch_receipt') && has('intake') &&
@@ -99,7 +100,12 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
       initialRecord.issueQuantity === 30 &&
       initialRecord.statusTransfer === 3 &&
       initialRecord.issueRecipient === 'brewing_house' &&
-      initialRecord.issueAuthority === 'temple_decree';
+      initialRecord.issueAuthority === 'temple_decree' &&
+      initialRecord.dispatchFrom === 'outer_fields' &&
+      initialRecord.dispatchTo === 'central_storehouse' &&
+      initialRecord.issuePurpose === 'brewing_operation' &&
+      initialRecord.recordLocation === 'central_storehouse' &&
+      initialRecord.responsibleRecorder === 'apprentice_under_senior_scribe';
   };
   const setRecordField = (field: keyof NonNullable<StorehouseWorkState['initialRecord']>, value: number | 'brewing_house' | 'steward' | 'unknown' | 'temple_decree' | 'none' | undefined) => {
     onUpdateWorkState({ initialRecord: { ...initialRecord, [field]: value } });
@@ -121,9 +127,14 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
         : 'The revised record still contains unsupported or inconsistent fields.');
   };
 
-  const addSourceNotation = () => commit('Add source references and unresolved-cause notation', 1,
-    { sourceNotationAdded: true },
-    'Material claims now point to their evidence; the cause remains qualified.');
+  const addSourceNotation = () => {
+    const required = ['ev-01','ev-02','ev-03','ev-04','ev-05','ev-07'];
+    const valid = required.every((id) => sourceReferences.includes(id)) &&
+      (state.findingRuling !== 'roof_leak_reported_unproven' || sourceReferences.includes('ev-06'));
+    commit('Add source references and unresolved-cause notation', 1,
+      { sourceNotationAdded: valid },
+      valid ? 'All material claims cite their supporting evidence.' : 'Required source references are missing. Correct the selections and repeat the action.');
+  };
 
   const reviewWithSenior = () => commit('Ask Senior Scribe to review proposed fields', 1,
     { seniorReviewCompleted: true },
@@ -386,8 +397,23 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
                   <option value="">Select authority</option><option value="temple_decree">Temple decree</option><option value="none">No supplied authority</option>
                 </select>
               </label>
+              <label className="text-xs text-stone-600 dark:text-stone-300">Dispatch origin
+                <select disabled={state.initialEntriesValid} value={initialRecord.dispatchFrom ?? ''} onChange={(event) => setRecordField('dispatchFrom', event.target.value as 'outer_fields' | 'unknown' | undefined)} className="w-full mt-1 rounded-lg border border-[#D6CEBE] dark:border-stone-700 bg-white dark:bg-stone-800 px-3 py-2"><option value="">Select origin</option><option value="outer_fields">Outer fields</option><option value="unknown">Unknown</option></select>
+              </label>
+              <label className="text-xs text-stone-600 dark:text-stone-300">Dispatch destination
+                <select disabled={state.initialEntriesValid} value={initialRecord.dispatchTo ?? ''} onChange={(event) => setRecordField('dispatchTo', event.target.value as 'central_storehouse' | 'other' | undefined)} className="w-full mt-1 rounded-lg border border-[#D6CEBE] dark:border-stone-700 bg-white dark:bg-stone-800 px-3 py-2"><option value="">Select destination</option><option value="central_storehouse">Central storehouse</option><option value="other">Other</option></select>
+              </label>
+              <label className="text-xs text-stone-600 dark:text-stone-300">Issue purpose
+                <select disabled={state.initialEntriesValid} value={initialRecord.issuePurpose ?? ''} onChange={(event) => setRecordField('issuePurpose', event.target.value as 'brewing_operation' | 'unknown' | undefined)} className="w-full mt-1 rounded-lg border border-[#D6CEBE] dark:border-stone-700 bg-white dark:bg-stone-800 px-3 py-2"><option value="">Select purpose</option><option value="brewing_operation">Brewing-house operation</option><option value="unknown">Unknown</option></select>
+              </label>
+              <label className="text-xs text-stone-600 dark:text-stone-300">Record location
+                <select disabled={state.initialEntriesValid} value={initialRecord.recordLocation ?? ''} onChange={(event) => setRecordField('recordLocation', event.target.value as 'central_storehouse' | 'unknown' | undefined)} className="w-full mt-1 rounded-lg border border-[#D6CEBE] dark:border-stone-700 bg-white dark:bg-stone-800 px-3 py-2"><option value="">Select location</option><option value="central_storehouse">Central storehouse</option><option value="unknown">Unknown</option></select>
+              </label>
+              <label className="text-xs text-stone-600 dark:text-stone-300">Responsible recorder
+                <select disabled={state.initialEntriesValid} value={initialRecord.responsibleRecorder ?? ''} onChange={(event) => setRecordField('responsibleRecorder', event.target.value as 'apprentice_under_senior_scribe' | 'unknown' | undefined)} className="w-full mt-1 rounded-lg border border-[#D6CEBE] dark:border-stone-700 bg-white dark:bg-stone-800 px-3 py-2"><option value="">Select recorder</option><option value="apprentice_under_senior_scribe">Apprentice under Senior Scribe</option><option value="unknown">Unknown</option></select>
+              </label>
             </div>
-            <p className="text-xs text-stone-500">Required accounting: 24 + 60 − 30 = 54 total closing measures; 47 usable + 7 held = 54. Usable balance: 24 + 56 − 30 − 3 = 47.</p>
+            <p className="text-xs text-stone-500">Reconcile opening stock, receipt, issue, closing total, usable and held quantities, and the intervening status transfer. Preserve both condition snapshots.</p>
             <p className="text-xs text-stone-500">Select a defensible explanation. The record must preserve both condition snapshots; the three measures changed status rather than disappearing.</p>
             {([
               ['status_change_cause_unestablished','Three measures changed from usable to held; the cause is not established.'],
@@ -406,8 +432,12 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
               <p className="text-xs text-amber-700">This finding is not supported by the currently retrieved evidence.</p>}
           </div>
           <div className="border-t border-stone-200 dark:border-stone-700 pt-4 space-y-3">
-            <div className="flex items-center justify-between"><div><h4 className="font-semibold text-sm">Source references and unresolved-cause notation</h4><p className="text-xs text-stone-500">1 AP · Cite each material claim and preserve uncertainty.</p></div>
-              {state.sourceNotationAdded ? <span className="text-xs text-emerald-600">Complete</span> : <button disabled={!state.initialEntriesDrafted || !canAct(1)} onClick={addSourceNotation} className="px-3 py-2 rounded-lg bg-[#2B1B17] text-white text-xs disabled:opacity-40">Add notation · 1 AP</button>}
+            <div className="space-y-2">
+              <div><h4 className="font-semibold text-sm">Source references and unresolved-cause notation</h4><p className="text-xs text-stone-500">Select the evidence linked to material claims, then commit the notation for 1 AP.</p></div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                {['ev-01','ev-02','ev-03','ev-04','ev-05','ev-06','ev-07'].map((id) => <label key={id} className="flex gap-2"><input type="checkbox" disabled={state.sourceNotationAdded} checked={sourceReferences.includes(id)} onChange={(event) => onUpdateWorkState({sourceReferences:event.target.checked ? [...sourceReferences,id] : sourceReferences.filter((item) => item !== id)})}/>{id}</label>)}
+              </div>
+              {state.sourceNotationAdded ? <span className="text-xs text-emerald-600">Required provenance references recorded.</span> : <button disabled={!state.initialEntriesValid || !canAct(1)} onClick={addSourceNotation} className="px-3 py-2 rounded-lg bg-[#2B1B17] text-white text-xs disabled:opacity-40">Add notation · 1 AP</button>}
             </div>
             <div className="flex items-center justify-between"><div><h4 className="font-semibold text-sm">Senior Scribe review</h4><p className="text-xs text-stone-500">1 AP · Review proposed fields and evidence discipline.</p></div>
               {state.seniorReviewCompleted ? <span className="text-xs text-emerald-600">Complete</span> : <button disabled={!state.sourceNotationAdded || !canAct(1)} onClick={reviewWithSenior} className="px-3 py-2 rounded-lg bg-[#2B1B17] text-white text-xs disabled:opacity-40">Request review · 1 AP</button>}
