@@ -82,6 +82,8 @@ export interface StorehouseWorkState {
   institutionalReviewCompleted?: boolean;
   presentationCompleted?: boolean;
   revisionPasses?: number;
+  revisionFocus?: 'dispatch_receipt' | 'status_history' | 'responsibility' | null;
+  revisionApplied?: boolean;
   adoptionCondition?: string | null;
   rewardGranted?: boolean;
 }
