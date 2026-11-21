@@ -187,7 +187,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
       return;
     }
     if (state.registerDesign === 'compact_balance' && !supplemental) {
-      onShowToast('The compact register needs a linked supplemental movement note before this test can pass. Add that note for 1 AP.');
+      onShowToast('The compact register entry must include its linked supplemental movement note. Re-enter the transaction after a revision if it is missing.');
       return;
     }
     const valid = isC1
