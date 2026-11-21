@@ -234,6 +234,24 @@ Specializations should provide a combination of three benefits:
 
 Secondary specializations retain their relevant capabilities; they are not deliberately weakened merely because another specialization is primary. The content, qualification thresholds, advancement requirements, and exact effects of individual specializations remain to be designed.
 
+#### Character conditions
+
+Conditions represent temporary or lasting states that affect a character's capabilities and experience. They may arise from three broad sources:
+
+- **Player-driven:** actions and decisions, including demanding work, overtime, and difficult professional or social situations.
+- **World-driven:** illness, accidents, seasonal circumstances, and other external events.
+- **Character-driven:** personality, traits, existing conditions, and accumulated stress influencing how a character responds to circumstances.
+
+Random events may introduce conditions, but should be grounded in plausible circumstances rather than functioning as arbitrary debuff rolls.
+
+Conditions generally affect action resolution through modifiers to relevant attributes, skills, or both. Their effects are contextual: a condition applies when it is relevant to the action, not automatically to every activity. Multiple applicable conditions may stack, with their relevant modifiers combined.
+
+Conditions influence capability and consequences; they do not arbitrarily remove player choice. If an action remains possible in the fiction, the player may attempt it and accept the applicable penalties or risks. Absolute restrictions should be exceptional and justified by genuine circumstances, not used as a routine consequence of a negative modifier.
+
+A condition lasts as long as its cause and circumstances reasonably warrant. Some conditions recover naturally over time; rest, care, treatment, and appropriate items may accelerate or support recovery. Not every condition responds to the same remedy: rest may relieve fatigue, for example, but should not automatically cure an injury or erase a social or institutional consequence. Some conditions may become lasting or permanent.
+
+The specific condition list, modifier values, stacking limits if any, duration rules, treatment effects, and recovery balance remain open design work.
+
 ### 3.5 Tone
 
 The tone is grounded, human, and occasionally wry. The game can contain bureaucracy, absurdity, petty rivalries, corruption, friendship, ambition, generosity, grief, and discovery. It should avoid presenting ancient people as caricatures or treating every event as a grand epic. Much of history is made through ordinary people doing consequential work.
@@ -1229,7 +1247,7 @@ The following details require further design before they can be treated as fixed
 19. A defined minimum viable product (MVP): which era, Works, Assignments, characters, systems, and content must exist for a complete first release.
 20. Content-authoring and validation pipeline: scenario state schemas, evidence generation, invariant checks, branch coverage, historical review, and automated QA for authored or AI-assisted drafts.
 21. Evaluation implementation: define how the approved judgment principles are expressed through player-facing feedback, scoring or outcome tiers, and scenario validators. Preserve the distinction between a reasonable judgment based on evidence available at decision time and a careless or unsupported conclusion. Do not assume every scenario has one correct ruling; determine how task purpose and required information shape completeness. The evaluation principle is approved, but scoring weights, feedback language, and validator behavior remain undecided.
-22. Complete the character system: define skill scales and advancement, specialization content and qualification/advancement requirements, class-specific starting circumstances and benefits, conditions, equipment effects, and the action-resolution model that connects attributes, skills, equipment, conditions, and circumstances. The four initial career paths, six attributes, six core skills, primary attribute pairings, multi-specialization model, Primary Specialization, and three expertise levels are established as the current framework; detailed mechanics are not yet fixed.
+22. Complete the character system: define skill scales and advancement, specialization content and qualification/advancement requirements, class-specific starting circumstances and benefits, the detailed condition catalog and numerical effects, equipment effects, and the action-resolution model that connects attributes, skills, equipment, conditions, and circumstances. The four initial career paths, six attributes, six core skills, primary attribute pairings, multi-specialization model, Primary Specialization, three expertise levels, and the condition principles in Section 3.4 are established; detailed mechanics are not yet fixed.
 23. Define the family desk's upgrade economy and era-transition treatment, including upgrade effects, costs, adaptation, and the modest inherited bonuses retained from previous eras. The desk's continuity role and broad transition principle are established; individual upgrades and numerical effects are not.
 
 These are open design tasks, not invitations to fill gaps with arbitrary placeholder systems.
