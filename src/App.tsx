@@ -329,6 +329,8 @@ export default function App() {
         ...prev,
         stress: Math.min(100, prev.stress + 5),
         workingLate: true,
+        blocksRemaining: 1,
+        currentBlock: 7,
       };
     });
     showToast('Worked late into the night. +5% Stress gained. Tomorrow morning first AP will be skipped.');
