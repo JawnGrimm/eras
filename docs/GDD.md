@@ -7,7 +7,7 @@ lang: en-US
 
 > **Canonical repository GDD.** This is the primary design reference for Scribe of Eras. Prototype code may lag behind or contradict this document; implementation decisions should be checked against the GDD rather than inferred from existing prototype behavior. Update this document when a design decision is deliberately changed.
 >
-> **Implementation status:** the prototype now uses six shared Action Points per Workday. The Storehouse Reckoning action model is being aligned to the costed stages, evidence requirements, deterministic validation, and adoption procedure in sections 7.5–7.6. This note records implementation status only; it does not change the approved design.
+> **Implementation status:** the stabilization branch now displays and initializes six shared Action Points per Workday. The Storehouse Work's evidence-retrieval costs and several procedural requirements still need to be reconciled with sections 7.5–7.6; this note describes implementation status, not a change to the approved six-AP rule.
 
 ---
 
