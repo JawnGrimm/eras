@@ -7,7 +7,7 @@ interface StorehouseReckoningProps {
   player: PlayerProfile;
   workState: StorehouseWorkState;
   onUpdateWorkState: (newState: Partial<StorehouseWorkState>) => void;
-  onConsumeAP: (amount: number) => void;
+  onConsumeBlocks: (amount: number) => void;
   onAwardXp: (careerXp: number, historicalXp: number) => void;
   onShowToast: (msg: string) => void;
 }
@@ -16,7 +16,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
   player,
   workState,
   onUpdateWorkState,
-  onConsumeAP,
+  onConsumeBlocks,
   onAwardXp,
   onShowToast,
 }) => {
@@ -65,33 +65,33 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
 
   const handleSelectDesign = (choice: 'movement_ledger' | 'compact_balance') => {
     const cost = choice === 'movement_ledger' ? 2 : 1;
-    if (player.APRemaining < cost) {
+    if (player.blocksRemaining < cost) {
       onShowToast(`Configuring register requires ${cost} AP.`);
       return;
     }
-    onConsumeAP(cost);
+    onConsumeBlocks(cost);
     setDesignChoice(choice);
     onUpdateWorkState({ registerDesign: choice, registerConfigured: true, stage: 'C_TEST' });
     setSuccessMessage(`Successfully configured and drafted the ${choice === 'movement_ledger' ? 'Movement Ledger' : 'Compact Balance Register'}. Proceeding to Stage C: Testing against unseen transactions.`);
   };
 
   const handleRunTestC1 = () => {
-    if (player.APRemaining < 1) {
+    if (player.blocksRemaining < 1) {
       onShowToast('Running test requires 1 AP.');
       return;
     }
-    onConsumeAP(1);
+    onConsumeBlocks(1);
     setTestC1({ ...testC1, examined: true });
     onUpdateWorkState({ testC1Passed: true });
     setSuccessMessage('Test C-1 Passed: Held stock release of 5 measures recorded correctly without altering total physical stock.');
   };
 
   const handleRunTestC2 = () => {
-    if (player.APRemaining < 1) {
+    if (player.blocksRemaining < 1) {
       onShowToast('Running test requires 1 AP.');
       return;
     }
-    onConsumeAP(1);
+    onConsumeBlocks(1);
     setTestC2({ ...testC2, examined: true });
     onUpdateWorkState({ testC2Passed: true });
     setSuccessMessage('Test C-2 Passed: Short delivery discrepancy (20 dispatched vs 18 received) recorded with source provenance and no unsupported blame.');
@@ -102,11 +102,11 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
   };
 
   const handleFinalAdoption = (type: 'movement_ledger' | 'compact_balance' | 'provisional') => {
-    if (player.APRemaining < 1) {
+    if (player.blocksRemaining < 1) {
       onShowToast('Finalizing adoption requires 1 AP.');
       return;
     }
-    onConsumeAP(1);
+    onConsumeBlocks(1);
     onUpdateWorkState({
       stage: 'COMPLETED',
       adopted: true,
@@ -275,7 +275,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
             <div className={`bg-white dark:bg-stone-900 border rounded-2xl p-6 space-y-4 ${designChoice === 'compact_balance' ? 'border-[#C86D33] ring-1 ring-[#C86D33]/30' : 'border-[#D6CEBE]'}`}>
               <div className="flex items-center justify-between">
                 <h4 className="text-lg font-serif font-bold text-[#2B1B17] dark:text-stone-100">Compact Balance Register</h4>
-                <span className="text-xs font-mono text-stone-500">1 Time AP</span>
+                <span className="text-xs font-mono text-stone-500">1 AP</span>
               </div>
               <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed">
                 Fast to enter. Records opening balance, receipt, usable/held totals, issue, and closing balance. However, later status changes require explanatory notes.
@@ -291,7 +291,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
             <div className={`bg-white dark:bg-stone-900 border rounded-2xl p-6 space-y-4 ${designChoice === 'movement_ledger' ? 'border-[#C86D33] ring-1 ring-[#C86D33]/30' : 'border-[#D6CEBE]'}`}>
               <div className="flex items-center justify-between">
                 <h4 className="text-lg font-serif font-bold text-[#2B1B17] dark:text-stone-100">Movement Ledger (Recommended)</h4>
-                <span className="text-xs font-mono text-[#C86D33]">2 Time AP</span>
+                <span className="text-xs font-mono text-[#C86D33]">2 AP</span>
               </div>
               <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed">
                 Records each movement or status change as a dated, sourced line with quantity, status, authority, location, and responsible recorder. Superior audit trail.
