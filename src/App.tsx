@@ -313,20 +313,22 @@ export default function App() {
   };
 
   const handleWorkLate = () => {
+    if (player.blocksRemaining > 0) {
+      showToast('Overtime is available only after all Action Points have been spent.');
+      return;
+    }
     if (player.workingLate) {
       showToast('You have already worked overtime today. Tomorrow morning first AP will be skipped.');
       return;
     }
 
     setPlayer((prev) => {
-      // Defend against repeat clicks before the UI has re-rendered.
-      if (prev.workingLate) return prev;
+      // Enforce the end-of-day requirement even if state changes before the update applies.
+      if (prev.workingLate || prev.blocksRemaining > 0) return prev;
       return {
         ...prev,
         stress: Math.min(100, prev.stress + 5),
         workingLate: true,
-        blocksRemaining: Math.max(0, prev.blocksRemaining - 1),
-        currentBlock: Math.min(7, prev.currentBlock + 1),
       };
     });
     showToast('Worked late into the night. +5% Stress gained. Tomorrow morning first AP will be skipped.');
