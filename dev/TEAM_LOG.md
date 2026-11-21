@@ -403,3 +403,36 @@ Skills represent learned competencies that can develop across career paths. The 
 - `docs/GDD.md`: replaced the statement that elaborate class selection was not required; recorded the four initial career paths, six attributes, six core skills and primary attribute pairings, and the agreed character-action model. Added the remaining character-system decisions to the open design-work list.
 - No runtime code, save schema, numerical mechanics, or gameplay behavior changed.
 
+## 2026-11-21 — Decision: establish specialization and family desk progression
+
+**Contributor:** Chad (AI)  
+**Status:** Approved design baseline
+
+The owner approved the specialization structure and the family desk's role in generational and era progression. This entry records the agreed direction; it does not define numerical balancing or runtime implementation.
+
+### Specializations
+
+- Specializations are focused expertise within the shared skill framework, not additional career classes or permanent restrictions tied to the character's initial career path.
+- Characters qualify through relevant experience, skills, relationships, and opportunities. The player chooses which eligible specialization to pursue.
+- Qualification should not depend exclusively on repetitive Assignment grinding; relevant Works, Challenges, study, mentorship, and professional opportunities may contribute.
+- Characters may develop multiple specializations. One is designated the **Primary Specialization**, representing professional identity and potentially influencing recognition, reputation, appointments, and opportunities.
+- Secondary specializations retain their relevant mechanical capabilities. Primary status is not necessarily the character's highest numerical skill.
+- Each specialization has three levels: **Practitioner**, **Specialist**, and **Master**.
+- Specializations should **unlock actions, improve actions, and create opportunities**. Their benefits should connect to the character-action model and the world rather than exist only as passive bonuses.
+
+The exact specialization list, qualification thresholds, advancement requirements, and individual effects remain open.
+
+### Family desk and era progression
+
+- The desk is passed down through the family as a persistent heirloom and workspace.
+- The player upgrades and personalizes it during each era.
+- At an era transition, the desk remains, but upgrades from the previous era become modest inherited bonuses based on what was installed; they do not retain their full former-era effects.
+- New eras make new, historically appropriate desk upgrades and workspace capabilities available.
+- Character skills and accumulated professional experience do not reset at era transitions. New historical eras open additional era-appropriate branches of the skill tree.
+
+The desk's upgrade list, costs, exact effects, transition bonuses, and numerical balance remain open. The broader family tree, succession, and inheritance model also remain open beyond the desk's established continuity role.
+
+### Repository changes
+
+- `docs/GDD.md`: recorded the specialization model, three expertise levels, qualification-and-choice structure, multi-specialization and Primary Specialization, the three specialization benefit types, persistent character development across eras, and the family desk's inheritance and era-transition rules.
+- No runtime code, save schema, numerical balance, or gameplay behavior changed.
