@@ -421,7 +421,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
               ['stock_loss','Three measures are recorded as a stock loss.'],
               ['carrier_blame','The carrier is held responsible for the damp stock.'],
             ] as const).map(([value,label]) => <label key={value} className="flex items-start gap-2 text-xs">
-              <input type="radio" name="finding" checked={state.findingRuling === value} onChange={() => onUpdateWorkState({findingRuling:value})}/>
+              <input type="radio" name="finding" disabled={state.initialEntriesValid} checked={state.findingRuling === value} onChange={() => onUpdateWorkState({findingRuling:value})}/>
               <span>{label}</span>
             </label>)}
             <button disabled={!state.registerConfigured || state.initialEntriesDrafted || !canAct(2)} onClick={draftInitial} className="px-3 py-2 rounded-lg bg-[#2B1B17] text-white text-xs disabled:opacity-40">Draft initial entries · 2 AP</button>
