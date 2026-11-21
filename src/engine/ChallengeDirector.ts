@@ -1,9 +1,9 @@
 /**
- * Scribe of Eras - Challenge Director (src/engine/ChallengeDirector.ts)
- * Evaluates patterns in the Career Work Log and manages emergent challenge opportunities.
+ * Challenge Director evaluates compact career aggregates rather than rescanning
+ * every completed Assignment record.
  */
 
-import { CareerLogEntry, countEmployerInteractions, countCommodityMentions } from './CareerWorkLog';
+import { CareerActivitySummary, countEmployerInteractions, countCommodityMentions } from './CareerWorkLog';
 
 export type ChallengeStatus = 'candidate' | 'offered' | 'accepted' | 'declined' | 'lapsed' | 'completed';
 
@@ -25,6 +25,7 @@ export interface ChallengeOpportunity {
   completedDay?: number;
   completedDate?: string;
   completedBy?: string;
+  completedEra?: string;
 }
 
 export function createInitialChallenges(): ChallengeOpportunity[] {
@@ -62,8 +63,7 @@ export function createInitialChallenges(): ChallengeOpportunity[] {
 
 export function evaluateChallenges(
   challenges: ChallengeOpportunity[],
-  workLog: CareerLogEntry[],
-  currentDay: number
+  careerSummary: CareerActivitySummary,
 ): ChallengeOpportunity[] {
   return challenges.map((chal) => {
     if (chal.status !== 'candidate') return chal;
@@ -71,23 +71,19 @@ export function evaluateChallenges(
     const cond = chal.triggerCondition;
     let eligible = true;
 
-    if (cond.minCompletedAssignments !== undefined && workLog.length < cond.minCompletedAssignments) {
+    if (cond.minCompletedAssignments !== undefined &&
+      careerSummary.assignmentsCompleted < cond.minCompletedAssignments) {
       eligible = false;
     }
-    if (cond.requiredEmployer && countEmployerInteractions(workLog, cond.requiredEmployer) === 0) {
+    if (cond.requiredEmployer &&
+      countEmployerInteractions(careerSummary, cond.requiredEmployer) === 0) {
       eligible = false;
     }
-    if (cond.requiredCommodity && countCommodityMentions(workLog, cond.requiredCommodity) === 0) {
+    if (cond.requiredCommodity &&
+      countCommodityMentions(careerSummary, cond.requiredCommodity) === 0) {
       eligible = false;
     }
 
-    if (eligible) {
-      return {
-        ...chal,
-        status: 'offered',
-      };
-    }
-
-    return chal;
+    return eligible ? { ...chal, status: 'offered' } : chal;
   });
 }
