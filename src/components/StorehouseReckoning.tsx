@@ -108,7 +108,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
       initialRecord.responsibleRecorder === 'apprentice_under_senior_scribe';
   };
   const setRecordField = (field: keyof NonNullable<StorehouseWorkState['initialRecord']>, value: NonNullable<StorehouseWorkState['initialRecord']>[keyof NonNullable<StorehouseWorkState['initialRecord']>] | undefined) => {
-    onUpdateWorkState({ initialRecord: { ...initialRecord, [field]: value } });
+    onUpdateWorkState({ initialRecord: { ...initialRecord, [field]: value } as NonNullable<StorehouseWorkState['initialRecord']> });
   };
   const draftInitial = () => {
     const valid = recordIsValid();
@@ -435,7 +435,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
             <div className="space-y-2">
               <div><h4 className="font-semibold text-sm">Source references and unresolved-cause notation</h4><p className="text-xs text-stone-500">Select the evidence linked to material claims, then commit the notation for 1 AP.</p></div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-                {['ev-01','ev-02','ev-03','ev-04','ev-05','ev-06','ev-07'].map((id) => <label key={id} className="flex gap-2"><input type="checkbox" disabled={state.sourceNotationAdded} checked={sourceReferences.includes(id)} onChange={(event) => onUpdateWorkState({sourceReferences:event.target.checked ? [...sourceReferences,id] : sourceReferences.filter((item) => item !== id)})}/>{id}</label>)}
+                {['ev-01','ev-02','ev-03','ev-04','ev-05','ev-06','ev-07'].map((id) => <label key={id} className="flex gap-2"><input type="checkbox" disabled={state.sourceNotationAdded || !examined.includes(id)} checked={sourceReferences.includes(id)} onChange={(event) => onUpdateWorkState({sourceReferences:event.target.checked ? [...sourceReferences,id] : sourceReferences.filter((item) => item !== id)})}/>{id}</label>)}
               </div>
               {state.sourceNotationAdded ? <span className="text-xs text-emerald-600">Required provenance references recorded.</span> : <button disabled={!state.initialEntriesValid || !canAct(1)} onClick={addSourceNotation} className="px-3 py-2 rounded-lg bg-[#2B1B17] text-white text-xs disabled:opacity-40">Add notation · 1 AP</button>}
             </div>
