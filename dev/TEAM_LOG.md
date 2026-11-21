@@ -259,10 +259,43 @@ The research studies summarized in the design review are **not currently committ
 
 The source materials were supplied in this ChatGPT Project, rather than stored in the GitHub repository:
 
-- **Comparative Design and Architecture Study for Scribe of Eras** — the broad study of RimWorld, Dwarf Fortress, Crusader Kings, Bannerlord, Shadow of Mordor, Kingdom Come, The Sims, Papers, Please, and Far Cry 2.
-- **Comparative design synthesis / focused reference framework** — the shorter synthesis centered on RimWorld, Dwarf Fortress, Crusader Kings, and Papers, Please.
-- **Information fairness and continuity proposal** — the proposal about evidence, qualified judgments, structured records, knowledge, and persistent consequences.
+## 2026-11-21 — Decision: adopt record continuity and event/record/knowledge distinctions
 
-The focused Wildermyth and RimWorld event-system studies were supplied directly in the conversation as text, rather than as repository documents.
+**Contributor:** Chad (AI)  
+**Status:** Decision
 
-So the Dev Room entry was a summary of Project research sources, not a link to committed research files. If we want future contributors to inspect the underlying work from GitHub, those documents should be added to a clearly labeled research location under `dev/` (or another agreed documentation folder). No research files have been added by this update.
+Following the design review and Claude's reply, the owner authorized implementation of the changes agreed in that exchange.
+
+### Adopted design principles
+
+1. **The record connects judgment to continuity.** When a matter may affect later play, preserve the substance and scope of the judgment, its supporting sources, and material uncertainty or unresolved issues. Records may change what people and institutions can do later.
+2. **An event, its record, and knowledge of it are distinct.** What happened in the world is not identical to what was documented, and possession of a record does not mean every relevant person or institution has learned or understood its contents.
+
+The GDD now describes these distinctions and their implications for records that are copied, circulated, withheld, consulted, amended, disputed, or misinterpreted. It does not require a complete simulation of information circulation or universal knowledge tracking.
+
+### Agreed scope clarifications
+
+The GDD also records the refinements accepted in the discussion:
+
+- Relevant people, institutions, and circumstances may change without requiring a fully autonomous population simulation.
+- Memory is selective and consequential, not an unlimited transcript. Routine resolved activity need not remain active narrative state.
+- NPCs are an important human interface to the world, but ordinary social interactions need not become tasks, negotiations, or skill checks.
+- Pacing may delay presentation of an eligible opportunity, but must not rewrite causal history, conceal a genuine deadline, or silently move one. An empty presentation slot is valid.
+- Fairness means the player can understand what a record or action asserts and identify the available evidence for a defensible response. It does not require one discoverable answer for every event or predictable consequences.
+
+These clarifications bound the adopted principles; they do not approve a general-purpose narrative engine, complete information-access simulation, or fully autonomous world simulation.
+
+### First open design investigation
+
+Claude identified **evaluation** (design-review question #3) as the first question to investigate. The GDD records this priority while leaving the model unresolved. In particular, the team still needs to determine what dimensions are evaluated, when multiple conclusions may be defensible, and how to distinguish a reasonable judgment later contradicted by new evidence from a careless judgment that ignored accessible evidence.
+
+No scoring model, alternative-ruling policy, or validator behavior is approved by this entry. The current Storehouse's fixed expected rulings remain implementation facts, not proof that they are the final design.
+
+### Not adopted as requirements
+
+Principles 1, 4, 5, and 6 from the original review remain directions for consideration, not approved requirements. The discussion does not approve universal procedural narrative generation, persistent character identity rules, a specific authored/procedural content ratio, or a particular systemic/authored consequence model.
+
+### Repository changes
+
+- `docs/GDD.md`: added the adopted principles and scope clarifications, a section distinguishing events/records/knowledge, and an open design-work item prioritizing evaluation.
+- No runtime code, schemas, validation rules, or gameplay behavior changed.
