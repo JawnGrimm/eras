@@ -142,7 +142,7 @@ Continuity should be selective and consequential, not an unlimited transcript of
 
 The wider world should continue to change where relevant to play, but this does not require a fully autonomous population simulation. NPCs are an important human interface to the world, but not every interaction must trigger a task, negotiation, or skill check; ordinary social presence and conversation are valid. Event pacing may regulate when an eligible opportunity is presented, but must not rewrite causal history, conceal a genuine deadline, or silently move one. An empty presentation slot is valid.
 
-Fairness means that the player can understand what a record or action asserts and can identify the evidence available to support a defensible response. It does not require one discoverable answer for every historical event or make every consequence predictable. The evaluation model—including how to recognize more than one defensible conclusion and distinguish a reasonable judgment later contradicted by new evidence from a careless judgment—remains open design work.
+Fairness means that the player can understand what a record or action asserts and can identify the evidence available to support a defensible response. It does not require one discoverable answer for every historical event or make every consequence predictable. Evaluate the quality of the player's judgment against the evidence available when the decision was made, not merely whether the conclusion matches a predetermined answer. A reasonable judgment later contradicted by new evidence should be distinguished from a careless judgment that ignored accessible evidence. More than one conclusion may be defensible when the evidence genuinely permits it. The evaluation principle is established; its scoring, feedback, and validation mechanics remain open design work.
 
 ---
 
@@ -713,14 +713,23 @@ The player should see a readable preview of the resulting document and be able t
 
 ### 9.2 What makes a good document
 
-A record should be judged on more than appearance. A beautifully formatted document can still be wrong. The assessment should consider:
+A record should be judged on more than appearance. A beautifully formatted document can still be wrong. Evaluate the quality of the player's judgment against the evidence available when the decision was made, not merely whether the conclusion matches a predetermined answer.
 
-- **Judgment:** Was the situation interpreted correctly?
-- **Accuracy:** Are people, quantities, dates, classifications, and dispositions correct?
-- **Completeness:** Are all required fields and qualifications present?
+The assessment should distinguish:
+
+- **Accuracy:** Are people, quantities, dates, classifications, and dispositions consistent with the available evidence?
+- **Completeness:** Does the record preserve the relevant information, qualifications, and unresolved questions required by the task?
+- **Responsible interpretation:** Does the player distinguish established facts, attributed claims, supported interpretations, and matters that remain unknown? Does the conclusion stay within what the evidence supports?
+
+The document must also meet the requirements appropriate to its purpose:
+
 - **Procedure:** Is the document type and authorization appropriate?
 - **Traceability:** Can a reader understand where important claims came from?
 - **Responsibility:** Does the record accurately identify who acted, approved, received, or remains accountable?
+
+These dimensions are related but should not be collapsed into a single test of whether the player selected the expected answer. A record can get the quantities right while making an unsupported accusation, or preserve uncertainty responsibly while omitting a material detail. A more complete, qualified record may therefore be better than a narrower record that is technically accurate but leaves out a relevant unresolved issue. The task's actual purpose still determines what information is required; extra wording alone is not a virtue.
+
+When the evidence genuinely permits more than one defensible conclusion, the game should recognize those alternatives. A reasonable conclusion later contradicted by new evidence should not be treated as equivalent to a careless conclusion that ignored evidence available at the time. Conversely, a claim that contradicts the evidence or asserts more than it supports should be judged poorly.
 
 Where relevant, the player should be able to make a defensible record even if some facts remain uncertain. Recording uncertainty honestly can be better than inventing certainty.
 
@@ -1128,7 +1137,7 @@ The following details require further design before they can be treated as fixed
 18. The end state after Era VII, the role of an ending or continuing mode, and any failure states or recovery boundaries.
 19. A defined minimum viable product (MVP): which era, Works, Assignments, characters, systems, and content must exist for a complete first release.
 20. Content-authoring and validation pipeline: scenario state schemas, evidence generation, invariant checks, branch coverage, historical review, and automated QA for authored or AI-assisted drafts.
-21. Evaluation model for evidence-based judgments: what dimensions are assessed, when multiple conclusions may be defensible, and how the game distinguishes a reasonable judgment later contradicted by new evidence from a careless judgment that ignored accessible evidence. This is the first priority for further investigation; no evaluation model is approved by this entry.
+21. Evaluation implementation: define how the approved judgment principles are expressed through player-facing feedback, scoring or outcome tiers, and scenario validators. Preserve the distinction between a reasonable judgment based on evidence available at decision time and a careless or unsupported conclusion. Do not assume every scenario has one correct ruling; determine how task purpose and required information shape completeness. The evaluation principle is approved, but scoring weights, feedback language, and validator behavior remain undecided.
 
 These are open design tasks, not invitations to fill gaps with arbitrary placeholder systems.
 
