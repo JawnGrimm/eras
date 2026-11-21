@@ -171,10 +171,15 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
       onShowToast('Choose the transaction treatment before recording the entry.');
       return;
     }
+    const linkedNoteIncluded = isC1 ? state.c1SupplementAdded : state.c2SupplementAdded;
+    if (state.registerDesign === 'compact_balance' && !linkedNoteIncluded) {
+      onShowToast('The Compact Balance entry needs its linked supplemental movement note selected before it can be entered.');
+      return;
+    }
     commit('Enter test ' + which.toUpperCase() + ' in the register', 1,
       isC1
-        ? { c1EntryRecorded: true, testC1Passed: false, c1SupplementAdded: state.registerDesign === 'compact_balance' }
-        : { c2EntryRecorded: true, testC2Passed: false, c2SupplementAdded: state.registerDesign === 'compact_balance' },
+        ? { c1EntryRecorded: true, testC1Passed: false }
+        : { c2EntryRecorded: true, testC2Passed: false },
       state.registerDesign === 'compact_balance'
         ? 'The transaction and its linked supplemental movement note are recorded.'
         : 'The transaction is recorded in the movement ledger and ready for audit.');
@@ -505,6 +510,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
               <div className="flex flex-wrap gap-3 text-xs">
                 {['C1-E01','C1-E02'].map((id) => <label key={id} className="flex gap-1"><input type="checkbox" disabled={state.c1EntryRecorded || state.testC1Passed} checked={(state.c1Sources ?? []).includes(id)} onChange={(event) => onUpdateWorkState({c1Sources:event.target.checked ? [...(state.c1Sources ?? []),id] : (state.c1Sources ?? []).filter((item) => item !== id)})}/>{id}</label>)}
               </div>
+              {state.registerDesign === 'compact_balance' && <label className="flex gap-2 text-xs"><input type="checkbox" disabled={state.c1EntryRecorded || state.testC1Passed} checked={Boolean(state.c1SupplementAdded)} onChange={(event) => onUpdateWorkState({c1SupplementAdded:event.target.checked})}/> Attach linked supplemental movement note to the C-1 entry.</label>}
               <div className="grid grid-cols-3 gap-2">
                 {([
                   ['transferred','Returned to usable'],
@@ -533,6 +539,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
               <div className="flex flex-wrap gap-3 text-xs">
                 {['C2-E01','C2-E02','C2-E03'].map((id) => <label key={id} className="flex gap-1"><input type="checkbox" disabled={state.c2EntryRecorded || state.testC2Passed} checked={(state.c2Sources ?? []).includes(id)} onChange={(event) => onUpdateWorkState({c2Sources:event.target.checked ? [...(state.c2Sources ?? []),id] : (state.c2Sources ?? []).filter((item) => item !== id)})}/>{id}</label>)}
               </div>
+              {state.registerDesign === 'compact_balance' && <label className="flex gap-2 text-xs"><input type="checkbox" disabled={state.c2EntryRecorded || state.testC2Passed} checked={Boolean(state.c2SupplementAdded)} onChange={(event) => onUpdateWorkState({c2SupplementAdded:event.target.checked})}/> Attach linked dispatch/receipt note to the C-2 entry.</label>}
               <div className="grid grid-cols-3 gap-2">
                 {([
                   ['dispatched','Dispatched'],
