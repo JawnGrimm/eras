@@ -279,7 +279,7 @@ export default function App() {
     setAssignments((prev) =>
       prev.map((a) => (a.id === id ? { ...a, status: 'available' } : a))
     );
-    showToast('Commission cancelled (-1 block).');
+    showToast('Commission cancelled (-1 AP).');
   };
 
   const handleStudy = () => {

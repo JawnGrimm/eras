@@ -71,7 +71,7 @@ export const WorkdayHub: React.FC<WorkdayHubProps> = ({
               <div className="text-2xl font-bold font-mono text-[#2B1B17] dark:text-stone-100 tabular-nums">
                 {player.blocksRemaining} <span className="text-xs text-stone-400 font-normal">/ 6</span>
               </div>
-              <div className="text-[11px] font-medium text-stone-500 uppercase tracking-wide">Time Blocks</div>
+              <div className="text-[11px] font-medium text-stone-500 uppercase tracking-wide">Action Points</div>
             </div>
 
             <div className="w-px h-12 bg-stone-200 dark:bg-stone-700" />
@@ -141,7 +141,7 @@ export const WorkdayHub: React.FC<WorkdayHubProps> = ({
 
               <div className="flex items-center justify-between pt-2">
                 <div className="text-xs text-stone-500">
-                  Contract Provision: Earn <strong className="text-stone-700 dark:text-stone-300">1 Bread</strong> per active contracted workday.
+                  Work contract: Earn <strong className="text-stone-700 dark:text-stone-300">1 Bread</strong> on a day when you spend at least 1 AP on the Work.
                 </div>
                 <button
                   onClick={() => onNavigateTab('work')}
