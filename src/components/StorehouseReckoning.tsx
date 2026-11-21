@@ -155,6 +155,10 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
       'The test dossier is now available for examination.');
   };
 
+  const consultTestReader = () => commit('Consult Senior Scribe Shuruppak-ilu about the unresolved C-2 discrepancy', 1,
+    { c2ReaderConsulted: true },
+    'Keep dispatch and receipt as separate facts. The available evidence does not establish where the two measures went or who is responsible.');
+
   const enterTest = (which: 'c1' | 'c2') => {
     const isC1 = which === 'c1';
     if (isC1 ? state.testC1Passed : state.testC2Passed) return;
@@ -519,6 +523,8 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
             {!state.c2EvidenceRetrieved ? <button disabled={!canAct(1)} onClick={() => retrieveTest('c2')} className="px-3 py-2 rounded-lg bg-[#2B1B17] text-white text-xs disabled:opacity-40">Retrieve C-2 evidence · 1 AP</button> :
               <div className="bg-[#FAF7F0] dark:bg-stone-800 p-3 rounded-lg text-xs space-y-1"><p>C2-E01: Dispatch instruction authorizes 20 measures.</p><p>C2-E02: Receiving tally counts 18 physically unloaded.</p><p>C2-E03: No reliable departure or route inspection locates the 2-measure discrepancy.</p></div>}
             {state.c2EvidenceRetrieved && <>
+              {!state.c2ReaderConsulted && !state.c2EntryRecorded && <button disabled={!canAct(1)} onClick={consultTestReader} className="px-3 py-2 rounded-lg border text-xs disabled:opacity-40">Consult Senior Scribe on the unresolved discrepancy · 1 AP (optional)</button>}
+              {state.c2ReaderConsulted && <p className="text-xs text-stone-500">Senior Scribe: preserve dispatch and receipt as separate facts; the supplied evidence does not locate the discrepancy or establish responsibility.</p>}
               <div className="space-y-2 text-xs">
                 <label className="flex gap-2"><input type="radio" name="c2" disabled={state.c2EntryRecorded || state.testC2Passed} checked={state.c2Ruling === 'discrepancy_pending'} onChange={() => onUpdateWorkState({c2Ruling:'discrepancy_pending',c2EntryRecorded:false,testC2Passed:false})}/> Record 20 dispatched, 18 received, 2 pending inquiry; no blame assigned.</label>
                 <label className="flex gap-2"><input type="radio" name="c2" disabled={state.c2EntryRecorded || state.testC2Passed} checked={state.c2Ruling === 'full_receipt'} onChange={() => onUpdateWorkState({c2Ruling:'full_receipt',c2EntryRecorded:false,testC2Passed:false})}/> Record all 20 as received.</label>
