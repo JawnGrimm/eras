@@ -66,6 +66,20 @@ export interface StorehouseWorkState {
   completedActions?: string[];
   findingRuling?: 'status_change_cause_unestablished' | 'roof_leak_reported_unproven' | 'stock_loss' | 'carrier_blame' | null;
   initialEntriesDrafted?: boolean;
+  initialEntriesValid?: boolean;
+  initialRecord?: {
+    openingUsable?: number;
+    dispatched?: number;
+    received?: number;
+    intakeUsable?: number;
+    intakeHeld?: number;
+    laterUsable?: number;
+    laterHeld?: number;
+    issueQuantity?: number;
+    statusTransfer?: number;
+    issueRecipient?: 'brewing_house' | 'steward' | 'unknown';
+    issueAuthority?: 'temple_decree' | 'none';
+  };
   sourceNotationAdded?: boolean;
   seniorReviewCompleted?: boolean;
   c1EvidenceRetrieved?: boolean;
