@@ -101,7 +101,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
       initialRecord.issueRecipient === 'brewing_house' &&
       initialRecord.issueAuthority === 'temple_decree';
   };
-  const setRecordField = (field: keyof NonNullable<StorehouseWorkState['initialRecord']>, value: number | 'brewing_house' | 'steward' | 'unknown' | 'temple_decree' | 'none') => {
+  const setRecordField = (field: keyof NonNullable<StorehouseWorkState['initialRecord']>, value: number | 'brewing_house' | 'steward' | 'unknown' | 'temple_decree' | 'none' | undefined) => {
     onUpdateWorkState({ initialRecord: { ...initialRecord, [field]: value } });
   };
   const draftInitial = () => {
@@ -357,6 +357,37 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
           {state.registerConfigured && <div className="rounded-lg bg-emerald-50 dark:bg-emerald-950/30 p-3 text-sm">Configured: <strong>{state.registerDesign === 'movement_ledger' ? 'Movement Ledger' : 'Compact Balance Register'}</strong></div>}
           <div className="border-t border-stone-200 dark:border-stone-700 pt-4 space-y-3">
             <h4 className="font-semibold text-sm">Initial finding and entries</h4>
+            <p className="text-xs text-stone-500">Enter the register quantities and identify the issue recipient and authority. The target document is not prefilled; the validator checks the values against the examined evidence.</p>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {([
+                ['openingUsable','Opening usable stock'],
+                ['dispatched','Dispatched quantity'],
+                ['received','Physical receipt'],
+                ['intakeUsable','Usable at intake'],
+                ['intakeHeld','Held at intake'],
+                ['laterUsable','Usable at recount'],
+                ['laterHeld','Held at recount'],
+                ['issueQuantity','Issue quantity'],
+                ['statusTransfer','Usable-to-held transfer'],
+              ] as const).map(([field,label]) => <label key={field} className="text-xs text-stone-600 dark:text-stone-300">
+                <span className="block mb-1">{label}</span>
+                <input type="number" min="0" disabled={state.initialEntriesValid}
+                  value={initialRecord[field] ?? ''}
+                  onChange={(event) => setRecordField(field, event.target.value === '' ? undefined : Number(event.target.value))}
+                  className="w-full rounded-lg border border-[#D6CEBE] dark:border-stone-700 bg-white dark:bg-stone-800 px-3 py-2"/>
+              </label>)}
+              <label className="text-xs text-stone-600 dark:text-stone-300">Issue recipient
+                <select disabled={state.initialEntriesValid} value={initialRecord.issueRecipient ?? ''} onChange={(event) => setRecordField('issueRecipient', event.target.value as 'brewing_house' | 'steward' | 'unknown' | undefined)} className="w-full mt-1 rounded-lg border border-[#D6CEBE] dark:border-stone-700 bg-white dark:bg-stone-800 px-3 py-2">
+                  <option value="">Select recipient</option><option value="brewing_house">Brewing-house operation</option><option value="steward">Storehouse Steward</option><option value="unknown">Unknown</option>
+                </select>
+              </label>
+              <label className="text-xs text-stone-600 dark:text-stone-300">Issue authority
+                <select disabled={state.initialEntriesValid} value={initialRecord.issueAuthority ?? ''} onChange={(event) => setRecordField('issueAuthority', event.target.value as 'temple_decree' | 'none' | undefined)} className="w-full mt-1 rounded-lg border border-[#D6CEBE] dark:border-stone-700 bg-white dark:bg-stone-800 px-3 py-2">
+                  <option value="">Select authority</option><option value="temple_decree">Temple decree</option><option value="none">No supplied authority</option>
+                </select>
+              </label>
+            </div>
+            <p className="text-xs text-stone-500">Required accounting: 24 + 60 − 30 = 54 total closing measures; 47 usable + 7 held = 54. Usable balance: 24 + 56 − 30 − 3 = 47.</p>
             <p className="text-xs text-stone-500">Select a defensible explanation. The record must preserve both condition snapshots; the three measures changed status rather than disappearing.</p>
             {([
               ['status_change_cause_unestablished','Three measures changed from usable to held; the cause is not established.'],
@@ -368,7 +399,8 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
               <span>{label}</span>
             </label>)}
             <button disabled={!state.registerConfigured || state.initialEntriesDrafted || !canAct(2)} onClick={draftInitial} className="px-3 py-2 rounded-lg bg-[#2B1B17] text-white text-xs disabled:opacity-40">Draft initial entries · 2 AP</button>
-            {state.initialEntriesDrafted && <span className="text-xs text-emerald-600 ml-2">Draft passes factual checks</span>}
+            {state.initialEntriesDrafted && state.initialEntriesValid && <span className="text-xs text-emerald-600 ml-2">Draft passes factual checks</span>}
+            {state.initialEntriesDrafted && !state.initialEntriesValid && <div className="space-y-2"><p className="text-xs text-amber-700">Draft does not satisfy the quantity, recipient, authority, or evidence invariants. Correct the fields and revise for 1 AP.</p><button disabled={!canAct(1)} onClick={reviseInitial} className="px-3 py-2 rounded-lg border text-xs disabled:opacity-40">Revise initial entries · 1 AP</button></div>}
             {state.findingRuling && state.findingRuling !== 'status_change_cause_unestablished' &&
               !(state.findingRuling === 'roof_leak_reported_unproven' && has('maintenance')) &&
               <p className="text-xs text-amber-700">This finding is not supported by the currently retrieved evidence.</p>}
