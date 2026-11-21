@@ -93,7 +93,7 @@ export const CareerJournalModal: React.FC<CareerJournalProps> = ({
 
                 <div className="pt-3 border-t border-stone-100 dark:border-stone-800 flex items-center justify-between text-xs font-mono text-stone-600 dark:text-stone-300">
                   <span>Reward: +{chal.rewardSilver} silver, +{chal.rewardCareerXp} XP</span>
-                  <span>Cost: {chal.blockCost} block(s)</span>
+                  <span>Cost: {chal.blockCost} AP</span>
                 </div>
 
                 <div className="flex gap-3 pt-2">
