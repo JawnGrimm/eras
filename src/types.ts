@@ -86,8 +86,6 @@ export interface StorehouseWorkState {
     responsibleRecorder?: 'apprentice_under_senior_scribe' | 'unknown';
   };
   sourceReferences?: string[];
-  //
-  };
   sourceNotationAdded?: boolean;
   seniorReviewCompleted?: boolean;
   c1EvidenceRetrieved?: boolean;
