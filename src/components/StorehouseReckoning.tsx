@@ -282,7 +282,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
     return <div key={id} className="flex items-center justify-between gap-4 border-b border-stone-100 dark:border-stone-800 py-3">
       <div className="min-w-0">
         <div className="text-sm font-medium">{action.label}</div>
-        <div className="text-xs text-stone-500 mt-1">{action.result}</div>
+        <div className="text-xs text-stone-500 mt-1">{done ? action.result : "Retrieve or perform this action to establish the result."}</div>
       </div>
       <div className="shrink-0 flex items-center gap-3">
         <span className="text-xs font-mono text-stone-500">{action.cost} AP</span>
