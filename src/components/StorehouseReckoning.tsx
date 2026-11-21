@@ -99,6 +99,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
       initialRecord.laterHeld === 7 &&
       initialRecord.issueQuantity === 30 &&
       initialRecord.statusTransfer === 3 &&
+      initialRecord.closingTotal === 54 &&
       initialRecord.issueRecipient === 'brewing_house' &&
       initialRecord.issueAuthority === 'temple_decree' &&
       initialRecord.dispatchFrom === 'outer_fields' &&
@@ -383,6 +384,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
                 ['laterHeld','Held at recount'],
                 ['issueQuantity','Issue quantity'],
                 ['statusTransfer','Usable-to-held transfer'],
+                ['closingTotal','Total closing stock'],
               ] as const).map(([field,label]) => <label key={field} className="text-xs text-stone-600 dark:text-stone-300">
                 <span className="block mb-1">{label}</span>
                 <input type="number" min="0" disabled={state.initialEntriesValid}
