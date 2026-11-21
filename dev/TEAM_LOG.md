@@ -436,3 +436,47 @@ The desk's upgrade list, costs, exact effects, transition bonuses, and numerical
 
 - `docs/GDD.md`: recorded the specialization model, three expertise levels, qualification-and-choice structure, multi-specialization and Primary Specialization, the three specialization benefit types, persistent character development across eras, and the family desk's inheritance and era-transition rules.
 - No runtime code, save schema, numerical balance, or gameplay behavior changed.
+
+
+## 2026-11-21 — Decision: establish character condition principles
+
+**Contributor:** Chad (AI)  
+**Status:** Approved design baseline
+
+The owner approved the initial principles governing how character conditions are acquired, applied, persist, and recover. These principles extend the character-action model:
+
+> **Character + Skills + Specializations + Equipment + Conditions + Circumstances → Available Actions and Outcomes**
+
+### Acquisition
+
+Conditions may arise from three broad sources:
+
+- **Player-driven:** actions and decisions, including demanding work, overtime, and difficult professional or social situations.
+- **World-driven:** illness, accidents, seasonal circumstances, and other external events.
+- **Character-driven:** personality, traits, existing conditions, and accumulated stress influencing how a character responds to circumstances.
+
+Random events may introduce conditions, but should be grounded in plausible circumstances rather than arbitrary debuff rolls.
+
+### Application and stacking
+
+- Conditions generally modify relevant attributes, skills, or both.
+- Effects are contextual; a condition applies when relevant to the action rather than automatically affecting every activity.
+- Multiple applicable conditions may stack, with their relevant modifiers combined.
+- Conditions affect action resolution and consequences, not arbitrary action access. If an action remains possible in the fiction, the player may attempt it and accept applicable penalties or risks. Absolute restrictions should be exceptional and justified by genuine circumstances.
+
+### Duration and recovery
+
+- Conditions last as long as their causes and circumstances reasonably warrant.
+- Some recover naturally over time.
+- Rest, care, treatment, and appropriate items may support or accelerate recovery.
+- Remedies are condition-specific. Rest may relieve fatigue, for example, but does not automatically cure an injury or erase a social or institutional consequence.
+- Some conditions may become lasting or permanent.
+
+### Still open
+
+The condition catalog, modifier values, stacking limits if any, duration rules, treatment effects, and recovery balance remain undecided. No numerical modifiers, random-event rates, condition thresholds, or runtime behavior were approved.
+
+### Repository changes
+
+- `docs/GDD.md`: added the character-condition principles under Section 3.4 and clarified the remaining character-system design work.
+- No runtime code, save schema, numerical balance, or gameplay behavior changed.
