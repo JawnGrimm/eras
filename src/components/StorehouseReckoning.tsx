@@ -495,7 +495,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
                   ['totalStockChange','Total stock change'],
                 ] as const).map(([field,label]) => <label key={field} className="text-xs text-stone-500">{label}<input type="number" min="0" disabled={state.c1EntryRecorded || state.testC1Passed} value={state.c1Record?.[field] ?? ''} onChange={(event) => onUpdateWorkState({c1Record:{...state.c1Record,[field]:event.target.value === '' ? undefined : Number(event.target.value)}})} className="w-full mt-1 rounded border bg-white dark:bg-stone-800 px-2 py-1"/></label>)}
               </div>
-              <button disabled={!state.c1Ruling || state.c1EntryRecorded || state.testC1Passed || !canAct(1)} onClick={() => enterTest('c1')} className="px-3 py-2 rounded-lg bg-[#2B1B17] text-white text-xs disabled:opacity-40">Enter C-1 and linked note · 1 AP</button>
+              <button disabled={!state.c1Ruling || state.c1EntryRecorded || state.testC1Passed || !canAct(1)} onClick={() => enterTest('c1')} className="px-3 py-2 rounded-lg bg-[#2B1B17] text-white text-xs disabled:opacity-40">{state.registerDesign === 'compact_balance' ? 'Enter C-1 and linked note · 1 AP' : 'Enter C-1 · 1 AP'}</button>
               {state.c1EntryRecorded && <button disabled={state.testC1Passed || ((state.c1AuditAttempts ?? 0) > 0) || !canAct(1)} onClick={() => auditTest('c1')} className="px-3 py-2 rounded-lg bg-[#C86D33] text-white text-xs disabled:opacity-40">Audit C-1 · 1 AP</button>}
               {state.c1AuditAttempts && state.c1AuditAttempts > 0 && !state.testC1Passed && <button disabled={!canAct(1)} onClick={() => reviseTest('c1')} className="px-3 py-2 rounded-lg border text-xs disabled:opacity-40">Revise C-1 · 1 AP</button>}
             </>}
@@ -518,7 +518,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
                   ['discrepancy','Discrepancy'],
                 ] as const).map(([field,label]) => <label key={field} className="text-xs text-stone-500">{label}<input type="number" min="0" disabled={state.c2EntryRecorded || state.testC2Passed} value={state.c2Record?.[field] ?? ''} onChange={(event) => onUpdateWorkState({c2Record:{...state.c2Record,[field]:event.target.value === '' ? undefined : Number(event.target.value)}})} className="w-full mt-1 rounded border bg-white dark:bg-stone-800 px-2 py-1"/></label>)}
               </div>
-              <button disabled={!state.c2Ruling || state.c2EntryRecorded || state.testC2Passed || !canAct(1)} onClick={() => enterTest('c2')} className="px-3 py-2 rounded-lg bg-[#2B1B17] text-white text-xs disabled:opacity-40">Enter C-2 and linked note · 1 AP</button>
+              <button disabled={!state.c2Ruling || state.c2EntryRecorded || state.testC2Passed || !canAct(1)} onClick={() => enterTest('c2')} className="px-3 py-2 rounded-lg bg-[#2B1B17] text-white text-xs disabled:opacity-40">{state.registerDesign === 'compact_balance' ? 'Enter C-2 and linked note · 1 AP' : 'Enter C-2 · 1 AP'}</button>
               {state.c2EntryRecorded && <button disabled={state.testC2Passed || ((state.c2AuditAttempts ?? 0) > 0) || !canAct(1)} onClick={() => auditTest('c2')} className="px-3 py-2 rounded-lg bg-[#C86D33] text-white text-xs disabled:opacity-40">Audit C-2 · 1 AP</button>}
               {state.c2AuditAttempts && state.c2AuditAttempts > 0 && !state.testC2Passed && <button disabled={!canAct(1)} onClick={() => reviseTest('c2')} className="px-3 py-2 rounded-lg border text-xs disabled:opacity-40">Revise C-2 · 1 AP</button>}
             </>}
