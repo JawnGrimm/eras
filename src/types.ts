@@ -94,12 +94,14 @@ export interface StorehouseWorkState {
   c1EntryRecorded?: boolean;
   c1Ruling?: 'status_transfer' | 'new_receipt' | null;
   c1Record?: { transferred?: number; heldRemaining?: number; totalStockChange?: number };
+  c1Sources?: string[];
   c1SupplementAdded?: boolean;
   c1AuditAttempts?: number;
   c2EvidenceRetrieved?: boolean;
   c2EntryRecorded?: boolean;
   c2Ruling?: 'discrepancy_pending' | 'full_receipt' | 'carrier_at_fault' | null;
   c2Record?: { dispatched?: number; received?: number; discrepancy?: number };
+  c2Sources?: string[];
   c2SupplementAdded?: boolean;
   c2AuditAttempts?: number;
   finalAuditPassed?: boolean;
