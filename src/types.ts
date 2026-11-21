@@ -77,6 +77,7 @@ export interface StorehouseWorkState {
     laterHeld?: number;
     issueQuantity?: number;
     statusTransfer?: number;
+    closingTotal?: number;
     issueRecipient?: 'brewing_house' | 'steward' | 'unknown';
     issueAuthority?: 'temple_decree' | 'none';
     dispatchFrom?: 'outer_fields' | 'unknown';
