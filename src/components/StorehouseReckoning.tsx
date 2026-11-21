@@ -42,7 +42,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
   const has = (id: string) => completed.includes(id);
   const stageAReady = has('opening') && has('dispatch_receipt') && has('intake') &&
     has('recount') && has('carrier') && has('brewing');
-  const stageBReady = Boolean(state.registerConfigured && state.initialEntriesDrafted &&
+  const stageBReady = Boolean(state.registerConfigured && state.initialEntriesValid &&
     state.sourceNotationAdded && state.seniorReviewCompleted);
   const c1Ready = Boolean(state.c1EvidenceRetrieved && state.c1EntryRecorded && state.testC1Passed);
   const c2Ready = Boolean(state.c2EvidenceRetrieved && state.c2EntryRecorded && state.testC2Passed);
@@ -84,18 +84,41 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
       'The register structure is selected.');
   };
 
-  const draftInitial = () => {
-    if (!state.findingRuling) {
-      onShowToast('Select the finding you intend to record before drafting the initial entries.');
-      return;
-    }
-    const valid = state.findingRuling === 'status_change_cause_unestablished' ||
+  const initialRecord = state.initialRecord ?? {};
+  const recordIsValid = () => {
+    const findingValid = state.findingRuling === 'status_change_cause_unestablished' ||
       (state.findingRuling === 'roof_leak_reported_unproven' && has('maintenance'));
+    return findingValid &&
+      initialRecord.openingUsable === 24 &&
+      initialRecord.dispatched === 60 &&
+      initialRecord.received === 60 &&
+      initialRecord.intakeUsable === 56 &&
+      initialRecord.intakeHeld === 4 &&
+      initialRecord.laterUsable === 47 &&
+      initialRecord.laterHeld === 7 &&
+      initialRecord.issueQuantity === 30 &&
+      initialRecord.statusTransfer === 3 &&
+      initialRecord.issueRecipient === 'brewing_house' &&
+      initialRecord.issueAuthority === 'temple_decree';
+  };
+  const setRecordField = (field: keyof NonNullable<StorehouseWorkState['initialRecord']>, value: number | 'brewing_house' | 'steward' | 'unknown' | 'temple_decree' | 'none') => {
+    onUpdateWorkState({ initialRecord: { ...initialRecord, [field]: value } });
+  };
+  const draftInitial = () => {
+    const valid = recordIsValid();
     commit('Draft opening, receipt, condition, status-change, and issue entries', 2,
-      { initialEntriesDrafted: valid },
+      { initialEntriesDrafted: true, initialEntriesValid: valid },
       valid
-        ? 'The 24 + 56 - 30 - 3 = 47 usable balance and 7 held measures are preserved as separate events.'
-        : 'The draft contains an unsupported finding. Revise the ruling before Stage B can be completed.');
+        ? 'All initial quantities, recipient, authority, status movement, and finding are supported.'
+        : 'The draft failed validation. Correct the structured fields and use a 1-AP revision pass.');
+  };
+  const reviseInitial = () => {
+    const valid = recordIsValid();
+    commit('Revise initial register entries', 1,
+      { initialEntriesValid: valid, revisionPasses: (state.revisionPasses ?? 0) + 1 },
+      valid
+        ? 'The corrected initial record now satisfies the scenario invariants.'
+        : 'The revised record still contains unsupported or inconsistent fields.');
   };
 
   const addSourceNotation = () => commit('Add source references and unresolved-cause notation', 1,
