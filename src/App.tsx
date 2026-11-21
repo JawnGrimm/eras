@@ -66,20 +66,27 @@ export default function App() {
   });
 
   const [workState, setWorkState] = useState<StorehouseWorkState>(() => {
+    const fresh: StorehouseWorkState = {
+      stage: 'A_INVESTIGATE',
+      examinedEvidence: [],
+      registerDesign: null,
+      registerConfigured: false,
+      testC1Passed: false,
+      testC2Passed: false,
+      auditCompleted: false,
+      adopted: false,
+      adoptionType: null,
+      completedActions: [],
+      rewardGranted: false,
+      revisionPasses: 0,
+    };
     const saved = loadGameState<StorehouseWorkState>('scribe_workstate');
-    return saved
-      ? saved
-      : {
-          stage: 'A_INVESTIGATE',
-          examinedEvidence: [],
-          registerDesign: null,
-          registerConfigured: false,
-          testC1Passed: false,
-          testC2Passed: false,
-          auditCompleted: false,
-          adopted: false,
-          adoptionType: null,
-        };
+    if (!saved) return fresh;
+    // Preserve a completed legacy Work, but do not treat the old free-evidence / auto-pass
+    // prototype as if the newly costed action sequence had actually been performed.
+    if (saved.stage === 'COMPLETED') return { ...fresh, ...saved, rewardGranted: true };
+    if (!saved.completedActions) return fresh;
+    return { ...fresh, ...saved };
   });
 
   const [activeTab, setActiveTab] = useState<string>('hub');
