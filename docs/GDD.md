@@ -210,7 +210,29 @@ The current six-skill framework is:
 
 These are primary pairings, not exclusive attribute-to-skill dependencies. The attribute relevant to an action may change with its specific demands and circumstances. Endurance, for example, may matter when an otherwise familiar skill must be sustained through prolonged effort.
 
-Skills represent learned competencies and can develop across career paths. The detailed skill scale, training and advancement rules, and the specialization structure remain open design work.
+Skills represent learned competencies and can develop across career paths. Character skills and accumulated professional experience persist across era transitions; entering a new era does not reset the character's development. Historical transitions make additional era-appropriate branches of the skill tree available. The detailed skill scale, training and advancement rules remain open design work.
+
+#### Specializations
+
+Specializations represent focused professional expertise developed within the shared skill framework. They are not additional career classes and do not permanently restrict a character to their initial career path.
+
+Characters qualify for specializations through relevant experience, skills, relationships, and opportunities. Once eligible, the player chooses which specialization to pursue; eligibility is earned through play, while the choice remains with the player. Repetitive Assignment grinding should not be the only route to qualification: significant Works, Challenges, study, mentorship, and professional opportunities may also contribute where relevant.
+
+A character may develop multiple specializations. One is designated the **Primary Specialization**, representing the character's strongest professional identity and potentially influencing recognition, reputation, institutional opportunities, and career development. Other specializations remain mechanically useful. Primary status does not necessarily mean the character has the highest numerical skill in that field.
+
+Each specialization has three levels of expertise:
+
+1. **Practitioner** — competent in the specialized field.
+2. **Specialist** — able to handle demanding work and use distinctive capabilities.
+3. **Master** — exceptional expertise, advanced actions, and significant professional recognition.
+
+Specializations should provide a combination of three benefits:
+
+- **Unlock actions:** make new approaches or activities available.
+- **Improve actions:** make relevant existing actions more effective.
+- **Create opportunities:** change the professional work, appointments, relationships, and institutional opportunities available to the character.
+
+Secondary specializations retain their relevant capabilities; they are not deliberately weakened merely because another specialization is primary. The content, qualification thresholds, advancement requirements, and exact effects of individual specializations remain to be designed.
 
 ### 3.5 Tone
 
@@ -842,6 +864,16 @@ Higher rank can also affect professional access, institutional trust, and the ra
 
 A player may become a Grand Archivist while still in the earliest era. That achievement does not unlock the next historical era. Conversely, completing a major Work and moving into another era does not automatically increase the player's career rank.
 
+### 10.5 Specialization and professional identity
+
+Specializations provide focused expertise within the shared character skills. They are earned through relevant experience and opportunities, then selected by the player from those for which the character qualifies. They are not locked to the character's initial career path.
+
+A character may hold multiple specializations, with one designated as Primary. Primary status represents professional identity and may influence recognition, reputation, appointments, and access to opportunities; it is not simply a label for the highest numerical skill. Secondary specializations retain their relevant mechanical benefits.
+
+Each specialization has three expertise levels: **Practitioner**, **Specialist**, and **Master**. These represent increasing competence, access to demanding work and distinctive capabilities, and exceptional expertise with advanced actions and professional recognition.
+
+Specializations should unlock actions, improve relevant actions, and create professional opportunities. Their effects should connect to the character-action model and the people and institutions of the world rather than exist only as passive percentage bonuses. Exact qualification and advancement requirements, and the content of individual specializations, remain open.
+
 ---
 
 ## 11. Historical Progression and Works
@@ -1012,6 +1044,7 @@ The game is intended to feel like one continuing historical journey, not disconn
 
 Depending on the final generational design, continuity may include:
 - Family name and lineage.
+- The family's inherited desk, including its accumulated history, adaptations, and modest legacy effects from upgrades installed in earlier eras.
 - Professional identity and traditions.
 - Career accomplishments and recognized Works.
 - Wealth, property, or selected assets.
@@ -1025,7 +1058,9 @@ Depending on the final generational design, continuity may include:
 
 Not everything should pass unchanged. Relationships can weaken, institutions can disappear, skills can become obsolete, and new generations can reinterpret inherited traditions. Some contacts may persist through descendants or successors rather than as the same individual. The system should support continuity and change together.
 
-The detailed family tree, lifespan rules, succession structure, and inheritance mechanics remain to be fully designed. They should not be reduced to a simple reset that discards the player's social and professional history.
+The family desk is an established physical heirloom passed down through the generations. It is upgraded and personalized during each era and provides a tangible connection between successive scribes. At an era transition, the desk remains in the family, but its previous era's upgrades become modest inherited bonuses rather than retaining their full former effects. The next era makes new, historically appropriate desk upgrades available.
+
+The desk is one concrete carrier of family continuity; it does not by itself settle the complete family tree, lifespan, succession, or inheritance model. Those broader mechanics remain to be designed. They should not be reduced to a simple reset that discards the player's social and professional history.
 
 ---
 
@@ -1044,9 +1079,13 @@ Potential equipment categories include:
 
 Equipment can provide useful practical benefits or reflect status and access. It should not become a pile of arbitrary stat bonuses. A purchase by itself does not award Career XP. Study or training may award Career XP when it represents genuine professional development.
 
-Equipment progression must respect historical context. A tool should not carry unchanged through eras where it no longer makes sense; the player may need to acquire or adapt to the methods of a new period.
+Equipment progression must respect historical context. Most tools should not carry unchanged through eras where they no longer make sense; the player may need to acquire or adapt to the methods of a new period.
 
-The detailed upgrade economy, qualities, rarities, modifiers, and item lists remain open design work.
+The family desk is a deliberate exception: it is passed down through the family as a persistent heirloom and workspace. The player can upgrade and personalize it during each era. When history advances, the desk remains, but its previous upgrades are treated as inherited craftsmanship or legacy features that provide modest bonuses based on what had been installed. They do not retain their full former-era mechanical strength. New era-specific desk upgrades and workspace capabilities then become available. This keeps the desk meaningful without allowing old upgrades to dominate later technology.
+
+Desk upgrades should have practical effects and connect to the wider character-action model. For example, writing tools may improve relevant work quality, while a lighting or viewing improvement may reveal details or provide useful information. These are examples of the intended contextual effect, not a finalized item list or numerical specification.
+
+The detailed upgrade economy, qualities, rarities, modifiers, transition bonuses, and item lists remain open design work.
 
 ---
 
@@ -1190,7 +1229,8 @@ The following details require further design before they can be treated as fixed
 19. A defined minimum viable product (MVP): which era, Works, Assignments, characters, systems, and content must exist for a complete first release.
 20. Content-authoring and validation pipeline: scenario state schemas, evidence generation, invariant checks, branch coverage, historical review, and automated QA for authored or AI-assisted drafts.
 21. Evaluation implementation: define how the approved judgment principles are expressed through player-facing feedback, scoring or outcome tiers, and scenario validators. Preserve the distinction between a reasonable judgment based on evidence available at decision time and a careless or unsupported conclusion. Do not assume every scenario has one correct ruling; determine how task purpose and required information shape completeness. The evaluation principle is approved, but scoring weights, feedback language, and validator behavior remain undecided.
-22. Complete the character system: define skill scales and advancement, specializations, class-specific starting circumstances and benefits, conditions, equipment effects, and the action-resolution model that connects attributes, skills, equipment, conditions, and circumstances. The four initial career paths, six attributes, six core skills, and primary attribute pairings are established as the current framework; the remaining mechanics are not yet fixed.
+22. Complete the character system: define skill scales and advancement, specialization content and qualification/advancement requirements, class-specific starting circumstances and benefits, conditions, equipment effects, and the action-resolution model that connects attributes, skills, equipment, conditions, and circumstances. The four initial career paths, six attributes, six core skills, primary attribute pairings, multi-specialization model, Primary Specialization, and three expertise levels are established as the current framework; detailed mechanics are not yet fixed.
+23. Define the family desk's upgrade economy and era-transition treatment, including upgrade effects, costs, adaptation, and the modest inherited bonuses retained from previous eras. The desk's continuity role and broad transition principle are established; individual upgrades and numerical effects are not.
 
 These are open design tasks, not invitations to fill gaps with arbitrary placeholder systems.
 
@@ -1224,5 +1264,5 @@ Career XP measures professional development. Historical Progress XP measures man
 
 The personal economy remains limited to silver, bread, and beer, with grain reserved for the wider world and institutional economy. The distinct roles and later-era equivalents of bread and beer, as well as stress recovery and generational continuity, remain open design work.
 
-The journey should remain continuous across eras, successors, and institutions without pretending that the same people or family relationships can persist unchanged across millennia and continents. The persistent carrier of that continuity is a major remaining design decision.
+The journey should remain continuous across eras, successors, and institutions without pretending that the same people or family relationships can persist unchanged across millennia and continents. The family desk is an established inherited object and a tangible carrier of professional history; the broader succession, family, and social continuity model remains to be completed.
 
