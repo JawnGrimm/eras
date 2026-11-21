@@ -1,7 +1,7 @@
 import React from 'react';
 import { StorehouseWorkState, PlayerProfile, RegisterDesignType } from '../types';
 import { createStorehouseEvidence } from '../data/initialData';
-import { ShieldCheck, CheckCircle2, AlertCircle, ArrowRight, FileText, Users, Clock, LockKeyhole } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, ArrowRight, Clock } from 'lucide-react';
 
 interface StorehouseReckoningProps {
   player: PlayerProfile;
@@ -44,8 +44,8 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
     has('recount') && has('carrier') && has('brewing');
   const stageBReady = Boolean(state.registerConfigured && state.initialEntriesDrafted &&
     state.sourceNotationAdded && state.seniorReviewCompleted);
-  const c1Ready = Boolean(state.c1EvidenceRetrieved && state.c1EntryRecorded && state.c1Passed);
-  const c2Ready = Boolean(state.c2EvidenceRetrieved && state.c2EntryRecorded && state.c2Passed);
+  const c1Ready = Boolean(state.c1EvidenceRetrieved && state.c1EntryRecorded && state.testC1Passed);
+  const c2Ready = Boolean(state.c2EvidenceRetrieved && state.c2EntryRecorded && state.testC2Passed);
   const stageCReady = c1Ready && c2Ready;
   const canAct = (cost: number) => player.blocksRemaining >= cost;
 
@@ -126,7 +126,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
       return;
     }
     commit('Enter test ' + which.toUpperCase() + ' in the register', 1,
-      isC1 ? { c1EntryRecorded: true, c1Passed: false } : { c2EntryRecorded: true, c2Passed: false },
+      isC1 ? { c1EntryRecorded: true, testC1Passed: false } : { c2EntryRecorded: true, testC2Passed: false },
       'The entry is recorded and ready for audit.');
   };
 
@@ -155,8 +155,8 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
     const count = (isC1 ? state.c1AuditAttempts : state.c2AuditAttempts) ?? 0;
     commit('Audit test ' + which.toUpperCase(), 1,
       isC1
-        ? { c1Passed: valid, c1AuditAttempts: count + 1 }
-        : { c2Passed: valid, c2AuditAttempts: count + 1 },
+        ? { testC1Passed: valid, c1AuditAttempts: count + 1 }
+        : { testC2Passed: valid, c2AuditAttempts: count + 1 },
       valid
         ? (isC1
           ? '5 measures move from held to usable, 2 remain held, and total physical stock is unchanged.'
@@ -170,8 +170,8 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
     const isC1 = which === 'c1';
     commit('Revise test ' + which.toUpperCase() + ' entry', 1,
       isC1
-        ? { c1Ruling: 'status_transfer', c1EntryRecorded: true, c1Passed: false, revisionPasses: (state.revisionPasses ?? 0) + 1 }
-        : { c2Ruling: 'discrepancy_pending', c2EntryRecorded: true, c2Passed: false, revisionPasses: (state.revisionPasses ?? 0) + 1 },
+        ? { c1Ruling: 'status_transfer', c1EntryRecorded: true, testC1Passed: false, revisionPasses: (state.revisionPasses ?? 0) + 1 }
+        : { c2Ruling: 'discrepancy_pending', c2EntryRecorded: true, testC2Passed: false, revisionPasses: (state.revisionPasses ?? 0) + 1 },
       'The entry has been corrected and must be audited again.');
   };
 
@@ -354,37 +354,37 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
         'Each test has three costed steps: retrieve evidence (1 AP), enter the transaction (1 AP), and audit the entry (1 AP). The test evidence is not shown before retrieval.',
         <div className="grid lg:grid-cols-2 gap-5">
           <div className="rounded-xl border border-[#D6CEBE] dark:border-stone-700 p-5 space-y-3">
-            <div className="flex justify-between"><h4 className="font-semibold">Test C-1 · Release of held stock</h4><span className="text-xs">{state.c1Passed ? 'Passed' : 'Pending'}</span></div>
+            <div className="flex justify-between"><h4 className="font-semibold">Test C-1 · Release of held stock</h4><span className="text-xs">{state.testC1Passed ? 'Passed' : 'Pending'}</span></div>
             {!state.c1EvidenceRetrieved ? <button disabled={!canAct(1)} onClick={() => retrieveTest('c1')} className="px-3 py-2 rounded-lg bg-[#2B1B17] text-white text-xs disabled:opacity-40">Retrieve C-1 evidence · 1 AP</button> :
               <div className="bg-[#FAF7F0] dark:bg-stone-800 p-3 rounded-lg text-xs space-y-1"><p>C1-E01: Inspection establishes 5 of 7 held measures have dried; 2 remain held.</p><p>C1-E02: Steward authorizes 5 measures to return to usable stock.</p></div>}
             {state.c1EvidenceRetrieved && <>
               <div className="space-y-2 text-xs">
-                <label className="flex gap-2"><input type="radio" name="c1" checked={state.c1Ruling === 'status_transfer'} onChange={() => onUpdateWorkState({c1Ruling:'status_transfer',c1EntryRecorded:false,c1Passed:false})}/> Record 5 transferred from held to usable; no new receipt.</label>
-                <label className="flex gap-2"><input type="radio" name="c1" checked={state.c1Ruling === 'new_receipt'} onChange={() => onUpdateWorkState({c1Ruling:'new_receipt',c1EntryRecorded:false,c1Passed:false})}/> Record 5 as a new receipt.</label>
+                <label className="flex gap-2"><input type="radio" name="c1" checked={state.c1Ruling === 'status_transfer'} onChange={() => onUpdateWorkState({c1Ruling:'status_transfer',c1EntryRecorded:false,testC1Passed:false})}/> Record 5 transferred from held to usable; no new receipt.</label>
+                <label className="flex gap-2"><input type="radio" name="c1" checked={state.c1Ruling === 'new_receipt'} onChange={() => onUpdateWorkState({c1Ruling:'new_receipt',c1EntryRecorded:false,testC1Passed:false})}/> Record 5 as a new receipt.</label>
               </div>
               <button disabled={!state.c1Ruling || !canAct(1)} onClick={() => enterTest('c1')} className="px-3 py-2 rounded-lg bg-[#2B1B17] text-white text-xs disabled:opacity-40">Enter C-1 · 1 AP</button>
               {state.registerDesign === 'compact_balance' && !state.c1SupplementAdded && <button disabled={!state.c1EntryRecorded || !canAct(1)} onClick={() => addSupplement('c1')} className="px-3 py-2 rounded-lg border text-xs disabled:opacity-40">Add linked movement note · 1 AP</button>}
               {state.c1EntryRecorded && <button disabled={!canAct(1)} onClick={() => auditTest('c1')} className="px-3 py-2 rounded-lg bg-[#C86D33] text-white text-xs disabled:opacity-40">Audit C-1 · 1 AP</button>}
-              {state.c1AuditAttempts && state.c1AuditAttempts > 0 && !state.c1Passed && <button disabled={!canAct(1)} onClick={() => reviseTest('c1')} className="px-3 py-2 rounded-lg border text-xs disabled:opacity-40">Revise C-1 · 1 AP</button>}
+              {state.c1AuditAttempts && state.c1AuditAttempts > 0 && !state.testC1Passed && <button disabled={!canAct(1)} onClick={() => reviseTest('c1')} className="px-3 py-2 rounded-lg border text-xs disabled:opacity-40">Revise C-1 · 1 AP</button>}
             </>}
-            {state.c1Passed && <p className="text-xs text-emerald-600 flex gap-1"><CheckCircle2 size={14}/> 5 transferred; 2 remain held; total stock unchanged.</p>}
+            {state.testC1Passed && <p className="text-xs text-emerald-600 flex gap-1"><CheckCircle2 size={14}/> 5 transferred; 2 remain held; total stock unchanged.</p>}
           </div>
           <div className="rounded-xl border border-[#D6CEBE] dark:border-stone-700 p-5 space-y-3">
-            <div className="flex justify-between"><h4 className="font-semibold">Test C-2 · Short delivery</h4><span className="text-xs">{state.c2Passed ? 'Passed' : 'Pending'}</span></div>
+            <div className="flex justify-between"><h4 className="font-semibold">Test C-2 · Short delivery</h4><span className="text-xs">{state.testC2Passed ? 'Passed' : 'Pending'}</span></div>
             {!state.c2EvidenceRetrieved ? <button disabled={!canAct(1)} onClick={() => retrieveTest('c2')} className="px-3 py-2 rounded-lg bg-[#2B1B17] text-white text-xs disabled:opacity-40">Retrieve C-2 evidence · 1 AP</button> :
               <div className="bg-[#FAF7F0] dark:bg-stone-800 p-3 rounded-lg text-xs space-y-1"><p>C2-E01: Dispatch instruction authorizes 20 measures.</p><p>C2-E02: Receiving tally counts 18 physically unloaded.</p><p>C2-E03: No reliable departure or route inspection locates the 2-measure discrepancy.</p></div>}
             {state.c2EvidenceRetrieved && <>
               <div className="space-y-2 text-xs">
-                <label className="flex gap-2"><input type="radio" name="c2" checked={state.c2Ruling === 'discrepancy_pending'} onChange={() => onUpdateWorkState({c2Ruling:'discrepancy_pending',c2EntryRecorded:false,c2Passed:false})}/> Record 20 dispatched, 18 received, 2 pending inquiry; no blame assigned.</label>
-                <label className="flex gap-2"><input type="radio" name="c2" checked={state.c2Ruling === 'full_receipt'} onChange={() => onUpdateWorkState({c2Ruling:'full_receipt',c2EntryRecorded:false,c2Passed:false})}/> Record all 20 as received.</label>
-                <label className="flex gap-2"><input type="radio" name="c2" checked={state.c2Ruling === 'carrier_at_fault'} onChange={() => onUpdateWorkState({c2Ruling:'carrier_at_fault',c2EntryRecorded:false,c2Passed:false})}/> Assign the 2-measure shortage to the carrier.</label>
+                <label className="flex gap-2"><input type="radio" name="c2" checked={state.c2Ruling === 'discrepancy_pending'} onChange={() => onUpdateWorkState({c2Ruling:'discrepancy_pending',c2EntryRecorded:false,testC2Passed:false})}/> Record 20 dispatched, 18 received, 2 pending inquiry; no blame assigned.</label>
+                <label className="flex gap-2"><input type="radio" name="c2" checked={state.c2Ruling === 'full_receipt'} onChange={() => onUpdateWorkState({c2Ruling:'full_receipt',c2EntryRecorded:false,testC2Passed:false})}/> Record all 20 as received.</label>
+                <label className="flex gap-2"><input type="radio" name="c2" checked={state.c2Ruling === 'carrier_at_fault'} onChange={() => onUpdateWorkState({c2Ruling:'carrier_at_fault',c2EntryRecorded:false,testC2Passed:false})}/> Assign the 2-measure shortage to the carrier.</label>
               </div>
               <button disabled={!state.c2Ruling || !canAct(1)} onClick={() => enterTest('c2')} className="px-3 py-2 rounded-lg bg-[#2B1B17] text-white text-xs disabled:opacity-40">Enter C-2 · 1 AP</button>
               {state.registerDesign === 'compact_balance' && !state.c2SupplementAdded && <button disabled={!state.c2EntryRecorded || !canAct(1)} onClick={() => addSupplement('c2')} className="px-3 py-2 rounded-lg border text-xs disabled:opacity-40">Add linked dispatch/receipt note · 1 AP</button>}
               {state.c2EntryRecorded && <button disabled={!canAct(1)} onClick={() => auditTest('c2')} className="px-3 py-2 rounded-lg bg-[#C86D33] text-white text-xs disabled:opacity-40">Audit C-2 · 1 AP</button>}
-              {state.c2AuditAttempts && state.c2AuditAttempts > 0 && !state.c2Passed && <button disabled={!canAct(1)} onClick={() => reviseTest('c2')} className="px-3 py-2 rounded-lg border text-xs disabled:opacity-40">Revise C-2 · 1 AP</button>}
+              {state.c2AuditAttempts && state.c2AuditAttempts > 0 && !state.testC2Passed && <button disabled={!canAct(1)} onClick={() => reviseTest('c2')} className="px-3 py-2 rounded-lg border text-xs disabled:opacity-40">Revise C-2 · 1 AP</button>}
             </>}
-            {state.c2Passed && <p className="text-xs text-emerald-600 flex gap-1"><CheckCircle2 size={14}/> 20 dispatched; 18 received; discrepancy remains unresolved.</p>}
+            {state.testC2Passed && <p className="text-xs text-emerald-600 flex gap-1"><CheckCircle2 size={14}/> 20 dispatched; 18 received; discrepancy remains unresolved.</p>}
           </div>
           <div className="lg:col-span-2 flex justify-end"><button disabled={!stageCReady} onClick={() => changeStage('D_ADOPT')} className="px-4 py-2 rounded-lg bg-[#C86D33] text-white text-xs disabled:opacity-40">Proceed to Stage D <ArrowRight size={14} className="inline ml-1"/></button></div>
         </div>)}
@@ -396,8 +396,8 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
         <div className="space-y-4">
           <div className="rounded-lg bg-[#FAF7F0] dark:bg-stone-800 p-4 text-xs space-y-1">
             <p>Initial case: {stageBReady && state.initialEntriesDrafted ? 'entries drafted, sourced, and reviewed' : 'incomplete'}</p>
-            <p>Test C-1: {state.c1Passed ? 'passed' : 'not passed'}</p>
-            <p>Test C-2: {state.c2Passed ? 'passed' : 'not passed'}</p>
+            <p>Test C-1: {state.testC1Passed ? 'passed' : 'not passed'}</p>
+            <p>Test C-2: {state.testC2Passed ? 'passed' : 'not passed'}</p>
             <p>Register: {state.registerDesign === 'movement_ledger' ? 'Movement Ledger' : 'Compact Balance Register'}</p>
           </div>
           <div className="flex flex-wrap gap-2">
