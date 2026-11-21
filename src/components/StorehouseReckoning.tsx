@@ -209,21 +209,22 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
     const rulingValid = isC1 ? ruling === 'status_transfer' : ruling === 'discrepancy_pending';
     const valid = sourcesValid && valuesValid && rulingValid;
     const count = (isC1 ? state.c1AuditAttempts : state.c2AuditAttempts) ?? 0;
+    const auditMessage = valid
+      ? (isC1
+        ? '5 measures move from held to usable, 2 remain held, and total physical stock is unchanged.'
+        : '20 dispatched, 18 received, 2 pending inquiry; no unsupported blame is assigned.')
+      : !sourcesValid
+        ? 'Failed: attach every source reference for this test, then revise and audit again.'
+        : !valuesValid
+          ? 'Failed: one or more quantities do not reconcile. Revise the structured values and audit again.'
+          : isC1
+            ? 'Failed: a status release must not be recorded as a new receipt. Revise the ruling and audit again.'
+            : 'Failed: preserve the dispatch/receipt difference and do not assign unsupported blame. Revise and audit again.';
     commit('Audit test ' + which.toUpperCase(), 1,
       isC1
         ? { testC1Passed: valid, c1AuditAttempts: count + 1 }
         : { testC2Passed: valid, c2AuditAttempts: count + 1 },
-      valid
-        ? (isC1
-          ? '5 measures move from held to usable, 2 remain held, and total physical stock is unchanged.'
-          : '20 dispatched, 18 received, 2 pending inquiry; no unsupported blame is assigned.')
-        : (!sourcesValid
-          ? 'Failed: attach every source reference for this test, then revise and audit again.'
-          : !valuesValid
-            ? 'Failed: one or more quantities do not reconcile. Revise the structured values and audit again.'
-            : (isC1
-              ? 'Failed: a status release must not be recorded as a new receipt. Revise the ruling and audit again.'
-              : 'Failed: preserve the dispatch/receipt difference and do not assign unsupported blame. Revise and audit again.'));
+      auditMessage);
   };
 
   const reviseTest = (which: 'c1' | 'c2') => {
