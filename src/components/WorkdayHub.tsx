@@ -250,28 +250,30 @@ export const WorkdayHub: React.FC<WorkdayHubProps> = ({
                 <span className="text-xs font-mono font-bold text-[#C86D33]">-1 AP</span>
               </button>
 
-              <button
-                onClick={onWorkLate}
-                disabled={player.workingLate}
-                className="w-full flex items-center justify-between p-3 rounded-xl bg-orange-50 dark:bg-orange-950/40 hover:bg-orange-100 border border-orange-200 dark:border-orange-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-left"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300 flex items-center justify-center">
-                    <Moon className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-orange-900 dark:text-orange-200">
-                      {player.workingLate ? 'Overtime Completed' : 'Work Late (Overtime)'}
+              {player.blocksRemaining === 0 && (
+                <button
+                  onClick={onWorkLate}
+                  disabled={player.workingLate}
+                  className="w-full flex items-center justify-between p-3 rounded-xl bg-orange-50 dark:bg-orange-950/40 hover:bg-orange-100 border border-orange-200 dark:border-orange-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-left"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300 flex items-center justify-center">
+                      <Moon className="w-4 h-4" />
                     </div>
-                    <div className="text-[11px] text-orange-700 dark:text-orange-400">
-                      {player.workingLate ? "Tomorrow's Block 1 will be skipped." : "+5% Stress · Skips tomorrow's Block 1 · Once per day"}
+                    <div>
+                      <div className="text-xs font-bold text-orange-900 dark:text-orange-200">
+                        {player.workingLate ? 'Overtime Completed' : 'Work Late (Overtime)'}
+                      </div>
+                      <div className="text-[11px] text-orange-700 dark:text-orange-400">
+                        {player.workingLate ? "Tomorrow's Block 1 will be skipped." : "+5% Stress · Skips tomorrow's Block 1 · Once per day"}
+                      </div>
                     </div>
                   </div>
-                </div>
-                <span className="text-xs font-mono font-bold text-orange-800 dark:text-orange-300">
-                  {player.workingLate ? 'Used Today' : '-1 AP'}
-                </span>
-              </button>
+                  <span className="text-xs font-mono font-bold text-orange-800 dark:text-orange-300">
+                    {player.workingLate ? 'Used Today' : 'End of Day'}
+                  </span>
+                </button>
+              )}
             </div>
           </div>
         </div>
