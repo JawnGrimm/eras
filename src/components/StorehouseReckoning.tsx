@@ -192,10 +192,22 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
     { institutionalReviewCompleted: true },
     'The Steward reviews allocation usefulness; the Senior Scribe reviews evidence discipline and procedure.');
 
-  const reviseRegister = () => commit('Revise register fields, entries, or cross-references', 1,
-    { finalAuditPassed: false, auditCompleted: false, institutionalReviewCompleted: false,
-      presentationCompleted: false, revisionPasses: (state.revisionPasses ?? 0) + 1 },
-    'A revision pass is recorded. Run the final audit and institutional review again.');
+  const reviseRegister = () => {
+    if (!state.revisionFocus) {
+      onShowToast('Choose the register field to revise before spending AP.');
+      return;
+    }
+    const descriptions = {
+      dispatch_receipt: 'Added distinct dispatch and physical-receipt references.',
+      status_history: 'Added a linked movement-history field for stock-status changes.',
+      responsibility: 'Added an explicit responsibility and unresolved-cause qualification.',
+    };
+    commit('Revise register: ' + descriptions[state.revisionFocus], 1,
+      { revisionApplied: true, finalAuditPassed: false, auditCompleted: false,
+        institutionalReviewCompleted: false, presentationCompleted: false,
+        revisionPasses: (state.revisionPasses ?? 0) + 1 },
+      'The selected register field has been added. Run the final audit and institutional review again.');
+  };
 
   const present = (decision: 'full' | 'provisional' | 'decline') => {
     if (!state.finalAuditPassed || !state.institutionalReviewCompleted) {
@@ -408,9 +420,18 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
             <div><div className="text-sm font-semibold">Steward and Senior Scribe review</div><div className="text-xs text-stone-500">1 AP · Allocation usefulness, provenance, and professional confidence.</div></div>
             <button disabled={!state.finalAuditPassed || state.institutionalReviewCompleted || !canAct(1)} onClick={institutionalReview} className="px-3 py-2 rounded-lg border text-xs disabled:opacity-40">{state.institutionalReviewCompleted ? 'Reviewed' : 'Request review · 1 AP'}</button>
           </div>
-          <div className="flex items-center justify-between gap-4 border-t border-stone-200 dark:border-stone-700 pt-3">
-            <div><div className="text-sm font-semibold">Revision pass</div><div className="text-xs text-stone-500">1 AP · Revise fields, entries, or cross-references; then audit and review again.</div></div>
-            <button disabled={(!state.finalAuditPassed && state.adoptionType !== 'rejected') || !canAct(1)} onClick={reviseRegister} className="px-3 py-2 rounded-lg border text-xs disabled:opacity-40">Revise · 1 AP</button>
+          <div className="border-t border-stone-200 dark:border-stone-700 pt-3 space-y-3">
+            <div><div className="text-sm font-semibold">Revision pass</div><div className="text-xs text-stone-500">Choose a concrete register improvement. Applying it costs 1 AP and requires a new final audit and review.</div></div>
+            {([
+              ['dispatch_receipt','Separate dispatch and physical-receipt references'],
+              ['status_history','Add linked stock-status movement history'],
+              ['responsibility','Clarify responsibility and unresolved-cause notation'],
+            ] as const).map(([value,label]) => <label key={value} className="flex gap-2 text-xs">
+              <input type="radio" name="revisionFocus" checked={state.revisionFocus === value} onChange={() => onUpdateWorkState({revisionFocus:value})}/>
+              <span>{label}</span>
+            </label>)}
+            <button disabled={!state.revisionFocus || !canAct(1)} onClick={reviseRegister} className="px-3 py-2 rounded-lg border text-xs disabled:opacity-40">Apply revision · 1 AP</button>
+            {state.revisionApplied && <p className="text-xs text-emerald-600">Revision applied: {state.revisionFocus === 'dispatch_receipt' ? 'dispatch / receipt references' : state.revisionFocus === 'status_history' ? 'stock-status history' : 'responsibility qualification'}.</p>}
           </div>
           <div className="border-t border-stone-200 dark:border-stone-700 pt-4 space-y-3">
             <h4 className="font-semibold text-sm">Present for institutional decision · 1 AP</h4>
