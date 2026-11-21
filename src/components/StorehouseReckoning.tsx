@@ -53,20 +53,20 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
     const item = evidenceList.find((e) => e.id === id);
     if (!item || item.examined) return;
 
-    // Free thinking: reading held evidence costs 0 blocks
+    // Free thinking: reading held evidence costs 0 AP
     const updated = evidenceList.map((e) => (e.id === id ? { ...e, examined: true } : e));
     setEvidenceList(updated);
     setSelectedEvidence(updated.find((e) => e.id === id) || null);
 
     const examinedIds = updated.filter((e) => e.examined).map((e) => e.id);
     onUpdateWorkState({ examinedEvidence: examinedIds });
-    onShowToast(`Examined ${item.code} (${item.title}) — Free thinking (0 blocks).`);
+    onShowToast(`Examined ${item.code} (${item.title}) — Free thinking (0 AP).`);
   };
 
   const handleSelectDesign = (choice: 'movement_ledger' | 'compact_balance') => {
     const cost = choice === 'movement_ledger' ? 2 : 1;
     if (player.blocksRemaining < cost) {
-      onShowToast(`Configuring register requires ${cost} time block(s).`);
+      onShowToast(`Configuring register requires ${cost} AP.`);
       return;
     }
     onConsumeBlocks(cost);
@@ -77,7 +77,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
 
   const handleRunTestC1 = () => {
     if (player.blocksRemaining < 1) {
-      onShowToast('Running test requires 1 time block.');
+      onShowToast('Running test requires 1 AP.');
       return;
     }
     onConsumeBlocks(1);
@@ -88,7 +88,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
 
   const handleRunTestC2 = () => {
     if (player.blocksRemaining < 1) {
-      onShowToast('Running test requires 1 time block.');
+      onShowToast('Running test requires 1 AP.');
       return;
     }
     onConsumeBlocks(1);
@@ -103,7 +103,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
 
   const handleFinalAdoption = (type: 'movement_ledger' | 'compact_balance' | 'provisional') => {
     if (player.blocksRemaining < 1) {
-      onShowToast('Finalizing adoption requires 1 time block.');
+      onShowToast('Finalizing adoption requires 1 AP.');
       return;
     }
     onConsumeBlocks(1);
@@ -189,7 +189,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
                 Evidence Dossier & Source Examination (Free Thinking)
               </h3>
               <p className="text-xs text-stone-600 dark:text-stone-400 mt-1">
-                Reading held evidence is <strong>0 blocks (Free Thinking)</strong>. Examine at least 4 core items before designing your register.
+                Reading held evidence is <strong>0 AP (Free Thinking)</strong>. Examine at least 4 core items before designing your register.
               </p>
             </div>
             <button
@@ -221,7 +221,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
                     <span className="text-xs font-mono font-bold px-2.5 py-1 rounded bg-[#FAF7F0] dark:bg-stone-800 text-[#C86D33]">
                       {item.code}
                     </span>
-                    <span className="text-xs text-emerald-700 dark:text-emerald-400 font-mono">Free (0 blocks)</span>
+                    <span className="text-xs text-emerald-700 dark:text-emerald-400 font-mono">Free (0 AP)</span>
                   </div>
 
                   <h4 className="text-base font-serif font-bold text-[#2B1B17] dark:text-stone-100">
@@ -275,7 +275,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
             <div className={`bg-white dark:bg-stone-900 border rounded-2xl p-6 space-y-4 ${designChoice === 'compact_balance' ? 'border-[#C86D33] ring-1 ring-[#C86D33]/30' : 'border-[#D6CEBE]'}`}>
               <div className="flex items-center justify-between">
                 <h4 className="text-lg font-serif font-bold text-[#2B1B17] dark:text-stone-100">Compact Balance Register</h4>
-                <span className="text-xs font-mono text-stone-500">1 Time Block</span>
+                <span className="text-xs font-mono text-stone-500">1 AP</span>
               </div>
               <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed">
                 Fast to enter. Records opening balance, receipt, usable/held totals, issue, and closing balance. However, later status changes require explanatory notes.
@@ -284,14 +284,14 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
                 onClick={() => handleSelectDesign('compact_balance')}
                 className="w-full py-2.5 text-xs font-medium text-white bg-[#2B1B17] hover:bg-[#C86D33] rounded-lg transition-colors"
               >
-                Select Compact Balance (1 Block)
+                Select Compact Balance (1 AP)
               </button>
             </div>
 
             <div className={`bg-white dark:bg-stone-900 border rounded-2xl p-6 space-y-4 ${designChoice === 'movement_ledger' ? 'border-[#C86D33] ring-1 ring-[#C86D33]/30' : 'border-[#D6CEBE]'}`}>
               <div className="flex items-center justify-between">
                 <h4 className="text-lg font-serif font-bold text-[#2B1B17] dark:text-stone-100">Movement Ledger (Recommended)</h4>
-                <span className="text-xs font-mono text-[#C86D33]">2 Time Blocks</span>
+                <span className="text-xs font-mono text-[#C86D33]">2 AP</span>
               </div>
               <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed">
                 Records each movement or status change as a dated, sourced line with quantity, status, authority, location, and responsible recorder. Superior audit trail.
@@ -300,7 +300,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
                 onClick={() => handleSelectDesign('movement_ledger')}
                 className="w-full py-2.5 text-xs font-medium text-white bg-[#C86D33] hover:bg-[#b05c28] rounded-lg transition-colors"
               >
-                Select Movement Ledger (2 Blocks)
+                Select Movement Ledger (2 AP)
               </button>
             </div>
           </div>
@@ -349,7 +349,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
                   onClick={handleRunTestC1}
                   className="w-full py-2 text-xs font-medium text-white bg-[#2B1B17] hover:bg-[#C86D33] rounded-lg transition-colors"
                 >
-                  Run Test C-1 Entry (1 Block)
+                  Run Test C-1 Entry (1 AP)
                 </button>
               )}
             </div>
@@ -367,7 +367,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
                   onClick={handleRunTestC2}
                   className="w-full py-2 text-xs font-medium text-white bg-[#2B1B17] hover:bg-[#C86D33] rounded-lg transition-colors"
                 >
-                  Run Test C-2 Entry (1 Block)
+                  Run Test C-2 Entry (1 AP)
                 </button>
               )}
             </div>
@@ -400,7 +400,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
                 onClick={() => handleFinalAdoption('movement_ledger')}
                 className="flex-1 py-3 text-xs font-medium text-white bg-[#C86D33] hover:bg-[#b05c28] rounded-xl transition-colors shadow-sm"
               >
-                Secure Full Adoption (1 Block)
+                Secure Full Adoption (1 AP)
               </button>
             </div>
           </div>

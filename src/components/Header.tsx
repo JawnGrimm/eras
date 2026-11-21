@@ -109,12 +109,10 @@ export const Header: React.FC<HeaderProps> = ({
               <span className="tabular-nums font-semibold">{player.beer}</span>
             </div>
             <div className="w-px h-3 bg-stone-300 dark:bg-stone-700" />
-            <div className="flex items-center gap-1 text-emerald-700 dark:text-emerald-400" title="Daily Time Blocks (4 per day)">
+            <div className="flex items-center gap-1 text-emerald-700 dark:text-emerald-400" title="Daily Action Points (6 per Workday)">
               <Calendar className="w-3.5 h-3.5" />
               <span className="tabular-nums font-semibold">
-                {player.currentBlock === 1 ? 'Morning (1/4)' :
-                 player.currentBlock === 2 ? 'Midday (2/4)' :
-                 player.currentBlock === 3 ? 'Afternoon (3/4)' : 'Evening (4/4)'}
+                {player.blocksRemaining} / 6 AP
               </span>
             </div>
           </div>

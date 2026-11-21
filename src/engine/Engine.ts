@@ -77,16 +77,10 @@ export interface WorkDefinition {
 }
 
 /**
- * Calendar & Time Blocks Engine
+ * Workday Action Point position helper.
  */
-export function getBlockName(block: number): string {
-  switch (block) {
-    case 1: return 'Morning (1/4)';
-    case 2: return 'Midday (2/4)';
-    case 3: return 'Afternoon (3/4)';
-    case 4: return 'Evening (4/4)';
-    default: return 'Night';
-  }
+export function getActionPointLabel(actionPoint: number): string {
+  return `Action ${Math.max(1, Math.min(6, actionPoint))} of 6`;
 }
 
 /**
@@ -249,20 +243,21 @@ export function evaluateInvariant(
 /**
  * Provisions (Bread Contract)
  */
-export function calculateProvision(workCompleted: boolean): { breadChange: number; note: string } {
-  const deduction = 1; // 1 bread daily sustenance
-  const provision = !workCompleted ? 1 : 0; // 1 bread provision under contract if active
-  const net = provision - deduction;
+export function calculateProvision(workActive: boolean, workApSpentToday: number): { breadChange: number; provision: number; sustenance: number; note: string } {
+  const sustenance = 1;
+  const provision = workActive && workApSpentToday >= 1 ? 1 : 0;
   return {
-    breadChange: net,
-    note: `Sustenance deduction: -1 bread · Contract provision: +${provision} bread`,
+    breadChange: provision - sustenance,
+    provision,
+    sustenance,
+    note: `Sustenance: -${sustenance} bread · Work provision: +${provision} bread`,
   };
 }
 
 /**
  * Versioned Save with Guarded Storage
  */
-const SAVE_VERSION = '1.0';
+const SAVE_VERSION = '1.1';
 
 export function saveGameState<T>(key: string, data: T): boolean {
   if (typeof localStorage === 'undefined') {
@@ -288,22 +283,21 @@ export function loadGameState<T>(key: string): T | null {
   try {
     const raw = localStorage.getItem(key);
     if (!raw) return null;
-    const envelope: unknown = JSON.parse(raw);
-    if (
-      envelope === null ||
-      typeof envelope !== 'object' ||
-      Array.isArray(envelope) ||
-      !('version' in envelope) ||
-      !('data' in envelope)
-    ) {
-      console.warn('Malformed save envelope; resetting save.');
+    const parsed: unknown = JSON.parse(raw);
+    if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      console.warn('Malformed save; ignoring it.');
       return null;
     }
-    if ((envelope as { version: unknown }).version !== SAVE_VERSION) {
-      console.warn('Save version mismatch; resetting save.');
-      return null;
+    if ('version' in parsed && 'data' in parsed) {
+      const version = (parsed as { version: unknown }).version;
+      if (version !== SAVE_VERSION && version !== '1.0') {
+        console.warn(`Unsupported save version: ${String(version)}`);
+        return null;
+      }
+      return (parsed as { data: T }).data;
     }
-    return (envelope as { data: T }).data;
+    // Accept the prototype's original unwrapped JSON saves so existing progress survives migration.
+    return parsed as T;
   } catch (err) {
     console.error('Failed to parse save envelope:', err);
     return null;

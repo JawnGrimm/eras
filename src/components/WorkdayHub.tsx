@@ -32,15 +32,7 @@ export const WorkdayHub: React.FC<WorkdayHubProps> = ({
     }
   };
 
-  const getBlockName = (block: number) => {
-    switch (block) {
-      case 1: return 'Morning (1/4)';
-      case 2: return 'Midday (2/4)';
-      case 3: return 'Afternoon (3/4)';
-      case 4: return 'Evening (4/4)';
-      default: return 'Overtime / Night';
-    }
-  };
+  const getBlockName = (block: number) => `Action ${Math.min(6, Math.max(1, block))} of 6`;
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-8 space-y-8 animate-fadeIn">
@@ -66,18 +58,18 @@ export const WorkdayHub: React.FC<WorkdayHubProps> = ({
               Welcome, {player.title} {player.name}
             </h2>
             <p className="text-sm text-stone-600 dark:text-stone-400 max-w-2xl leading-relaxed">
-              Reading, comparing sources, drafting, and thinking are <strong>free</strong>. Visiting officials, conducting audits, and assignments cost time blocks.
+              The Workday has six shared Action Points. Each substantive action lists its cost before you commit; reviewing evidence already retrieved is free.
             </p>
           </div>
 
-          {/* Time Blocks & Stress Card */}
+          {/* Action Points & Stress Card */}
           <div className="bg-white dark:bg-stone-800 border border-[#D6CEBE] dark:border-stone-700 rounded-xl p-5 flex items-center gap-6 shadow-xs shrink-0">
             <div className="text-center">
               <div className="flex items-center justify-center w-12 h-12 rounded-full bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-400 mx-auto mb-1">
                 <Clock className="w-6 h-6" />
               </div>
               <div className="text-2xl font-bold font-mono text-[#2B1B17] dark:text-stone-100 tabular-nums">
-                {player.blocksRemaining} <span className="text-xs text-stone-400 font-normal">/ 4</span>
+                {player.blocksRemaining} <span className="text-xs text-stone-400 font-normal">/ 6</span>
               </div>
               <div className="text-[11px] font-medium text-stone-500 uppercase tracking-wide">Time Blocks</div>
             </div>
@@ -220,7 +212,7 @@ export const WorkdayHub: React.FC<WorkdayHubProps> = ({
               Time Management & Evening Routine
             </h3>
             <p className="text-xs text-stone-600 dark:text-stone-400">
-              Thinking is free (0 blocks). Spend time blocks on study, rest, or working late.
+              Spend Action Points on study, rest, or working late.
             </p>
 
             <div className="space-y-3">
@@ -235,10 +227,10 @@ export const WorkdayHub: React.FC<WorkdayHubProps> = ({
                   </div>
                   <div>
                     <div className="text-xs font-bold text-[#2B1B17] dark:text-stone-100">Study Scribes & Metrology</div>
-                    <div className="text-[11px] text-stone-500">Costs 1 Block · Grants +15 Career XP</div>
+                    <div className="text-[11px] text-stone-500">Costs 1 AP · Grants +15 Career XP</div>
                   </div>
                 </div>
-                <span className="text-xs font-mono font-bold text-[#C86D33]">-1 Block</span>
+                <span className="text-xs font-mono font-bold text-[#C86D33]">-1 AP</span>
               </button>
 
               <button
@@ -252,10 +244,10 @@ export const WorkdayHub: React.FC<WorkdayHubProps> = ({
                   </div>
                   <div>
                     <div className="text-xs font-bold text-[#2B1B17] dark:text-stone-100">Rest & Recover</div>
-                    <div className="text-[11px] text-stone-500">Costs 1 Block · Reduces Stress by 10%</div>
+                    <div className="text-[11px] text-stone-500">Costs 1 AP · Reduces Stress by 10%</div>
                   </div>
                 </div>
-                <span className="text-xs font-mono font-bold text-[#C86D33]">-1 Block</span>
+                <span className="text-xs font-mono font-bold text-[#C86D33]">-1 AP</span>
               </button>
 
               <button
@@ -277,7 +269,7 @@ export const WorkdayHub: React.FC<WorkdayHubProps> = ({
                   </div>
                 </div>
                 <span className="text-xs font-mono font-bold text-orange-800 dark:text-orange-300">
-                  {player.workingLate ? 'Used Today' : '+1 Block'}
+                  {player.workingLate ? 'Used Today' : '-1 AP'}
                 </span>
               </button>
             </div>

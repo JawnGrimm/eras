@@ -120,7 +120,7 @@ export const AssignmentBoard: React.FC<AssignmentBoardProps> = ({
                 </div>
                 <div className="flex items-center gap-1 text-emerald-700 dark:text-emerald-400">
                   <Clock className="w-3.5 h-3.5" />
-                  <span>{assignment.blockCost} Block{assignment.blockCost > 1 ? 's' : ''}</span>
+                  <span>{assignment.blockCost} AP</span>
                 </div>
               </div>
             </div>
@@ -157,7 +157,7 @@ export const AssignmentBoard: React.FC<AssignmentBoardProps> = ({
                     className="px-4 py-2 text-xs font-medium text-white bg-[#C86D33] hover:bg-[#b05c28] rounded-lg transition-colors disabled:opacity-50 flex items-center gap-1"
                   >
                     <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>Complete ({assignment.blockCost} Block{assignment.blockCost > 1 ? 's' : ''})</span>
+                    <span>Complete ({assignment.blockCost} AP)</span>
                   </button>
                 </div>
               )}

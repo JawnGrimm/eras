@@ -16,7 +16,9 @@ export const createInitialPlayer = (): PlayerProfile => ({
   currentDay: 1,
   dateString: 'Day 1, Early Season of Inundation (c. 3200 BCE)',
   currentBlock: 1,
-  blocksRemaining: 4,
+  blocksRemaining: 6,
+  actionPointsPerDay: 6,
+  workApSpentToday: 0,
   workingLate: false,
 });
 
