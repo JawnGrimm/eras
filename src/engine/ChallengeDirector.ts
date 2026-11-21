@@ -22,6 +22,9 @@ export interface ChallengeOpportunity {
     requiredCommodity?: string;
   };
   narrativeOutcome?: string;
+  completedDay?: number;
+  completedDate?: string;
+  completedBy?: string;
 }
 
 export function createInitialChallenges(): ChallengeOpportunity[] {
