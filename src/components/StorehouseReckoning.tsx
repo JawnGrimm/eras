@@ -107,7 +107,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
       initialRecord.recordLocation === 'central_storehouse' &&
       initialRecord.responsibleRecorder === 'apprentice_under_senior_scribe';
   };
-  const setRecordField = (field: keyof NonNullable<StorehouseWorkState['initialRecord']>, value: number | 'brewing_house' | 'steward' | 'unknown' | 'temple_decree' | 'none' | undefined) => {
+  const setRecordField = (field: keyof NonNullable<StorehouseWorkState['initialRecord']>, value: NonNullable<StorehouseWorkState['initialRecord']>[keyof NonNullable<StorehouseWorkState['initialRecord']>] | undefined) => {
     onUpdateWorkState({ initialRecord: { ...initialRecord, [field]: value } });
   };
   const draftInitial = () => {
