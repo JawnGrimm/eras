@@ -92,7 +92,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
     const valid = state.findingRuling === 'status_change_cause_unestablished' ||
       (state.findingRuling === 'roof_leak_reported_unproven' && has('maintenance'));
     commit('Draft opening, receipt, condition, status-change, and issue entries', 2,
-      { initialEntriesDrafted: valid, stage: valid ? 'B_DESIGN' : 'B_DESIGN' },
+      { initialEntriesDrafted: valid },
       valid
         ? 'The 24 + 56 - 30 - 3 = 47 usable balance and 7 held measures are preserved as separate events.'
         : 'The draft contains an unsupported finding. Revise the ruling before Stage B can be completed.');
@@ -210,7 +210,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
       return;
     }
     const condition = decision === 'provisional'
-      ? 'Use the register provisionally; attach linked notes for status changes and reconcile them at the next inventory review.'
+      ? 'Use the register provisionally; retain linked source notes and review status changes at the next inventory review.'
       : null;
     const done = commit('Present register for institutional approval', 1,
       { presentationCompleted: true, adopted: true,
@@ -410,7 +410,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
           </div>
           <div className="flex items-center justify-between gap-4 border-t border-stone-200 dark:border-stone-700 pt-3">
             <div><div className="text-sm font-semibold">Revision pass</div><div className="text-xs text-stone-500">1 AP · Revise fields, entries, or cross-references; then audit and review again.</div></div>
-            <button disabled={!state.finalAuditPassed || !canAct(1)} onClick={reviseRegister} className="px-3 py-2 rounded-lg border text-xs disabled:opacity-40">Revise · 1 AP</button>
+            <button disabled={(!state.finalAuditPassed && state.adoptionType !== 'rejected') || !canAct(1)} onClick={reviseRegister} className="px-3 py-2 rounded-lg border text-xs disabled:opacity-40">Revise · 1 AP</button>
           </div>
           <div className="border-t border-stone-200 dark:border-stone-700 pt-4 space-y-3">
             <h4 className="font-semibold text-sm">Present for institutional decision · 1 AP</h4>
