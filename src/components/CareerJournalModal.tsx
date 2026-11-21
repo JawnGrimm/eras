@@ -4,14 +4,12 @@
 
 import React from 'react';
 import { CareerLogEntry } from '../engine/CareerWorkLog';
-import { CareerJournalEvent } from '../engine/CareerJournal';
 import { ChallengeOpportunity } from '../engine/ChallengeDirector';
 import { ProfessionalReputation } from '../engine/CharacterSystem';
 import { BookOpen, Shield, Award, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
 
 interface CareerJournalProps {
   workLog: CareerLogEntry[];
-  journalEvents: CareerJournalEvent[];
   challenges: ChallengeOpportunity[];
   reputation: ProfessionalReputation;
   onAcceptChallenge: (id: string) => void;
@@ -21,7 +19,6 @@ interface CareerJournalProps {
 
 export const CareerJournalModal: React.FC<CareerJournalProps> = ({
   workLog,
-  journalEvents,
   challenges,
   reputation,
   onAcceptChallenge,
@@ -29,11 +26,7 @@ export const CareerJournalModal: React.FC<CareerJournalProps> = ({
   onDeclineChallenge,
 }) => {
   const offeredChallenges = challenges.filter((c) => c.status === 'offered' || c.status === 'accepted');
-  const archivedChallenges = challenges.filter(
-    (challenge) =>
-      ['completed', 'declined', 'lapsed'].includes(challenge.status) &&
-      !journalEvents.some((event) => event.challengeId === challenge.id)
-  );
+  const completedChallenges = challenges.filter((challenge) => challenge.status === 'completed');
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-8 space-y-8 animate-fadeIn">
@@ -135,71 +128,48 @@ export const CareerJournalModal: React.FC<CareerJournalProps> = ({
         )}
       </div>
 
-      {/* Challenge History Section */}
+      {/* Completed Challenges Section */}
       <div className="space-y-4">
         <h3 className="text-xl font-serif font-bold text-[#2B1B17] dark:text-stone-100 flex items-center gap-2">
-          <Clock className="w-5 h-5 text-[#C86D33]" />
-          <span>Challenge History ({journalEvents.length + archivedChallenges.length} Records)</span>
+          <CheckCircle2 className="w-5 h-5 text-[#C86D33]" />
+          <span>Completed Challenges ({completedChallenges.length})</span>
         </h3>
 
-        {journalEvents.length === 0 && archivedChallenges.length === 0 ? (
+        {completedChallenges.length === 0 ? (
           <div className="bg-white dark:bg-stone-900 border border-[#D6CEBE] dark:border-stone-800 rounded-2xl p-6 text-center text-stone-500 text-xs italic">
-            Challenge offers, decisions, and outcomes will be recorded here as your career develops.
+            Challenges will appear here after you resolve them.
           </div>
         ) : (
-          <div className="space-y-3">
-            {journalEvents.map((event) => {
-              const eventLabel = {
-                challenge_offered: 'Offered',
-                challenge_accepted: 'Accepted',
-                challenge_declined: 'Declined',
-                challenge_completed: 'Completed',
-              }[event.eventType];
-
-              return (
-                <div
-                  key={event.id}
-                  className="bg-white dark:bg-stone-900 border border-[#D6CEBE] dark:border-stone-800 rounded-2xl p-5 shadow-xs space-y-3"
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <div>
-                      <span className="text-[11px] font-mono uppercase tracking-wider text-[#C86D33]">{eventLabel}</span>
-                      <h4 className="text-base font-serif font-bold text-[#2B1B17] dark:text-stone-100 mt-1">{event.title}</h4>
-                      <div className="text-xs text-stone-500 mt-1">{event.employer}</div>
-                    </div>
-                    <div className="text-xs font-mono text-stone-500">
-                      Day {event.dayNumber} · {event.dateString}
-                    </div>
-                  </div>
-
-                  <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed">{event.description}</p>
-                  <p className="text-xs text-stone-700 dark:text-stone-300 leading-relaxed bg-[#FAF7F0] dark:bg-stone-800/60 p-3.5 rounded-xl border border-[#D6CEBE]/50">
-                    <strong>Record:</strong> {event.outcome}
-                  </p>
-
-                  {event.eventType === 'challenge_completed' && (
-                    <div className="flex flex-wrap items-center gap-4 text-xs text-stone-500 font-mono">
-                      <span>Silver: +{event.silverEarned}</span>
-                      <span>Career XP: +{event.careerXpEarned}</span>
-                      <span>Recorded by: {event.characterName}</span>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-
-            {archivedChallenges.map((challenge) => (
+          <div className="space-y-4">
+            {completedChallenges.map((challenge) => (
               <div
                 key={challenge.id}
-                className="bg-white dark:bg-stone-900 border border-[#D6CEBE] dark:border-stone-800 rounded-2xl p-5 shadow-xs space-y-2"
+                className="bg-white dark:bg-stone-900 border border-[#D6CEBE] dark:border-stone-800 rounded-2xl p-6 shadow-xs space-y-3"
               >
-                <div className="flex items-center justify-between gap-3">
-                  <h4 className="text-base font-serif font-bold text-[#2B1B17] dark:text-stone-100">{challenge.title}</h4>
-                  <span className="text-[11px] font-mono uppercase text-stone-500">{challenge.status} · prior save</span>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <span className="text-xs font-mono uppercase tracking-wider text-[#C86D33]">{challenge.employer}</span>
+                    <h4 className="text-lg font-serif font-bold text-[#2B1B17] dark:text-stone-100 mt-1">{challenge.title}</h4>
+                  </div>
+                  <div className="text-xs font-mono text-stone-500 text-right">
+                    {challenge.completedDay !== undefined
+                      ? `Day ${challenge.completedDay} · ${challenge.completedDate || ''}`
+                      : 'Completion date not recorded'}
+                  </div>
                 </div>
-                <div className="text-xs text-stone-500">{challenge.employer}</div>
-                <p className="text-xs text-stone-600 dark:text-stone-300">{challenge.description}</p>
-                <p className="text-[11px] italic text-stone-500">This Challenge was already in your save before detailed journal recording was introduced; its original decision date is unavailable.</p>
+
+                <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed">{challenge.description}</p>
+                {challenge.narrativeOutcome && (
+                  <p className="text-xs text-stone-700 dark:text-stone-300 leading-relaxed bg-[#FAF7F0] dark:bg-stone-800/60 p-3.5 rounded-xl border border-[#D6CEBE]/50">
+                    <strong>Outcome:</strong> {challenge.narrativeOutcome}
+                  </p>
+                )}
+
+                <div className="flex flex-wrap items-center gap-4 text-xs text-stone-500 pt-1 font-mono">
+                  <span>Silver earned: +{challenge.rewardSilver}</span>
+                  <span>Career XP earned: +{challenge.rewardCareerXp}</span>
+                  {challenge.completedBy && <span>Completed by: {challenge.completedBy}</span>}
+                </div>
               </div>
             ))}
           </div>
