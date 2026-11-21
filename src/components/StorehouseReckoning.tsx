@@ -15,11 +15,11 @@ interface StorehouseReckoningProps {
 const ACTIONS = [
   { id: 'opening', label: 'Retrieve prior closing-balance tablet (E-01)', cost: 1, result: '24 usable measures at opening' },
   { id: 'dispatch_receipt', label: 'Examine arrival tally and compare dispatch (E-02 / E-03)', cost: 1, result: '60 dispatched; 60 physically received' },
-  { id: 'intake', label: 'Retrieve intake inspection from Receiving Official (E-04)', cost: 1, result: '56 usable; 4 held at intake' },
-  { id: 'recount', label: 'Conduct physical recount with Storehouse Steward (E-07)', cost: 2, result: '47 usable; 7 held at recount' },
-  { id: 'maintenance', label: 'Ask Steward for custody and maintenance notes (E-06)', cost: 1, result: 'Roof leak reported; exact cause and responsibility unproven' },
-  { id: 'carrier', label: 'Consult Carrier Foreman about dispatch (E-02)', cost: 1, result: 'Dispatch-side corroboration and response to proposed finding' },
-  { id: 'brewing', label: 'Confirm issue with Brewing-House Representative (E-05)', cost: 1, result: '30 authorized measures received by brewing-house operation' },
+  { id: 'intake', label: 'Retrieve intake inspection from Receiving Official Utu-mansum (E-04)', cost: 1, result: '56 usable; 4 held at intake' },
+  { id: 'recount', label: 'Conduct physical recount with Storehouse Steward Ur-Nanna (E-07)', cost: 2, result: '47 usable; 7 held at recount' },
+  { id: 'maintenance', label: 'Ask Ur-Nanna for custody and maintenance notes (E-06)', cost: 1, result: 'Roof leak reported; exact cause and responsibility unproven' },
+  { id: 'carrier', label: 'Consult Carrier Foreman Enlil-kisu about dispatch (E-02)', cost: 1, result: 'Dispatch-side corroboration and response to proposed finding' },
+  { id: 'brewing', label: 'Confirm issue with Brewing-House Representative Nin-kasi (E-05)', cost: 1, result: '30 authorized measures received by brewing-house operation' },
 ] as const;
 
 const evidenceByAction: Record<string, string[]> = {
@@ -143,7 +143,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
       valid ? 'All material claims cite their supporting evidence.' : 'Required source references are missing. Correct the selections and repeat the action.');
   };
 
-  const reviewWithSenior = () => commit('Ask Senior Scribe to review proposed fields', 1,
+  const reviewWithSenior = () => commit('Ask Senior Scribe Shuruppak-ilu to review proposed fields', 1,
     { seniorReviewCompleted: true },
     'The proposed register fields have been reviewed.');
 
@@ -548,7 +548,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
             {state.finalAuditPassed && <span className="text-xs text-emerald-600 self-center">Final audit passed</span>}
           </div>
           <div className="flex items-center justify-between gap-4 border-t border-stone-200 dark:border-stone-700 pt-3">
-            <div><div className="text-sm font-semibold">Steward and Senior Scribe review</div><div className="text-xs text-stone-500">1 AP · Allocation usefulness, provenance, and professional confidence.</div></div>
+            <div><div className="text-sm font-semibold">Ur-Nanna and Shuruppak-ilu review</div><div className="text-xs text-stone-500">1 AP · Allocation usefulness, provenance, and professional confidence.</div></div>
             <button disabled={!state.finalAuditPassed || state.institutionalReviewCompleted || !canAct(1)} onClick={institutionalReview} className="px-3 py-2 rounded-lg border text-xs disabled:opacity-40">{state.institutionalReviewCompleted ? 'Reviewed' : 'Request review · 1 AP'}</button>
           </div>
           <div className="border-t border-stone-200 dark:border-stone-700 pt-3 space-y-3">
