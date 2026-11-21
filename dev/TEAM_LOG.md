@@ -299,3 +299,36 @@ Principles 1, 4, 5, and 6 from the original review remain directions for conside
 
 - `docs/GDD.md`: added the adopted principles and scope clarifications, a section distinguishing events/records/knowledge, and an open design-work item prioritizing evaluation.
 - No runtime code, schemas, validation rules, or gameplay behavior changed.
+
+
+## 2026-11-21 — Decision: establish the evidence-based judgment principle
+
+**Contributor:** Chad (AI)  
+**Status:** Decision
+
+The owner confirmed that the evaluation design question is answered at the principle level and authorized the corresponding GitHub changes.
+
+### Approved principle
+
+> Evaluate the quality of the player's judgment against the evidence available when the decision was made, not merely whether the conclusion matches a predetermined answer.
+
+The game should distinguish three core qualities:
+
+1. **Accuracy:** whether the recorded details and conclusions are consistent with the available evidence.
+2. **Completeness:** whether the record preserves the relevant information, qualifications, and unresolved questions required by the task.
+3. **Responsible interpretation:** whether the player distinguishes established facts, attributed claims, supported interpretations, and unknowns, without asserting more than the evidence supports.
+
+Procedure, traceability, and responsibility remain important requirements of a good document, assessed in relation to its purpose. These should not be collapsed into a simplistic answer-key check.
+
+When evidence genuinely permits multiple defensible conclusions, the game should recognize them. A reasonable judgment later contradicted by new evidence is not equivalent to a careless judgment that ignored evidence available at the time. Unsupported claims or conclusions that contradict the evidence should be judged poorly.
+
+The Storehouse example illustrates the distinction: a record that states five measures were transferred and that the original reason for holding the grain remains unknown is stronger than a record that reports only the transfer and remaining balance, when that unresolved reason is relevant to the task. Claiming all seven measures were stolen is unsupported and contradicts the transfer evidence. The ranking depends on the task's purpose; length or extra wording alone does not improve a record.
+
+### Still open
+
+This decision establishes the evaluation principle, not its implementation. Scoring weights, outcome tiers, feedback language, validator behavior, and the exact treatment of task-specific completeness remain open. Existing fixed Storehouse validators are implementation facts and are not automatically a general evaluation model.
+
+### Repository changes
+
+- `docs/GDD.md`: clarified the fairness principle, expanded Section 9.2, and revised Remaining Design Work item 21 to focus on implementation mechanics.
+- No runtime code, schema, scoring, validator, or gameplay behavior changed.
