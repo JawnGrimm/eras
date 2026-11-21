@@ -7,7 +7,9 @@ lang: en-US
 
 > **Canonical repository GDD.** This is the primary design reference for Scribe of Eras. Prototype code may lag behind or contradict this document; implementation decisions should be checked against the GDD rather than inferred from existing prototype behavior. Update this document when a design decision is deliberately changed.
 >
-> **Implementation status:** the stabilization branch now displays and initializes six shared Action Points per Workday. The Storehouse Work's evidence-retrieval costs and several procedural requirements still need to be reconciled with sections 7.5–7.6; this note describes implementation status, not a change to the approved six-AP rule.
+> **Design decision (21 November 2026):** the Workday remains six shared Action Points (AP), with the end-of-day overtime rule in Section 6.4. The owner has explicitly confirmed this model for the current development phase. Four time blocks are not approved. Revisit the model only through an explicit design review informed by playtest evidence, followed by a deliberate GDD revision. This decision does not imply that every Work implementation or content definition is already compliant.
+>
+> **Implementation status:** the active Storehouse Work is implemented in `src/components/StorehouseReckoning.tsx`; the separate JSON Work definition and `WorkRunner` are not currently wired into the running application. Evidence-retrieval costs and several procedural requirements still need reconciliation with Sections 7.5–7.6. This note describes implementation status, not a change to the approved six-AP rule.
 
 ---
 
@@ -292,6 +294,8 @@ The in-game date advances once when the player ends the day. The calendar contro
 ### 6.2 Daily Action Points
 
 Each in-game day provides **6 Action Points (AP)**. AP represent the player's finite capacity to perform meaningful work and personal activities during that day. They are an abstract planning unit, not a real-time timer and not a fixed number of commission slots.
+
+**Current approved model:** six AP is the locked Workday model for the current development phase. The alternative four-time-block proposal is not approved and must not be used as an implementation assumption. Any future change requires explicit owner approval and revision of this section.
 
 - AP are shared by Assignments, Work activities, Challenges, study, substantial social visits, and other activities that require time or effort.
 - AP reset to 6 at the start of each new day.
