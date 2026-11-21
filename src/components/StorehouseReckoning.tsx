@@ -105,7 +105,8 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
       initialRecord.dispatchTo === 'central_storehouse' &&
       initialRecord.issuePurpose === 'brewing_operation' &&
       initialRecord.recordLocation === 'central_storehouse' &&
-      initialRecord.responsibleRecorder === 'apprentice_under_senior_scribe';
+      initialRecord.responsibleRecorder === 'apprentice_under_senior_scribe' &&
+      initialRecord.recordSequence === 'opening_dispatch_intake_issue_recount';
   };
   const setRecordField = (field: keyof NonNullable<StorehouseWorkState['initialRecord']>, value: NonNullable<StorehouseWorkState['initialRecord']>[keyof NonNullable<StorehouseWorkState['initialRecord']>] | undefined) => {
     onUpdateWorkState({ initialRecord: { ...initialRecord, [field]: value } as NonNullable<StorehouseWorkState['initialRecord']> });
@@ -411,6 +412,9 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
               </label>
               <label className="text-xs text-stone-600 dark:text-stone-300">Responsible recorder
                 <select disabled={state.initialEntriesValid} value={initialRecord.responsibleRecorder ?? ''} onChange={(event) => setRecordField('responsibleRecorder', event.target.value as 'apprentice_under_senior_scribe' | 'unknown' | undefined)} className="w-full mt-1 rounded-lg border border-[#D6CEBE] dark:border-stone-700 bg-white dark:bg-stone-800 px-3 py-2"><option value="">Select recorder</option><option value="apprentice_under_senior_scribe">Apprentice under Senior Scribe</option><option value="unknown">Unknown</option></select>
+              </label>
+              <label className="text-xs text-stone-600 dark:text-stone-300">Event sequence
+                <select disabled={state.initialEntriesValid} value={initialRecord.recordSequence ?? ''} onChange={(event) => setRecordField('recordSequence', event.target.value as 'opening_dispatch_intake_issue_recount' | 'unknown' | undefined)} className="w-full mt-1 rounded-lg border border-[#D6CEBE] dark:border-stone-700 bg-white dark:bg-stone-800 px-3 py-2"><option value="">Select sequence</option><option value="opening_dispatch_intake_issue_recount">Opening → dispatch/receipt → intake → issue → later recount</option><option value="unknown">Sequence unknown</option></select>
               </label>
             </div>
             <p className="text-xs text-stone-500">Reconcile opening stock, receipt, issue, closing total, usable and held quantities, and the intervening status transfer. Preserve both condition snapshots.</p>
