@@ -78,6 +78,8 @@ export interface StorehouseWorkState {
   c2Ruling?: 'discrepancy_pending' | 'full_receipt' | 'carrier_at_fault' | null;
   c2SupplementAdded?: boolean;
   c2AuditAttempts?: number;
+  testC1Passed?: boolean;
+  testC2Passed?: boolean;
   finalAuditPassed?: boolean;
   institutionalReviewCompleted?: boolean;
   presentationCompleted?: boolean;
