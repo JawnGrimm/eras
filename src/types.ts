@@ -107,7 +107,6 @@ export interface StorehouseWorkState {
   presentationCompleted?: boolean;
   revisionPasses?: number;
   revisionFocus?: 'dispatch_receipt' | 'status_history' | 'responsibility' | null;
-  revisionApplied?: boolean;
   registerEnhancements?: Array<'dispatch_receipt' | 'status_history' | 'responsibility'>;
   adoptionCondition?: string | null;
   rewardGranted?: boolean;
