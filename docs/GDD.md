@@ -246,6 +246,16 @@ Challenge outcomes must reflect the player's decisions. Different rulings or res
 
 Historical events can create new Challenges or alter existing ones. Examples might include a fire, a succession, a civic festival, a political crisis, or the loss of an archive. Such events should be contextual to the era and should affect people and institutions rather than serve only as random prompts.
 
+### Career Journal and record lifecycle
+
+The Career Journal is a compact career dashboard, not a complete event log. Its ordinary view presents current Challenges, professional reputation, career totals, and a bounded recent-activity list (five Assignment entries). Routine completed Assignments update compact aggregate statistics used by the Challenge Director; their full detail does not accumulate indefinitely in the everyday Journal.
+
+Completed Challenges move out of operational Challenge state into a permanent outcome archive. Their meaningful outcome and completion context are retained. Offers, acceptances, declines, and lapses remain operational only while needed by the Challenge system; they are not permanent Journal entries by default.
+
+A separate archive view exposes durable notable career records and completed Challenge outcomes. Archive records should preserve context that can matter later: era, institution, involved character, date, decision or outcome, and consequences where those fields exist. Routine activity is represented by career totals and recent activity rather than an unlimited detailed list. Future Assignment and Work content may explicitly designate a record as notable when it has lasting narrative, institutional, relational, or historical significance.
+
+The Challenge Director must evaluate relevant professional patterns from compact aggregates rather than repeatedly scanning the full career archive. Aggregation must preserve distinctions required by its rules, especially completed activity by employer/category/commodity and, when opportunity tracking is implemented, opportunities presented versus accepted, declined, or allowed to lapse. The current prototype's simple trigger rules are preserved; this record-lifecycle change does not approve new Challenge trigger behavior.
+
 ### 5.3 Works
 
 Works are mandatory, long-form historical undertakings that represent significant achievements in the creation, preservation, organization, reproduction, dissemination, or use of knowledge.
