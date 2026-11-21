@@ -107,7 +107,12 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
       initialRecord.issuePurpose === 'brewing_operation' &&
       initialRecord.recordLocation === 'central_storehouse' &&
       initialRecord.responsibleRecorder === 'apprentice_under_senior_scribe' &&
-      initialRecord.recordSequence === 'opening_dispatch_intake_issue_recount';
+      initialRecord.recordSequence === 'opening_dispatch_intake_issue_recount' &&
+      initialRecord.dispatched === initialRecord.received &&
+      initialRecord.intakeUsable! + initialRecord.intakeHeld! === initialRecord.received &&
+      initialRecord.openingUsable! + initialRecord.received! - initialRecord.issueQuantity! === initialRecord.closingTotal &&
+      initialRecord.laterUsable! + initialRecord.laterHeld! === initialRecord.closingTotal &&
+      initialRecord.openingUsable! + initialRecord.intakeUsable! - initialRecord.issueQuantity! - initialRecord.statusTransfer! === initialRecord.laterUsable;
   };
   const setRecordField = (field: keyof NonNullable<StorehouseWorkState['initialRecord']>, value: NonNullable<StorehouseWorkState['initialRecord']>[keyof NonNullable<StorehouseWorkState['initialRecord']>] | undefined) => {
     onUpdateWorkState({ initialRecord: { ...initialRecord, [field]: value } as NonNullable<StorehouseWorkState['initialRecord']> });
@@ -189,8 +194,8 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
       return;
     }
     const valid = isC1
-      ? ruling === 'status_transfer' && state.c1Record?.transferred === 5 && state.c1Record?.heldRemaining === 2 && state.c1Record?.totalStockChange === 0
-      : ruling === 'discrepancy_pending' && state.c2Record?.dispatched === 20 && state.c2Record?.received === 18 && state.c2Record?.discrepancy === 2;
+      ? ruling === 'status_transfer' && state.c1Record?.transferred === 5 && state.c1Record?.heldRemaining === 2 && state.c1Record?.totalStockChange === 0 && state.c1Record.transferred + state.c1Record.heldRemaining === 7
+      : ruling === 'discrepancy_pending' && state.c2Record?.dispatched === 20 && state.c2Record?.received === 18 && state.c2Record?.discrepancy === 2 && state.c2Record.dispatched - state.c2Record.received === state.c2Record.discrepancy;
     const count = (isC1 ? state.c1AuditAttempts : state.c2AuditAttempts) ?? 0;
     commit('Audit test ' + which.toUpperCase(), 1,
       isC1
