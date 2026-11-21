@@ -32,7 +32,8 @@ export const WorkdayHub: React.FC<WorkdayHubProps> = ({
     }
   };
 
-  const getBlockName = (block: number) => `Action ${Math.min(6, Math.max(1, block))} of 6`;
+  const getBlockName = (block: number, overtimeActionAvailable: boolean) =>
+    overtimeActionAvailable ? 'Overtime Action' : `Action ${Math.min(6, Math.max(1, block))} of 6`;
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-8 space-y-8 animate-fadeIn">
@@ -44,7 +45,7 @@ export const WorkdayHub: React.FC<WorkdayHubProps> = ({
               <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#C86D33]">
                 <span>{player.eraName}</span>
                 <span>·</span>
-                <span>Day {player.currentDay} ({getBlockName(player.currentBlock)})</span>
+                <span>Day {player.currentDay} ({getBlockName(player.currentBlock, player.workingLate && player.blocksRemaining > 0)})</span>
               </div>
               <button
                 onClick={onResetGame}
