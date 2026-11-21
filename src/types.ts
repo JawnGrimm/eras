@@ -79,6 +79,14 @@ export interface StorehouseWorkState {
     statusTransfer?: number;
     issueRecipient?: 'brewing_house' | 'steward' | 'unknown';
     issueAuthority?: 'temple_decree' | 'none';
+    dispatchFrom?: 'outer_fields' | 'unknown';
+    dispatchTo?: 'central_storehouse' | 'other';
+    issuePurpose?: 'brewing_operation' | 'unknown';
+    recordLocation?: 'central_storehouse' | 'unknown';
+    responsibleRecorder?: 'apprentice_under_senior_scribe' | 'unknown';
+  };
+  sourceReferences?: string[];
+  //
   };
   sourceNotationAdded?: boolean;
   seniorReviewCompleted?: boolean;
