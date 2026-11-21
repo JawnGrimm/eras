@@ -126,6 +126,24 @@ A Work must define what the player investigates, compares, designs, drafts, test
 
 Historical detail should make situations coherent and interesting without requiring a research-grade simulation of every ancient writing system, economic measure, or administrative practice. Accuracy matters, but playability and clarity matter too.
 
+### 2.9 Records connect judgment to continuity
+
+The player's judgment becomes consequential when it is preserved in a record that people and institutions can later consult, rely on, dispute, or act upon. When a matter may affect later play, preserve the substance of the judgment, the sources that support it, the scope of what the record asserts, and any material uncertainty or unresolved issue. A record should be capable of changing later obligations, decisions, access to information, relationships, or work.
+
+Three things must remain conceptually distinct:
+
+- **Event:** what happened in the world, whether or not it was witnessed or documented.
+- **Record:** what a person or institution documented about the event, including its claims, omissions, qualifications, sources, and later amendments.
+- **Knowledge:** what a particular person or institution has learned, and the basis on which they learned it. Possessing an event record does not mean every relevant person has read or understood it.
+
+These distinctions matter when records are copied, circulated, withheld, consulted, amended, or misinterpreted. They do not require a complete simulation of every information route or every person's knowledge. Model the distinctions explicitly when they create a meaningful choice or consequence; otherwise use a simpler representation.
+
+Continuity should be selective and consequential, not an unlimited transcript of every interaction. Routine resolved activity may remain in aggregate statistics or a searchable archive without remaining active narrative state. Retain active detail when it changes an obligation, dispute, relationship, access to information, or plausible future work.
+
+The wider world should continue to change where relevant to play, but this does not require a fully autonomous population simulation. NPCs are an important human interface to the world, but not every interaction must trigger a task, negotiation, or skill check; ordinary social presence and conversation are valid. Event pacing may regulate when an eligible opportunity is presented, but must not rewrite causal history, conceal a genuine deadline, or silently move one. An empty presentation slot is valid.
+
+Fairness means that the player can understand what a record or action asserts and can identify the evidence available to support a defensible response. It does not require one discoverable answer for every historical event or make every consequence predictable. The evaluation model—including how to recognize more than one defensible conclusion and distinguish a reasonable judgment later contradicted by new evidence from a careless judgment—remains open design work.
+
 ---
 
 ## 3. Genre, Structure, and Point of View
@@ -197,7 +215,6 @@ The current cumulative thresholds are retained as **legacy balancing targets**, 
 These values remain provisional until the required Works and their awards are authored and playtested together. The progression invariant is more important than preserving the current numbers: the required Works for a transition must award exactly the XP increment needed for that transition, with no mandatory grind. Rounder thresholds may replace this table during the next progression-balancing pass.
 
 ### 4.4 Advancing between eras
-
 Advancement is tied to a defined set of mandatory Works and their Historical Progress XP awards. The required Works must be completed, and their awards must bring the player to the next cumulative threshold. These conditions must never create a grind requirement beyond mandatory content.
 
 **Progression invariant:** for every era transition, the sum of the Historical Progress XP awards from that transition's required Works must equal the XP increment needed to reach the next threshold. Optional Assignments, Challenges, purchases, and repeatable actions award no Historical Progress XP. A player who completes all required Works therefore reaches the threshold without grinding optional content.
@@ -398,7 +415,6 @@ The Work begins with a test transaction and a discrepancy between an earlier tal
 | E-05 | Issue instruction and issue tally | 30 usable measures were authorized and issued to the brewing-house operation; the Brewing-House Representative confirms receipt. | Compare the issue instruction with the recipient's acknowledgment (1 AP). |
 | E-06 | Custody and maintenance notes | A roof leak was reported after intake but before the later recount. The notes do not establish exactly when moisture spread or who was responsible for the roof condition. | Ask the Steward to produce custody and maintenance notes (1 AP). |
 | E-07 | Current physical recount | A witnessed recount finds 47 measures still usable and 7 now damp and held. Since intake, 30 usable measures have been issued to the brewing-house operation and 3 additional measures have changed from usable to held status. The remaining physical stock is 54 measures. | Conduct a physical inspection and recount with the Steward (2 AP). |
-
 The discrepancy is intentional and meaningful. E-04 records condition at intake; E-07 records condition at the later recount. The difference is not a missing quantity: 30 measures were issued, and three additional measures moved from usable to held status after intake. E-06 supplies a plausible contextual event, the roof leak, but does not establish precise causation or individual responsibility. The player must distinguish a change in condition from a loss, and must not infer blame beyond the evidence.
 
 The phrase **standard institutional measure** is a gameplay abstraction. Exact historical metrology and local terminology must be researched during historical content production. It must not be represented as a modern kilogram or a universal Mesopotamian measure.
@@ -597,8 +613,7 @@ The Work awards a fixed amount of Historical Progress XP as part of the required
 
 The Work tests whether the player enjoys:
 - Investigating conflicting evidence rather than copying a supplied answer.
-- Conducting a physical recount that reveals a genuine state change.
-- Distinguishing dispatch, receipt, condition, issue, and balance.
+- Conducting a physical recount that reveals a genuine state change.- Distinguishing dispatch, receipt, condition, issue, and balance.
 - Designing a register whose structure has practical consequences.
 - Testing that structure against unseen transactions.
 - Consulting people whose testimony and interests affect the record.
@@ -654,7 +669,19 @@ Evidence should be presented in a way that lets the player distinguish:
 - An inference drawn from multiple sources.
 - An unsupported claim or unresolved question.
 
-### 8.3 Scenario consistency
+### 8.3 Events, records, and knowledge
+
+Scenario design and persistent consequences must distinguish the underlying event from the record made about it and from what each person or institution knows.
+
+- An event may occur without being witnessed, recorded, or widely known.
+- A record represents an account of an event; it may be accurate, incomplete, disputed, mistaken, or deliberately misleading. Preserve its source and relevant amendments rather than silently replacing an earlier account with a later one.
+- A person or institution may know something through direct involvement, testimony, a received copy, consultation of an archive, or public disclosure. Do not assume that everyone automatically knows what appears in a record.
+
+The game should model these differences when they affect what a character can reasonably say or do, what an institution can authorize, or what later work can establish. This is not a requirement to simulate every communication or track every character's complete knowledge state. The level of detail must be justified by a meaningful gameplay consequence.
+
+When a record becomes the basis for later action, preserve enough context to interpret it responsibly: what it asserts, who or what supports the assertion, its relevant limits or uncertainty, and whether it has been amended or challenged. A later consequence should arise from the record's actual content and circulation, not from a hidden assumption that all parties know the underlying truth.
+
+### 8.4 Scenario consistency
 
 Every Assignment must have a coherent underlying situation from which both the player-facing evidence and the expected solution are derived. Quantities must reconcile. Dates, people, institutions, locations, roles, and relationships must remain consistent throughout the dossier and resulting document.
 
@@ -797,7 +824,6 @@ Works may extend over multiple days or generations. The player's decisions shoul
 Required Works are mandatory for the main historical journey. Assignments and Challenges are optional. Therefore, a mandatory Work must have a viable completion path that does not depend on completing a particular optional Assignment or Challenge. Optional content may improve its outcome, open an alternative approach, provide useful relationships or resources, or reveal additional context.
 
 ---
-
 ## 12. Personal Economy
 
 ### 12.1 The three personal resources
@@ -998,7 +1024,6 @@ Difficulty may use green, yellow, and red markers as a modern interface conventi
 Markers must be readable through labels or shapes as well as color. Difficulty is not urgency, and the interface should not imply a real-time countdown.
 
 ### 18.4 Era-specific material design
-
 The presentation should evolve with the era: clay and seals in early Mesopotamia, materials and conventions appropriate to Egypt and later societies, manuscript and paper traditions where relevant, printed pages and presses, and digital documents and networked interfaces in the modern era. Important information must remain readable; decorative generated marks must not be presented as verified historical writing.
 
 ---
@@ -1103,6 +1128,7 @@ The following details require further design before they can be treated as fixed
 18. The end state after Era VII, the role of an ending or continuing mode, and any failure states or recovery boundaries.
 19. A defined minimum viable product (MVP): which era, Works, Assignments, characters, systems, and content must exist for a complete first release.
 20. Content-authoring and validation pipeline: scenario state schemas, evidence generation, invariant checks, branch coverage, historical review, and automated QA for authored or AI-assisted drafts.
+21. Evaluation model for evidence-based judgments: what dimensions are assessed, when multiple conclusions may be defensible, and how the game distinguishes a reasonable judgment later contradicted by new evidence from a careless judgment that ignored accessible evidence. This is the first priority for further investigation; no evaluation model is approved by this entry.
 
 These are open design tasks, not invitations to fill gaps with arbitrary placeholder systems.
 
@@ -1137,5 +1163,4 @@ Career XP measures professional development. Historical Progress XP measures man
 The personal economy remains limited to silver, bread, and beer, with grain reserved for the wider world and institutional economy. The distinct roles and later-era equivalents of bread and beer, as well as stress recovery and generational continuity, remain open design work.
 
 The journey should remain continuous across eras, successors, and institutions without pretending that the same people or family relationships can persist unchanged across millennia and continents. The persistent carrier of that continuity is a major remaining design decision.
-
 
