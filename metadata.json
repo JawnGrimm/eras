@@ -1,0 +1,6 @@
+{
+  "name": "Scribe of Eras",
+  "description": "Historical career RPG and administrative simulation starting in Uruk c. 3200 BCE.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

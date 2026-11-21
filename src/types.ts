@@ -1,0 +1,74 @@
+export type EraId = 'era-1' | 'era-2' | 'era-3' | 'era-4' | 'era-5' | 'era-6' | 'era-7';
+
+export interface PlayerProfile {
+  name: string;
+  title: string; // e.g. "Apprentice Scribe"
+  era: EraId;
+  eraName: string; // "Era I: Sumerian Cuneiform (Uruk c. 3200 BCE)"
+  careerXp: number;
+  historicalXp: number;
+  rank: number; // 1 to 7
+  rankTitle: string;
+  silver: number;
+  bread: number;
+  beer: number;
+  stress: number; // 0 to 100
+  currentDay: number; // in-game days
+  dateString: string; // e.g. "Year 1, Month 3, Day 12 (c. 3200 BCE)"
+  currentBlock: number; // 1: Morning, 2: Midday, 3: Afternoon, 4: Evening
+  blocksRemaining: number; // total blocks left today (max 4)
+  workingLate: boolean;
+}
+
+export interface Assignment {
+  id: string;
+  title: string;
+  tier: 'Novice' | 'Adept' | 'Expert' | 'Perilous';
+  employer: string;
+  description: string;
+  rewardSilver: number;
+  rewardCareerXp: number;
+  blockCost: number; // Time blocks required (1 or 2)
+  daysRemaining: number; // expires in 3 days if not accepted
+  status: 'available' | 'active' | 'completed' | 'expired' | 'cancelled';
+  requiredFields?: {
+    sender: string;
+    recipient: string;
+    expectedQuantity: number;
+    correctItem: string;
+  };
+}
+
+export interface EvidenceItem {
+  id: string;
+  code: string; // e.g. "E-01"
+  title: string;
+  source: string;
+  content: string;
+  examined: boolean;
+  blockCost: number; // 0 blocks for Free Thinking (reading held evidence)
+}
+
+export type RegisterDesignType = 'movement_ledger' | 'compact_balance';
+
+export interface StorehouseWorkState {
+  stage: 'A_INVESTIGATE' | 'B_DESIGN' | 'C_TEST' | 'D_ADOPT' | 'COMPLETED';
+  examinedEvidence: string[]; // evidence IDs
+  registerDesign: RegisterDesignType | null;
+  registerConfigured: boolean;
+  testC1Passed: boolean; // Held stock release
+  testC2Passed: boolean; // Short delivery
+  auditCompleted: boolean;
+  adopted: boolean;
+  adoptionType: 'movement_ledger' | 'compact_balance' | 'provisional' | 'rejected' | null;
+}
+
+export interface NpcRelation {
+  id: string;
+  name: string;
+  role: string;
+  trust: number; // 0 to 100
+  affinity: number; // 0 to 100
+  description: string;
+  dialogueUnlocked: boolean;
+}
