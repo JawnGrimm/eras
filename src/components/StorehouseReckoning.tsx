@@ -191,9 +191,14 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
       onShowToast('The compact register entry must include its linked supplemental movement note. Re-enter the transaction after a revision if it is missing.');
       return;
     }
-    const valid = isC1
-      ? ruling === 'status_transfer' && state.c1Record?.transferred === 5 && state.c1Record?.heldRemaining === 2 && state.c1Record?.totalStockChange === 0 && state.c1Record.transferred + state.c1Record.heldRemaining === 7 && ['C1-E01','C1-E02'].every((id) => testSources.includes(id))
-      : ruling === 'discrepancy_pending' && state.c2Record?.dispatched === 20 && state.c2Record?.received === 18 && state.c2Record?.discrepancy === 2 && state.c2Record.dispatched - state.c2Record.received === state.c2Record.discrepancy && ['C2-E01','C2-E02','C2-E03'].every((id) => testSources.includes(id));
+    const sourcesValid = isC1
+      ? ['C1-E01','C1-E02'].every((id) => testSources.includes(id))
+      : ['C2-E01','C2-E02','C2-E03'].every((id) => testSources.includes(id));
+    const valuesValid = isC1
+      ? state.c1Record?.transferred === 5 && state.c1Record?.heldRemaining === 2 && state.c1Record?.totalStockChange === 0 && state.c1Record.transferred + state.c1Record.heldRemaining === 7
+      : state.c2Record?.dispatched === 20 && state.c2Record?.received === 18 && state.c2Record?.discrepancy === 2 && state.c2Record.dispatched - state.c2Record.received === state.c2Record.discrepancy;
+    const rulingValid = isC1 ? ruling === 'status_transfer' : ruling === 'discrepancy_pending';
+    const valid = sourcesValid && valuesValid && rulingValid;
     const count = (isC1 ? state.c1AuditAttempts : state.c2AuditAttempts) ?? 0;
     commit('Audit test ' + which.toUpperCase(), 1,
       isC1
@@ -203,9 +208,13 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
         ? (isC1
           ? '5 measures move from held to usable, 2 remain held, and total physical stock is unchanged.'
           : '20 dispatched, 18 received, 2 pending inquiry; no unsupported blame is assigned.')
-        : (isC1
-          ? 'Failed: this entry treats a status release as a new receipt. Revise and audit again.'
-          : 'Failed: dispatch and receipt have been conflated or responsibility has been asserted without evidence. Revise and audit again.'));
+        : (!sourcesValid
+          ? 'Failed: attach every source reference for this test, then revise and audit again.'
+          : !valuesValid
+            ? 'Failed: one or more quantities do not reconcile. Revise the structured values and audit again.'
+            : (isC1
+              ? 'Failed: a status release must not be recorded as a new receipt. Revise the ruling and audit again.'
+              : 'Failed: preserve the dispatch/receipt difference and do not assign unsupported blame. Revise and audit again.'));
   };
 
   const reviseTest = (which: 'c1' | 'c2') => {
