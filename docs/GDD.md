@@ -1216,8 +1216,8 @@ The following details require further design before they can be treated as fixed
 6. The complete bread and beer economy: prices, availability, storage/spoilage, social uses, and era-appropriate equivalents.
 7. The stress scale, ceiling, thresholds, recovery rates, and fully priced recovery options; shortage consequences must remain recoverable.
 8. The complete NPC relationship model and how relationships persist through successors, institutions, and geographically separated eras.
-9. The continuity carrier across the long historical jumps: family line, professional house, archive, institution, scribal tradition, or a deliberately combined model.
-10. Family lifespan, succession, inheritance, and generational transition rules, if family continuity remains part of the chosen model.
+9. The additional continuity carriers that should complement the established family line and inherited desk across long historical jumps: professional house, archive, institution, scribal tradition, or a deliberately combined model.
+10. Family lifespan, succession, inheritance beyond the desk, and generational transition rules. Family continuity and the inherited desk are established design directions; the detailed mechanics remain open.
 11. Era pacing in actual in-game days, including the number and expected duration of Works, optional activity density, and authored calendar transitions.
 12. The historical progression thresholds and XP allocation after Work plans are complete; rounder values may replace the current legacy targets.
 13. The exact institutional, document, assignment, and Work content for each historical era, including decisions about additional traditions and chronology coverage such as China, paper, and the codex.
