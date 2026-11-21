@@ -249,20 +249,21 @@ export function evaluateInvariant(
 /**
  * Provisions (Bread Contract)
  */
-export function calculateProvision(workCompleted: boolean): { breadChange: number; note: string } {
-  const deduction = 1; // 1 bread daily sustenance
-  const provision = !workCompleted ? 1 : 0; // 1 bread provision under contract if active
-  const net = provision - deduction;
+export function calculateProvision(workActive: boolean, workApSpentToday: number): { breadChange: number; provision: number; sustenance: number; note: string } {
+  const sustenance = 1;
+  const provision = workActive && workApSpentToday >= 1 ? 1 : 0;
   return {
-    breadChange: net,
-    note: `Sustenance deduction: -1 bread · Contract provision: +${provision} bread`,
+    breadChange: provision - sustenance,
+    provision,
+    sustenance,
+    note: `Sustenance: -${sustenance} bread · Work provision: +${provision} bread`,
   };
 }
 
 /**
  * Versioned Save with Guarded Storage
  */
-const SAVE_VERSION = '1.0';
+const SAVE_VERSION = '1.1';
 
 export function saveGameState<T>(key: string, data: T): boolean {
   if (typeof localStorage === 'undefined') {
@@ -288,22 +289,21 @@ export function loadGameState<T>(key: string): T | null {
   try {
     const raw = localStorage.getItem(key);
     if (!raw) return null;
-    const envelope: unknown = JSON.parse(raw);
-    if (
-      envelope === null ||
-      typeof envelope !== 'object' ||
-      Array.isArray(envelope) ||
-      !('version' in envelope) ||
-      !('data' in envelope)
-    ) {
-      console.warn('Malformed save envelope; resetting save.');
+    const parsed: unknown = JSON.parse(raw);
+    if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      console.warn('Malformed save; ignoring it.');
       return null;
     }
-    if ((envelope as { version: unknown }).version !== SAVE_VERSION) {
-      console.warn('Save version mismatch; resetting save.');
-      return null;
+    if ('version' in parsed && 'data' in parsed) {
+      const version = (parsed as { version: unknown }).version;
+      if (version !== SAVE_VERSION && version !== '1.0') {
+        console.warn(`Unsupported save version: ${String(version)}`);
+        return null;
+      }
+      return (parsed as { data: T }).data;
     }
-    return (envelope as { data: T }).data;
+    // Accept the prototype's original unwrapped JSON saves so existing progress survives migration.
+    return parsed as T;
   } catch (err) {
     console.error('Failed to parse save envelope:', err);
     return null;
