@@ -221,6 +221,7 @@ describe('Storehouse Reckoning typed Work', () => {
     expect(state.works.activeWorkId).toBeNull();
     expect(state.works.progress[STOREHOUSE_WORK_ID].status).toBe('completed');
     expect(state.works.progress[STOREHOUSE_WORK_ID].rewardGranted).toBe(true);
+    expect(state.works.progress[STOREHOUSE_WORK_ID].finalDisposition).toBe(disposition);
     expect(state.historicalProgression.historicalXp).toBe(STOREHOUSE_PROVISIONAL_HISTORICAL_XP);
     expect(state.world.people[INITIAL_PERSON_ID].scribal!.careerXp - beforeCareer).toBe(STOREHOUSE_PROVISIONAL_CAREER_XP);
     const record = Object.values(state.records.entries)[0];
@@ -264,6 +265,9 @@ describe('Storehouse Reckoning typed Work', () => {
     const invalid = structuredClone(createSaveEnvelope(state, 3));
     invalid.state.works.progress[STOREHOUSE_WORK_ID].scenarioData = { ...draft, draft: { received: -1 } };
     expect(isValidSaveEnvelope(invalid, catalog)).toBe(false);
+    const invalidDisposition = structuredClone(createSaveEnvelope(state, 4));
+    invalidDisposition.state.works.progress[STOREHOUSE_WORK_ID].finalDisposition = 'approve_everything';
+    expect(isValidSaveEnvelope(invalidDisposition, catalog)).toBe(false);
   });
 
   it('does not duplicate Historical Progress XP on any repeated or rejected disposition', () => {
