@@ -6,6 +6,11 @@ What does this change do, and why?
 
 Closes #
 
+## Public-domain contribution
+
+- [ ] I have the right to submit this work and agree to dedicate my original contribution to the public domain under CC0 1.0 Universal.
+- [ ] Any third-party material is identified with its source and applicable terms; I have not represented it as CC0.
+
 ## Design impact
 
 - [ ] No gameplay or design change.
