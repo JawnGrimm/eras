@@ -19,6 +19,7 @@ export interface PlayerProfile {
   blocksRemaining: number; // remaining Action Points (maximum 6)
   actionPointsPerDay?: number; // save-schema marker for the six-AP economy
   workApSpentToday?: number; // AP spent on the active mandatory Work today
+  studiedToday?: boolean; // once-per-Workday study limit
   workingLate: boolean;
 }
 

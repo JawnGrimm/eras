@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { PlayerProfile, Assignment, StorehouseWorkState } from './types';
 import { createInitialPlayer, createInitialAssignments } from './data/initialData';
 import { CareerLogEntry, CareerRecordState, createCareerLog, migrateCareerLog, normalizeCareerRecords, recordAssignmentCompletion } from './engine/CareerWorkLog';
@@ -12,6 +12,42 @@ import { CareerJournalModal } from './components/CareerJournalModal';
 import { CodexModal } from './components/CodexModal';
 import { CheckCircle2, X } from 'lucide-react';
 import { loadGameState, saveGameState, calculateProvision } from './engine/Engine';
+
+const STORAGE_KEYS = [
+  'scribe_player',
+  'scribe_assignments',
+  'scribe_workstate',
+  'scribe_career_records',
+  'scribe_challenges',
+  'scribe_completed_challenges',
+  'scribe_reputation',
+  'scribe_worklog',
+  'scribe_journal_events',
+];
+
+type AssignmentAction = 'accept' | 'complete' | 'cancel';
+
+const createInitialWorkState = (): StorehouseWorkState => ({
+  workVersion: 2,
+  stage: 'A_INVESTIGATE',
+  examinedEvidence: [],
+  registerDesign: null,
+  registerConfigured: false,
+  testC1Passed: false,
+  testC2Passed: false,
+  auditCompleted: false,
+  adopted: false,
+  adoptionType: null,
+  completedActions: [],
+  rewardGranted: false,
+  revisionPasses: 0,
+  reconciliationDraft: {},
+  reconciliationSources: [],
+  recommendations: [],
+  assessment: null,
+  assessmentSubmitted: false,
+  seniorDisposition: null,
+});
 
 export default function App() {
   // LocalStorage state persistence
@@ -33,6 +69,7 @@ export default function App() {
     parsed.currentBlock = Math.max(1, Math.min(7, parsed.currentBlock || 1));
     parsed.blocksRemaining = Math.max(0, Math.min(6, parsed.blocksRemaining ?? 6));
     parsed.workApSpentToday = Math.max(0, parsed.workApSpentToday ?? 0);
+    parsed.studiedToday = Boolean(parsed.studiedToday);
     parsed.workingLate = parsed.workingLate || false;
     delete parsed.dailyAp;
     delete parsed.maxAp;
@@ -84,27 +121,7 @@ export default function App() {
   });
 
   const [workState, setWorkState] = useState<StorehouseWorkState>(() => {
-    const fresh: StorehouseWorkState = {
-      workVersion: 2,
-      stage: 'A_INVESTIGATE',
-      examinedEvidence: [],
-      registerDesign: null,
-      registerConfigured: false,
-      testC1Passed: false,
-      testC2Passed: false,
-      auditCompleted: false,
-      adopted: false,
-      adoptionType: null,
-      completedActions: [],
-      rewardGranted: false,
-      revisionPasses: 0,
-      reconciliationDraft: {},
-      reconciliationSources: [],
-      recommendations: [],
-      assessment: null,
-      assessmentSubmitted: false,
-      seniorDisposition: null,
-    };
+    const fresh = createInitialWorkState();
     const saved = loadGameState<StorehouseWorkState>('scribe_workstate');
     if (!saved || saved.workVersion !== 2) return fresh;
     return { ...fresh, ...saved };
@@ -112,13 +129,69 @@ export default function App() {
 
   const [activeTab, setActiveTab] = useState<string>('hub');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [pendingAssignmentIds, setPendingAssignmentIds] = useState<string[]>([]);
+  const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reservedApRef = useRef(0);
+  const endDayTargetRef = useRef<number | null>(null);
+  const workLatePendingRef = useRef(false);
+  const assignmentActionRef = useRef(new Map<string, AssignmentAction>());
+  const challengeCompletionRef = useRef(new Set<string>());
+  const studiedTodayRef = useRef(false);
 
   const showToast = (msg: string) => {
+    if (toastTimeoutRef.current !== null) clearTimeout(toastTimeoutRef.current);
     setToastMessage(msg);
-    setTimeout(() => {
+    toastTimeoutRef.current = setTimeout(() => {
       setToastMessage(null);
+      toastTimeoutRef.current = null;
     }, 4000);
   };
+
+  const tryReserveAp = (amount: number): boolean => {
+    if (endDayTargetRef.current !== null || workLatePendingRef.current) return false;
+    if (!Number.isFinite(amount) || amount < 0 || player.blocksRemaining - reservedApRef.current < amount) return false;
+    reservedApRef.current += amount;
+    return true;
+  };
+
+  useEffect(() => {
+    reservedApRef.current = 0;
+    if (player.studiedToday) studiedTodayRef.current = false;
+    if (endDayTargetRef.current !== null && player.currentDay >= endDayTargetRef.current) {
+      endDayTargetRef.current = null;
+    }
+    if (player.workingLate) workLatePendingRef.current = false;
+  }, [player]);
+
+  useEffect(() => {
+    const released: string[] = [];
+    for (const [id, action] of assignmentActionRef.current.entries()) {
+      const assignment = assignments.find((item) => item.id === id);
+      const transitioned = !assignment || (action === 'accept'
+        ? assignment.status !== 'available'
+        : assignment.status !== 'active');
+      if (transitioned) {
+        assignmentActionRef.current.delete(id);
+        released.push(id);
+      }
+    }
+    if (released.length > 0) {
+      setPendingAssignmentIds((prev) => prev.filter((id) => !released.includes(id)));
+    }
+  }, [assignments]);
+
+  useEffect(() => {
+    const archivedIds = new Set(completedChallenges.map((challenge) => challenge.id));
+    for (const id of challengeCompletionRef.current) {
+      if (!challenges.some((challenge) => challenge.id === id) && archivedIds.has(id)) {
+        challengeCompletionRef.current.delete(id);
+      }
+    }
+  }, [challenges, completedChallenges]);
+
+  useEffect(() => () => {
+    if (toastTimeoutRef.current !== null) clearTimeout(toastTimeoutRef.current);
+  }, []);
 
   useEffect(() => {
     saveGameState('scribe_player', player);
@@ -153,16 +226,15 @@ export default function App() {
     saveGameState('scribe_reputation', reputation);
   }, [reputation]);
 
-  const handleConsumeBlocks = (amount: number, isWorkAction = false) => {
-    setPlayer((prev) => {
-      const spent = Math.max(0, Math.min(prev.blocksRemaining, amount));
-      return {
-        ...prev,
-        blocksRemaining: Math.max(0, prev.blocksRemaining - spent),
-        currentBlock: Math.min(7, prev.currentBlock + spent),
-        workApSpentToday: (prev.workApSpentToday ?? 0) + (isWorkAction ? spent : 0),
-      };
-    });
+  const handleConsumeBlocks = (amount: number, isWorkAction = false): boolean => {
+    if (!tryReserveAp(amount)) return false;
+    setPlayer((prev) => ({
+      ...prev,
+      blocksRemaining: Math.max(0, prev.blocksRemaining - amount),
+      currentBlock: Math.min(7, prev.currentBlock + amount),
+      workApSpentToday: (prev.workApSpentToday ?? 0) + (isWorkAction ? amount : 0),
+    }));
+    return true;
   };
 
   const handleAwardXp = (careerXp: number, historicalXp: number) => {
@@ -170,7 +242,7 @@ export default function App() {
       const newCareerXp = prev.careerXp + careerXp;
       const newHistoricalXp = prev.historicalXp + historicalXp;
       let newRank = prev.rank;
-      let newTitle = prev.title;
+      let newTitle = prev.rankTitle;
 
       if (newCareerXp >= 20000) {
         newRank = 4;
@@ -194,29 +266,39 @@ export default function App() {
   };
 
   const handleAcceptAssignment = (id: string) => {
-    const activeCount = assignments.filter((a) => a.status === 'active').length;
-    if (activeCount >= 2) {
+    const assignment = assignments.find((item) => item.id === id);
+    if (!assignment || assignment.status !== 'available' || assignmentActionRef.current.has(id)) return;
+
+    const activeCount = assignments.filter((item) => item.status === 'active').length;
+    const pendingAccepts = [...assignmentActionRef.current.values()].filter((action) => action === 'accept').length;
+    if (activeCount + pendingAccepts >= 2) {
       showToast('You may hold at most two active commitments at once.');
       return;
     }
+
+    assignmentActionRef.current.set(id, 'accept');
+    setPendingAssignmentIds((prev) => prev.includes(id) ? prev : [...prev, id]);
     setAssignments((prev) =>
-      prev.map((a) => (a.id === id ? { ...a, status: 'active' } : a))
+      prev.map((item) => item.id === id && item.status === 'available'
+        ? { ...item, status: 'active' }
+        : item)
     );
     showToast('Commission accepted successfully.');
   };
 
   const handleCompleteAssignment = (id: string) => {
     const assignment = assignments.find((a) => a.id === id);
-    if (!assignment) return;
+    if (!assignment || assignment.status !== 'active' || assignmentActionRef.current.has(id)) return;
 
-    if (player.blocksRemaining < assignment.blockCost) {
+    assignmentActionRef.current.set(id, 'complete');
+    if (!handleConsumeBlocks(assignment.blockCost)) {
+      assignmentActionRef.current.delete(id);
       showToast('Not enough AP remaining today to complete this commission.');
       return;
     }
-
-    handleConsumeBlocks(assignment.blockCost);
+    setPendingAssignmentIds((prev) => prev.includes(id) ? prev : [...prev, id]);
     setAssignments((prev) =>
-      prev.map((a) => (a.id === id ? { ...a, status: 'completed' } : a))
+      prev.map((a) => a.id === id && a.status === 'active' ? { ...a, status: 'completed' } : a)
     );
     setPlayer((prev) => ({
       ...prev,
@@ -272,12 +354,13 @@ export default function App() {
 
   const handleCompleteChallenge = (id: string) => {
     const chal = challenges.find((c) => c.id === id);
-    if (!chal || chal.status !== 'accepted') return;
-    if (player.blocksRemaining < chal.blockCost) {
+    if (!chal || chal.status !== 'accepted' || challengeCompletionRef.current.has(id)) return;
+    challengeCompletionRef.current.add(id);
+    if (!handleConsumeBlocks(chal.blockCost)) {
+      challengeCompletionRef.current.delete(id);
       showToast('Not enough AP remaining today to complete this challenge.');
       return;
     }
-    handleConsumeBlocks(chal.blockCost);
     const completedRecord: ChallengeOpportunity = {
       ...chal,
       status: 'completed',
@@ -294,12 +377,7 @@ export default function App() {
       silver: prev.silver + chal.rewardSilver,
     }));
     handleAwardXp(chal.rewardCareerXp, 0);
-    setReputation((prev) => ({
-      ...prev,
-      competence: Math.min(100, prev.competence + 5),
-      judgment: Math.min(100, prev.judgment + 5),
-    }));
-    showToast(`Challenge successfully resolved! +${chal.rewardSilver} silver, +${chal.rewardCareerXp} Career XP, and reputation increased.`);
+    showToast(`Challenge successfully resolved! +${chal.rewardSilver} silver and +${chal.rewardCareerXp} Career XP.`);
   };
 
   const handleDeclineChallenge = (id: string) => {
@@ -311,33 +389,45 @@ export default function App() {
   };
 
   const handleCancelAssignment = (id: string) => {
-    if (player.blocksRemaining < 1) {
+    const assignment = assignments.find((item) => item.id === id);
+    if (!assignment || assignment.status !== 'active' || assignmentActionRef.current.has(id)) return;
+
+    assignmentActionRef.current.set(id, 'cancel');
+    if (!handleConsumeBlocks(1)) {
+      assignmentActionRef.current.delete(id);
       showToast('Not enough AP to process cancellation.');
       return;
     }
-    handleConsumeBlocks(1);
+    setPendingAssignmentIds((prev) => prev.includes(id) ? prev : [...prev, id]);
     setAssignments((prev) =>
-      prev.map((a) => (a.id === id ? { ...a, status: 'available' } : a))
+      prev.map((item) => item.id === id && item.status === 'active'
+        ? { ...item, status: 'cancelled' }
+        : item)
     );
     showToast('Commission cancelled (-1 AP).');
   };
 
   const handleStudy = () => {
-    if (player.blocksRemaining < 1) {
+    if (player.studiedToday || studiedTodayRef.current) {
+      showToast('You have already studied today.');
+      return;
+    }
+    studiedTodayRef.current = true;
+    if (!handleConsumeBlocks(1)) {
+      studiedTodayRef.current = false;
       showToast('Not enough AP remaining today.');
       return;
     }
-    handleConsumeBlocks(1);
+    setPlayer((prev) => ({ ...prev, studiedToday: true }));
     handleAwardXp(15, 0);
     showToast('Studied scribal metrology and precedents for several hours. +15 Career XP gained.');
   };
 
   const handleRest = () => {
-    if (player.blocksRemaining < 1) {
+    if (!handleConsumeBlocks(1)) {
       showToast('Not enough AP remaining today.');
       return;
     }
-    handleConsumeBlocks(1);
     setPlayer((prev) => ({
       ...prev,
       stress: Math.max(0, prev.stress - 10),
@@ -346,6 +436,7 @@ export default function App() {
   };
 
   const handleWorkLate = () => {
+    if (endDayTargetRef.current !== null || reservedApRef.current > 0 || workLatePendingRef.current) return;
     if (player.blocksRemaining > 0) {
       showToast('Overtime is available only after all Action Points have been spent.');
       return;
@@ -355,6 +446,7 @@ export default function App() {
       return;
     }
 
+    workLatePendingRef.current = true;
     setPlayer((prev) => {
       // Enforce the end-of-day requirement even if state changes before the update applies.
       if (prev.workingLate || prev.blocksRemaining > 0) return prev;
@@ -370,6 +462,9 @@ export default function App() {
   };
 
   const handleEndDay = () => {
+    if (endDayTargetRef.current !== null || reservedApRef.current > 0 || workLatePendingRef.current) return;
+    const targetDay = player.currentDay + 1;
+    endDayTargetRef.current = targetDay;
     const settlement = calculateProvision(workState.stage !== 'COMPLETED', player.workApSpentToday ?? 0);
 
     setPlayer((prev) => {
@@ -382,6 +477,7 @@ export default function App() {
         blocksRemaining: nextDayWorkingLate ? 5 : 6,
         actionPointsPerDay: 6,
         workApSpentToday: 0,
+        studiedToday: false,
         bread: Math.max(0, prev.bread + settlement.breadChange),
         workingLate: false,
       };
@@ -391,24 +487,21 @@ export default function App() {
   };
 
   const handleResetGame = () => {
-    localStorage.clear();
+    STORAGE_KEYS.forEach((key) => localStorage.removeItem(key));
+    reservedApRef.current = 0;
+    endDayTargetRef.current = null;
+    workLatePendingRef.current = false;
+    assignmentActionRef.current.clear();
+    challengeCompletionRef.current.clear();
+    studiedTodayRef.current = false;
+    setPendingAssignmentIds([]);
     setPlayer(createInitialPlayer());
     setAssignments(createInitialAssignments());
     setCareerRecords(createCareerLog());
     setChallenges(createInitialChallenges());
     setCompletedChallenges([]);
     setReputation(createInitialReputation());
-    setWorkState({
-      stage: 'A_INVESTIGATE',
-      examinedEvidence: [],
-      registerDesign: null,
-      registerConfigured: false,
-      testC1Passed: false,
-      testC2Passed: false,
-      auditCompleted: false,
-      adopted: false,
-      adoptionType: null,
-    });
+    setWorkState(createInitialWorkState());
     setActiveTab('hub');
     showToast('Game reset successfully to Day 1 (Fresh Apprentice Save).');
   };
@@ -450,6 +543,7 @@ export default function App() {
           <AssignmentBoard
             player={player}
             assignments={assignments}
+            pendingAssignmentIds={pendingAssignmentIds}
             onAcceptAssignment={handleAcceptAssignment}
             onCompleteAssignment={handleCompleteAssignment}
             onCancelAssignment={handleCancelAssignment}

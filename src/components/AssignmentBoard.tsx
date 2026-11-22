@@ -5,6 +5,7 @@ import { Coins, Award, Zap, Clock, CheckCircle2, AlertCircle, XCircle } from 'lu
 interface AssignmentBoardProps {
   player: PlayerProfile;
   assignments: Assignment[];
+  pendingAssignmentIds: string[];
   onAcceptAssignment: (id: string) => void;
   onCompleteAssignment: (id: string) => void;
   onCancelAssignment: (id: string) => void;
@@ -13,6 +14,7 @@ interface AssignmentBoardProps {
 export const AssignmentBoard: React.FC<AssignmentBoardProps> = ({
   player,
   assignments,
+  pendingAssignmentIds,
   onAcceptAssignment,
   onCompleteAssignment,
   onCancelAssignment,
@@ -136,7 +138,7 @@ export const AssignmentBoard: React.FC<AssignmentBoardProps> = ({
               {assignment.status === 'available' && (
                 <button
                   onClick={() => onAcceptAssignment(assignment.id)}
-                  disabled={activeCount >= 2}
+                  disabled={activeCount >= 2 || pendingAssignmentIds.includes(assignment.id)}
                   className="px-4 py-2 text-xs font-medium text-white bg-[#2B1B17] dark:bg-stone-100 dark:text-stone-900 hover:bg-[#C86D33] dark:hover:bg-stone-200 rounded-lg transition-colors disabled:opacity-50"
                 >
                   Accept Commission
@@ -146,6 +148,7 @@ export const AssignmentBoard: React.FC<AssignmentBoardProps> = ({
               {assignment.status === 'active' && (
                 <div className="flex items-center gap-2">
                   <button
+                    disabled={pendingAssignmentIds.includes(assignment.id)}
                     onClick={() => onCancelAssignment(assignment.id)}
                     className="px-3 py-2 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg transition-colors"
                   >
@@ -153,7 +156,7 @@ export const AssignmentBoard: React.FC<AssignmentBoardProps> = ({
                   </button>
                   <button
                     onClick={() => onCompleteAssignment(assignment.id)}
-                    disabled={player.blocksRemaining < assignment.blockCost}
+                    disabled={pendingAssignmentIds.includes(assignment.id) || player.blocksRemaining < assignment.blockCost}
                     className="px-4 py-2 text-xs font-medium text-white bg-[#C86D33] hover:bg-[#b05c28] rounded-lg transition-colors disabled:opacity-50 flex items-center gap-1"
                   >
                     <CheckCircle2 className="w-3.5 h-3.5" />

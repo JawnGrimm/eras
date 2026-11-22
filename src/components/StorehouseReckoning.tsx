@@ -7,7 +7,7 @@ interface StorehouseReckoningProps {
   player: PlayerProfile;
   workState: StorehouseWorkState;
   onUpdateWorkState: (newState: Partial<StorehouseWorkState>) => void;
-  onConsumeBlocks: (amount: number) => void;
+  onConsumeBlocks: (amount: number) => boolean;
   onAwardXp: (careerXp: number, historicalXp: number) => void;
   onShowToast: (msg: string) => void;
 }
@@ -58,7 +58,10 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
       onShowToast('Not enough AP remaining. This action costs ' + cost + ' AP.');
       return false;
     }
-    onConsumeBlocks(cost);
+    if (!onConsumeBlocks(cost)) {
+      onShowToast('Action could not be committed: AP reservation is no longer available.');
+      return false;
+    }
     onUpdateWorkState(update);
     onShowToast(label + ' (' + cost + ' AP). ' + success);
     return true;
@@ -152,7 +155,10 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
   const disposition = () => {
     if (!assessment) return;
     if (!canAct(1)) { onShowToast('Not enough AP remaining. The Senior Scribe’s disposition costs 1 AP.'); return; }
-    onConsumeBlocks(1);
+    if (!onConsumeBlocks(1)) {
+      onShowToast('The Senior Scribe’s disposition could not be committed: AP reservation is no longer available.');
+      return;
+    }
     if (!assessment.accounting || !assessment.evidence) {
       onUpdateWorkState({ seniorDisposition: 'returned', stage: 'B_DESIGN' });
       onShowToast('The Senior Scribe returns the document for correction. No action is authorized on an unreliable account.');
@@ -206,7 +212,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
       <div className="grid grid-cols-3 gap-2 mt-6">
         {[
           ['01','Examine the case',allEvidenceReady],
-          ['02','Prepare the document',Boolean(state.assessmentSubmitted)],
+          ['02','Prepare the document',Boolean(state.assessment)],
           ['03','Assessment & disposition',isComplete],
         ].map(([number,label,ready]) => <div key={String(number)} className="rounded-lg border border-[#D6CEBE] dark:border-stone-700 p-3">
           <div className="text-xs font-mono text-stone-500">{number}</div><div className="text-sm font-semibold">{label}</div>
