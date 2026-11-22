@@ -1,6 +1,6 @@
 import type { SkillId, SpecializationId } from '../state/ids';
 import type {
-  CareerProgressionPolicy, GameAction, GameState, SkillState, TargetSkillLevel, TransitionResult,
+  CareerProgressionPolicy, GameAction, GameState, Person, SkillState, TargetSkillLevel, TransitionResult,
 } from '../state/types';
 
 function result(state: GameState, kind: 'success' | 'error', code: string, message: string): TransitionResult {
@@ -111,7 +111,7 @@ export function transitionCareerAction(
 function setPrimarySpecialization(
   state: GameState,
   scribal: NonNullable<ReturnType<typeof activeScribal>>,
-  person: NonNullable<GameState['world']['people'][string]>,
+  person: Person,
   specializationId: SpecializationId,
 ): TransitionResult {
   if (!scribal.specializations.some((specialization) => specialization.id === specializationId)) {
