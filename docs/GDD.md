@@ -438,7 +438,7 @@ Some historically significant Works become available as **date-based invitations
 
 1. **Historical window:** The undertaking becomes available within an appropriate date or period. Use a precise date only where the evidence supports that precision; otherwise use a broader availability window.
 2. **Invitation and discovery:** The player learns of the opportunity through a plausible person, institution, notice, correspondence, colleague, patron, or other channel available to the character. An invitation need not be a personal summons from an important figure.
-3. **Eligibility and access:** Skills, professional standing, relationships, institutional position, location, and current commitments may affect whether the player is invited, qualifies, or can reach the opportunity. These factors should create plausible access conditions, not arbitrary gates.
+3. **Eligibility and access:** Skills determine whether the character qualifies for the specific work. Professional rank shapes the baseline range of opportunities likely to reach the character; relationships may provide specific introductions, specializations may open discipline-specific opportunities, reputation may affect whether people approach or trust the character, and appointments may create office-related opportunities and responsibilities. Location and current commitments also matter. These factors should create plausible access conditions, not arbitrary gates. Rank is not a substitute for a required skill or appointment, and it must never remove every viable route to a Work required for historical progression. Required Works and their alternative routes must remain reachable regardless of rank; a lower rank may change how the character learns of or participates in a milestone, but not whether a valid progression route exists.
 4. **Participation:** The player undertakes the Work, potentially alongside other people, with the scale and structure appropriate to its subject.
 5. **Consequences:** The Work affects the people, institutions, records, and later opportunities involved. Completion may contribute Historical Progress XP according to the progression rules.
 
@@ -519,7 +519,7 @@ Stress is a separate system. AP costs represent time and capacity; stress change
 
 The professional opportunity board presents a changing set of available Assignments. The player can pursue any combination that fits the daily AP budget; there are no fixed daily assignment slots.
 
-An unaccepted offer is normally available for three in-game days from the day it appears. At the end of that period it expires and is removed from the active board. Individual scenarios may specify a different period when their context requires it, but the duration must be visible to the player. Expiry is a calendar consequence, not a real-time countdown. The board should normally present more new opportunity-cost than the player can complete in a day; as an initial content target, offer roughly 8 AP worth of new Assignments per day against the 6-AP budget. This is a tuning target, not a quota.
+An unaccepted offer is normally available for three in-game days from the day it appears. At the end of that period it expires and is removed from the active board. Individual scenarios may specify a different period when their context requires it, but the duration must be visible to the player. Expiry is a calendar consequence, not a real-time countdown. The board should normally present more new opportunity-cost than the player can complete in a day; as an initial content target, offer roughly 8 AP worth of new Assignments per day against the 6-AP budget. This is a tuning target, not a quota. Rank and other access factors may change the composition and source of offers, but low rank must not systematically reduce the baseline volume of ordinary playable work. The 8-AP target concerns the overall mix of newly presented Assignments, not a rank-based entitlement or a guarantee that every offer suits every character.
 
 The player may hold at most **two accepted Assignments** at once. Accepting an offer costs no AP, but it occupies one of those commitment slots. When both slots are occupied, the player must complete or cancel an accepted Assignment before accepting another. Cancelling an accepted Assignment costs 1 AP and may affect trust or reputation only when the specific employer or circumstances make that consequence credible; the penalty is not automatic. The cancellation cost and any relationship consequence are shown before confirmation.
 
@@ -916,7 +916,8 @@ Career XP is earned through professional activity and serves as a shared investm
 Appropriate Career XP sources include:
 - Successfully completed Assignments / Commissions.
 - Optional professional Challenges.
-- Qualifying study, training, and mentorship. The established evening-study reward is 15 Career XP, available once per in-game day.- Recognized professional contribution to a Work, when appropriate.
+- Qualifying study, training, and mentorship. The established evening-study reward is 15 Career XP, available once per in-game day.
+- Recognized professional contribution to a Work, when appropriate.
 
 The same activity should not award the same performance twice through separate scoring paths. Field accuracy and document evaluation should be incorporated coherently into the final commission award rather than accidentally counted multiple times.
 
@@ -964,7 +965,7 @@ A character may hold multiple specializations, with one designated as Primary. P
 
 Each specialization has three expertise levels: **Practitioner**, **Specialist**, and **Master**. These represent increasing competence, access to demanding work and distinctive capabilities, and exceptional expertise with advanced actions and professional recognition.
 
-Specializations should unlock actions, improve relevant actions, and create professional opportunities. Their effects should connect to the character-action model and the people and institutions of the world rather than exist only as passive percentage bonuses. Exact qualification and advancement requirements, and the content of individual specializations, remain open.
+Specializations should unlock actions, improve relevant actions, and create professional opportunities. Their effects should connect to the character-action model and the people and institutions of the world rather than exist only as passive percentage bonuses. Rank provides broad professional reach; specialization provides a separate route to focused, discipline-specific opportunities. A character with a lower broad rank should not be treated as having no meaningful professional opportunities when their specialization creates a credible reason for relevant work to reach them. Exact qualification and advancement requirements, the content of individual specializations, and the balance between broad and specialist opportunity channels remain open.
 
 ---
 
@@ -1395,6 +1396,7 @@ Visual feedback is mandatory. The player must be able to understand:
 - What information is missing.
 - What changed after submission or resolution.
 - Why resources, stress, trust, reputation, or relationships changed.
+- The character's current professional standing and, in plain language, the broad kinds of work and invitations that standing is likely to attract. This summary describes the character's known professional reach; it does not reveal opportunities or information that never reached them.
 - The character's current professional standing and, in plain language, the broad kinds of work and invitations that standing is likely to attract. This summary describes the character's known professional reach; it does not reveal opportunities or information that never reached them.
 
 Text must remain readable, controls must be clearly labeled, and color must not be the sole way to communicate difficulty or status. Layout should accommodate different screen sizes and input methods without hiding required information.
