@@ -165,7 +165,7 @@ The player begins as an apprentice scribe in Uruk. The player's precise name, fa
 
 The character system is built around the following interaction model:
 
-**Character + Skills + Equipment + Conditions + Circumstances → Available Actions and Outcomes**
+**Attributes + Skills + Specializations + Personality Traits + Equipment + Conditions + Circumstances → Available Actions and Outcomes**
 
 These elements should interact to change what a character can do, perceive, access, withstand, and accomplish. They are not intended as disconnected lists of bonuses. The exact action-resolution formula and numerical scales remain open.
 
