@@ -1,7 +1,7 @@
 import { transitionGame } from '../engine/actionEconomy';
 import { INITIAL_PERSON_ID, createInitialGameState } from './initialState';
 import type { AssignmentOffer, ChallengeInstance, GameState, OpportunityDeliveryChannel } from './types';
-import type { AssignmentId, ChallengeId } from './ids';
+import type { AssignmentId, ChallengeId, PersonId } from './ids';
 import { STOREHOUSE_WORK_ID, STOREHOUSE_INSTITUTION_ID, STOREHOUSE_PEOPLE, storehouseReckoning } from '../works/storehouseReckoning';
 
 /** The production Work catalog is supplied to every bootstrap transition. */
@@ -107,7 +107,7 @@ function starterChallenge(): Omit<ChallengeInstance, 'presentedDay' | 'status' |
           careerXp: 5,
           relationships: [{
             fromId: INITIAL_PERSON_ID,
-            toId: 'person-uruk-nin-aya' as never,
+            toId: 'person-uruk-nin-aya' as PersonId,
             changes: { respect: 3, familiarity: 2 },
             summary: 'The apprentice’s uncertainty was preserved rather than erased.',
           }],
