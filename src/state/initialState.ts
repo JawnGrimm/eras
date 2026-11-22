@@ -1,5 +1,5 @@
 import type { GameState } from './types';
-import type { InstitutionId, PersonId, LocationId, AppointmentId } from './ids';
+import type { InstitutionId, PersonId, AppointmentId } from './ids';
 import { NORTH_BAY_LOCATION_ID, NORTH_BAY_PEOPLE } from '../content/assignments/northBayRoofInspection';
 export const INITIAL_PERSON_ID = 'person-enlil-barni' as PersonId;
 export function createInitialGameState(): GameState {

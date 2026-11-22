@@ -3,7 +3,7 @@ import type { RecordAssertion, RecordEntry, RecordSource } from '../state/types'
 import { defineWork } from './workDefinition';
 import type { WorkAssessment, WorkFinalization, WorkSubmissionContext } from './workDefinition';
 import { evaluateEvidenceInterpretation } from './evidenceInterpretation';
-import { NORTH_BAY_ASSIGNMENT_ID, NORTH_BAY_ACTIVITY_ID, NORTH_BAY_PEOPLE, NORTH_BAY_LOCATION_ID } from '../content/assignments/northBayRoofInspection';
+import { NORTH_BAY_ASSIGNMENT_ID, NORTH_BAY_ACTIVITY_ID, NORTH_BAY_PEOPLE } from '../content/assignments/northBayRoofInspection';
 import type { InterpretationRule } from './evidenceInterpretation';
 
 export const STOREHOUSE_WORK_ID = 'work-storehouse-reckoning' as WorkId;

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { transitionGame } from '../engine/actionEconomy';
-import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
+import { createInitialGameState } from '../state/initialState';
 import { createSaveEnvelope, isValidSaveEnvelope, restoreSave } from '../state/saveEnvelope';
 import { INITIAL_WORK_CATALOG } from '../state/newGameState';
 import type { AssignmentOffer, GameState } from '../state/types';
@@ -75,7 +75,7 @@ describe('North-Bay Roof Inspection activity definition and engine', () => {
     let state = present(createInitialGameState());
     state = transitionGame(state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: NORTH_BAY_ASSIGNMENT_ID }).state;
     state = transitionGame(state, { type: 'PERFORM_ASSIGNMENT_ACTIVITY_ACTION', assignmentId: NORTH_BAY_ASSIGNMENT_ID, actionId: 'brief-steward' }).state;
-    const draft = { finding: 'insufficient_evidence' as const, citedDiscoveryIds: ['steward-briefing'],
+    const draft = { finding: 'insufficient_evidence' as const, responsibilityClaim: 'none' as const, citedDiscoveryIds: ['steward-briefing'],
       limitations: ['The roof and shaded beam socket were not inspected.'], recommendations: [] };
     state = transitionGame(state, { type: 'UPDATE_ASSIGNMENT_ACTIVITY_DRAFT', assignmentId: NORTH_BAY_ASSIGNMENT_ID, draft }).state;
     const result = transitionGame(state, { type: 'SUBMIT_ASSIGNMENT_ACTIVITY', assignmentId: NORTH_BAY_ASSIGNMENT_ID });
