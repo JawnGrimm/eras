@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { createNewGameState } from './newGameState';
-import { selectCharacterOpportunities } from './opportunitySelectors';
-import type { AssignmentId, ChallengeId, PersonId } from './ids';
-import type { AssignmentOffer, ChallengeInstance, OpportunityActivity } from './types';
+import { createNewGameState } from '../state/newGameState';
+import { selectCharacterOpportunities } from '../state/opportunitySelectors';
+import type { AssignmentId, ChallengeId, PersonId } from '../state/ids';
+import type { AssignmentOffer, OpportunityActivity } from '../state/types';
 
 describe('character opportunity selectors', () => {
   it('scopes accepted commitments to the active character and keeps offered items visible', () => {
