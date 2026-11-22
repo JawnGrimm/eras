@@ -135,10 +135,13 @@ export interface ChallengeInstance {
   id: ChallengeId; title: string; description: string; category: string; commodity?: string;
   employer?: OpportunityEmployer; context: AssignmentContext; deliveryChannels: OpportunityDeliveryChannel[];
   presentedDay: number; apCost: number; choices: ChallengeChoice[];
+  status: 'offered' | 'accepted' | 'declined';
+  /** Character who accepted this optional commitment. */
+  assigneePersonId?: PersonId;
 }
 export interface ChallengeOutcome {
   challengeId: ChallengeId; title: string; category: string; resolvedDay: number;
-  choiceId: string; choiceLabel: string; summary: string;
+  choiceId: string; choiceLabel: string; summary: string; assigneePersonId: PersonId;
 }
 export interface ChallengeTriggerRule {
   id: string; category?: string; minPresented?: number; minAccepted?: number; minDeclined?: number;
@@ -247,7 +250,9 @@ export type GameAction =
   | { type: 'DECLINE_ASSIGNMENT'; assignmentId: AssignmentId }
   | { type: 'CANCEL_ASSIGNMENT'; assignmentId: AssignmentId }
   | { type: 'COMPLETE_ASSIGNMENT'; assignmentId: AssignmentId }
-  | { type: 'PRESENT_CHALLENGE'; challenge: ChallengeInstance }
+  | { type: 'PRESENT_CHALLENGE'; challenge: Omit<ChallengeInstance, 'status' | 'assigneePersonId'> }
+  | { type: 'ACCEPT_CHALLENGE'; challengeId: ChallengeId }
+  | { type: 'DECLINE_CHALLENGE'; challengeId: ChallengeId }
   | { type: 'RESOLVE_CHALLENGE'; challengeId: ChallengeId; choiceId: string };
 export interface ActionFeedback { kind: 'success' | 'error' | 'info'; code: string; message: string; }
 export interface TransitionResult { state: GameState; feedback: ActionFeedback | null; }
