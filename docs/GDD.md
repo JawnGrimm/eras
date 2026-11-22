@@ -447,8 +447,7 @@ The first complete Era I example is specified in Section 7. It is a vertical sli
 
 ### 5.4 How the layers interact
 
-| Layer | Optional? | Primary progression reward | Uses daily Action Points? | Can gate era advancement? |
-|---|---|---|---|---|
+| Layer | Optional? | Primary progression reward | Uses daily Action Points? | Can gate era advancement? ||---|---|---|---|---|
 | Assignments / Commissions | Yes | Career XP and employment compensation | Yes | No |
 | Challenges | Yes | Career XP and scenario-specific consequences | Yes, when they require substantive actions | No |
 | Works | Required for main historical progression | Historical Progress XP; may also recognize professional contribution with Career XP | Yes | Yes |
@@ -897,8 +896,7 @@ Career XP measures the player's professional development. It is distinct from Hi
 Appropriate Career XP sources include:
 - Successfully completed Assignments / Commissions.
 - Optional professional Challenges.
-- Qualifying study, training, and mentorship. The established evening-study reward is 15 Career XP, available once per in-game day.
-- Recognized professional contribution to a Work, when appropriate.
+- Qualifying study, training, and mentorship. The established evening-study reward is 15 Career XP, available once per in-game day.- Recognized professional contribution to a Work, when appropriate.
 
 The same activity should not award the same performance twice through separate scoring paths. Field accuracy and document evaluation should be incorporated coherently into the final commission award rather than accidentally counted multiple times.
 
@@ -1117,7 +1115,15 @@ The social network should be persistent enough that the player recognizes conseq
 
 ### 15.3 Institutions and factions
 
-Institutions have interests, resources, procedures, internal tensions, and memories. Faction standing can represent broad relationships with groups such as temple authorities, citizens, guilds, merchants, or other era-appropriate organizations. It complements, but does not replace, individual NPC relationships.
+Institutions use a **shared underlying gameplay model** rather than separate mechanical systems for each institutional or career type. Their common properties may include identity and historical context, responsibilities and authority, resources and personnel, relationships with other institutions and people, and current circumstances or unresolved matters. The model should remain proportionate: institutions have objectives, constraints, and organizational interests, but do not need the full personality, memory, or decision-making complexity of individual NPCs.
+
+Institutional rosters are specific to each historical era. Do not assume that the same organizations persist unchanged across eras or simply receive new names and visual skins. Each era should introduce institutions appropriate to its historical setting. The four initial career paths—Government, Military, Religious, and Merchant—can guide a small number of especially relevant institutions for each path, alongside general institutions and organizations that people from multiple careers may encounter.
+
+Career paths do not create exclusive access or membership boundaries. A character's career shapes their starting position, relationships, responsibilities, opportunities, and likely institutional contacts; it does not prevent them from interacting with institutions associated with other careers.
+
+Institutional differences should initially be expressed through historical and narrative character, style, terminology, customs, attitudes, priorities, and context. Differences in authority, responsibilities, resources, or available actions should be represented through the shared model's properties and circumstances, not bespoke mechanics. Introduce mechanically distinct institutional types only if later gameplay demonstrates a genuine need.
+
+Institutional continuity across eras is not assumed. Professional traditions, records, knowledge, family or social connections, and other specific legacies may persist where the historical context supports them, but that does not require the institution itself to survive. Faction standing can represent broad relationships with groups such as temple authorities, citizens, guilds, merchants, or other era-appropriate organizations. It complements, but does not replace, individual NPC relationships.
 
 ### 15.4 Historical events
 
@@ -1373,7 +1379,7 @@ The following details require further design before they can be treated as fixed
 10. Family lifespan, succession, inheritance beyond the desk, and generational transition rules. Family continuity and the inherited desk are established design directions; the detailed mechanics remain open.
 11. Era pacing in actual in-game days, including the number and expected duration of Works, optional activity density, and authored calendar transitions.
 12. The historical progression thresholds and XP allocation after Work plans are complete; rounder values may replace the current legacy targets.
-13. The exact institutional, document, assignment, and Work content for each historical era, including decisions about additional traditions and chronology coverage such as China, paper, and the codex.
+13. The exact institutional rosters and historical content for each era, alongside era-specific documents, Assignments, and Works; determine the relevant institutions for each career path and the shared institutions encountered across careers. The shared institutional gameplay model and era-specific presentation principle are established.
 14. Detailed equipment categories, qualities, costs, and effects.
 15. The precise progression of document-building autonomy and professional training.
 16. Platform, target audience, accessibility targets, and technical scope.
@@ -1419,4 +1425,3 @@ Career XP measures professional development. Historical Progress XP measures man
 The personal economy has two tracked resources: money and provisions. Money uses an era-appropriate currency name without conversion of the underlying value at era transitions; provisions remain an abstract food resource presented through era-appropriate foods and rations. Beer is not a tracked personal resource, though it may appear in the world, inventory, hospitality, and institutional or social exchanges. Exact prices, availability, storage, crisis timing, assistance frequency and effects, sustenance shortage consequences, and historical presentation remain open design work.
 
 The journey should remain continuous across eras, successors, and institutions without pretending that the same people or family relationships can persist unchanged across millennia and continents. The family desk is an established inherited object and a tangible carrier of professional history; the broader succession, family, and social continuity model remains to be completed.
-
