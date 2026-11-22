@@ -104,6 +104,15 @@ describe('Assignment and Challenge foundations', () => {
       } } };
       expect(isValidSaveEnvelope(createSaveEnvelope(changed, 1))).toBe(false);
     }
+    for (const apCost of [0, 7, 1.5]) {
+      const invalidChallenge = { ...challenge(`bad-challenge-${apCost}`), apCost };
+      expect(transitionGame(base, { type: 'PRESENT_CHALLENGE', challenge: invalidChallenge }).feedback?.code).toBe('challenge-invalid');
+      const shown = transitionGame(base, { type: 'PRESENT_CHALLENGE', challenge: challenge('challenge-save') }).state;
+      const changed = { ...shown, opportunities: { ...shown.opportunities, challenges: {
+        ...shown.opportunities.challenges, ['challenge-save' as ChallengeId]: { ...shown.opportunities.challenges['challenge-save' as ChallengeId], apCost },
+      } } };
+      expect(isValidSaveEnvelope(createSaveEnvelope(changed, 1))).toBe(false);
+    }
     const overtime = { ...base, actionEconomy: { ...base.actionEconomy, dailyApAllocation: 5 as const, apRemaining: 5 } };
     expect(transitionGame(overtime, { type: 'PRESENT_ASSIGNMENT', offer: { ...offer('six-ap'), apCost: 6 } }).feedback?.code).toBe('assignment-presented');
   });
