@@ -33,7 +33,7 @@ export function transitionWorldAction(state: GameState, action: WorldAction): Tr
     case 'CREATE_INSTITUTION': {
       const x = action.institution;
       if (w.institutions[x.id]) return fail(state, 'institution-exists', 'An institution with this ID already exists.');
-      if (!x.id || !x.name || !validScore(x.standing) || !Array.isArray(x.responsibilities) || !Array.isArray(x.authority) || !Array.isArray(x.activeMatterIds) || (x.locationId && !w.locations[x.locationId])) return fail(state, 'institution-invalid', 'The institution has invalid identity, standing, responsibilities, authority, or location.');
+      if (!x.id || !x.name || !validScore(x.standing) || !Array.isArray(x.responsibilities) || !Array.isArray(x.authority) || !Array.isArray(x.activeMatters) || !x.activeMatters.every((matter) => typeof matter === 'string' && matter.length > 0) || (x.locationId && !w.locations[x.locationId])) return fail(state, 'institution-invalid', 'The institution has invalid identity, standing, responsibilities, authority, or location.');
       return succeed({ ...state, world: { ...w, institutions: { ...w.institutions, [x.id]: x } } }, 'institution-created', x.name + ' was added to the world.');
     }
     case 'CREATE_APPOINTMENT': {
