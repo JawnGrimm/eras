@@ -15,7 +15,11 @@ describe('production opportunity screens', () => {
 
     expect(markup).toContain('Assignment Board');
     expect(markup).toContain('Why this reached you');
-    expect(markup).toContain('ordinary professional reach in Uruk');
+    expect(markup).toContain('Enlil-kisu’s dispatch copy is being compared with the Temple Storehouse receiving tally.');
+    expect(markup).toContain('Ur-Nanna has asked a storehouse scribe to document the awning before further loading.');
+    expect(markup).not.toContain('ordinary professional reach in Uruk');
+    expect(markup).toContain('South-Court Delivery Reconciliation');
+    expect(markup).toContain('South Loading-Awning Inspection');
     expect(markup).toContain('Expires Day 4');
     expect(markup).toContain('3 days remaining');
   });
