@@ -1,11 +1,23 @@
 import type { GameState, InstitutionalMatter } from '../state/types';
 
 function hasKnowledge(state: GameState, matter: InstitutionalMatter): boolean {
-  if (!matter.sourceRecordId) return false;
-  const record = state.records.entries[matter.sourceRecordId];
-  if (record?.authorPersonId === state.player.currentCharacterId) return true;
   const holdsInstitutionalAppointment = Object.values(state.world.appointments).some((appointment) =>
     appointment.personId === state.player.currentCharacterId && appointment.institutionId === matter.institutionId);
+
+  if (!matter.sourceRecordId) {
+    if (holdsInstitutionalAppointment) return true;
+    if (matter.sourceEventId) {
+      return Object.values(state.world.knowledge).some((entry) =>
+        entry.subject.kind === 'event' && entry.subject.id === matter.sourceEventId
+        && ((entry.holder.kind === 'person' && entry.holder.id === state.player.currentCharacterId)
+          || (holdsInstitutionalAppointment && entry.holder.kind === 'institution' && entry.holder.id === matter.institutionId)));
+    }
+    return false;
+  }
+
+  const record = state.records.entries[matter.sourceRecordId];
+  if (record?.authorPersonId === state.player.currentCharacterId) return true;
+
   return Object.values(state.world.knowledge).some((entry) =>
     entry.subject.kind === 'record' && entry.subject.id === matter.sourceRecordId
     && ((entry.holder.kind === 'person' && entry.holder.id === state.player.currentCharacterId)
@@ -40,14 +52,17 @@ export function buildSituatedMorningReport(previous: GameState, current: GameSta
     .filter((offer) => offer.offeredDay === day && offer.status === 'offered');
   for (const offer of newOffers) items.push(`New Assignment reached you: ${offer.title} (estimated ${offer.estimatedTotalAp ?? offer.apCost ?? 0} AP).`);
 
-  const commitments = Object.values(current.opportunities.assignments)
-    .filter((offer) => offer.status === 'accepted' && (offer.assigneePersonId ?? current.player.currentCharacterId) === current.player.currentCharacterId
-      && offer.expiresDay <= day + 1);
-  for (const offer of commitments) items.push(`Commitment approaching expiry: ${offer.title} (expires Day ${offer.expiresDay}).`);
+  const newChallenges = Object.values(current.opportunities.challenges)
+    .filter((challenge) => challenge.presentedDay === day && challenge.status === 'offered');
+  for (const challenge of newChallenges) items.push(`New Challenge arose: ${challenge.title}.`);
+
+  const expiringOffers = Object.values(current.opportunities.assignments)
+    .filter((offer) => offer.status === 'offered' && offer.expiresDay <= day + 1 && offer.expiresDay >= day);
+  for (const offer of expiringOffers) items.push(`Offer approaching expiry: ${offer.title} (expires Day ${offer.expiresDay}).`);
 
   if (items.length === 0) return current;
 
   const message = `Morning report · Day ${day}\n${items.map((item) => `• ${item}`).join('\n')}`;
-  const notice = { id, dayNumber: day, category: newOffers.length ? 'opportunity' as const : 'world' as const, message, read: false };
+  const notice = { id, dayNumber: day, category: (newOffers.length || newChallenges.length) ? 'opportunity' as const : 'world' as const, message, read: false };
   return { ...current, journal: { ...current.journal, notices: [...current.journal.notices, notice] } };
 }
