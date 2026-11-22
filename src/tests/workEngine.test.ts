@@ -25,6 +25,7 @@ const definition = defineWork<ScenarioProgress>({
   actions: [
     { id: 'retrieve-later-tally', apCost: 1, grantsEvidence: [E2] },
     { id: 'configure-register', apCost: 1, prerequisites: ['retrieve-later-tally'] },
+    { id: 'auto-retrieve', apCost: 0, grantsEvidence: [E3], autoExamine: true },
   ],
   interpretationRules: [],
   historicalXpReward: 25,
@@ -137,6 +138,14 @@ describe('Work lifecycle and save validation', () => {
     const reRead = transitionGame(state, { type: 'EXAMINE_WORK_EVIDENCE', workId: WORK, evidenceId: E2 }, undefined, catalog);
     expect(reRead.state).toBe(state);
     expect(reRead.state.actionEconomy.apRemaining).toBe(5);
+  });
+
+  it('supports optional auto-examination when an action acquires evidence', () => {
+    let state = transitionGame(createInitialGameState(), { type: 'START_WORK', workId: WORK }, undefined, catalog).state;
+    state = transitionGame(state, { type: 'COMPLETE_WORK_ACTION', workId: WORK, actionId: 'auto-retrieve' }, undefined, catalog).state;
+    expect(state.works.progress[WORK].acquiredEvidence).toContain(E3);
+    expect(state.works.progress[WORK].examinedEvidence).toContain(E3);
+    expect(state.actionEconomy.apRemaining).toBe(6);
   });
 
   it('resolves non-evidence Work actions atomically with validated scenario data', () => {
