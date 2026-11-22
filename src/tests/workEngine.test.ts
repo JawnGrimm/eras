@@ -66,7 +66,7 @@ describe('evidence interpretation', () => {
       { id: 'tie-a', evidenceId: E1, when: { kind: 'all' as const, predicates: [{ kind: 'examinedAll' as const, evidenceIds: [E2] }] }, text: 'Tie a.', category: 'inference' as const, priority: 3, conflictGroup: 'tie', displayOrder: 3 },
     ];
     expect(evaluateEvidenceInterpretation({ evidenceId: E1, character: character(), examinedEvidence: [], rules })).toEqual([]);
-    const result = evaluateEvidenceInterpretation({ evidenceId: E1, character: character(), examinedEvidence: [E2], rules });
+    const result = evaluateEvidenceInterpretation({ evidenceId: E1, character: character(), examinedEvidence: [E1, E2], rules });
     expect(result.map((item) => item.id)).toEqual(['high', 'display-a', 'display-z', 'base', 'tie-a']);
     expect(result[0]).not.toHaveProperty('category');
     expect(result[0]).not.toHaveProperty('conflictGroup');
