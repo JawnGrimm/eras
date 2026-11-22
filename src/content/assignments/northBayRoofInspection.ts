@@ -56,7 +56,7 @@ export const northBayRoofInspection: AssignmentActivityDefinition = {
   ],
   interpretationRules,
   createInitialProgress: () => ({ completedActionIds: [], discoveryIds: [], consultedPersonIds: [], draft: {
-    finding: 'insufficient_evidence', citedDiscoveryIds: [], limitations: [], recommendations: [],
+    finding: 'insufficient_evidence', responsibilityClaim: 'none', citedDiscoveryIds: [], limitations: [], recommendations: [],
   } }),
 };
 
@@ -120,12 +120,13 @@ export function validateAssignmentActivityProgress(definition: AssignmentActivit
     && definition.actions.filter((a) => p.completedActionIds.includes(a.id)).every((a) => a.discoveryIds.every((id) => p.discoveryIds.includes(id)))
     && Array.isArray(p.consultedPersonIds) && p.consultedPersonIds.every((id) => definition.participants.includes(id))
     && !!p.draft && ['repair_incomplete','repair_appears_sound','insufficient_evidence'].includes(p.draft.finding)
+    && ['none','dudu'].includes(p.draft.responsibilityClaim)
     && Array.isArray(p.draft.citedDiscoveryIds) && p.draft.citedDiscoveryIds.every((id) => p.discoveryIds.includes(id))
     && Array.isArray(p.draft.limitations) && p.draft.limitations.every((x) => typeof x === 'string')
     && Array.isArray(p.draft.recommendations) && p.draft.recommendations.every((x) => ['clear_parapet','assess_beam','inspect_held_barley','monitor_repair'].includes(x));
 }
 export function normalizeActivityDraft(draft: AssignmentActivityDraft): AssignmentActivityDraft {
-  return { finding: draft.finding, citedDiscoveryIds: [...new Set(draft.citedDiscoveryIds)],
+  return { finding: draft.finding, responsibilityClaim: draft.responsibilityClaim, citedDiscoveryIds: [...new Set(draft.citedDiscoveryIds)],
     limitations: [...new Set(draft.limitations.map((x) => x.trim()).filter(Boolean))],
     recommendations: [...new Set(draft.recommendations)] };
 }

@@ -48,9 +48,9 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
   const draft = progress.draft;
   const roofObserved = progress.discoveryIds.includes('roof-inspection');
   const roofCited = draft.citedDiscoveryIds.includes('roof-inspection');
-  const overclaims = (draft.finding === 'repair_appears_sound' && !roofObserved)
-    || (draft.finding === 'repair_appears_sound' && roofObserved)
-    || (draft.finding === 'repair_incomplete' && (!roofObserved || !roofCited));
+  const overclaims = draft.finding === 'repair_appears_sound'
+    || (draft.finding === 'repair_incomplete' && (!roofObserved || !roofCited))
+    || draft.responsibilityClaim === 'dudu';
   const qualified = draft.finding === 'insufficient_evidence' && draft.limitations.length > 0;
   const discoveries = northBayRoofInspection.discoveries.filter((item) => progress.discoveryIds.includes(item.id));
   const sources = discoveries.map((item) => {
@@ -70,6 +70,10 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
     id: 'assertion-inspection-conclusion',
     text: 'The inspected repair is incomplete: the parapet runoff channel remains obstructed and the north-east beam socket remains damp.',
     classification: 'inferred' as const, sourceIds: ['source-roof-inspection'],
+  });
+  if (draft.responsibilityClaim === 'dudu') assertions.push({
+    id: 'assertion-responsibility-claim', text: 'The report attributes the unresolved parapet and beam work to Dudu, although the recorded contract scope does not establish that he was responsible for those items.',
+    classification: 'disputed' as const, sourceIds: sources.some((source) => source.id === 'source-repairer-scope') ? ['source-repairer-scope'] : sources.map((source) => source.id).slice(0, 1),
   });
   if (draft.finding === 'insufficient_evidence') assertions.push({
     id: 'assertion-inspection-limits',

@@ -119,6 +119,7 @@ export interface OpportunityConsequences {
 }
 export interface AssignmentActivityDraft {
   finding: 'repair_incomplete' | 'repair_appears_sound' | 'insufficient_evidence';
+  responsibilityClaim: 'none' | 'dudu';
   citedDiscoveryIds: string[];
   limitations: string[];
   recommendations: string[];
