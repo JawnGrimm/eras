@@ -160,6 +160,24 @@ Meaningful professional situations should therefore connect human interests to c
 
 This principle calls for a **bounded, persistent simulation**, not unrestricted simulation of every person or transaction. Important people and consequential processes should retain enough state to produce intelligible future developments. Routine or temporary activity may be represented more simply when its details do not affect future obligations, relationships, disputes, information access, or plausible work. The exact simulation architecture, scope, update frequency, and numerical rules remain open design work.
 
+
+### 2.11 The player's knowledge is situated
+
+The player's knowledge is shaped by their place in the world and by the character they inhabit. Information reaches the player when people, institutions, activities, or material evidence intersect with that character; the player does not receive a complete view of the simulation simply because the simulation tracks an event.
+
+That intersection is shaped by existing character and world systems:
+
+- **NPC relationships:** Who approaches the player, trusts them, avoids them, asks for help, or chooses to share information.
+- **Reputation:** What others are willing to disclose, what they assume the player already knows, and whether they consider the player credible or worth approaching.
+- **Attributes:** What the player notices, recognizes, or can make sense of in a situation.
+- **Skills:** What the player can interpret in conversations, documents, accounts, and other evidence.
+- **Equipment:** What information the player can access, examine, preserve, or communicate.
+- **World circumstances:** What is happening among connected people and institutions, nearby communities, and relevant trade, travel, and administrative networks.
+
+Three questions must remain distinct: **Can the player access the information? Can the player understand or interpret it? Can the player establish whether it is true?** A merchant may report a missing shipment and the player's relationships may explain why the merchant approaches them. Relevant skills may help the player examine the accounts, but determining whether the shipment was lost, stolen, delayed, or never dispatched requires evidence. A claim reaching the player is not automatically established fact.
+
+This is a principle governing how existing systems intersect, not a separate information-source subsystem. The player's knowledge is a product of their place in the world, not a complete view of the world itself. Notifications and morning reports should present information that has plausibly reached the player through those connections and circumstances, while preserving its source, limits, and uncertainty.
+
 ---
 
 ## 3. Genre, Structure, and Point of View
