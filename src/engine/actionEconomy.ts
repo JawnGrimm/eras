@@ -55,6 +55,9 @@ export function transitionGame(state: GameState, action: GameAction): Transition
       };
     }
     case 'END_DAY': {
+      if (action.expectedDayNumber !== state.calendar.dayNumber) {
+        return { state, feedback: feedback('error', 'stale-day-settlement', 'This Workday has already been settled or the calendar has changed.') };
+      }
       if (economy.overtimeUsedToday && economy.apRemaining > 0) {
         return { state, feedback: feedback('error', 'overtime-ap-unspent', 'Spend the overtime AP before settling the day.') };
       }
@@ -85,7 +88,9 @@ export function transitionGame(state: GameState, action: GameAction): Transition
       if (hadProvision) {
         next = withNotice(next, 'settlement', 'One provision was consumed for daily sustenance.');
       } else {
-        next = withNotice(next, 'settlement', `No provisions were available. Shortage day ${shortageWorkdays} of 2 grace days.`);
+        next = withNotice(next, 'settlement', shortageWorkdays <= 2
+          ? `No provisions were available. Shortage day ${shortageWorkdays} of 2 grace days.`
+          : 'No provisions were available for a third consecutive Workday. Shortage consequences begin.');
       }
       return { state: next, feedback: feedback('success', 'day-settled', 'The Workday has been settled.') };
     }
