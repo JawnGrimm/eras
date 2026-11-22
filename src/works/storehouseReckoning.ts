@@ -3,6 +3,7 @@ import type { RecordAssertion, RecordEntry, RecordSource } from '../state/types'
 import { defineWork } from './workDefinition';
 import type { WorkAssessment, WorkFinalization, WorkSubmissionContext } from './workDefinition';
 import { evaluateEvidenceInterpretation } from './evidenceInterpretation';
+import { NORTH_BAY_ASSIGNMENT_ID, NORTH_BAY_ACTIVITY_ID, NORTH_BAY_PEOPLE, NORTH_BAY_LOCATION_ID } from '../content/assignments/northBayRoofInspection';
 import type { InterpretationRule } from './evidenceInterpretation';
 
 export const STOREHOUSE_WORK_ID = 'work-storehouse-reckoning' as WorkId;
@@ -200,8 +201,40 @@ function finalize(context: WorkSubmissionContext<StorehouseScenarioData>, dispos
     { id: `knowledge-storehouse-record-steward-${dayNumber}` as KnowledgeEntryId, holder: { kind: 'person' as const, id: STOREHOUSE_PEOPLE.steward }, subject: { kind: 'record' as const, id: record.id }, basis: 'received-copy' as const, learnedDay: dayNumber, sourcePersonId: personId },
     { id: `knowledge-storehouse-record-institution-${dayNumber}` as KnowledgeEntryId, holder: { kind: 'institution' as const, id: STOREHOUSE_INSTITUTION_ID }, subject: { kind: 'record' as const, id: record.id }, basis: 'received-copy' as const, learnedDay: dayNumber, sourcePersonId: personId },
   ];
+  const roofFollowUpSupported = disposition === 'authorized' || disposition === 'account_accepted';
+  const shouldPresentRoofInspection = roofFollowUpSupported
+    && progress.citations.includes('ev-06' as EvidenceId)
+    && progress.recommendations.includes('verify_roof_repair');
   return {
     careerXpReward: STOREHOUSE_PROVISIONAL_CAREER_XP,
+    ...(shouldPresentRoofInspection ? {
+      addInstitutionMatters: [{ institutionId: STOREHOUSE_INSTITUTION_ID, matter: 'Verify north-bay roof repair' }],
+      presentAssignments: [{
+        id: NORTH_BAY_ASSIGNMENT_ID, activityId: NORTH_BAY_ACTIVITY_ID, estimatedTotalAp: 7,
+        title: 'North-Bay Roof Inspection',
+        description: 'Verify the reported repair to the north storage bay before the bay is returned to ordinary storage use.',
+        employer: { kind: 'institution' as const, id: STOREHOUSE_INSTITUTION_ID },
+        category: 'building_inspection', commodity: 'barley',
+        context: {
+          what: 'Inspect the north-bay roof repair and report whether the bay is suitable for continued storage.',
+          who: ['Ur-Nanna, Storehouse Steward', 'Dudu, contracted roof repairer', 'Shuruppak-ilu, Senior Scribe', 'Enlil-barni, junior scribe'],
+          quantity: 'One repaired roof section, one runoff channel, one beam socket, and seven held barley sacks observed in segregation only.',
+          when: 'Following the storm and reported mid-bay repair, c. 3200 BCE.',
+          where: 'North storage bay, Temple Storehouse, Uruk',
+          from: 'The Storehouse Reckoning record and the Steward’s maintenance account.',
+          to: 'Shuruppak-ilu, Senior Scribe, with a copy for Ur-Nanna.',
+          purpose: 'Verify repair scope and identify any remaining storage risks without judging the held barley.',
+          responsibility: ['Inspect and report; do not authorize building expenditure, release held barley, or assign blame beyond evidence.'],
+          authority: 'The Steward grants ordinary bay access; the Senior Scribe determines institutional follow-up.',
+          provenance: ['Storehouse Reckoning record documenting the reported two-day roof leak and the recommendation to verify repair.'],
+        },
+        requiredSkills: {}, difficulty: 'demanding' as const,
+        compensation: { money: 3, provisions: 0 }, careerXpReward: 35,
+        deliveryChannels: [disposition === 'authorized'
+          ? { kind: 'baseline_reach' as const, explanation: 'The Senior Scribe authorized the recommended roof verification following the Storehouse Reckoning.' }
+          : { kind: 'appointment' as const, appointmentId: 'appointment-shuruppak-ilu-senior-scribe' as import('../state/ids').AppointmentId, explanation: 'The Senior Scribe accepted the account and separately directed a roof verification based on the cited leak record.' }],
+      }],
+    } : {}),
     record,
     knowledge,
     retireInstitutionMatters: [{ institutionId: STOREHOUSE_INSTITUTION_ID, matter: 'The Storehouse Reckoning' }],

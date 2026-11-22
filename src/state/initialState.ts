@@ -1,5 +1,6 @@
 import type { GameState } from './types';
-import type { InstitutionId, PersonId } from './ids';
+import type { InstitutionId, PersonId, LocationId, AppointmentId } from './ids';
+import { NORTH_BAY_LOCATION_ID, NORTH_BAY_PEOPLE } from '../content/assignments/northBayRoofInspection';
 export const INITIAL_PERSON_ID = 'person-enlil-barni' as PersonId;
 export function createInitialGameState(): GameState {
   const initialPerson = {
@@ -40,6 +41,13 @@ export function createInitialGameState(): GameState {
   const enlilKisuId = 'person-enlil-kisu' as PersonId;
   const ninKasiId = 'person-nin-kasi' as PersonId;
   const templeStorehouseId = 'institution-uruk-temple-storehouse' as InstitutionId;
+  const storehouseLocationId = NORTH_BAY_LOCATION_ID;
+  const dudu = { id: NORTH_BAY_PEOPLE.repairer, name: 'Dudu', alive: true, affiliations: [templeStorehouseId], currentLocationId: storehouseLocationId };
+  const appointments = [
+    { id: 'appointment-shuruppak-ilu-senior-scribe' as AppointmentId, personId: shuruppakId, institutionId: templeStorehouseId, title: 'Senior Scribe', authorityScope: ['Assign and review scribal work', 'Determine institutional follow-up from submitted records'], responsibilities: ['Review submitted accounts and reports', 'Determine whether further institutional action is warranted'], startDay: 1 },
+    { id: 'appointment-ur-nanna-storehouse-steward' as AppointmentId, personId: urNannaId, institutionId: templeStorehouseId, title: 'Storehouse Steward', authorityScope: ['Control ordinary storehouse access', 'Maintain custody and maintenance records'], responsibilities: ['Safeguard institutional stocks', 'Maintain custody and maintenance records'], startDay: 1 },
+    { id: 'appointment-utu-mansum-receiving-official' as AppointmentId, personId: utuMansumId, institutionId: templeStorehouseId, title: 'Receiving Official', authorityScope: ['Inspect and record incoming deliveries'], responsibilities: ['Record intake quantities and condition'], startDay: 1 },
+  ];
   const casePeople = [
     { id: shuruppakId, name: 'Shuruppak-ilu', alive: true, affiliations: [templeStorehouseId] },
     { id: urNannaId, name: 'Ur-Nanna', alive: true, affiliations: [templeStorehouseId] },
@@ -54,7 +62,7 @@ export function createInitialGameState(): GameState {
     pendingSuccession: null,
     characterTransitions: [],
     world: {
-      people: { [INITIAL_PERSON_ID]: initialPerson, [apprenticeId]: apprentice, [colleagueId]: colleague, ...Object.fromEntries(casePeople.map((person) => [person.id, person])) },
+      people: { [INITIAL_PERSON_ID]: initialPerson, [apprenticeId]: apprentice, [colleagueId]: colleague, ...Object.fromEntries(casePeople.map((person) => [person.id, person])), [dudu.id]: dudu },
       relationships: {
         [INITIAL_PERSON_ID]: {
           [apprenticeId]: { dimensions: { trust: 65, respect: 55, affection: 45, resentment: 0, rivalry: 5, familiarity: 60 }, history: [{ id: 'rel-enlil-nin-aya-1', dayNumber: 1, summary: 'Nin-aya has learned routine tablet preparation alongside Enlil-barni.' }] },
@@ -64,10 +72,10 @@ export function createInitialGameState(): GameState {
         },
       },
       institutions: { [templeStorehouseId]: {
-        id: templeStorehouseId, name: 'Temple Storehouse', responsibilities: ['Receive, safeguard, and issue institutional barley stocks'],
+        id: templeStorehouseId, name: 'Temple Storehouse', locationId: storehouseLocationId, responsibilities: ['Receive, safeguard, and issue institutional barley stocks'],
         authority: ['Maintain storehouse accounts', 'Authorize stock inspection and segregation'], standing: 50, activeMatters: ['The Storehouse Reckoning'],
-      } }, locations: {},
-      appointments: {}, events: {}, knowledge: {},
+      } }, locations: { [storehouseLocationId]: { id: storehouseLocationId, name: 'Temple Storehouse, north storage bay' } },
+      appointments: Object.fromEntries(appointments.map((appointment) => [appointment.id, appointment])), events: {}, knowledge: {},
     },
     historicalProgression: { historicalXp: 0, completedWorks: [] },
     opportunities: { assignments: {}, challenges: {}, challengeOutcomes: [], assignmentAggregates: {}, recentActivity: [] },
