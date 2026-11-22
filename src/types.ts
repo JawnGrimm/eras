@@ -54,6 +54,18 @@ export interface EvidenceItem {
 export type RegisterDesignType = 'movement_ledger' | 'compact_balance';
 
 export interface StorehouseWorkState {
+  workVersion?: number;
+  reconciliationDraft?: Partial<Record<'opening' | 'dispatched' | 'received' | 'intakeUsable' | 'intakeHeld' | 'issued' | 'closingUsable' | 'closingHeld', number>>;
+  reconciliationSources?: string[];
+  recommendations?: Array<'inspect_held_stock' | 'verify_roof_repair' | 'maintain_segregation' | 'assign_blame'>;
+  assessment?: {
+    accounting: boolean;
+    evidence: boolean;
+    judgment: boolean;
+    feedback: { accounting: string; evidence: string; judgment: string };
+  } | null;
+  assessmentSubmitted?: boolean;
+  seniorDisposition?: 'authorized' | 'account_accepted' | 'returned' | null;
   stage: 'A_INVESTIGATE' | 'B_DESIGN' | 'C_TEST' | 'D_ADOPT' | 'COMPLETED';
   examinedEvidence: string[];
   registerDesign: RegisterDesignType | null;

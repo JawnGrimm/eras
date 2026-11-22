@@ -550,197 +550,177 @@ The settlement must not grant a universal free ration merely because a day passe
 
 ### 7.1 Purpose and scope
 
-**The Storehouse Reckoning** is the first fully specified mandatory Work and the design test for the Work system. It takes place in a fictional institutional storehouse in Uruk around 3200 BCE. Its people and immediate incident are fictional; the scenario reflects early administrative uses of impressed clay records without claiming to depict a documented historical event or the invention of writing itself.
+**The Storehouse Reckoning** is the first mandatory Work and the design test for the Work system. It takes place in a fictional institutional storehouse in Uruk around 3200 BCE. Its people and immediate incident are fictional; the scenario reflects early administrative uses of impressed clay records without claiming to depict a documented historical event or the invention of writing itself.
 
-The Work is not a delivery-reconciliation Assignment. Its central problem is to design and validate a durable storehouse register that can represent changing stock conditions and later transactions without confusing dispatch, physical receipt, usable stock, held stock, issue, and balance. The opening discrepancy is the evidence that exposes weaknesses in the current recordkeeping practice. The player's lasting contribution is a register whose structure will be tested against transactions they have not yet seen.
+This Work is a **supervised apprenticeship assessment**, not a request to invent a permanent stockkeeping system. The Storehouse Steward has submitted a situation requiring a one-time reconciliation and practical recommendation. The Senior Scribe assigns the case to the apprentice, evaluates the resulting document, provides instruction, and decides what action to authorize or forward.
 
-The player is an apprentice scribe assisting a senior scribe. They contribute to a local administrative practice that can be adopted, adapted, or rejected by the institution.
+The document's primary reader is the **Storehouse Steward**. The apprentice answers to the **Senior Scribe**. The Steward would not ordinarily commission an apprentice directly; the Senior Scribe uses the Steward's case as real professional work through which to assess the apprentice.
 
-### 7.2 People and institutional interests
+The Work tests whether the apprentice can:
+- Reconcile opening stock, dispatch, physical receipt, issue, and closing condition.
+- Preserve the distinction between usable and held stock.
+- Distinguish an established fact from an inference or unresolved cause.
+- Cite the records that support material claims.
+- Recommend practical, proportionate action without exceeding the evidence.
+- Respond to assessment and instruction, revising deficient work where appropriate.
 
-| Person / role | Interest and perspective | Required player interaction |
-|---|---|---|
-| Senior Scribe | Wants a reliable record that can be checked and reused; approves the apprentice's work. | Reviews the proposed register and rules on adoption. |
-| Storehouse Steward | Needs to know what is available for allocation and what remains held or disputed. | Explains how stock status affects allocations and tests whether the register can be used. |
-| Receiving Official | Wants the arrival and condition recorded accurately; witnessed intake but cannot establish later cause. | Explains the intake procedure and identifies the limits of the initial inspection. |
-| Carrier Foreman | Wants the dispatched quantity and completed delivery recognized; disputes any unsupported claim that the carrier caused later damage. | Supplies dispatch-side corroboration and responds to the player's proposed finding. |
-| Brewing-House Representative | Needs an accurate account of the grain issued and wants the operation credited for what it actually received. | Confirms the issue and tests whether the register correctly identifies recipient and authority. |
+The Work does not ask the apprentice to solve a crime, identify a culprit, design a reusable register, or prove a new recordkeeping system against artificial unseen transactions. The ordinary institutional problem need not be sensational; its significance comes from the people relying on the account and the decisions it supports.
 
-The roles are mechanically relevant. The Carrier Foreman and Brewing-House Representative each provide evidence or test a specific part of the register; neither is decorative dialogue. The steward is responsible for storehouse operations but is not automatically the recipient of grain. The receiving official witnesses intake but is not automatically responsible for later condition changes.
+### 7.2 People and institutional roles
+
+| Person / role | Interest and responsibility |
+|---|---|
+| **Senior Scribe Shuruppak-ilu** | Assigns the case as an apprenticeship assessment, evaluates the account and recommendation, instructs the apprentice, and decides what action to authorize or forward. |
+| **Storehouse Steward Ur-Nanna** | The client and primary reader. Needs an accurate account of stock and a defensible recommendation for dealing with held goods and the reported roof leak. |
+| **Receiving Official Utu-mansum** | The source of the intake inspection record. The record establishes the condition classification at intake, not the later cause of damage. |
+| **Carrier Foreman Enlil-kisu** | Identified as the source of the dispatch record. The dispatch record and arrival tally are compared; no separate interview is required to manufacture corroboration. |
+| **Brewing-House Representative Nin-kasi** | Identified in the issue receipt. The record establishes the recipient and receipt of the authorized issue; no redundant confirmation action is required. |
+
+The apprentice is not the authority responsible for storehouse operations. Their recommendation is addressed to the Senior Scribe. The Senior Scribe's disposition determines whether the account is accepted, whether the recommendation is approved, and what follow-up is authorized or forwarded.
 
 ### 7.3 Initial scenario state and evidence dossier
 
-The Work begins with a test transaction and a discrepancy between an earlier tally and a later physical count. The underlying state is authored once; all records, evidence, validation, and consequences derive from it.
+The Steward's case concerns a difference between the intake condition record and a later physical count. The dossier contains the following records:
 
-| Evidence ID | Source | What it establishes | Retrieval / action |
-|---|---|---|---|
-| E-01 | Prior closing-balance tablet | The storehouse began the period with 24 usable standard institutional measures. | Retrieve and examine prior records (1 AP). |
-| E-02 | Dispatch tablet | 60 measures were dispatched to the storehouse by the sending institution under a named dispatch authority. | Request the dispatch-side record from the Carrier Foreman (1 AP). |
-| E-03 | Arrival tally | 60 measures were physically unloaded and counted at intake. | Examine the receiving desk's tally (1 AP). |
-| E-04 | Initial receiving inspection tally | At intake, 56 measures were classified as usable and 4 as damp and held separately. | Retrieve the sealed intake record from the Receiving Official (1 AP). |
-| E-05 | Issue instruction and issue tally | 30 usable measures were authorized and issued to the brewing-house operation; the Brewing-House Representative confirms receipt. | Compare the issue instruction with the recipient's acknowledgment (1 AP). |
-| E-06 | Custody and maintenance notes | A roof leak was reported after intake but before the later recount. The notes do not establish exactly when moisture spread or who was responsible for the roof condition. | Ask the Steward to produce custody and maintenance notes (1 AP). |
-| E-07 | Current physical recount | A witnessed recount finds 47 measures still usable and 7 now damp and held. Since intake, 30 usable measures have been issued to the brewing-house operation and 3 additional measures have changed from usable to held status. The remaining physical stock is 54 measures. | Conduct a physical inspection and recount with the Steward (2 AP). |
-The discrepancy is intentional and meaningful. E-04 records condition at intake; E-07 records condition at the later recount. The difference is not a missing quantity: 30 measures were issued, and three additional measures moved from usable to held status after intake. E-06 supplies a plausible contextual event, the roof leak, but does not establish precise causation or individual responsibility. The player must distinguish a change in condition from a loss, and must not infer blame beyond the evidence.
+| Evidence ID | Source | What it establishes |
+|---|---|---|
+| E-01 | Prior closing-balance tablet, held in the temple archive | The storehouse began the accounting period with 24 usable standard institutional measures of clean barley. |
+| E-02 | Dispatch tablet from the outer fields, attributed to Carrier Foreman Enlil-kisu | 60 standard institutional measures were loaded onto river barges and dispatched to the central storehouse under dispatch seal #4. |
+| E-03 | Arrival tally at the receiving desk | 60 measures were physically unloaded and counted at the landing dock. |
+| E-04 | Initial receiving inspection tally, recorded by Receiving Official Utu-mansum | At intake, 56 measures were classified as dry and usable; 4 measures showed moisture damage and were segregated and held. |
+| E-05 | Issue instruction and Brewing-House receipt, associated with Representative Nin-kasi | 30 usable measures were authorized by temple decree and issued to the brewing-house operation for its brewing work. The representative's receipt confirms physical delivery. |
+| E-06 | Custody and maintenance notes from Storehouse Steward Ur-Nanna | A severe rainstorm caused a roof leak over the north storage bay after intake. The leak lasted two days before repairs were made. The exact timing of moisture spread is unrecorded. |
+| E-07 | Later witnessed physical recount with the Steward | 47 measures are usable and 7 are damp and held. Total physical stock is 54 measures. |
+
+The minimum case packet contains E-01 through E-05 and E-07. E-06 is an additional record the apprentice may request. It is necessary to cite the reported roof leak as contextual evidence, but not necessary to conclude that the precise cause of the additional damage remains unestablished.
+
+The figures do not show missing stock. Dispatch and physical receipt both equal 60. The 30-measure issue is supported by an instruction and receipt. The total closing quantity is 54, consisting of 47 usable and 7 held. Compared with intake, three additional measures have changed from usable to held status. The roof leak is a plausible contextual event, but the record does not establish exactly when the moisture spread or who was responsible.
 
 The phrase **standard institutional measure** is a gameplay abstraction. Exact historical metrology and local terminology must be researched during historical content production. It must not be represented as a modern kilogram or a universal Mesopotamian measure.
 
 ### 7.4 State model and factual invariants
 
-The scenario's underlying state is:
+The authored underlying state is:
 
 - Opening usable stock: 24.
 - Dispatch quantity: 60.
 - Physical receipt: 60.
 - Usable at intake: 56.
-- Held as damp at intake: 4.
-- Later status change: 3 measures moved from usable to held.
+- Held at intake: 4.
+- Authorized and completed issue to the brewing-house operation: 30.
 - Usable at recount: 47.
 - Held at recount: 7.
-- Authorized and completed issue to the brewing-house operation: 30.
-- Closing usable balance: 24 + 56 − 30 − 3 = 47.
-- Closing held balance: 7.
-- Total closing stock: 47 + 7 = 54.
+- Additional status movement from usable to held: 3.
+- Total closing stock: 54.
 
-The required invariants are:
+The required relationships are:
 
-1. **Dispatch and receipt:** 60 were dispatched and 60 were physically received.
-2. **Intake condition:** 56 were usable and 4 were held at intake.
-3. **Later condition:** the recount finds 47 usable and 7 held.
-4. **Status movement:** exactly 3 measures changed from usable to held between intake and recount.
-5. **Complete stock accounting:** opening stock 24 + receipt 60 − issue 30 = 54 closing measures; those 54 are represented by 47 usable and 7 held.
-6. **Closing usable balance:** opening usable stock 24 + intake-usable receipt 56 − issue 30 − status transfer 3 = 47.
-7. **Closing held balance:** 7 measures remain held pending assessment.
-8. **Issue identity:** the 30-measure issue went to the brewing-house operation under the supplied authority, not to the storehouse steward.
-9. **Responsibility:** the evidence establishes a roof leak was reported but does not establish who caused the damp condition or the exact moment each measure became damp.
+1. Dispatch and physical receipt are separate facts; both happen to be 60 in this case.
+2. Intake condition is 56 usable and 4 held.
+3. The later recount is 47 usable and 7 held.
+4. The 30-measure issue went to the brewing-house operation under the supplied temple authority.
+5. Opening stock plus physical receipt minus issue equals total closing stock: 24 + 60 − 30 = 54.
+6. Closing usable plus held stock equals total closing stock: 47 + 7 = 54.
+7. The usable balance reconciles as 24 + 56 − 30 − 3 = 47.
+8. The held balance reconciles as 4 + 3 = 7.
+9. The three-measure status movement is not a disappearance or a new receipt.
+10. The reported roof leak does not establish precise causation or individual responsibility.
 
-The validator checks these facts and relationships, not a single required sentence or wording choice. The player must preserve both the historical intake state and the later recount state; overwriting E-04 with E-07 would destroy useful provenance.
+The assessment evaluates these relationships and the apprentice's treatment of evidence. It must not depend on one exact sentence where multiple phrasings preserve the same factual meaning.
 
-### 7.5 Work stages and player actions
+### 7.5 Work sequence and player actions
 
-The Work uses four stages. Costs are visible before commitment. Examined evidence remains available for free review.
+The Work has three practical phases. These are not a universal Work template; they fit this supervised document assignment.
 
-**Stage A — Investigate the discrepancy**
+**Phase A — Examine the case**
 
-Objective: determine why the current stock condition differs from the intake record and establish what the evidence can and cannot prove.
+The Senior Scribe provides the case brief and identifies the intended reader and purpose of the document. The apprentice examines the available records. Reading an acquired record again is free.
 
-| Action | Cost | Evidence / result |
+| Action | Cost | Result |
 |---|---:|---|
-| Retrieve and examine E-01 | 1 AP | Establishes opening balance. |
-| Examine E-03 and compare it with E-02 | 1 AP | Establishes dispatch and physical receipt. |
-| Retrieve E-04 from the Receiving Official | 1 AP | Establishes condition at intake. |
-| Conduct the physical recount with the Steward | 2 AP | Retrieves E-07 and exposes the 56/4 intake versus 47/7 closing status. |
-| Retrieve E-06 from the Steward | 1 AP | Establishes the reported roof leak and limits of causal attribution. |
-| Consult the Carrier Foreman about E-02 | 1 AP | Corroborates dispatch and provides the carrier's response to any proposed blame. |
-| Confirm E-05 with the Brewing-House Representative | 1 AP | Corroborates issue authority, quantity, and recipient. |
+| Compare opening, dispatch, and arrival records (E-01, E-02, E-03) | 1 AP | Establishes opening stock, dispatch, and physical receipt. |
+| Examine intake inspection and issue records (E-04, E-05) | 1 AP | Establishes intake condition, issue quantity, recipient, and authority. |
+| Review the witnessed physical recount with the Steward (E-07) | 2 AP | Establishes current usable and held quantities. |
+| Request custody and maintenance notes (E-06) | 1 AP | Adds the reported roof leak as contextual evidence, with its limits. |
 
-**Minimum evidence for Stage A completion:** E-01, E-02 or its dispatch-side corroboration, E-03, E-04, E-05, and E-07 must be examined. E-06 is required before the player can make a supported finding about the roof leak; without it, the player may still state that cause is unestablished but cannot cite the maintenance report. The Carrier Foreman and Brewing-House Representative interactions are required because they confirm the dispatch and issue sides of the record. The player may reach the same supported conclusion without every optional dialogue line, but cannot bypass the mapped evidence actions.
+The first three actions establish the minimum evidence needed to prepare the account. The custody note is optional unless the apprentice wishes to include the roof leak as a reported event in the finding. There is no separate Carrier Foreman consultation or redundant Brewing-House confirmation action: the supplied records already provide the relevant dispatch and receipt evidence. Every AP cost must be visible before commitment.
 
-Deliverable: a structured finding that separates dispatch, physical receipt, intake condition, later condition, issue, and current balance. The player must identify that three measures changed status rather than disappeared.
+**Phase B — Prepare the reconciliation**
 
-**Stage B — Design the register**
+The apprentice prepares a one-time document for the Steward. The document records:
+- Opening usable stock.
+- Quantity dispatched and quantity physically received, separately.
+- Usable and held quantities at intake.
+- The authorized issue, its recipient, and its purpose.
+- Usable and held quantities at the later recount.
+- The reconciliation of total and usable balances.
+- Source references for material figures and claims.
+- A finding that distinguishes the established status change from any unproven cause.
+- A practical recommendation for follow-up.
 
-Objective: choose a record structure that preserves provenance and can represent future stock movements.
+The apprentice selects the figures, finding, supporting source references, and recommended actions. The interface should explain the purpose of the document and why the distinctions matter; it must not present a completed target document to copy.
 
-The player chooses between two register designs. Both can record the current transaction correctly, but they differ in how well they support later use.
+The recommendation may include:
+- Inspect the seven held measures before any are returned to usable stock.
+- Keep held measures segregated pending inspection.
+- Inspect the north storage bay and verify that the reported roof repair has addressed the problem.
+- Request further inquiry into the cause if the institution considers it necessary.
 
-| Register design | Setup cost | Strength | Limitation |
-|---|---:|---|---|
-| Compact balance register | 1 AP | Fast to enter; records opening balance, receipt, usable/held totals, issue, and closing balance. | Status changes and later releases require explanatory notes or separate cross-references; easier for later readers to lose the movement history. |
-| Movement ledger | 2 AP | Records each movement or status change as a dated, sourced line with quantity, status, authority, location, and responsible recorder. | Takes longer to establish and maintain; requires more careful entry. |
+The apprentice may also make an unsupported recommendation, such as assigning individual blame. The assessment should explain why that exceeds the available evidence. The apprentice recommends; the Senior Scribe retains authority.
 
-Available actions:
-- Select and configure one register design (1 or 2 AP).
-- Draft the opening balance, receipt, intake condition, later status change, and issue entries (2 AP).
-- Add source references and unresolved-cause notation (1 AP).
-- Ask the Senior Scribe to review the proposed fields (1 AP).
+Drafting and initial submission cost 2 AP. A revision and resubmission costs 1 AP. All costs are shown before commitment.
 
-Deliverable: a draft register that preserves the two distinct condition snapshots and the movement between them. The player is not choosing between cosmetic layouts: the structure determines how easily later readers can reconstruct stock history and audit status changes.
+**Phase C — Assessment, instruction, and disposition**
 
-**Stage C — Test the register against unseen transactions**
+The Senior Scribe assesses the submitted document in three distinct dimensions:
 
-Objective: prove that the proposed structure works beyond the example used to create it. These test transactions are not revealed during Stage A or B. The player receives their evidence only when each test is initiated.
+1. **Accounting accuracy:** Are the quantities and stock relationships correct? Are dispatch, receipt, issue, usable stock, held stock, and closing total distinguished?
+2. **Evidence and provenance:** Are material figures and claims supported by the appropriate records? Does the finding preserve the limits of the evidence?
+3. **Professional judgment:** Does the recommendation identify useful, proportionate action? Does it avoid assigning responsibility or asserting causation beyond what is established?
 
-**Test C-1: Release of held stock**
-- **C1-E01 — Drying inspection:** a later inspection establishes that 5 of the 7 held measures have dried and are now usable; 2 remain held.
-- **C1-E02 — Release authorization:** the Steward authorizes the 5 measures to return to usable stock.
-- The player must record a status transfer of 5 from held to usable without recording a new receipt.
-- The total physical stock must remain unchanged.
-- A register that records only a new usable balance without preserving the transfer history fails the traceability test.
+The assessment is not a single pass/fail checklist. A correct account may accompany a poor recommendation; a sound recommendation cannot compensate for incorrect figures. Feedback identifies the dimension that needs attention and explains why.
 
-**Test C-2: Short delivery**
-- **C2-E01 — Dispatch instruction:** a separate dispatch authorizes 20 measures.
-- **C2-E02 — Receiving tally:** the receiving count establishes that only 18 measures were physically unloaded.
-- **C2-E03 — Custody note:** no reliable departure-condition or route inspection establishes where the 2-measure discrepancy arose.
-- The player must record 20 dispatched, 18 received, and a 2-measure discrepancy pending inquiry.
-- The player must not force the received quantity to match the dispatch quantity or automatically accuse the carrier.
-- A register that has no distinct dispatch and receipt fields cannot pass this test without a clearly linked supplemental record.
+Instruction follows the assessment. The Senior Scribe explains the relevant professional standard and what should be corrected. Where the account or evidence is deficient, the apprentice may revise and resubmit. The Work must not permanently soft-lock after a mistake.
 
-Available actions:
-- Retrieve and examine the evidence for one test transaction (1 AP each).
-- Enter the test transaction in the proposed register (1 AP each).
-- Audit the entry for quantity, status, authority, recipient, and provenance (1 AP each).
-- Consult the relevant institutional reader if the test exposes an ambiguity (1 AP).
+The Senior Scribe then makes the disposition:
+- **Accept and authorize/forward the recommendation:** the account and evidence are sound, and the recommendation is proportionate.
+- **Accept the account but withhold the recommendation:** the figures and sources are reliable, but the proposed action is not adequately justified. The Senior Scribe determines the follow-up separately.
+- **Return the document for correction:** the account or evidence is not reliable enough to support institutional action.
 
-Both test transactions are required for adoption. They test two distinct capabilities: recording a change in stock status without inventing a new receipt, and preserving the difference between dispatch quantity and physical receipt. A failed test can be repeated after a revision; the player cannot bypass either test by accepting provisional adoption.
+The player should see which parts of the work were accepted, which were not, and what the Senior Scribe decided. Institutional authority is not transferred to the apprentice.
 
-**Stage D — Audit, revise, and obtain adoption**
+### 7.6 Evaluation and feedback
 
-Objective: audit the initial case and unseen test results, correct deficiencies, and secure a documented institutional decision.
+Evaluation is deterministic and based on the authored evidence and scenario invariants. It does not use runtime generative AI.
 
-Available actions:
-- Run the final audit against all completed test cases (2 AP).
-- Ask the Steward and Senior Scribe to review the register (1 AP).
-- Revise fields, entries, or cross-references (1 AP per revision pass).
-- Present the register for institutional approval (1 AP).
+**Accounting assessment**
+- Checks all eight core quantities and their relationships.
+- Distinguishes physical receipt from dispatch.
+- Preserves the intake and later condition snapshots.
+- Accounts for the 30-measure issue and the closing total.
+- Recognizes the three-measure status movement.
 
-Deliverable: a tested register and a recorded decision to adopt it, adopt it provisionally with a required modification, or decline it pending revision. A failed test does not permanently block the Work: the player may revise the register and repeat the affected test using the same evidence, at the stated AP cost.
+**Evidence assessment**
+- Requires sources for the opening balance, dispatch, arrival, intake, issue, and recount.
+- Requires E-06 if the roof leak is included as a reported event.
+- Rejects a finding that describes the three measures as missing or assigns unsupported blame.
+- Does not punish the apprentice for leaving the cause unresolved.
 
-### 7.6 Action-to-evidence and evaluation map
+**Professional-judgment assessment**
+- Rewards a practical response to the seven held measures.
+- Recognizes proportionate inspection, segregation, and verification of the reported roof repair.
+- Rejects unsupported assignment of individual responsibility.
+- Evaluates the recommendation separately from arithmetic accuracy.
 
-| Required player action | Evidence IDs / state | What the validator checks |
-|---|---|---|
-| Establish opening balance | E-01 | Opening usable quantity is 24. |
-| Establish dispatch and receipt | E-02, E-03 | 60 dispatched; 60 physically received. |
-| Establish intake condition | E-04 | 56 usable and 4 held at intake. |
-| Establish later condition | E-07 | 47 usable and 7 held at recount. |
-| Explain the change without inventing blame | E-06, E-07 | Three measures changed status; roof leak reported; individual responsibility remains unproven. |
-| Establish completed issue | E-05 and recipient confirmation | 30 issued to brewing-house operation under supplied authority. |
-| Test held-stock release | C1-E01, C1-E02 | 5 move from held to usable; 2 remain held; total stock unchanged. |
-| Test short delivery | C2-E01, C2-E02, C2-E03 | 20 dispatched; 18 received; 2 discrepancy; no unsupported blame. |
+The interface must not conceal all standards until after submission. The apprentice should understand the document's purpose and the importance of source support before committing. The assessment then evaluates the actual submission and provides the more specific instruction.
 
-The validator is deterministic and evaluates structured fields, state transitions, source references, and selected rulings. It does not depend on runtime generative AI.
+### 7.7 Consequences and institutional response
 
-**Accepted outcomes include:**
-- Preserving both the intake condition (56 usable / 4 held) and later recount (47 usable / 7 held).
-- Recording the three-measure status change as a change in condition, not a disappearance or new receipt.
-- Recording the completed issue to the brewing-house operation with its authority and provenance.
-- Calculating closing usable stock as 47 and held stock as 7.
-- Recording the roof leak as reported context while leaving individual responsibility unresolved.
-- Passing at least one unseen transaction test and recording its evidence and source.
+The recommendation matters to the Senior Scribe because it informs the action they may authorize or forward. The apprentice does not directly command the Steward or authorize institutional expenditure.
 
-**Incorrect or unsupported outcomes include:**
-- Treating the 3-measure status change as a loss without evidence.
-- Overwriting the intake record instead of preserving the later recount as a separate event.
-- Recording the 7 held measures as usable.
-- Treating a status release as a new receipt.
-- Recording 20 dispatched as 20 received in the short-delivery test when the count is 18.
-- Assigning blame to the carrier, receiving official, or steward without supporting evidence.
-- Treating the steward as the recipient of the brewing-house issue.
-- Omitting the source or authority for a material transaction.
+A sound submission can lead to inspection of the held stock, continued segregation pending inspection, and a check that the north-bay roof repair is adequate. No person is blamed on the current evidence. An accurate account with an unsupported recommendation can still be accepted as an account while the recommendation is withheld. An unreliable account is returned before it is used to authorize action.
 
-Evaluation distinguishes arithmetic error, factual misclassification, unsupported attribution, missing provenance, invalid state transition, and incomplete procedure. Feedback identifies the violated invariant, the relevant evidence IDs, and a valid correction path.
-
-### 7.7 Register quality and downstream consequences
-
-The register design persists after the Work and becomes the storehouse's working record for later Assignments and institutional dossiers.
-
-- **Movement ledger adopted:** later records can show status changes, dispatch/receipt differences, issue, and balance as separate traceable events. Future storehouse dossiers expose those fields directly.
-- **Compact balance register adopted:** the institution can use it for routine balances, but later status changes and discrepancies require linked notes. Future dossiers include those notes and may require extra AP to retrieve or reconcile them.
-- **Provisional adoption:** the institution uses the register with a specified missing field or cross-reference rule. The deficiency appears in later dossiers until corrected.
-- **Rejected pending revision:** the player can revise and retest. The Work remains active; no single failed attempt causes a soft-lock.
-
-The Carrier Foreman and Brewing-House Representative react to whether the record accurately reflects their respective parts of the transaction. The Steward's trust depends on whether the register supports allocation decisions; the Senior Scribe's professional confidence depends on the player's evidence discipline and correction process. These are separate relationship outcomes, not one universal approval score.
+The Work must preserve separate outcomes for accounting accuracy, evidence discipline, and professional judgment. Do not collapse them into one opaque score or make an arithmetic error silently change the underlying stock state.
 
 ### 7.8 Work contract and provisions
 
@@ -752,43 +732,28 @@ If the Work is suspended or abandoned, provisions stop according to the stated c
 
 ### 7.9 Action-budget test and expected duration
 
-The Work is expected to take **four to six in-game days** for a first-time player who investigates thoroughly, chooses a register, tests both unseen transactions, and completes adoption. This is a target to validate, not a fixed deadline. The player may spend longer, take optional work, or pursue relationships, but the Work contract's provision terms remain visible.
+The minimum evidence path costs 4 AP: 1 AP for the opening/dispatch/arrival comparison, 1 AP for intake/issue records, and 2 AP for the physical recount. Requesting E-06 costs 1 additional AP. Initial submission costs 2 AP, and the Senior Scribe's disposition costs 1 AP. A first-time player who examines the complete dossier, prepares a complete document, and receives a disposition should therefore expect to spend approximately 7–8 AP, with additional AP for revision.
 
-An illustrative four-day path:
-
-| Day | Work focus | Example AP use |
-|---|---|---|
-| 1 | Establish opening state and inspect discrepancy | E-01 (1), E-02/E-03 (1), E-04 (1), recount E-07 (2), Steward discussion (1) = 6 AP |
-| 2 | Complete evidence and design | E-05 confirmation (1), E-06 (1), Carrier Foreman follow-up (1), configure movement ledger (2), Senior Scribe review (1) = 6 AP |
-| 3 | Enter initial record and test C-1 | Draft initial entries (2), source/cause notation (1), retrieve C-1 evidence (1), enter C-1 (1), audit C-1 (1) = 6 AP |
-| 4 | Test C-2 and adopt | Retrieve C-2 evidence (1), enter C-2 (1), audit C-2 (1), final audit (2), institutional review/adoption (1) = 6 AP |
-
-This path is illustrative. If the player selects the compact register, uses a different evidence order, or needs revision passes, the Work can take longer. The AP costs of all additional actions must be shown before commitment.
+This is a tuning target, not a deadline. The Work may span two or more in-game days depending on the optional custody record, mistakes, and revision. The AP cost of every substantive action must be visible before commitment. Reviewing already acquired evidence, the case brief, and prior assessment feedback is free.
 
 ### 7.10 Completion and progression reward
 
-The Work is complete when:
-- The minimum evidence set has been examined.
-- The initial transaction has been recorded with all core invariants preserved.
-- Both unseen transaction tests have been passed.
-- The register has received an institutional adoption decision, including provisional adoption with explicit follow-up conditions.
+The Work is complete when the Senior Scribe has issued a disposition: acceptance and authorization/forwarding, acceptance of the account while withholding the recommendation, or return for correction followed by a final disposition. A returned submission is not complete until it is corrected sufficiently for a final decision.
 
-The Work awards a fixed amount of Historical Progress XP as part of the required Era I Work set. The exact award is allocated alongside the other mandatory Works and must satisfy the progression invariant in Section 4.4. A professional contribution may also award Career XP, separately balanced against other career activities.
+The Work awards its fixed Historical Progress XP as part of the required Era I Work set. The exact award is allocated alongside the other mandatory Works and must satisfy the progression invariant in Section 4.4. A professional contribution may also award Career XP, separately balanced against other career activities. The current prototype reward values are provisional implementation values, not approved GDD balance.
 
 ### 7.11 What this vertical slice validates
 
-The Work tests whether the player enjoys:
-- Investigating conflicting evidence rather than copying a supplied answer.
-- Conducting a physical recount that reveals a genuine state change.- Distinguishing dispatch, receipt, condition, issue, and balance.
-- Designing a register whose structure has practical consequences.
-- Testing that structure against unseen transactions.
-- Consulting people whose testimony and interests affect the record.
-- Preserving uncertainty and avoiding unsupported blame.
-- Correcting a failed design without a mandatory-content soft-lock.
+The revised Work tests whether the player can:
+- Understand who requested the document, who will use it, and why it matters.
+- Examine a compact dossier and reconstruct a stock position.
+- Distinguish dispatch, receipt, issue, condition, and balance.
+- Preserve uncertainty rather than invent a cause or culprit.
+- Make a practical recommendation with consequences for institutional action.
+- Receive an assessment that separates accounting, evidence, and judgment.
+- Learn from instruction and revise deficient work.
 
-Future Works must introduce new human and informational problems rather than repeat this storehouse template with different commodities.
-
----
+It does not test permanent register design, reusable register adoption, or unseen transaction validation. Those mechanics are removed from this Work. Future Works must introduce human and informational problems appropriate to their own subjects rather than repeat this storehouse scenario with different commodities.
 
 ## 8. The Assignment Gameplay Loop
 

@@ -85,6 +85,7 @@ export default function App() {
 
   const [workState, setWorkState] = useState<StorehouseWorkState>(() => {
     const fresh: StorehouseWorkState = {
+      workVersion: 2,
       stage: 'A_INVESTIGATE',
       examinedEvidence: [],
       registerDesign: null,
@@ -97,13 +98,15 @@ export default function App() {
       completedActions: [],
       rewardGranted: false,
       revisionPasses: 0,
+      reconciliationDraft: {},
+      reconciliationSources: [],
+      recommendations: [],
+      assessment: null,
+      assessmentSubmitted: false,
+      seniorDisposition: null,
     };
     const saved = loadGameState<StorehouseWorkState>('scribe_workstate');
-    if (!saved) return fresh;
-    // Preserve a completed legacy Work, but do not treat the old free-evidence / auto-pass
-    // prototype as if the newly costed action sequence had actually been performed.
-    if (saved.stage === 'COMPLETED') return { ...fresh, ...saved, rewardGranted: true };
-    if (!saved.completedActions) return fresh;
+    if (!saved || saved.workVersion !== 2) return fresh;
     return { ...fresh, ...saved };
   });
 
