@@ -118,8 +118,8 @@ export interface OpportunityConsequences {
   event?: WorldEvent; record?: RecordEntry; knowledge?: KnowledgeEntry[];
 }
 export interface AssignmentActivityDraft {
-  finding: 'repair_incomplete' | 'repair_appears_sound' | 'insufficient_evidence';
-  responsibilityClaim: 'none' | 'dudu';
+  finding: string;
+  responsibilityClaim: string;
   citedDiscoveryIds: string[];
   limitations: string[];
   recommendations: string[];

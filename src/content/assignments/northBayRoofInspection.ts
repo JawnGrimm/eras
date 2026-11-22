@@ -23,10 +23,17 @@ export interface AssignmentActivityActionDefinition {
   id: string; family: 'consult' | 'observe' | 'compare'; label: string; description: string;
   apCost: number; prerequisites?: string[]; discoveryIds: string[]; consultedPersonId?: PersonId;
 }
+export interface AssignmentActivityDiscoveryDefinition { id: string; title: string; text: string; }
+export interface AssignmentActivityReportSchema {
+  findings: Array<{ id: string; label: string }>;
+  responsibilityClaims: Array<{ id: string; label: string }>;
+  recommendations: Array<{ id: string; label: string }>;
+  limitationsLabel: string;
+}
 export interface AssignmentActivityDefinition {
   id: string; title: string; submissionApCost: number; participants: PersonId[];
-  actions: AssignmentActivityActionDefinition[]; discoveries: typeof NORTH_BAY_DISCOVERIES[number][];
-  interpretationRules: InterpretationRule[];
+  actions: AssignmentActivityActionDefinition[]; discoveries: AssignmentActivityDiscoveryDefinition[];
+  interpretationRules: InterpretationRule[]; reportSchema: AssignmentActivityReportSchema;
   createInitialProgress(): AssignmentActivityProgress;
 }
 const interpretationRules: InterpretationRule[] = [
@@ -55,6 +62,24 @@ export const northBayRoofInspection: AssignmentActivityDefinition = {
     { id: 'compare-scope', family: 'compare', label: 'Compare repair accounts', description: 'Compare Dudu’s account with the Steward’s maintenance note.', apCost: 1, prerequisites: ['brief-steward','consult-repairer'], discoveryIds: ['scope-comparison'] },
   ],
   interpretationRules,
+  reportSchema: {
+    findings: [
+      { id: 'insufficient_evidence', label: 'Insufficient evidence to certify' },
+      { id: 'repair_incomplete', label: 'Repair incomplete / further work required' },
+      { id: 'repair_appears_sound', label: 'Repair appears sound' },
+    ],
+    responsibilityClaims: [
+      { id: 'none', label: 'Do not assign individual responsibility' },
+      { id: 'dudu', label: 'Attribute the unresolved work to Dudu' },
+    ],
+    recommendations: [
+      { id: 'clear_parapet', label: 'Clear the north parapet runoff channel' },
+      { id: 'assess_beam', label: 'Assess the damp north-east beam socket' },
+      { id: 'inspect_held_barley', label: 'Arrange a separate inspection of the seven held sacks' },
+      { id: 'monitor_repair', label: 'Monitor the repaired section after heavy rain' },
+    ],
+    limitationsLabel: 'Limitations and unverified matters',
+  },
   createInitialProgress: () => ({ completedActionIds: [], discoveryIds: [], consultedPersonIds: [], draft: {
     finding: 'insufficient_evidence', responsibilityClaim: 'none', citedDiscoveryIds: [], limitations: [], recommendations: [],
   } }),
@@ -83,6 +108,10 @@ export function validateAssignmentActivityDefinition(definition: AssignmentActiv
   if (actionIds.size !== definition.actions.length) issues.push('Action IDs must be unique.');
   if (discoveryIds.size !== definition.discoveries.length) issues.push('Discovery IDs must be unique.');
   if (!definition.id || !definition.title || !Number.isInteger(definition.submissionApCost) || definition.submissionApCost < 1 || definition.submissionApCost > 6) issues.push('Activity identity and submission AP (1..6) are required.');
+  for (const [field, options] of Object.entries({ findings: definition.reportSchema.findings, responsibilityClaims: definition.reportSchema.responsibilityClaims, recommendations: definition.reportSchema.recommendations })) {
+    if (!Array.isArray(options) || options.length === 0 || new Set(options.map((option) => option.id)).size !== options.length || options.some((option) => !option.id.trim() || !option.label.trim())) issues.push(`Report schema ${field} must contain unique, labeled options.`);
+  }
+  if (!definition.reportSchema.limitationsLabel.trim()) issues.push('Report schema requires a limitations label.');
   if (definition.participants.some((id) => typeof id !== 'string' || !id.trim()) || new Set(definition.participants).size !== definition.participants.length) issues.push('Participants need unique, non-empty PersonIds.');
   for (const action of definition.actions) {
     if (!action.id || !Number.isInteger(action.apCost) || action.apCost < 1 || action.apCost > 6) issues.push(`Action ${action.id} AP must be 1..6.`);
@@ -132,11 +161,11 @@ export function validateAssignmentActivityProgress(definition: AssignmentActivit
     && [...p.discoveryIds].sort().join('|') === expectedDiscoveries.join('|')
     && p.consultedPersonIds.every((id) => definition.participants.includes(id))
     && [...p.consultedPersonIds].sort().join('|') === expectedConsulted.join('|')
-    && !!p.draft && ['repair_incomplete','repair_appears_sound','insufficient_evidence'].includes(p.draft.finding)
-    && ['none','dudu'].includes(p.draft.responsibilityClaim)
+    && !!p.draft && definition.reportSchema.findings.some((option) => option.id === p.draft.finding)
+    && definition.reportSchema.responsibilityClaims.some((option) => option.id === p.draft.responsibilityClaim)
     && Array.isArray(p.draft.citedDiscoveryIds) && p.draft.citedDiscoveryIds.every((id) => p.discoveryIds.includes(id))
     && Array.isArray(p.draft.limitations) && p.draft.limitations.every((x) => typeof x === 'string')
-    && Array.isArray(p.draft.recommendations) && p.draft.recommendations.every((x) => ['clear_parapet','assess_beam','inspect_held_barley','monitor_repair'].includes(x));
+    && Array.isArray(p.draft.recommendations) && p.draft.recommendations.every((x) => definition.reportSchema.recommendations.some((option) => option.id === x));
 }
 export function normalizeActivityDraft(draft: AssignmentActivityDraft): AssignmentActivityDraft {
   return { finding: draft.finding, responsibilityClaim: draft.responsibilityClaim, citedDiscoveryIds: [...new Set(draft.citedDiscoveryIds)],

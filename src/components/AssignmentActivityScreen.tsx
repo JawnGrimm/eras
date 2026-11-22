@@ -9,12 +9,6 @@ const personNames: Record<string, string> = {
   [NORTH_BAY_PEOPLE.repairer]: 'Dudu',
   [NORTH_BAY_PEOPLE.receivingOfficial]: 'Utu-mansum',
 };
-const recommendations = [
-  ['clear_parapet', 'Clear the north parapet runoff channel'],
-  ['assess_beam', 'Assess the damp north-east beam socket'],
-  ['inspect_held_barley', 'Arrange a separate inspection of the seven held sacks'],
-  ['monitor_repair', 'Monitor the repaired section after heavy rain'],
-] as const;
 export function AssignmentActivityScreen({ assignmentId, onBack }: { assignmentId: AssignmentId; onBack: () => void }) {
   const game = useGame();
   const offer = game.state.opportunities.assignments[assignmentId];
@@ -79,15 +73,12 @@ export function AssignmentActivityScreen({ assignmentId, onBack }: { assignmentI
       <h2 className="font-serif text-xl font-semibold">Draft inspection report</h2>
       <label className="mt-3 block text-sm font-medium">Finding
         <select value={draft.finding} onChange={(e) => dispatchDraft({ ...draft, finding: e.target.value as typeof draft.finding })} className="mt-1 block w-full rounded border border-stone-300 bg-white p-2">
-          <option value="insufficient_evidence">Insufficient evidence to certify</option>
-          <option value="repair_incomplete">Repair incomplete / further work required</option>
-          <option value="repair_appears_sound">Repair appears sound</option>
+          {definition.reportSchema.findings.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}
         </select>
       </label>
       <label className="mt-4 block text-sm font-medium">Responsibility claim
         <select value={draft.responsibilityClaim} onChange={(e) => dispatchDraft({ ...draft, responsibilityClaim: e.target.value as typeof draft.responsibilityClaim })} className="mt-1 block w-full rounded border border-stone-300 bg-white p-2">
-          <option value="none">Do not assign individual responsibility</option>
-          <option value="dudu">Attribute the unresolved work to Dudu</option>
+          {definition.reportSchema.responsibilityClaims.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}
         </select>
         <span className="mt-1 block text-xs font-normal text-stone-500">Dudu’s contract covered the mid-bay patch only. The remaining work was outside the recorded fee.</span>
       </label>
@@ -97,11 +88,11 @@ export function AssignmentActivityScreen({ assignmentId, onBack }: { assignmentI
         </label>)}
       </fieldset>
       <fieldset className="mt-4"><legend className="text-sm font-medium">Recommendations</legend>
-        {recommendations.map(([id, label]) => <label key={id} className="mt-2 flex gap-2 text-sm">
+        {definition.reportSchema.recommendations.map(({ id, label }) => <label key={id} className="mt-2 flex gap-2 text-sm">
           <input type="checkbox" checked={draft.recommendations.includes(id)} onChange={(e) => dispatchDraft({ ...draft, recommendations: e.target.checked ? [...draft.recommendations, id] : draft.recommendations.filter((x) => x !== id) })} />{label}
         </label>)}
       </fieldset>
-      <label className="mt-4 block text-sm font-medium">Limitations and unverified matters
+      <label className="mt-4 block text-sm font-medium">{definition.reportSchema.limitationsLabel}
         <textarea rows={3} value={draft.limitations.join('\n')} onChange={(e) => dispatchDraft({ ...draft, limitations: e.target.value.split('\n') })} placeholder="State what you did not inspect or cannot establish." className="mt-1 block w-full rounded border border-stone-300 p-2 text-sm" />
       </label>
       <section className="mt-5 rounded-lg border border-stone-200 bg-stone-50 p-3">
