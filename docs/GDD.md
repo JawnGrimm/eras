@@ -193,7 +193,7 @@ The six broad character attributes are:
 | **Endurance** | Sustaining effort, concentration, and performance over time. |
 | **Composure** | Maintaining control under pressure, handling difficult situations, and resisting distraction. |
 
-These are broad character capabilities, not measures of moral worth or professional rank.
+These are broad character capabilities, not measures of moral worth or professional rank. Attributes are established at character creation and are relatively stable rather than a routine XP-progression track. They may change only through significant life events or lasting circumstances. Ordinary professional practice develops skills, not the character's underlying attributes.
 
 #### Core skills and primary attribute pairings
 
@@ -210,7 +210,29 @@ The current six-skill framework is:
 
 These are primary pairings, not exclusive attribute-to-skill dependencies. The attribute relevant to an action may change with its specific demands and circumstances. Endurance, for example, may matter when an otherwise familiar skill must be sustained through prolonged effort.
 
-Skills represent learned competencies and can develop across career paths. Character skills and accumulated professional experience persist across era transitions; entering a new era does not reset the character's development. Historical transitions make additional era-appropriate branches of the skill tree available. The detailed skill scale, training and advancement rules remain open design work.
+Skills represent learned competencies and can develop across career paths. Each of the six core skills has its own independent experience track. Activities award experience to the skills they genuinely use; more demanding or complex work may award more, while routine repetition contributes without allowing expertise to arise from repetition alone. Formal study and mentorship can also develop skills without requiring repeated Assignments.
+
+Each skill uses a numerical level from **1 to 10**, with the following descriptive bands:
+
+| Levels | Proficiency |
+|---|---|
+| 1–2 | Novice |
+| 3–4 | Developing |
+| 5–6 | Competent |
+| 7–8 | Advanced |
+| 9–10 | Expert |
+
+Skill-specific experience establishes eligibility for advancement; it does not automatically raise the skill. Once eligible, the player chooses whether to invest **Career XP** to improve that skill. Career XP is the shared investment currency for professional development. It may be spent on eligible skill improvements, specialization development, and other professional development options as those systems are defined. Relevant experience, qualifications, and accomplishments determine eligibility; Career XP alone cannot purchase expertise in a field the character has not meaningfully practiced or studied. Exact experience thresholds and XP costs remain open.
+
+Character skills and accumulated professional experience persist across era transitions; entering a new era does not reset the character's development. Historical transitions make additional era-appropriate branches of the skill tree available.
+
+#### Personality traits
+
+Personality is represented through traits that influence a character's behavioral tendencies, decisions, relationships, and relevant action outcomes. Traits are distinct from attributes, learned skills, and temporary or lasting conditions.
+
+At character creation, the player chooses **one or two initial personality traits**. These establish defining aspects of the character's starting personality. Additional traits emerge through play as a result of meaningful experiences, significant events, and patterns of behavior. A single isolated action should not automatically assign a lasting personality label; trait development should be grounded in the character's history rather than arbitrary rolls or simple activity counters.
+
+Personality traits are not permanently fixed. Established traits may strengthen, weaken, or change as the character grows, becomes hardened, or changes priorities. Such changes should follow meaningful experiences rather than being freely swapped at will. Choices that conflict with a character's established personality may create internal tension or contribute to Stress where appropriate, providing a character-centered source of consequence. The precise trait catalog, emergence rules, change conditions, and mechanical effects remain open.
 
 #### Specializations
 
@@ -232,7 +254,7 @@ Specializations should provide a combination of three benefits:
 - **Improve actions:** make relevant existing actions more effective.
 - **Create opportunities:** change the professional work, appointments, relationships, and institutional opportunities available to the character.
 
-Secondary specializations retain their relevant capabilities; they are not deliberately weakened merely because another specialization is primary. The content, qualification thresholds, advancement requirements, and exact effects of individual specializations remain to be designed.
+Secondary specializations retain their relevant capabilities; they are not deliberately weakened merely because another specialization is primary. Career XP is the shared investment currency for specialization development, while relevant experience, skills, relationships, and opportunities determine eligibility. Exact qualification thresholds, advancement requirements, XP costs, and effects of individual specializations remain to be designed.
 
 #### Character conditions
 
@@ -1277,7 +1299,7 @@ The following details require further design before they can be treated as fixed
 19. A defined minimum viable product (MVP): which era, Works, Assignments, characters, systems, and content must exist for a complete first release.
 20. Content-authoring and validation pipeline: scenario state schemas, evidence generation, invariant checks, branch coverage, historical review, and automated QA for authored or AI-assisted drafts.
 21. Evaluation implementation: define how the approved judgment principles are expressed through player-facing feedback, scoring or outcome tiers, and scenario validators. Preserve the distinction between a reasonable judgment based on evidence available at decision time and a careless or unsupported conclusion. Do not assume every scenario has one correct ruling; determine how task purpose and required information shape completeness. The evaluation principle is approved, but scoring weights, feedback language, and validator behavior remain undecided.
-22. Complete the character system: define skill scales and advancement, specialization content and qualification/advancement requirements, class-specific starting circumstances and benefits, the detailed condition catalog and numerical effects, the action-resolution model that connects attributes, skills, equipment, conditions, and circumstances, and the detailed equipment catalog and balancing. The four initial career paths, six attributes, six core skills, primary attribute pairings, multi-specialization model, Primary Specialization, three expertise levels, condition principles, and initial equipment principles in Section 17 are established; detailed mechanics are not yet fixed.
+22. Complete the character system: define class-specific starting circumstances and benefits; specialization content, qualification and advancement requirements; the detailed personality-trait catalog, emergence and change rules, and mechanical effects; the detailed condition catalog and numerical effects; the action-resolution model connecting attributes, skills, specializations, equipment, conditions, and circumstances; and the detailed equipment catalog and balancing. The four initial career paths, six attributes and their relatively stable progression, six core skills and primary attribute pairings, independent skill-experience tracks, 1–10 skill scale, Career XP investment principle, multi-specialization model, Primary Specialization, three expertise levels, initial personality-trait selection and emergent/changeable personality principles, condition principles, and initial equipment principles are established. Exact thresholds, costs, trait content, and action-resolution mechanics remain open.
 23. Define the family desk's upgrade economy and era-transition treatment, including upgrade effects, costs, adaptation, and the modest inherited bonuses retained from previous eras. The desk's continuity role and broad transition principle are established; individual upgrades and numerical effects are not.
 
 These are open design tasks, not invitations to fill gaps with arbitrary placeholder systems.
