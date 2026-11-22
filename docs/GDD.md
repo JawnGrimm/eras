@@ -1053,7 +1053,7 @@ If the player lacks provisions, the game records the shortage rather than creati
 
 ### 12.4 Recovery from hardship
 
-Shortage consequences may be implemented only in the same release or milestone as concrete recovery actions. At least two recovery routes must be available in the character's actual circumstances, drawn from these three required categories:
+Shortage consequences may be implemented only in the same release or milestone as concrete recovery actions. At least two of these recovery categories must be implemented in the system when shortage consequences ship, with at least one viable recovery path guaranteed in the character's actual circumstances:
 
 - **Quick provision-paid labor:** a short, plausible task that can be completed for provisions rather than money, with its work and payment terms shown before commitment.
 - **Personal help or an advance:** ask a trusted contact—such as Ur-gir or Nin-aya where the established relationship and circumstances support it—for provisions or an advance. Assistance carries a real obligation, such as repayment, future service, or a relationship cost; it is not an unexplained gift.
