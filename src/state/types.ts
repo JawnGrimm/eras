@@ -145,7 +145,7 @@ export interface ChallengeTriggerRule {
 }
 
 
-export type WorkStatus = 'active' | 'submitted' | 'completed' | 'abandoned';
+export type WorkStatus = 'active' | 'completed' | 'abandoned';
 export interface WorkProgress {
   status: WorkStatus;
   acquiredEvidence: EvidenceId[];
