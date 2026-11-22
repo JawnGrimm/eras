@@ -33,24 +33,26 @@ const recommendationLabels: Record<StorehouseRecommendation, string> = {
 };
 const evidenceActions = storehouseReckoning.actions;
 
-function NumericDraftField({ field, value, onCommit }: {
-  field: StorehouseField; value: number | undefined; onCommit: (field: StorehouseField, value: number | undefined) => void;
+export function parseNumericDraft(draft: string): { valid: true; value: number | undefined } | { valid: false } {
+  const trimmed = draft.trim();
+  if (!trimmed) return { valid: true, value: undefined };
+  if (!/^\\d+$/.test(trimmed)) return { valid: false };
+  const parsed = Number(trimmed);
+  return Number.isSafeInteger(parsed) ? { valid: true, value: parsed } : { valid: false };
+}
+
+export function NumericDraftField({ field, value, onCommit, disabled = false }: {
+  field: StorehouseField; value: number | undefined; onCommit: (field: StorehouseField, value: number | undefined) => void; disabled?: boolean;
 }) {
   const [draft, setDraft] = useState(value === undefined ? '' : String(value));
   useEffect(() => setDraft(value === undefined ? '' : String(value)), [value]);
   const commit = () => {
-    const trimmed = draft.trim();
-    if (!trimmed) { onCommit(field, undefined); return; }
-    if (!/^\\d+$/.test(trimmed)) {
+    const parsed = parseNumericDraft(draft);
+    if (!parsed.valid) {
       setDraft(value === undefined ? '' : String(value));
       return;
     }
-    const parsed = Number(trimmed);
-    if (!Number.isSafeInteger(parsed)) {
-      setDraft(value === undefined ? '' : String(value));
-      return;
-    }
-    onCommit(field, parsed);
+    onCommit(field, parsed.value);
   };
   return (
     <label className="grid gap-1 text-sm text-stone-700">
@@ -60,6 +62,7 @@ function NumericDraftField({ field, value, onCommit }: {
         inputMode="numeric"
         pattern="[0-9]*"
         value={draft}
+        disabled={disabled}
         onChange={(event) => setDraft(event.target.value)}
         onBlur={commit}
         className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 font-mono text-stone-900 outline-none focus:border-amber-700 focus:ring-2 focus:ring-amber-700/20"
@@ -105,7 +108,9 @@ export function StorehouseWorkScreen({ onBack }: { onBack: () => void }) {
     : (definition.revisionSubmissionApCost ?? definition.submissionApCost ?? 0);
   const dispositionCost = definition.dispositionApCost ?? 0;
   const assessment = progress.lastAssessment;
-  const canSubmit = active && !progress.pendingDisposition;
+  const canSubmit = active && !(progress.pendingDisposition
+    && assessment?.outcome === 'accepted'
+    && assessment.dimensions.every((dimension) => dimension.status === 'meets'));
   const submit = () => dispatch({ type: 'SUBMIT_WORK', workId });
   const dispose = (disposition: 'returned' | 'account_accepted' | 'authorized') =>
     dispatch({ type: 'DISPOSE_WORK', workId, disposition });
@@ -180,14 +185,14 @@ export function StorehouseWorkScreen({ onBack }: { onBack: () => void }) {
         <h2 className="font-serif text-xl font-semibold text-stone-900">Construct the account</h2>
         <p className="mt-1 text-sm text-stone-600">Enter the quantities supported by the records. Values are committed when you leave a field; incomplete typing remains local to that field.</p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {fields.map((field) => <NumericDraftField key={field} field={field} value={scenario.draft[field]} onCommit={commitField} />)}
+          {fields.map((field) => <NumericDraftField key={field} field={field} value={scenario.draft[field]} onCommit={commitField} disabled={!active} />)}
         </div>
         <div className="mt-6 grid gap-5 md:grid-cols-2">
           <div>
             <h3 className="font-semibold text-stone-900">Finding about the change in condition</h3>
             <div className="mt-2 space-y-2">{(Object.keys(findingLabels) as StorehouseFinding[]).map((finding) =>
               <label key={finding} className="flex gap-2 text-sm text-stone-700">
-                <input type="radio" name="storehouse-finding" checked={scenario.finding === finding}
+                <input type="radio" name="storehouse-finding" checked={scenario.finding === finding} disabled={!active}
                   onChange={() => dispatch({ type: 'SET_WORK_SCENARIO_DATA', workId, scenarioData: { ...scenario, finding } })} />
                 <span>{findingLabels[finding]}</span>
               </label>)}</div>
@@ -197,7 +202,7 @@ export function StorehouseWorkScreen({ onBack }: { onBack: () => void }) {
             <div className="mt-2 grid grid-cols-2 gap-2">{STOREHOUSE_EVIDENCE.map((item) =>
               <label key={item.id} className="flex gap-2 text-sm text-stone-700">
                 <input type="checkbox" checked={scenario.citations.includes(item.id)}
-                  disabled={!examined.includes(item.id)}
+                  disabled={!active || !examined.includes(item.id)}
                   onChange={() => toggleCitation(item.id)} />
                 <span>{item.id.toUpperCase()} · {item.title}</span>
               </label>)}</div>
@@ -208,18 +213,23 @@ export function StorehouseWorkScreen({ onBack }: { onBack: () => void }) {
           <h3 className="font-semibold text-stone-900">Recommended follow-up</h3>
           <div className="mt-2 grid gap-2 sm:grid-cols-2">{(Object.keys(recommendationLabels) as StorehouseRecommendation[]).map((recommendation) =>
             <label key={recommendation} className="flex items-start gap-2 rounded-lg bg-stone-50 p-3 text-sm text-stone-700">
-              <input type="checkbox" checked={scenario.recommendations.includes(recommendation)} onChange={() => toggleRecommendation(recommendation)} />
+              <input type="checkbox" checked={scenario.recommendations.includes(recommendation)} disabled={!active} onChange={() => toggleRecommendation(recommendation)} />
               <span>{recommendationLabels[recommendation]}</span>
             </label>)}</div>
         </div>
         <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-stone-200 pt-4">
           <button disabled={!canSubmit || game.state.actionEconomy.apRemaining < initialCost}
             onClick={submit} className="rounded-lg bg-amber-800 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-40">
-            Submit for assessment · {initialCost} AP
+            {progress.submissionCount > 0 ? 'Revise and resubmit' : 'Submit for assessment'} · {initialCost} AP
           </button>
-          <p className="text-xs text-stone-500">Initial submission: 2 AP · Revision: 1 AP · Senior disposition: 1 AP</p>
+          <p className="text-xs text-stone-500">Initial submission: {definition.initialSubmissionApCost ?? definition.submissionApCost ?? 0} AP · Revision: {definition.revisionSubmissionApCost ?? definition.submissionApCost ?? 0} AP · Senior disposition: {definition.dispositionApCost ?? 0} AP</p>
         </div>
       </section>
+
+      {progress.status === 'completed' && <section className="rounded-xl border border-emerald-300 bg-emerald-50 p-5" role="status">
+        <h2 className="font-serif text-xl font-semibold text-stone-900">Work completed</h2>
+        <p className="mt-2 text-sm text-stone-700">Final disposition: {progress.finalDisposition ?? 'Completed'}.</p>
+      </section>}
 
       {assessment && <section className="rounded-xl border border-stone-300 bg-white p-5 shadow-sm">
         <h2 className="font-serif text-xl font-semibold text-stone-900">Senior Scribe’s assessment</h2>
