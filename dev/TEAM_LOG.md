@@ -1153,3 +1153,38 @@ The owner approved a distinct role for professional rank: rank shapes the broad 
 ### Compatibility follow-up
 
 The active prototype's saved Assignment objects may still contain the retired `tier` field. `src/App.tsx` now maps legacy Novice / Adept / Expert / Perilous values to routine / demanding / demanding / critical difficulty during save loading, so existing local saves do not display an undefined difficulty marker. This is a compatibility migration only; the old tier ladder is not retained as a gameplay rule.
+
+## 2026-11-21 — Redesign: The Storehouse Reckoning as an apprenticeship assessment
+
+**Contributor:** Chad (AI)  
+**Status:** Approved direction implemented on a review branch; playtest pending
+
+The owner clarified that the Storehouse Steward is the intended reader of a one-time reconciliation document. The apprentice does not receive a direct commission from the Steward. The Senior Scribe assigns the case as supervised professional work, assesses the apprentice's submission, provides instruction, and decides what action to authorize or forward.
+
+### Approved design
+
+- The document is a one-time reconciliation, not a permanent stockkeeping register.
+- The Storehouse Steward is the client and primary reader.
+- The apprentice answers to the Senior Scribe.
+- The apprentice records the stock account, cites evidence, distinguishes established facts from unresolved causes, and recommends proportionate action.
+- The Senior Scribe assesses accounting accuracy, evidence/provenance, and professional judgment separately.
+- Instruction follows assessment. The apprentice may revise deficient work.
+- The Senior Scribe retains institutional authority. An accurate account may be accepted while an unsupported recommendation is withheld.
+- The underlying incident remains ordinary institutional work; no manufactured culprit or melodrama is needed.
+
+### Runtime changes on branch
+
+- Replaced the register-design choice, artificial unseen transaction tests, automatic reviews, and adoption flow with a case brief, evidence examination, one-time reconciliation form, source references, recommendation selection, three-part assessment, instruction, revision, and Senior Scribe disposition.
+- Removed redundant Carrier Foreman and Brewing-House Representative consultation actions; their existing records provide the relevant dispatch and issue evidence.
+- Preserved the stock facts: 24 opening usable, 60 dispatched and received, 56 usable/4 held at intake, 30 issued to the brewing-house, 47 usable/7 held at recount, 54 total closing, and a three-measure status change.
+- Added a work-version marker. In-progress saves from the previous Storehouse implementation reset to the new assessment so stale stage/test state cannot masquerade as progress in the redesigned Work.
+- Updated Section 7 of the canonical GDD to describe the revised purpose, people, evidence, invariants, action costs, assessment, instruction, outcomes, and completion conditions.
+
+### Still to verify
+
+- Type-check and production build.
+- Verify that all AP costs and the multi-day path behave correctly in the live app.
+- Playtest whether the case brief adequately explains the purpose of each document field and whether the three assessment dimensions are understandable.
+- Revisit provisional Career XP / Historical Progress XP values during the broader progression allocation pass.
+
+No claim of successful build, deployment, or playtest is made in this entry.
