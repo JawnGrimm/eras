@@ -24,7 +24,7 @@ function challenge(id: string): ChallengeInstance {
   return {
     id: id as ChallengeId, title: 'Disputed delivery', description: 'Two accounts disagree about a delivery.',
     category: 'accounts', context: { what: 'A disputed delivery account.', who: ['Steward'], purpose: 'Determine what can responsibly be stated.', responsibility: ['Scribe'], provenance: ['Two conflicting accounts'] },
-    deliveryChannels: [channel], presentedDay: 1, apCost: 1,
+    deliveryChannels: [channel], presentedDay: 1, apCost: 1, status: 'offered',
     choices: [
       { id: 'record-qualified', label: 'Record the discrepancy', description: 'Preserve both claims and their limits.',
         consequences: { moneyDelta: 1, careerXp: 4 } },
@@ -85,7 +85,9 @@ describe('Assignment and Challenge foundations', () => {
     const base = createInitialGameState();
     const presented = transitionGame(base, { type: 'PRESENT_CHALLENGE', challenge: challenge('challenge-1') });
     expect(presented.feedback?.code).toBe('challenge-presented');
-    const resolved = transitionGame(presented.state, { type: 'RESOLVE_CHALLENGE', challengeId: 'challenge-1' as ChallengeId, choiceId: 'endorse-claim' });
+    const accepted = transitionGame(presented.state, { type: 'ACCEPT_CHALLENGE', challengeId: 'challenge-1' as ChallengeId });
+    expect(accepted.feedback?.code).toBe('challenge-accepted');
+    const resolved = transitionGame(accepted.state, { type: 'RESOLVE_CHALLENGE', challengeId: 'challenge-1' as ChallengeId, choiceId: 'endorse-claim' });
     expect(resolved.feedback?.code).toBe('challenge-resolved');
     expect(resolved.state.opportunities.challenges['challenge-1' as ChallengeId]).toBeUndefined();
     expect(resolved.state.opportunities.challengeOutcomes).toHaveLength(1);
