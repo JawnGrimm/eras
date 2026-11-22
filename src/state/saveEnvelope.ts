@@ -35,7 +35,9 @@ function isConditionModifier(value: unknown): boolean {
 }
 
 function isScribalCharacter(value: unknown): value is ScribalCharacterState {
-  if (!isObject(value) || !finiteNonNegative(value.careerXp) || !finiteNonNegative(value.stress)
+  if (!isObject(value) || (value.careerPath !== undefined
+    && !['government', 'military', 'religious', 'merchant'].includes(value.careerPath as string))
+    || !finiteNonNegative(value.careerXp) || !finiteNonNegative(value.stress)
     || value.stress > 100 || !isObject(value.wallet)
     || !isObject(value.skills) || !isObject(value.attributes)
     || !Array.isArray(value.specializations) || !Array.isArray(value.traits)
