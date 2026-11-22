@@ -96,12 +96,17 @@ describe('typed Work definitions and validation', () => {
           { kind: 'attributeAtMost', attributeId: 'unknown' as never, value: Number.NaN },
           { kind: 'examinedAll', evidenceIds: [E3] },
         ] },
-      }],
+      },
+      { id: 'bad', evidenceId: E3, text: 'Second duplicate rule', category: 'observation', priority: 2, displayOrder: 1,
+        when: { kind: 'examinedNone', evidenceIds: [E3] } },
+      ],
     });
     const codes = validateWorkDefinition(invalid).map((issue) => issue.code);
     expect(codes).toContain('unknown-action-prerequisite');
     expect(codes).toContain('unreachable-action');
     expect(codes).toContain('unknown-rule-evidence');
+    expect(codes).toContain('unreachable-rule-evidence');
+    expect(codes).toContain('duplicate-rule-id');
     expect(codes).toContain('unreachable-predicate-evidence');
     expect(codes).toContain('empty-rule-text');
     expect(codes).toContain('empty-predicate-group');
