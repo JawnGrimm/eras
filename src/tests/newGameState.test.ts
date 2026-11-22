@@ -5,6 +5,7 @@ import { INITIAL_PERSON_ID } from '../state/initialState';
 import { createSaveEnvelope, isValidSaveEnvelope } from '../state/saveEnvelope';
 import type { AssignmentId, ChallengeId, PersonId } from '../state/ids';
 import type { ChallengeInstance } from '../state/types';
+import { STOREHOUSE_WORK_ID } from '../works/storehouseReckoning';
 
 const catalog = INITIAL_WORK_CATALOG;
 
@@ -12,7 +13,7 @@ describe('Day 1 Uruk production bootstrap', () => {
   it('starts Storehouse and presents authored starter Assignments and Challenge through engine transitions', () => {
     const state = createNewGameState();
     expect(state.works.activeWorkId).toBe('work-storehouse-reckoning');
-    expect(state.works.progress['work-storehouse-reckoning']).toBeDefined();
+    expect(state.works.progress[STOREHOUSE_WORK_ID]).toBeDefined();
     expect(Object.values(state.opportunities.assignments).map((x) => x.id)).toEqual([
       'assignment-storehouse-copy-check',
       'assignment-apprentice-tablet-preparation',
