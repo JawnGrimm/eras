@@ -811,3 +811,37 @@ Three questions remain distinct: whether the player can access information, whet
 
 - `docs/GDD.md`: added Design Pillar 2.11, “The player's knowledge is situated,” connecting information access to NPC relationships, reputation, attributes, skills, equipment, and world circumstances, and distinguishing access, understanding, and verification.
 - No runtime code, save schema, simulation architecture, numerical balance, or gameplay behavior changed.
+
+
+## 2026-11-21 — Decision: use a shared institutional gameplay model with era-specific identity
+
+**Contributor:** Chad (AI)  
+**Status:** Approved design direction
+
+The owner approved keeping institutions mechanically consistent for now, while allowing their narrative character, style, attitude, and historical presentation to differ. This is intended to avoid overcomplicating the institutional model or creating a separate simulation system for every institutional type.
+
+### Shared model
+
+- Institutions use a common underlying gameplay model rather than bespoke mechanics for each institution or career.
+- Common properties may include identity and historical context, responsibilities and authority, resources and personnel, relationships, and current circumstances or unresolved matters.
+- Institutional agency remains simpler than individual NPC agency. Institutions have objectives, constraints, and organizational interests; they do not need full individual personality or decision-making complexity.
+- Differences in authority, responsibilities, resources, and available actions are expressed through the shared model's properties and circumstances. Mechanically distinct institutional types should be introduced only if gameplay later demonstrates a genuine need.
+
+### Era and career context
+
+- Each era has its own historically appropriate institutional roster. Do not assume that the same organizations persist unchanged across eras or are merely renamed and visually reskinned.
+- The four initial career paths—Government, Military, Religious, and Merchant—can guide a small number of especially relevant institutions for each path, alongside general institutions encountered across careers.
+- Career paths shape starting position, relationships, responsibilities, opportunities, and likely institutional contacts; they do not create exclusive access or membership boundaries.
+- Institutional differences are initially expressed through historical and narrative character, style, terminology, customs, attitudes, priorities, and context.
+- Institutional continuity across eras is not assumed. Particular records, knowledge, traditions, people, and social connections may persist where historically plausible without requiring the institution itself to survive.
+
+### Boundaries
+
+- This decision establishes a common design model and its presentation principles, not a finalized institutional roster, exhaustive property schema, numerical mechanics, AI architecture, or runtime implementation.
+- The exact institutions for each era and their historical content remain open.
+- No code, save schema, simulation architecture, numerical balance, or gameplay behavior changed.
+
+### Repository changes
+
+- `docs/GDD.md`: expanded Section 15.3 to establish the shared institutional gameplay model, era-specific institutional rosters, cross-career access, and the distinction between institutional continuity and other forms of legacy. Updated Remaining Design Work item 13.
+- No runtime code or save data changed.
