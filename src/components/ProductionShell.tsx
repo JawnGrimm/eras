@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { Volume2, VolumeX } from 'lucide-react';
+import { isAudioMuted, setAudioMuted } from '../engine/audio';
 import { GameProvider, useGame } from '../state/GameProvider';
 import type { ProductionStorage } from '../state/GameProvider';
 import type { DaySettlement, CareerProgressionPolicy } from '../state/types';
@@ -18,6 +20,7 @@ type Screen = 'workday' | 'storehouse' | 'assignments' | 'activity' | 'challenge
 
 function ProductionHeader() {
   const { state } = useGame();
+  const [audioMuted, setAudioMutedState] = useState(isAudioMuted);
   const person = state.world.people[state.player.currentCharacterId];
   const location = person?.currentLocationId ? state.world.locations[person.currentLocationId]?.name : 'Uruk';
   const wallet = person?.alive ? person.scribal?.wallet : undefined;
@@ -30,6 +33,9 @@ function ProductionHeader() {
         <div className="rounded-lg border border-stone-300 bg-white px-3 py-2"><span className="text-stone-500">Silver</span><p className="font-mono text-base font-semibold text-stone-900">{wallet?.money ?? 0}</p></div>
         <div className="rounded-lg border border-stone-300 bg-white px-3 py-2"><span className="text-stone-500">Provisions</span><p className="font-mono text-base font-semibold text-stone-900">{wallet?.provisions ?? 0}</p></div>
       </div>
+      <button type="button" onClick={() => { const nextMuted = !audioMuted; setAudioMuted(nextMuted); setAudioMutedState(nextMuted); }} aria-label={audioMuted ? 'Unmute audio feedback' : 'Mute audio feedback'} aria-pressed={audioMuted} title={audioMuted ? 'Unmute audio feedback' : 'Mute audio feedback'} className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg border border-stone-300 bg-white p-2 text-stone-700 hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900">
+        {audioMuted ? <VolumeX size={18} aria-hidden="true" /> : <Volume2 size={18} aria-hidden="true" />}
+      </button>
     </div>
   </header>;
 }
