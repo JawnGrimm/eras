@@ -4,7 +4,7 @@ import { deriveProfessionalRank } from '../engine/professionalRank';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
 import { isSkillEligibleForAdvancement } from '../engine/careerProgression';
 import { isValidGameState } from '../state/saveEnvelope';
-import type { CareerProgressionPolicy, SkillState } from '../state/types';
+import type { CareerProgressionPolicy, GameState, SkillState } from '../state/types';
 import type { SpecializationId } from '../state/ids';
 
 const policy: CareerProgressionPolicy = {
@@ -115,7 +115,7 @@ describe('character and career foundation', () => {
   it('stores conditions as contextual skill or attribute modifiers, not universal penalties', () => {
     const initial = createInitialGameState();
     const person = initial.world.people[INITIAL_PERSON_ID];
-    const state = {
+    const state: GameState = {
       ...initial,
       world: { ...initial.world, people: { ...initial.world.people, [INITIAL_PERSON_ID]: {
         ...person, scribal: { ...person.scribal!, conditions: [{
