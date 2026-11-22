@@ -1149,3 +1149,7 @@ The owner approved a distinct role for professional rank: rank shapes the broad 
 - src/types.ts, src/components/AssignmentBoard.tsx, src/data/initialData.ts, and src/App.tsx: replaced the prototype Assignment tier field with a separate difficulty marker and updated its display and career-record classification.
 - Rank calculation in the prototype was not changed: its current Career-XP-based implementation cannot be replaced responsibly until the skill-to-rank formula and the runtime skill model are defined. This remains a known implementation discrepancy, not an approved design rule.
 - No save-schema migration was made. No build, type-check, tests, or deployment were run for this documentation and focused UI/type update.
+
+### Compatibility follow-up
+
+The active prototype's saved Assignment objects may still contain the retired `tier` field. `src/App.tsx` now maps legacy Novice / Adept / Expert / Perilous values to routine / demanding / demanding / critical difficulty during save loading, so existing local saves do not display an undefined difficulty marker. This is a compatibility migration only; the old tier ladder is not retained as a gameplay rule.
