@@ -2,6 +2,7 @@ import React from 'react';
 import { useGame } from '../state/GameProvider';
 import type { DaySettlement } from '../state/types';
 import type { InstitutionId, PersonId } from '../state/ids';
+import { UR_GIR_PERSON_ID } from '../state/ids';
 import { STOREHOUSE_WORK_ID } from '../works/storehouseReckoning';
 import { selectCharacterOpportunities } from '../state/opportunitySelectors';
 import { characterQualifiesForAssignment } from '../engine/opportunities';
@@ -61,10 +62,10 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenActivity, settlement, o
   const hardshipVisible = wallet.provisions === 0 || wallet.shortageWorkdays >= 1;
   const storehouse = state.world.institutions['institution-uruk-temple-storehouse' as InstitutionId];
   const laborAvailable = !!storehouse?.locationId && !!state.world.locations[storehouse.locationId];
-  const urGir = state.world.people['person-uruk-ur-gir' as PersonId];
-  const urGirRelationship = state.world.relationships['person-uruk-ur-gir' as PersonId]?.[person.id];
+  const urGir = state.world.people[UR_GIR_PERSON_ID as PersonId];
+  const urGirRelationship = state.world.relationships[UR_GIR_PERSON_ID as PersonId]?.[person.id];
   const hasUrGirObligation = person.scribal.obligations.some((obligation) =>
-    obligation.status === 'outstanding' && obligation.creditorPersonId === 'person-uruk-ur-gir');
+    obligation.status === 'outstanding' && obligation.creditorPersonId === UR_GIR_PERSON_ID);
   const canRequestUrGir = wallet.provisions === 0 && !!urGir?.alive && !!urGir.scribal
     && urGir.scribal.wallet.provisions >= 1 && !!urGirRelationship
     && urGirRelationship.dimensions.trust >= 50 && urGirRelationship.dimensions.resentment === 0
@@ -114,7 +115,7 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenActivity, settlement, o
           <p className="mt-1 text-sm text-stone-600">Ur-gir may advance one provision. The existing obligation is to repay one silver or provide a day of scribal assistance, by mutual arrangement.</p>
           <p className="mt-2 text-xs text-stone-500">1 AP · +1 provision · One outstanding obligation at a time</p>
           <button disabled={!canRequestUrGir || state.actionEconomy.apRemaining < 1}
-            onClick={() => game.dispatch({ type: 'REQUEST_CONTACT_ADVANCE', contactId: 'person-uruk-ur-gir' as PersonId })}
+            onClick={() => game.dispatch({ type: 'REQUEST_CONTACT_ADVANCE', contactId: UR_GIR_PERSON_ID as PersonId })}
             className="mt-3 rounded-md bg-stone-900 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">
             Request advance · 1 AP
           </button>
@@ -122,7 +123,7 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenActivity, settlement, o
         </article>
       </div>
     </section>}
-    {person.scribal.obligations.length > 0 && <section aria-labelledby="obligations-heading" className="rounded-xl border border-stone-300 bg-white p-4">
+    {person.scribal.obligations.some((obligation) => obligation.status === 'outstanding') && <section aria-labelledby="obligations-heading" className="rounded-xl border border-stone-300 bg-white p-4">
       <h2 id="obligations-heading" className="font-semibold text-stone-900">Outstanding obligations</h2>
       <ul className="mt-2 space-y-2 text-sm text-stone-700">
         {person.scribal.obligations.filter((obligation) => obligation.status === 'outstanding').map((obligation) =>
