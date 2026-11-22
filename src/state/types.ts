@@ -255,4 +255,14 @@ export type GameAction =
   | { type: 'DECLINE_CHALLENGE'; challengeId: ChallengeId }
   | { type: 'RESOLVE_CHALLENGE'; challengeId: ChallengeId; choiceId: string };
 export interface ActionFeedback { kind: 'success' | 'error' | 'info'; code: string; message: string; }
-export interface TransitionResult { state: GameState; feedback: ActionFeedback | null; }
+export interface DaySettlement {
+  startingProvisions: number;
+  workContractProvisionEarned: number;
+  workContractProvisionReason: 'qualified_workday' | 'no_active_work_contract' | 'insufficient_work_ap';
+  sustenanceDeducted: number;
+  endingProvisions: number;
+  shortageWorkdays: number;
+  overtimeStress: number;
+  tomorrowAp: 5 | 6;
+}
+export interface TransitionResult { state: GameState; feedback: ActionFeedback | null; settlement?: DaySettlement; }

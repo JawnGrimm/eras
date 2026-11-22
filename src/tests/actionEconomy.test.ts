@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
 import { transitionGame } from '../engine/actionEconomy';
 import { createSaveEnvelope, isValidSaveEnvelope, restoreSave } from '../state/saveEnvelope';
+import { createNewGameState, INITIAL_WORK_CATALOG } from '../state/newGameState';
+import { STOREHOUSE_WORK_ID } from '../works/storehouseReckoning';
 
 const endDay = (state: ReturnType<typeof createInitialGameState>) => transitionGame(state, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber });
 
@@ -38,15 +40,73 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
     expect(day.actionEconomy.apRemaining).toBe(5);
   });
 
-  it('consumes one provision per Workday and resets shortage count when provisions are available', () => {
+  it('emits the full engine-driven settlement breakdown for a day without a Work contract', () => {
     const initial = createInitialGameState();
-    const settled = endDay(initial).state;
+    const result = endDay(initial);
+    expect(result.settlement).toEqual({
+      startingProvisions: 5,
+      workContractProvisionEarned: 0,
+      workContractProvisionReason: 'no_active_work_contract',
+      sustenanceDeducted: 1,
+      endingProvisions: 4,
+      shortageWorkdays: 0,
+      overtimeStress: 0,
+      tomorrowAp: 6,
+    });
+    const settled = result.state;
     expect(settled.world.people[INITIAL_PERSON_ID].scribal?.wallet.provisions).toBe(4);
     expect(settled.world.people[INITIAL_PERSON_ID].scribal?.wallet.shortageWorkdays).toBe(0);
     expect(settled.journal.notices).toHaveLength(1);
     const duplicate = transitionGame(settled, { type: 'END_DAY', expectedDayNumber: initial.calendar.dayNumber });
     expect(duplicate.state).toBe(settled);
     expect(duplicate.feedback?.code).toBe('stale-day-settlement');
+  });
+
+
+  it('reports a qualified Work provision, overtime stress, and tomorrow AP from the engine', async () => {
+    let state = createNewGameState();
+    const activeProgress = state.works.progress[STOREHOUSE_WORK_ID];
+    const priorWorkId = 'work-prior-completed' as typeof STOREHOUSE_WORK_ID;
+    state = { ...state, works: { ...state.works, progress: {
+      [priorWorkId]: { ...activeProgress, status: 'completed', workApSpentToday: 0 },
+      ...state.works.progress,
+    } } };
+    state = transitionGame(state, { type: 'ACQUIRE_WORK_EVIDENCE', workId: STOREHOUSE_WORK_ID, actionId: 'accounts' }, undefined, INITIAL_WORK_CATALOG).state;
+    state = transitionGame(state, { type: 'SPEND_AP', amount: 5, reason: 'Use remaining AP' }, undefined, INITIAL_WORK_CATALOG).state;
+    state = transitionGame(state, { type: 'ACTIVATE_OVERTIME' }, undefined, INITIAL_WORK_CATALOG).state;
+    state = transitionGame(state, { type: 'SPEND_AP', amount: 1, reason: 'Use overtime AP' }, undefined, INITIAL_WORK_CATALOG).state;
+    const result = transitionGame(state, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber }, undefined, INITIAL_WORK_CATALOG);
+    expect(result.settlement).toMatchObject({
+      workContractProvisionEarned: 1,
+      workContractProvisionReason: 'qualified_workday',
+      overtimeStress: 5,
+      tomorrowAp: 5,
+    });
+    expect(result.settlement?.endingProvisions).toBe(result.settlement?.startingProvisions);
+  });
+
+
+  it('honors a qualified completed Work even when a later active Work has not met its AP threshold', () => {
+    const state = createNewGameState();
+    const activeProgress = state.works.progress[STOREHOUSE_WORK_ID];
+    const priorWorkId = 'work-qualified-earlier-today' as typeof STOREHOUSE_WORK_ID;
+    const withPriorCompletion = {
+      ...state,
+      works: { ...state.works, progress: {
+        [priorWorkId]: { ...activeProgress, status: 'completed' as const, workApSpentToday: 1 },
+        [STOREHOUSE_WORK_ID]: { ...activeProgress, workApSpentToday: 0 },
+      } },
+    };
+    const result = transitionGame(withPriorCompletion, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber }, undefined, INITIAL_WORK_CATALOG);
+    expect(result.settlement?.workContractProvisionReason).toBe('qualified_workday');
+    expect(result.settlement?.workContractProvisionEarned).toBe(1);
+  });
+
+  it('reports a provision-contract shortfall when the Work AP threshold was not met', async () => {
+    const state = createNewGameState();
+    const result = transitionGame(state, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber }, undefined, INITIAL_WORK_CATALOG);
+    expect(result.settlement?.workContractProvisionReason).toBe('insufficient_work_ap');
+    expect(result.settlement?.workContractProvisionEarned).toBe(0);
   });
 
   it('allows two consecutive Workdays without provisions before shortage consequences begin on the third', () => {

@@ -18,6 +18,8 @@ interface ProductionSession {
   loadStatus: ProductionLoadStatus;
   revision: number;
   feedback: ActionFeedback | null;
+  hasUnsavedChanges: boolean;
+  storageError: string | null;
 }
 
 function browserStorage(): ProductionStorage | null {
@@ -43,31 +45,35 @@ export function initializeProductionSession(
   const freshState = () => createNewGameState();
   if (!storage) {
     return { state: freshState(), loadStatus: 'ready', revision: 0,
-      feedback: storageFeedback('save-write-failed', 'Browser storage is unavailable. You can continue in this session, but progress cannot be saved between visits.') };
+      feedback: storageFeedback('save-write-failed', 'Browser storage is unavailable. You can continue in this session, but progress cannot be saved between visits.'),
+      hasUnsavedChanges: true, storageError: 'Browser storage is unavailable; progress exists only in this session.' };
   }
   let raw: string | null;
   try {
     raw = storage.getItem(SAVE_KEY);
   } catch {
     return { state: freshState(), loadStatus: 'read_error', revision: 0,
-      feedback: storageFeedback('save-read-failed', 'The production save could not be read. It has not been overwritten.') };
+      feedback: storageFeedback('save-read-failed', 'The production save could not be read. It has not been overwritten.'),
+      hasUnsavedChanges: false, storageError: 'The existing production save could not be read.' };
   }
   if (raw !== null) {
     const restored = restoreSave(raw, workCatalog);
     if (!restored) {
       return { state: freshState(), loadStatus: 'corrupt_save', revision: 0,
-        feedback: storageFeedback('corrupt-save', 'The existing production save is malformed or incompatible. It has been preserved; choose Start Fresh Production Save only if you want to replace it.') };
+        feedback: storageFeedback('corrupt-save', 'The existing production save is malformed or incompatible. It has been preserved; choose Start Fresh Production Save only if you want to replace it.'),
+        hasUnsavedChanges: false, storageError: 'The existing production save is malformed or incompatible.' };
     }
-    return { state: restored.state, loadStatus: 'ready', revision: restored.revision, feedback: null };
+    return { state: restored.state, loadStatus: 'ready', revision: restored.revision, feedback: null, hasUnsavedChanges: false, storageError: null };
   }
 
   const state = freshState();
   try {
     storage.setItem(SAVE_KEY, JSON.stringify(createSaveEnvelope(state, 0)));
-    return { state, loadStatus: 'ready', revision: 0, feedback: null };
+    return { state, loadStatus: 'ready', revision: 0, feedback: null, hasUnsavedChanges: false, storageError: null };
   } catch {
     return { state, loadStatus: 'ready', revision: 0,
-      feedback: storageFeedback('save-write-failed', 'The new production state is active in memory, but could not be saved to browser storage.') };
+      feedback: storageFeedback('save-write-failed', 'The new production state is active in memory, but could not be saved to browser storage.'),
+      hasUnsavedChanges: true, storageError: 'The new production state could not be saved to browser storage.' };
   }
 }
 
@@ -75,6 +81,8 @@ interface GameContextValue {
   state: GameState;
   feedback: ActionFeedback | null;
   loadStatus: ProductionLoadStatus;
+  hasUnsavedChanges: boolean;
+  storageError: string | null;
   dispatch: (action: GameAction) => TransitionResult;
   clearFeedback: () => void;
   startFreshProductionSave: () => boolean;
@@ -101,12 +109,14 @@ export function GameProvider({
   const resolvedCatalog = workCatalog ?? INITIAL_WORK_CATALOG;
   const resolvedStorage = storage === undefined ? browserStorage() : storage;
   const [session, setSession] = useState<ProductionSession>(() => initialState
-    ? { state: initialState, loadStatus: 'ready', revision: 0, feedback: null }
+    ? { state: initialState, loadStatus: 'ready', revision: 0, feedback: null, hasUnsavedChanges: false, storageError: null }
     : initializeProductionSession(resolvedStorage, resolvedCatalog));
   const stateRef = useRef(session.state);
   const revisionRef = useRef(session.revision);
   const loadStatusRef = useRef(session.loadStatus);
   const [feedback, setFeedback] = useState<ActionFeedback | null>(session.feedback);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(session.hasUnsavedChanges);
+  const [storageError, setStorageError] = useState<string | null>(session.storageError);
 
   const dispatch = useCallback((action: GameAction): TransitionResult => {
     if (loadStatusRef.current !== 'ready') {
@@ -122,10 +132,15 @@ export function GameProvider({
       setSession((current) => ({ ...current, state: result.state }));
       try {
         const nextRevision = revisionRef.current + 1;
-        resolvedStorage?.setItem(SAVE_KEY, JSON.stringify(createSaveEnvelope(result.state, nextRevision)));
+        if (!resolvedStorage) throw new Error('Browser storage is unavailable.');
+        resolvedStorage.setItem(SAVE_KEY, JSON.stringify(createSaveEnvelope(result.state, nextRevision)));
         revisionRef.current = nextRevision;
+        setHasUnsavedChanges(false);
+        setStorageError(null);
         setFeedback(result.feedback);
       } catch {
+        setHasUnsavedChanges(true);
+        setStorageError('The latest in-memory changes could not be written to the production save.');
         setFeedback(storageFeedback('save-write-failed',
           'The action was applied in memory, but the production save could not be written. Your current session remains active; storage will be retried on the next state change.'));
       }
@@ -150,7 +165,9 @@ export function GameProvider({
     stateRef.current = fresh;
     revisionRef.current = 0;
     loadStatusRef.current = 'ready';
-    setSession({ state: fresh, loadStatus: 'ready', revision: 0, feedback: null });
+    setSession({ state: fresh, loadStatus: 'ready', revision: 0, feedback: null, hasUnsavedChanges: false, storageError: null });
+    setHasUnsavedChanges(false);
+    setStorageError(null);
     setFeedback(null);
     return true;
   }, [resolvedStorage]);
@@ -162,6 +179,8 @@ export function GameProvider({
       state: session.state,
       feedback,
       loadStatus: session.loadStatus,
+      hasUnsavedChanges,
+      storageError,
       dispatch,
       clearFeedback,
       startFreshProductionSave,

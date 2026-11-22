@@ -302,21 +302,27 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
       if (economy.overtimeUsedToday && economy.apRemaining > 0) {
         return { state, feedback: feedback('error', 'overtime-ap-unspent', 'Spend the overtime AP before settling the day.') };
       }
+      const startingProvisions = scribal.wallet.provisions;
       const contractProgress = Object.values(state.works.progress).find((item) =>
         (item.status === 'active' || item.status === 'completed') && !!item.provisionContract
         && item.workApSpentToday >= item.provisionContract.minimumWorkApPerDay);
-      const contract = contractProgress?.provisionContract;
-      const contractProvision = contract ? contract.provisionsPerQualifiedWorkday : 0;
-      const availableProvisions = scribal.wallet.provisions + contractProvision;
+      const activeContractExists = Object.values(state.works.progress).some((item) =>
+        item.status === 'active' && !!item.provisionContract);
+      const contractQualified = !!contractProgress?.provisionContract;
+      const contractProvision = contractQualified ? (contractProgress?.provisionContract?.provisionsPerQualifiedWorkday ?? 0) : 0;
+      const workContractProvisionReason = contractQualified
+        ? 'qualified_workday' as const
+        : activeContractExists
+          ? 'insufficient_work_ap' as const
+          : 'no_active_work_contract' as const;
+      const availableProvisions = startingProvisions + contractProvision;
       const hadProvision = availableProvisions > 0;
+      const sustenanceDeducted = hadProvision ? 1 : 0;
+      const endingProvisions = hadProvision ? availableProvisions - sustenanceDeducted : 0;
       const shortageWorkdays = hadProvision ? 0 : scribal.wallet.shortageWorkdays + 1;
       const updatedScribal = {
         ...scribal,
-        wallet: {
-          ...scribal.wallet,
-          provisions: hadProvision ? availableProvisions - 1 : 0,
-          shortageWorkdays,
-        },
+        wallet: { ...scribal.wallet, provisions: endingProvisions, shortageWorkdays },
       };
       const withExpiredOffers = settleAssignmentOffers(state);
       let next = {
@@ -343,7 +349,20 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
           ? `No provisions were available. Shortage day ${shortageWorkdays} of 2 grace days.`
           : 'No provisions were available for a third consecutive Workday. Shortage consequences begin.');
       }
-      return { state: next, feedback: feedback('success', 'day-settled', 'The Workday has been settled.') };
+      return {
+        state: next,
+        feedback: feedback('success', 'day-settled', 'The Workday has been settled.'),
+        settlement: {
+          startingProvisions,
+          workContractProvisionEarned: contractProvision,
+          workContractProvisionReason,
+          sustenanceDeducted,
+          endingProvisions,
+          shortageWorkdays,
+          overtimeStress: economy.overtimeUsedToday ? 5 : 0,
+          tomorrowAp: economy.nextDayApPenalty ? 5 : 6,
+        },
+      };
     }
     case 'MARK_NOTICE_READ': {
       return {
