@@ -3,6 +3,7 @@ import type { AttributeId, SkillId } from './ids';
 import type { GameState, OpportunityConsequences, SaveEnvelope, ScribalCharacterState, WorkProgress } from './types';
 import { validateOpportunityConsequences } from './opportunityValidation';
 import type { WorkDefinition } from '../works/workDefinition';
+import { rankSuccessorCandidates } from '../engine/characterContinuity';
 
 export const SAVE_KEY = 'scribe_game_v2';
 // Keep schema v2: the production provider has not been mounted, so shipped v2 saves have empty opportunity maps and works.progress.
@@ -164,7 +165,30 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
       || (p.scribal !== undefined && !isScribal(p.scribal, new Set(Object.keys(institutions))))) return false;
   }
   const active = people[player.currentCharacterId];
-  if (!isObject(active) || active.alive !== true || !isScribal(active.scribal, new Set(Object.keys(institutions)))) return false;
+  if (!isObject(active) || !isScribal(active.scribal, new Set(Object.keys(institutions)))) return false;
+  const pendingSuccession = value.pendingSuccession;
+  if (pendingSuccession === undefined || pendingSuccession === null) {
+    if (active.alive !== true) return false;
+  } else {
+    if (!isObject(pendingSuccession) || pendingSuccession.formerCharacterId !== player.currentCharacterId
+      || !['death','departure'].includes(pendingSuccession.departureKind as string)
+      || pendingSuccession.dayNumber !== calendar.dayNumber
+      || !['awaiting_selection','no_successor'].includes(pendingSuccession.status as string)
+      || !stringArray(pendingSuccession.candidateIds)
+      || new Set(pendingSuccession.candidateIds as string[]).size !== (pendingSuccession.candidateIds as string[]).length
+      || (pendingSuccession.departureKind === 'death' ? active.alive !== false : active.alive !== true)) return false;
+    const discovered = rankSuccessorCandidates(value as unknown as GameState).map((candidate) => candidate.personId);
+    if (discovered.length !== (pendingSuccession.candidateIds as string[]).length
+      || discovered.some((id, index) => id !== (pendingSuccession.candidateIds as string[])[index])
+      || (discovered.length > 0) !== (pendingSuccession.status === 'awaiting_selection')) return false;
+  }
+  if (value.characterTransitions !== undefined && (!Array.isArray(value.characterTransitions)
+    || value.characterTransitions.some((entry) => !isObject(entry)
+      || typeof entry.formerCharacterId !== 'string' || !isObject(people[entry.formerCharacterId])
+      || typeof entry.nextCharacterId !== 'string' || !isObject(people[entry.nextCharacterId])
+      || entry.formerCharacterId === entry.nextCharacterId
+      || !['death','departure'].includes(entry.departureKind as string)
+      || !Number.isInteger(entry.dayNumber) || (entry.dayNumber as number) < 1 || (entry.dayNumber as number) > (calendar.dayNumber as number)))) return false;
 
   for (const [fromId, targets] of Object.entries(world.relationships)) {
     if (!isObject(people[fromId]) || !isObject(targets)) return false;
@@ -252,7 +276,8 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
       || !Array.isArray(offer.deliveryChannels) || !offer.deliveryChannels.length
       || offer.deliveryChannels.some((channel) => !isObject(channel) || typeof channel.explanation !== 'string' || !channel.explanation
         || !['baseline_reach','relationship','specialization','appointment','reputation'].includes(channel.kind as string))
-      || (offer.lapsedDuringMandatoryWork !== undefined && typeof offer.lapsedDuringMandatoryWork !== 'boolean')) return false;
+      || (offer.lapsedDuringMandatoryWork !== undefined && typeof offer.lapsedDuringMandatoryWork !== 'boolean')
+      || (offer.assigneePersonId !== undefined && (typeof offer.assigneePersonId !== 'string' || !isObject(people[offer.assigneePersonId])))) return false;
   }
   for (const [key, aggregate] of Object.entries(value.opportunities.assignmentAggregates)) {
     if (!isObject(aggregate) || aggregate.key !== key || !isObject(aggregate.employer)
