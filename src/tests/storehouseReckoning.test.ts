@@ -284,7 +284,7 @@ describe('Storehouse Reckoning introductory tutorial', () => {
         ...state.world.institutions,
         [STOREHOUSE_INSTITUTION_ID]: {
           ...state.world.institutions[STOREHOUSE_INSTITUTION_ID],
-          activeMatters: ['The Storehouse Reckoning'],
+          activeMatters: ['The Storehouse Reckoning'] as unknown as typeof state.world.institutions[STOREHOUSE_INSTITUTION_ID].activeMatters,
         },
       } },
     };
