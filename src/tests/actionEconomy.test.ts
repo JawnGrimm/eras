@@ -62,9 +62,19 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
     expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet.shortageWorkdays).toBe(1);
     state = endDay(state).state;
     expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet.shortageWorkdays).toBe(2);
-    state = transitionGame(state, { type: 'END_DAY' }).state;
+    state = endDay(state).state;
     expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet.shortageWorkdays).toBe(3);
     expect(state.journal.notices.at(-1)?.message).toContain('Shortage consequences begin');
+    const recoveredPerson = state.world.people[INITIAL_PERSON_ID];
+    state = {
+      ...state,
+      world: { ...state.world, people: { ...state.world.people, [INITIAL_PERSON_ID]: {
+        ...recoveredPerson, scribal: { ...recoveredPerson.scribal!, wallet: { money: 0, provisions: 1, shortageWorkdays: 3 } },
+      } } },
+    };
+    state = endDay(state).state;
+    expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet.provisions).toBe(0);
+    expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet.shortageWorkdays).toBe(0);
   });
 
   it('restores only structurally valid v2 envelopes and rejects partial or corrupt saves', () => {
@@ -75,6 +85,9 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
     const corrupt = structuredClone(envelope);
     corrupt.state.actionEconomy.apRemaining = Number.NaN;
     expect(isValidSaveEnvelope(corrupt)).toBe(false);
+    const negativeMoney = structuredClone(envelope);
+    negativeMoney.state.world.people[INITIAL_PERSON_ID].scribal!.wallet.money = -1;
+    expect(isValidSaveEnvelope(negativeMoney)).toBe(false);
     const missingActive = structuredClone(envelope);
     missingActive.state.player.currentCharacterId = 'missing' as typeof INITIAL_PERSON_ID;
     expect(isValidSaveEnvelope(missingActive)).toBe(false);
