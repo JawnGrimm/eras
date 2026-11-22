@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { transitionGame } from '../engine/actionEconomy';
 import { evaluateChallengeTriggers } from '../engine/opportunities';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
-import type { AssignmentId, ChallengeId, InstitutionId, PersonId, WorkId } from '../state/ids';
+import { createSaveEnvelope, isValidSaveEnvelope } from '../state/saveEnvelope';
+import type { AssignmentId, ChallengeId, WorkId } from '../state/ids';
 import type { AssignmentOffer, ChallengeInstance, GameState, OpportunityDeliveryChannel } from '../state/types';
 
 const channel: OpportunityDeliveryChannel = { kind: 'baseline_reach', explanation: 'Within the character’s ordinary professional reach.' };
@@ -12,7 +13,7 @@ function offer(id: string): Omit<AssignmentOffer, 'offeredDay' | 'expiresDay' | 
     employer: { kind: 'person', id: INITIAL_PERSON_ID }, category: 'accounts', commodity: 'barley',
     context: { what: 'A delivery account requires reconciliation.', who: ['Storehouse steward'], purpose: 'Establish the received quantity.',
       responsibility: ['Receiving official'], provenance: ['Dispatch tablet', 'Arrival tally'] },
-    requiredSkills: {}, difficulty: 'routine', estimatedAp: 2, compensation: { money: 3, provisions: 1 },
+    requiredSkills: {}, difficulty: 'routine', apCost: 2, compensation: { money: 3, provisions: 1 },
     careerXpReward: 8, deliveryChannels: [channel],
   };
 }
@@ -23,10 +24,10 @@ function challenge(id: string): ChallengeInstance {
   return {
     id: id as ChallengeId, title: 'Disputed delivery', description: 'Two accounts disagree about a delivery.',
     category: 'accounts', context: { what: 'A disputed delivery account.', who: ['Steward'], purpose: 'Determine what can responsibly be stated.', responsibility: ['Scribe'], provenance: ['Two conflicting accounts'] },
-    deliveryChannels: [channel], presentedDay: 1,
+    deliveryChannels: [channel], presentedDay: 1, apCost: 1,
     choices: [
       { id: 'record-qualified', label: 'Record the discrepancy', description: 'Preserve both claims and their limits.',
-        consequences: { moneyDelta: 1, careerXp: 4, relationships: [{ fromId: INITIAL_PERSON_ID, toId: INITIAL_PERSON_ID as PersonId, changes: { trust: 2 }, summary: 'The steward appreciates the careful account.' }] } },
+        consequences: { moneyDelta: 1, careerXp: 4 } },
       { id: 'endorse-claim', label: 'Endorse one claim', description: 'Accept the senior official’s account without further proof.', consequences: { provisionsDelta: 2 } },
     ],
   };
