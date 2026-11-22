@@ -57,4 +57,16 @@ describe('world social record validation', () => {
     }] };
     expect(isValidGameState(malformedSave)).toBe(false);
   });
+  it('rejects malformed event participant lists and invalid knowledge bases without throwing', () => {
+    const state = stateWithOther();
+    const malformedEvent = { id: 'event-malformed' as EventId, dayNumber: 1, summary: 'Malformed', institutionIds: [] } as never;
+    expect(transitionGame(state, { type: 'CREATE_EVENT', event: malformedEvent }).feedback?.code).toBe('event-invalid');
+    const createdEvent = transitionGame(state, { type: 'CREATE_EVENT', event: {
+      id: 'event-valid' as EventId, dayNumber: 1, summary: 'Recorded', personIds: [INITIAL_PERSON_ID], institutionIds: [],
+    } }).state;
+    const invalidKnowledge = { id: 'knowledge-invalid', holder: { kind: 'person' as const, id: INITIAL_PERSON_ID },
+      subject: { kind: 'event' as const, id: 'event-valid' as EventId }, basis: 'invented-basis', learnedDay: 1 } as never;
+    expect(transitionGame(createdEvent, { type: 'GRANT_KNOWLEDGE', knowledge: invalidKnowledge }).feedback?.code).toBe('knowledge-invalid');
+  });
+
 });

@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { transitionGame } from '../engine/actionEconomy';
 import { evaluateChallengeTriggers } from '../engine/opportunities';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
-import type { AssignmentId, ChallengeId, InstitutionId, PersonId, WorkId } from '../state/ids';
+import { createSaveEnvelope, isValidSaveEnvelope } from '../state/saveEnvelope';
+import type { AssignmentId, ChallengeId, EventId, KnowledgeEntryId, RecordId, WorkId } from '../state/ids';
 import type { AssignmentOffer, ChallengeInstance, GameState, OpportunityDeliveryChannel } from '../state/types';
 
 const channel: OpportunityDeliveryChannel = { kind: 'baseline_reach', explanation: 'Within the character’s ordinary professional reach.' };
@@ -12,7 +13,7 @@ function offer(id: string): Omit<AssignmentOffer, 'offeredDay' | 'expiresDay' | 
     employer: { kind: 'person', id: INITIAL_PERSON_ID }, category: 'accounts', commodity: 'barley',
     context: { what: 'A delivery account requires reconciliation.', who: ['Storehouse steward'], purpose: 'Establish the received quantity.',
       responsibility: ['Receiving official'], provenance: ['Dispatch tablet', 'Arrival tally'] },
-    requiredSkills: {}, difficulty: 'routine', estimatedAp: 2, compensation: { money: 3, provisions: 1 },
+    requiredSkills: {}, difficulty: 'routine', apCost: 2, compensation: { money: 3, provisions: 1 },
     careerXpReward: 8, deliveryChannels: [channel],
   };
 }
@@ -23,10 +24,10 @@ function challenge(id: string): ChallengeInstance {
   return {
     id: id as ChallengeId, title: 'Disputed delivery', description: 'Two accounts disagree about a delivery.',
     category: 'accounts', context: { what: 'A disputed delivery account.', who: ['Steward'], purpose: 'Determine what can responsibly be stated.', responsibility: ['Scribe'], provenance: ['Two conflicting accounts'] },
-    deliveryChannels: [channel], presentedDay: 1,
+    deliveryChannels: [channel], presentedDay: 1, apCost: 1,
     choices: [
       { id: 'record-qualified', label: 'Record the discrepancy', description: 'Preserve both claims and their limits.',
-        consequences: { moneyDelta: 1, careerXp: 4, relationships: [{ fromId: INITIAL_PERSON_ID, toId: INITIAL_PERSON_ID as PersonId, changes: { trust: 2 }, summary: 'The steward appreciates the careful account.' }] } },
+        consequences: { moneyDelta: 1, careerXp: 4 } },
       { id: 'endorse-claim', label: 'Endorse one claim', description: 'Accept the senior official’s account without further proof.', consequences: { provisionsDelta: 2 } },
     ],
   };
@@ -90,6 +91,137 @@ describe('Assignment and Challenge foundations', () => {
     expect(resolved.state.opportunities.challengeOutcomes).toHaveLength(1);
     expect(resolved.state.world.people[INITIAL_PERSON_ID].scribal?.wallet.provisions).toBe(7);
     expect(resolved.state.historicalProgression.historicalXp).toBe(base.historicalProgression.historicalXp);
+  });
+
+  it('bounds authored AP costs to 1..6 but does not compare them to an overtime allocation', () => {
+    const base = createInitialGameState();
+    for (const apCost of [0, 7, 1.5]) {
+      const invalid = { ...offer(`bad-${apCost}`), apCost };
+      expect(transitionGame(base, { type: 'PRESENT_ASSIGNMENT', offer: invalid }).feedback?.code).toBe('assignment-invalid');
+      const forged = present(base, 'save-check');
+      const changed = { ...forged, opportunities: { ...forged.opportunities, assignments: {
+        ...forged.opportunities.assignments, ['save-check' as AssignmentId]: { ...forged.opportunities.assignments['save-check' as AssignmentId], apCost },
+      } } };
+      expect(isValidSaveEnvelope(createSaveEnvelope(changed, 1))).toBe(false);
+    }
+    for (const apCost of [0, 7, 1.5]) {
+      const invalidChallenge = { ...challenge(`bad-challenge-${apCost}`), apCost };
+      expect(transitionGame(base, { type: 'PRESENT_CHALLENGE', challenge: invalidChallenge }).feedback?.code).toBe('challenge-invalid');
+      const shown = transitionGame(base, { type: 'PRESENT_CHALLENGE', challenge: challenge('challenge-save') }).state;
+      const changed = { ...shown, opportunities: { ...shown.opportunities, challenges: {
+        ...shown.opportunities.challenges, ['challenge-save' as ChallengeId]: { ...shown.opportunities.challenges['challenge-save' as ChallengeId], apCost },
+      } } };
+      expect(isValidSaveEnvelope(createSaveEnvelope(changed, 1))).toBe(false);
+    }
+    const overtime = { ...base, actionEconomy: { ...base.actionEconomy, dailyApAllocation: 5 as const, apRemaining: 5 } };
+    expect(transitionGame(overtime, { type: 'PRESENT_ASSIGNMENT', offer: { ...offer('six-ap'), apCost: 6 } }).feedback?.code).toBe('assignment-presented');
+  });
+
+  it('charges Assignment completion AP and applies only offer-authored consequences', () => {
+    let state = present(createInitialGameState(), 'complete-me');
+    state = transitionGame(state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: 'complete-me' as AssignmentId }).state;
+    const beforeAp = state.actionEconomy.apRemaining;
+    const beforeMoney = state.world.people[INITIAL_PERSON_ID].scribal!.wallet.money;
+    const completed = transitionGame(state, { type: 'COMPLETE_ASSIGNMENT', assignmentId: 'complete-me' as AssignmentId });
+    expect(completed.feedback?.code).toBe('assignment-completed');
+    expect(completed.state.actionEconomy.apRemaining).toBe(beforeAp - 2);
+    expect(completed.state.world.people[INITIAL_PERSON_ID].scribal!.wallet.money).toBe(beforeMoney + 3);
+    expect(completed.state.opportunities.assignments['complete-me' as AssignmentId].status).toBe('completed');
+    expect(transitionGame(completed.state, { type: 'COMPLETE_ASSIGNMENT', assignmentId: 'complete-me' as AssignmentId }).feedback?.code).toBe('assignment-not-active');
+  });
+
+  it('rolls back Assignment compensation, consequences, AP, and status when the combined wallet result is negative', () => {
+    const authored = { ...offer('rollback'), completionConsequences: { moneyDelta: -999, provisionsDelta: -999 } };
+    let state = transitionGame(createInitialGameState(), { type: 'PRESENT_ASSIGNMENT', offer: authored }).state;
+    state = transitionGame(state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: 'rollback' as AssignmentId }).state;
+    const beforeWallet = state.world.people[INITIAL_PERSON_ID].scribal!.wallet;
+    const beforeAp = state.actionEconomy.apRemaining;
+    const failed = transitionGame(state, { type: 'COMPLETE_ASSIGNMENT', assignmentId: 'rollback' as AssignmentId });
+    expect(failed.feedback?.code).toBe('assignment-outcome-invalid');
+    expect(failed.state.actionEconomy.apRemaining).toBe(beforeAp);
+    expect(failed.state.world.people[INITIAL_PERSON_ID].scribal!.wallet).toEqual(beforeWallet);
+    expect(failed.state.opportunities.assignments['rollback' as AssignmentId].status).toBe('accepted');
+  });
+
+  it('rejects Historical Progress XP in Assignment-authored consequences at presentation and save validation', () => {
+    const invalid = { ...offer('xp-assignment'), completionConsequences: { historicalXp: 5 } as never };
+    expect(transitionGame(createInitialGameState(), { type: 'PRESENT_ASSIGNMENT', offer: invalid }).feedback?.code).toBe('assignment-invalid');
+    const validState = present(createInitialGameState(), 'xp-save');
+    const mutated = { ...validState, opportunities: { ...validState.opportunities, assignments: {
+      ...validState.opportunities.assignments,
+      ['xp-save' as AssignmentId]: { ...validState.opportunities.assignments['xp-save' as AssignmentId], completionConsequences: { historicalXp: 5 } },
+    } } };
+    expect(isValidSaveEnvelope(createSaveEnvelope(mutated, 1))).toBe(false);
+  });
+
+  it('preserves fixed event and knowledge dates while stamping a record on resolution day in a chained consequence sequence', () => {
+    const offerWithEffects = { ...offer('dated'), completionConsequences: {
+      event: { id: 'event-authored' as EventId, dayNumber: 99, summary: 'The shipment arrived.', personIds: [INITIAL_PERSON_ID], institutionIds: [] },
+      record: { id: 'record-authored' as RecordId, createdDay: 99, authorPersonId: INITIAL_PERSON_ID, title: 'Arrival tally',
+        sources: [{ id: 'source-event', kind: 'event' as const, sourceId: 'event-authored' as EventId, description: 'Arrival event' }],
+        assertions: [{ id: 'assertion-arrival', text: 'The shipment arrived.', classification: 'observed' as const, sourceIds: ['source-event'] }],
+        uncertaintyLimits: [], amendments: [] },
+      knowledge: [{ id: 'knowledge-authored' as KnowledgeEntryId, holder: { kind: 'person' as const, id: INITIAL_PERSON_ID },
+        subject: { kind: 'record' as const, id: 'record-authored' as RecordId }, basis: 'consulted-record' as const, learnedDay: 99 }],
+      datePolicies: { event: { kind: 'fixed' as const, dayNumber: 1 }, record: { kind: 'resolution_day' as const },
+        knowledge: { 'knowledge-authored': { kind: 'fixed' as const, dayNumber: 2 } } },
+    } };
+    let state = transitionGame(createInitialGameState(), { type: 'PRESENT_ASSIGNMENT', offer: offerWithEffects }).state;
+    state = transitionGame(state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: 'dated' as AssignmentId }).state;
+    state = transitionGame(state, { type: 'END_DAY', expectedDayNumber: 1 }).state;
+    expect(isValidSaveEnvelope(createSaveEnvelope(state, 1))).toBe(true);
+    const result = transitionGame(state, { type: 'COMPLETE_ASSIGNMENT', assignmentId: 'dated' as AssignmentId });
+    expect(result.feedback?.code).toBe('assignment-completed');
+    expect(result.state.world.events['event-authored' as keyof typeof result.state.world.events].dayNumber).toBe(1);
+    expect(result.state.records.entries['record-authored' as keyof typeof result.state.records.entries].createdDay).toBe(2);
+    expect(result.state.world.knowledge['knowledge-authored' as keyof typeof result.state.world.knowledge].learnedDay).toBe(2);
+  });
+
+  it('accepts fixed future dates as authored data but rejects them when the consequence is committed', () => {
+    const authored = { ...offer('future-date'), completionConsequences: {
+      event: { id: 'future-event' as EventId, dayNumber: 1, summary: 'A future event.', personIds: [INITIAL_PERSON_ID], institutionIds: [] },
+      datePolicies: { event: { kind: 'fixed' as const, dayNumber: 3 } },
+    } };
+    let state = transitionGame(createInitialGameState(), { type: 'PRESENT_ASSIGNMENT', offer: authored }).state;
+    state = transitionGame(state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: 'future-date' as AssignmentId }).state;
+    expect(isValidSaveEnvelope(createSaveEnvelope(state, 1))).toBe(true);
+    const beforeAp = state.actionEconomy.apRemaining;
+    const failed = transitionGame(state, { type: 'COMPLETE_ASSIGNMENT', assignmentId: 'future-date' as AssignmentId });
+    expect(failed.feedback?.code).toBe('assignment-outcome-invalid');
+    expect(failed.state.actionEconomy.apRemaining).toBe(beforeAp);
+    expect(failed.state.opportunities.assignments['future-date' as AssignmentId].status).toBe('accepted');
+    expect(failed.state.world.events['future-event' as keyof typeof failed.state.world.events]).toBeUndefined();
+  });
+
+  it('rejects Challenge consequences that attempt to award Historical Progress XP', () => {
+    const invalid = challenge('xp-challenge');
+    invalid.choices[0].consequences = { historicalXp: 10 } as never;
+    const result = transitionGame(createInitialGameState(), { type: 'PRESENT_CHALLENGE', challenge: invalid });
+    expect(result.feedback?.code).toBe('challenge-invalid');
+    expect(result.state.opportunities.challenges['xp-challenge' as ChallengeId]).toBeUndefined();
+  });
+
+  it('leaves AP, active Challenge, wallet, and archive untouched when a Challenge consequence fails', () => {
+    const invalid = challenge('atomic-challenge');
+    invalid.apCost = 2;
+    invalid.choices[0].consequences = { moneyDelta: -999 };
+    const base = createInitialGameState();
+    const shown = transitionGame(base, { type: 'PRESENT_CHALLENGE', challenge: invalid });
+    expect(shown.feedback?.code).toBe('challenge-presented');
+    const beforeWallet = shown.state.world.people[INITIAL_PERSON_ID].scribal!.wallet;
+    const lowAp = { ...shown.state, actionEconomy: { ...shown.state.actionEconomy, apRemaining: 1 } };
+    const failed = transitionGame(lowAp, { type: 'RESOLVE_CHALLENGE', challengeId: 'atomic-challenge' as ChallengeId, choiceId: invalid.choices[0].id });
+    expect(failed.feedback?.code).toBe('insufficient-ap');
+    expect(failed.state.actionEconomy.apRemaining).toBe(1);
+    expect(failed.state.opportunities.challenges['atomic-challenge' as ChallengeId]).toBeDefined();
+    expect(failed.state.world.people[INITIAL_PERSON_ID].scribal!.wallet).toEqual(beforeWallet);
+    expect(failed.state.opportunities.challengeOutcomes).toHaveLength(0);
+    const consequenceFailure = transitionGame(shown.state, { type: 'RESOLVE_CHALLENGE', challengeId: 'atomic-challenge' as ChallengeId, choiceId: invalid.choices[0].id });
+    expect(consequenceFailure.feedback?.code).toBe('challenge-outcome-invalid');
+    expect(consequenceFailure.state.actionEconomy.apRemaining).toBe(shown.state.actionEconomy.apRemaining);
+    expect(consequenceFailure.state.opportunities.challenges['atomic-challenge' as ChallengeId]).toBeDefined();
+    expect(consequenceFailure.state.world.people[INITIAL_PERSON_ID].scribal!.wallet).toEqual(beforeWallet);
+    expect(consequenceFailure.state.opportunities.challengeOutcomes).toHaveLength(0);
   });
 
   it('keeps only five recent activities for the Challenge Director', () => {

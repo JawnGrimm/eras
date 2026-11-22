@@ -1221,3 +1221,37 @@ The owner approved presenting a character's internal monologue when evidence is 
 - `docs/GDD.md`: added the approved direction to §9.4 and §19.6, and recorded the remaining system-design work in §23.
 - No runtime code, character statistics, action-resolution formulas, or gameplay behavior changed.
 - No build, type-check, test suite, or deployment was run; this is a documentation-only design update.
+
+
+## 2026-11-22 — Opportunity resolution contracts
+
+**Contributor:** Chad (AI)  
+**Status:** Implementation on branch `fix/atomic-opportunity-ap-validation-followup`; awaiting CI and review
+
+### Implemented on branch
+
+- Replaced Assignment `estimatedAp` with authored `apCost`; Assignment completion and Challenge resolution charge their authored AP cost atomically. Authored costs are integers from 1–6, independent of the current day's AP allocation.
+- Assignment completion consequences now live on the Assignment offer. The completion action no longer accepts caller-supplied rewards or consequences. Compensation, Career XP, authored consequences, and AP deduction commit together or not at all.
+- Challenge choices carry authored consequences and an authored AP cost. Challenge AP deduction, consequences, removal from active state, and outcome archival commit together or not at all.
+- Added a shared, sequence-aware consequence validator used by opportunity presentation, save validation, and runtime application. It recognizes IDs created earlier in the same sequence, including Event → Record → Knowledge.
+- Added explicit date policies: fixed day or resolution day. Event occurrence, record creation, and knowledge acquisition dates are resolved independently; fixed dates are preserved and runtime rejects future dates. No implicit date stamping is used.
+- Opportunity consequences reject Historical Progress XP. Wallet changes are checked as a combined transaction so compensation cannot conceal a negative final balance.
+- Hardened the worldSocial engine validation for malformed event, record, relationship, amendment, and knowledge payloads.
+- Kept save schema version 2 on the documented assumption that production saves have empty opportunity maps because GameProvider has not been mounted. If a release persists opportunity instances, a migration is required before changing these contracts.
+- Updated the canonical GDD's Assignment and Challenge AP-resolution language.
+
+### Tests added
+
+- AP cost bounds 0, 7, and non-integer at presentation and save validation.
+- Six-AP authored opportunity remains valid when overtime reduces today's allocation to five.
+- Assignment completion AP charge, authored-only completion consequences, and once-only completion.
+- Fixed versus resolution-day date preservation and Event → Record → Knowledge sequence validation.
+- Challenge Historical Progress XP rejection.
+- Challenge AP insufficiency and consequence-failure rollback, including unchanged wallet, active Challenge, and outcome archive.
+
+### Verification still required
+
+- GitHub Actions type-check, tests, and production build on the pull request.
+- Review of the resulting diff, especially the save-version assumption and scenario-authoring date policies.
+- No local build, type-check, or test run is claimed in this entry.
+

@@ -5,7 +5,8 @@ function fail(state: GameState, code: string, message: string): TransitionResult
 function succeed(state: GameState, code: string, message: string): TransitionResult { return { state, feedback: { kind: 'success', code, message } }; }
 const validScore = (n: number) => Number.isFinite(n) && n >= 0 && n <= 100;
 function validRelationship(r: PersonRelationship) {
-  return Object.values(r.dimensions).every(validScore) && Array.isArray(r.history)
+  return !!r && typeof r === 'object' && !!r.dimensions && typeof r.dimensions === 'object'
+    && Object.values(r.dimensions).every(validScore) && Array.isArray(r.history)
     && r.history.every((h) => !!h.id && !!h.summary && Number.isInteger(h.dayNumber) && h.dayNumber >= 1);
 }
 function sourceIds(record: RecordEntry) {
@@ -51,12 +52,14 @@ export function transitionWorldAction(state: GameState, action: WorldAction): Tr
     }
     case 'CREATE_EVENT': {
       const e = action.event;
+      if (!e || typeof e !== 'object' || !Array.isArray(e.personIds) || !Array.isArray(e.institutionIds)) return fail(state, 'event-invalid', 'An event needs valid participant and institution lists.');
       if (w.events[e.id]) return fail(state, 'event-exists', 'An event with this ID already exists.');
       if (!e.id || !e.summary || !Number.isInteger(e.dayNumber) || e.dayNumber < 1 || e.dayNumber > state.calendar.dayNumber || e.personIds.some((id) => !w.people[id]) || e.institutionIds.some((id) => !w.institutions[id]) || (e.locationId && !w.locations[e.locationId])) return fail(state, 'event-invalid', 'The event has invalid identity, date, or world references.');
       return succeed({ ...state, world: { ...w, events: { ...w.events, [e.id]: e } } }, 'event-created', 'A world event was recorded.');
     }
     case 'CREATE_RECORD': {
       const r = action.record;
+      if (!r || typeof r !== 'object') return fail(state, 'record-invalid', 'A record payload is required.');
       if (state.records.entries[r.id]) return fail(state, 'record-exists', 'A record with this ID already exists.');
       const sourceList = Array.isArray(r.sources) ? r.sources : [];
       const sourceIds = new Set(sourceList.map((s) => s.id));
@@ -77,6 +80,7 @@ export function transitionWorldAction(state: GameState, action: WorldAction): Tr
     }
     case 'AMEND_RECORD': {
       const r = state.records.entries[action.recordId], a = action.amendment;
+      if (!a || typeof a !== 'object') return fail(state, 'amendment-invalid', 'An amendment payload is required.');
       if (!r) return fail(state, 'record-missing', 'This record does not exist.');
       const existingSources = sourceIds(r);
       const addedList = Array.isArray(a.sourcesAdded) ? a.sourcesAdded : [];
@@ -99,10 +103,11 @@ export function transitionWorldAction(state: GameState, action: WorldAction): Tr
     }
     case 'GRANT_KNOWLEDGE': {
       const k = action.knowledge;
+      if (!k || typeof k !== 'object' || !k.holder || !k.subject) return fail(state, 'knowledge-invalid', 'Knowledge needs an explicit holder and subject.');
       if (w.knowledge[k.id]) return fail(state, 'knowledge-exists', 'This knowledge entry already exists.');
-      const holder = k.holder.kind === 'person' ? !!w.people[k.holder.id] : !!w.institutions[k.holder.id];
-      const subject = k.subject.kind === 'event' ? !!w.events[k.subject.id] : !!state.records.entries[k.subject.id];
-      if (!k.id || !holder || !subject || !Number.isInteger(k.learnedDay) || k.learnedDay < 1 || k.learnedDay > state.calendar.dayNumber || (k.sourcePersonId && !w.people[k.sourcePersonId])) return fail(state, 'knowledge-invalid', 'Knowledge must identify an existing holder and subject, a plausible basis, and a valid date.');
+      const holder = k.holder.kind === 'person' ? !!w.people[k.holder.id] : k.holder.kind === 'institution' ? !!w.institutions[k.holder.id] : false;
+      const subject = k.subject.kind === 'event' ? !!w.events[k.subject.id] : k.subject.kind === 'record' ? !!state.records.entries[k.subject.id] : false;
+      if (!k.id || !holder || !subject || !['direct-involvement','testimony','received-copy','consulted-record','public-disclosure','other'].includes(k.basis) || !Number.isInteger(k.learnedDay) || k.learnedDay < 1 || k.learnedDay > state.calendar.dayNumber || (k.sourcePersonId && !w.people[k.sourcePersonId])) return fail(state, 'knowledge-invalid', 'Knowledge must identify an existing holder and subject, a plausible basis, and a valid date.');
       return succeed({ ...state, world: { ...w, knowledge: { ...w.knowledge, [k.id]: k } } }, 'knowledge-granted', 'The information was added only to the specified holder’s knowledge.');
     }
   }
