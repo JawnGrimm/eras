@@ -1042,3 +1042,40 @@ The family desk remains an established family heirloom and legacy object, but a 
 - `docs/GDD.md`: revised the Executive Summary, Section 3.2, and Section 16 to establish connected-NPC succession, candidate choice subject to circumstances, the current-era restart when no successor is available, and the distinction between professional continuity and bloodline continuity. Revised Remaining Design Work items 9–10 to clarify unresolved continuity carriers and restart consequences.
 - `README.md`: added the approved succession direction to the core design summary.
 - No runtime code, save schema, numerical balance, or gameplay behavior changed.
+
+
+## 2026-11-21 — Clarification: player continuity is not character succession
+
+**Contributor:** Chad (AI)  
+**Status:** Approved design clarification; supersedes the no-successor fallback in the preceding succession decision
+
+The owner clarified the fundamental distinction: the player is not the player character. The player experiences history through the act of writing and through the lives and work of successive scribal characters. Individual people die; the player's historical journey continues.
+
+### Approved principle
+
+- A player character's death ends that individual's life and playable role. It is not a game over, player failure, or reason to restart the era.
+- The player continues by taking up another existing scribal NPC in the same historical period.
+- The NPC must have an established connection to the former character and their professional world. Connections may be personal, institutional, or professional; this is not unrestricted selection of any scribe in the world.
+- The next character need not be an heir, family member, apprentice, or equal in professional standing. The player may inhabit a low-ranking or inexperienced scribe.
+- The new character retains their own skills, personality, relationships, professional history, affiliations, obligations, possessions, and circumstances. Their abilities determine the player's new starting position; the former character's progress is not copied onto them.
+- The transition does not rewind the calendar, reset the era, or erase the world's ongoing history. The player enters the same historical period as it currently exists.
+- The game should not manufacture a designated heir or create a replacement NPC solely to rescue the player.
+
+This supersedes the prior proposal that lack of an eligible successor should send the player to the beginning of the current era as a new character. There is no succession-failure state: the player continues through another connected scribal NPC of potentially much lower standing.
+
+### Family desk
+
+The family desk remains a distinct family heirloom and workspace object, not the player or a required vessel of player continuity. It is not automatically transferred to every character the player inhabits. Access depends on the current character's own relationships, household, location, and circumstances. Its item and upgrade design remains in Section 17.
+
+### Still open
+
+- How and when a player character leaves play.
+- How connected scribal NPC candidates are presented and selected.
+- How candidate circumstances and availability are communicated.
+- The interface and pacing of the transition.
+
+### Repository changes
+
+- `docs/GDD.md`: renamed and rewrote Section 16 around player continuity through successive characters; clarified the player/character distinction in the Executive Summary and Section 3.2; removed the era-restart fallback; revised Remaining Design Work items 9–10.
+- `README.md`: replaced the generational-succession summary with the approved player-continuity principle.
+- No runtime code, save schema, numerical balance, or gameplay behavior changed.
