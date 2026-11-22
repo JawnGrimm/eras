@@ -1,6 +1,6 @@
 import { CORE_SKILL_IDS } from './ids';
 import type { AttributeId, SkillId } from './ids';
-import type { GameState, OpportunityConsequences, SaveEnvelope, ScribalCharacterState } from './types';
+import type { GameState, OpportunityConsequences, SaveEnvelope, ScribalCharacterState, WorkProgress } from './types';
 import { validateOpportunityConsequences } from './opportunityValidation';
 
 export const SAVE_KEY = 'scribe_game_v2';
@@ -97,6 +97,28 @@ function isAssertion(value: unknown, sourceIds: Set<string>): boolean {
   return isObject(value) && typeof value.id === 'string' && !!value.id && typeof value.text === 'string' && !!value.text
     && RECORD_CLASSES.includes(value.classification as typeof RECORD_CLASSES[number])
     && Array.isArray(value.sourceIds) && value.sourceIds.every((id) => typeof id === 'string' && sourceIds.has(id));
+}
+
+function isWorkProgress(value: unknown): value is WorkProgress {
+  if (!isObject(value) || !['active','submitted','completed','abandoned'].includes(value.status as string)
+    || !stringArray(value.acquiredEvidence) || new Set(value.acquiredEvidence).size !== value.acquiredEvidence.length
+    || !stringArray(value.examinedEvidence) || new Set(value.examinedEvidence).size !== value.examinedEvidence.length
+    || value.examinedEvidence.some((id) => !value.acquiredEvidence.includes(id))
+    || !Number.isInteger(value.workApSpentToday) || (value.workApSpentToday as number) < 0 || (value.workApSpentToday as number) > 7
+    || typeof value.rewardGranted !== 'boolean' || !stringArray(value.completedActionIds)
+    || new Set(value.completedActionIds).size !== value.completedActionIds.length
+    || !isObject(value.scenarioData) || !Number.isInteger(value.submissionCount) || (value.submissionCount as number) < 0) return false;
+  if (value.provisionContract !== undefined && (!isObject(value.provisionContract)
+    || !Number.isInteger(value.provisionContract.provisionsPerQualifiedWorkday)
+    || (value.provisionContract.provisionsPerQualifiedWorkday as number) < 0
+    || !Number.isInteger(value.provisionContract.minimumWorkApPerDay)
+    || (value.provisionContract.minimumWorkApPerDay as number) < 1
+    || (value.provisionContract.minimumWorkApPerDay as number) > 6)) return false;
+  if (value.lastAssessment !== undefined && (!isObject(value.lastAssessment)
+    || !['accepted','revise','rejected'].includes(value.lastAssessment.outcome as string)
+    || typeof value.lastAssessment.summary !== 'string' || !value.lastAssessment.summary
+    || !Number.isInteger(value.lastAssessment.assessedDay) || (value.lastAssessment.assessedDay as number) < 1)) return false;
+  return true;
 }
 
 export function isValidGameState(value: unknown): value is GameState {
@@ -239,7 +261,11 @@ export function isValidGameState(value: unknown): value is GameState {
   return finiteNonNegative(value.historicalProgression.historicalXp) && Array.isArray(value.historicalProgression.completedWorks)
     && isObject(value.opportunities.assignments) && isObject(value.opportunities.challenges)
     && (value.works.activeWorkId === null || typeof value.works.activeWorkId === 'string')
-    && isObject(value.works.progress) && Array.isArray(value.records.permanentOutcomes)
+    && isObject(value.works.progress)
+    && Object.entries(value.works.progress).every(([id, progress]) => !!id && isWorkProgress(progress))
+    && (value.works.activeWorkId === null || (isObject(value.works.progress[value.works.activeWorkId])
+      && (value.works.progress[value.works.activeWorkId] as WorkProgress).status === 'active'))
+    && Array.isArray(value.records.permanentOutcomes)
     && Array.isArray(value.journal.notices);
 }
 export function createSaveEnvelope(state: GameState, revision: number, savedAt = new Date().toISOString()): SaveEnvelope {
