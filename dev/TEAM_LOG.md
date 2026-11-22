@@ -480,3 +480,64 @@ The condition catalog, modifier values, stacking limits if any, duration rules, 
 
 - `docs/GDD.md`: added the character-condition principles under Section 3.4 and clarified the remaining character-system design work.
 - No runtime code, save schema, numerical balance, or gameplay behavior changed.
+
+## 2026-11-21 — Decision: establish equipment and workspace principles
+
+**Contributor:** Chad (AI)  
+**Status:** Approved design baseline
+
+The owner approved the initial equipment principles and authorized the corresponding GitHub update. This records the agreed organization and effects of player equipment and desk improvements; it does not define a complete item catalog or numerical balance.
+
+### Separate player and desk inventories
+
+- The player and family desk have separate inventories.
+- Items and upgrades for either may be acquired through the same world sources, such as merchants, artisans, institutions, patrons, and professional contacts.
+- The player inventory represents personal equipment and carried possessions. The desk inventory represents its components, installed improvements, and stored materials.
+- The interface may be visual, but should remain straightforward: clearly labeled buttons and item lists, not a spatial grid, drag-and-drop system, or inventory-management minigame.
+
+### Player equipment and carrying
+
+The current player equipment categories are:
+
+- Clothing: headwear, torso garments, and footwear.
+- Hands and tools: left-hand and right-hand use; some objects may require both hands.
+- Necklace.
+- Two accessory choices, accommodating rings, bracelets, armbands, or compatible combinations.
+- Satchel / pack for carried tools, supplies, and possessions.
+
+Carrying capacity is weight-based, not based on inventory cells or a fixed item count. The player may exceed normal capacity. Overburdening is permitted and produces contextual consequences, especially for movement, travel, and sustained physical effort; it should not automatically penalize unrelated actions.
+
+### Family desk components
+
+The desk has three principal components:
+
+1. Writing surface / top.
+2. Storage.
+3. Construction.
+
+The desk remains a persistent family heirloom and workspace. Its improvements can be acquired from the same sources as player equipment. The desk retains its previously approved generational and era-transition behavior.
+
+### Equipment effects
+
+Equipment modifies particular actions contextually rather than directly increasing underlying character attributes or skills. Three broad benefit types are established:
+
+1. **Performance bonuses** — improve particular actions.
+2. **Capability unlocks** — make additional actions or approaches available.
+3. **Information access** — reveal details, references, or useful information otherwise unavailable or harder to obtain.
+
+An item may provide multiple kinds of benefit. Effects depend on the action and circumstances and should complement, not replace, character skills and specializations.
+
+### Condition and durability
+
+Equipment may deteriorate through use and may require repair or replacement. Wear should be gradual where historically and mechanically appropriate and grounded in material, construction, use, and circumstances. Specific incidents may also cause damage.
+
+Durability should create meaningful care and replacement decisions, not constant maintenance busywork. Not every item requires durability tracking; item types may warrant different treatment.
+
+### Still open
+
+The detailed item catalog, weights, carrying-capacity values, overburdening thresholds and effects, durability and repair rules, quality levels, acquisition costs, and era-specific equipment progression remain open. No numerical values, item statistics, or runtime behavior were approved.
+
+### Repository changes
+
+- `docs/GDD.md`: expanded Section 17 to record separate player and desk inventories, shared acquisition sources, the player equipment categories, the desk's three components, weight-based carrying and permitted overburdening, contextual equipment effects, and appropriate durability/repair principles. Updated Remaining Design Work item 22.
+- No runtime code, save schema, numerical balance, or gameplay behavior changed.
