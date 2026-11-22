@@ -130,6 +130,8 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
     || !isObject(value.world) || !isObject(value.historicalProgression) || !isObject(value.opportunities)
     || !isObject(value.works) || !isObject(value.works.progress) || !isObject(value.records) || !isObject(value.journal)) return false;
   const calendar = value.calendar, economy = value.actionEconomy, player = value.player, world = value.world, works = value.works;
+  const workProgressMap = works.progress;
+  if (!isObject(workProgressMap)) return false;
   if (typeof calendar.eraId !== 'string' || !finiteNonNegative(calendar.dayNumber) || !Number.isInteger(calendar.dayNumber)
     || calendar.dayNumber < 1 || typeof calendar.displayDate !== 'string') return false;
   if ((economy.dailyApAllocation !== 5 && economy.dailyApAllocation !== 6) || !finiteNonNegative(economy.apRemaining)
@@ -264,18 +266,18 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
   }
   return finiteNonNegative(value.historicalProgression.historicalXp) && stringArray(value.historicalProgression.completedWorks)
     && new Set(value.historicalProgression.completedWorks).size === value.historicalProgression.completedWorks.length
-    && value.historicalProgression.completedWorks.every((id) => isObject(works.progress[id])
+    && value.historicalProgression.completedWorks.every((id) => isObject(workProgressMap[id])
       && (works.progress[id] as WorkProgress).status === 'completed')
     && isObject(value.opportunities.assignments) && isObject(value.opportunities.challenges)
     && (works.activeWorkId === null || typeof works.activeWorkId === 'string')
-    && isObject(works.progress)
-    && Object.entries(works.progress).every(([id, progress]) => !!id && isWorkProgress(progress)
+    && isObject(workProgressMap)
+    && Object.entries(workProgressMap).every(([id, progress]) => !!id && isWorkProgress(progress)
       && !!workCatalog[id] && workCatalog[id].id === id
       && workCatalog[id].validateScenarioData((progress as WorkProgress).scenarioData)
       && (progress as WorkProgress).acquiredEvidence.every((evidenceId) => workCatalog[id].evidence.some((item) => item.id === evidenceId))
       && (progress as WorkProgress).completedActionIds.every((actionId) => workCatalog[id].actions.some((item) => item.id === actionId)))
-    && (works.activeWorkId === null || (isObject(works.progress[works.activeWorkId])
-      && (works.progress[works.activeWorkId] as WorkProgress).status === 'active'))
+    && (works.activeWorkId === null || (isObject(workProgressMap[works.activeWorkId])
+      && (workProgressMap[works.activeWorkId] as WorkProgress).status === 'active'))
     && Array.isArray(value.records.permanentOutcomes)
     && Array.isArray(value.journal.notices);
 }
