@@ -21,6 +21,8 @@ function addScribe(state: GameState, id: PersonId, options: {
     affiliations: options.affiliations ?? [],
     scribal: {
       careerXp: 0,
+      cumulativeShortageStress: 0,
+      obligations: [],
       wallet: { money: 0, provisions: 0, shortageWorkdays: 0 },
       skills: {},
       attributes: {},
