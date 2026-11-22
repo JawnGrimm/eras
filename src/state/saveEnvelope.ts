@@ -400,7 +400,9 @@ function normalizeNorthBayWorldBaseline(parsed: unknown): unknown {
 function normalizeInstitutionalMatters(parsed: unknown): unknown {
  if (!isObject(parsed) || !isObject(parsed.state) || !isObject(parsed.state.world) || !isObject(parsed.state.world.institutions)) return parsed;
  const state = parsed.state, world = state.world as Record<string, unknown>, day = isObject(state.calendar) && Number.isInteger(state.calendar.dayNumber) ? state.calendar.dayNumber as number : 1;
- const matters: Record<string, any> = isObject(world.matters) ? { ...world.matters } : {}, institutions: Record<string, any> = { ...world.institutions };
+ const existingMatters = world.matters;
+ const matters: Record<string, unknown> = isObject(existingMatters) ? { ...existingMatters } : {};
+ const institutions: Record<string, unknown> = { ...world.institutions };
  const records = isObject(state.records) && isObject(state.records.entries) ? Object.values(state.records.entries) : [];
  const roofRecord = records.find((r) => isObject(r) && typeof r.title === 'string' && r.title.includes('North-Bay Roof Inspection')) as any;
  for (const [institutionId, raw] of Object.entries(institutions)) { if (!isObject(raw) || !Array.isArray(raw.activeMatters)) continue; const active: string[] = [];
