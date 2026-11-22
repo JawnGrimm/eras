@@ -498,9 +498,11 @@ function normalizeLegacyTutorialProgression(
 }
 
 function normalizeLegacyStarterAssignments(parsed: unknown): unknown {
-  if (!isObject(parsed) || !isObject(parsed.state) || !isObject(parsed.state.opportunities)
-    || !isObject(parsed.state.opportunities.assignments)) return parsed;
-  const opportunities = parsed.state.opportunities;
+  if (!isObject(parsed) || !isObject(parsed.state)) return parsed;
+  const state = parsed.state;
+  if (!isObject(state.opportunities)) return parsed;
+  const opportunities = state.opportunities;
+  if (!isObject(opportunities.assignments)) return parsed;
   const assignments = { ...opportunities.assignments };
   const legacyIds = new Set([
     'assignment-storehouse-copy-check',
@@ -516,7 +518,7 @@ function normalizeLegacyStarterAssignments(parsed: unknown): unknown {
     changed = true;
   }
   return changed
-    ? { ...parsed, state: { ...parsed.state, opportunities: { ...opportunities, assignments } } }
+    ? { ...parsed, state: { ...state, opportunities: { ...opportunities, assignments } } }
     : parsed;
 }
 
