@@ -1,6 +1,6 @@
 import { CORE_SKILL_IDS } from './ids';
 import type { AttributeId, SkillId } from './ids';
-import type { GameState, SaveEnvelope, ScribalCharacterState } from './types';
+import type { GameState, OpportunityConsequences, SaveEnvelope, ScribalCharacterState } from './types';
 import { validateOpportunityConsequences } from './opportunityValidation';
 
 export const SAVE_KEY = 'scribe_game_v2';
@@ -202,8 +202,8 @@ export function isValidGameState(value: unknown): value is GameState {
       || !Array.isArray(offer.context.who) || !stringArray(offer.context.responsibility) || !stringArray(offer.context.provenance)
       || !isObject(offer.requiredSkills) || Object.entries(offer.requiredSkills).some(([skill, level]) => !CORE_SKILL_IDS.includes(skill as SkillId) || !Number.isInteger(level) || (level as number) < 1 || (level as number) > 10)
       || !['routine','demanding','critical'].includes(offer.difficulty as string) || !Number.isInteger(offer.apCost) || (offer.apCost as number) < 1 || (offer.apCost as number) > 6
-      || !!validateOpportunityConsequences(offer.completionConsequences as GameState['opportunities'] extends never ? never : import('./types').OpportunityConsequences | undefined, opportunityContext, 'authoring')
-      || !!validateOpportunityConsequences(offer.cancellationConsequences as import('./types').OpportunityConsequences | undefined, opportunityContext, 'authoring')
+      || !!validateOpportunityConsequences(offer.completionConsequences as OpportunityConsequences | undefined, opportunityContext, 'authoring')
+      || !!validateOpportunityConsequences(offer.cancellationConsequences as OpportunityConsequences | undefined, opportunityContext, 'authoring')
       || !isObject(offer.compensation) || !finiteNonNegative(offer.compensation.money) || !finiteNonNegative(offer.compensation.provisions)
       || !finiteNonNegative(offer.careerXpReward) || !finiteNonNegative(offer.offeredDay) || !Number.isInteger(offer.offeredDay)
       || !finiteNonNegative(offer.expiresDay) || !Number.isInteger(offer.expiresDay) || (offer.expiresDay as number) <= (offer.offeredDay as number)
@@ -234,7 +234,7 @@ export function isValidGameState(value: unknown): value is GameState {
       || new Set(challenge.choices.filter(isObject).map((choice) => choice.id)).size !== challenge.choices.length
       || challenge.choices.some((choice) => !isObject(choice) || typeof choice.id !== 'string' || !choice.id
         || typeof choice.label !== 'string' || !choice.label || typeof choice.description !== 'string' || !choice.description
-        || !!validateOpportunityConsequences(choice.consequences as import('./types').OpportunityConsequences | undefined, opportunityContext, 'authoring'))) return false;
+        || !!validateOpportunityConsequences(choice.consequences as OpportunityConsequences | undefined, opportunityContext, 'authoring'))) return false;
   }
   return finiteNonNegative(value.historicalProgression.historicalXp) && Array.isArray(value.historicalProgression.completedWorks)
     && isObject(value.opportunities.assignments) && isObject(value.opportunities.challenges)
