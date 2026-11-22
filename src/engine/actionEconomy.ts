@@ -309,7 +309,7 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
       const activeContractExists = Object.values(state.works.progress).some((item) =>
         item.status === 'active' && !!item.provisionContract);
       const contractQualified = !!contractProgress?.provisionContract;
-      const contractProvision = contractQualified ? contractProgress.provisionContract.provisionsPerQualifiedWorkday : 0;
+      const contractProvision = contractQualified ? (contractProgress?.provisionContract?.provisionsPerQualifiedWorkday ?? 0) : 0;
       const workContractProvisionReason = contractQualified
         ? 'qualified_workday' as const
         : activeContractExists
