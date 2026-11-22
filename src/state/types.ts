@@ -103,8 +103,16 @@ export interface OpportunityActivity {
   dayNumber: number; kind: OpportunityActivityKind; employerKey: string; category: string; commodity?: string;
   assignmentId: AssignmentId; lapsedDuringMandatoryWork?: boolean;
 }
+export type AuthoredDatePolicy = { kind: 'fixed'; dayNumber: number } | { kind: 'resolution_day' };
+export interface OpportunityDatePolicies {
+  event?: AuthoredDatePolicy;
+  record?: AuthoredDatePolicy;
+  knowledge?: Record<string, AuthoredDatePolicy>;
+}
 export interface OpportunityConsequences {
   moneyDelta?: number; provisionsDelta?: number; careerXp?: number;
+  /** Separate dates for event occurrence, record creation, and knowledge acquisition. */
+  datePolicies?: OpportunityDatePolicies;
   relationships?: Array<{ fromId: PersonId; toId: PersonId; changes: Partial<RelationshipDimensions>; summary: string }>;
   institutionalStanding?: Array<{ institutionId: InstitutionId; delta: number }>;
   event?: WorldEvent; record?: RecordEntry; knowledge?: KnowledgeEntry[];
