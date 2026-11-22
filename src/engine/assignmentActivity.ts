@@ -81,7 +81,7 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
     classification: 'inferred' as const, sourceIds: ['source-roof-inspection'],
   });
   if (unsupportedCertification) assertions.push({ id: 'assertion-unsupported-certification',
-    text: draft.finding === 'repair_appears_sound' ? 'The report certifies that the roof repair appears sound despite the absence of a physical inspection of the roof and shaded beam socket.' : 'The report presents the repair as complete without the physical inspection required to support that conclusion.',
+    text: draft.finding === 'repair_appears_sound' ? 'The report certifies that the roof repair appears sound despite the absence of a physical inspection of the roof and shaded beam socket.' : draft.finding === 'repair_incomplete' ? 'The report concludes that the repair is incomplete without citing the physical inspection needed to support that conclusion.' : 'The report presents the repair as complete without the physical inspection required to support that conclusion.',
     classification: 'disputed' as const, sourceIds: ['source-player-report'],
   });
   if (draft.responsibilityClaim === 'dudu') assertions.push({
