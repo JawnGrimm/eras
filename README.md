@@ -14,7 +14,7 @@ The GDD is the canonical design reference for this repository. The current appli
 - **Challenges** are optional narrative scenarios. They may award Career XP and scenario-specific consequences, but never Historical Progress XP.
 - **Works** are mandatory, substantial historical undertakings and the sole ordinary source of Historical Progress XP.
 - The player's personal economy has exactly two tracked resources: **money and provisions**. Money uses an era-appropriate currency name without conversion of the underlying value at era transitions; provisions represent food and sustenance. Other goods may appear in the world or inventory without becoming additional personal resource balances.
-- The GDD specifies **six shared Action Points per Workday**. The stabilization branch implements the six-AP daily budget; Work-action costs and evidence-retrieval steps are still being reconciled against the Storehouse Reckoning specification.
+- The GDD specifies **six shared Action Points per Workday**, and the current application on `main` implements a six-AP daily budget. Work-action costs and evidence-retrieval behavior still require reconciliation between the active Storehouse component and the GDD specification.
 - The design calls for immediate notifications, a persistent event log, and a selective **daily morning report** so players can follow consequential developments without monitoring every part of the world continuously. This is a design direction, not yet a runtime feature.
 
 ## Project status
