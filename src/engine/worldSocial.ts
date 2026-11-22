@@ -39,7 +39,7 @@ export function transitionWorldAction(state: GameState, action: WorldAction): Tr
     case 'CREATE_APPOINTMENT': {
       const a = action.appointment;
       if (w.appointments[a.id]) return fail(state, 'appointment-exists', 'An appointment with this ID already exists.');
-      if (!w.people[a.personId] || !w.institutions[a.institutionId] || !a.title || !a.authorityScope.length || !Number.isInteger(a.startDay) || a.startDay < 1 || (a.endDay !== undefined && (!Number.isInteger(a.endDay) || a.endDay < a.startDay))) return fail(state, 'appointment-invalid', 'An appointment needs an existing person and institution, an office, an authority scope, and valid dates.');
+      if (!a.id || !w.people[a.personId] || !w.institutions[a.institutionId] || !a.title || !Array.isArray(a.authorityScope) || !a.authorityScope.length || !Array.isArray(a.responsibilities) || !Number.isInteger(a.startDay) || a.startDay < 1 || a.startDay > state.calendar.dayNumber || (a.endDay !== undefined && (!Number.isInteger(a.endDay) || a.endDay < a.startDay || a.endDay > state.calendar.dayNumber))) return fail(state, 'appointment-invalid', 'An appointment needs an existing person and institution, an office, an authority scope, and valid dates.');
       return succeed({ ...state, world: { ...w, appointments: { ...w.appointments, [a.id]: a } } }, 'appointment-created', a.title + ' was recorded as an appointment.');
     }
     case 'END_APPOINTMENT': {
@@ -52,22 +52,49 @@ export function transitionWorldAction(state: GameState, action: WorldAction): Tr
     case 'CREATE_EVENT': {
       const e = action.event;
       if (w.events[e.id]) return fail(state, 'event-exists', 'An event with this ID already exists.');
-      if (!e.id || !e.summary || !Number.isInteger(e.dayNumber) || e.dayNumber < 1 || e.personIds.some((id) => !w.people[id]) || e.institutionIds.some((id) => !w.institutions[id]) || (e.locationId && !w.locations[e.locationId])) return fail(state, 'event-invalid', 'The event has invalid identity, date, or world references.');
+      if (!e.id || !e.summary || !Number.isInteger(e.dayNumber) || e.dayNumber < 1 || e.dayNumber > state.calendar.dayNumber || e.personIds.some((id) => !w.people[id]) || e.institutionIds.some((id) => !w.institutions[id]) || (e.locationId && !w.locations[e.locationId])) return fail(state, 'event-invalid', 'The event has invalid identity, date, or world references.');
       return succeed({ ...state, world: { ...w, events: { ...w.events, [e.id]: e } } }, 'event-created', 'A world event was recorded.');
     }
     case 'CREATE_RECORD': {
       const r = action.record;
       if (state.records.entries[r.id]) return fail(state, 'record-exists', 'A record with this ID already exists.');
+      const sourceList = Array.isArray(r.sources) ? r.sources : [];
+      const sourceIds = new Set(sourceList.map((s) => s.id));
+      const validSources = Array.isArray(r.sources) && sourceList.every((s) => !!s.id && !!s.description
+        && (s.kind === 'person' ? !!w.people[s.sourceId as PersonId]
+          : s.kind === 'institution' ? !!w.institutions[s.sourceId as InstitutionId]
+          : s.kind === 'event' ? !!w.events[s.sourceId as EventId]
+          : s.kind === 'material' || s.kind === 'other'));
       if (!r.id || !r.title || !w.people[r.authorPersonId] || (r.institutionId && !w.institutions[r.institutionId])
-        || r.sources.some((s) => (s.kind === 'person' && !w.people[s.sourceId as PersonId]) || (s.kind === 'institution' && !w.institutions[s.sourceId as InstitutionId]) || (s.kind === 'event' && !w.events[s.sourceId as EventId]))
-        || r.assertions.some((a) => a.sourceIds.some((id) => !r.sources.some((s) => s.id === id)))) return fail(state, 'record-invalid', 'The record needs a valid author, provenance, and assertion references.');
+        || !Number.isInteger(r.createdDay) || r.createdDay < 1 || r.createdDay > state.calendar.dayNumber
+        || !Array.isArray(r.sources) || !Array.isArray(r.assertions) || !Array.isArray(r.uncertaintyLimits)
+        || !Array.isArray(r.amendments) || r.amendments.length !== 0
+        || !validSources || sourceIds.size !== r.sources.length
+        || new Set(r.assertions.map((a) => a.id)).size !== r.assertions.length
+        || r.assertions.some((a) => !a.id || !a.text || !Array.isArray(a.sourceIds) || a.sourceIds.some((id: string) => !sourceIds.has(id))))
+        return fail(state, 'record-invalid', 'A new record needs a valid date, author, unique provenance, supported assertions, and no pre-existing amendments.');
       return succeed({ ...state, records: { ...state.records, entries: { ...state.records.entries, [r.id]: r } } }, 'record-created', r.title + ' was entered into the archive.');
     }
     case 'AMEND_RECORD': {
       const r = state.records.entries[action.recordId], a = action.amendment;
       if (!r) return fail(state, 'record-missing', 'This record does not exist.');
-      if (!a.id || r.amendments.some((x) => x.id === a.id) || !w.people[a.authorPersonId] || !a.reason || !Number.isInteger(a.dayNumber) || a.dayNumber < r.createdDay || a.dayNumber > state.calendar.dayNumber
-        || a.assertionsAdded.some((x) => x.sourceIds.some((id) => !sourceIds(r).has(id) && !a.sourcesAdded.some((s) => s.id === id)))) return fail(state, 'amendment-invalid', 'The amendment must be new, dated, authored, and supported by existing or newly added sources.');
+      const existingSources = sourceIds(r);
+      const addedList = Array.isArray(a.sourcesAdded) ? a.sourcesAdded : [];
+      const addedIds = new Set(addedList.map((s) => s.id));
+      const validAddedSources = Array.isArray(a.sourcesAdded) && addedList.every((s) => !!s.id && !!s.description && !existingSources.has(s.id)
+        && (s.kind === 'person' ? !!w.people[s.sourceId as PersonId]
+          : s.kind === 'institution' ? !!w.institutions[s.sourceId as InstitutionId]
+          : s.kind === 'event' ? !!w.events[s.sourceId as EventId]
+          : s.kind === 'material' || s.kind === 'other'));
+      const allSourceIds = new Set([...existingSources, ...addedIds]);
+      const assertionIds = new Set([...r.assertions.map((x) => x.id), ...r.amendments.flatMap((x) => x.assertionsAdded.map((y) => y.id))]);
+      if (!a.id || r.amendments.some((x) => x.id === a.id) || !w.people[a.authorPersonId] || !a.reason
+        || !Number.isInteger(a.dayNumber) || a.dayNumber < r.createdDay || a.dayNumber > state.calendar.dayNumber
+        || !Array.isArray(a.sourcesAdded) || !Array.isArray(a.assertionsAdded) || !Array.isArray(a.uncertaintyLimitsAdded)
+        || typeof a.note !== 'string' || !validAddedSources || addedIds.size !== a.sourcesAdded.length
+        || new Set(a.assertionsAdded.map((x) => x.id)).size !== a.assertionsAdded.length
+        || a.assertionsAdded.some((x) => !x.id || assertionIds.has(x.id) || !x.text || !Array.isArray(x.sourceIds)
+          || x.sourceIds.some((id: string) => !allSourceIds.has(id)))) return fail(state, 'amendment-invalid', 'The amendment must be new, dated, authored, and supported by unique valid existing or newly added sources.');
       return succeed({ ...state, records: { ...state.records, entries: { ...state.records.entries, [r.id]: { ...r, amendments: [...r.amendments, a] } } } }, 'record-amended', 'An amendment was appended; the original record remains intact.');
     }
     case 'GRANT_KNOWLEDGE': {

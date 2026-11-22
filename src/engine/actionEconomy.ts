@@ -1,6 +1,7 @@
 import type { CareerProgressionPolicy, GameAction, GameState, TransitionResult } from '../state/types';
 import { transitionCareerAction } from './careerProgression';
 import { transitionWorldAction } from './worldSocial';
+import { settleAssignmentOffers, transitionOpportunityAction } from './opportunities';
 
 function feedback(kind: 'success' | 'error' | 'info', code: string, message: string) {
   return { kind, code, message } as const;
@@ -30,6 +31,14 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
     case 'PURCHASE_SKILL_LEVEL':
     case 'SET_PRIMARY_SPECIALIZATION':
       return transitionCareerAction(state, action, careerPolicy);
+    case 'PRESENT_ASSIGNMENT':
+    case 'ACCEPT_ASSIGNMENT':
+    case 'DECLINE_ASSIGNMENT':
+    case 'CANCEL_ASSIGNMENT':
+    case 'COMPLETE_ASSIGNMENT':
+    case 'PRESENT_CHALLENGE':
+    case 'RESOLVE_CHALLENGE':
+      return transitionOpportunityAction(state, action);
     case 'SET_INSTITUTIONAL_STANDING':
     case 'SET_RELATIONSHIP':
     case 'CREATE_INSTITUTION':
@@ -88,8 +97,9 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
           shortageWorkdays,
         },
       };
+      const withExpiredOffers = settleAssignmentOffers(state);
       let next = {
-        ...state,
+        ...withExpiredOffers,
         calendar: { ...state.calendar, dayNumber: state.calendar.dayNumber + 1 },
         actionEconomy: {
           dailyApAllocation: economy.nextDayApPenalty ? 5 as const : 6 as const,
@@ -98,8 +108,8 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
           nextDayApPenalty: false,
         },
         world: {
-          ...state.world,
-          people: { ...state.world.people, [person.id]: { ...person, scribal: updatedScribal } },
+          ...withExpiredOffers.world,
+          people: { ...withExpiredOffers.world.people, [person.id]: { ...person, scribal: updatedScribal } },
         },
       };
       if (hadProvision) {
