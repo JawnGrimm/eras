@@ -98,7 +98,7 @@ export function ProductionPeopleAndInstitutions() {
             <section><h4 className="text-sm font-semibold">Institutional authority</h4><ul className="mt-1 list-inside list-disc text-sm text-stone-700">{institution.authority.map((item, index) => <li key={index}>{item}</li>)}</ul></section>
           </div>
           <section className="mt-4"><h4 className="text-sm font-semibold">Active matters</h4>
-            {institution.activeMatters.length ? <ul className="mt-1 list-inside list-disc text-sm text-stone-700">{institution.activeMatters.map((item, index) => <li key={index}>{item}</li>)}</ul> : <p className="mt-1 text-xs text-stone-500">No active matters recorded.</p>}
+            {institution.activeMatters.length ? <ul className="mt-1 list-inside list-disc text-sm text-stone-700">{institution.activeMatters.map((matterId) => <li key={matterId}>{state.world.matters[matterId]?.summary ?? matterId}</li>)}</ul> : <p className="mt-1 text-xs text-stone-500">No active matters recorded.</p>}
           </section>
           <section className="mt-4"><h4 className="text-sm font-semibold">Appointments and delegated office scopes</h4>
             {appointments.length ? <div className="mt-2 space-y-2">{appointments.map((appointment) => <div key={appointment.id} className="rounded bg-stone-50 p-3">
