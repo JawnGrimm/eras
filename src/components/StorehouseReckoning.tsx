@@ -78,6 +78,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
   };
 
   const setField = (field: RecordField, value: number | undefined) => {
+    if (value !== undefined && (!Number.isFinite(value) || value < 0)) return;
     onUpdateWorkState({ reconciliationDraft: { ...record, [field]: value }, assessment: null, seniorDisposition: null });
   };
   const toggleCitation = (id: string) => {
@@ -153,7 +154,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
   };
 
   const disposition = () => {
-    if (!assessment) return;
+    if (!assessment || state.seniorDisposition === 'returned' || isComplete) return;
     if (!canAct(1)) { onShowToast('Not enough AP remaining. The Senior Scribe’s disposition costs 1 AP.'); return; }
     if (!onConsumeBlocks(1)) {
       onShowToast('The Senior Scribe’s disposition could not be committed: AP reservation is no longer available.');
@@ -165,24 +166,18 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
       return;
     }
     if (!assessment.judgment) {
-      onUpdateWorkState({ seniorDisposition: 'account_accepted', stage: 'COMPLETED' });
+      if (!state.rewardGranted) onAwardXp(500, 15000);
+      onUpdateWorkState({ seniorDisposition: 'account_accepted', stage: 'COMPLETED', rewardGranted: true });
       onShowToast('The account is accepted, but the recommendation is not authorized. The Senior Scribe will decide what follow-up is appropriate.');
-      if (!state.rewardGranted) {
-        onAwardXp(500, 15000);
-        onUpdateWorkState({ rewardGranted: true });
-      }
       return;
     }
-    onUpdateWorkState({ seniorDisposition: 'authorized', stage: 'COMPLETED' });
+    if (!state.rewardGranted) onAwardXp(500, 15000);
+    onUpdateWorkState({ seniorDisposition: 'authorized', stage: 'COMPLETED', rewardGranted: true });
     onShowToast('The Senior Scribe accepts the work and authorizes the proportionate follow-up recommendations.');
-    if (!state.rewardGranted) {
-      onAwardXp(500, 15000);
-      onUpdateWorkState({ rewardGranted: true });
-    }
   };
 
   const revise = () => {
-    onUpdateWorkState({ assessment: null, assessmentSubmitted: true, seniorDisposition: null, revisionPasses: (state.revisionPasses ?? 0) + 1 });
+    onUpdateWorkState({ assessment: null, assessmentSubmitted: true, seniorDisposition: null });
     onShowToast('The submission is reopened. Correct the document and submit it for assessment again.');
   };
 
@@ -273,7 +268,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
       <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-3">{(Object.keys(fieldLabels) as RecordField[]).map((field) => <label key={field} className="text-xs text-stone-600 dark:text-stone-300">
         <span className="block mb-1">{fieldLabels[field]}</span><input type="number" min="0" disabled={isComplete} value={record[field] ?? ''} onChange={(event) => setField(field, event.target.value === '' ? undefined : Number(event.target.value))} className="w-full rounded-lg border border-[#D6CEBE] dark:border-stone-700 bg-white dark:bg-stone-800 px-3 py-2"/>
       </label>)}</div>
-      <div className="rounded-lg bg-[#FAF7F0] dark:bg-stone-800 p-4 text-xs space-y-1"><div className="font-semibold">Transaction context established by the records</div><p>60 measures were dispatched from the outer fields to the central storehouse. The storehouse received 60. Later, 30 usable measures were issued to the brewing-house operation under temple decree for its brewing work.</p><div className="font-semibold pt-2">What the document must make clear</div><p>Dispatch is not the same thing as physical receipt. Intake condition is not the same thing as later condition. Held stock is still physically present. A change in condition is not automatically a loss.</p></div>
+      {has('accounts') && has('intake_issue') && <div className="rounded-lg bg-[#FAF7F0] dark:bg-stone-800 p-4 text-xs space-y-1"><div className="font-semibold">Transaction context established by the records</div><p>60 measures were dispatched from the outer fields to the central storehouse. The storehouse received 60. Later, 30 usable measures were issued to the brewing-house operation under temple decree for its brewing work.</p><div className="font-semibold pt-2">What the document must make clear</div><p>Dispatch is not the same thing as physical receipt. Intake condition is not the same thing as later condition. Held stock is still physically present. A change in condition is not automatically a loss.</p></div>}
       <div className="space-y-2"><div className="text-sm font-semibold">Finding</div>
         <label className="flex gap-2 items-start text-sm"><input type="radio" name="finding" checked={state.findingRuling === 'status_change_cause_unestablished'} disabled={isComplete} onChange={() => onUpdateWorkState({ findingRuling: 'status_change_cause_unestablished', assessment: null, seniorDisposition: null })}/> <span>The records show a change in stock condition; the cause of the additional damage is not established.</span></label>
         <label className="flex gap-2 items-start text-sm"><input type="radio" name="finding" checked={state.findingRuling === 'roof_leak_reported_unproven'} disabled={isComplete || !examined.includes('ev-06')} onChange={() => onUpdateWorkState({ findingRuling: 'roof_leak_reported_unproven', assessment: null, seniorDisposition: null })}/> <span>A roof leak was reported after intake, but its exact contribution to the damage is not established. <span className="text-xs text-stone-500">(Requires E-06)</span></span></label>
@@ -294,7 +289,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
         ['Accounting',assessment.accounting,assessment.feedback.accounting],['Evidence & provenance',assessment.evidence,assessment.feedback.evidence],['Professional judgment',assessment.judgment,assessment.feedback.judgment],
       ] as const).map(([label,passed,feedback]) => <div key={label} className="rounded-lg border border-[#D6CEBE] dark:border-stone-700 p-4"><div className="flex items-center gap-2 text-sm font-semibold">{passed ? <CheckCircle2 size={16} className="text-emerald-600"/> : <AlertCircle size={16} className="text-amber-600"/>}{label}</div><p className="text-xs text-stone-600 dark:text-stone-300 mt-2">{feedback}</p></div>)}</div>
       <div className="rounded-lg bg-[#FAF7F0] dark:bg-stone-800 p-4 space-y-2"><div className="flex items-center gap-2 text-sm font-semibold"><ClipboardCheck size={16}/> Instruction from Shuruppak-ilu</div><p className="text-sm">“A record is not made reliable by making every column agree. It is reliable when each figure has a source, each movement is represented honestly, and the reader can see where certainty ends. Your recommendation is a separate matter: tell me what should be done, and show me why the records justify it.”</p><p className="text-xs text-stone-500">The assessment identifies what must be corrected. Revise the document and submit it again if the account or evidence is deficient.</p></div>
-      {!isComplete && <div className="flex flex-wrap gap-3 justify-end">{(!assessment.accounting || !assessment.evidence || !assessment.judgment) && <button onClick={revise} className="px-4 py-2 rounded-lg border border-[#D6CEBE] text-sm">Revise document</button>}<button disabled={!canAct(1)} onClick={disposition} className="px-4 py-2 rounded-lg bg-[#2B1B17] text-white text-sm disabled:opacity-40">Senior Scribe decides disposition · 1 AP</button></div>}
+      {!isComplete && <div className="flex flex-wrap gap-3 justify-end">{(!assessment.accounting || !assessment.evidence || !assessment.judgment) && <button onClick={revise} className="px-4 py-2 rounded-lg border border-[#D6CEBE] text-sm">Revise document</button>}{state.seniorDisposition !== 'returned' && <button disabled={!canAct(1)} onClick={disposition} className="px-4 py-2 rounded-lg bg-[#2B1B17] text-white text-sm disabled:opacity-40">Senior Scribe decides disposition · 1 AP</button>}</div>}
     </>)}
 
     {isComplete && section('Disposition', 'The Senior Scribe has made a decision about the submission.', <>
