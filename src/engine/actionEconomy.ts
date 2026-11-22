@@ -231,7 +231,10 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
       }
       if (!finalization || (finalization.careerXpReward !== undefined && (!Number.isFinite(finalization.careerXpReward) || finalization.careerXpReward < 0)) || (finalization.knowledge !== undefined && !Array.isArray(finalization.knowledge))
         || (finalization.retireInstitutionMatters !== undefined && (!Array.isArray(finalization.retireInstitutionMatters)
-          || finalization.retireInstitutionMatters.some((item) => !item || typeof item.institutionId !== 'string' || !item.institutionId || typeof item.matter !== 'string' || !item.matter)))) {
+          || finalization.retireInstitutionMatters.some((item) => !item || typeof item.institutionId !== 'string' || !item.institutionId || typeof item.matter !== 'string' || !item.matter)))
+        || (finalization.addInstitutionMatters !== undefined && (!Array.isArray(finalization.addInstitutionMatters)
+          || finalization.addInstitutionMatters.some((item) => !item || typeof item.institutionId !== 'string' || !item.institutionId || typeof item.matter !== 'string' || !item.matter)))
+        || (finalization.presentAssignments !== undefined && !Array.isArray(finalization.presentAssignments))) {
         return { state, feedback: feedback('error', 'work-finalization-invalid', 'The Work finalizer returned invalid rewards.') };
       }
       let next = state;
