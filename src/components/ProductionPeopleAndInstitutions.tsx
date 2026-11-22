@@ -34,7 +34,7 @@ export function ProductionPeopleAndInstitutions() {
       return to && relationship ? [{ from, to, relationship }] : [];
     }));
 
-  return <main className="mx-auto max-w-6xl space-y-6">
+  return <div className="mx-auto max-w-6xl space-y-6">
     <header>
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-800">World and social network</p>
       <h1 className="font-serif text-3xl font-semibold">People & Institutions</h1>
@@ -111,5 +111,5 @@ export function ProductionPeopleAndInstitutions() {
         </article>;
       })}
     </section>
-  </main>;
+  </div>;
 }
