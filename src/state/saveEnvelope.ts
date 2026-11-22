@@ -275,7 +275,6 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
     }
     for (const item of Array.isArray(person.commitments) ? person.commitments : []) {
       if (!isObject(item) || (item.createdDay as number) > (calendar.dayNumber as number)
-        || (item.dueDay !== undefined && (item.dueDay as number) > (calendar.dayNumber as number) + 3650)
         || (Array.isArray(item.relatedMatterIds) && item.relatedMatterIds.some((id) => !matterIds.has(String(id))))
         || (item.institutionId !== undefined && !isObject(institutions[String(item.institutionId)]))
         || !isObject(item.basis)) return false;
