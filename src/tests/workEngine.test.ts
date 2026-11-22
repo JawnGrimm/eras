@@ -22,7 +22,10 @@ const definition = defineWork<ScenarioProgress>({
     { id: E2, title: 'Later tally', source: 'Receiving official', objectiveText: 'The source records a later count.' },
     { id: E3, title: 'Unreachable record', source: 'Unknown custodian', objectiveText: 'This record is never granted.' },
   ],
-  actions: [{ id: 'retrieve-later-tally', apCost: 1, grantsEvidence: [E2] }],
+  actions: [
+    { id: 'retrieve-later-tally', apCost: 1, grantsEvidence: [E2] },
+    { id: 'configure-register', apCost: 1, prerequisites: ['retrieve-later-tally'] },
+  ],
   interpretationRules: [],
   historicalXpReward: 25,
   submissionApCost: 1,
@@ -134,6 +137,20 @@ describe('Work lifecycle and save validation', () => {
     const reRead = transitionGame(state, { type: 'EXAMINE_WORK_EVIDENCE', workId: WORK, evidenceId: E2 }, undefined, catalog);
     expect(reRead.state).toBe(state);
     expect(reRead.state.actionEconomy.apRemaining).toBe(5);
+  });
+
+  it('resolves non-evidence Work actions atomically with validated scenario data', () => {
+    let state = transitionGame(createInitialGameState(), { type: 'START_WORK', workId: WORK }, undefined, catalog).state;
+    const failed = transitionGame(state, { type: 'COMPLETE_WORK_ACTION', workId: WORK, actionId: 'configure-register',
+      scenarioData: { accepted: true, recoveryCount: 0 } }, undefined, catalog);
+    expect(failed.state).toBe(state);
+    expect(failed.state.actionEconomy.apRemaining).toBe(6);
+    state = transitionGame(state, { type: 'ACQUIRE_WORK_EVIDENCE', workId: WORK, actionId: 'retrieve-later-tally' }, undefined, catalog).state;
+    state = transitionGame(state, { type: 'COMPLETE_WORK_ACTION', workId: WORK, actionId: 'configure-register',
+      scenarioData: { accepted: true, recoveryCount: 0 } }, undefined, catalog).state;
+    expect(state.actionEconomy.apRemaining).toBe(4);
+    expect(state.works.progress[WORK].completedActionIds).toEqual(['retrieve-later-tally', 'configure-register']);
+    expect(state.works.progress[WORK].scenarioData.accepted).toBe(true);
   });
 
   it('keeps failed submissions recoverable and grants Historical XP exactly once on completion', () => {
