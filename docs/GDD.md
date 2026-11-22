@@ -158,7 +158,7 @@ The wider world develops through the interaction of **social causality** and **o
 
 Meaningful professional situations should therefore connect human interests to consequential activity. Social interactions without practical stakes risk becoming isolated relationship mechanics; operational systems without people risk becoming abstract bookkeeping. Neither dimension should be treated as a separate substitute for the other.
 
-This principle calls for a **bounded, persistent simulation**, not unrestricted simulation of every person or transaction. Important people and consequential processes should retain enough state to produce intelligible future developments. Routine or temporary activity may be represented more simply when its details do not affect future obligations, relationships, disputes, information access, or plausible work. The exact simulation architecture, scope, update frequency, and numerical rules remain open design work.
+This is a game, not an attempt to simulate every person or transaction. Important people and consequential processes should retain enough continuity to produce intelligible future developments and meaningful choices. Routine or temporary activity may be represented simply, summarized, or left in the background when its details do not affect future obligations, relationships, disputes, information access, opportunities, or plausible work. The design should spend detail where it creates interesting play, not pursue exhaustive simulation for its own sake. The exact technical architecture, scope, update frequency, and numerical rules remain open design work.
 
 
 ### 2.11 The player's knowledge is situated
@@ -1091,9 +1091,28 @@ Refusing, reporting, negotiating, or accepting may lead to different results dep
 
 ## 15. People, Institutions, and Social Network
 
-### 15.1 Individual relationships
+### 15.1 NPC agency, roles, and individual relationships
 
-Named NPCs are important recurring characters. The game should track individual relationships and relevant history rather than relying only on broad faction scores.
+NPCs are people with interests and lives of their own, not characters waiting for the player to activate them. Relevant NPCs can pursue objectives, meet obligations, respond to changing circumstances, and interact with other people without the player's involvement. Their actions may change relationships, institutional circumstances, ongoing work, opportunities, and the player's interests. The player has agency, but no veto over everyone else's decisions.
+
+Agency should be proportionate to an NPC's importance to play. Important recurring characters may have long-term ambitions alongside immediate objectives; other relevant NPCs may need only immediate concerns and obligations. Long-term ambitions can be reinforced, delayed, redirected, or undermined by events and competing priorities. NPC goals can conflict with one another, including within the same person.
+
+Independent action must remain causally understandable rather than arbitrary. A consequential decision should make sense in light of the NPC's motivations, circumstances, capabilities, knowledge, relationships, resources, and authority. NPCs should not routinely act on information they could not plausibly obtain or exercise powers they do not possess. The player may know an action is coming, discover it afterward, or remain unaware until later evidence or interaction brings it to light; the game should not grant advance warning merely because an event affects the player.
+
+This is a game, not an attempt to simulate every person's routine. Preserve and present NPC developments when they meaningfully affect people, obligations, relationships, institutions, opportunities, or ongoing work. Routine activity can be summarized or left in the background when its detail has no meaningful consequence for play.
+
+When defining an NPC's role, keep three things distinct:
+- **Social identity:** who the person is, what they want, whom they know, and what matters to them.
+- **Institutional position:** their affiliations, responsibilities, authority, and limitations.
+- **Current involvement:** what they are doing in a particular situation and what they know about it.
+
+Responsibility for an outcome does not automatically confer authority over every action that contributes to it. Likewise, authority does not prove that a person acted, and participation does not by itself establish fault. Duties, decision rights, practical capacity, knowledge, and accountability should be considered separately when they matter to a playable situation. Historical job titles and designations must be interpreted in context; an attested designation is not automatically a fully understood job description or a reason to create a permanent NPC type.
+
+Named NPCs are important recurring characters. The game should track individual relationships and relevant history rather than relying only on broad faction scores. Relationships are directional: each person has their own perspective on the other, and those perspectives need not match. The player may trust someone who distrusts them, or respect someone who dislikes them.
+
+A relationship can contain several qualities at once. Trust, respect, affection, resentment, rivalry, familiarity, and obligation are not mutually exclusive states and should not be collapsed into one shared friendship value. A merchant may dislike the player yet still fulfill a tithe or other obligation; a personal relationship can influence how someone approaches an obligation without automatically erasing or overriding it. Conversely, fulfilling an obligation does not prove affection, loyalty, or trust.
+
+Relationships develop through significant shared events or through accumulated meaningful interactions. One consequential experience can substantially change a relationship; repeated meaningful contact can gradually establish familiarity, trust, respect, resentment, or other qualities. Routine exchanges do not all need permanent individual memories. Preserve the experiences that explain a consequential relationship or later decision.
 
 Relationship information can include:
 - Trust, affinity, resentment, or professional respect.
@@ -1374,7 +1393,7 @@ The following details require further design before they can be treated as fixed
 5. Rank titles and commission-tier naming across eras, meaningful unlocks and responsibilities for ranks 5–7, and rank-based pay adjustments and performance bonuses.
 6. The complete money and provisions economy: prices, availability, storage/spoilage, daily sustenance and shortage consequences, era-appropriate currency names and food presentation.
 7. The stress scale, ceiling, thresholds, crisis timing, recovery rates, and fully priced recovery options; define how crisis interventions are paced and how assistance affects Stress and relationships. Shortage consequences must remain recoverable.
-8. The complete NPC relationship model and how relationships persist through successors, institutions, and geographically separated eras; define how positive relationships can provide crisis support and how repeated assistance affects those relationships.
+8. Complete the NPC relationship and agency model: determine how directional, multi-dimensional relationships are represented and changed; how significant events and accumulated meaningful interactions shape them; how relationships persist through successors, institutions, and geographically separated eras; how positive relationships can provide crisis support; and how repeated assistance affects those relationships. The principles that NPCs act independently, pursue immediate objectives and (for important characters) longer-term ambitions, and may affect the player without the player's veto are established. Detailed decision rules, memory scope, presentation, and runtime mechanics remain open.
 9. The additional continuity carriers that should complement the established family line and inherited desk across long historical jumps: professional house, archive, institution, scribal tradition, or a deliberately combined model.
 10. Family lifespan, succession, inheritance beyond the desk, and generational transition rules. Family continuity and the inherited desk are established design directions; the detailed mechanics remain open.
 11. Era pacing in actual in-game days, including the number and expected duration of Works, optional activity density, and authored calendar transitions.
