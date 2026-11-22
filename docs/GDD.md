@@ -999,9 +999,11 @@ There is no universal daily employment ration. A player who performs no paid wor
 
 ### 12.3 Daily sustenance
 
-The current proposed rule is one unit of provisions per in-game day. Provisions are deducted at daily settlement. Other foods and beverages are not separate mandatory daily deductions.
+The player normally consumes one unit of provisions at the end of each Workday. Other foods and beverages are not separate mandatory daily deductions.
 
-If the player lacks the required provisions, the game records a shortage rather than creating a negative balance or granting an automatic free resource. The exact stress consequence, recovery schedule, stress scale, and stress ceiling remain under design. A shortage rule must not create an automatic, indefinitely compounding stress ratchet that makes recovery impossible.
+A player may complete **two consecutive Workdays without provisions before suffering a shortage penalty**. If the player still has no provisions at the end of a third consecutive Workday, shortage consequences begin. The shortage count advances by Workday, not by calendar time, and resets when the player consumes provisions. Time that passes without a Workday being completed does not advance the count.
+
+If the player lacks provisions, the game records the shortage rather than creating a negative balance or granting an automatic free resource. The specific penalty, recovery schedule, stress scale, and stress ceiling remain under design. Shortage consequences must be bounded and recoverable; they must not create an automatic, indefinitely compounding stress ratchet that makes recovery impossible.
 
 ### 12.4 Recovery from hardship
 
