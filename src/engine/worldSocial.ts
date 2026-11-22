@@ -71,7 +71,7 @@ export function transitionWorldAction(state: GameState, action: WorldAction): Tr
         || !Array.isArray(r.amendments) || r.amendments.length !== 0
         || !validSources || sourceIds.size !== r.sources.length
         || new Set(r.assertions.map((a) => a.id)).size !== r.assertions.length
-        || r.assertions.some((a) => !a.id || !a.text || !Array.isArray(a.sourceIds) || a.sourceIds.some((id) => !sourceIds.has(id))))
+        || r.assertions.some((a) => !a.id || !a.text || !Array.isArray(a.sourceIds) || a.sourceIds.some((id: string) => !sourceIds.has(id))))
         return fail(state, 'record-invalid', 'A new record needs a valid date, author, unique provenance, supported assertions, and no pre-existing amendments.');
       return succeed({ ...state, records: { ...state.records, entries: { ...state.records.entries, [r.id]: r } } }, 'record-created', r.title + ' was entered into the archive.');
     }
@@ -94,7 +94,7 @@ export function transitionWorldAction(state: GameState, action: WorldAction): Tr
         || typeof a.note !== 'string' || !validAddedSources || addedIds.size !== a.sourcesAdded.length
         || new Set(a.assertionsAdded.map((x) => x.id)).size !== a.assertionsAdded.length
         || a.assertionsAdded.some((x) => !x.id || assertionIds.has(x.id) || !x.text || !Array.isArray(x.sourceIds)
-          || x.sourceIds.some((id) => !allSourceIds.has(id)))) return fail(state, 'amendment-invalid', 'The amendment must be new, dated, authored, and supported by unique valid existing or newly added sources.');
+          || x.sourceIds.some((id: string) => !allSourceIds.has(id)))) return fail(state, 'amendment-invalid', 'The amendment must be new, dated, authored, and supported by unique valid existing or newly added sources.');
       return succeed({ ...state, records: { ...state.records, entries: { ...state.records.entries, [r.id]: { ...r, amendments: [...r.amendments, a] } } } }, 'record-amended', 'An amendment was appended; the original record remains intact.');
     }
     case 'GRANT_KNOWLEDGE': {
