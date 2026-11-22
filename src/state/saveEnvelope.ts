@@ -202,8 +202,8 @@ export function isValidGameState(value: unknown): value is GameState {
       || !Array.isArray(offer.context.who) || !stringArray(offer.context.responsibility) || !stringArray(offer.context.provenance)
       || !isObject(offer.requiredSkills) || Object.entries(offer.requiredSkills).some(([skill, level]) => !CORE_SKILL_IDS.includes(skill as SkillId) || !Number.isInteger(level) || (level as number) < 1 || (level as number) > 10)
       || !['routine','demanding','critical'].includes(offer.difficulty as string) || !Number.isInteger(offer.apCost) || (offer.apCost as number) < 1 || (offer.apCost as number) > 6
-      || !!validateOpportunityConsequences(offer.completionConsequences as OpportunityConsequences | undefined, opportunityContext, 'authoring')
-      || !!validateOpportunityConsequences(offer.cancellationConsequences as OpportunityConsequences | undefined, opportunityContext, 'authoring')
+      || (offer.completionConsequences !== undefined && (!isObject(offer.completionConsequences) || !!validateOpportunityConsequences(offer.completionConsequences as OpportunityConsequences, opportunityContext, 'authoring')))
+      || (offer.cancellationConsequences !== undefined && (!isObject(offer.cancellationConsequences) || !!validateOpportunityConsequences(offer.cancellationConsequences as OpportunityConsequences, opportunityContext, 'authoring')))
       || !isObject(offer.compensation) || !finiteNonNegative(offer.compensation.money) || !finiteNonNegative(offer.compensation.provisions)
       || !finiteNonNegative(offer.careerXpReward) || !finiteNonNegative(offer.offeredDay) || !Number.isInteger(offer.offeredDay)
       || !finiteNonNegative(offer.expiresDay) || !Number.isInteger(offer.expiresDay) || (offer.expiresDay as number) <= (offer.offeredDay as number)
