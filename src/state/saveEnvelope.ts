@@ -106,7 +106,7 @@ function isWorkProgress(value: unknown): value is WorkProgress {
     || !stringArray(value.examinedEvidence) || new Set(value.examinedEvidence).size !== value.examinedEvidence.length
     || value.examinedEvidence.some((id) => !value.acquiredEvidence.includes(id))
     || !Number.isInteger(value.workApSpentToday) || (value.workApSpentToday as number) < 0 || (value.workApSpentToday as number) > 7
-    || typeof value.rewardGranted !== 'boolean' || !stringArray(value.completedActionIds)
+    || typeof value.rewardGranted !== 'boolean' || (value.status === 'completed') !== value.rewardGranted || !stringArray(value.completedActionIds)
     || new Set(value.completedActionIds).size !== value.completedActionIds.length
     || !isObject(value.scenarioData) || !Number.isInteger(value.submissionCount) || (value.submissionCount as number) < 0) return false;
   if (value.provisionContract !== undefined && (!isObject(value.provisionContract)
@@ -259,7 +259,10 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
         || typeof choice.label !== 'string' || !choice.label || typeof choice.description !== 'string' || !choice.description
         || !isObject(choice.consequences) || !!validateOpportunityConsequences(choice.consequences as OpportunityConsequences | undefined, opportunityContext, 'authoring'))) return false;
   }
-  return finiteNonNegative(value.historicalProgression.historicalXp) && Array.isArray(value.historicalProgression.completedWorks)
+  return finiteNonNegative(value.historicalProgression.historicalXp) && stringArray(value.historicalProgression.completedWorks)
+    && new Set(value.historicalProgression.completedWorks).size === value.historicalProgression.completedWorks.length
+    && value.historicalProgression.completedWorks.every((id) => isObject(value.works.progress[id])
+      && (value.works.progress[id] as WorkProgress).status === 'completed')
     && isObject(value.opportunities.assignments) && isObject(value.opportunities.challenges)
     && (value.works.activeWorkId === null || typeof value.works.activeWorkId === 'string')
     && isObject(value.works.progress)
