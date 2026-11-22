@@ -541,3 +541,49 @@ The detailed item catalog, weights, carrying-capacity values, overburdening thre
 
 - `docs/GDD.md`: expanded Section 17 to record separate player and desk inventories, shared acquisition sources, the player equipment categories, the desk's three components, weight-based carrying and permitted overburdening, contextual equipment effects, and appropriate durability/repair principles. Updated Remaining Design Work item 22.
 - No runtime code, save schema, numerical balance, or gameplay behavior changed.
+
+
+## 2026-11-21 — Decision: define skill advancement and personality development
+
+**Contributor:** Chad (AI)  
+**Status:** Approved design baseline
+
+The owner approved the following character-development rules during the character-system design discussion. These decisions extend the existing character framework; they do not define numerical balancing or runtime implementation.
+
+### Attributes
+
+- The six attributes remain broad underlying capabilities, distinct from learned skills.
+- Attributes are established at character creation and are relatively stable; they are not a routine XP-progression track.
+- They may change only through significant life events or lasting circumstances.
+
+### Skills and professional development
+
+- Each of the six core skills tracks its own experience independently.
+- Activities award experience to the skills they genuinely use. More demanding or complex work may award more; routine repetition contributes but should not produce expertise by itself.
+- Formal study and mentorship can develop skills without requiring repeated Assignments.
+- Skills use a numerical scale from **1 to 10**:
+  - 1–2: Novice
+  - 3–4: Developing
+  - 5–6: Competent
+  - 7–8: Advanced
+  - 9–10: Expert
+- Skill-specific experience establishes eligibility for advancement; it does not automatically raise the skill. The player chooses whether to spend Career XP to improve an eligible skill.
+- **Career XP is the shared investment currency for professional development.** It may be spent on eligible skill improvements, specialization development, and other professional development options as those systems are defined. Relevant experience, qualifications, and accomplishments determine eligibility; Career XP alone does not substitute for relevant practice or study.
+- Exact experience thresholds, XP costs, and advancement pacing remain open.
+
+### Personality traits
+
+- The player chooses **one or two initial personality traits** during character creation.
+- Additional traits emerge through meaningful experiences, significant events, and patterns of behavior. A single isolated action should not automatically assign a lasting trait; development should not rely on arbitrary rolls or simple activity counters.
+- Traits influence behavioral tendencies, decisions, relationships, and relevant action outcomes.
+- Traits may strengthen, weaken, or change as the character develops. Changes follow meaningful experiences rather than free swapping.
+- Choices that conflict with established traits may create internal tension or contribute to Stress where appropriate. This adopts the broad character-centered principle, not Crusader Kings III's exact Stress implementation.
+
+### Still open
+
+The detailed trait catalog, emergence and change conditions, mechanical effects, skill-experience thresholds, Career XP costs, specialization qualification and advancement costs, and complete action-resolution model remain undecided. No numerical costs, trait list, scoring formula, or runtime behavior was approved.
+
+### Repository changes
+
+- `docs/GDD.md`: expanded Section 3.4 with stable attributes, independent skill-experience tracks, the 1–10 skill scale, Career XP investment and eligibility principles, and initial/emergent/changeable personality traits. Updated Remaining Design Work item 22.
+- No runtime code, save schema, numerical balance, or gameplay behavior changed.
