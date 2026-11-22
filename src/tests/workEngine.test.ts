@@ -9,6 +9,7 @@ import { defineWork, validateWorkDefinition } from '../works/workDefinition';
 
 const E1 = 'evidence-1' as EvidenceId;
 const E2 = 'evidence-2' as EvidenceId;
+const E3 = 'evidence-3' as EvidenceId;
 const WORK = 'test-work' as WorkId;
 
 interface ScenarioProgress extends Record<string, unknown> { accepted: boolean; recoveryCount: number; }
@@ -19,6 +20,7 @@ const definition = defineWork<ScenarioProgress>({
   evidence: [
     { id: E1, title: 'Initial account', source: 'Storehouse tablet', objectiveText: 'The source records an opening quantity.' },
     { id: E2, title: 'Later tally', source: 'Receiving official', objectiveText: 'The source records a later count.' },
+    { id: E3, title: 'Unreachable record', source: 'Unknown custodian', objectiveText: 'This record is never granted.' },
   ],
   actions: [{ id: 'retrieve-later-tally', apCost: 1, grantsEvidence: [E2] }],
   interpretationRules: [],
@@ -92,7 +94,7 @@ describe('typed Work definitions and validation', () => {
           { kind: 'any', predicates: [] },
           { kind: 'skillAtLeast', skillId: 'unknown' as never, level: 11 },
           { kind: 'attributeAtMost', attributeId: 'unknown' as never, value: Number.NaN },
-          { kind: 'examinedAll', evidenceIds: ['unreachable' as EvidenceId] },
+          { kind: 'examinedAll', evidenceIds: [E3] },
         ] },
       }],
     });
@@ -100,6 +102,8 @@ describe('typed Work definitions and validation', () => {
     expect(codes).toContain('unknown-action-prerequisite');
     expect(codes).toContain('unreachable-action');
     expect(codes).toContain('unknown-rule-evidence');
+    expect(codes).toContain('unreachable-predicate-evidence');
+    expect(codes).toContain('empty-rule-text');
     expect(codes).toContain('empty-predicate-group');
     expect(codes).toContain('unknown-skill');
     expect(codes).toContain('invalid-skill-threshold');
