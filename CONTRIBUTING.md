@@ -1,0 +1,83 @@
+# Contributing to Scribe of Eras
+
+Thank you for considering a contribution. Scribe of Eras is actively open to outside contributions, including bug fixes, tests, documentation, accessibility improvements, historical research, and carefully scoped feature work.
+
+Please read this guide before opening a pull request.
+
+## Start with the project design
+
+- The canonical Game Design Document is [docs/GDD.md](docs/GDD.md).
+- The current code is the authority for what is implemented; the GDD is the authority for approved design.
+- The Storehouse Reckoning is a proof of concept, not the complete game or a universal template for every future Work.
+- If implementation and the GDD disagree, don't assume the implementation is intentional. Raise the discrepancy and follow the GDD unless the project owner approves a design change.
+- A proposed gameplay or systems change that alters approved design should include the corresponding GDD update. Discussion in developer notes alone does not approve a design change.
+
+Before substantial work, search existing issues and pull requests. For a large feature, architectural change, or design change, open an issue first so the scope and approach can be discussed before time is spent implementing it.
+
+## Ways to contribute
+
+Contributions are welcome in areas such as:
+
+- Reproducing and fixing bugs.
+- Improving automated tests and validation.
+- Improving accessibility, usability, and responsive behavior.
+- Clarifying documentation and developer workflows.
+- Historical research, source notes, and corrections.
+- Implementing approved gameplay and technical designs.
+- Proposing new mechanics or revisions to existing design.
+
+Historical claims should include credible sources where practical. Distinguish primary evidence, scholarly interpretation, and speculation. Do not present uncertain reconstructions as established fact.
+
+## Development workflow
+
+1. Fork the repository and create a focused branch from `main`.
+2. Install dependencies with `npm install`.
+3. Make a focused change that preserves unrelated working behavior.
+4. Add or update tests for changed behavior where appropriate.
+5. Run the relevant checks:
+   - `npm run lint` — TypeScript check (`tsc --noEmit`).
+   - `npm test` — automated Vitest suite.
+   - `npm run build` — Vite production build.
+6. Open a pull request against `main`, describing the change and its verification.
+
+Do not claim a check passed unless you ran it and observed the result. If you cannot run a check, say so in the pull request.
+
+## Design and implementation expectations
+
+- Prefer small, integrated changes over broad rewrites.
+- Avoid placeholder systems, disconnected demonstrations, and UI that implies mechanics which do not actually work.
+- Preserve the distinction between Assignments / Commissions, Challenges, and mandatory Works.
+- Do not introduce new player-wallet resources or change progression rules without checking the GDD.
+- Keep historical evidence, interpretation, judgment, and later assessment distinct.
+- Preserve provenance and uncertainty in historical records.
+- Do not add runtime generative-AI behavior; the approved design prohibits it.
+- Treat people, relationships, institutions, and locations as meaningful systems rather than decorative text.
+- Keep data validation and save compatibility in mind when changing persistent state.
+
+If you find a conflict between requirements, code, or existing documentation, describe it in the issue or pull request rather than silently choosing a direction.
+
+## Pull requests
+
+A useful pull request should include:
+
+- The problem being solved and why it matters.
+- A concise description of the implementation.
+- Relevant issue links.
+- Any GDD sections affected and whether the GDD was updated.
+- Tests and checks run, with results.
+- Screenshots or a short recording for meaningful UI changes.
+- Known limitations, migration concerns, and follow-up work.
+
+Keep pull requests focused. Maintainers may ask for revisions, request that a change be split, or decline work that conflicts with approved design or project direction.
+
+## Issues and discussion
+
+Use the issue templates for bug reports and feature or design proposals. For questions or uncertain ideas, explain the problem and context before prescribing a solution. Please don't use issues to report security vulnerabilities; follow [SECURITY.md](SECURITY.md).
+
+## Public-domain dedication
+
+Scribe of Eras is dedicated to the public domain under [CC0 1.0 Universal](LICENSE). The intention is that anyone, anywhere, may copy, modify, build upon, redistribute, and use the project's original code, writing, game design, research notes, and other original contributions for any purpose, including commercial purposes, without needing permission or providing attribution.
+
+By submitting a contribution, you represent that you have the right to dedicate the submitted material to the public domain under CC0, and you agree that your contribution is submitted under CC0 1.0 Universal. Do not submit material you do not own or have authority to dedicate. If a contribution includes third-party material, identify it clearly and provide its source and applicable license; do not imply that CC0 applies to material whose rights are held by someone else.
+
+CC0 does not waive trademark or patent rights, and it cannot remove privacy, publicity, or other rights belonging to third parties. The project name, logos, and other marks are not granted as endorsements or trademarks by this dedication. Existing third-party dependencies, fonts, libraries, images, and other assets remain under their own terms. See the [CC0 legal code](https://creativecommons.org/publicdomain/zero/1.0/legalcode) for the full terms.

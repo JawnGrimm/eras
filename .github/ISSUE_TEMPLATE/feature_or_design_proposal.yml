@@ -1,0 +1,33 @@
+name: Feature or design proposal
+description: Propose a gameplay, systems, interface, or project improvement.
+title: "[Proposal]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For substantial changes, search existing issues first. The canonical design reference is [docs/GDD.md](../../docs/GDD.md). A proposal is not an approved design change.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or opportunity
+      description: What player, contributor, or project need does this address?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed approach
+      description: Describe the idea. Alternatives are welcome.
+    validations:
+      required: true
+  - type: textarea
+    id: design_impact
+    attributes:
+      label: GDD and design impact
+      description: Which approved systems or GDD sections might this affect? Does it appear to conflict with current design?
+  - type: textarea
+    id: context
+    attributes:
+      label: Supporting context
+      description: Examples, historical sources, references, mockups, or related issues.
