@@ -74,6 +74,10 @@ Keep pull requests focused. Maintainers may ask for revisions, request that a ch
 
 Use the issue templates for bug reports and feature or design proposals. For questions or uncertain ideas, explain the problem and context before prescribing a solution. Please don't use issues to report security vulnerabilities; follow [SECURITY.md](SECURITY.md).
 
-## Licensing
+## Public-domain dedication
 
-The repository's license has not yet been selected. Until a license is added, the project remains subject to applicable default copyright rules; public availability does not itself grant permission to reuse, redistribute, or modify its contents. Please do not assume that code, writing, art, or other assets are open-licensed. The project owner will clarify licensing before accepting contributions under a chosen license.
+Scribe of Eras is dedicated to the public domain under [CC0 1.0 Universal](LICENSE). The intention is that anyone, anywhere, may copy, modify, build upon, redistribute, and use the project's original code, writing, game design, research notes, and other original contributions for any purpose, including commercial purposes, without needing permission or providing attribution.
+
+By submitting a contribution, you represent that you have the right to dedicate the submitted material to the public domain under CC0, and you agree that your contribution is submitted under CC0 1.0 Universal. Do not submit material you do not own or have authority to dedicate. If a contribution includes third-party material, identify it clearly and provide its source and applicable license; do not imply that CC0 applies to material whose rights are held by someone else.
+
+CC0 does not waive trademark or patent rights, and it cannot remove privacy, publicity, or other rights belonging to third parties. The project name, logos, and other marks are not granted as endorsements or trademarks by this dedication. Existing third-party dependencies, fonts, libraries, images, and other assets remain under their own terms. See the [CC0 legal code](https://creativecommons.org/publicdomain/zero/1.0/legalcode) for the full terms.
