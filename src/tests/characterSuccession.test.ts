@@ -34,7 +34,7 @@ function withPriorHistory(state: GameState): GameState {
     records: {
       entries: {
         [priorRecordId]: {
-          id: 'record-prior-work', createdDay: 4, authorPersonId: INITIAL_PERSON_ID,
+          id: priorRecordId, createdDay: 4, authorPersonId: INITIAL_PERSON_ID,
           title: 'Earlier storehouse account', sources: [], assertions: [],
           uncertaintyLimits: ['The surviving copy is incomplete.'], amendments: [],
         },
@@ -121,7 +121,7 @@ describe('character departure and succession lifecycle', () => {
     expect(restored?.state.player.currentCharacterId).toBe(apprenticeId);
     expect(restored?.state.calendar.dayNumber).toBe(8);
     expect(restored?.state.historicalProgression).toEqual({ historicalXp: 275, completedWorks: [priorWorkId] });
-    expect(restored?.state.records.entries['record-prior-work']).toBeDefined();
+    expect(restored?.state.records.entries[priorRecordId]).toBeDefined();
     expect(restored?.state.characterTransitions).toHaveLength(1);
 
     // Former-character commitments remain assigned to that person and do not consume the successor's slots.

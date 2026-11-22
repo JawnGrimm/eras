@@ -178,8 +178,8 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
       || new Set(pendingSuccession.candidateIds as string[]).size !== (pendingSuccession.candidateIds as string[]).length
       || (pendingSuccession.departureKind === 'death' ? active.alive !== false : active.alive !== true)) return false;
     const discovered = rankSuccessorCandidates(value as unknown as GameState).map((candidate) => candidate.personId);
-    if (discovered.length !== pendingSuccession.candidateIds.length
-      || discovered.some((id, index) => id !== pendingSuccession.candidateIds[index])
+    if (discovered.length !== (pendingSuccession.candidateIds as string[]).length
+      || discovered.some((id, index) => id !== (pendingSuccession.candidateIds as string[])[index])
       || (discovered.length > 0) !== (pendingSuccession.status === 'awaiting_selection')) return false;
   }
   if (value.characterTransitions !== undefined && (!Array.isArray(value.characterTransitions)
