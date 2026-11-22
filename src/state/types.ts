@@ -101,7 +101,7 @@ export interface AssignmentActivityAggregate {
 export type OpportunityActivityKind = 'presented' | 'accepted' | 'declined' | 'lapsed' | 'completed' | 'cancelled';
 export interface OpportunityActivity {
   dayNumber: number; kind: OpportunityActivityKind; employerKey: string; category: string; commodity?: string;
-  assignmentId: AssignmentId;
+  assignmentId: AssignmentId; lapsedDuringMandatoryWork?: boolean;
 }
 export interface OpportunityConsequences {
   moneyDelta?: number; provisionsDelta?: number; careerXp?: number;
