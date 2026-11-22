@@ -134,15 +134,20 @@ describe('character departure and succession lifecycle', () => {
 
   it('records a no-successor terminal state without inventing a person', () => {
     const state = createInitialGameState();
+    const survivingPeople = {
+      [INITIAL_PERSON_ID]: state.world.people[INITIAL_PERSON_ID],
+      [colleagueId]: state.world.people[colleagueId],
+    };
     const disconnected = {
       ...state,
       world: {
         ...state.world,
-        people: {
-          [INITIAL_PERSON_ID]: state.world.people[INITIAL_PERSON_ID],
-          [colleagueId]: state.world.people[colleagueId],
-        },
+        people: survivingPeople,
         relationships: {},
+        matters: Object.fromEntries(Object.entries(state.world.matters).map(([id, matter]) => [id, {
+          ...matter,
+          involvedPersonIds: (matter.involvedPersonIds ?? []).filter((personId) => !!survivingPeople[personId]),
+        }])),
       },
     };
     const result = transitionGame(disconnected, { type: 'BEGIN_CHARACTER_DEPARTURE', departureKind: 'departure' }, undefined, priorWorkCatalog);
