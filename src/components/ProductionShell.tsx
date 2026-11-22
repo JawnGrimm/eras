@@ -32,7 +32,7 @@ function ProductionHeader() {
   </header>;
 }
 
-function ProductionShellContent() {
+export function ProductionShellContent() {
   const game = useGame();
   const [screen, setScreen] = useState<Screen>('workday');
   const [settlement, setSettlement] = useState<DaySettlement | null>(null);
