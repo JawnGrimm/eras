@@ -362,9 +362,9 @@ The current cumulative thresholds are retained as **legacy balancing targets**, 
 These values remain provisional until the required Works and their awards are authored and playtested together. The progression invariant is more important than preserving the current numbers: the required Works for a transition must award exactly the XP increment needed for that transition, with no mandatory grind. Rounder thresholds may replace this table during the next progression-balancing pass.
 
 ### 4.4 Advancing between eras
-Advancement is tied to a defined set of mandatory Works and their Historical Progress XP awards. The required Works must be completed, and their awards must bring the player to the next cumulative threshold. These conditions must never create a grind requirement beyond mandatory content.
+Advancement is tied to a defined portfolio of required Works and their Historical Progress XP awards. A period may offer several historically grounded Works, including date-based milestone invitations and smaller career-scale undertakings. The exact required combination, the extent of player choice, and how missed or declined milestone invitations are accommodated must be defined for each progression transition. Historical advancement must not depend on accepting every invitation or following one fixed sequence of authored quests.
 
-**Progression invariant:** for every era transition, the sum of the Historical Progress XP awards from that transition's required Works must equal the XP increment needed to reach the next threshold. Optional Assignments, Challenges, purchases, and repeatable actions award no Historical Progress XP. A player who completes all required Works therefore reaches the threshold without grinding optional content.
+**Progression invariant:** for every era transition, the Works designated as required for that transition must award exactly the XP increment needed to reach the next threshold. Optional Assignments, Challenges, purchases, and repeatable actions award no Historical Progress XP. A player who completes the required Work portfolio therefore reaches the threshold without grinding optional content.
 
 The in-game calendar—not Historical Progress XP—sets the date. Each completed day advances the current local date by one day. Era transitions use authored time and location transitions, including the years, generations, travel, and institutional changes required by the narrative. The number of in-game days spent in an era is determined by the Works, optional activities, and authored transitions, not by dividing XP by a yearly rate. Era pacing must be measured in playtests and is not yet fixed.
 
@@ -422,9 +422,30 @@ The Challenge Director must evaluate relevant professional patterns from compact
 
 ### 5.3 Works
 
-Works are mandatory, long-form historical undertakings that represent significant achievements in the creation, preservation, organization, reproduction, dissemination, or use of knowledge.
+Works are historically grounded professional undertakings through which the player participates in the creation, preservation, organization, reproduction, dissemination, or use of knowledge. They remain the main historical progression layer, but they do not all need to be enormous projects or follow one universal structure.
 
-Works are the main progression layer of the game. They are not simply longer Assignments, extended Challenges, or a checklist of inventions. Each Work must be specified as playable content before it is approved for production.
+The original concept remains important: Works should help the player experience what writing has made possible and how people have used it across history. Real historical developments provide a strong source of subject matter and narrative direction. A Work may be inspired by a documented historical undertaking, a broader development in recordkeeping or knowledge, or a plausible professional activity within the period. Historical grounding does not require the game to claim that its fictional player or characters performed a documented historical person's actual work.
+
+Works can vary substantially in scale and presentation:
+- **Historical milestone Works** may be larger, authored, quest-like experiences built around a significant historical development or undertaking. These are opportunities for scripted characters, particular institutions, consequential choices, and historically specific gameplay.
+- **Career-scale Works** may be smaller and more numerous professional undertakings that let the player contribute to the period's wider work of recording, organizing, preserving, interpreting, and circulating knowledge.
+- Some Works may be fully authored; others may use established scenario structures with authored historical context and characters. A hybrid is appropriate where it creates better play.
+
+These are useful content distinctions, not separate mechanics or a fixed taxonomy. A Work's size, stages, and interaction should follow its subject. Later Works must not simply repeat the Storehouse Reckoning's accounting workflow with different materials.
+
+#### Date-based historical invitations
+
+Some historically significant Works become available as **date-based invitations**. History establishes when an undertaking or opportunity becomes relevant; the player's career and circumstances shape whether and how they can participate.
+
+1. **Historical window:** The undertaking becomes available within an appropriate date or period. Use a precise date only where the evidence supports that precision; otherwise use a broader availability window.
+2. **Invitation and discovery:** The player learns of the opportunity through a plausible person, institution, notice, correspondence, colleague, patron, or other channel available to the character. An invitation need not be a personal summons from an important figure.
+3. **Eligibility and access:** Skills, professional standing, relationships, institutional position, location, and current commitments may affect whether the player is invited, qualifies, or can reach the opportunity. These factors should create plausible access conditions, not arbitrary gates.
+4. **Participation:** The player undertakes the Work, potentially alongside other people, with the scale and structure appropriate to its subject.
+5. **Consequences:** The Work affects the people, institutions, records, and later opportunities involved. Completion may contribute Historical Progress XP according to the progression rules.
+
+An invitation is an opportunity, not a guarantee of participation. The player may accept, decline, miss, or become unable to pursue it; the historical world does not wait or rearrange itself. The game must not imply that the player's character personally caused a major historical development merely because they participated in a related undertaking. Where a milestone opportunity is missed or declined, the player should still have a coherent historical career and progression route through other available Works. The exact portfolio of required Works, alternative routes, and progression thresholds remains to be designed.
+
+Not every Work needs a special invitation or a major historical event. Ordinary professional opportunities and ongoing institutional needs can also provide the context for smaller Works. Works should be presented through the player's situated knowledge and plausible social or institutional connections, not as an omniscient quest feed.
 
 Every Work definition must include:
 - A historical and social context, including what is known and what is fictionalized for play.
@@ -433,17 +454,17 @@ Every Work definition must include:
 - The initial scenario state and all relevant facts.
 - The evidence available to the player, including provenance and reliability.
 - The actions the player can take, their action costs, and any prerequisites.
-- Stages with objectives, deliverables, and state changes.
+- Stages or other playable structure appropriate to the Work's scale, with objectives, deliverables, and state changes.
 - A solution space: acceptable outcomes, factual invariants, and unsupported conclusions.
-- Deterministic evaluation rules and explainable consequences.
+- Evaluation rules and explainable consequences appropriate to the scenario.
 - Recovery or correction paths for mistakes that should not permanently soft-lock the Work.
 - The Work's effect on people, institutions, records, and later play.
-- Its fixed Historical Progress XP award and any justified Career XP award.
+- Its Historical Progress XP award, if it contributes to historical progression, and any justified Career XP award.
 - A completion condition that does not depend on optional Assignments or Challenges.
 
-Works use the same daily Action Points as Assignments, study, and other substantive activities. They can span multiple days. Optional content may improve the player's information, relationships, resources, or final outcome, but the mandatory Work must remain completable without it.
+Works use the same daily Action Points as Assignments, study, and other substantive activities. They may span multiple days, but a Work's scale should not be inflated merely to occupy time. Optional content may improve the player's information, relationships, resources, or outcome, but must not become a hidden prerequisite for mandatory historical progression.
 
-The first complete Era I example is specified in Section 7. It is a vertical slice for validating the Work format, not a claim that all later Works should use identical stages or subject matter.
+The first complete Era I example is specified in Section 7. It is a vertical slice for validating one kind of Work, not a template that all later Works must follow.
 
 ### 5.4 How the layers interact
 
@@ -1401,7 +1422,7 @@ The game may represent complex technologies, institutions, and historical events
 
 The following details require further design before they can be treated as fixed mechanics:
 
-1. The exact number, structure, stages, deliverables, and XP awards of mandatory Works in Eras I–VII.
+1. The Works portfolio for Eras I–VII: identify historically grounded milestone opportunities and smaller career-scale undertakings; determine which Works are required for each era transition, how much choice the player has, how missed or declined date-based invitations are accommodated, and the appropriate scale, structure, and XP awards.
 2. Playtesting the Storehouse Reckoning: whether the recount, register-design choice, unseen transaction tests, and adoption consequences are engaging rather than procedural.
 3. The maximum active Assignment commitment count, cancellation costs, and offer-generation balance beyond the initial two-commitment / 6-AP model.
 4. The precise balance of Career XP rewards across Assignments, Challenges, Works, and study.
@@ -1450,7 +1471,7 @@ These are open design tasks, not invitations to fill gaps with arbitrary placeho
 
 *Scribe of Eras* is about the human history of making knowledge durable and useful. The player begins in Uruk, develops a professional identity, and becomes involved in the people and institutions that shape written culture.
 
-Assignments provide optional professional work. Challenges introduce optional complications and opportunities. Works are the mandatory historical layer, and they must be designed as complete sequences of player actions, evidence-based decisions, documents, validation, and consequences. The Storehouse Reckoning is the first vertical slice: the player reconciles a real institutional problem, distinguishes physical receipt from usable stock, records uncertainty honestly, and helps establish a register other people can rely on.
+Assignments provide optional professional work. Challenges introduce optional complications and opportunities. Works are the historical progression layer: a varied portfolio of historically grounded undertakings, from smaller career-scale projects to larger authored milestone experiences. Some milestone Works may be offered through date-based invitations, with availability windows appropriate to the historical evidence and access shaped by the character's career and circumstances. The player may miss or decline an invitation; history continues, and the wider Works portfolio must provide a coherent progression route. Works should be designed around the actual subject and the kind of gameplay it creates, not forced into one universal sequence or the Storehouse Reckoning template. The Storehouse Reckoning is the first vertical slice, not the model for every future Work.
 
 The daily economy of action is six shared Action Points, not a fixed number of commission slots, fixed commission count, or real-time timer. The player chooses how to divide those points among Assignments, Work progress, Challenges, study, and relationships. The Storehouse Reckoning provides one unit of provisions per active contracted Workday; provisions are the abstract daily food resource. Unaccepted offers normally expire after three in-game days, while accepted work remains active until resolved or cancelled. The player may hold at most two accepted Assignments; offers that lapse while a mandatory Work occupies the player do not count as ignored opportunities for Challenge triggers.
 
