@@ -41,6 +41,7 @@ export function createInitialGameState(): GameState {
       people: { [INITIAL_PERSON_ID]: initialPerson },
       institutions: {},
       locations: {},
+      appointments: {},
     },
     historicalProgression: { historicalXp: 0, completedWorks: [] },
     opportunities: { assignments: {}, challenges: {} },
