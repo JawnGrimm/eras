@@ -163,6 +163,9 @@ describe('Work lifecycle and save validation', () => {
     const active = transitionGame(state, { type: 'START_WORK', workId: WORK }, undefined, catalog).state;
     expect(isValidSaveEnvelope(createSaveEnvelope(active, 1), catalog)).toBe(true);
     expect(isValidSaveEnvelope(createSaveEnvelope(active, 1))).toBe(false);
+    const invalidScenario = structuredClone(createSaveEnvelope(active, 1));
+    invalidScenario.state.works.progress[WORK].scenarioData = { accepted: 'yes', recoveryCount: 0 };
+    expect(isValidSaveEnvelope(invalidScenario, catalog)).toBe(false);
     const invalid = structuredClone(envelope);
     invalid.state.works.progress[WORK] = {
       status: 'active', acquiredEvidence: [E1], examinedEvidence: [E2], workApSpentToday: 0,
