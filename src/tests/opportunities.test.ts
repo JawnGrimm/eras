@@ -177,6 +177,22 @@ describe('Assignment and Challenge foundations', () => {
     expect(result.state.world.knowledge['knowledge-authored' as keyof typeof result.state.world.knowledge].learnedDay).toBe(2);
   });
 
+  it('accepts fixed future dates as authored data but rejects them when the consequence is committed', () => {
+    const authored = { ...offer('future-date'), completionConsequences: {
+      event: { id: 'future-event', dayNumber: 1, summary: 'A future event.', personIds: [INITIAL_PERSON_ID], institutionIds: [] },
+      datePolicies: { event: { kind: 'fixed' as const, dayNumber: 3 } },
+    } };
+    let state = transitionGame(createInitialGameState(), { type: 'PRESENT_ASSIGNMENT', offer: authored }).state;
+    state = transitionGame(state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: 'future-date' as AssignmentId }).state;
+    expect(isValidSaveEnvelope(createSaveEnvelope(state, 1))).toBe(true);
+    const beforeAp = state.actionEconomy.apRemaining;
+    const failed = transitionGame(state, { type: 'COMPLETE_ASSIGNMENT', assignmentId: 'future-date' as AssignmentId });
+    expect(failed.feedback?.code).toBe('assignment-outcome-invalid');
+    expect(failed.state.actionEconomy.apRemaining).toBe(beforeAp);
+    expect(failed.state.opportunities.assignments['future-date' as AssignmentId].status).toBe('accepted');
+    expect(failed.state.world.events['future-event' as keyof typeof failed.state.world.events]).toBeUndefined();
+  });
+
   it('rejects Challenge consequences that attempt to award Historical Progress XP', () => {
     const invalid = challenge('xp-challenge');
     invalid.choices[0].consequences = { historicalXp: 10 } as never;
