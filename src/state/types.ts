@@ -221,7 +221,7 @@ export interface GameState {
     matters: Record<MatterId, InstitutionalMatter>;
   };
   historicalProgression: { historicalXp: number; completedWorks: WorkId[] };
-  opportunities: { assignments: Record<AssignmentId, AssignmentOffer>; challenges: Record<ChallengeId, ChallengeInstance>; challengeOutcomes: ChallengeOutcome[]; assignmentAggregates: Record<string, AssignmentActivityAggregate>; recentActivity: OpportunityActivity[] };
+  opportunities: { assignments: Record<AssignmentId, AssignmentOffer>; challenges: Record<ChallengeId, ChallengeInstance>; challengeOutcomes: ChallengeOutcome[]; assignmentAggregates: Record<string, AssignmentActivityAggregate>; recentActivity: OpportunityActivity[]; assignmentGeneratorLedger?: { sequence: number; lastPresentedDayByActivity: Record<string, number> } };
   works: { activeWorkId: WorkId | null; progress: Record<WorkId, WorkProgress> };
   records: {
     entries: Record<RecordId, RecordEntry>;

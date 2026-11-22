@@ -84,7 +84,7 @@ export function createInitialGameState(): GameState {
       matters: { [MATTER_IDS.tutorial]: { id: MATTER_IDS.tutorial, institutionId: STOREHOUSE_INSTITUTION_ID, kind: 'tutorial', summary: 'The Storehouse Reckoning introductory tutorial.', status: 'active', createdDay: 1 } },
     },
     historicalProgression: { historicalXp: 0, completedWorks: [] },
-    opportunities: { assignments: {}, challenges: {}, challengeOutcomes: [], assignmentAggregates: {}, recentActivity: [] },
+    opportunities: { assignments: {}, challenges: {}, challengeOutcomes: [], assignmentAggregates: {}, recentActivity: [], assignmentGeneratorLedger: { sequence: 0, lastPresentedDayByActivity: {} } },
     works: { activeWorkId: null, progress: {} },
     records: { entries: {}, permanentOutcomes: [] },
     journal: { notices: [] },

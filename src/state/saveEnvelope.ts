@@ -313,6 +313,9 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
       || typeof aggregate.category !== 'string'
       || !['presented','accepted','declined','nonWorkLapsed','completed'].every((field) => Number.isInteger(aggregate[field]) && finiteNonNegative(aggregate[field]))) return false;
   }
+  const generatorLedger = value.opportunities.assignmentGeneratorLedger;
+  if (generatorLedger !== undefined && (!isObject(generatorLedger) || !Number.isInteger(generatorLedger.sequence) || (generatorLedger.sequence as number) < 0
+    || !isObject(generatorLedger.lastPresentedDayByActivity) || Object.values(generatorLedger.lastPresentedDayByActivity).some((day) => !Number.isInteger(day) || !finiteNonNegative(day)))) return false;
   if (!Array.isArray(value.opportunities.recentActivity) || value.opportunities.recentActivity.length > 5
     || value.opportunities.recentActivity.some((entry) => !isObject(entry) || !finiteNonNegative(entry.dayNumber)
       || !['presented','accepted','declined','lapsed','completed','cancelled'].includes(entry.kind as string)
