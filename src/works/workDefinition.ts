@@ -13,6 +13,7 @@ export interface WorkActionDefinition {
   apCost: number;
   prerequisites?: string[];
   grantsEvidence?: EvidenceId[];
+  autoExamine?: boolean;
 }
 export interface WorkSubmissionContext<TProgress> {
   progress: TProgress;
@@ -30,6 +31,7 @@ export interface WorkDefinition<TProgress extends Record<string, unknown> = Reco
   actions: WorkActionDefinition[];
   interpretationRules: InterpretationRule[];
   historicalXpReward: number;
+  createInitialProgress(): TProgress;
   provisionsContract?: { provisionsPerQualifiedWorkday: number; minimumWorkApPerDay: number };
   validateScenarioData(value: unknown): value is TProgress;
   evaluateSubmission(context: WorkSubmissionContext<TProgress>): unknown;
