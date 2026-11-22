@@ -25,6 +25,7 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
 
   switch (action.type) {
     case 'AWARD_SKILL_XP':
+    case 'AWARD_CAREER_XP':
     case 'PURCHASE_SKILL_LEVEL':
     case 'SET_PRIMARY_SPECIALIZATION':
       return transitionCareerAction(state, action, careerPolicy);
