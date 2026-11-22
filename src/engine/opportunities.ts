@@ -184,9 +184,9 @@ export function transitionOpportunityAction(state: GameState, action: Opportunit
       const offer = opportunities.assignments[action.assignmentId];
       if (!offer || offer.status !== 'offered') return fail(state, 'assignment-not-offered', 'Only an offered Assignment can be accepted.');
       if (state.calendar.dayNumber >= offer.expiresDay) return fail(state, 'assignment-expired', 'This Assignment has reached its expiry day.');
-      if (Object.values(opportunities.assignments).filter((x) => x.status === 'accepted').length >= 2) return fail(state, 'assignment-cap-reached', 'No more than two Assignments may be active at once.');
+      if (Object.values(opportunities.assignments).filter((x) => x.status === 'accepted' && (x.assigneePersonId ?? state.player.currentCharacterId) === state.player.currentCharacterId).length >= 2) return fail(state, 'assignment-cap-reached', 'No more than two Assignments may be active at once.');
       if (!characterQualifiesForAssignment(state, offer)) return fail(state, 'assignment-unqualified', 'The character does not meet the Assignment skill requirements. Professional rank does not substitute for those skills.');
-      const next = { ...state, opportunities: { ...opportunities, assignments: { ...opportunities.assignments, [offer.id]: { ...offer, status: 'accepted' } } } };
+      const next = { ...state, opportunities: { ...opportunities, assignments: { ...opportunities.assignments, [offer.id]: { ...offer, status: 'accepted', assigneePersonId: state.player.currentCharacterId } } } };
       return succeed(addActivity(next, offer, 'accepted'), 'assignment-accepted', 'The Assignment was accepted without spending AP.');
     }
     case 'DECLINE_ASSIGNMENT': {
@@ -197,7 +197,7 @@ export function transitionOpportunityAction(state: GameState, action: Opportunit
     }
     case 'CANCEL_ASSIGNMENT': {
       const offer = opportunities.assignments[action.assignmentId];
-      if (!offer || offer.status !== 'accepted') return fail(state, 'assignment-not-active', 'Only an accepted Assignment can be cancelled.');
+      if (!offer || offer.status !== 'accepted' || (offer.assigneePersonId ?? state.player.currentCharacterId) !== state.player.currentCharacterId) return fail(state, 'assignment-not-active', 'Only an Assignment accepted by the current character can be cancelled.');
       if (state.actionEconomy.apRemaining < 1) return fail(state, 'insufficient-ap', 'Cancelling an active Assignment costs 1 AP.');
       const effected = applyConsequences(state, offer.cancellationConsequences);
       if (!effected) return fail(state, 'assignment-cancellation-invalid', 'The scenario-defined cancellation consequences could not be applied.');
@@ -207,7 +207,7 @@ export function transitionOpportunityAction(state: GameState, action: Opportunit
     }
     case 'COMPLETE_ASSIGNMENT': {
       const offer = opportunities.assignments[action.assignmentId];
-      if (!offer || offer.status !== 'accepted') return fail(state, 'assignment-not-active', 'Only an accepted Assignment can be completed.');
+      if (!offer || offer.status !== 'accepted' || (offer.assigneePersonId ?? state.player.currentCharacterId) !== state.player.currentCharacterId) return fail(state, 'assignment-not-active', 'Only an Assignment accepted by the current character can be completed.');
       if (state.actionEconomy.apRemaining < offer.apCost) return fail(state, 'insufficient-ap', `Completing this Assignment costs ${offer.apCost} AP.`);
       const authored = offer.completionConsequences ?? {};
       const effects: OpportunityConsequences = { ...authored, moneyDelta: (authored.moneyDelta ?? 0) + offer.compensation.money,

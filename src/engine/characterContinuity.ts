@@ -1,5 +1,5 @@
 import type { InstitutionId, PersonId } from '../state/ids';
-import type { GameState } from '../state/types';
+import type { GameAction, GameState, TransitionResult } from '../state/types';
 
 export type SuccessorConnectionTier = 'direct_personal' | 'direct_professional' | 'wider_network';
 
@@ -115,4 +115,99 @@ export function rankSuccessorCandidates(state: GameState): SuccessorCandidate[] 
   return candidates.sort((a, b) =>
     TIER_ORDER[a.tier] - TIER_ORDER[b.tier]
       || (a.personId < b.personId ? -1 : a.personId > b.personId ? 1 : 0));
+}
+
+
+type ContinuityAction = Extract<GameAction, { type: 'BEGIN_CHARACTER_DEPARTURE' | 'SELECT_SUCCESSOR' }>;
+const continuityFailure = (state: GameState, code: string, message: string): TransitionResult => ({
+  state, feedback: { kind: 'error', code, message },
+});
+const continuitySuccess = (state: GameState, code: string, message: string): TransitionResult => ({
+  state, feedback: { kind: 'success', code, message },
+});
+
+/** Handles persisted departure and successor selection without inheriting character state. */
+export function transitionCharacterContinuity(state: GameState, action: ContinuityAction): TransitionResult {
+  if (action.type === 'BEGIN_CHARACTER_DEPARTURE') {
+    if (state.pendingSuccession) {
+      return continuityFailure(state, 'succession-already-pending', 'A character transition is already awaiting resolution.');
+    }
+    if (action.departureKind !== 'death' && action.departureKind !== 'departure') {
+      return continuityFailure(state, 'departure-kind-invalid', 'Choose a supported death or non-death departure.');
+    }
+    const formerId = state.player.currentCharacterId;
+    const former = state.world.people[formerId];
+    if (!former?.alive || !former.scribal) {
+      return continuityFailure(state, 'departure-character-invalid', 'Only the living active scribal character can begin a departure.');
+    }
+    const people = {
+      ...state.world.people,
+      [formerId]: { ...former, alive: action.departureKind === 'death' ? false : former.alive },
+    };
+    const assignments = Object.fromEntries(Object.entries(state.opportunities.assignments).map(([id, offer]) => [
+      id,
+      offer.status === 'accepted' && (!offer.assigneePersonId || offer.assigneePersonId === formerId)
+        ? { ...offer, assigneePersonId: formerId }
+        : offer,
+    ]));
+    const departed: GameState = {
+      ...state,
+      world: { ...state.world, people },
+      opportunities: { ...state.opportunities, assignments },
+    };
+    const candidates = rankSuccessorCandidates(departed);
+    const pending = {
+      formerCharacterId: formerId,
+      departureKind: action.departureKind,
+      dayNumber: state.calendar.dayNumber,
+      status: candidates.length ? 'awaiting_selection' as const : 'no_successor' as const,
+      candidateIds: candidates.map((candidate) => candidate.personId),
+    };
+    return continuitySuccess({ ...departed, pendingSuccession: pending },
+      candidates.length ? 'succession-pending' : 'succession-no-successor',
+      candidates.length
+        ? 'The character has left play. Choose from the existing connected scribal candidates.'
+        : 'No eligible connected scribal successor exists in the current world. No replacement has been created.');
+  }
+
+  const pending = state.pendingSuccession;
+  if (!pending || pending.status !== 'awaiting_selection') {
+    return continuityFailure(state, 'succession-selection-unavailable', 'There is no eligible successor selection to complete.');
+  }
+  const nextId = action.nextCharacterId;
+  const nextPerson = state.world.people[nextId];
+  const eligible = rankSuccessorCandidates(state).some((candidate) => candidate.personId === nextId);
+  if (nextId === pending.formerCharacterId || !pending.candidateIds.includes(nextId)
+    || !eligible || !nextPerson?.alive || !nextPerson.scribal) {
+    return continuityFailure(state, 'successor-ineligible', 'The selected successor must be a living, existing scribal NPC in the connected candidate list.');
+  }
+
+  const nextState: GameState = {
+    ...state,
+    player: { currentCharacterId: nextId },
+    pendingSuccession: null,
+    characterTransitions: [
+      ...(state.characterTransitions ?? []),
+      {
+        formerCharacterId: pending.formerCharacterId,
+        nextCharacterId: nextId,
+        departureKind: pending.departureKind,
+        dayNumber: state.calendar.dayNumber,
+      },
+    ],
+    actionEconomy: {
+      dailyApAllocation: 6,
+      apRemaining: 6,
+      overtimeUsedToday: false,
+      nextDayApPenalty: false,
+    },
+    works: {
+      ...state.works,
+      progress: Object.fromEntries(Object.entries(state.works.progress).map(([id, progress]) => [
+        id, { ...progress, workApSpentToday: 0 },
+      ])),
+    },
+  };
+  return continuitySuccess(nextState, 'successor-selected',
+    'Control passed to the selected character. Their own skills, resources, relationships, and circumstances remain unchanged; the world and calendar continue.');
 }

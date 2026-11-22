@@ -3,6 +3,7 @@ import { transitionCareerAction } from './careerProgression';
 import { transitionWorldAction } from './worldSocial';
 import { settleAssignmentOffers, transitionOpportunityAction } from './opportunities';
 import { validateWorkDefinition } from '../works/workDefinition';
+import { transitionCharacterContinuity } from './characterContinuity';
 import type { WorkAssessment, WorkDefinition } from '../works/workDefinition';
 
 function feedback(kind: 'success' | 'error' | 'info', code: string, message: string) {
@@ -23,6 +24,12 @@ function withNotice(state: GameState, category: 'settlement', message: string): 
 /** Pure, deterministic state transition. UI feedback is ephemeral; notices are saved in GameState. */
 export function transitionGame(state: GameState, action: GameAction, careerPolicy?: CareerProgressionPolicy, workCatalog: Readonly<Record<string, WorkDefinition<any>>> = {}): TransitionResult {
   const economy = state.actionEconomy;
+  if (state.pendingSuccession && action.type !== 'SELECT_SUCCESSOR') {
+    return { state, feedback: feedback('error', 'succession-pending', 'Ordinary actions are paused until the pending character transition is resolved.') };
+  }
+  if (action.type === 'BEGIN_CHARACTER_DEPARTURE' || action.type === 'SELECT_SUCCESSOR') {
+    return transitionCharacterContinuity(state, action);
+  }
   const person = state.world.people[state.player.currentCharacterId];
   const scribal = person?.scribal;
   if (!scribal) return { state, feedback: feedback('error', 'missing-active-character', 'The current character is unavailable.') };

@@ -124,6 +124,8 @@ export interface AssignmentOffer {
   apCost: number; compensation: { money: number; provisions: number }; careerXpReward: number;
   deliveryChannels: OpportunityDeliveryChannel[];
   offeredDay: number; expiresDay: number; status: 'offered' | 'accepted' | 'declined' | 'lapsed' | 'completed' | 'cancelled';
+  /** Character who accepted this commitment; legacy accepted offers without an owner belong to the active character. */
+  assigneePersonId?: PersonId;
   lapsedDuringMandatoryWork?: boolean; cancellationConsequences?: OpportunityConsequences; completionConsequences?: OpportunityConsequences;
 }
 export interface ChallengeChoice {
@@ -165,8 +167,26 @@ export interface WorkProgress {
   lastAssessment?: { outcome: 'accepted' | 'revise' | 'rejected'; summary: string; assessedDay: number; dimensions: WorkAssessmentDimensionResult[] };
 }
 
+export interface PendingSuccession {
+  formerCharacterId: PersonId;
+  departureKind: 'death' | 'departure';
+  dayNumber: number;
+  status: 'awaiting_selection' | 'no_successor';
+  candidateIds: PersonId[];
+}
+export interface CharacterTransitionRecord {
+  formerCharacterId: PersonId;
+  nextCharacterId: PersonId;
+  departureKind: 'death' | 'departure';
+  dayNumber: number;
+}
+
 export interface GameState {
   calendar: CalendarState; actionEconomy: ActionEconomyState; player: { currentCharacterId: PersonId };
+  /** Optional for compatibility with earlier schema-v2 saves. */
+  pendingSuccession?: PendingSuccession | null;
+  /** Completed player-character handoffs; optional for earlier schema-v2 saves. */
+  characterTransitions?: CharacterTransitionRecord[];
   world: {
     people: Record<PersonId, Person>;
     /** Ordered pair: from-person key, then to-person key. Never mirror automatically. */
@@ -193,7 +213,8 @@ export type TargetSkillLevel = 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 export interface CareerProgressionPolicy { skillAdvancementByTargetLevel: Partial<Record<TargetSkillLevel, SkillAdvancementRule>>; }
 
 export type GameAction =
-  
+  | { type: 'BEGIN_CHARACTER_DEPARTURE'; departureKind: 'death' | 'departure' }
+  | { type: 'SELECT_SUCCESSOR'; nextCharacterId: PersonId }
   | { type: 'SPEND_AP'; amount: number; reason: string; workId?: WorkId }
   | { type: 'START_WORK'; workId: WorkId }
   | { type: 'ACQUIRE_WORK_EVIDENCE'; workId: WorkId; actionId: string }
