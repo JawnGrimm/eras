@@ -26,7 +26,7 @@ export const createInitialAssignments = (): Assignment[] => [
   {
     id: 'asgn-01',
     title: 'Temple Granary Tally Reconciliation',
-    tier: 'Novice',
+    difficulty: 'routine',
     employer: 'Inanna Temple Administration',
     description: 'Verify barley sacks delivered from the outer fields to the E-anna district storehouse against carrier wooden tags.',
     rewardSilver: 3,
@@ -38,7 +38,7 @@ export const createInitialAssignments = (): Assignment[] => [
   {
     id: 'asgn-02',
     title: 'Wool Allocation Receipt',
-    tier: 'Novice',
+    difficulty: 'routine',
     employer: 'Palace Overseer of Textiles',
     description: 'Draft a certified reed-stylus clay tablet recording the distribution of sheared wool to the institutional weavers.',
     rewardSilver: 4,
@@ -50,7 +50,7 @@ export const createInitialAssignments = (): Assignment[] => [
   {
     id: 'asgn-03',
     title: 'Metalworker Silver Ingot Weighing',
-    tier: 'Adept',
+    difficulty: 'demanding',
     employer: 'Guild of Metalsmiths',
     description: 'Weigh and record certified copper and silver ingots received from overseas trade canoes.',
     rewardSilver: 6,
