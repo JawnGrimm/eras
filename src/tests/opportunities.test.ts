@@ -143,14 +143,14 @@ describe('Assignment and Challenge foundations', () => {
       knowledge: [{ id: 'knowledge-authored', holder: { kind: 'person' as const, id: INITIAL_PERSON_ID },
         subject: { kind: 'record' as const, id: 'record-authored' }, basis: 'consulted-record' as const, learnedDay: 99 }],
       datePolicies: { event: { kind: 'fixed' as const, dayNumber: 1 }, record: { kind: 'resolution_day' as const },
-        knowledge: { 'knowledge-authored': { kind: 'fixed' as const, dayNumber: 1 } } },
+        knowledge: { 'knowledge-authored': { kind: 'fixed' as const, dayNumber: 2 } } },
     } };
     state = { ...state, opportunities: { ...state.opportunities, assignments: { ...state.opportunities.assignments, ['dated' as AssignmentId]: offerWithEffects } } };
     const result = transitionGame(state, { type: 'COMPLETE_ASSIGNMENT', assignmentId: 'dated' as AssignmentId });
     expect(result.feedback?.code).toBe('assignment-completed');
     expect(result.state.world.events['event-authored' as keyof typeof result.state.world.events].dayNumber).toBe(1);
     expect(result.state.records.entries['record-authored' as keyof typeof result.state.records.entries].createdDay).toBe(2);
-    expect(result.state.world.knowledge['knowledge-authored' as keyof typeof result.state.world.knowledge].learnedDay).toBe(1);
+    expect(result.state.world.knowledge['knowledge-authored' as keyof typeof result.state.world.knowledge].learnedDay).toBe(2);
   });
 
   it('rejects Challenge consequences that attempt to award Historical Progress XP', () => {
