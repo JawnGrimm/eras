@@ -99,7 +99,7 @@ describe('production continuity and social screens', () => {
       calendar: { ...fresh.calendar, dayNumber: first.expiresDay },
     };
     const expiredMarkup = renderScreen(expiredState, createElement(ProductionWorkdayHub, {
-      onOpenWork: () => undefined, settlement: null, onSettlement: () => undefined,
+      onOpenWork: () => undefined, onOpenActivity: () => undefined, settlement: null, onSettlement: () => undefined,
     }));
     const unqualifiedOffer = { ...first, requiredSkills: { reading_scripts: 10 } };
     const unqualifiedState: GameState = {

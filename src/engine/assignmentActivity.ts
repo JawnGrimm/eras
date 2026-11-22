@@ -1,7 +1,7 @@
 import type { GameAction, GameState, TransitionResult, AssignmentOffer, RecordAssertion } from '../state/types';
 import { addActivity } from './opportunities';
 import type { AssignmentId, KnowledgeEntryId, RecordId, InstitutionId } from '../state/ids';
-import { NORTH_BAY_ACTIVITY_ID, NORTH_BAY_PEOPLE, ASSIGNMENT_ACTIVITY_CATALOG, validateAssignmentActivityProgress, normalizeActivityDraft } from '../content/assignments/northBayRoofInspection';
+import { NORTH_BAY_PEOPLE, ASSIGNMENT_ACTIVITY_CATALOG, validateAssignmentActivityProgress, normalizeActivityDraft } from '../content/assignments/northBayRoofInspection';
 
 type ActivityAction = Extract<GameAction, { type: 'PERFORM_ASSIGNMENT_ACTIVITY_ACTION' | 'UPDATE_ASSIGNMENT_ACTIVITY_DRAFT' | 'SUBMIT_ASSIGNMENT_ACTIVITY' }>;
 const fail = (state: GameState, code: string, message: string): TransitionResult => ({ state, feedback: { kind: 'error', code, message } });
@@ -10,7 +10,7 @@ const STOREHOUSE = 'institution-uruk-temple-storehouse' as InstitutionId;
 
 function ownedOffer(state: GameState, id: AssignmentId): AssignmentOffer | undefined {
   const offer = state.opportunities.assignments[id];
-  return offer?.status === 'accepted' && offer.activityId === NORTH_BAY_ACTIVITY_ID
+  return offer?.status === 'accepted' && !!offer.activityId && !!ASSIGNMENT_ACTIVITY_CATALOG[offer.activityId as keyof typeof ASSIGNMENT_ACTIVITY_CATALOG]
     && offer.assigneePersonId === state.player.currentCharacterId ? offer : undefined;
 }
 export function transitionAssignmentActivityAction(state: GameState, action: ActivityAction): TransitionResult {

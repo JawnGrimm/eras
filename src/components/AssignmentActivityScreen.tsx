@@ -1,7 +1,7 @@
 import React from 'react';
 import { useGame } from '../state/GameProvider';
 import type { AssignmentId, PersonId } from '../state/ids';
-import { NORTH_BAY_ACTIVITY_ID, NORTH_BAY_PEOPLE, ASSIGNMENT_ACTIVITY_CATALOG } from '../content/assignments/northBayRoofInspection';
+import { NORTH_BAY_PEOPLE, ASSIGNMENT_ACTIVITY_CATALOG } from '../content/assignments/northBayRoofInspection';
 import { evaluateEvidenceInterpretation } from '../works/evidenceInterpretation';
 
 const personNames: Record<string, string> = {
@@ -21,7 +21,7 @@ export function AssignmentActivityScreen({ assignmentId, onBack }: { assignmentI
   const definition = offer?.activityId ? ASSIGNMENT_ACTIVITY_CATALOG[offer.activityId as keyof typeof ASSIGNMENT_ACTIVITY_CATALOG] : undefined;
   const progress = offer?.activityProgress;
   const character = game.state.world.people[game.state.player.currentCharacterId]?.scribal;
-  if (!offer || !definition || offer.activityId !== NORTH_BAY_ACTIVITY_ID || !progress || offer.status !== 'accepted' || offer.assigneePersonId !== game.state.player.currentCharacterId || !character) {
+  if (!offer || !definition || !progress || offer.status !== 'accepted' || offer.assigneePersonId !== game.state.player.currentCharacterId || !character) {
     return <section className="rounded-xl border border-stone-300 bg-white p-5"><h1 className="font-serif text-2xl">Activity unavailable</h1><p className="mt-2 text-sm text-stone-600">This activity is not an accepted commitment of the current character.</p><button onClick={onBack} className="mt-4 rounded bg-stone-900 px-3 py-2 text-sm text-white">Back</button></section>;
   }
   const dispatchDraft = (draft: typeof progress.draft) => game.dispatch({ type: 'UPDATE_ASSIGNMENT_ACTIVITY_DRAFT', assignmentId, draft });

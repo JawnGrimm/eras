@@ -186,7 +186,7 @@ export function transitionOpportunityAction(state: GameState, action: Opportunit
       if (state.calendar.dayNumber >= offer.expiresDay) return fail(state, 'assignment-expired', 'This Assignment has reached its expiry day.');
       if (Object.values(opportunities.assignments).filter((x) => x.status === 'accepted' && (x.assigneePersonId ?? state.player.currentCharacterId) === state.player.currentCharacterId).length >= 2) return fail(state, 'assignment-cap-reached', 'No more than two Assignments may be active at once.');
       if (!characterQualifiesForAssignment(state, offer)) return fail(state, 'assignment-unqualified', 'The character does not meet the Assignment skill requirements. Professional rank does not substitute for those skills.');
-      const activityProgress = offer.activityId === NORTH_BAY_ACTIVITY_ID ? northBayRoofInspection.createInitialProgress() : undefined;
+      const activityProgress = offer.activityId ? ASSIGNMENT_ACTIVITY_CATALOG[offer.activityId as keyof typeof ASSIGNMENT_ACTIVITY_CATALOG].createInitialProgress() : undefined;
       const next = { ...state, opportunities: { ...opportunities, assignments: { ...opportunities.assignments, [offer.id]: { ...offer, ...(activityProgress ? { activityProgress } : {}), status: 'accepted', assigneePersonId: state.player.currentCharacterId } } } };
       return succeed(addActivity(next, offer, 'accepted'), 'assignment-accepted', 'The Assignment was accepted without spending AP.');
     }

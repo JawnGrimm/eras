@@ -78,8 +78,8 @@ function validatePredicate(predicate: Predicate, issues: string[], discoveryIds:
 }
 export function validateAssignmentActivityDefinition(definition: AssignmentActivityDefinition): string[] {
   const issues: string[] = [];
-  const actionIds = new Set(definition.actions.map((action) => action.id));
-  const discoveryIds = new Set(definition.discoveries.map((item) => item.id));
+  const actionIds = new Set<string>(definition.actions.map((action) => action.id));
+  const discoveryIds = new Set<string>(definition.discoveries.map((item) => item.id));
   if (actionIds.size !== definition.actions.length) issues.push('Action IDs must be unique.');
   if (discoveryIds.size !== definition.discoveries.length) issues.push('Discovery IDs must be unique.');
   if (!definition.id || !definition.title || !Number.isInteger(definition.submissionApCost) || definition.submissionApCost < 1 || definition.submissionApCost > 6) issues.push('Activity identity and submission AP (1..6) are required.');

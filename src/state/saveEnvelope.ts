@@ -348,7 +348,7 @@ export function isValidSaveEnvelope(value: unknown, workCatalog: Readonly<Record
 }
 function normalizeNorthBayWorldBaseline(parsed: unknown): unknown {
   if (!isObject(parsed) || !isObject(parsed.state) || !isObject(parsed.state.world)) return parsed;
-  const state = parsed.state, world = state.world;
+  const state = parsed.state, world = state.world as Record<string, unknown>;
   const institutionId = 'institution-uruk-temple-storehouse';
   if (!isObject(world.people) || !isObject(world.institutions) || !isObject(world.locations) || !isObject(world.appointments)) return parsed;
   const people = { ...world.people };
@@ -361,8 +361,9 @@ function normalizeNorthBayWorldBaseline(parsed: unknown): unknown {
   if (!isObject(locations[NORTH_BAY_LOCATION_ID])) locations[NORTH_BAY_LOCATION_ID] = {
     id: NORTH_BAY_LOCATION_ID, name: 'Temple Storehouse, north storage bay',
   };
-  if (isObject(institutions[institutionId]) && !institutions[institutionId].locationId) {
-    institutions[institutionId] = { ...institutions[institutionId], locationId: NORTH_BAY_LOCATION_ID };
+  const existingInstitution = institutions[institutionId];
+  if (isObject(existingInstitution) && !existingInstitution.locationId) {
+    institutions[institutionId] = { ...existingInstitution, locationId: NORTH_BAY_LOCATION_ID };
   }
   const offices = [
     { id: 'appointment-shuruppak-ilu-senior-scribe', personId: NORTH_BAY_PEOPLE.seniorScribe, title: 'Senior Scribe', authorityScope: ['Assign and review scribal work', 'Determine institutional follow-up from submitted records'], responsibilities: ['Review submitted accounts and reports', 'Determine whether further institutional action is warranted'] },
