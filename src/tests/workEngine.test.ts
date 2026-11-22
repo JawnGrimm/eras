@@ -23,6 +23,7 @@ const definition = defineWork<ScenarioProgress>({
   actions: [{ id: 'retrieve-later-tally', apCost: 1, grantsEvidence: [E2] }],
   interpretationRules: [],
   historicalXpReward: 25,
+  submissionApCost: 1,
   provisionsContract: { provisionsPerQualifiedWorkday: 1, minimumWorkApPerDay: 1 },
   createInitialProgress: () => ({ accepted: false, recoveryCount: 0 }),
   validateScenarioData: (value: unknown): value is ScenarioProgress =>
@@ -150,6 +151,9 @@ describe('Work lifecycle and save validation', () => {
     const state = createInitialGameState();
     const envelope = createSaveEnvelope(state, 0, '2026-11-22T12:00:00.000Z');
     expect(isValidSaveEnvelope(envelope)).toBe(true);
+    const active = transitionGame(state, { type: 'START_WORK', workId: WORK }, undefined, catalog).state;
+    expect(isValidSaveEnvelope(createSaveEnvelope(active, 1), catalog)).toBe(true);
+    expect(isValidSaveEnvelope(createSaveEnvelope(active, 1))).toBe(false);
     const invalid = structuredClone(envelope);
     invalid.state.works.progress[WORK] = {
       status: 'active', acquiredEvidence: [E1], examinedEvidence: [E2], workApSpentToday: 0,
