@@ -100,6 +100,15 @@ function isAssertion(value: unknown, sourceIds: Set<string>): boolean {
     && Array.isArray(value.sourceIds) && value.sourceIds.every((id) => typeof id === 'string' && sourceIds.has(id));
 }
 
+function isWorkAssessmentDimensions(value: unknown): boolean {
+  if (!Array.isArray(value) || value.length === 0) return false;
+  const valid = value.every((item) => isObject(item)
+    && ['accuracy','completeness','responsible_interpretation','procedure','traceability','responsibility'].includes(item.dimension as string)
+    && ['meets','partial','fails'].includes(item.status as string)
+    && typeof item.summary === 'string' && !!item.summary);
+  return valid && new Set(value.map((item) => (item as { dimension: string }).dimension)).size === value.length;
+}
+
 function isWorkProgress(value: unknown): value is WorkProgress {
   if (!isObject(value) || !['active','completed','abandoned'].includes(value.status as string)) return false;
   const acquiredEvidence = value.acquiredEvidence;
@@ -122,12 +131,7 @@ function isWorkProgress(value: unknown): value is WorkProgress {
     || !['accepted','revise','rejected'].includes(value.lastAssessment.outcome as string)
     || typeof value.lastAssessment.summary !== 'string' || !value.lastAssessment.summary
     || !Number.isInteger(value.lastAssessment.assessedDay) || (value.lastAssessment.assessedDay as number) < 1
-    || !Array.isArray(value.lastAssessment.dimensions)
-    || value.lastAssessment.dimensions.some((item) => !isObject(item)
-      || !['accuracy','completeness','responsible_interpretation','procedure','traceability','responsibility'].includes(item.dimension as string)
-      || !['meets','partial','fails'].includes(item.status as string)
-      || typeof item.summary !== 'string' || !item.summary)
-    || new Set((value.lastAssessment.dimensions as Array<{ dimension: string }>).map((item) => item.dimension)).size !== value.lastAssessment.dimensions.length)) return false;
+    || !isWorkAssessmentDimensions(value.lastAssessment.dimensions))) return false;
   return true;
 }
 
