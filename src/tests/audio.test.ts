@@ -1,5 +1,11 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
-import { isAudioMuted, playSealStamp, playSettlementChime, playStylusTap, setAudioMuted } from '../engine/audio';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+let audio: typeof import('../engine/audio');
+
+beforeEach(async () => {
+  vi.resetModules();
+  audio = await import('../engine/audio');
+});
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -9,9 +15,9 @@ describe('tactile audio', () => {
   it('is a silent no-op when browser audio APIs are unavailable', () => {
     vi.stubGlobal('window', {});
     expect(() => {
-      playStylusTap();
-      playSealStamp();
-      playSettlementChime();
+      audio.playStylusTap();
+      audio.playSealStamp();
+      audio.playSettlementChime();
     }).not.toThrow();
   });
 
@@ -24,21 +30,26 @@ describe('tactile audio', () => {
       },
     });
 
-    expect(isAudioMuted()).toBe(false);
-    setAudioMuted(true);
+    expect(audio.isAudioMuted()).toBe(false);
+    audio.setAudioMuted(true);
     expect(values.get('scribe_audio_muted')).toBe('true');
-    expect(isAudioMuted()).toBe(true);
-    setAudioMuted(false);
-    expect(isAudioMuted()).toBe(false);
+    expect(audio.isAudioMuted()).toBe(true);
+
+    values.set('scribe_audio_muted', 'false');
+    expect(audio.isAudioMuted()).toBe(false);
+    values.set('scribe_audio_muted', 'true');
+    expect(audio.isAudioMuted()).toBe(true);
   });
 
-  it('fails silently when local storage access throws', () => {
+  it('uses memory fallback only when local storage access throws', () => {
     vi.stubGlobal('window', {
       get localStorage() { throw new Error('storage unavailable'); },
     });
-    expect(isAudioMuted()).toBe(false);
-    expect(() => setAudioMuted(true)).not.toThrow();
-    expect(isAudioMuted()).toBe(true);
-    setAudioMuted(false);
+
+    expect(audio.isAudioMuted()).toBe(false);
+    expect(() => audio.setAudioMuted(true)).not.toThrow();
+    expect(audio.isAudioMuted()).toBe(true);
+    audio.setAudioMuted(false);
+    expect(audio.isAudioMuted()).toBe(false);
   });
 });
