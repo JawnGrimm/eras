@@ -323,6 +323,8 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
       && (workCatalog[id].finalizeDisposition
         ? ((progress as WorkProgress).status === 'completed'
           ? workCatalog[id].dispositions?.includes((progress as WorkProgress).finalDisposition ?? '') === true
+            && (progress as WorkProgress).submissionCount >= 1
+            && (progress as WorkProgress).lastAssessment?.outcome === 'accepted'
           : (progress as WorkProgress).finalDisposition === undefined)
         : (progress as WorkProgress).finalDisposition === undefined))
     && Array.isArray(value.records.permanentOutcomes)
