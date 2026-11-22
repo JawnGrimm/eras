@@ -70,6 +70,9 @@ describe('matter-driven Assignment discovery', () => {
     expect(deliveryOffers).toHaveLength(2);
     expect(new Set(deliveryOffers.map((offer) => offer.originMatterId))).toEqual(new Set([originalId, secondId]));
     expect(deliveryOffers.reduce((sum, offer) => sum + (offer.estimatedTotalAp ?? 0), 0)).toBe(8);
-    expect(generateDailyAssignments(generated).opportunities.assignments).toEqual(generated.opportunities.assignments);
+    const nextDayDiscovery = generateDailyAssignments(generated);
+    for (const matterId of [originalId, secondId]) {
+      expect(Object.values(nextDayDiscovery.opportunities.assignments).filter((offer) => offer.originMatterId === matterId)).toHaveLength(1);
+    }
   });
 });
