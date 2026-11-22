@@ -33,7 +33,7 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
     day = transitionGame(day, { type: 'SPEND_AP', amount: 5, reason: 'Use reduced day' }).state;
     day = transitionGame(day, { type: 'ACTIVATE_OVERTIME' }).state;
     day = transitionGame(day, { type: 'SPEND_AP', amount: 1, reason: 'Second overtime task' }).state;
-    day = transitionGame(day, { type: 'END_DAY' }).state;
+    day = endDay(day).state;
     expect(day.actionEconomy.dailyApAllocation).toBe(5);
     expect(day.actionEconomy.apRemaining).toBe(5);
   });
@@ -44,7 +44,7 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
     expect(settled.world.people[INITIAL_PERSON_ID].scribal?.wallet.provisions).toBe(4);
     expect(settled.world.people[INITIAL_PERSON_ID].scribal?.wallet.shortageWorkdays).toBe(0);
     expect(settled.journal.notices).toHaveLength(1);
-    const duplicate = transitionGame(initial, { type: 'END_DAY', expectedDayNumber: initial.calendar.dayNumber });
+    const duplicate = transitionGame(settled, { type: 'END_DAY', expectedDayNumber: initial.calendar.dayNumber });
     expect(duplicate.state).toBe(settled);
     expect(duplicate.feedback?.code).toBe('stale-day-settlement');
   });
@@ -60,7 +60,7 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
     };
     state = endDay(state).state;
     expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet.shortageWorkdays).toBe(1);
-    state = transitionGame(state, { type: 'END_DAY' }).state;
+    state = endDay(state).state;
     expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet.shortageWorkdays).toBe(2);
     state = transitionGame(state, { type: 'END_DAY' }).state;
     expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet.shortageWorkdays).toBe(3);
