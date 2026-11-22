@@ -2,6 +2,20 @@ import React from 'react';
 import { useGame } from '../state/GameProvider';
 import type { DaySettlement } from '../state/types';
 
+function ContextDetails({ context }: { context: { what: string; who: string[]; quantity?: string; when?: string; where?: string; from?: string; to?: string; purpose: string; responsibility: string[]; authority?: string; provenance: string[] } }) {
+  const rows: Array<[string, string | undefined]> = [
+    ['What', context.what], ['Who', context.who.join('; ')], ['Quantity', context.quantity],
+    ['When', context.when], ['Where', context.where], ['From', context.from], ['To', context.to],
+    ['Purpose', context.purpose], ['Authority', context.authority],
+    ['Responsibility', context.responsibility.join('; ')], ['Provenance', context.provenance.join('; ')],
+  ];
+  return <details className="mt-2 text-xs text-stone-600">
+    <summary className="cursor-pointer font-medium text-amber-800">Full matter context</summary>
+    <dl className="mt-2 grid gap-2 sm:grid-cols-2">{rows.filter((row) => row[1]).map(([label, value]) =>
+      <div key={label}><dt className="font-semibold text-stone-700">{label}</dt><dd className="leading-5">{value}</dd></div>)}</dl>
+  </details>;
+}
+
 function SettlementSummary({ settlement }: { settlement: DaySettlement }) {
   const reason = settlement.workContractProvisionReason === 'qualified_workday'
     ? 'Workday qualification met'
@@ -73,7 +87,8 @@ export function ProductionWorkdayHub({ onOpenWork, settlement, onSettlement }: {
         <div className="mt-4 space-y-3">
           {offeredAssignments.map((offer) => <article key={offer.id} className="rounded-lg bg-stone-50 p-3">
             <h3 className="font-semibold text-stone-900">{offer.title}</h3><p className="mt-1 text-sm text-stone-600">{offer.description}</p>
-            <p className="mt-2 text-xs text-stone-500">Cost {offer.apCost} AP · {offer.compensation.money} silver · {offer.careerXpReward} Career XP</p>
+            <ContextDetails context={offer.context} />
+            <p className="mt-2 text-xs text-stone-500">Completion: {offer.apCost} AP · {offer.compensation.money} silver · {offer.careerXpReward} Career XP</p>
             <div className="mt-2 flex gap-2"><button disabled={activeAssignments.length >= 2} onClick={() => game.dispatch({ type: 'ACCEPT_ASSIGNMENT', assignmentId: offer.id })} className="rounded-md bg-stone-900 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-40">Accept</button><button onClick={() => game.dispatch({ type: 'DECLINE_ASSIGNMENT', assignmentId: offer.id })} className="rounded-md border border-stone-300 px-3 py-1.5 text-xs">Decline</button></div>
           </article>)}
           {offeredAssignments.length === 0 && <p className="text-sm text-stone-500">No new commissions are currently offered.</p>}
@@ -93,6 +108,8 @@ export function ProductionWorkdayHub({ onOpenWork, settlement, onSettlement }: {
         <div className="mt-4 space-y-3">
           {offeredChallenges.map((challenge) => <article key={challenge.id} className="rounded-lg bg-stone-50 p-3">
             <h3 className="font-semibold text-stone-900">{challenge.title}</h3><p className="mt-1 text-sm text-stone-600">{challenge.description}</p>
+            <ContextDetails context={challenge.context} />
+            <p className="mt-2 text-xs text-stone-500">Resolution costs {challenge.apCost} AP</p>
             <div className="mt-2 flex gap-2"><button onClick={() => game.dispatch({ type: 'ACCEPT_CHALLENGE', challengeId: challenge.id })} className="rounded-md bg-stone-900 px-3 py-1.5 text-xs font-semibold text-white">Accept challenge</button><button onClick={() => game.dispatch({ type: 'DECLINE_CHALLENGE', challengeId: challenge.id })} className="rounded-md border border-stone-300 px-3 py-1.5 text-xs">Decline</button></div>
           </article>)}
           {acceptedChallenges.map((challenge) => <article key={challenge.id} className="rounded-lg bg-stone-50 p-3">
