@@ -94,6 +94,7 @@ export function validateWorkDefinition<TProgress extends Record<string, unknown>
   if (actionIds.size !== work.actions.length) issues.push({ code: 'duplicate-action-id', message: 'Work action IDs must be unique.' });
   const duplicateRuleIds = new Set<string>();
   const conflictPriorities = new Set<string>();
+  if (!String(work.id).trim()) issues.push({ code: 'empty-work-id', message: 'Work ID must not be empty.' });
   if (!work.title.trim()) issues.push({ code: 'empty-work-title', message: 'Work title must not be empty.' });
   for (const evidence of work.evidence) {
     if (!evidence.title.trim() || !evidence.source.trim() || !evidence.objectiveText.trim()) {
@@ -131,6 +132,10 @@ export function validateWorkDefinition<TProgress extends Record<string, unknown>
     if (duplicateRuleIds.has(rule.id)) issues.push({ code: 'duplicate-rule-id', message: `Duplicate interpretation rule ID: ${rule.id}.` });
     duplicateRuleIds.add(rule.id);
     if (!rule.id.trim() || !rule.text.trim()) issues.push({ code: 'empty-rule-text', message: `Rule ${rule.id || '(unnamed)'} must have non-empty ID and text.` });
+    if (!['observation','inference','uncertainty','misinterpretation','professional_reminder'].includes(rule.category)
+      || !Number.isFinite(rule.priority) || !Number.isFinite(rule.displayOrder)) {
+      issues.push({ code: 'invalid-rule-metadata', message: `Rule ${rule.id} has invalid category, priority, or display order metadata.` });
+    }
     if (!evidenceIds.has(rule.evidenceId)) issues.push({ code: 'unknown-rule-evidence', message: `Rule ${rule.id} references missing evidence ${rule.evidenceId}.` });
     else if (!reachable.has(rule.evidenceId)) issues.push({ code: 'unreachable-rule-evidence', message: `Rule ${rule.id} references evidence ${rule.evidenceId}, which is never in the starting packet or granted by a reachable action.` });
     validatePredicate(rule.when, issues);
