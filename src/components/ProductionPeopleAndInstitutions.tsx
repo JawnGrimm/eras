@@ -65,7 +65,7 @@ export function ProductionPeopleAndInstitutions() {
           </div>
           {scribal && <section className="mt-4"><h4 className="text-sm font-semibold">Institutional standing</h4>
             {Object.keys(scribal.institutionalStanding).length ? <dl className="mt-2 grid gap-2 sm:grid-cols-2">{Object.entries(scribal.institutionalStanding).map(([id, value]) =>
-              <div key={id} className="rounded bg-stone-50 p-3"><dt className="text-xs text-stone-500">{state.world.institutions[id]?.name ?? id}</dt><dd className="font-mono">{value}/100</dd></div>)}</dl>
+              <div key={id} className="rounded bg-stone-50 p-3"><dt className="text-xs text-stone-500">{state.world.institutions[id as InstitutionId]?.name ?? id}</dt><dd className="font-mono">{value}/100</dd></div>)}</dl>
               : <p className="mt-1 text-xs text-stone-500">No institution-specific standing is recorded.</p>}
           </section>}
           <section className="mt-4"><h4 className="text-sm font-semibold">Appointments and office scopes</h4>
