@@ -1,11 +1,12 @@
 import { CORE_SKILL_IDS } from './ids';
 import type { AttributeId, SkillId } from './ids';
-import type { GameState, OpportunityConsequences, SaveEnvelope, ScribalCharacterState } from './types';
+import type { GameState, OpportunityConsequences, SaveEnvelope, ScribalCharacterState, WorkProgress } from './types';
 import { validateOpportunityConsequences } from './opportunityValidation';
+import type { WorkDefinition } from '../works/workDefinition';
 
 export const SAVE_KEY = 'scribe_game_v2';
-// Keep schema v2: the production provider has not been mounted, so shipped v2 saves have empty opportunity maps.
-// If any release persists Assignment/Challenge instances, migrate those records before changing this contract.
+// Keep schema v2: the production provider has not been mounted, so shipped v2 saves have empty opportunity maps and works.progress.
+// Populated Work progress is checked against the supplied Work catalog; legacy empty maps remain valid without migration.
 export const SAVE_SCHEMA_VERSION = 2 as const;
 
 function isObject(value: unknown): value is Record<string, unknown> {
@@ -99,11 +100,52 @@ function isAssertion(value: unknown, sourceIds: Set<string>): boolean {
     && Array.isArray(value.sourceIds) && value.sourceIds.every((id) => typeof id === 'string' && sourceIds.has(id));
 }
 
-export function isValidGameState(value: unknown): value is GameState {
+function isWorkAssessmentDimensions(value: unknown): boolean {
+  if (!Array.isArray(value) || value.length === 0) return false;
+  const valid = value.every((item) => isObject(item)
+    && ['accuracy','completeness','responsible_interpretation','procedure','traceability','responsibility'].includes(item.dimension as string)
+    && ['meets','partial','fails'].includes(item.status as string)
+    && typeof item.summary === 'string' && !!item.summary);
+  return valid && new Set(value.map((item) => (item as { dimension: string }).dimension)).size === value.length;
+}
+
+function isWorkProgress(value: unknown): value is WorkProgress {
+  if (!isObject(value) || !['active','completed','abandoned'].includes(value.status as string)) return false;
+  const acquiredEvidence = value.acquiredEvidence;
+  const examinedEvidence = value.examinedEvidence;
+  const completedActionIds = value.completedActionIds;
+  if (!stringArray(acquiredEvidence) || !stringArray(examinedEvidence) || !stringArray(completedActionIds)) return false;
+  if (new Set(acquiredEvidence).size !== acquiredEvidence.length
+    || new Set(examinedEvidence).size !== examinedEvidence.length
+    || examinedEvidence.some((id) => !acquiredEvidence.includes(id))
+    || !Number.isInteger(value.workApSpentToday) || (value.workApSpentToday as number) < 0 || (value.workApSpentToday as number) > 7
+    || typeof value.rewardGranted !== 'boolean' || (value.status === 'completed') !== value.rewardGranted
+    || new Set(completedActionIds).size !== completedActionIds.length
+    || !isObject(value.scenarioData) || !Number.isInteger(value.submissionCount) || (value.submissionCount as number) < 0) return false;
+  if (value.provisionContract !== undefined && (!isObject(value.provisionContract)
+    || !Number.isInteger(value.provisionContract.provisionsPerQualifiedWorkday)
+    || (value.provisionContract.provisionsPerQualifiedWorkday as number) < 0
+    || !Number.isInteger(value.provisionContract.minimumWorkApPerDay)
+    || (value.provisionContract.minimumWorkApPerDay as number) < 1
+    || (value.provisionContract.minimumWorkApPerDay as number) > 6)) return false;
+  if (value.lastAssessment !== undefined && (!isObject(value.lastAssessment)
+    || !['accepted','revise','rejected'].includes(value.lastAssessment.outcome as string)
+    || typeof value.lastAssessment.summary !== 'string' || !value.lastAssessment.summary
+    || !Number.isInteger(value.lastAssessment.assessedDay) || (value.lastAssessment.assessedDay as number) < 1
+    || !isWorkAssessmentDimensions(value.lastAssessment.dimensions))) return false;
+  return true;
+}
+
+export function isValidGameState(value: unknown, workCatalog: Readonly<Record<string, WorkDefinition<any>>> = {}): value is GameState {
   if (!isObject(value) || !isObject(value.calendar) || !isObject(value.actionEconomy) || !isObject(value.player)
     || !isObject(value.world) || !isObject(value.historicalProgression) || !isObject(value.opportunities)
     || !isObject(value.works) || !isObject(value.records) || !isObject(value.journal)) return false;
-  const calendar = value.calendar, economy = value.actionEconomy, player = value.player, world = value.world;
+  const calendar = value.calendar, economy = value.actionEconomy, player = value.player, world = value.world, works = value.works;
+  const workProgressMap = works.progress;
+  if (!isObject(workProgressMap)) return false;
+  const activeWorkId = works.activeWorkId;
+  if (activeWorkId !== null && (typeof activeWorkId !== 'string'
+    || !isWorkProgress(workProgressMap[activeWorkId]) || workProgressMap[activeWorkId].status !== 'active')) return false;
   if (typeof calendar.eraId !== 'string' || !finiteNonNegative(calendar.dayNumber) || !Number.isInteger(calendar.dayNumber)
     || calendar.dayNumber < 1 || typeof calendar.displayDate !== 'string') return false;
   if ((economy.dailyApAllocation !== 5 && economy.dailyApAllocation !== 6) || !finiteNonNegative(economy.apRemaining)
@@ -236,22 +278,30 @@ export function isValidGameState(value: unknown): value is GameState {
         || typeof choice.label !== 'string' || !choice.label || typeof choice.description !== 'string' || !choice.description
         || !isObject(choice.consequences) || !!validateOpportunityConsequences(choice.consequences as OpportunityConsequences | undefined, opportunityContext, 'authoring'))) return false;
   }
-  return finiteNonNegative(value.historicalProgression.historicalXp) && Array.isArray(value.historicalProgression.completedWorks)
+  return finiteNonNegative(value.historicalProgression.historicalXp) && stringArray(value.historicalProgression.completedWorks)
+    && new Set(value.historicalProgression.completedWorks).size === value.historicalProgression.completedWorks.length
+    && value.historicalProgression.completedWorks.every((id) => isWorkProgress(workProgressMap[id])
+      && workProgressMap[id].status === 'completed')
     && isObject(value.opportunities.assignments) && isObject(value.opportunities.challenges)
-    && (value.works.activeWorkId === null || typeof value.works.activeWorkId === 'string')
-    && isObject(value.works.progress) && Array.isArray(value.records.permanentOutcomes)
+    && (activeWorkId === null || typeof activeWorkId === 'string')
+    && Object.entries(workProgressMap).every(([id, progress]) => !!id && isWorkProgress(progress)
+      && !!workCatalog[id] && workCatalog[id].id === id
+      && workCatalog[id].validateScenarioData((progress as WorkProgress).scenarioData)
+      && (progress as WorkProgress).acquiredEvidence.every((evidenceId) => workCatalog[id].evidence.some((item) => item.id === evidenceId))
+      && (progress as WorkProgress).completedActionIds.every((actionId) => workCatalog[id].actions.some((item) => item.id === actionId)))
+    && Array.isArray(value.records.permanentOutcomes)
     && Array.isArray(value.journal.notices);
 }
 export function createSaveEnvelope(state: GameState, revision: number, savedAt = new Date().toISOString()): SaveEnvelope {
   return { schemaVersion: SAVE_SCHEMA_VERSION, gameVersion: '0.1.0', revision, savedAt, state };
 }
-export function isValidSaveEnvelope(value: unknown): value is SaveEnvelope {
+export function isValidSaveEnvelope(value: unknown, workCatalog: Readonly<Record<string, WorkDefinition<any>>> = {}): value is SaveEnvelope {
   return isObject(value) && value.schemaVersion === SAVE_SCHEMA_VERSION && typeof value.gameVersion === 'string'
     && finiteNonNegative(value.revision) && Number.isInteger(value.revision) && typeof value.savedAt === 'string'
-    && Number.isFinite(Date.parse(value.savedAt)) && isValidGameState(value.state);
+    && Number.isFinite(Date.parse(value.savedAt)) && isValidGameState(value.state, workCatalog);
 }
-export function restoreSave(raw: string | null): SaveEnvelope | null {
+export function restoreSave(raw: string | null, workCatalog: Readonly<Record<string, WorkDefinition<any>>> = {}): SaveEnvelope | null {
   if (!raw) return null;
-  try { const parsed: unknown = JSON.parse(raw); return isValidSaveEnvelope(parsed) ? parsed : null; }
+  try { const parsed: unknown = JSON.parse(raw); return isValidSaveEnvelope(parsed, workCatalog) ? parsed : null; }
   catch { return null; }
 }
