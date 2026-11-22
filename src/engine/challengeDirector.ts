@@ -10,7 +10,7 @@ const CARRIER = 'person-enlil-kisu' as const;
 
 /** Aggregate-based rule is evaluated against the compact counters and five-entry activity window. */
 export const CHALLENGE_TRIGGER_RULES: ChallengeTriggerRule[] = [
-  { id: 'missing-measure', category: 'delivery_reconciliation', minCompleted: 1, recentKinds: ['completed'], recentWindow: 5 },
+  { id: 'challenge-missing-measure', category: 'delivery_reconciliation', minCompleted: 1, recentKinds: ['completed'], recentWindow: 5 },
 ];
 
 function alreadyPresented(state: GameState, id: string): boolean {
