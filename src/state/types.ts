@@ -1,4 +1,4 @@
-import type { EvidenceId, AssignmentId, ChallengeId, AttributeId, AppointmentId, CareerPathId, ConditionId, EraId, EventId, InstitutionId, KnowledgeEntryId, LocationId, PersonId, RecordId, SkillId, TraitId, WorkId, SpecializationId } from './ids';
+import type { EvidenceId, AssignmentId, ChallengeId, AttributeId, AppointmentId, CareerPathId, ConditionId, EraId, EventId, InstitutionId, MatterId, KnowledgeEntryId, LocationId, PersonId, RecordId, SkillId, TraitId, WorkId, SpecializationId } from './ids';
 
 export interface WalletState { money: number; provisions: number; shortageWorkdays: number; }
 export interface SkillState { level: number; skillXp: number; }
@@ -44,13 +44,15 @@ export interface Appointment {
   responsibilities: string[];
   startDay: number; endDay?: number;
 }
+export type InstitutionalMatterKind = 'tutorial' | 'roof_repair_verification' | 'held_barley_inspection' | 'north_bay_water_ingress' | 'general';
+export interface InstitutionalMatter {
+  id: MatterId; institutionId: InstitutionId; kind: InstitutionalMatterKind; summary: string;
+  status: 'active' | 'resolved' | 'developed'; createdDay: number; sourceRecordId?: RecordId;
+  locationId?: LocationId; scheduledDevelopment?: { kind: 'rain'; dayNumber: number }; developedDay?: number; sourceEventId?: EventId;
+}
 export interface Institution {
-  id: InstitutionId; name: string; locationId?: LocationId;
-  responsibilities: string[]; authority: string[];
-  /** General institutional standing in its historical/social context. */
-  standing: number;
-  /** Concise descriptions of currently active matters; no full matter simulator is implied. */
-  activeMatters: string[];
+  id: InstitutionId; name: string; locationId?: LocationId; responsibilities: string[]; authority: string[];
+  standing: number; activeMatters: MatterId[];
 }
 export interface Location { id: LocationId; name: string; }
 export interface WorldEvent { readonly id: EventId; readonly dayNumber: number; readonly summary: string; readonly personIds: readonly PersonId[]; readonly institutionIds: readonly InstitutionId[]; readonly locationId?: LocationId; }
@@ -216,6 +218,7 @@ export interface GameState {
     appointments: Record<AppointmentId, Appointment>;
     events: Record<EventId, WorldEvent>;
     knowledge: Record<KnowledgeEntryId, KnowledgeEntry>;
+    matters: Record<MatterId, InstitutionalMatter>;
   };
   historicalProgression: { historicalXp: number; completedWorks: WorkId[] };
   opportunities: { assignments: Record<AssignmentId, AssignmentOffer>; challenges: Record<ChallengeId, ChallengeInstance>; challengeOutcomes: ChallengeOutcome[]; assignmentAggregates: Record<string, AssignmentActivityAggregate>; recentActivity: OpportunityActivity[] };

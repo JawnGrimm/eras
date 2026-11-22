@@ -1,6 +1,7 @@
 import type { GameState } from './types';
 import type { InstitutionId, PersonId, AppointmentId } from './ids';
 import { NORTH_BAY_LOCATION_ID, NORTH_BAY_PEOPLE } from '../content/assignments/northBayRoofInspection';
+import { MATTER_IDS, STOREHOUSE_INSTITUTION_ID } from '../engine/institutionalMatters';
 export const INITIAL_PERSON_ID = 'person-enlil-barni' as PersonId;
 export function createInitialGameState(): GameState {
   const initialPerson = {
@@ -73,9 +74,10 @@ export function createInitialGameState(): GameState {
       },
       institutions: { [templeStorehouseId]: {
         id: templeStorehouseId, name: 'Temple Storehouse', locationId: storehouseLocationId, responsibilities: ['Receive, safeguard, and issue institutional barley stocks'],
-        authority: ['Maintain storehouse accounts', 'Authorize stock inspection and segregation'], standing: 50, activeMatters: ['The Storehouse Reckoning'],
+        authority: ['Maintain storehouse accounts', 'Authorize stock inspection and segregation'], standing: 50, activeMatters: [MATTER_IDS.tutorial],
       } }, locations: { [storehouseLocationId]: { id: storehouseLocationId, name: 'Temple Storehouse, north storage bay' } },
       appointments: Object.fromEntries(appointments.map((appointment) => [appointment.id, appointment])), events: {}, knowledge: {},
+      matters: { [MATTER_IDS.tutorial]: { id: MATTER_IDS.tutorial, institutionId: STOREHOUSE_INSTITUTION_ID, kind: 'tutorial', summary: 'The Storehouse Reckoning introductory tutorial.', status: 'active', createdDay: 1 } },
     },
     historicalProgression: { historicalXp: 0, completedWorks: [] },
     opportunities: { assignments: {}, challenges: {}, challengeOutcomes: [], assignmentAggregates: {}, recentActivity: [] },

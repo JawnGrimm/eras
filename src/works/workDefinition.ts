@@ -1,5 +1,5 @@
-import type { EvidenceId, InstitutionId, PersonId, WorkId, SkillId, AttributeId } from '../state/ids';
-import type { AssignmentOffer, KnowledgeEntry, RecordEntry, ScribalCharacterState, WorkAssessmentDimensionResult } from '../state/types';
+import type { EvidenceId, InstitutionId, MatterId, PersonId, WorkId, SkillId, AttributeId } from '../state/ids';
+import type { AssignmentOffer, InstitutionalMatter, KnowledgeEntry, RecordEntry, ScribalCharacterState, WorkAssessmentDimensionResult } from '../state/types';
 import type { InterpretationRule, Predicate } from './evidenceInterpretation';
 
 export interface WorkEvidenceDefinition {
@@ -33,8 +33,8 @@ export interface WorkFinalization {
   record?: RecordEntry;
   knowledge?: KnowledgeEntry[];
   /** Institutional matters that are explicitly resolved by this final disposition. */
-  retireInstitutionMatters?: Array<{ institutionId: InstitutionId; matter: string }>;
-  addInstitutionMatters?: Array<{ institutionId: InstitutionId; matter: string }>;
+  retireInstitutionMatters?: Array<{ institutionId: InstitutionId; matterId: MatterId }>;
+  addInstitutionMatters?: InstitutionalMatter[];
   presentAssignments?: Array<Omit<AssignmentOffer, 'offeredDay' | 'expiresDay' | 'status' | 'lapsedDuringMandatoryWork'>>;
 }
 export interface WorkDefinition<TProgress extends Record<string, unknown> = Record<string, unknown>> {
@@ -43,7 +43,7 @@ export interface WorkDefinition<TProgress extends Record<string, unknown> = Reco
   /** Historical XP credited by the pre-tutorial classification; used only to normalize legacy v2 saves. */
   legacyHistoricalXpReward?: number;
   /** Cleanup needed when restoring v2 saves completed before tutorial classification. */
-  legacyCompletionCleanup?: { retireInstitutionMatters?: Array<{ institutionId: InstitutionId; matter: string }> };
+  legacyCompletionCleanup?: { retireInstitutionMatters?: Array<{ institutionId: InstitutionId; matterId: MatterId }> };
   id: WorkId;
   title: string;
   startingEvidence: EvidenceId[];
@@ -124,7 +124,7 @@ export function validateWorkDefinition<TProgress extends Record<string, unknown>
   if (work.kind !== undefined && work.kind !== 'work' && work.kind !== 'tutorial') issues.push({ code: 'invalid-work-kind', message: 'Work kind must be work or tutorial.' });
   if (work.kind === 'tutorial' && work.provisionsContract) issues.push({ code: 'tutorial-provisions-contract', message: 'Tutorials cannot declare provision contracts.' });
   if (work.legacyHistoricalXpReward !== undefined && (!Number.isFinite(work.legacyHistoricalXpReward) || work.legacyHistoricalXpReward < 0)) issues.push({ code: 'invalid-legacy-historical-xp', message: 'Legacy Historical XP must be a non-negative finite number.' });
-  if (work.legacyCompletionCleanup?.retireInstitutionMatters?.some((item) => !item.institutionId || !item.matter.trim())) issues.push({ code: 'invalid-legacy-completion-cleanup', message: 'Legacy completion cleanup contains an invalid institutional matter.' });
+  if (work.legacyCompletionCleanup?.retireInstitutionMatters?.some((item) => !item.institutionId || !item.matterId.trim())) issues.push({ code: 'invalid-legacy-completion-cleanup', message: 'Legacy completion cleanup contains an invalid institutional matter.' });
   if (!String(work.id).trim()) issues.push({ code: 'empty-work-id', message: 'Work ID must not be empty.' });
   if (!work.title.trim()) issues.push({ code: 'empty-work-title', message: 'Work title must not be empty.' });
   for (const evidence of work.evidence) {

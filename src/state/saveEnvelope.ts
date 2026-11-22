@@ -1,6 +1,7 @@
 import { CORE_SKILL_IDS } from './ids';
+import { MATTER_IDS } from '../engine/institutionalMatters';
 import type { AttributeId, SkillId } from './ids';
-import type { GameState, OpportunityConsequences, SaveEnvelope, ScribalCharacterState, WorkProgress } from './types';
+import type { GameState, Institution, OpportunityConsequences, SaveEnvelope, ScribalCharacterState, WorkProgress } from './types';
 import { validateOpportunityConsequences } from './opportunityValidation';
 import type { WorkDefinition } from '../works/workDefinition';
 import { rankSuccessorCandidates } from '../engine/characterContinuity';
@@ -75,7 +76,7 @@ function isRelationship(value: unknown): boolean {
     && finiteNonNegative(h.dayNumber) && Number.isInteger(h.dayNumber) && typeof h.summary === 'string' && !!h.summary
     && (h.eventId === undefined || typeof h.eventId === 'string'));
 }
-function isInstitution(value: unknown, locationIds: Set<string>): boolean {
+function isInstitution(value: unknown, locationIds: Set<string>): value is Institution {
   return isObject(value) && typeof value.id === 'string' && !!value.id && typeof value.name === 'string' && !!value.name
     && (value.locationId === undefined || (typeof value.locationId === 'string' && locationIds.has(value.locationId)))
     && stringArray(value.responsibilities) && stringArray(value.authority) && score(value.standing)
@@ -161,7 +162,7 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
     || typeof economy.overtimeUsedToday !== 'boolean' || typeof economy.nextDayApPenalty !== 'boolean') return false;
   if (typeof player.currentCharacterId !== 'string' || !isObject(world.people) || !isObject(world.relationships)
     || !isObject(world.institutions) || !isObject(world.locations) || !isObject(world.appointments)
-    || !isObject(world.events) || !isObject(world.knowledge) || !isObject(value.records.entries)) return false;
+    || !isObject(world.events) || !isObject(world.knowledge) || !isObject(world.matters) || !isObject(value.records.entries)) return false;
 
   const people = world.people, institutions = world.institutions, locations = world.locations;
   const events = world.events, records = value.records.entries;
@@ -197,6 +198,24 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
       || !['death','departure'].includes(entry.departureKind as string)
       || !Number.isInteger(entry.dayNumber) || (entry.dayNumber as number) < 1 || (entry.dayNumber as number) > (calendar.dayNumber as number)))) return false;
 
+  const matters = world.matters as Record<string, unknown>;
+  const matterIds = new Set(Object.keys(matters));
+  for (const [id, matter] of Object.entries(matters)) {
+    if (!isObject(matter) || matter.id !== id || typeof matter.institutionId !== 'string' || !isObject(institutions[matter.institutionId])
+      || !['tutorial','roof_repair_verification','held_barley_inspection','north_bay_water_ingress','general'].includes(matter.kind as string)
+      || typeof matter.summary !== 'string' || !matter.summary || !['active','resolved','developed'].includes(matter.status as string)
+      || !Number.isInteger(matter.createdDay) || (matter.createdDay as number) < 1 || (matter.createdDay as number) > (calendar.dayNumber as number)
+      || (matter.sourceRecordId !== undefined && !isObject(records[matter.sourceRecordId as string])) || (matter.locationId !== undefined && !isObject(locations[matter.locationId as string]))
+      || (matter.sourceEventId !== undefined && !isObject(events[matter.sourceEventId as string]))) return false;
+    if (matter.scheduledDevelopment !== undefined && (!isObject(matter.scheduledDevelopment) || matter.scheduledDevelopment.kind !== 'rain' || !Number.isInteger(matter.scheduledDevelopment.dayNumber) || (matter.scheduledDevelopment.dayNumber as number) < (matter.createdDay as number))) return false;
+  }
+  for (const [institutionId, institution] of Object.entries(institutions)) {
+    if (!isInstitution(institution, new Set(Object.keys(locations))) || institution.id !== institutionId) return false;
+    for (const matterId of institution.activeMatters) {
+      const matter = matters[matterId];
+      if (!matterIds.has(matterId) || !isObject(matter) || matter.institutionId !== institutionId || matter.status !== 'active') return false;
+    }
+  }
   for (const [fromId, targets] of Object.entries(world.relationships)) {
     if (!isObject(people[fromId]) || !isObject(targets)) return false;
     for (const [toId, rel] of Object.entries(targets)) {
@@ -378,6 +397,30 @@ function normalizeNorthBayWorldBaseline(parsed: unknown): unknown {
   return { ...parsed, state: { ...state, world: { ...world, people, locations, appointments, institutions } } };
 }
 
+function normalizeInstitutionalMatters(parsed: unknown): unknown {
+ if (!isObject(parsed) || !isObject(parsed.state) || !isObject(parsed.state.world) || !isObject(parsed.state.world.institutions)) return parsed;
+ const state = parsed.state, world = state.world as Record<string, unknown>, day = isObject(state.calendar) && Number.isInteger(state.calendar.dayNumber) ? state.calendar.dayNumber as number : 1;
+ const existingMatters = world.matters;
+ const matters: Record<string, unknown> = isObject(existingMatters) ? { ...existingMatters } : {};
+ const existingInstitutions = world.institutions;
+ if (!isObject(existingInstitutions)) return parsed;
+ const institutions: Record<string, unknown> = { ...existingInstitutions };
+ const records = isObject(state.records) && isObject(state.records.entries) ? Object.values(state.records.entries) : [];
+ const roofRecord = records.find((r) => isObject(r) && typeof r.title === 'string' && r.title.includes('North-Bay Roof Inspection')) as any;
+ for (const [institutionId, raw] of Object.entries(institutions)) { if (!isObject(raw) || !Array.isArray(raw.activeMatters)) continue; const active: string[] = [];
+  for (const entry of raw.activeMatters) { if (typeof entry !== 'string') continue; if (matters[entry]) { active.push(entry); continue; }
+   let id: string, kind: string; if (entry === 'The Storehouse Reckoning') { id = MATTER_IDS.tutorial; kind = 'tutorial'; }
+   else if (entry.startsWith('Held-Barley Inspection recommended')) { id = MATTER_IDS.heldBarley; kind = 'held_barley_inspection'; }
+   else if (entry === 'Verify north-bay roof repair' || entry.startsWith('Verify north-bay roof repair (') || entry.startsWith('Roof repair certified without sufficient supporting inspection') || entry.startsWith('Clear north-bay parapet runoff channel') || entry.startsWith('North-bay roof repair inspected')) { id = MATTER_IDS.roofRepair; kind = 'roof_repair_verification'; }
+   else { id = `matter-legacy-${institutionId}-${entry.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}`; kind = 'general'; }
+   const matter: any = { id, institutionId, kind, summary: entry, status: 'active', createdDay: day };
+   if (kind === 'roof_repair_verification') { matter.locationId = NORTH_BAY_LOCATION_ID; if (roofRecord?.id) matter.sourceRecordId = roofRecord.id; matter.scheduledDevelopment = { kind: 'rain', dayNumber: day + 3 }; }
+   if (kind === 'held_barley_inspection') { matter.locationId = NORTH_BAY_LOCATION_ID; if (roofRecord?.id) matter.sourceRecordId = roofRecord.id; }
+   matters[id] = matters[id] ?? matter; if (!active.includes(id)) active.push(id);
+  } institutions[institutionId] = { ...raw, activeMatters: active }; }
+ return { ...parsed, state: { ...state, world: { ...world, institutions, matters } } };
+}
+
 function normalizeLegacyTutorialProgression(
   parsed: unknown,
   workCatalog: Readonly<Record<string, WorkDefinition<any>>>,
@@ -421,7 +464,7 @@ function normalizeLegacyTutorialProgression(
         if (isObject(institution) && Array.isArray(institution.activeMatters)) {
           institutions[retirement.institutionId] = {
             ...institution,
-            activeMatters: institution.activeMatters.filter((matter) => matter !== retirement.matter),
+            activeMatters: institution.activeMatters.filter((matterId) => matterId !== retirement.matterId),
           };
         }
       }
@@ -442,7 +485,7 @@ function normalizeLegacyTutorialProgression(
 export function restoreSave(raw: string | null, workCatalog: Readonly<Record<string, WorkDefinition<any>>> = {}): SaveEnvelope | null {
   if (!raw) return null;
   try {
-    const parsed: unknown = normalizeLegacyTutorialProgression(normalizeNorthBayWorldBaseline(JSON.parse(raw)), workCatalog);
+    const parsed: unknown = normalizeLegacyTutorialProgression(normalizeInstitutionalMatters(normalizeNorthBayWorldBaseline(JSON.parse(raw))), workCatalog);
     return isValidSaveEnvelope(parsed, workCatalog) ? parsed : null;
   } catch { return null; }
 }

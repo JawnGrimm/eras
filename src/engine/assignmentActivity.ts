@@ -2,6 +2,7 @@ import type { GameAction, GameState, TransitionResult, AssignmentOffer, RecordAs
 import { addActivity } from './opportunities';
 import type { AssignmentId, KnowledgeEntryId, RecordId, InstitutionId } from '../state/ids';
 import { NORTH_BAY_PEOPLE, ASSIGNMENT_ACTIVITY_CATALOG, validateAssignmentActivityProgress, normalizeActivityDraft } from '../content/assignments/northBayRoofInspection';
+import { MATTER_IDS, createRoofRepairMatter } from './institutionalMatters';
 
 type ActivityAction = Extract<GameAction, { type: 'PERFORM_ASSIGNMENT_ACTIVITY_ACTION' | 'UPDATE_ASSIGNMENT_ACTIVITY_DRAFT' | 'SUBMIT_ASSIGNMENT_ACTIVITY' }>;
 const fail = (state: GameState, code: string, message: string): TransitionResult => ({ state, feedback: { kind: 'error', code, message } });
@@ -79,6 +80,10 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
     text: 'The inspected repair is incomplete: the parapet runoff channel remains obstructed and the north-east beam socket remains damp.',
     classification: 'inferred' as const, sourceIds: ['source-roof-inspection'],
   });
+  if (unsupportedCertification) assertions.push({ id: 'assertion-unsupported-certification',
+    text: draft.finding === 'repair_appears_sound' ? 'The report certifies that the roof repair appears sound despite the absence of a physical inspection of the roof and shaded beam socket.' : draft.finding === 'repair_incomplete' ? 'The report concludes that the repair is incomplete without citing the physical inspection needed to support that conclusion.' : 'The report presents the repair as complete without the physical inspection required to support that conclusion.',
+    classification: 'disputed' as const, sourceIds: ['source-player-report'],
+  });
   if (draft.responsibilityClaim === 'dudu') assertions.push({
     id: 'assertion-responsibility-claim', text: 'The report attributes the unresolved parapet and beam work to Dudu, although the recorded contract scope does not establish that he was responsible for those items.',
     classification: 'disputed' as const, sourceIds: sources.some((source) => source.id === 'source-repairer-scope') ? ['source-repairer-scope'] : ['source-player-report'],
@@ -112,14 +117,12 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
   const institution = state.world.institutions[STOREHOUSE];
   const person = state.world.people[state.player.currentCharacterId];
   if (!institution || !person?.scribal) return fail(state, 'assignment-activity-world-invalid', 'The report recipient or current character is unavailable.');
-  let activeMatters = institution.activeMatters.filter((matter) => matter !== 'Verify north-bay roof repair');
-  if (incompleteReport || !roofObserved) activeMatters = [...activeMatters, 'Verify north-bay roof repair (inspection incomplete)'];
-  else if (unsupportedCertification) activeMatters = [...activeMatters, 'Roof repair certified without sufficient supporting inspection; physical condition remains unverified'];
-  else if (draft.finding === 'repair_incomplete') activeMatters = [...activeMatters, 'Clear north-bay parapet runoff channel and assess damp north-east beam socket'];
-  else activeMatters = [...activeMatters, 'North-bay roof repair inspected; continue monitoring after heavy rain'];
-  if (draft.recommendations.includes('inspect_held_barley') && progress.discoveryIds.includes('roof-inspection')) {
-    activeMatters.push('Held-Barley Inspection recommended; seven sacks remain segregated, grain condition not yet assessed');
-  }
+  const roofMatter = state.world.matters[MATTER_IDS.roofRepair] ?? createRoofRepairMatter(state.calendar.dayNumber, recordId);
+  const roofSummary = incompleteReport || !roofObserved ? 'North-bay roof inspection incomplete; full roof condition remains unverified.' : unsupportedCertification ? 'Roof repair certified without sufficient supporting inspection; physical condition remains unverified.' : draft.finding === 'repair_incomplete' ? 'Clear north-bay parapet runoff channel and assess the damp north-east beam socket.' : 'North-bay roof repair inspected; continue monitoring after heavy rain.';
+  const updatedRoofMatter = { ...roofMatter, summary: roofSummary, sourceRecordId: recordId, status: 'active' as const };
+  const addHeldBarleyMatter = draft.recommendations.includes('inspect_held_barley') && progress.discoveryIds.includes('roof-inspection');
+  const heldBarleyMatter = { id: MATTER_IDS.heldBarley, institutionId: STOREHOUSE, kind: 'held_barley_inspection' as const, summary: 'Seven held barley sacks remain segregated; grain condition has not yet been assessed.', status: 'active' as const, createdDay: state.calendar.dayNumber, sourceRecordId: recordId, locationId: roofMatter.locationId };
+  const activeMatters = [...new Set([...institution.activeMatters, MATTER_IDS.roofRepair, ...(addHeldBarleyMatter ? [MATTER_IDS.heldBarley] : [])])];
   const reputationDelta = overclaims ? -6 : qualified ? 1 : incompleteReport ? -1 : 3;
   const relationshipChanges = [
     { target: NORTH_BAY_PEOPLE.steward, trust: overclaims ? -5 : qualified ? 1 : incompleteReport ? -1 : 3,
@@ -145,6 +148,7 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
     ...state, actionEconomy: { ...state.actionEconomy, apRemaining: state.actionEconomy.apRemaining - cost },
     world: { ...state.world, people: { ...state.world.people, [person.id]: { ...person, scribal: updatedScribal } },
       relationships, institutions: { ...state.world.institutions, [STOREHOUSE]: { ...institution, activeMatters } },
+      matters: { ...state.world.matters, [MATTER_IDS.roofRepair]: updatedRoofMatter, ...(addHeldBarleyMatter ? { [MATTER_IDS.heldBarley]: heldBarleyMatter } : {}) },
       knowledge: { ...state.world.knowledge, ...Object.fromEntries(knowledge.map((item) => [item.id, item])) } },
     records: { ...state.records, entries: { ...state.records.entries, [recordId]: record } },
     opportunities: { ...state.opportunities, assignments: { ...state.opportunities.assignments,

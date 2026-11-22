@@ -234,4 +234,13 @@ describe('Assignment and Challenge foundations', () => {
     expect(state.opportunities.recentActivity).toHaveLength(5);
     expect(evaluateChallengeTriggers(state, [{ id: 'presented-seven', minPresented: 7 }])).toContain('presented-seven');
   });
+  it('does not count offers expiring during the introductory tutorial as mandatory-Work lapses', () => {
+    const tutorialId = 'work-storehouse-reckoning' as WorkId;
+    let state = present(createInitialGameState(), 'tutorial-lapse');
+    state = { ...state, calendar: { ...state.calendar, dayNumber: 4 }, works: { ...state.works, activeWorkId: tutorialId } };
+    const result = transitionGame(state, { type: 'END_DAY', expectedDayNumber: 4 }, undefined, { [tutorialId]: { kind: 'tutorial' } as any });
+    expect(result.state.opportunities.assignments['tutorial-lapse' as AssignmentId].lapsedDuringMandatoryWork).toBe(false);
+    expect(Object.values(result.state.opportunities.assignmentAggregates)[0].nonWorkLapsed).toBe(1);
+  });
+
 });

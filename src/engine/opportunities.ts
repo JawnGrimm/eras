@@ -122,11 +122,12 @@ function applyConsequences(state: GameState, effects: OpportunityConsequences | 
   return next;
 }
 
-export function settleAssignmentOffers(state: GameState): GameState {
+export function settleAssignmentOffers(state: GameState, workCatalog: Readonly<Record<string, { kind?: 'work' | 'tutorial' }>> = {}): GameState {
   let next = state;
   for (const offer of Object.values(state.opportunities.assignments)) {
     if (offer.status !== 'offered' || offer.expiresDay > state.calendar.dayNumber) continue;
-    const lapsedDuringMandatoryWork = state.works.activeWorkId !== null;
+    const activeWorkId = state.works.activeWorkId;
+    const lapsedDuringMandatoryWork = activeWorkId !== null && workCatalog[activeWorkId]?.kind !== 'tutorial';
     const updated = { ...offer, status: 'lapsed' as const, lapsedDuringMandatoryWork };
     next = { ...next, opportunities: { ...next.opportunities, assignments: { ...next.opportunities.assignments, [offer.id]: updated } } };
     next = addActivity(next, offer, 'lapsed', { lapsedDuringMandatoryWork });

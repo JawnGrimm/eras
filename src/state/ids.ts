@@ -2,6 +2,7 @@
 export type PersonId = string & { readonly __brand: 'PersonId' };
 export type CharacterId = PersonId;
 export type InstitutionId = string & { readonly __brand: 'InstitutionId' };
+export type MatterId = string & { readonly __brand: 'MatterId' };
 export type LocationId = string & { readonly __brand: 'LocationId' };
 export type WorkId = string & { readonly __brand: 'WorkId' };
 export type EvidenceId = string & { readonly __brand: 'EvidenceId' };

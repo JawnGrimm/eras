@@ -101,12 +101,12 @@ describe('North-Bay Roof Inspection activity definition and engine', () => {
     const result = transitionGame(state, { type: 'SUBMIT_ASSIGNMENT_ACTIVITY', assignmentId: NORTH_BAY_ASSIGNMENT_ID });
     expect(result.feedback?.code).toBe('assignment-activity-submitted');
     const record = result.state.records.entries['record-assignment-north-bay-roof-inspection-day-1' as never];
-    expect(record.assertions.some((assertion) => assertion.classification === 'disputed')).toBe(true);
+    expect(record.assertions.some((assertion) => assertion.classification === 'disputed' && assertion.id === 'assertion-unsupported-certification')).toBe(true);
     expect(result.state.world.relationships['person-enlil-barni' as never]?.['person-dudu' as never]?.dimensions.trust).toBe(46);
     expect(result.state.world.relationships['person-enlil-barni' as never]?.['person-ur-nanna' as never]?.dimensions.trust).toBe(45);
     expect(result.state.world.people['person-enlil-barni' as never].scribal?.professionalReputation.judgment).toBe(44);
     expect(result.state.world.knowledge['knowledge-assignment-north-bay-roof-inspection-day-1-person-person-dudu' as never]).toBeDefined();
-    expect(result.state.world.institutions['institution-uruk-temple-storehouse' as never].activeMatters.some((matter) => matter.includes('certified without sufficient supporting inspection'))).toBe(true);
+    expect(result.state.world.institutions['institution-uruk-temple-storehouse' as never].activeMatters.some((matterId) => result.state.world.matters[matterId]?.summary.includes('certified without sufficient supporting inspection'))).toBe(true);
   });
 
   it('accepts a qualified early report, writes deterministic records/knowledge, and grants no Historical Progress XP', () => {
@@ -122,7 +122,7 @@ describe('North-Bay Roof Inspection activity definition and engine', () => {
     expect(result.state.records.entries['record-assignment-north-bay-roof-inspection-day-1' as never]?.title).toBe('North-Bay Roof Inspection Report');
     expect(result.state.world.knowledge['knowledge-assignment-north-bay-roof-inspection-day-1-person-person-ur-nanna' as never]).toBeDefined();
     expect(result.state.historicalProgression.historicalXp).toBe(0);
-    expect(result.state.world.institutions['institution-uruk-temple-storehouse' as never].activeMatters.some((matter) => matter.includes('inspection incomplete'))).toBe(true);
+    expect(result.state.world.institutions['institution-uruk-temple-storehouse' as never].activeMatters.some((matterId) => result.state.world.matters[matterId]?.summary.includes('inspection incomplete'))).toBe(true);
     expect(isValidSaveEnvelope(createSaveEnvelope(result.state, 2), INITIAL_WORK_CATALOG)).toBe(true);
   });
 });
