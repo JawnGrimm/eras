@@ -2,11 +2,12 @@ import React from 'react';
 import { useGame } from '../state/GameProvider';
 import { selectCharacterOpportunities } from '../state/opportunitySelectors';
 import type { AssignmentOffer, GameState } from '../state/types';
+import type { InstitutionId, PersonId } from '../state/ids';
 
 function employerName(offer: AssignmentOffer | undefined, state: GameState): string {
   if (!offer) return 'Employer not recorded';
-  if (offer.employer.kind === 'person') return state.world.people[offer.employer.id]?.name ?? 'Person not recorded';
-  return state.world.institutions[offer.employer.id]?.name ?? 'Institution not recorded';
+  if (offer.employer.kind === 'person') return state.world.people[offer.employer.id as PersonId]?.name ?? 'Person not recorded';
+  return state.world.institutions[offer.employer.id as InstitutionId]?.name ?? 'Institution not recorded';
 }
 
 function ContextDetails({ context }: { context: { what: string; who: string[]; quantity?: string; when?: string; where?: string; from?: string; to?: string; purpose: string; responsibility: string[]; authority?: string; provenance: string[] } }) {
