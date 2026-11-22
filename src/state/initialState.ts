@@ -48,7 +48,7 @@ export function createInitialGameState(): GameState {
     { id: ninKasiId, name: 'Nin-kasi', alive: true, affiliations: [templeStorehouseId] },
   ];
   return {
-    calendar: { eraId: 'era-1', dayNumber: 1, displayDate: 'Day 1, Early Season of Inundation (c. 3200 BCE)' },
+    calendar: { eraId: 'era-1', dayNumber: 1, displayDate: 'Day 1 · Uruk (c. 3200 BCE)' },
     actionEconomy: { dailyApAllocation: 6, apRemaining: 6, overtimeUsedToday: false, nextDayApPenalty: false },
     player: { currentCharacterId: INITIAL_PERSON_ID },
     pendingSuccession: null,

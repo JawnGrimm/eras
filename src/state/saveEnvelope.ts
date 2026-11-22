@@ -318,7 +318,8 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
   return finiteNonNegative(value.historicalProgression.historicalXp) && stringArray(value.historicalProgression.completedWorks)
     && new Set(value.historicalProgression.completedWorks).size === value.historicalProgression.completedWorks.length
     && value.historicalProgression.completedWorks.every((id) => isWorkProgress(workProgressMap[id])
-      && workProgressMap[id].status === 'completed')
+      && workProgressMap[id].status === 'completed'
+      && workCatalog[id]?.kind !== 'tutorial')
     && isObject(value.opportunities.assignments) && isObject(value.opportunities.challenges)
     && (activeWorkId === null || typeof activeWorkId === 'string')
     && Object.entries(workProgressMap).every(([id, progress]) => !!id && isWorkProgress(progress)
@@ -344,8 +345,71 @@ export function isValidSaveEnvelope(value: unknown, workCatalog: Readonly<Record
     && finiteNonNegative(value.revision) && Number.isInteger(value.revision) && typeof value.savedAt === 'string'
     && Number.isFinite(Date.parse(value.savedAt)) && isValidGameState(value.state, workCatalog);
 }
+function normalizeLegacyTutorialProgression(
+  parsed: unknown,
+  workCatalog: Readonly<Record<string, WorkDefinition<any>>>,
+): unknown {
+  if (!isObject(parsed) || !isObject(parsed.state)) return parsed;
+  let state = parsed.state;
+
+  // Existing v2 saves may retain the original Day 1 display string even after
+  // dayNumber advanced. Era I currently has no finer calendar model.
+  if (isObject(state.calendar) && state.calendar.eraId === 'era-1'
+    && Number.isInteger(state.calendar.dayNumber) && (state.calendar.dayNumber as number) >= 1) {
+    const dayNumber = state.calendar.dayNumber as number;
+    state = { ...state, calendar: { ...state.calendar, displayDate: `Day ${dayNumber} · Uruk (c. 3200 BCE)` } };
+  }
+
+  const progressMap = isObject(state.works) && isObject(state.works.progress) ? state.works.progress : {};
+  const completedTutorialIds = Object.entries(progressMap)
+    .filter(([id, progress]) => workCatalog[id]?.kind === 'tutorial' && isObject(progress) && progress.status === 'completed')
+    .map(([id]) => id);
+
+  let historicalProgression = state.historicalProgression;
+  if (isObject(historicalProgression) && Array.isArray(historicalProgression.completedWorks)) {
+    const completedWorkIds: unknown[] = historicalProgression.completedWorks;
+    const completedWorks = completedWorkIds.filter((id: unknown) => !completedTutorialIds.includes(String(id)));
+    const legacyTutorialCredits = completedWorkIds.filter((id: unknown): id is string =>
+      typeof id === 'string' && completedTutorialIds.includes(id));
+    const legacyXpToRemove = legacyTutorialCredits.reduce<number>((total, id) =>
+      total + (workCatalog[id]?.legacyHistoricalXpReward ?? 0), 0);
+    const historicalXp = typeof historicalProgression.historicalXp === 'number' && Number.isFinite(historicalProgression.historicalXp)
+      ? Math.max(0, historicalProgression.historicalXp - legacyXpToRemove)
+      : historicalProgression.historicalXp;
+    historicalProgression = { ...historicalProgression, historicalXp, completedWorks };
+  }
+
+  let world = state.world;
+  if (completedTutorialIds.length && isObject(world) && isObject(world.institutions)) {
+    const institutions = { ...world.institutions };
+    for (const workId of completedTutorialIds) {
+      for (const retirement of workCatalog[workId]?.legacyCompletionCleanup?.retireInstitutionMatters ?? []) {
+        const institution = institutions[retirement.institutionId];
+        if (isObject(institution) && Array.isArray(institution.activeMatters)) {
+          institutions[retirement.institutionId] = {
+            ...institution,
+            activeMatters: institution.activeMatters.filter((matter) => matter !== retirement.matter),
+          };
+        }
+      }
+    }
+    world = { ...world, institutions };
+  }
+
+  return {
+    ...parsed,
+    state: {
+      ...state,
+      ...(historicalProgression ? { historicalProgression } : {}),
+      ...(world ? { world } : {}),
+    },
+  };
+}
+
 export function restoreSave(raw: string | null, workCatalog: Readonly<Record<string, WorkDefinition<any>>> = {}): SaveEnvelope | null {
   if (!raw) return null;
-  try { const parsed: unknown = JSON.parse(raw); return isValidSaveEnvelope(parsed, workCatalog) ? parsed : null; }
-  catch { return null; }
+  try {
+    const parsed: unknown = normalizeLegacyTutorialProgression(JSON.parse(raw), workCatalog);
+    return isValidSaveEnvelope(parsed, workCatalog) ? parsed : null;
+  } catch { return null; }
 }

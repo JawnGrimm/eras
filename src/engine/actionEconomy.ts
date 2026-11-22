@@ -21,6 +21,10 @@ function withNotice(state: GameState, category: 'settlement', message: string): 
   return { ...state, journal: { ...state.journal, notices: [...state.journal.notices, notice] } };
 }
 
+function displayDate(dayNumber: number): string {
+  return `Day ${dayNumber} · Uruk (c. 3200 BCE)`;
+}
+
 /** Pure, deterministic state transition. UI feedback is ephemeral; notices are saved in GameState. */
 export function transitionGame(state: GameState, action: GameAction, careerPolicy?: CareerProgressionPolicy, workCatalog: Readonly<Record<string, WorkDefinition<any>>> = {}): TransitionResult {
   const economy = state.actionEconomy;
@@ -65,13 +69,13 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
       if (!definition) return { state, feedback: feedback('error', 'unknown-work', 'This Work is not registered in the active content catalog.') };
       if (validateWorkDefinition(definition).length) return { state, feedback: feedback('error', 'invalid-work-definition', 'This Work failed static content validation.') };
       if (state.works.activeWorkId !== null) return { state, feedback: feedback('error', 'work-already-active', 'Another Work is already active.') };
-      if (state.historicalProgression.completedWorks.includes(action.workId)) return { state, feedback: feedback('error', 'work-already-completed', 'This Work has already been completed.') };
+      if (state.historicalProgression.completedWorks.includes(action.workId) || state.works.progress[action.workId]?.status === 'completed') return { state, feedback: feedback('error', 'work-already-completed', 'This activity has already been completed.') };
       const scenarioData = definition.createInitialProgress();
       if (!definition.validateScenarioData(scenarioData)) return { state, feedback: feedback('error', 'invalid-work-initial-state', 'The Work supplied invalid initial progress data.') };
       const progress = {
         status: 'active' as const, acquiredEvidence: [...definition.startingEvidence], examinedEvidence: [],
         workApSpentToday: 0, rewardGranted: false, completedActionIds: [],
-        provisionContract: definition.provisionsContract, scenarioData, submissionCount: 0,
+        provisionContract: definition.kind === 'tutorial' ? undefined : definition.provisionsContract, scenarioData, submissionCount: 0,
       };
       return { state: { ...state, works: { activeWorkId: action.workId, progress: { ...state.works.progress, [action.workId]: progress } } },
         feedback: feedback('success', 'work-started', definition.title) };
@@ -172,8 +176,8 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
         const nextProgress = { ...progress, status: 'completed' as const, rewardGranted: true, pendingDisposition: false, submissionCount, workApSpentToday: apSpentAfterSubmission,
           lastAssessment: { ...assessment, assessedDay: state.calendar.dayNumber } };
         return { state: { ...state, actionEconomy: { ...economy, apRemaining: apAfterSubmission }, works: { activeWorkId: null, progress: { ...state.works.progress, [action.workId]: nextProgress } },
-          historicalProgression: { historicalXp: state.historicalProgression.historicalXp + (grantReward ? definition.historicalXpReward : 0),
-            completedWorks: state.historicalProgression.completedWorks.includes(action.workId) ? state.historicalProgression.completedWorks
+          historicalProgression: { historicalXp: state.historicalProgression.historicalXp + (grantReward && definition.kind !== 'tutorial' ? definition.historicalXpReward : 0),
+            completedWorks: definition.kind === 'tutorial' || state.historicalProgression.completedWorks.includes(action.workId) ? state.historicalProgression.completedWorks
               : [...state.historicalProgression.completedWorks, action.workId] } },
           feedback: feedback('success', 'work-completed', assessment.summary) };
       }
@@ -220,7 +224,9 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
       } catch {
         return { state, feedback: feedback('error', 'work-finalization-error', 'The disposition could not be finalized; no AP, rewards, or records were committed.') };
       }
-      if (!finalization || (finalization.careerXpReward !== undefined && (!Number.isFinite(finalization.careerXpReward) || finalization.careerXpReward < 0)) || (finalization.knowledge !== undefined && !Array.isArray(finalization.knowledge))) {
+      if (!finalization || (finalization.careerXpReward !== undefined && (!Number.isFinite(finalization.careerXpReward) || finalization.careerXpReward < 0)) || (finalization.knowledge !== undefined && !Array.isArray(finalization.knowledge))
+        || (finalization.retireInstitutionMatters !== undefined && (!Array.isArray(finalization.retireInstitutionMatters)
+          || finalization.retireInstitutionMatters.some((item) => !item || typeof item.institutionId !== 'string' || !item.institutionId || typeof item.matter !== 'string' || !item.matter)))) {
         return { state, feedback: feedback('error', 'work-finalization-invalid', 'The Work finalizer returned invalid rewards.') };
       }
       let next = state;
@@ -233,6 +239,12 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
         const result = transitionWorldAction(next, { type: 'GRANT_KNOWLEDGE', knowledge });
         if (result.feedback?.kind === 'error') return { state, feedback: feedback('error', 'work-knowledge-invalid', result.feedback.message) };
         next = result.state;
+      }
+      for (const retirement of finalization.retireInstitutionMatters ?? []) {
+        const institution = next.world.institutions[retirement.institutionId];
+        if (!institution) return { state, feedback: feedback('error', 'work-institution-matter-invalid', `Institution ${retirement.institutionId} does not exist.`) };
+        next = { ...next, world: { ...next.world, institutions: { ...next.world.institutions,
+          [retirement.institutionId]: { ...institution, activeMatters: institution.activeMatters.filter((matter) => matter !== retirement.matter) } } } };
       }
       const grantReward = !progress.rewardGranted;
       const finalProgress = { ...progress, status: 'completed' as const, rewardGranted: true, pendingDisposition: false, finalDisposition: action.disposition,
@@ -249,8 +261,8 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
       }
       return { state: { ...rewarded, actionEconomy: { ...economy, apRemaining: economy.apRemaining - cost },
         works: { activeWorkId: null, progress: { ...rewarded.works.progress, [action.workId]: finalProgress } },
-        historicalProgression: { historicalXp: next.historicalProgression.historicalXp + (grantReward ? definition.historicalXpReward : 0),
-          completedWorks: next.historicalProgression.completedWorks.includes(action.workId) ? next.historicalProgression.completedWorks : [...next.historicalProgression.completedWorks, action.workId] } },
+        historicalProgression: { historicalXp: next.historicalProgression.historicalXp + (grantReward && definition.kind !== 'tutorial' ? definition.historicalXpReward : 0),
+          completedWorks: definition.kind === 'tutorial' || next.historicalProgression.completedWorks.includes(action.workId) ? next.historicalProgression.completedWorks : [...next.historicalProgression.completedWorks, action.workId] } },
         feedback: feedback('success', 'work-completed', progress.lastAssessment.summary) };
     }
     case 'SPEND_AP': {
@@ -303,11 +315,15 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
         return { state, feedback: feedback('error', 'overtime-ap-unspent', 'Spend the overtime AP before settling the day.') };
       }
       const startingProvisions = scribal.wallet.provisions;
-      const contractProgress = Object.values(state.works.progress).find((item) =>
+      // Ignore tutorial snapshots as well as current definitions: older v2 saves may
+      // still contain the tutorial's former provision contract on WorkProgress.
+      const nonTutorialProgress = Object.entries(state.works.progress)
+        .filter(([workId]) => workCatalog[workId]?.kind !== 'tutorial')
+        .map(([, progress]) => progress);
+      const contractProgress = nonTutorialProgress.find((item) =>
         (item.status === 'active' || item.status === 'completed') && !!item.provisionContract
         && item.workApSpentToday >= item.provisionContract.minimumWorkApPerDay);
-      const activeContractExists = Object.values(state.works.progress).some((item) =>
-        item.status === 'active' && !!item.provisionContract);
+      const activeContractExists = nonTutorialProgress.some((item) => item.status === 'active' && !!item.provisionContract);
       const contractQualified = !!contractProgress?.provisionContract;
       const contractProvision = contractQualified ? (contractProgress?.provisionContract?.provisionsPerQualifiedWorkday ?? 0) : 0;
       const workContractProvisionReason = contractQualified
@@ -327,7 +343,7 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
       const withExpiredOffers = settleAssignmentOffers(state);
       let next = {
         ...withExpiredOffers,
-        calendar: { ...state.calendar, dayNumber: state.calendar.dayNumber + 1 },
+        calendar: { ...state.calendar, dayNumber: state.calendar.dayNumber + 1, displayDate: displayDate(state.calendar.dayNumber + 1) },
         works: { ...withExpiredOffers.works, progress: Object.fromEntries(Object.entries(withExpiredOffers.works.progress).map(([id, progress]) => [id, { ...progress, workApSpentToday: 0 }])) },
         actionEconomy: {
           dailyApAllocation: economy.nextDayApPenalty ? 5 as const : 6 as const,
@@ -340,14 +356,10 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
           people: { ...withExpiredOffers.world.people, [person.id]: { ...person, scribal: updatedScribal } },
         },
       };
-      if (hadProvision) {
-        next = withNotice(next, 'settlement', contractProvision > 0
-          ? `One contracted Work provision was earned and consumed for daily sustenance (${contractProvision} provision(s) awarded).`
-          : 'One provision was consumed for daily sustenance.');
-      } else {
+      if (!hadProvision && (shortageWorkdays <= 2 || shortageWorkdays === 3)) {
         next = withNotice(next, 'settlement', shortageWorkdays <= 2
           ? `No provisions were available. Shortage day ${shortageWorkdays} of 2 grace days.`
-          : 'No provisions were available for a third consecutive Workday. Shortage consequences begin.');
+          : 'No provisions were available for a third consecutive Workday; the shortage state is now active.');
       }
       return {
         state: next,

@@ -33,7 +33,7 @@ function SettlementSummary({ settlement }: { settlement: DaySettlement }) {
       <div><dt className="text-xs text-stone-500">Sustenance deducted</dt><dd className="font-mono text-xl">−{settlement.sustenanceDeducted}</dd></div>
       <div><dt className="text-xs text-stone-500">Ending provisions</dt><dd className="font-mono text-xl font-semibold">{settlement.endingProvisions}</dd></div>
       <div><dt className="text-xs text-stone-500">Shortage workdays</dt><dd className="font-mono text-xl">{settlement.shortageWorkdays}</dd></div>
-      <div><dt className="text-xs text-stone-500">Overtime stress incurred</dt><dd className="font-mono text-xl">+{settlement.overtimeStress}</dd></div>
+      <div><dt className="text-xs text-stone-500">Overtime Stress added</dt><dd className="font-mono text-xl">+{settlement.overtimeStress}</dd></div>
       <div><dt className="text-xs text-stone-500">Tomorrow’s AP allocation</dt><dd className="font-mono text-xl">{settlement.tomorrowAp}</dd></div>
     </dl>
   </section>;
@@ -69,18 +69,18 @@ export function ProductionWorkdayHub({ onOpenWork, settlement, onSettlement }: {
     <header>
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-800">Uruk · Workday {state.calendar.dayNumber}</p>
       <h1 className="font-serif text-3xl font-semibold text-stone-900">Workday Hub</h1>
-      <p className="mt-2 text-sm text-stone-600">Your mandatory historical Work anchors the day. Optional commissions and challenges remain separate commitments.</p>
+      <p className="mt-2 text-sm text-stone-600">The introductory tutorial guides your first professional exercise. Optional Assignments and Challenges remain separate commitments; mandatory historical Works come later.</p>
     </header>
     {settlement && <SettlementSummary settlement={settlement} />}
     <section className="rounded-xl border border-stone-300 bg-white p-5 shadow-sm">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-amber-800">Mandatory historical undertaking</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-amber-800">Introductory tutorial</p>
           <h2 className="mt-1 font-serif text-2xl font-semibold text-stone-900">The Storehouse Reckoning</h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-stone-600">Reconcile the temple storehouse records and prepare a defensible account for the Senior Scribe.</p>
-          <p className="mt-3 text-xs text-stone-500">{activeWork?.status === 'completed' ? 'Completed' : activeWork?.status === 'active' ? 'Active' : 'Not started'} · Contract: 1 provision for a day with at least 1 AP spent on this Work</p>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-stone-600">Complete a guided exercise in reconciling the temple storehouse records and preparing a defensible account for the Senior Scribe.</p>
+          <p className="mt-3 text-xs text-stone-500">{activeWork?.status === 'completed' ? 'Completed' : activeWork?.status === 'active' ? 'In progress' : 'Not started'} · No provision contract · 0 Historical Progress XP</p>
         </div>
-        <button onClick={onOpenWork} className="rounded-lg bg-stone-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-amber-800">Open Work</button>
+        <button onClick={onOpenWork} className="rounded-lg bg-stone-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-amber-800">Open Tutorial</button>
       </div>
       <div className="mt-4 flex flex-wrap gap-4 border-t border-stone-200 pt-4 text-sm">
         <span><strong className="font-mono">{state.actionEconomy.apRemaining}/{state.actionEconomy.dailyApAllocation}</strong> AP remaining</span>

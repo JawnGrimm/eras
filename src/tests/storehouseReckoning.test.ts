@@ -6,7 +6,7 @@ import { validateWorkDefinition } from '../works/workDefinition';
 import type { GameState } from '../state/types';
 import {
   STOREHOUSE_EVIDENCE, STOREHOUSE_WORK_ID, STOREHOUSE_PROVISIONAL_CAREER_XP,
-  STOREHOUSE_PROVISIONAL_HISTORICAL_XP, createStorehouseScenario, interpretStorehouseEvidence,
+  STOREHOUSE_PROVISIONAL_HISTORICAL_XP, STOREHOUSE_LEGACY_HISTORICAL_XP, STOREHOUSE_INSTITUTION_ID, createStorehouseScenario, interpretStorehouseEvidence,
   storehouseAccountingPass, storehouseReckoning, validateStorehouseScenario,
 } from '../works/storehouseReckoning';
 
@@ -38,9 +38,11 @@ function nextDay(state: GameState): GameState {
   return transitionGame(state, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber }, undefined, catalog).state;
 }
 
-describe('Storehouse Reckoning typed Work', () => {
+describe('Storehouse Reckoning introductory tutorial', () => {
   it('passes static Work validation and declares the revised evidence/AP path', () => {
     expect(validateWorkDefinition(storehouseReckoning)).toEqual([]);
+    expect(storehouseReckoning.kind).toBe('tutorial');
+    expect(storehouseReckoning.historicalXpReward).toBe(0);
     expect(storehouseReckoning.evidence.map((item) => item.id)).toEqual(STOREHOUSE_EVIDENCE.map((item) => item.id));
     expect(storehouseReckoning.actions.map((item) => [item.id, item.apCost])).toEqual([
       ['accounts',1], ['intake_issue',1], ['recount',2], ['custody',1],
@@ -59,6 +61,7 @@ describe('Storehouse Reckoning typed Work', () => {
     state = submitValid(state);
     expect(state.works.progress[STOREHOUSE_WORK_ID].pendingDisposition).toBe(true);
     expect(state.works.progress[STOREHOUSE_WORK_ID].status).toBe('active');
+    expect(state.works.progress[STOREHOUSE_WORK_ID].provisionContract).toBeUndefined();
     expect(state.historicalProgression.historicalXp).toBe(0);
     expect(state.world.people[INITIAL_PERSON_ID].scribal!.careerXp).toBe(150);
     expect(state.actionEconomy.apRemaining).toBe(0);
@@ -231,7 +234,9 @@ describe('Storehouse Reckoning typed Work', () => {
     expect(state.works.progress[STOREHOUSE_WORK_ID].status).toBe('completed');
     expect(state.works.progress[STOREHOUSE_WORK_ID].rewardGranted).toBe(true);
     expect(state.works.progress[STOREHOUSE_WORK_ID].finalDisposition).toBe(disposition);
-    expect(state.historicalProgression.historicalXp).toBe(STOREHOUSE_PROVISIONAL_HISTORICAL_XP);
+    expect(state.historicalProgression.historicalXp).toBe(0);
+    expect(state.historicalProgression.completedWorks).not.toContain(STOREHOUSE_WORK_ID);
+    expect(state.world.institutions[STOREHOUSE_INSTITUTION_ID].activeMatters).toEqual([]);
     expect(state.world.people[INITIAL_PERSON_ID].scribal!.careerXp - beforeCareer).toBe(STOREHOUSE_PROVISIONAL_CAREER_XP);
     const record = Object.values(state.records.entries)[0];
     expect(record.assertions.some((item) => item.text.includes(disposition))).toBe(true);
@@ -254,13 +259,45 @@ describe('Storehouse Reckoning typed Work', () => {
     expect(Object.values(state.records.entries)[0].sources.some((item) => item.id === 'ev-06')).toBe(true);
   });
 
-  it('preserves the Work provision contract through completion for that contracted Workday', () => {
+  it('never grants tutorial provisions and consumes only the character’s existing stock', () => {
     let state = acquireMinimum(start());
+    expect(state.works.progress[STOREHOUSE_WORK_ID].provisionContract).toBeUndefined();
     state = submitValid(state);
     state = nextDay(state);
     state = transitionGame(state, { type: 'DISPOSE_WORK', workId: STOREHOUSE_WORK_ID, disposition: 'authorized' }, undefined, catalog).state;
     state = nextDay(state);
-    expect(state.world.people[INITIAL_PERSON_ID].scribal!.wallet.provisions).toBe(5);
+    expect(state.world.people[INITIAL_PERSON_ID].scribal!.wallet.provisions).toBe(3);
+  });
+
+  it('normalizes completed tutorial progression in existing v2 saves without invalidating the save', () => {
+    let state = submitValid(acquireMinimum(start()));
+    state = nextDay(state);
+    state = transitionGame(state, { type: 'DISPOSE_WORK', workId: STOREHOUSE_WORK_ID, disposition: 'authorized' }, undefined, catalog).state;
+    const legacyState: GameState = {
+      ...state,
+      calendar: { ...state.calendar, dayNumber: 47, displayDate: 'Day 1, Early Season of Inundation (c. 3200 BCE)' },
+      historicalProgression: {
+        historicalXp: STOREHOUSE_LEGACY_HISTORICAL_XP,
+        completedWorks: [STOREHOUSE_WORK_ID],
+      },
+      world: { ...state.world, institutions: {
+        ...state.world.institutions,
+        [STOREHOUSE_INSTITUTION_ID]: {
+          ...state.world.institutions[STOREHOUSE_INSTITUTION_ID],
+          activeMatters: ['The Storehouse Reckoning'],
+        },
+      } },
+    };
+    const legacyEnvelope = createSaveEnvelope(legacyState, 7, '2026-11-22T12:00:00.000Z');
+    const restored = restoreSave(JSON.stringify(legacyEnvelope), catalog);
+    expect(restored).not.toBeNull();
+    expect(restored?.schemaVersion).toBe(2);
+    expect(restored?.state.historicalProgression.historicalXp).toBe(0);
+    expect(restored?.state.historicalProgression.completedWorks).toEqual([]);
+    expect(restored?.state.calendar.displayDate).toBe('Day 47 · Uruk (c. 3200 BCE)');
+    expect(restored?.state.works.progress[STOREHOUSE_WORK_ID].status).toBe('completed');
+    expect(restored?.state.world.institutions[STOREHOUSE_INSTITUTION_ID].activeMatters).toEqual([]);
+    expect(isValidSaveEnvelope(restored, catalog)).toBe(true);
   });
 
   it('saves active drafts and pending assessments, and rejects malformed scenario structures', () => {
@@ -288,6 +325,6 @@ describe('Storehouse Reckoning typed Work', () => {
     state = transitionGame(state, { type: 'DISPOSE_WORK', workId: STOREHOUSE_WORK_ID, disposition: 'authorized' }, undefined, catalog).state;
     const repeated = transitionGame(state, { type: 'DISPOSE_WORK', workId: STOREHOUSE_WORK_ID, disposition: 'authorized' }, undefined, catalog);
     expect(repeated.state).toBe(state);
-    expect(state.historicalProgression.historicalXp).toBe(STOREHOUSE_PROVISIONAL_HISTORICAL_XP);
+    expect(state.historicalProgression.historicalXp).toBe(0);
   });
 });

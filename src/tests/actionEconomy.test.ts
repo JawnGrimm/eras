@@ -56,7 +56,8 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
     const settled = result.state;
     expect(settled.world.people[INITIAL_PERSON_ID].scribal?.wallet.provisions).toBe(4);
     expect(settled.world.people[INITIAL_PERSON_ID].scribal?.wallet.shortageWorkdays).toBe(0);
-    expect(settled.journal.notices).toHaveLength(1);
+    expect(settled.journal.notices).toHaveLength(0);
+    expect(settled.calendar.displayDate).toBe('Day 2 · Uruk (c. 3200 BCE)');
     const duplicate = transitionGame(settled, { type: 'END_DAY', expectedDayNumber: initial.calendar.dayNumber });
     expect(duplicate.state).toBe(settled);
     expect(duplicate.feedback?.code).toBe('stale-day-settlement');
@@ -68,7 +69,7 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
     const activeProgress = state.works.progress[STOREHOUSE_WORK_ID];
     const priorWorkId = 'work-prior-completed' as typeof STOREHOUSE_WORK_ID;
     state = { ...state, works: { ...state.works, progress: {
-      [priorWorkId]: { ...activeProgress, status: 'completed', workApSpentToday: 0 },
+      [priorWorkId]: { ...activeProgress, status: 'completed', workApSpentToday: 1, provisionContract: { provisionsPerQualifiedWorkday: 1, minimumWorkApPerDay: 1 } },
       ...state.works.progress,
     } } };
     state = transitionGame(state, { type: 'ACQUIRE_WORK_EVIDENCE', workId: STOREHOUSE_WORK_ID, actionId: 'accounts' }, undefined, INITIAL_WORK_CATALOG).state;
@@ -93,7 +94,7 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
     const withPriorCompletion = {
       ...state,
       works: { ...state.works, progress: {
-        [priorWorkId]: { ...activeProgress, status: 'completed' as const, workApSpentToday: 1 },
+        [priorWorkId]: { ...activeProgress, status: 'completed' as const, workApSpentToday: 1, provisionContract: { provisionsPerQualifiedWorkday: 1, minimumWorkApPerDay: 1 } },
         [STOREHOUSE_WORK_ID]: { ...activeProgress, workApSpentToday: 0 },
       } },
     };
@@ -102,14 +103,22 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
     expect(result.settlement?.workContractProvisionEarned).toBe(1);
   });
 
-  it('reports a provision-contract shortfall when the Work AP threshold was not met', async () => {
+  it('ignores a legacy provision-contract snapshot on the Storehouse tutorial in v2 saves', () => {
     const state = createNewGameState();
-    const result = transitionGame(state, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber }, undefined, INITIAL_WORK_CATALOG);
-    expect(result.settlement?.workContractProvisionReason).toBe('insufficient_work_ap');
+    const progress = state.works.progress[STOREHOUSE_WORK_ID];
+    const legacyState = {
+      ...state,
+      works: { ...state.works, progress: { ...state.works.progress,
+        [STOREHOUSE_WORK_ID]: { ...progress, provisionContract: { provisionsPerQualifiedWorkday: 1, minimumWorkApPerDay: 1 } },
+      } },
+    };
+    const result = transitionGame(legacyState, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber }, undefined, INITIAL_WORK_CATALOG);
+    expect(result.settlement?.workContractProvisionReason).toBe('no_active_work_contract');
     expect(result.settlement?.workContractProvisionEarned).toBe(0);
+    expect(result.state.world.people[INITIAL_PERSON_ID].scribal?.wallet.provisions).toBe(4);
   });
 
-  it('allows two consecutive Workdays without provisions before shortage consequences begin on the third', () => {
+  it('emits shortage notices only on grace and shortage-entry transitions', () => {
     let state = createInitialGameState();
     const person = state.world.people[INITIAL_PERSON_ID];
     state = {
@@ -118,23 +127,34 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
         ...person, scribal: { ...person.scribal!, wallet: { money: 0, provisions: 0, shortageWorkdays: 0 } },
       } } },
     };
+
     state = endDay(state).state;
     expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet.shortageWorkdays).toBe(1);
+    expect(state.journal.notices).toHaveLength(1);
     state = endDay(state).state;
     expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet.shortageWorkdays).toBe(2);
+    expect(state.journal.notices).toHaveLength(2);
     state = endDay(state).state;
     expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet.shortageWorkdays).toBe(3);
-    expect(state.journal.notices.at(-1)?.message).toContain('Shortage consequences begin');
-    const recoveredPerson = state.world.people[INITIAL_PERSON_ID];
+    expect(state.journal.notices).toHaveLength(3);
+    expect(state.journal.notices.at(-1)?.message).toContain('shortage state is now active');
+
+    for (let day = 4; day <= 8; day++) state = endDay(state).state;
+    expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet.shortageWorkdays).toBe(8);
+    expect(state.journal.notices).toHaveLength(3);
+
+    const current = state.world.people[INITIAL_PERSON_ID];
     state = {
       ...state,
       world: { ...state.world, people: { ...state.world.people, [INITIAL_PERSON_ID]: {
-        ...recoveredPerson, scribal: { ...recoveredPerson.scribal!, wallet: { money: 0, provisions: 1, shortageWorkdays: 3 } },
+        ...current,
+        scribal: { ...current.scribal!, wallet: { ...current.scribal!.wallet, provisions: 1 } },
       } } },
     };
     state = endDay(state).state;
     expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet.provisions).toBe(0);
     expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet.shortageWorkdays).toBe(0);
+    expect(state.journal.notices).toHaveLength(3);
   });
 
   it('restores only structurally valid v2 envelopes and rejects partial or corrupt saves', () => {

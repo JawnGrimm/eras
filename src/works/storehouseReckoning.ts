@@ -15,14 +15,11 @@ export const STOREHOUSE_PEOPLE = {
   brewingRepresentative: 'person-nin-kasi' as PersonId,
 } as const;
 
-export const STOREHOUSE_PROVISION_CONTRACT = {
-  provisionsPerQualifiedWorkday: 1,
-  minimumWorkApPerDay: 1,
-} as const;
-
 // Prototype reward values are retained only as provisional balance references.
 export const STOREHOUSE_PROVISIONAL_CAREER_XP = 500;
-export const STOREHOUSE_PROVISIONAL_HISTORICAL_XP = 15_000;
+export const STOREHOUSE_PROVISIONAL_HISTORICAL_XP = 0;
+/** Historical XP previously credited to this scenario before its tutorial classification. */
+export const STOREHOUSE_LEGACY_HISTORICAL_XP = 15_000;
 
 export type StorehouseField =
   | 'opening' | 'dispatched' | 'received' | 'intakeUsable'
@@ -203,10 +200,18 @@ function finalize(context: WorkSubmissionContext<StorehouseScenarioData>, dispos
     { id: `knowledge-storehouse-record-steward-${dayNumber}` as KnowledgeEntryId, holder: { kind: 'person' as const, id: STOREHOUSE_PEOPLE.steward }, subject: { kind: 'record' as const, id: record.id }, basis: 'received-copy' as const, learnedDay: dayNumber, sourcePersonId: personId },
     { id: `knowledge-storehouse-record-institution-${dayNumber}` as KnowledgeEntryId, holder: { kind: 'institution' as const, id: STOREHOUSE_INSTITUTION_ID }, subject: { kind: 'record' as const, id: record.id }, basis: 'received-copy' as const, learnedDay: dayNumber, sourcePersonId: personId },
   ];
-  return { careerXpReward: STOREHOUSE_PROVISIONAL_CAREER_XP, record, knowledge };
+  return {
+    careerXpReward: STOREHOUSE_PROVISIONAL_CAREER_XP,
+    record,
+    knowledge,
+    retireInstitutionMatters: [{ institutionId: STOREHOUSE_INSTITUTION_ID, matter: 'The Storehouse Reckoning' }],
+  };
 }
 
 export const storehouseReckoning = defineWork<StorehouseScenarioData>({
+  kind: 'tutorial',
+  legacyHistoricalXpReward: STOREHOUSE_LEGACY_HISTORICAL_XP,
+  legacyCompletionCleanup: { retireInstitutionMatters: [{ institutionId: STOREHOUSE_INSTITUTION_ID, matter: 'The Storehouse Reckoning' }] },
   id: STOREHOUSE_WORK_ID,
   title: 'The Storehouse Reckoning',
   startingEvidence: [],
@@ -223,7 +228,6 @@ export const storehouseReckoning = defineWork<StorehouseScenarioData>({
   revisionSubmissionApCost: 1,
   dispositionApCost: 1,
   dispositions: ['returned','account_accepted','authorized'],
-  provisionsContract: STOREHOUSE_PROVISION_CONTRACT,
   createInitialProgress: createStorehouseScenario,
   validateScenarioData: validateStorehouseScenario,
   evaluateSubmission: (context) => assess(context),

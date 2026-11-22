@@ -6,6 +6,7 @@ import { SuccessionScreen } from '../components/SuccessionScreen';
 import { ProductionPeopleAndInstitutions } from '../components/ProductionPeopleAndInstitutions';
 import { ProductionRecordsAndJournal } from '../components/ProductionRecordsAndJournal';
 import { ProductionWorkdayHub } from '../components/ProductionWorkdayHub';
+import { StorehouseWorkScreen } from '../components/StorehouseWorkScreen';
 import { ProductionChallengeJournal } from '../components/ProductionChallengeJournal';
 import { createNewGameState } from '../state/newGameState';
 import { transitionGame } from '../engine/actionEconomy';
@@ -13,6 +14,7 @@ import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState
 import { GameProvider } from '../state/GameProvider';
 import type { AppointmentId, EventId, KnowledgeEntryId, PersonId, RecordId } from '../state/ids';
 import type { GameState, RecordEntry } from '../state/types';
+import { STOREHOUSE_WORK_ID } from '../works/storehouseReckoning';
 
 function renderScreen(state: GameState, screen: React.ReactElement) {
   return renderToStaticMarkup(createElement(GameProvider, { initialState: state }, screen));
@@ -60,6 +62,33 @@ describe('production continuity and social screens', () => {
     expect(markup).toContain('Choose who continues');
     expect(markup).not.toContain('Assignment Board</button>');
     expect(markup).not.toContain('Workday Hub</button>');
+  });
+
+  it('shows Stress, derived Grade, and the tutorial label in the production shell', () => {
+    const state = createNewGameState();
+    const markup = renderScreen(state, createElement(ProductionShellContent));
+    expect(markup).toContain('Stress: 15/100');
+    expect(markup).toContain('Professional Rank: Grade 1');
+    expect(markup).toContain('Introductory Tutorial · Storehouse');
+    expect(markup).not.toContain('Active Work · Storehouse');
+  });
+
+  it('hides submission controls after the Storehouse tutorial is completed', () => {
+    const fresh = createNewGameState();
+    const progress = fresh.works.progress[STOREHOUSE_WORK_ID];
+    const completed: GameState = {
+      ...fresh,
+      works: { activeWorkId: null, progress: {
+        ...fresh.works.progress,
+        [STOREHOUSE_WORK_ID]: {
+          ...progress, status: 'completed', rewardGranted: true, pendingDisposition: false, finalDisposition: 'authorized',
+        },
+      } },
+    };
+    const markup = renderScreen(completed, createElement(StorehouseWorkScreen, { onBack: () => undefined }));
+    expect(markup).toContain('Tutorial completed');
+    expect(markup).not.toContain('Revise and resubmit');
+    expect(markup).not.toContain('Submit for assessment');
   });
 
   it('keeps Workday quick Accept disabled for expired or unqualified offers and labels Assignment-only rewards accurately', () => {
@@ -152,8 +181,12 @@ describe('production continuity and social screens', () => {
     };
     const markup = renderScreen(state, createElement(ProductionRecordsAndJournal));
 
+    expect(markup).toContain('1 archived record');
+    expect(markup).not.toContain('1 archived records');
     expect(markup).toContain('Original record preserved');
     expect(markup).toContain('Twelve measures were entered.');
+    expect(markup).toContain('Other source: Direct observation at the storehouse');
+    expect(markup).not.toContain('source-observation');
     expect(markup).toContain('The original quantity assertion is preserved.');
     expect(markup).toContain('The seal was not independently verified.');
     expect(markup).toContain('The responsible carrier remains unidentified.');
