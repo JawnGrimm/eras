@@ -870,6 +870,25 @@ Feedback should explain what was correct, incomplete, unsupported, or incorrect.
 
 Rulings and document choices must lead to outcomes that reflect what the player actually selected. Alternative decisions should have meaningful differences in trust, stress, resources, relationships, institutional standing, or later opportunities.
 
+### 9.4 Character interpretation and internal monologue
+
+When a character examines evidence, the presentation should include both the evidence itself and the character's internal response to it. The source material remains consistent; what changes is what this particular character notices, recognizes, infers, and understands.
+
+The internal monologue is character-situated interpretation, not an omniscient explanation or a guaranteed hint. It should be generated from the examined evidence and the character's actual state. Relevant influences may include:
+
+- **Skills and professional knowledge:** recognition of patterns, procedures, technical details, and implications.
+- **Attributes and abilities:** perception, memory, reasoning, and other capacities relevant to the situation.
+- **Experience:** familiarity gained through prior work and exposure to similar circumstances.
+- **Equipment and items:** tools or reference materials that reveal, verify, or help interpret additional details.
+- **Relationships and background:** contextual knowledge about people, institutions, practices, and prior events that the character plausibly possesses.
+- **Current circumstances:** conditions that may affect attention, recall, confidence, or reasoning.
+
+These influences shape interpretation, confidence, and the possibility of overlooking or misunderstanding significance. Low skill must not arbitrarily hide, falsify, or alter objective evidence already available to the character. The game should distinguish what the source states from what the character thinks it means, and should allow the character to recognize uncertainty or lack sufficient knowledge.
+
+A character's interpretation may be incomplete or mistaken. The monologue must not reveal facts the character has no plausible way to know, nor should it automatically tell the player which action to select. It should communicate the character's reasoning and limits in a way that lets the player make the decision.
+
+Keep four layers distinct: **evidence** (what the source provides), **interpretation** (what the character makes of it), **judgment** (what the character recommends or decides), and **assessment** (how another person evaluates that reasoning and its result). This is a reusable interaction principle across professions and eras, not dialogue authored separately for every possible skill value.
+
 ---
 
 ## 10. Career Progression
@@ -1330,6 +1349,10 @@ Assignments should involve specific people, places, institutions, and relationsh
 
 Consequences should arise from the facts and choices in the scenario. Avoid arbitrary changes to trust, stress, faction standings, resources, or NPC relationships. Alternative rulings should have coherent and distinguishable outcomes.
 
+### 19.6 Character-situated interpretation
+
+Evidence presentation must distinguish source content from the examining character's interpretation. Internal monologue should reflect only knowledge and capabilities plausibly available to that character, including relevant skills, attributes, experience, equipment, relationships, background, and circumstances. It may express uncertainty or contain a mistaken interpretation, but it must not silently rewrite the source evidence or function as an infallible answer key. Scenarios should provide enough source information for the player to reason about the task even when the character lacks the expertise to interpret every implication.
+
 ---
 
 ## 20. Progression Pacing and Player Experience
@@ -1414,6 +1437,7 @@ The following details require further design before they can be treated as fixed
 22. Complete the character system: define class-specific starting circumstances and benefits; specialization content, qualification and advancement requirements; the detailed personality-trait catalog, emergence and change rules, and mechanical effects; the detailed condition catalog and numerical effects; the action-resolution model connecting attributes, skills, specializations, equipment, conditions, and circumstances; and the detailed equipment catalog and balancing. The four initial career paths, six attributes and their relatively stable progression, six core skills and primary attribute pairings, independent skill-experience tracks, 1–10 skill scale, Career XP investment principle, multi-specialization model, Primary Specialization, three expertise levels, initial personality-trait selection and emergent/changeable personality principles, condition principles, and initial equipment principles are established. Exact thresholds, costs, trait content, and action-resolution mechanics remain open.
 23. Define the family desk's upgrade economy and era-transition treatment, including upgrade effects, costs, adaptation, and the modest inherited bonuses retained from previous eras. The desk's continuity role and broad transition principle are established; individual upgrades and numerical effects are not.
 24. Define the notification and attention rules: event prioritization, immediate-alert thresholds, morning-report delivery and grouping, event-log organization, and navigation from notices to relevant people, records, institutions, and locations. The morning report's purpose is established as a selective briefing of what is relevant to the player now, including approaching deadlines, changes to ongoing matters, plausible opportunities, and warnings; exact thresholds, layout, and runtime behavior remain open.
+25. Define the reusable internal-monologue system: determine how examined evidence is paired with character-situated interpretation; how skills, attributes, experience, equipment, relationships, background, and current circumstances influence recognition, reasoning, confidence, and possible error; and how the system communicates uncertainty without becoming an omniscient hint or concealing objective evidence. The evidence/interpretation/judgment/assessment distinction is approved; exact action-resolution rules, thresholds, content authoring, and runtime implementation remain open.
 
 These are open design tasks, not invitations to fill gaps with arbitrary placeholder systems.
 
