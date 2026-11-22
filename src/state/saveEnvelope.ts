@@ -276,8 +276,8 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
       && workCatalog[id].validateScenarioData((progress as WorkProgress).scenarioData)
       && (progress as WorkProgress).acquiredEvidence.every((evidenceId) => workCatalog[id].evidence.some((item) => item.id === evidenceId))
       && (progress as WorkProgress).completedActionIds.every((actionId) => workCatalog[id].actions.some((item) => item.id === actionId)))
-    && (works.activeWorkId === null || (isObject(workProgressMap[works.activeWorkId])
-      && (workProgressMap[works.activeWorkId] as WorkProgress).status === 'active'))
+    && (works.activeWorkId === null || (isWorkProgress(workProgressMap[works.activeWorkId])
+      && workProgressMap[works.activeWorkId].status === 'active'))
     && Array.isArray(value.records.permanentOutcomes)
     && Array.isArray(value.journal.notices);
 }
