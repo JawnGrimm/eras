@@ -173,6 +173,7 @@ describe('Work lifecycle and save validation', () => {
     expect(state.historicalProgression.completedWorks).toEqual([WORK]);
     expect(state.works.progress[WORK].rewardGranted).toBe(true);
     expect(state.works.activeWorkId).toBeNull();
+    expect(isValidSaveEnvelope(createSaveEnvelope(state, 2), catalog)).toBe(true);
   });
 
   it('counts only Work-identified AP toward the daily Work contract and resets it at settlement', () => {
