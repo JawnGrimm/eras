@@ -497,6 +497,29 @@ function normalizeLegacyTutorialProgression(
   };
 }
 
+function normalizeLegacyStarterAssignments(parsed: unknown): unknown {
+  if (!isObject(parsed) || !isObject(parsed.state) || !isObject(parsed.state.opportunities)
+    || !isObject(parsed.state.opportunities.assignments)) return parsed;
+  const opportunities = parsed.state.opportunities;
+  const assignments = { ...opportunities.assignments };
+  const legacyIds = new Set([
+    'assignment-storehouse-copy-check',
+    'assignment-apprentice-tablet-preparation',
+  ]);
+  let changed = false;
+  for (const id of legacyIds) {
+    const offer = assignments[id];
+    if (!isObject(offer) || !['offered', 'accepted'].includes(String(offer.status))) continue;
+    // Retire old instant cards without inventing a player cancellation or undoing
+    // any completed historical reward. Completed records remain untouched.
+    assignments[id] = { ...offer, status: 'lapsed' };
+    changed = true;
+  }
+  return changed
+    ? { ...parsed, state: { ...parsed.state, opportunities: { ...opportunities, assignments } } }
+    : parsed;
+}
+
 function normalizeHardshipState(parsed: unknown): unknown {
   if (!isObject(parsed) || !isObject(parsed.state)) return parsed;
   const state = parsed.state;
@@ -519,7 +542,7 @@ function normalizeHardshipState(parsed: unknown): unknown {
 export function restoreSave(raw: string | null, workCatalog: Readonly<Record<string, WorkDefinition<any>>> = {}): SaveEnvelope | null {
   if (!raw) return null;
   try {
-    const parsed: unknown = normalizeHardshipState(normalizeLegacyTutorialProgression(normalizeInstitutionalMatters(normalizeNorthBayWorldBaseline(JSON.parse(raw))), workCatalog));
+    const parsed: unknown = normalizeHardshipState(normalizeLegacyStarterAssignments(normalizeLegacyTutorialProgression(normalizeInstitutionalMatters(normalizeNorthBayWorldBaseline(JSON.parse(raw))), workCatalog)));
     return isValidSaveEnvelope(parsed, workCatalog) ? parsed : null;
   } catch { return null; }
 }
