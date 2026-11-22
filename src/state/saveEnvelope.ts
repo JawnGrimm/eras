@@ -133,7 +133,7 @@ function isWorkProgress(value: unknown): value is WorkProgress {
   if (value.finalDisposition !== undefined && (typeof value.finalDisposition !== 'string' || !value.finalDisposition)) return false;
   if (value.pendingDisposition === true && (value.lastAssessment === undefined || value.status !== 'active' || value.rewardGranted)) return false;
   if (value.finalDisposition !== undefined && (value.status !== 'completed' || value.pendingDisposition === true)) return false;
-  if (value.status === 'active' && value.lastAssessment !== undefined && value.lastAssessment.outcome === 'accepted'
+  if (value.status === 'active' && isObject(value.lastAssessment) && value.lastAssessment.outcome === 'accepted'
     && value.pendingDisposition !== true) return false;
   if (value.lastAssessment !== undefined && (!isObject(value.lastAssessment)
     || !['accepted','revise','rejected'].includes(value.lastAssessment.outcome as string)
