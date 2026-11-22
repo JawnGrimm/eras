@@ -267,7 +267,7 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
   return finiteNonNegative(value.historicalProgression.historicalXp) && stringArray(value.historicalProgression.completedWorks)
     && new Set(value.historicalProgression.completedWorks).size === value.historicalProgression.completedWorks.length
     && value.historicalProgression.completedWorks.every((id) => isObject(workProgressMap[id])
-      && (works.progress[id] as WorkProgress).status === 'completed')
+      && (workProgressMap[id] as WorkProgress).status === 'completed')
     && isObject(value.opportunities.assignments) && isObject(value.opportunities.challenges)
     && (works.activeWorkId === null || typeof works.activeWorkId === 'string')
     && isObject(workProgressMap)
