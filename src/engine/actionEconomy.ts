@@ -137,7 +137,11 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
       } catch {
         return { state, feedback: feedback('error', 'work-assessment-error', 'The Work assessment failed; no progress or AP was changed.') };
       }
-      if (!assessment || !['accepted','revise','rejected'].includes(assessment.outcome) || typeof assessment.summary !== 'string' || !assessment.summary) {
+      if (!assessment || !['accepted','revise','rejected'].includes(assessment.outcome) || typeof assessment.summary !== 'string' || !assessment.summary
+        || !Array.isArray(assessment.dimensions)
+        || assessment.dimensions.some((item) => !item || !['accuracy','completeness','responsible_interpretation','procedure','traceability','responsibility'].includes(item.dimension)
+          || !['meets','partial','fails'].includes(item.status) || typeof item.summary !== 'string' || !item.summary)
+        || new Set(assessment.dimensions.map((item) => item.dimension)).size !== assessment.dimensions.length) {
         return { state, feedback: feedback('error', 'invalid-work-assessment', 'The Work assessment returned an invalid result; no progress or AP was changed.') };
       }
       const submissionCount = progress.submissionCount + 1;
