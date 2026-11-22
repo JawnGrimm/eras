@@ -42,10 +42,19 @@ export default function App() {
   const [assignments, setAssignments] = useState<Assignment[]>(() => {
     const saved = loadGameState<Assignment[]>('scribe_assignments');
     if (saved) {
-      return saved.map((assignment) => ({
-        ...assignment,
-        blockCost: assignment.blockCost ?? (assignment as Assignment & { apCost?: number }).apCost ?? 1,
-      }));
+      return saved.map((assignment) => {
+        const legacyTier = (assignment as Assignment & { tier?: string }).tier;
+        const difficulty = assignment.difficulty ?? (
+          legacyTier === 'Novice' ? 'routine' :
+          legacyTier === 'Perilous' ? 'critical' :
+          'demanding'
+        );
+        return {
+          ...assignment,
+          difficulty,
+          blockCost: assignment.blockCost ?? (assignment as Assignment & { apCost?: number }).apCost ?? 1,
+        };
+      });
     }
     return createInitialAssignments();
   });
