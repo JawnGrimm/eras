@@ -1286,4 +1286,4 @@ No P3 hardship mechanics were implemented in this milestone. The +2 shortage Str
 
 ## 22 November 2026 — Personal economy clarification
 
-The approved personal economy has exactly two tracked resources: money and provisions. Both are reskinned with period-appropriate names, forms, denominations, and presentation when eras change. Their underlying balances carry forward unchanged; no currency or provisions conversion is performed. The GDD and README were aligned to this decision in the administrative cleanup PR. This is a design clarification and documentation correction; no runtime economy changes are included.
+The personal economy has two resources: money and provisions. Their presentation changes with the historical era; their balances carry forward unchanged. The GDD and README state this directly. No runtime economy changes are included.
