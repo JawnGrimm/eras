@@ -108,9 +108,11 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
     const evidenceValid = sourcesValid && findingValid;
 
     const avoidsBlame = !selectedRecommendations.includes('assign_blame');
+    const roofRecommendationSupported = !selectedRecommendations.includes('verify_roof_repair') ||
+      (examined.includes('ev-06') && citations.includes('ev-06'));
     const actionSpecific = selectedRecommendations.includes('inspect_held_stock') &&
       (selectedRecommendations.includes('verify_roof_repair') || selectedRecommendations.includes('maintain_segregation'));
-    const judgmentValid = avoidsBlame && actionSpecific && findingValid;
+    const judgmentValid = avoidsBlame && actionSpecific && roofRecommendationSupported && findingValid;
 
     const feedback = {
       accounting: accountingValid
@@ -257,7 +259,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
     </>)}
 
     {isComplete && section('Disposition', 'The Senior Scribe has made a decision about the submission.', <>
-      <div className="rounded-lg bg-[#FAF7F0] dark:bg-stone-800 p-4 text-sm">{state.seniorDisposition === 'authorized' ? 'The account is accepted. The Senior Scribe authorizes inspection of the held stock and proportionate follow-up on the reported roof condition. No individual is held responsible on the present evidence.' : state.seniorDisposition === 'account_accepted' ? 'The figures and source record are accepted, but the recommendation is not approved. The Senior Scribe will determine the necessary follow-up separately.' : 'The document has been returned for correction.'}</div>
+      <div className="rounded-lg bg-[#FAF7F0] dark:bg-stone-800 p-4 text-sm">{state.seniorDisposition === 'authorized' ? 'The account is accepted. The Senior Scribe authorizes the following follow-up:' : state.seniorDisposition === 'account_accepted' ? 'The figures and source record are accepted, but the recommendation is not approved. The Senior Scribe will determine the necessary follow-up separately.' : 'The document has been returned for correction.'}{state.seniorDisposition === 'authorized' && <ul className="list-disc pl-5 mt-2">{selectedRecommendations.filter((id) => id !== 'assign_blame').map((id) => <li key={id}>{recommendations.find((item) => item.id === id)?.label}</li>)}</ul>}{state.seniorDisposition === 'authorized' && <p className="mt-2">No individual is held responsible on the present evidence.</p>}</div>
       <div className="text-xs text-stone-500">Assessment: accounting {assessment?.accounting ? 'satisfactory' : 'requires correction'} · evidence {assessment?.evidence ? 'satisfactory' : 'requires correction'} · judgment {assessment?.judgment ? 'satisfactory' : 'requires correction'}</div>
     </>)}
 
