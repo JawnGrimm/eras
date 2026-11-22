@@ -120,7 +120,7 @@ export function ProductionShellContent() {
   </div>;
 }
 
-/** Production-only entry surface. The repository's main.tsx remains on the prototype until 9B-6. */
+/** Production entry surface mounted by src/App.tsx. */
 export function ProductionApp({ storage, careerPolicy, workCatalog }: {
   storage?: ProductionStorage | null;
   careerPolicy?: CareerProgressionPolicy;
