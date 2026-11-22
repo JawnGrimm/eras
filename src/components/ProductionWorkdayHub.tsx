@@ -1,6 +1,7 @@
 import React from 'react';
 import { useGame } from '../state/GameProvider';
 import type { DaySettlement } from '../state/types';
+import { STOREHOUSE_WORK_ID } from '../works/storehouseReckoning';
 
 function ContextDetails({ context }: { context: { what: string; who: string[]; quantity?: string; when?: string; where?: string; from?: string; to?: string; purpose: string; responsibility: string[]; authority?: string; provenance: string[] } }) {
   const rows: Array<[string, string | undefined]> = [
@@ -43,7 +44,7 @@ export function ProductionWorkdayHub({ onOpenWork, settlement, onSettlement }: {
   const state = game.state;
   const person = state.world.people[state.player.currentCharacterId]!;
   const wallet = person.scribal!.wallet;
-  const activeWork = state.works.activeWorkId ? state.works.progress[state.works.activeWorkId] : null;
+  const activeWork = state.works.progress[STOREHOUSE_WORK_ID];
   const offeredAssignments = Object.values(state.opportunities.assignments).filter((item) => item.status === 'offered');
   const activeAssignments = Object.values(state.opportunities.assignments).filter((item) => item.status === 'accepted' && (!item.assigneePersonId || item.assigneePersonId === person.id));
   const offeredChallenges = Object.values(state.opportunities.challenges).filter((item) => item.status === 'offered');
@@ -68,7 +69,7 @@ export function ProductionWorkdayHub({ onOpenWork, settlement, onSettlement }: {
           <p className="text-xs font-semibold uppercase tracking-wider text-amber-800">Mandatory historical undertaking</p>
           <h2 className="mt-1 font-serif text-2xl font-semibold text-stone-900">The Storehouse Reckoning</h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-stone-600">Reconcile the temple storehouse records and prepare a defensible account for the Senior Scribe.</p>
-          <p className="mt-3 text-xs text-stone-500">{activeWork?.status === 'completed' ? 'Completed' : 'Active'} · Contract: 1 provision for a day with at least 1 AP spent on this Work</p>
+          <p className="mt-3 text-xs text-stone-500">{activeWork?.status === 'completed' ? 'Completed' : activeWork?.status === 'active' ? 'Active' : 'Not started'} · Contract: 1 provision for a day with at least 1 AP spent on this Work</p>
         </div>
         <button onClick={onOpenWork} className="rounded-lg bg-stone-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-amber-800">Open Work</button>
       </div>
@@ -94,6 +95,8 @@ export function ProductionWorkdayHub({ onOpenWork, settlement, onSettlement }: {
           {offeredAssignments.length === 0 && <p className="text-sm text-stone-500">No new commissions are currently offered.</p>}
           {activeAssignments.map((item) => <article key={item.id} className="rounded-lg bg-stone-50 p-3">
             <h3 className="font-semibold text-stone-900">{item.title}</h3>
+            <p className="mt-1 text-sm text-stone-600">{item.description}</p>
+            <ContextDetails context={item.context} />
             <p className="mt-1 text-xs text-stone-500">Accepted commitment · Completion costs {item.apCost} AP</p>
             <div className="mt-2 flex gap-2">
               <button disabled={state.actionEconomy.apRemaining < item.apCost} onClick={() => game.dispatch({ type: 'COMPLETE_ASSIGNMENT', assignmentId: item.id })} className="rounded-md bg-stone-900 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-40">Complete · {item.apCost} AP</button>
@@ -114,7 +117,9 @@ export function ProductionWorkdayHub({ onOpenWork, settlement, onSettlement }: {
           </article>)}
           {acceptedChallenges.map((challenge) => <article key={challenge.id} className="rounded-lg bg-stone-50 p-3">
             <h3 className="font-semibold text-stone-900">{challenge.title}</h3>
-            <div className="mt-2 flex flex-wrap gap-2">{challenge.choices.map((choice) => <button key={choice.id} onClick={() => game.dispatch({ type: 'RESOLVE_CHALLENGE', challengeId: challenge.id, choiceId: choice.id })} className="rounded-md border border-stone-300 px-3 py-1.5 text-xs">{choice.label} · {challenge.apCost} AP</button>)}</div>
+            <p className="mt-1 text-sm text-stone-600">{challenge.description}</p>
+            <ContextDetails context={challenge.context} />
+            <div className="mt-2 flex flex-wrap gap-2">{challenge.choices.map((choice) => <button key={choice.id} disabled={state.actionEconomy.apRemaining < challenge.apCost} onClick={() => game.dispatch({ type: 'RESOLVE_CHALLENGE', challengeId: challenge.id, choiceId: choice.id })} className="rounded-md border border-stone-300 px-3 py-1.5 text-xs">{choice.label} · {challenge.apCost} AP</button>)}</div>
           </article>)}
           {offeredChallenges.length === 0 && acceptedChallenges.length === 0 && <p className="text-sm text-stone-500">No active challenges.</p>}
         </div>
