@@ -1,4 +1,4 @@
-import type { GameAction, GameState, TransitionResult, AssignmentOffer } from '../state/types';
+import type { GameAction, GameState, TransitionResult, AssignmentOffer, RecordAssertion } from '../state/types';
 import { addActivity } from './opportunities';
 import type { AssignmentId, KnowledgeEntryId, RecordId, InstitutionId } from '../state/ids';
 import { NORTH_BAY_ACTIVITY_ID, NORTH_BAY_PEOPLE, ASSIGNMENT_ACTIVITY_CATALOG, validateAssignmentActivityProgress, normalizeActivityDraft } from '../content/assignments/northBayRoofInspection';
@@ -65,7 +65,7 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
       ...(personId ? { sourceId: personId } : {}), description: item.id === 'roof-inspection' ? 'Direct physical inspection by Enlil-barni' : item.title };
   })];
   const cited = new Set(draft.citedDiscoveryIds);
-  const assertions = discoveries.filter((item) => cited.has(item.id)).map((item) => ({
+  const assertions: RecordAssertion[] = discoveries.filter((item) => cited.has(item.id)).map((item) => ({
     id: `assertion-${item.id}`, text: item.text,
     classification: item.id === 'roof-inspection' ? 'observed' as const : 'reported' as const,
     sourceIds: [`source-${item.id}`],
