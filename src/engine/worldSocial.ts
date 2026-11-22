@@ -1,6 +1,6 @@
 import type { EventId, InstitutionId, PersonId } from '../state/ids';
 import type { GameAction, GameState, PersonRelationship, RecordEntry, TransitionResult } from '../state/types';
-type WorldAction = Extract<GameAction, { type: 'SET_RELATIONSHIP' | 'CREATE_INSTITUTION' | 'CREATE_APPOINTMENT' | 'END_APPOINTMENT' | 'CREATE_EVENT' | 'CREATE_RECORD' | 'AMEND_RECORD' | 'GRANT_KNOWLEDGE' }>;
+type WorldAction = Extract<GameAction, { type: 'SET_RELATIONSHIP' | 'SET_INSTITUTIONAL_STANDING' | 'CREATE_INSTITUTION' | 'CREATE_APPOINTMENT' | 'END_APPOINTMENT' | 'CREATE_EVENT' | 'CREATE_RECORD' | 'AMEND_RECORD' | 'GRANT_KNOWLEDGE' }>;
 function fail(state: GameState, code: string, message: string): TransitionResult { return { state, feedback: { kind: 'error', code, message } }; }
 function succeed(state: GameState, code: string, message: string): TransitionResult { return { state, feedback: { kind: 'success', code, message } }; }
 const validScore = (n: number) => Number.isFinite(n) && n >= 0 && n <= 100;
@@ -14,6 +14,12 @@ function sourceIds(record: RecordEntry) {
 export function transitionWorldAction(state: GameState, action: WorldAction): TransitionResult {
   const w = state.world;
   switch (action.type) {
+    case 'SET_INSTITUTIONAL_STANDING': {
+      const person = w.people[action.personId];
+      if (!person?.scribal || !w.institutions[action.institutionId]) return fail(state, 'institutional-standing-reference-invalid', 'Institutional standing requires an existing scribal person and institution.');
+      if (!validScore(action.value)) return fail(state, 'institutional-standing-invalid', 'Institutional standing must be between 0 and 100.');
+      return succeed({ ...state, world: { ...w, people: { ...w.people, [person.id]: { ...person, scribal: { ...person.scribal, institutionalStanding: { ...person.scribal.institutionalStanding, [action.institutionId]: action.value } } } } } }, 'institutional-standing-updated', 'Institutional standing was updated independently of personal relationships and professional reputation.');
+    }
     case 'SET_RELATIONSHIP': {
       if (!w.people[action.fromId] || !w.people[action.toId] || action.fromId === action.toId) return fail(state, 'relationship-person-invalid', 'A relationship requires two distinct existing people.');
       if (!validRelationship(action.relationship)) return fail(state, 'relationship-invalid', 'Relationship dimensions and history must be valid.');
