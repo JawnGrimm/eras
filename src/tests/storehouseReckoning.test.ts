@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { transitionGame } from '../engine/actionEconomy';
+import { MATTER_IDS } from '../engine/institutionalMatters';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
 import { createSaveEnvelope, isValidSaveEnvelope, restoreSave } from '../state/saveEnvelope';
 import { validateWorkDefinition } from '../works/workDefinition';
@@ -236,7 +237,10 @@ describe('Storehouse Reckoning introductory tutorial', () => {
     expect(state.works.progress[STOREHOUSE_WORK_ID].finalDisposition).toBe(disposition);
     expect(state.historicalProgression.historicalXp).toBe(0);
     expect(state.historicalProgression.completedWorks).not.toContain(STOREHOUSE_WORK_ID);
-    expect(state.world.institutions[STOREHOUSE_INSTITUTION_ID].activeMatters).toEqual([]);
+    expect(state.world.institutions[STOREHOUSE_INSTITUTION_ID].activeMatters).toEqual(
+      expect.arrayContaining([MATTER_IDS.southCourtDelivery, MATTER_IDS.southLoadingAwning]),
+    );
+    expect(state.world.institutions[STOREHOUSE_INSTITUTION_ID].activeMatters).not.toContain(MATTER_IDS.tutorial);
     expect(state.world.people[INITIAL_PERSON_ID].scribal!.careerXp - beforeCareer).toBe(STOREHOUSE_PROVISIONAL_CAREER_XP);
     const record = Object.values(state.records.entries)[0];
     expect(record.assertions.some((item) => item.text.includes(disposition))).toBe(true);
