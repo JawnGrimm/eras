@@ -1,6 +1,13 @@
 import React from 'react';
 import { useGame } from '../state/GameProvider';
 import { selectCharacterOpportunities } from '../state/opportunitySelectors';
+import type { AssignmentOffer, GameState } from '../state/types';
+
+function employerName(offer: AssignmentOffer | undefined, state: GameState): string {
+  if (!offer) return 'Employer not recorded';
+  if (offer.employer.kind === 'person') return state.world.people[offer.employer.id]?.name ?? 'Person not recorded';
+  return state.world.institutions[offer.employer.id]?.name ?? 'Institution not recorded';
+}
 
 function ContextDetails({ context }: { context: { what: string; who: string[]; quantity?: string; when?: string; where?: string; from?: string; to?: string; purpose: string; responsibility: string[]; authority?: string; provenance: string[] } }) {
   const rows: Array<[string, string | undefined]> = [
@@ -87,7 +94,7 @@ export function ProductionChallengeJournal() {
       {data.recentAssignmentActivity.length === 0 ? <p className="mt-3 text-sm text-stone-500">Assignment activity will appear here.</p> :
         <ol className="mt-3 divide-y divide-stone-200">{data.recentAssignmentActivity.map(({ activity, offer }) => <li key={`${activity.assignmentId}-${activity.dayNumber}-${activity.kind}`} className="flex flex-wrap items-center justify-between gap-2 py-3">
           <div><p className="text-sm font-medium text-stone-900">{offer?.title ?? 'Assignment record'} <span className="font-normal text-stone-500">· {activity.kind}</span></p>
-            <p className="text-xs text-stone-500">{offer?.employer.kind === 'person' ? state.world.people[offer.employer.id]?.name : offer?.employer.kind === 'institution' ? state.world.institutions[offer.employer.id]?.name : activity.category}
+            <p className="text-xs text-stone-500">{employerName(offer, state)} · {activity.category}
               {activity.lapsedDuringMandatoryWork ? ' · Lapsed during mandatory Work' : ''}</p></div>
           <span className="text-xs text-stone-500">Day {activity.dayNumber}</span>
         </li>)}</ol>}
