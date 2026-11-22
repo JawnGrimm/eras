@@ -1,5 +1,5 @@
 import { CORE_SKILL_IDS } from './ids';
-import { MATTER_IDS } from '../engine/institutionalMatters';
+import { MATTER_IDS, SOUTH_COURT_LOCATION_ID, SOUTH_LOADING_LOCATION_ID } from '../engine/institutionalMatters';
 import type { AttributeId, SkillId } from './ids';
 import type { GameState, Institution, OpportunityConsequences, SaveEnvelope, ScribalCharacterState, WorkProgress } from './types';
 import { validateOpportunityConsequences } from './opportunityValidation';
@@ -88,6 +88,39 @@ function isInstitution(value: unknown, locationIds: Set<string>): value is Insti
     && stringArray(value.responsibilities) && stringArray(value.authority) && score(value.standing)
     && stringArray(value.activeMatters);
 }
+function isPersonProfile(value: Record<string, unknown>): boolean {
+  const lifeStages = ['apprentice','junior_scribe','established_scribe','active_official','senior_scribe','craft_practitioner','elder'];
+  if (value.lifeStage !== undefined && !lifeStages.includes(value.lifeStage as string)) return false;
+  if (value.socialIdentity !== undefined && (!isObject(value.socialIdentity)
+    || typeof value.socialIdentity.summary !== 'string' || !value.socialIdentity.summary
+    || (value.socialIdentity.occupation !== undefined && (typeof value.socialIdentity.occupation !== 'string' || !value.socialIdentity.occupation)))) return false;
+  if (value.circumstances !== undefined && (!Array.isArray(value.circumstances) || value.circumstances.some((item) =>
+    !isObject(item) || typeof item.id !== 'string' || !item.id
+    || !['work','resource','dispute','instruction','institutional_duty','other'].includes(item.kind as string)
+    || typeof item.summary !== 'string' || !item.summary || !Number.isInteger(item.sinceDay) || (item.sinceDay as number) < 1
+    || !['active','resolved'].includes(item.status as string) || !['public','private'].includes(item.visibility as string)
+    || (item.relatedMatterIds !== undefined && !stringArray(item.relatedMatterIds))
+    || (item.sourceEventId !== undefined && typeof item.sourceEventId !== 'string')))) return false;
+  if (value.objectives !== undefined && (!Array.isArray(value.objectives) || value.objectives.some((item) =>
+    !isObject(item) || typeof item.id !== 'string' || !item.id
+    || !['immediate','long_term'].includes(item.horizon as string)
+    || typeof item.summary !== 'string' || !item.summary || typeof item.motivation !== 'string' || !item.motivation
+    || !Number.isInteger(item.createdDay) || (item.createdDay as number) < 1
+    || !['active','fulfilled','abandoned'].includes(item.status as string) || !['public','private'].includes(item.visibility as string)
+    || (item.relatedMatterIds !== undefined && !stringArray(item.relatedMatterIds))))) return false;
+  if (value.commitments !== undefined && (!Array.isArray(value.commitments) || value.commitments.some((item) =>
+    !isObject(item) || typeof item.id !== 'string' || !item.id
+    || !['office_duty','agreement','personal_undertaking','allocation'].includes(item.kind as string)
+    || typeof item.summary !== 'string' || !item.summary || !Number.isInteger(item.createdDay) || (item.createdDay as number) < 1
+    || !isObject(item.basis) || !['appointment','record','event','institutional_matter','agreement'].includes(item.basis.kind as string)
+    || typeof item.basis.id !== 'string' || !item.basis.id
+    || !['active','fulfilled','disputed','released'].includes(item.status as string) || !['public','private'].includes(item.visibility as string)
+    || (item.dueDay !== undefined && (!Number.isInteger(item.dueDay) || (item.dueDay as number) < (item.createdDay as number)))
+    || (item.institutionId !== undefined && typeof item.institutionId !== 'string')
+    || (item.relatedMatterIds !== undefined && !stringArray(item.relatedMatterIds))))) return false;
+  return true;
+}
+
 function isEvent(value: unknown, calendarDay: number, people: Record<string, unknown>, institutions: Record<string, unknown>, locations: Record<string, unknown>): boolean {
   return isObject(value) && typeof value.id === 'string' && !!value.id && finiteNonNegative(value.dayNumber)
     && Number.isInteger(value.dayNumber) && value.dayNumber >= 1 && value.dayNumber <= calendarDay && typeof value.summary === 'string' && !!value.summary
@@ -177,6 +210,7 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
     if (!isObject(p) || p.id !== id || typeof p.name !== 'string' || !p.name || typeof p.alive !== 'boolean'
       || !Array.isArray(p.affiliations) || !p.affiliations.every((x) => typeof x === 'string' && isObject(institutions[x]))
       || (p.currentLocationId !== undefined && (typeof p.currentLocationId !== 'string' || !isObject(locations[p.currentLocationId])))
+      || !isPersonProfile(p)
       || (p.scribal !== undefined && !isScribal(p.scribal, new Set(Object.keys(institutions))))) return false;
   }
   for (const p of Object.values(people)) {
@@ -214,12 +248,44 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
   const matterIds = new Set(Object.keys(matters));
   for (const [id, matter] of Object.entries(matters)) {
     if (!isObject(matter) || matter.id !== id || typeof matter.institutionId !== 'string' || !isObject(institutions[matter.institutionId])
-      || !['tutorial','roof_repair_verification','held_barley_inspection','north_bay_water_ingress','general'].includes(matter.kind as string)
+      || !['tutorial','roof_repair_verification','held_barley_inspection','north_bay_water_ingress','south_court_delivery_reconciliation','south_loading_awning_inspection','general'].includes(matter.kind as string)
       || typeof matter.summary !== 'string' || !matter.summary || !['active','resolved','developed'].includes(matter.status as string)
       || !Number.isInteger(matter.createdDay) || (matter.createdDay as number) < 1 || (matter.createdDay as number) > (calendar.dayNumber as number)
       || (matter.sourceRecordId !== undefined && !isObject(records[matter.sourceRecordId as string])) || (matter.locationId !== undefined && !isObject(locations[matter.locationId as string]))
-      || (matter.sourceEventId !== undefined && !isObject(events[matter.sourceEventId as string]))) return false;
+      || (matter.sourceEventId !== undefined && !isObject(events[matter.sourceEventId as string]))
+      || (matter.involvedPersonIds !== undefined && (!stringArray(matter.involvedPersonIds) || matter.involvedPersonIds.some((personId) => !isObject(people[personId]))))
+      || (matter.provenance !== undefined && (!Array.isArray(matter.provenance) || matter.provenance.some((source) =>
+        !isObject(source) || typeof source.id !== 'string' || !source.id
+        || !['record_copy','instruction','agreement','observation','testimony','event','other'].includes(source.kind as string)
+        || typeof source.description !== 'string' || !source.description
+        || (source.sourceId !== undefined && typeof source.sourceId !== 'string')
+        || (source.kind === 'event' && (!source.sourceId || !isObject(events[source.sourceId as string]))))))) return false;
     if (matter.scheduledDevelopment !== undefined && (!isObject(matter.scheduledDevelopment) || matter.scheduledDevelopment.kind !== 'rain' || !Number.isInteger(matter.scheduledDevelopment.dayNumber) || (matter.scheduledDevelopment.dayNumber as number) < (matter.createdDay as number))) return false;
+  }
+  for (const person of Object.values(people)) {
+    if (!isObject(person)) continue;
+    for (const item of Array.isArray(person.circumstances) ? person.circumstances : []) {
+      if (!isObject(item) || (item.sinceDay as number) > (calendar.dayNumber as number)
+        || (Array.isArray(item.relatedMatterIds) && item.relatedMatterIds.some((id) => !matterIds.has(String(id))))
+        || (item.sourceEventId !== undefined && !isObject(events[String(item.sourceEventId)]))) return false;
+    }
+    for (const item of Array.isArray(person.objectives) ? person.objectives : []) {
+      if (!isObject(item) || (item.createdDay as number) > (calendar.dayNumber as number)
+        || (Array.isArray(item.relatedMatterIds) && item.relatedMatterIds.some((id) => !matterIds.has(String(id))))) return false;
+    }
+    for (const item of Array.isArray(person.commitments) ? person.commitments : []) {
+      if (!isObject(item) || (item.createdDay as number) > (calendar.dayNumber as number)
+        || (Array.isArray(item.relatedMatterIds) && item.relatedMatterIds.some((id) => !matterIds.has(String(id))))
+        || (item.institutionId !== undefined && !isObject(institutions[String(item.institutionId)]))
+        || !isObject(item.basis)) return false;
+      const basis = item.basis;
+      const validBasis = basis.kind === 'appointment' ? isObject(world.appointments) && isObject(world.appointments[String(basis.id)])
+        : basis.kind === 'record' ? isObject(records[String(basis.id)])
+        : basis.kind === 'event' ? isObject(events[String(basis.id)])
+        : basis.kind === 'institutional_matter' ? matterIds.has(String(basis.id))
+        : basis.kind === 'agreement' ? typeof basis.id === 'string' && !!basis.id : false;
+      if (!validBasis) return false;
+    }
   }
   for (const [institutionId, institution] of Object.entries(institutions)) {
     if (!isInstitution(institution, new Set(Object.keys(locations))) || institution.id !== institutionId) return false;
@@ -396,6 +462,12 @@ function normalizeNorthBayWorldBaseline(parsed: unknown): unknown {
   };
   if (!isObject(locations[NORTH_BAY_LOCATION_ID])) locations[NORTH_BAY_LOCATION_ID] = {
     id: NORTH_BAY_LOCATION_ID, name: 'Temple Storehouse, north storage bay',
+  };
+  if (!isObject(locations[SOUTH_COURT_LOCATION_ID])) locations[SOUTH_COURT_LOCATION_ID] = {
+    id: SOUTH_COURT_LOCATION_ID, name: 'Temple Storehouse, south receiving court',
+  };
+  if (!isObject(locations[SOUTH_LOADING_LOCATION_ID])) locations[SOUTH_LOADING_LOCATION_ID] = {
+    id: SOUTH_LOADING_LOCATION_ID, name: 'Temple Storehouse, south loading court',
   };
   const existingInstitution = institutions[institutionId];
   if (isObject(existingInstitution) && !existingInstitution.locationId) {

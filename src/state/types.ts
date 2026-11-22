@@ -41,9 +41,56 @@ export interface RelationshipDimensions { trust: number; respect: number; affect
 export interface RelationshipHistoryEntry { id: string; dayNumber: number; summary: string; eventId?: EventId; }
 /** relationships[fromId][toId] is directional; the reverse perspective is stored separately. */
 export interface PersonRelationship { dimensions: RelationshipDimensions; history: RelationshipHistoryEntry[]; }
+
+export type LifeStage = 'apprentice' | 'junior_scribe' | 'established_scribe' | 'active_official' | 'senior_scribe' | 'craft_practitioner' | 'elder';
+export interface PersonSocialIdentity { summary: string; occupation?: string; }
+export interface PersonCircumstance {
+  id: string;
+  kind: 'work' | 'resource' | 'dispute' | 'instruction' | 'institutional_duty' | 'other';
+  summary: string;
+  sinceDay: number;
+  status: 'active' | 'resolved';
+  visibility: 'public' | 'private';
+  relatedMatterIds?: MatterId[];
+  sourceEventId?: EventId;
+}
+export interface PersonObjective {
+  id: string;
+  horizon: 'immediate' | 'long_term';
+  summary: string;
+  motivation: string;
+  createdDay: number;
+  status: 'active' | 'fulfilled' | 'abandoned';
+  visibility: 'public' | 'private';
+  relatedMatterIds?: MatterId[];
+}
+export type CommitmentBasis =
+  | { kind: 'appointment'; id: AppointmentId }
+  | { kind: 'record'; id: RecordId }
+  | { kind: 'event'; id: EventId }
+  | { kind: 'institutional_matter'; id: MatterId }
+  | { kind: 'agreement'; id: string };
+export interface PersonCommitment {
+  id: string;
+  kind: 'office_duty' | 'agreement' | 'personal_undertaking' | 'allocation';
+  summary: string;
+  basis: CommitmentBasis;
+  createdDay: number;
+  dueDay?: number;
+  status: 'active' | 'fulfilled' | 'disputed' | 'released';
+  visibility: 'public' | 'private';
+  institutionId?: InstitutionId;
+  relatedMatterIds?: MatterId[];
+}
 export interface Person {
   id: PersonId; name: string; ageYears?: number; alive: boolean; currentLocationId?: LocationId;
   affiliations: InstitutionId[];
+  /** Typed context is optional for legacy saves and populated only where authored evidence supports it. */
+  lifeStage?: LifeStage;
+  socialIdentity?: PersonSocialIdentity;
+  circumstances?: PersonCircumstance[];
+  objectives?: PersonObjective[];
+  commitments?: PersonCommitment[];
   /** Present for people with an established scribal/professional capability sheet. */
   scribal?: ScribalCharacterState;
 }
@@ -56,11 +103,21 @@ export interface Appointment {
   responsibilities: string[];
   startDay: number; endDay?: number;
 }
-export type InstitutionalMatterKind = 'tutorial' | 'roof_repair_verification' | 'held_barley_inspection' | 'north_bay_water_ingress' | 'general';
+export type InstitutionalMatterKind = 'tutorial' | 'roof_repair_verification' | 'held_barley_inspection' | 'north_bay_water_ingress'
+  | 'south_court_delivery_reconciliation' | 'south_loading_awning_inspection' | 'general';
+export interface MatterProvenance {
+  id: string;
+  kind: 'record_copy' | 'instruction' | 'agreement' | 'observation' | 'testimony' | 'event' | 'other';
+  description: string;
+  sourceId?: string;
+}
 export interface InstitutionalMatter {
   id: MatterId; institutionId: InstitutionId; kind: InstitutionalMatterKind; summary: string;
   status: 'active' | 'resolved' | 'developed'; createdDay: number; sourceRecordId?: RecordId;
   locationId?: LocationId; scheduledDevelopment?: { kind: 'rain'; dayNumber: number }; developedDay?: number; sourceEventId?: EventId;
+  /** Participants and provenance are optional for compatibility with earlier schema-v2 matter records. */
+  involvedPersonIds?: PersonId[];
+  provenance?: MatterProvenance[];
 }
 export interface Institution {
   id: InstitutionId; name: string; locationId?: LocationId; responsibilities: string[]; authority: string[];
