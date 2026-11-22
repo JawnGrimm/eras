@@ -2,11 +2,16 @@ import type { GameState } from './types';
 import type { InstitutionId, PersonId, AppointmentId } from './ids';
 import { UR_GIR_PERSON_ID } from './ids';
 import { NORTH_BAY_LOCATION_ID, NORTH_BAY_PEOPLE } from '../content/assignments/northBayRoofInspection';
-import { MATTER_IDS, STOREHOUSE_INSTITUTION_ID } from '../engine/institutionalMatters';
+import {
+  MATTER_IDS, STOREHOUSE_INSTITUTION_ID, SOUTH_COURT_LOCATION_ID, SOUTH_LOADING_LOCATION_ID,
+  createSouthCourtDeliveryMatter, createSouthLoadingAwningMatter,
+} from '../engine/institutionalMatters';
 export const INITIAL_PERSON_ID = 'person-enlil-barni' as PersonId;
 export function createInitialGameState(): GameState {
   const initialPerson = {
     id: INITIAL_PERSON_ID, name: 'Enlil-barni', alive: true, affiliations: [],
+    lifeStage: 'junior_scribe' as const,
+    socialIdentity: { occupation: 'Scribe', summary: 'A junior scribe attached to the Temple Storehouse work.' },
     scribal: {
       careerXp: 150, cumulativeShortageStress: 0, obligations: [], wallet: { money: 12, provisions: 5, shortageWorkdays: 0 },
       skills: {}, attributes: {}, specializations: [], traits: [], conditions: [], equipment: [], stress: 15,
@@ -19,6 +24,10 @@ export function createInitialGameState(): GameState {
   // Authored fictional Uruk scribes provide a small, connected continuity network.
   const apprentice = {
     id: apprenticeId, name: 'Nin-aya', alive: true, affiliations: [],
+    lifeStage: 'apprentice' as const,
+    socialIdentity: { occupation: 'Scribal apprentice', summary: 'An apprentice learning tablet preparation and copying under senior instruction.' },
+    circumstances: [{ id: 'circumstance-nin-aya-instruction', kind: 'instruction', summary: 'Practicing copied lines under the Senior Scribe’s instruction.', sinceDay: 1, status: 'active', visibility: 'public' }],
+    objectives: [{ id: 'objective-nin-aya-scribal-learning', horizon: 'long_term', summary: 'Become a capable independent scribe.', motivation: 'She wants to progress beyond practice copies and take responsibility for real records.', createdDay: 1, status: 'active', visibility: 'private' }],
     scribal: {
       careerXp: 35, cumulativeShortageStress: 0, obligations: [], wallet: { money: 7, provisions: 3, shortageWorkdays: 0 },
       skills: { reading_scripts: { level: 2, skillXp: 15 } }, attributes: {},
@@ -29,6 +38,8 @@ export function createInitialGameState(): GameState {
   };
   const colleague = {
     id: colleagueId, name: 'Ur-gir', alive: true, affiliations: [],
+    lifeStage: 'established_scribe' as const,
+    socialIdentity: { occupation: 'Scribe', summary: 'An established scribal colleague with his own household resources and professional obligations.' },
     scribal: {
       careerXp: 90, cumulativeShortageStress: 0, obligations: [], wallet: { money: 16, provisions: 6, shortageWorkdays: 0 },
       skills: { recordkeeping_accounts: { level: 3, skillXp: 30 } }, attributes: {},
@@ -44,17 +55,55 @@ export function createInitialGameState(): GameState {
   const ninKasiId = 'person-nin-kasi' as PersonId;
   const templeStorehouseId = 'institution-uruk-temple-storehouse' as InstitutionId;
   const storehouseLocationId = NORTH_BAY_LOCATION_ID;
-  const dudu = { id: NORTH_BAY_PEOPLE.repairer, name: 'Dudu', alive: true, affiliations: [templeStorehouseId], currentLocationId: storehouseLocationId };
+  const dudu = {
+    id: NORTH_BAY_PEOPLE.repairer, name: 'Dudu', alive: true, affiliations: [templeStorehouseId], currentLocationId: storehouseLocationId,
+    lifeStage: 'craft_practitioner' as const,
+    socialIdentity: { occupation: 'Repairer', summary: 'A repairer engaged for specific storehouse maintenance commissions.' },
+  };
   const appointments = [
     { id: 'appointment-shuruppak-ilu-senior-scribe' as AppointmentId, personId: shuruppakId, institutionId: templeStorehouseId, title: 'Senior Scribe', authorityScope: ['Assign and review scribal work', 'Determine institutional follow-up from submitted records'], responsibilities: ['Review submitted accounts and reports', 'Determine whether further institutional action is warranted'], startDay: 1 },
     { id: 'appointment-ur-nanna-storehouse-steward' as AppointmentId, personId: urNannaId, institutionId: templeStorehouseId, title: 'Storehouse Steward', authorityScope: ['Control ordinary storehouse access', 'Maintain custody and maintenance records'], responsibilities: ['Safeguard institutional stocks', 'Maintain custody and maintenance records'], startDay: 1 },
     { id: 'appointment-utu-mansum-receiving-official' as AppointmentId, personId: utuMansumId, institutionId: templeStorehouseId, title: 'Receiving Official', authorityScope: ['Inspect and record incoming deliveries'], responsibilities: ['Record intake quantities and condition'], startDay: 1 },
   ];
+  const deliveryMatterId = MATTER_IDS.southCourtDelivery;
+  const awningMatterId = MATTER_IDS.southLoadingAwning;
   const casePeople = [
-    { id: shuruppakId, name: 'Shuruppak-ilu', alive: true, affiliations: [templeStorehouseId] },
-    { id: urNannaId, name: 'Ur-Nanna', alive: true, affiliations: [templeStorehouseId] },
-    { id: utuMansumId, name: 'Utu-mansum', alive: true, affiliations: [templeStorehouseId] },
-    { id: enlilKisuId, name: 'Enlil-kisu', alive: true, affiliations: [] },
+    {
+      id: shuruppakId, name: 'Shuruppak-ilu', alive: true, affiliations: [templeStorehouseId],
+      lifeStage: 'senior_scribe' as const,
+      socialIdentity: { occupation: 'Senior Scribe', summary: 'The senior scribe responsible for reviewing accounts and determining institutional follow-up.' },
+      objectives: [{ id: 'objective-shuruppak-record-integrity', horizon: 'long_term' as const, summary: 'Preserve the reliability of storehouse records.', motivation: 'Senior review is only useful when claims remain within what their sources establish.', createdDay: 1, status: 'active' as const, visibility: 'private' as const, relatedMatterIds: [deliveryMatterId] }],
+      commitments: [{ id: 'commitment-shuruppak-review', kind: 'office_duty' as const, summary: 'Review submitted accounts and determine whether further institutional action is warranted.', basis: { kind: 'appointment' as const, id: 'appointment-shuruppak-ilu-senior-scribe' as AppointmentId }, createdDay: 1, status: 'active' as const, visibility: 'public' as const, institutionId: templeStorehouseId, relatedMatterIds: [deliveryMatterId] }],
+      circumstances: [{ id: 'circumstance-shuruppak-review-pending', kind: 'institutional_duty' as const, summary: 'A review may follow once the dispatch and receiving records have been reconciled.', sinceDay: 1, status: 'active' as const, visibility: 'public' as const, relatedMatterIds: [deliveryMatterId] }],
+    },
+    {
+      id: urNannaId, name: 'Ur-Nanna', alive: true, affiliations: [templeStorehouseId],
+      lifeStage: 'active_official' as const,
+      socialIdentity: { occupation: 'Storehouse Steward', summary: 'The steward responsible for storehouse access, custody, and maintenance records.' },
+      objectives: [
+        { id: 'objective-ur-nanna-delivery', horizon: 'immediate' as const, summary: 'Resolve the delivery discrepancy before the next stock tally.', motivation: 'The stock account cannot be reconciled while dispatch and intake figures differ.', createdDay: 1, status: 'active' as const, visibility: 'private' as const, relatedMatterIds: [deliveryMatterId] },
+        { id: 'objective-ur-nanna-awning', horizon: 'immediate' as const, summary: 'Establish whether the south loading awning is safe for further loading.', motivation: 'Frayed ties may worsen under the weight and movement of loading activity.', createdDay: 1, status: 'active' as const, visibility: 'private' as const, relatedMatterIds: [awningMatterId] },
+      ],
+      commitments: [{ id: 'commitment-ur-nanna-custody', kind: 'office_duty' as const, summary: 'Safeguard institutional stocks and maintain custody and maintenance records.', basis: { kind: 'appointment' as const, id: 'appointment-ur-nanna-storehouse-steward' as AppointmentId }, createdDay: 1, status: 'active' as const, visibility: 'public' as const, institutionId: templeStorehouseId, relatedMatterIds: [deliveryMatterId, awningMatterId] }],
+      circumstances: [
+        { id: 'circumstance-ur-nanna-delivery', kind: 'dispute' as const, summary: 'The south-court stock account remains open pending comparison of dispatch and receiving quantities.', sinceDay: 1, status: 'active' as const, visibility: 'public' as const, relatedMatterIds: [deliveryMatterId] },
+        { id: 'circumstance-ur-nanna-awning', kind: 'work' as const, summary: 'Two reed ties on the south loading awning are visibly frayed; the condition should be documented before further loading.', sinceDay: 1, status: 'active' as const, visibility: 'public' as const, relatedMatterIds: [awningMatterId] },
+      ],
+    },
+    {
+      id: utuMansumId, name: 'Utu-mansum', alive: true, affiliations: [templeStorehouseId],
+      lifeStage: 'active_official' as const,
+      socialIdentity: { occupation: 'Receiving Official', summary: 'The official who inspects incoming deliveries and records intake quantities and condition.' },
+      objectives: [{ id: 'objective-utu-mansum-receipt', horizon: 'immediate' as const, summary: 'Keep the receiving tally within the quantity actually counted at intake.', motivation: 'His attestation establishes the receiving count, not what left the dispatch yard or where any difference arose.', createdDay: 1, status: 'active' as const, visibility: 'private' as const, relatedMatterIds: [deliveryMatterId] }],
+      commitments: [{ id: 'commitment-utu-mansum-receiving', kind: 'office_duty' as const, summary: 'Inspect incoming deliveries and record intake quantities and condition.', basis: { kind: 'appointment' as const, id: 'appointment-utu-mansum-receiving-official' as AppointmentId }, createdDay: 1, status: 'active' as const, visibility: 'public' as const, institutionId: templeStorehouseId, relatedMatterIds: [deliveryMatterId] }],
+      circumstances: [{ id: 'circumstance-utu-mansum-receipt', kind: 'dispute' as const, summary: 'His receiving tally records 23 measures at intake; it does not establish what happened before arrival.', sinceDay: 1, status: 'active' as const, visibility: 'public' as const, relatedMatterIds: [deliveryMatterId] }],
+    },
+    {
+      id: enlilKisuId, name: 'Enlil-kisu', alive: true, affiliations: [],
+      socialIdentity: { occupation: 'Carrier Foreman', summary: 'A carrier foreman whose dispatch copy records quantities leaving the canal-side holding yard.' },
+      objectives: [{ id: 'objective-enlil-kisu-dispatch', horizon: 'immediate' as const, summary: 'Ensure the dispatch quantity is distinguished from the receiving count.', motivation: 'The dispatch copy records what left the yard; it does not establish what arrived or assign responsibility for the difference.', createdDay: 1, status: 'active' as const, visibility: 'private' as const, relatedMatterIds: [deliveryMatterId] }],
+      circumstances: [{ id: 'circumstance-enlil-kisu-dispatch', kind: 'dispute' as const, summary: 'His dispatch copy records 24 measures leaving the holding yard; the receiving tally records 23 at intake.', sinceDay: 1, status: 'active' as const, visibility: 'public' as const, relatedMatterIds: [deliveryMatterId] }],
+    },
     { id: ninKasiId, name: 'Nin-kasi', alive: true, affiliations: [templeStorehouseId] },
   ];
   return {
@@ -79,10 +128,18 @@ export function createInitialGameState(): GameState {
       },
       institutions: { [templeStorehouseId]: {
         id: templeStorehouseId, name: 'Temple Storehouse', locationId: storehouseLocationId, responsibilities: ['Receive, safeguard, and issue institutional barley stocks'],
-        authority: ['Maintain storehouse accounts', 'Authorize stock inspection and segregation'], standing: 50, activeMatters: [MATTER_IDS.tutorial],
-      } }, locations: { [storehouseLocationId]: { id: storehouseLocationId, name: 'Temple Storehouse, north storage bay' } },
+        authority: ['Maintain storehouse accounts', 'Authorize stock inspection and segregation'], standing: 50, activeMatters: [MATTER_IDS.tutorial, deliveryMatterId, awningMatterId],
+      } }, locations: {
+        [storehouseLocationId]: { id: storehouseLocationId, name: 'Temple Storehouse, north storage bay' },
+        [SOUTH_COURT_LOCATION_ID]: { id: SOUTH_COURT_LOCATION_ID, name: 'Temple Storehouse, south receiving court' },
+        [SOUTH_LOADING_LOCATION_ID]: { id: SOUTH_LOADING_LOCATION_ID, name: 'Temple Storehouse, south loading court' },
+      },
       appointments: Object.fromEntries(appointments.map((appointment) => [appointment.id, appointment])), events: {}, knowledge: {},
-      matters: { [MATTER_IDS.tutorial]: { id: MATTER_IDS.tutorial, institutionId: STOREHOUSE_INSTITUTION_ID, kind: 'tutorial', summary: 'The Storehouse Reckoning introductory tutorial.', status: 'active', createdDay: 1 } },
+      matters: {
+        [MATTER_IDS.tutorial]: { id: MATTER_IDS.tutorial, institutionId: STOREHOUSE_INSTITUTION_ID, kind: 'tutorial', summary: 'The Storehouse Reckoning introductory tutorial.', status: 'active', createdDay: 1 },
+        [deliveryMatterId]: createSouthCourtDeliveryMatter(1),
+        [awningMatterId]: createSouthLoadingAwningMatter(1),
+      },
     },
     historicalProgression: { historicalXp: 0, completedWorks: [] },
     opportunities: { assignments: {}, challenges: {}, challengeOutcomes: [], assignmentAggregates: {}, recentActivity: [], assignmentGeneratorLedger: { sequence: 0, lastPresentedDayByActivity: {} } },
