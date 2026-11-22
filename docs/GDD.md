@@ -1012,10 +1012,13 @@ Potential recovery routes include:
 - Pawning or selling equipment.
 - Seeking an advance or loan with real obligations.
 - Asking for help or calling in a social favor.
-- Taking work for provisions as an unattractive last resort.
+- Taking legitimate or informal work, including work paid in provisions.
+- Pursuing illicit opportunities, such as theft, fraud, smuggling, or black-market exchange, where plausible in the setting.
 - Accepting ethically compromising offers, including bribes, with consequences.
 
-Each recovery route must have an authored price, obligation, or trade-off. No automatic bailout, unlimited negative balance, or unexplained free resource is permitted. The specific costs and availability of recovery options remain open balancing work.
+The game should not restrict the player to respectable or institutionally approved ways of responding to hardship. Legitimate, informal, and illicit actions are part of the same world; their availability, risks, and consequences depend on the people, institutions, laws, evidence, and circumstances involved. The game should not reduce these choices to a universal morality label.
+
+The player cannot die from a depleted provisions balance, and economic hardship must not create an unavoidable game-over state. The world should preserve plausible avenues of recovery, even when those avenues are difficult, risky, or socially costly. This does not mean the player receives an automatic bailout, unlimited negative balance, or unexplained free resource.
 
 ### 12.5 Era-appropriate presentation
 
@@ -1029,7 +1032,15 @@ The two underlying resource systems remain consistent across eras, while their p
 
 Stress represents the cumulative pressure of work, shortages, conflict, difficult choices, and personal circumstances. It can change through Assignments, Challenges, daily settlement, sustenance shortages, rest, study, and social interactions.
 
-The final stress scale, ceiling, thresholds, recovery rates, and priced recovery options are not yet approved. Any shortage consequence must be bounded and recoverable; it must not compound automatically into an unavoidable poverty spiral. Stress changes must be explained when they occur, and the player must be able to see the likely cost of a recovery action before committing.
+Reaching the eventual critical or maximum Stress threshold should place the character in a **crisis state** and prompt the world to consider whether support is available. It is not an automatic rescue, a guaranteed Stress reset, or by itself a game-over condition.
+
+The character's positive personal relationships are the first potential source of intervention. A friend, relative, colleague, patron, or other contact may reach out or offer practical help when both willing and able. The form of assistance should reflect the relationship, the person's means, and their circumstances; a positive relationship does not guarantee that the person can help. Repeated hardship or repeated requests may strain a relationship, change the terms of assistance, or leave the contact unable or unwilling to intervene.
+
+When personal support is unavailable or insufficient—because the character lacks positive relationships, has already relied on them repeatedly, or remains in hardship over an extended period—the wider society may offer other avenues. These must be appropriate to the historical place and period, including relevant charitable, religious, household, civic, or institutional practices where they existed. Do not impose modern charitable organizations or assumptions on earlier societies.
+
+Support is an opportunity, not an entitlement or guaranteed bailout. The character may still need to seek work, negotiate obligations, accept assistance with conditions, or pursue informal and illicit alternatives. A character with no positive relationships must not be locked into an unavoidable failure state.
+
+The final stress scale, ceiling, thresholds, crisis timing, intervention frequency, recovery rates, and effects of assistance are not yet approved. Any shortage or crisis consequence must be bounded and recoverable; it must not compound automatically into an unavoidable poverty spiral. Stress changes must be explained when they occur, and the player must be able to see the likely cost of a recovery action before committing.
 
 ### 13.2 Trust and reputation
 
@@ -1306,8 +1317,8 @@ The following details require further design before they can be treated as fixed
 4. The precise balance of Career XP rewards across Assignments, Challenges, Works, and study.
 5. Rank titles and commission-tier naming across eras, meaningful unlocks and responsibilities for ranks 5–7, and rank-based pay adjustments and performance bonuses.
 6. The complete money and provisions economy: prices, availability, storage/spoilage, daily sustenance and shortage consequences, era-appropriate currency names and food presentation.
-7. The stress scale, ceiling, thresholds, recovery rates, and fully priced recovery options; shortage consequences must remain recoverable.
-8. The complete NPC relationship model and how relationships persist through successors, institutions, and geographically separated eras.
+7. The stress scale, ceiling, thresholds, crisis timing, recovery rates, and fully priced recovery options; define how crisis interventions are paced and how assistance affects Stress and relationships. Shortage consequences must remain recoverable.
+8. The complete NPC relationship model and how relationships persist through successors, institutions, and geographically separated eras; define how positive relationships can provide crisis support and how repeated assistance affects those relationships.
 9. The additional continuity carriers that should complement the established family line and inherited desk across long historical jumps: professional house, archive, institution, scribal tradition, or a deliberately combined model.
 10. Family lifespan, succession, inheritance beyond the desk, and generational transition rules. Family continuity and the inherited desk are established design directions; the detailed mechanics remain open.
 11. Era pacing in actual in-game days, including the number and expected duration of Works, optional activity density, and authored calendar transitions.
@@ -1354,7 +1365,7 @@ The daily economy of action is six shared Action Points, not a fixed number of c
 
 Career XP measures professional development. Historical Progress XP measures mandatory historical contributions. The calendar controls in-game dates; XP does not. Era-transition rewards must be calibrated so completing all required Works is sufficient to reach the next threshold without optional grinding.
 
-The personal economy has two tracked resources: money and provisions. Money uses an era-appropriate currency name without conversion of the underlying value at era transitions; provisions remain an abstract food resource presented through era-appropriate foods and rations. Beer is not a tracked personal resource, though it may appear in the world, inventory, hospitality, and institutional or social exchanges. Exact prices, availability, storage, sustenance shortage consequences, and historical presentation remain open design work.
+The personal economy has two tracked resources: money and provisions. Money uses an era-appropriate currency name without conversion of the underlying value at era transitions; provisions remain an abstract food resource presented through era-appropriate foods and rations. Beer is not a tracked personal resource, though it may appear in the world, inventory, hospitality, and institutional or social exchanges. Exact prices, availability, storage, crisis timing, assistance frequency and effects, sustenance shortage consequences, and historical presentation remain open design work.
 
 The journey should remain continuous across eras, successors, and institutions without pretending that the same people or family relationships can persist unchanged across millennia and continents. The family desk is an established inherited object and a tangible carrier of professional history; the broader succession, family, and social continuity model remains to be completed.
 
