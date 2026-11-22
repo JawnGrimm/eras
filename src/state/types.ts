@@ -1,4 +1,4 @@
-import type { AssignmentId, ChallengeId, AttributeId, AppointmentId, CareerPathId, ConditionId, EraId, EventId, InstitutionId, KnowledgeEntryId, LocationId, PersonId, RecordId, SkillId, TraitId, WorkId, SpecializationId } from './ids';
+import type { EvidenceId, AssignmentId, ChallengeId, AttributeId, AppointmentId, CareerPathId, ConditionId, EraId, EventId, InstitutionId, KnowledgeEntryId, LocationId, PersonId, RecordId, SkillId, TraitId, WorkId, SpecializationId } from './ids';
 
 export interface WalletState { money: number; provisions: number; shortageWorkdays: number; }
 export interface SkillState { level: number; skillXp: number; }
@@ -144,6 +144,19 @@ export interface ChallengeTriggerRule {
   recentWindow?: number;
 }
 
+
+export type WorkStatus = 'active' | 'submitted' | 'completed' | 'abandoned';
+export interface WorkProgress {
+  status: WorkStatus;
+  acquiredEvidence: EvidenceId[];
+  examinedEvidence: EvidenceId[];
+  workApSpentToday: number;
+  rewardGranted: boolean;
+  scenarioData: Record<string, unknown>;
+  submissionCount: number;
+  lastAssessment?: { outcome: 'accepted' | 'revise' | 'rejected'; summary: string; assessedDay: number };
+}
+
 export interface GameState {
   calendar: CalendarState; actionEconomy: ActionEconomyState; player: { currentCharacterId: PersonId };
   world: {
@@ -158,7 +171,7 @@ export interface GameState {
   };
   historicalProgression: { historicalXp: number; completedWorks: WorkId[] };
   opportunities: { assignments: Record<AssignmentId, AssignmentOffer>; challenges: Record<ChallengeId, ChallengeInstance>; challengeOutcomes: ChallengeOutcome[]; assignmentAggregates: Record<string, AssignmentActivityAggregate>; recentActivity: OpportunityActivity[] };
-  works: { activeWorkId: WorkId | null; progress: Record<WorkId, unknown> };
+  works: { activeWorkId: WorkId | null; progress: Record<WorkId, WorkProgress> };
   records: {
     entries: Record<RecordId, RecordEntry>;
     /** Legacy prototype outcomes retained until the later persistence/content port. */
@@ -172,7 +185,13 @@ export type TargetSkillLevel = 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 export interface CareerProgressionPolicy { skillAdvancementByTargetLevel: Partial<Record<TargetSkillLevel, SkillAdvancementRule>>; }
 
 export type GameAction =
-  | { type: 'SPEND_AP'; amount: number; reason: string }
+  
+  | { type: 'SPEND_AP'; amount: number; reason: string; workId?: WorkId }
+  | { type: 'START_WORK'; workId: WorkId }
+  | { type: 'ACQUIRE_WORK_EVIDENCE'; workId: WorkId; evidenceId: EvidenceId }
+  | { type: 'EXAMINE_WORK_EVIDENCE'; workId: WorkId; evidenceId: EvidenceId }
+  | { type: 'SET_WORK_SCENARIO_DATA'; workId: WorkId; scenarioData: Record<string, unknown> }
+  | { type: 'RECORD_WORK_ASSESSMENT'; workId: WorkId; outcome: 'accepted' | 'revise' | 'rejected'; summary: string; historicalXpReward: number }
   | { type: 'ACTIVATE_OVERTIME' }
   | { type: 'END_DAY'; expectedDayNumber: number }
   | { type: 'MARK_NOTICE_READ'; noticeId: string }
