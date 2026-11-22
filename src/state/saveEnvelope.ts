@@ -6,7 +6,7 @@ import type { WorkDefinition } from '../works/workDefinition';
 import { rankSuccessorCandidates } from '../engine/characterContinuity';
 
 export const SAVE_KEY = 'scribe_game_v2';
-// Keep schema v2: the production provider has not been mounted, so shipped v2 saves have empty opportunity maps and works.progress.
+// Keep schema v2 for compatibility with early production saves that contain empty opportunity maps and works.progress; populated entries are validated against the registered Work catalog.
 // Populated Work progress is checked against the supplied Work catalog; legacy empty maps remain valid without migration.
 export const SAVE_SCHEMA_VERSION = 2 as const;
 
