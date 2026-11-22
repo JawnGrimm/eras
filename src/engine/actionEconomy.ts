@@ -1,4 +1,5 @@
-import type { GameAction, GameState, TransitionResult } from '../state/types';
+import type { CareerProgressionPolicy, GameAction, GameState, TransitionResult } from '../state/types';
+import { transitionCareerAction } from './careerProgression';
 
 function feedback(kind: 'success' | 'error' | 'info', code: string, message: string) {
   return { kind, code, message } as const;
@@ -16,13 +17,18 @@ function withNotice(state: GameState, category: 'settlement', message: string): 
 }
 
 /** Pure, deterministic state transition. UI feedback is ephemeral; notices are saved in GameState. */
-export function transitionGame(state: GameState, action: GameAction): TransitionResult {
+export function transitionGame(state: GameState, action: GameAction, careerPolicy?: CareerProgressionPolicy): TransitionResult {
   const economy = state.actionEconomy;
   const person = state.world.people[state.player.currentCharacterId];
   const scribal = person?.scribal;
   if (!scribal) return { state, feedback: feedback('error', 'missing-active-character', 'The current character is unavailable.') };
 
   switch (action.type) {
+    case 'AWARD_SKILL_XP':
+    case 'AWARD_CAREER_XP':
+    case 'PURCHASE_SKILL_LEVEL':
+    case 'SET_PRIMARY_SPECIALIZATION':
+      return transitionCareerAction(state, action, careerPolicy);
     case 'SPEND_AP': {
       if (!Number.isFinite(action.amount) || action.amount <= 0 || !Number.isInteger(action.amount)) {
         return { state, feedback: feedback('error', 'invalid-ap-cost', 'The AP cost must be a positive whole number.') };
