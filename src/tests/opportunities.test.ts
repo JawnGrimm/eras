@@ -41,8 +41,8 @@ describe('Assignment and Challenge foundations', () => {
     const capped = transitionGame(state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: 'a3' as AssignmentId });
     expect(capped.feedback?.code).toBe('assignment-cap-reached');
     expect(capped.state.actionEconomy.apRemaining).toBe(before);
-    expect(capped.state.opportunities.assignments['a1'].status).toBe('accepted');
-    expect(capped.state.opportunities.assignments['a1'].deliveryChannels[0].kind).toBe('baseline_reach');
+    expect(capped.state.opportunities.assignments['a1' as AssignmentId].status).toBe('accepted');
+    expect(capped.state.opportunities.assignments['a1' as AssignmentId].deliveryChannels[0].kind).toBe('baseline_reach');
   });
 
 
@@ -52,20 +52,20 @@ describe('Assignment and Challenge foundations', () => {
     expect(shown.feedback?.code).toBe('assignment-presented');
     const accepted = transitionGame(shown.state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: 'skill-gated' as AssignmentId });
     expect(accepted.feedback?.code).toBe('assignment-unqualified');
-    expect(accepted.state.opportunities.assignments['skill-gated'].status).toBe('offered');
+    expect(accepted.state.opportunities.assignments['skill-gated' as AssignmentId].status).toBe('offered');
   });
 
   it('expires after three days and counts only non-Work lapses for neglect triggers', () => {
     let state = present(createInitialGameState(), 'ordinary');
     for (let day = 1; day <= 4; day++) state = transitionGame(state, { type: 'END_DAY', expectedDayNumber: day }).state;
-    expect(state.opportunities.assignments['ordinary'].status).toBe('lapsed');
+    expect(state.opportunities.assignments['ordinary' as AssignmentId].status).toBe('lapsed');
     expect(state.opportunities.assignmentAggregates['person|person-enlil-barni|accounts|barley'].nonWorkLapsed).toBe(1);
     expect(evaluateChallengeTriggers(state, [{ id: 'neglect', category: 'accounts', minNonWorkLapsed: 1 }])).toContain('neglect');
 
     let workState = present(createInitialGameState(), 'work-offer');
     workState = { ...workState, works: { ...workState.works, activeWorkId: 'work-storehouse' as WorkId } };
     for (let day = 1; day <= 4; day++) workState = transitionGame(workState, { type: 'END_DAY', expectedDayNumber: day }).state;
-    expect(workState.opportunities.assignments['work-offer'].lapsedDuringMandatoryWork).toBe(true);
+    expect(workState.opportunities.assignments['work-offer' as AssignmentId].lapsedDuringMandatoryWork).toBe(true);
     expect(workState.opportunities.assignmentAggregates['person|person-enlil-barni|accounts|barley'].nonWorkLapsed).toBe(0);
     expect(evaluateChallengeTriggers(workState, [{ id: 'neglect', category: 'accounts', minNonWorkLapsed: 1 }])).not.toContain('neglect');
   });
@@ -86,7 +86,7 @@ describe('Assignment and Challenge foundations', () => {
     expect(presented.feedback?.code).toBe('challenge-presented');
     const resolved = transitionGame(presented.state, { type: 'RESOLVE_CHALLENGE', challengeId: 'challenge-1' as ChallengeId, choiceId: 'endorse-claim' });
     expect(resolved.feedback?.code).toBe('challenge-resolved');
-    expect(resolved.state.opportunities.challenges['challenge-1']).toBeUndefined();
+    expect(resolved.state.opportunities.challenges['challenge-1' as ChallengeId]).toBeUndefined();
     expect(resolved.state.opportunities.challengeOutcomes).toHaveLength(1);
     expect(resolved.state.world.people[INITIAL_PERSON_ID].scribal?.wallet.provisions).toBe(7);
     expect(resolved.state.historicalProgression.historicalXp).toBe(base.historicalProgression.historicalXp);
