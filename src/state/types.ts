@@ -174,6 +174,7 @@ export type GameAction =
   | { type: 'END_DAY'; expectedDayNumber: number }
   | { type: 'MARK_NOTICE_READ'; noticeId: string }
   | { type: 'AWARD_SKILL_XP'; skillId: SkillId; amount: number; reason: string }
+  | { type: 'AWARD_CAREER_XP'; amount: number; reason: string }
   | { type: 'PURCHASE_SKILL_LEVEL'; skillId: SkillId }
   | { type: 'SET_PRIMARY_SPECIALIZATION'; specializationId: SpecializationId };
 
