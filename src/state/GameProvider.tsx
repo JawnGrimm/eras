@@ -92,7 +92,7 @@ const GameContext = createContext<GameContextValue | null>(null);
 
 /**
  * Production state boundary. Dispatch applies pure transitions synchronously against
- * the latest snapshot. This provider remains unmounted until the 9B-6 cutover.
+ * the latest snapshot. ProductionApp mounts this provider as the live application state boundary.
  */
 export function GameProvider({
   children,
