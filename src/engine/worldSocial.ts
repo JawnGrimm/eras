@@ -1,3 +1,4 @@
+import type { EventId, InstitutionId, PersonId } from '../state/ids';
 import type { GameAction, GameState, PersonRelationship, RecordEntry, TransitionResult } from '../state/types';
 type WorldAction = Extract<GameAction, { type: 'SET_RELATIONSHIP' | 'CREATE_INSTITUTION' | 'CREATE_APPOINTMENT' | 'END_APPOINTMENT' | 'CREATE_EVENT' | 'CREATE_RECORD' | 'AMEND_RECORD' | 'GRANT_KNOWLEDGE' }>;
 function fail(state: GameState, code: string, message: string): TransitionResult { return { state, feedback: { kind: 'error', code, message } }; }
@@ -52,7 +53,7 @@ export function transitionWorldAction(state: GameState, action: WorldAction): Tr
       const r = action.record;
       if (state.records.entries[r.id]) return fail(state, 'record-exists', 'A record with this ID already exists.');
       if (!r.id || !r.title || !w.people[r.authorPersonId] || (r.institutionId && !w.institutions[r.institutionId])
-        || r.sources.some((s) => (s.kind === 'person' && !w.people[s.sourceId ?? '']) || (s.kind === 'institution' && !w.institutions[s.sourceId ?? '']) || (s.kind === 'event' && !w.events[s.sourceId ?? '']))
+        || r.sources.some((s) => (s.kind === 'person' && !w.people[s.sourceId as PersonId]) || (s.kind === 'institution' && !w.institutions[s.sourceId as InstitutionId]) || (s.kind === 'event' && !w.events[s.sourceId as EventId]))
         || r.assertions.some((a) => a.sourceIds.some((id) => !r.sources.some((s) => s.id === id)))) return fail(state, 'record-invalid', 'The record needs a valid author, provenance, and assertion references.');
       return succeed({ ...state, records: { ...state.records, entries: { ...state.records.entries, [r.id]: r } } }, 'record-created', r.title + ' was entered into the archive.');
     }
