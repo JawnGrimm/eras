@@ -121,7 +121,13 @@ function isWorkProgress(value: unknown): value is WorkProgress {
   if (value.lastAssessment !== undefined && (!isObject(value.lastAssessment)
     || !['accepted','revise','rejected'].includes(value.lastAssessment.outcome as string)
     || typeof value.lastAssessment.summary !== 'string' || !value.lastAssessment.summary
-    || !Number.isInteger(value.lastAssessment.assessedDay) || (value.lastAssessment.assessedDay as number) < 1)) return false;
+    || !Number.isInteger(value.lastAssessment.assessedDay) || (value.lastAssessment.assessedDay as number) < 1
+    || !Array.isArray(value.lastAssessment.dimensions)
+    || value.lastAssessment.dimensions.some((item) => !isObject(item)
+      || !['accuracy','completeness','responsible_interpretation','procedure','traceability','responsibility'].includes(item.dimension as string)
+      || !['meets','partial','fails'].includes(item.status as string)
+      || typeof item.summary !== 'string' || !item.summary)
+    || new Set((value.lastAssessment.dimensions as Array<{ dimension: string }>).map((item) => item.dimension)).size !== value.lastAssessment.dimensions.length)) return false;
   return true;
 }
 
