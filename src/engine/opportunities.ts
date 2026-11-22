@@ -43,10 +43,16 @@ export function characterQualifiesForAssignment(state: GameState, offer: Pick<As
   const skills = state.world.people[state.player.currentCharacterId]?.scribal?.skills ?? {};
   return Object.entries(offer.requiredSkills).every(([id, level]) => (skills[id as SkillId]?.level ?? 1) >= (level ?? 1));
 }
-function validChannels(channels: OpportunityDeliveryChannel[]): boolean {
-  return Array.isArray(channels) && channels.length > 0 && channels.every((c) =>
-    !!c.explanation && (c.kind !== 'relationship' || !!c.personId)
-      && (c.kind !== 'specialization' || !!c.specializationId) && (c.kind !== 'appointment' || !!c.appointmentId));
+function validChannels(channels: OpportunityDeliveryChannel[], state: GameState): boolean {
+  return Array.isArray(channels) && channels.length > 0 && channels.every((c) => {
+    if (!c.explanation) return false;
+    if (c.kind === 'relationship') return !!state.world.people[c.personId];
+    if (c.kind === 'specialization') return !!state.world.people[state.player.currentCharacterId]?.scribal?.specializations.some((s) => s.id === c.specializationId);
+    if (c.kind === 'appointment') return !!state.world.appointments[c.appointmentId]
+      && state.world.appointments[c.appointmentId].personId === state.player.currentCharacterId;
+    if (c.kind === 'reputation') return ['competence','reliability','discretion','judgment'].includes(c.dimension);
+    return c.kind === 'baseline_reach';
+  });
 }
 function applyConsequences(state: GameState, effects: OpportunityConsequences | undefined): GameState | null {
   if (!effects) return state;
@@ -156,7 +162,7 @@ export function transitionOpportunityAction(state: GameState, action: Opportunit
         || !offer.employer.id || (offer.employer.kind === 'person' ? !state.world.people[offer.employer.id as PersonId] : !state.world.institutions[offer.employer.id as InstitutionId])
         || !offer.category || !offer.context.what || !offer.context.purpose || !Array.isArray(offer.context.who)
         || !Array.isArray(offer.context.responsibility) || !Array.isArray(offer.context.provenance)
-        || !Number.isInteger(offer.estimatedAp) || offer.estimatedAp < 1 || !validChannels(offer.deliveryChannels)
+        || !Number.isInteger(offer.estimatedAp) || offer.estimatedAp < 1 || !validChannels(offer.deliveryChannels, state)
         || !['routine','demanding','critical'].includes(offer.difficulty)
         || !finiteNonNegative(offer.compensation.money) || !finiteNonNegative(offer.compensation.provisions)
         || !finiteNonNegative(offer.careerXpReward) || Object.values(offer.requiredSkills).some((n) => !Number.isInteger(n) || (n ?? 0) < 1 || (n ?? 0) > 10)) {
@@ -208,7 +214,7 @@ export function transitionOpportunityAction(state: GameState, action: Opportunit
     case 'PRESENT_CHALLENGE': {
       const c: ChallengeInstance = action.challenge;
       if (!c.id || opportunities.challenges[c.id] || !c.title || !c.description || !c.category || !c.context.what
-        || !c.context.purpose || !validChannels(c.deliveryChannels) || !Array.isArray(c.choices) || !c.choices.length
+        || !c.context.purpose || !validChannels(c.deliveryChannels, state) || !Array.isArray(c.choices) || !c.choices.length
         || new Set(c.choices.map((x) => x.id)).size !== c.choices.length || c.choices.some((x) => !x.id || !x.label || !x.description)
         || (c.employer && (c.employer.kind === 'person' ? !state.world.people[c.employer.id as PersonId] : !state.world.institutions[c.employer.id as InstitutionId]))) {
         return fail(state, 'challenge-invalid', 'A Challenge needs contextual grounding, a delivery reason, and distinct authored resolution choices.');
