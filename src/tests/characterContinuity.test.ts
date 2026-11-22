@@ -108,7 +108,13 @@ describe('ranked character continuity candidates', () => {
     expect(rankSuccessorCandidates(state)).toContainEqual({
       personId: networkId,
       tier: 'wider_network',
-      reasons: [{ kind: 'network_institution', intermediaryId, institutionId: sharedInstitution }],
+      reasons: [{
+        kind: 'network_bridge',
+        intermediaryId,
+        formerConnection: 'relationship',
+        candidateConnection: 'institution',
+        sharedInstitutionIds: [sharedInstitution],
+      }],
     });
   });
 
