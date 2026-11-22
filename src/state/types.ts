@@ -80,6 +80,62 @@ export interface CalendarState { eraId: EraId; dayNumber: number; displayDate: s
 export interface ActionEconomyState { dailyApAllocation: 5 | 6; apRemaining: number; overtimeUsedToday: boolean; nextDayApPenalty: boolean; }
 export interface DurableNotice { id: string; dayNumber: number; category: 'settlement' | 'opportunity' | 'relationship' | 'work' | 'world'; message: string; read: boolean; }
 
+
+export type OpportunityDeliveryChannel =
+  | { kind: 'baseline_reach'; explanation: string }
+  | { kind: 'relationship'; personId: PersonId; explanation: string }
+  | { kind: 'specialization'; specializationId: SpecializationId; explanation: string }
+  | { kind: 'appointment'; appointmentId: AppointmentId; explanation: string }
+  | { kind: 'reputation'; dimension: 'competence' | 'reliability' | 'discretion' | 'judgment'; explanation: string };
+
+export interface AssignmentContext {
+  what: string; who: string[]; quantity?: string; when?: string; where?: string;
+  from?: string; to?: string; purpose: string; responsibility: string[];
+  authority?: string; provenance: string[];
+}
+export interface OpportunityEmployer { kind: 'person' | 'institution'; id: PersonId | InstitutionId; }
+export interface AssignmentActivityAggregate {
+  key: string; employer: OpportunityEmployer; category: string; commodity?: string;
+  presented: number; accepted: number; declined: number; nonWorkLapsed: number; completed: number;
+}
+export type OpportunityActivityKind = 'presented' | 'accepted' | 'declined' | 'lapsed' | 'completed' | 'cancelled';
+export interface OpportunityActivity {
+  dayNumber: number; kind: OpportunityActivityKind; employerKey: string; category: string; commodity?: string;
+  assignmentId: AssignmentId;
+}
+export interface OpportunityConsequences {
+  moneyDelta?: number; provisionsDelta?: number; careerXp?: number;
+  relationships?: Array<{ fromId: PersonId; toId: PersonId; changes: Partial<RelationshipDimensions>; summary: string }>;
+  institutionalStanding?: Array<{ institutionId: InstitutionId; delta: number }>;
+  event?: WorldEvent; record?: RecordEntry; knowledge?: KnowledgeEntry[];
+}
+export interface AssignmentOffer {
+  id: AssignmentId; title: string; description: string; employer: OpportunityEmployer;
+  category: string; commodity?: string; context: AssignmentContext;
+  requiredSkills: Partial<Record<SkillId, number>>; difficulty: 'routine' | 'demanding' | 'critical';
+  estimatedAp: number; compensation: { money: number; provisions: number }; careerXpReward: number;
+  deliveryChannels: OpportunityDeliveryChannel[];
+  offeredDay: number; expiresDay: number; status: 'offered' | 'accepted' | 'declined' | 'lapsed' | 'completed' | 'cancelled';
+  lapsedDuringMandatoryWork?: boolean; cancellationConsequences?: OpportunityConsequences;
+}
+export interface ChallengeChoice {
+  id: string; label: string; description: string; consequences: OpportunityConsequences;
+}
+export interface ChallengeInstance {
+  id: ChallengeId; title: string; description: string; category: string; commodity?: string;
+  employer?: OpportunityEmployer; context: AssignmentContext; deliveryChannels: OpportunityDeliveryChannel[];
+  presentedDay: number; choices: ChallengeChoice[];
+}
+export interface ChallengeOutcome {
+  challengeId: ChallengeId; title: string; category: string; resolvedDay: number;
+  choiceId: string; choiceLabel: string; summary: string;
+}
+export interface ChallengeTriggerRule {
+  id: string; category?: string; minPresented?: number; minAccepted?: number; minDeclined?: number;
+  minNonWorkLapsed?: number; minCompleted?: number; recentKinds?: OpportunityActivityKind[];
+  recentWindow?: number;
+}
+
 export interface GameState {
   calendar: CalendarState; actionEconomy: ActionEconomyState; player: { currentCharacterId: PersonId };
   world: {
@@ -93,7 +149,7 @@ export interface GameState {
     knowledge: Record<KnowledgeEntryId, KnowledgeEntry>;
   };
   historicalProgression: { historicalXp: number; completedWorks: WorkId[] };
-  opportunities: { assignments: Record<string, unknown>; challenges: Record<string, unknown> };
+  opportunities: { assignments: Record<AssignmentId, AssignmentOffer>; challenges: Record<ChallengeId, ChallengeInstance>; challengeOutcomes: ChallengeOutcome[]; assignmentAggregates: Record<string, AssignmentActivityAggregate>; recentActivity: OpportunityActivity[] };
   works: { activeWorkId: WorkId | null; progress: Record<WorkId, unknown> };
   records: {
     entries: Record<RecordId, RecordEntry>;
@@ -124,6 +180,13 @@ export type GameAction =
   | { type: 'CREATE_EVENT'; event: WorldEvent }
   | { type: 'CREATE_RECORD'; record: RecordEntry }
   | { type: 'AMEND_RECORD'; recordId: RecordId; amendment: RecordAmendment }
-  | { type: 'GRANT_KNOWLEDGE'; knowledge: KnowledgeEntry };
+  | { type: 'GRANT_KNOWLEDGE'; knowledge: KnowledgeEntry }
+  | { type: 'PRESENT_ASSIGNMENT'; offer: Omit<AssignmentOffer, 'offeredDay' | 'expiresDay' | 'status' | 'lapsedDuringMandatoryWork'> & { expiresDay?: number } }
+  | { type: 'ACCEPT_ASSIGNMENT'; assignmentId: AssignmentId }
+  | { type: 'DECLINE_ASSIGNMENT'; assignmentId: AssignmentId }
+  | { type: 'CANCEL_ASSIGNMENT'; assignmentId: AssignmentId }
+  | { type: 'COMPLETE_ASSIGNMENT'; assignmentId: AssignmentId; consequences?: OpportunityConsequences }
+  | { type: 'PRESENT_CHALLENGE'; challenge: ChallengeInstance }
+  | { type: 'RESOLVE_CHALLENGE'; challengeId: ChallengeId; choiceId: string };
 export interface ActionFeedback { kind: 'success' | 'error' | 'info'; code: string; message: string; }
 export interface TransitionResult { state: GameState; feedback: ActionFeedback | null; }
