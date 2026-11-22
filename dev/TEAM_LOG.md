@@ -588,3 +588,34 @@ The detailed trait catalog, emergence and change conditions, mechanical effects,
 - `docs/GDD.md`: expanded Section 3.4 with stable attributes, independent skill-experience tracks, the 1–10 skill scale, Career XP investment and eligibility principles, and initial/emergent/changeable personality traits. Updated Remaining Design Work item 22.
 - Updated the character-action model to name attributes, specializations, and personality traits explicitly alongside skills, equipment, conditions, and circumstances.
 - No runtime code, save schema, numerical balance, or gameplay behavior changed.
+
+
+## 2026-11-21 — Decision: professional participation emerges where social and operational causality meet
+
+**Contributor:** Chad (AI)  
+**Status:** Approved design principle
+
+Following a focused comparison of *Crusader Kings III* and *Mount & Blade II: Bannerlord*, the owner approved a foundational principle for how the simulated world and the player's profession relate.
+
+### The two sources of causality
+
+- **Social causality:** People act according to their interests, personalities, relationships, obligations, authority, knowledge, and circumstances. Their choices can change their own situations and those of other people.
+- **Operational causality:** Ongoing activities depend on resources, people, access, time, records, and other processes. These dependencies create requirements and consequences; interruptions or changes can affect connected activities and institutions.
+
+### Professional participation
+
+**Professional participation is where social and operational causality meet.** The player's profession places them inside situations where people's intentions and relationships intersect with the practical requirements and consequences of ongoing work. The player investigates, interprets evidence, creates and evaluates records, communicates, exercises judgment, and takes responsibility for actions that can influence people and institutions.
+
+Meaningful professional situations should connect human interests to consequential activity. Social interactions without practical stakes risk becoming isolated relationship mechanics; operational systems without people risk becoming abstract bookkeeping. Neither dimension is a separate substitute for the other.
+
+### Scope and limits
+
+- The direction calls for a bounded, persistent simulation, not unrestricted simulation of every person or transaction.
+- Important people and consequential processes should retain enough state to produce intelligible future developments.
+- Routine or temporary activity may be represented more simply when its details do not affect future obligations, relationships, disputes, information access, or plausible work.
+- The principle does not approve a specific simulation architecture, NPC count, update frequency, action-selection model, numerical rules, or runtime implementation. Those remain open design work.
+
+### Repository changes
+
+- `docs/GDD.md`: added the approved principle as Design Pillar 2.10 and summarized the relationship between social causality, operational causality, and professional participation in the Executive Summary. Updated the document date.
+- No runtime code, save schema, simulation architecture, numerical balance, or gameplay behavior changed.
