@@ -1,5 +1,6 @@
 import type { CareerProgressionPolicy, GameAction, GameState, TransitionResult } from '../state/types';
 import type { ConditionId, InstitutionId } from '../state/ids';
+import { UR_GIR_PERSON_ID } from '../state/ids';
 import { transitionCareerAction } from './careerProgression';
 import { transitionWorldAction } from './worldSocial';
 import { settleAssignmentOffers, transitionOpportunityAction } from './opportunities';
@@ -349,7 +350,7 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
       const contact = state.world.people[action.contactId];
       const relationship = state.world.relationships[action.contactId]?.[person.id];
       const outstanding = scribal.obligations.some((item) => item.status === 'outstanding' && item.creditorPersonId === action.contactId);
-      if (action.contactId === person.id || action.contactId !== 'person-uruk-ur-gir' || !contact?.alive || !contact.scribal || !relationship
+      if (action.contactId === person.id || action.contactId !== UR_GIR_PERSON_ID || !contact?.alive || !contact.scribal || !relationship
         || relationship.dimensions.trust < 50 || relationship.dimensions.resentment !== 0
         || contact.scribal.wallet.provisions < 1 || outstanding) {
         return { state, feedback: feedback('error', 'contact-advance-unavailable', 'Ur-gir cannot provide an advance under the current relationship or material circumstances.') };
