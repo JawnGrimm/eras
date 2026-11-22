@@ -1,5 +1,5 @@
 import type { GameState } from './types';
-import type { PersonId } from './ids';
+import type { InstitutionId, PersonId } from './ids';
 export const INITIAL_PERSON_ID = 'person-enlil-barni' as PersonId;
 export function createInitialGameState(): GameState {
   const initialPerson = {
@@ -34,6 +34,19 @@ export function createInitialGameState(): GameState {
       institutionalStanding: {},
     },
   };
+  const shuruppakId = 'person-shuruppak-ilu' as PersonId;
+  const urNannaId = 'person-ur-nanna' as PersonId;
+  const utuMansumId = 'person-utu-mansum' as PersonId;
+  const enlilKisuId = 'person-enlil-kisu' as PersonId;
+  const ninKasiId = 'person-nin-kasi' as PersonId;
+  const templeStorehouseId = 'institution-uruk-temple-storehouse' as InstitutionId;
+  const casePeople = [
+    { id: shuruppakId, name: 'Shuruppak-ilu', alive: true, affiliations: [templeStorehouseId] },
+    { id: urNannaId, name: 'Ur-Nanna', alive: true, affiliations: [templeStorehouseId] },
+    { id: utuMansumId, name: 'Utu-mansum', alive: true, affiliations: [templeStorehouseId] },
+    { id: enlilKisuId, name: 'Enlil-kisu', alive: true, affiliations: [] },
+    { id: ninKasiId, name: 'Nin-kasi', alive: true, affiliations: [templeStorehouseId] },
+  ];
   return {
     calendar: { eraId: 'era-1', dayNumber: 1, displayDate: 'Day 1, Early Season of Inundation (c. 3200 BCE)' },
     actionEconomy: { dailyApAllocation: 6, apRemaining: 6, overtimeUsedToday: false, nextDayApPenalty: false },
@@ -41,7 +54,7 @@ export function createInitialGameState(): GameState {
     pendingSuccession: null,
     characterTransitions: [],
     world: {
-      people: { [INITIAL_PERSON_ID]: initialPerson, [apprenticeId]: apprentice, [colleagueId]: colleague },
+      people: { [INITIAL_PERSON_ID]: initialPerson, [apprenticeId]: apprentice, [colleagueId]: colleague, ...Object.fromEntries(casePeople.map((person) => [person.id, person])) },
       relationships: {
         [INITIAL_PERSON_ID]: {
           [apprenticeId]: { dimensions: { trust: 65, respect: 55, affection: 45, resentment: 0, rivalry: 5, familiarity: 60 }, history: [{ id: 'rel-enlil-nin-aya-1', dayNumber: 1, summary: 'Nin-aya has learned routine tablet preparation alongside Enlil-barni.' }] },
@@ -50,7 +63,10 @@ export function createInitialGameState(): GameState {
           [INITIAL_PERSON_ID]: { dimensions: { trust: 50, respect: 62, affection: 20, resentment: 0, rivalry: 10, familiarity: 45 }, history: [{ id: 'rel-ur-gir-enlil-1', dayNumber: 1, summary: 'Ur-gir has worked alongside Enlil-barni on storehouse accounts.' }] },
         },
       },
-      institutions: {}, locations: {},
+      institutions: { [templeStorehouseId]: {
+        id: templeStorehouseId, name: 'Temple Storehouse', responsibilities: ['Receive, safeguard, and issue institutional barley stocks'],
+        authority: ['Maintain storehouse accounts', 'Authorize stock inspection and segregation'], standing: 50, activeMatters: ['The Storehouse Reckoning'],
+      } }, locations: {},
       appointments: {}, events: {}, knowledge: {},
     },
     historicalProgression: { historicalXp: 0, completedWorks: [] },

@@ -1,5 +1,5 @@
-import type { EvidenceId, WorkId, SkillId, AttributeId } from '../state/ids';
-import type { ScribalCharacterState, WorkAssessmentDimensionResult } from '../state/types';
+import type { EvidenceId, PersonId, WorkId, SkillId, AttributeId } from '../state/ids';
+import type { KnowledgeEntry, RecordEntry, ScribalCharacterState, WorkAssessmentDimensionResult } from '../state/types';
 import type { InterpretationRule, Predicate } from './evidenceInterpretation';
 
 export interface WorkEvidenceDefinition {
@@ -18,12 +18,20 @@ export interface WorkActionDefinition {
 export interface WorkSubmissionContext<TProgress> {
   progress: TProgress;
   character: ScribalCharacterState;
+  examinedEvidence: readonly EvidenceId[];
+  personId: PersonId;
+  dayNumber: number;
 }
 export interface WorkAssessment {
   outcome: 'accepted' | 'revise' | 'rejected';
   summary: string;
   /** Work-specific subset of the GDD §9.2 assessment dimensions. */
   dimensions: WorkAssessmentDimensionResult[];
+}
+export interface WorkFinalization {
+  careerXpReward?: number;
+  record?: RecordEntry;
+  knowledge?: KnowledgeEntry[];
 }
 export interface WorkDefinition<TProgress extends Record<string, unknown> = Record<string, unknown>> {
   id: WorkId;
@@ -34,6 +42,11 @@ export interface WorkDefinition<TProgress extends Record<string, unknown> = Reco
   interpretationRules: InterpretationRule[];
   historicalXpReward: number;
   submissionApCost?: number;
+  initialSubmissionApCost?: number;
+  revisionSubmissionApCost?: number;
+  dispositionApCost?: number;
+  dispositions?: readonly string[];
+  finalizeDisposition?(context: WorkSubmissionContext<TProgress>, disposition: string): WorkFinalization;
   createInitialProgress(): TProgress;
   provisionsContract?: { provisionsPerQualifiedWorkday: number; minimumWorkApPerDay: number };
   validateScenarioData(value: unknown): value is TProgress;
@@ -82,6 +95,13 @@ export function validateWorkDefinition<TProgress extends Record<string, unknown>
   const evidenceIds = new Set(work.evidence.map((item) => item.id));
   if (evidenceIds.size !== work.evidence.length) issues.push({ code: 'duplicate-evidence-id', message: 'Evidence IDs must be unique within a Work.' });
   if (!Number.isFinite(work.historicalXpReward) || work.historicalXpReward < 0) issues.push({ code: 'invalid-historical-xp-reward', message: 'Historical XP reward must be finite and non-negative.' });
+  for (const [name, cost] of [['submissionApCost', work.submissionApCost], ['initialSubmissionApCost', work.initialSubmissionApCost], ['revisionSubmissionApCost', work.revisionSubmissionApCost], ['dispositionApCost', work.dispositionApCost]] as const) {
+    if (cost !== undefined && (!Number.isInteger(cost) || cost < 0 || cost > 6)) issues.push({ code: 'invalid-work-ap-cost', message: `${name} must be an integer from 0 to 6.` });
+  }
+  if ((work.dispositions && (!work.dispositions.length || new Set(work.dispositions).size !== work.dispositions.length
+    || work.dispositions.some((item) => !item.trim()))) || (!!work.finalizeDisposition !== !!work.dispositions?.length) || (!!work.finalizeDisposition && work.dispositionApCost === undefined)) {
+    issues.push({ code: 'invalid-work-disposition-contract', message: 'Disposition options, finalizer, and AP cost must be declared together.' });
+  }
   if (work.submissionApCost !== undefined && (!Number.isInteger(work.submissionApCost) || work.submissionApCost < 0 || work.submissionApCost > 6)) {
     issues.push({ code: 'invalid-submission-ap-cost', message: 'Submission AP cost must be an integer from 0 to 6.' });
   }

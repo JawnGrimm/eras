@@ -99,7 +99,7 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
       }
       const acquired = [...new Set([...progress.acquiredEvidence, ...grants])];
       const examined = actionDefinition.autoExamine ? [...new Set([...progress.examinedEvidence, ...grants])] : progress.examinedEvidence;
-      const nextProgress = { ...progress, ...(submittedScenarioData === undefined ? {} : { scenarioData: submittedScenarioData }), acquiredEvidence: acquired, examinedEvidence: examined,
+      const nextProgress = { ...progress, ...(submittedScenarioData === undefined ? {} : { scenarioData: submittedScenarioData }), lastAssessment: undefined, pendingDisposition: false, acquiredEvidence: acquired, examinedEvidence: examined,
         completedActionIds: [...progress.completedActionIds, action.actionId],
         workApSpentToday: progress.workApSpentToday + actionDefinition.apCost };
       return { state: { ...state, actionEconomy: { ...economy, apRemaining: economy.apRemaining - actionDefinition.apCost },
@@ -109,10 +109,10 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
     case 'EXAMINE_WORK_EVIDENCE': {
       const definition = workCatalog[action.workId];
       const progress = state.works.progress[action.workId];
-      if (!definition || !definition.evidence.some((item) => item.id === action.evidenceId) || !progress || !progress.acquiredEvidence.includes(action.evidenceId)) return { state, feedback: feedback('error', 'evidence-not-acquired', 'Acquire this evidence before examining it.') };
+      if (!definition || !definition.evidence.some((item) => item.id === action.evidenceId) || !progress || state.works.activeWorkId !== action.workId || progress.status !== 'active' || !progress.acquiredEvidence.includes(action.evidenceId)) return { state, feedback: feedback('error', 'evidence-not-acquired', 'Acquire this evidence before examining it.') };
       if (progress.examinedEvidence.includes(action.evidenceId)) return { state, feedback: feedback('info', 'evidence-already-examined', 'Re-examining acquired evidence costs no AP.') };
       return { state: { ...state, works: { ...state.works, progress: { ...state.works.progress,
-        [action.workId]: { ...progress, examinedEvidence: [...progress.examinedEvidence, action.evidenceId] } } } },
+        [action.workId]: { ...progress, examinedEvidence: [...progress.examinedEvidence, action.evidenceId], lastAssessment: undefined, pendingDisposition: false } } } },
         feedback: feedback('success', 'evidence-examined', 'Evidence examined.') };
     }
     case 'SET_WORK_SCENARIO_DATA': {
@@ -123,20 +123,24 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
         return { state, feedback: feedback('error', 'invalid-work-progress', 'The Work progress data is invalid or the Work is not active.') };
       }
       return { state: { ...state, works: { ...state.works, progress: { ...state.works.progress,
-        [action.workId]: { ...progress, scenarioData: action.scenarioData } } } }, feedback: null };
+        [action.workId]: { ...progress, scenarioData: action.scenarioData, lastAssessment: undefined, pendingDisposition: false } } } }, feedback: null };
     }
     case 'SUBMIT_WORK': {
       const definition = workCatalog[action.workId];
       const progress = state.works.progress[action.workId];
       if (!definition || !progress || state.works.activeWorkId !== action.workId || progress.status !== 'active'
+        || (progress.pendingDisposition && progress.lastAssessment?.outcome === 'accepted'
+          && progress.lastAssessment.dimensions.every((item) => item.status === 'meets'))
         || !definition.validateScenarioData(progress.scenarioData)) {
         return { state, feedback: feedback('error', 'work-not-submittable', 'This Work cannot be submitted in its current state.') };
       }
-      const submissionCost = definition.submissionApCost ?? 0;
+      const submissionCost = progress.submissionCount === 0
+        ? (definition.initialSubmissionApCost ?? definition.submissionApCost ?? 0)
+        : (definition.revisionSubmissionApCost ?? definition.submissionApCost ?? 0);
       if (!Number.isInteger(submissionCost) || submissionCost < 0 || submissionCost > economy.apRemaining) {
         return { state, feedback: feedback('error', 'insufficient-ap', 'There is not enough AP remaining to submit this Work.') };
       }
-      const context = { progress: progress.scenarioData, character: scribal };
+      const context = { progress: progress.scenarioData, character: scribal, examinedEvidence: progress.examinedEvidence, personId: person.id, dayNumber: state.calendar.dayNumber };
       let assessment: WorkAssessment;
       try {
         const submission = definition.evaluateSubmission(context);
@@ -154,9 +158,16 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
       const submissionCount = progress.submissionCount + 1;
       const apAfterSubmission = economy.apRemaining - submissionCost;
       const apSpentAfterSubmission = progress.workApSpentToday + submissionCost;
+      if (assessment.outcome === 'accepted' && definition.finalizeDisposition) {
+        const nextProgress = { ...progress, pendingDisposition: true, submissionCount, workApSpentToday: apSpentAfterSubmission,
+          lastAssessment: { ...assessment, assessedDay: state.calendar.dayNumber } };
+        return { state: { ...state, actionEconomy: { ...economy, apRemaining: apAfterSubmission },
+          works: { ...state.works, progress: { ...state.works.progress, [action.workId]: nextProgress } } },
+          feedback: feedback('success', 'work-assessment-pending-disposition', assessment.summary) };
+      }
       if (assessment.outcome === 'accepted') {
         const grantReward = !progress.rewardGranted;
-        const nextProgress = { ...progress, status: 'completed' as const, rewardGranted: true, submissionCount, workApSpentToday: apSpentAfterSubmission,
+        const nextProgress = { ...progress, status: 'completed' as const, rewardGranted: true, pendingDisposition: false, submissionCount, workApSpentToday: apSpentAfterSubmission,
           lastAssessment: { ...assessment, assessedDay: state.calendar.dayNumber } };
         return { state: { ...state, actionEconomy: { ...economy, apRemaining: apAfterSubmission }, works: { activeWorkId: null, progress: { ...state.works.progress, [action.workId]: nextProgress } },
           historicalProgression: { historicalXp: state.historicalProgression.historicalXp + (grantReward ? definition.historicalXpReward : 0),
@@ -170,8 +181,75 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
       if (!definition.validateScenarioData(recovered)) return { state, feedback: feedback('error', 'invalid-work-recovery', 'The Work recovery path returned invalid progress; the prior state was preserved.') };
       return { state: { ...state, actionEconomy: { ...economy, apRemaining: apAfterSubmission }, works: { ...state.works, progress: { ...state.works.progress,
         [action.workId]: { ...progress, scenarioData: recovered, submissionCount, workApSpentToday: apSpentAfterSubmission,
-          lastAssessment: { ...assessment, assessedDay: state.calendar.dayNumber } } } } },
+          pendingDisposition: !!definition.finalizeDisposition, lastAssessment: { ...assessment, assessedDay: state.calendar.dayNumber } } } } },
         feedback: feedback('info', 'work-revision-needed', assessment.summary) };
+    }
+    case 'DISPOSE_WORK': {
+      const definition = workCatalog[action.workId];
+      const progress = state.works.progress[action.workId];
+      if (!definition?.finalizeDisposition || !definition.dispositions?.includes(action.disposition) || !progress
+        || state.works.activeWorkId !== action.workId || progress.status !== 'active' || !progress.pendingDisposition
+        || !progress.lastAssessment || !definition.validateScenarioData(progress.scenarioData)) {
+        return { state, feedback: feedback('error', 'work-disposition-unavailable', 'A current assessed submission and a valid disposition are required.') };
+      }
+      const cost = definition.dispositionApCost ?? 0;
+      if (!Number.isInteger(cost) || cost < 0 || cost > economy.apRemaining) return { state, feedback: feedback('error', 'insufficient-ap', 'There is not enough AP remaining for the Senior Scribe disposition.') };
+      if (action.disposition === 'returned' && progress.lastAssessment.outcome === 'accepted') {
+        return { state, feedback: feedback('error', 'invalid-work-disposition', 'An accepted assessment cannot be returned through the correction disposition.') };
+      }
+      if (action.disposition !== 'returned' && progress.lastAssessment.outcome !== 'accepted') {
+        return { state, feedback: feedback('error', 'invalid-work-disposition', 'A submission requiring correction must be revised or returned before final acceptance.') };
+      }
+      if (action.disposition === 'authorized' && progress.lastAssessment.dimensions.some((item) => item.dimension === 'responsibility' && item.status !== 'meets')) {
+        return { state, feedback: feedback('error', 'work-recommendation-not-authorized', 'The recommendation did not meet the assessment standard and cannot be authorized.') };
+      }
+      if (action.disposition === 'returned') {
+        const nextProgress = { ...progress, pendingDisposition: false, workApSpentToday: progress.workApSpentToday + cost };
+        return { state: { ...state, actionEconomy: { ...economy, apRemaining: economy.apRemaining - cost },
+          works: { ...state.works, progress: { ...state.works.progress, [action.workId]: nextProgress } } },
+          feedback: feedback('info', 'work-returned', 'The Senior Scribe returned the document. Correct it and resubmit for 1 AP.') };
+      }
+      let finalization;
+      try {
+        finalization = definition.finalizeDisposition({
+          progress: progress.scenarioData, character: scribal, examinedEvidence: progress.examinedEvidence,
+          personId: person.id, dayNumber: state.calendar.dayNumber,
+        }, action.disposition);
+      } catch {
+        return { state, feedback: feedback('error', 'work-finalization-error', 'The disposition could not be finalized; no AP, rewards, or records were committed.') };
+      }
+      if (!finalization || (finalization.careerXpReward !== undefined && (!Number.isFinite(finalization.careerXpReward) || finalization.careerXpReward < 0)) || (finalization.knowledge !== undefined && !Array.isArray(finalization.knowledge))) {
+        return { state, feedback: feedback('error', 'work-finalization-invalid', 'The Work finalizer returned invalid rewards.') };
+      }
+      let next = state;
+      if (finalization.record) {
+        const result = transitionWorldAction(next, { type: 'CREATE_RECORD', record: finalization.record });
+        if (result.feedback?.kind === 'error') return { state, feedback: feedback('error', 'work-record-invalid', result.feedback.message) };
+        next = result.state;
+      }
+      for (const knowledge of finalization.knowledge ?? []) {
+        const result = transitionWorldAction(next, { type: 'GRANT_KNOWLEDGE', knowledge });
+        if (result.feedback?.kind === 'error') return { state, feedback: feedback('error', 'work-knowledge-invalid', result.feedback.message) };
+        next = result.state;
+      }
+      const grantReward = !progress.rewardGranted;
+      const finalProgress = { ...progress, status: 'completed' as const, rewardGranted: true, pendingDisposition: false, finalDisposition: action.disposition,
+        workApSpentToday: progress.workApSpentToday + cost };
+      const careerXp = finalization.careerXpReward ?? 0;
+      let rewarded = next;
+      if (careerXp > 0) {
+        const careerResult = transitionCareerAction(next, {
+          type: 'AWARD_CAREER_XP', amount: careerXp,
+          reason: 'The Senior Scribe accepted the Storehouse Reckoning.',
+        }, careerPolicy);
+        if (careerResult.feedback?.kind === 'error') return { state, feedback: feedback('error', 'work-career-reward-invalid', careerResult.feedback.message) };
+        rewarded = careerResult.state;
+      }
+      return { state: { ...rewarded, actionEconomy: { ...economy, apRemaining: economy.apRemaining - cost },
+        works: { activeWorkId: null, progress: { ...rewarded.works.progress, [action.workId]: finalProgress } },
+        historicalProgression: { historicalXp: next.historicalProgression.historicalXp + (grantReward ? definition.historicalXpReward : 0),
+          completedWorks: next.historicalProgression.completedWorks.includes(action.workId) ? next.historicalProgression.completedWorks : [...next.historicalProgression.completedWorks, action.workId] } },
+        feedback: feedback('success', 'work-completed', progress.lastAssessment.summary) };
     }
     case 'SPEND_AP': {
       if (!Number.isFinite(action.amount) || action.amount <= 0 || !Number.isInteger(action.amount)) {
@@ -222,10 +300,11 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
       if (economy.overtimeUsedToday && economy.apRemaining > 0) {
         return { state, feedback: feedback('error', 'overtime-ap-unspent', 'Spend the overtime AP before settling the day.') };
       }
-      const activeProgress = state.works.activeWorkId ? state.works.progress[state.works.activeWorkId] : undefined;
-      const contract = activeProgress?.status === 'active' ? activeProgress.provisionContract : undefined;
-      const contractProvision = contract && activeProgress && activeProgress.workApSpentToday >= contract.minimumWorkApPerDay
-        ? contract.provisionsPerQualifiedWorkday : 0;
+      const contractProgress = Object.values(state.works.progress).find((item) =>
+        (item.status === 'active' || item.status === 'completed') && !!item.provisionContract
+        && item.workApSpentToday >= item.provisionContract.minimumWorkApPerDay);
+      const contract = contractProgress?.provisionContract;
+      const contractProvision = contract ? contract.provisionsPerQualifiedWorkday : 0;
       const availableProvisions = scribal.wallet.provisions + contractProvision;
       const hadProvision = availableProvisions > 0;
       const shortageWorkdays = hadProvision ? 0 : scribal.wallet.shortageWorkdays + 1;

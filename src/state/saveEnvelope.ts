@@ -129,6 +129,12 @@ function isWorkProgress(value: unknown): value is WorkProgress {
     || !Number.isInteger(value.provisionContract.minimumWorkApPerDay)
     || (value.provisionContract.minimumWorkApPerDay as number) < 1
     || (value.provisionContract.minimumWorkApPerDay as number) > 6)) return false;
+  if (value.pendingDisposition !== undefined && typeof value.pendingDisposition !== 'boolean') return false;
+  if (value.finalDisposition !== undefined && (typeof value.finalDisposition !== 'string' || !value.finalDisposition)) return false;
+  if (value.pendingDisposition === true && (value.lastAssessment === undefined || value.status !== 'active' || value.rewardGranted)) return false;
+  if (value.finalDisposition !== undefined && (value.status !== 'completed' || value.pendingDisposition === true)) return false;
+  if (value.status === 'active' && isObject(value.lastAssessment) && value.lastAssessment.outcome === 'accepted'
+    && value.pendingDisposition !== true) return false;
   if (value.lastAssessment !== undefined && (!isObject(value.lastAssessment)
     || !['accepted','revise','rejected'].includes(value.lastAssessment.outcome as string)
     || typeof value.lastAssessment.summary !== 'string' || !value.lastAssessment.summary
@@ -313,7 +319,14 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
       && !!workCatalog[id] && workCatalog[id].id === id
       && workCatalog[id].validateScenarioData((progress as WorkProgress).scenarioData)
       && (progress as WorkProgress).acquiredEvidence.every((evidenceId) => workCatalog[id].evidence.some((item) => item.id === evidenceId))
-      && (progress as WorkProgress).completedActionIds.every((actionId) => workCatalog[id].actions.some((item) => item.id === actionId)))
+      && (progress as WorkProgress).completedActionIds.every((actionId) => workCatalog[id].actions.some((item) => item.id === actionId))
+      && (workCatalog[id].finalizeDisposition
+        ? ((progress as WorkProgress).status === 'completed'
+          ? workCatalog[id].dispositions?.includes((progress as WorkProgress).finalDisposition ?? '') === true
+            && (progress as WorkProgress).submissionCount >= 1
+            && (progress as WorkProgress).lastAssessment?.outcome === 'accepted'
+          : (progress as WorkProgress).finalDisposition === undefined)
+        : (progress as WorkProgress).finalDisposition === undefined))
     && Array.isArray(value.records.permanentOutcomes)
     && Array.isArray(value.journal.notices);
 }
