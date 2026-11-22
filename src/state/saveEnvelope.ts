@@ -266,9 +266,9 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
     && value.historicalProgression.completedWorks.every((id) => isObject(works.progress[id])
       && (works.progress[id] as WorkProgress).status === 'completed')
     && isObject(value.opportunities.assignments) && isObject(value.opportunities.challenges)
-    && (works.activeWorkId === null || typeof value.works.activeWorkId === 'string')
-    && isObject(value.works.progress)
-    && Object.entries(value.works.progress).every(([id, progress]) => !!id && isWorkProgress(progress)
+    && (works.activeWorkId === null || typeof works.activeWorkId === 'string')
+    && isObject(works.progress)
+    && Object.entries(works.progress).every(([id, progress]) => !!id && isWorkProgress(progress)
       && !!workCatalog[id] && workCatalog[id].id === id
       && workCatalog[id].validateScenarioData((progress as WorkProgress).scenarioData)
       && (progress as WorkProgress).acquiredEvidence.every((evidenceId) => workCatalog[id].evidence.some((item) => item.id === evidenceId))
