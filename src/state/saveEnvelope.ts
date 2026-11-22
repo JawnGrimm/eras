@@ -234,7 +234,7 @@ export function isValidGameState(value: unknown): value is GameState {
       || new Set(challenge.choices.filter(isObject).map((choice) => choice.id)).size !== challenge.choices.length
       || challenge.choices.some((choice) => !isObject(choice) || typeof choice.id !== 'string' || !choice.id
         || typeof choice.label !== 'string' || !choice.label || typeof choice.description !== 'string' || !choice.description
-        || !!validateOpportunityConsequences(choice.consequences as OpportunityConsequences | undefined, opportunityContext, 'authoring'))) return false;
+        || !isObject(choice.consequences) || !!validateOpportunityConsequences(choice.consequences as OpportunityConsequences | undefined, opportunityContext, 'authoring'))) return false;
   }
   return finiteNonNegative(value.historicalProgression.historicalXp) && Array.isArray(value.historicalProgression.completedWorks)
     && isObject(value.opportunities.assignments) && isObject(value.opportunities.challenges)
