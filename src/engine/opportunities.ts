@@ -220,7 +220,7 @@ export function transitionOpportunityAction(state: GameState, action: Opportunit
       return succeed(addActivity(next, offer, 'completed'), 'assignment-completed', 'The Assignment was completed and its authored compensation and consequences were applied.');
     }
     case 'PRESENT_CHALLENGE': {
-      const c: ChallengeInstance = action.challenge;
+      const c = action.challenge;
       if (!c.id || opportunities.challenges[c.id] || !c.title || !c.description || !c.category || !c.context.what
         || !c.context.purpose || !validChannels(c.deliveryChannels, state) || !Number.isInteger(c.apCost) || c.apCost < 1 || c.apCost > 6
         || !Array.isArray(c.choices) || !c.choices.length
