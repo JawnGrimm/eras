@@ -1,4 +1,5 @@
-import type { GameAction, GameState, TransitionResult, AssignmentOffer, AssignmentActivityDraft, RecordEntry } from '../state/types';
+import type { GameAction, GameState, TransitionResult, AssignmentOffer } from '../state/types';
+import { addActivity } from './opportunities';
 import type { AssignmentId, KnowledgeEntryId, RecordId, InstitutionId } from '../state/ids';
 import { NORTH_BAY_ACTIVITY_ID, NORTH_BAY_PEOPLE, northBayRoofInspection, validateAssignmentActivityProgress, normalizeActivityDraft } from '../content/assignments/northBayRoofInspection';
 
@@ -128,7 +129,7 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
   const updatedScribal = { ...scribal, careerXp: scribal.careerXp + offer.careerXpReward,
     wallet: { ...scribal.wallet, money: scribal.wallet.money + offer.compensation.money, provisions: scribal.wallet.provisions + offer.compensation.provisions },
     professionalReputation: { ...scribal.professionalReputation, judgment: Math.max(0, Math.min(100, scribal.professionalReputation.judgment + reputationDelta)) } };
-  const next: GameState = {
+  let next: GameState = {
     ...state, actionEconomy: { ...state.actionEconomy, apRemaining: state.actionEconomy.apRemaining - cost },
     world: { ...state.world, people: { ...state.world.people, [person.id]: { ...person, scribal: updatedScribal } },
       relationships, institutions: { ...state.world.institutions, [STOREHOUSE]: { ...institution, activeMatters } },
@@ -137,6 +138,7 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
     opportunities: { ...state.opportunities, assignments: { ...state.opportunities.assignments,
       [offer.id]: { ...offer, status: 'completed', activityProgress: progress } } },
   };
+  next = addActivity(next, offer, 'completed');
   return succeed(next, 'assignment-activity-submitted',
     `The report was filed. ${overclaims ? 'Its unsupported certification may mislead the institution.' : qualified ? 'Its limitations remain explicit.' : 'The findings and follow-up are recorded.'}`);
 }

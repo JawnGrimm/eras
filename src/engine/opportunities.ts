@@ -15,7 +15,7 @@ const score = (n: number) => Number.isFinite(n) && n >= 0 && n <= 100;
 export function assignmentAggregateKey(employer: AssignmentOffer['employer'], category: string, commodity?: string): string {
   return [employer.kind, employer.id, category, commodity ?? ''].join('|');
 }
-function addActivity(state: GameState, offer: AssignmentOffer, kind: OpportunityActivity['kind'], extra: Partial<OpportunityActivity> = {}): GameState {
+export function addActivity(state: GameState, offer: AssignmentOffer, kind: OpportunityActivity['kind'], extra: Partial<OpportunityActivity> = {}): GameState {
   const key = assignmentAggregateKey(offer.employer, offer.category, offer.commodity);
   const old = state.opportunities.assignmentAggregates[key] ?? {
     key, employer: offer.employer, category: offer.category, commodity: offer.commodity,
