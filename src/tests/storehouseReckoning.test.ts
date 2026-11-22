@@ -193,10 +193,11 @@ describe('Storehouse Reckoning typed Work', () => {
     const scenario = { ...validDraft(), finding: 'roof_leak_reported_unproven' as const,
       citations: [...validDraft().citations, 'ev-06'] as const, recommendations: ['verify_roof_repair'] as const };
     state = transitionGame(state, { type: 'SET_WORK_SCENARIO_DATA', workId: STOREHOUSE_WORK_ID, scenarioData: scenario }, undefined, catalog).state;
+    state = nextDay(state);
     state = transitionGame(state, { type: 'SUBMIT_WORK', workId: STOREHOUSE_WORK_ID }, undefined, catalog).state;
     state = nextDay(state);
     state = transitionGame(state, { type: 'DISPOSE_WORK', workId: STOREHOUSE_WORK_ID, disposition: 'authorized' }, undefined, catalog).state;
-    expect(state.records.entries['record-storehouse-reckoning-day-2'].sources.some((item) => item.id === 'ev-06')).toBe(true);
+    expect(state.records.entries['record-storehouse-reckoning-day-3'].sources.some((item) => item.id === 'ev-06')).toBe(true);
   });
 
   it('preserves the Work provision contract through completion for that contracted Workday', () => {
