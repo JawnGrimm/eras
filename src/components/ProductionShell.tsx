@@ -11,6 +11,7 @@ import { ProductionChallengeJournal } from './ProductionChallengeJournal';
 import { SuccessionScreen } from './SuccessionScreen';
 import { ProductionPeopleAndInstitutions } from './ProductionPeopleAndInstitutions';
 import { ProductionRecordsAndJournal } from './ProductionRecordsAndJournal';
+import { deriveProfessionalRank } from '../engine/professionalRank';
 
 type Screen = 'workday' | 'storehouse' | 'assignments' | 'challenges' | 'people' | 'records' | 'help';
 
@@ -70,7 +71,7 @@ export function ProductionShellContent() {
         <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-stone-500">Workspace</p>
         <nav className="space-y-1">
           <button onClick={() => setScreen('workday')} aria-current={screen === 'workday' ? 'page' : undefined} className={`w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium ${screen === 'workday' ? 'bg-stone-900 text-white' : 'text-stone-700 hover:bg-white/70'}`}>Workday Hub</button>
-          <button onClick={() => setScreen('storehouse')} aria-current={screen === 'storehouse' ? 'page' : undefined} className={`w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium ${screen === 'storehouse' ? 'bg-stone-900 text-white' : 'text-stone-700 hover:bg-white/70'}`}>Active Work · Storehouse</button>
+          <button onClick={() => setScreen('storehouse')} aria-current={screen === 'storehouse' ? 'page' : undefined} className={`w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium ${screen === 'storehouse' ? 'bg-stone-900 text-white' : 'text-stone-700 hover:bg-white/70'}`}>Introductory Tutorial · Storehouse</button>
           <button onClick={() => setScreen('assignments')} aria-current={screen === 'assignments' ? 'page' : undefined} className={`w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium ${screen === 'assignments' ? 'bg-stone-900 text-white' : 'text-stone-700 hover:bg-white/70'}`}>Assignment Board</button>
           <button onClick={() => setScreen('challenges')} aria-current={screen === 'challenges' ? 'page' : undefined} className={`w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium ${screen === 'challenges' ? 'bg-stone-900 text-white' : 'text-stone-700 hover:bg-white/70'}`}>Challenge Journal</button>
           <button onClick={() => setScreen('people')} aria-current={screen === 'people' ? 'page' : undefined} className={`w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium ${screen === 'people' ? 'bg-stone-900 text-white' : 'text-stone-700 hover:bg-white/70'}`}>People & Institutions</button>
@@ -82,6 +83,8 @@ export function ProductionShellContent() {
           <p>Uruk · Late Uruk period (c. 3200 BCE)</p>
           <p className="mt-2">Career XP: {person?.scribal?.careerXp.toLocaleString() ?? 0}</p>
           <p>Historical XP: {game.state.historicalProgression.historicalXp.toLocaleString()}</p>
+          <p>Stress: {person?.scribal?.stress ?? 0}/100</p>
+          <p>Professional Rank: Grade {person?.scribal ? deriveProfessionalRank(person.scribal.skills) : 1}</p>
         </div>
       </aside>
 
@@ -100,14 +103,14 @@ export function ProductionShellContent() {
                   : screen === 'records'
                     ? <ProductionRecordsAndJournal />
                     : <section className="space-y-5 rounded-xl border border-stone-300 bg-[#fbf9f4] p-5 sm:p-7">
-                        <div><p className="text-xs font-semibold uppercase tracking-wider text-stone-500">Player reference</p><h1 className="mt-1 font-serif text-2xl font-semibold text-stone-900">Help & Rules</h1><p className="mt-2 max-w-3xl text-sm leading-6 text-stone-700">A short guide to the current production slice. The Storehouse Reckoning is the first Work, not a template for every future historical undertaking.</p></div>
+                        <div><p className="text-xs font-semibold uppercase tracking-wider text-stone-500">Player reference</p><h1 className="mt-1 font-serif text-2xl font-semibold text-stone-900">Help & Rules</h1><p className="mt-2 max-w-3xl text-sm leading-6 text-stone-700">A short guide to the current production slice. The Storehouse Reckoning is the introductory tutorial, not a Work and not a template for future historical undertakings. It awards no Historical Progress XP.</p></div>
                         <div className="grid gap-4 md:grid-cols-2">
                           <article className="rounded-lg border border-stone-200 bg-white p-4"><h2 className="font-semibold text-stone-900">Your Workday</h2><p className="mt-2 text-sm leading-6 text-stone-700">You have six shared Action Points (AP) each day. Assignments, Challenges, Work actions, study, and other activities draw from the same budget. Unused AP do not carry over.</p></article>
                           <article className="rounded-lg border border-stone-200 bg-white p-4"><h2 className="font-semibold text-stone-900">Works</h2><p className="mt-2 text-sm leading-6 text-stone-700">Works are substantial historical undertakings that advance the main journey. They are the sole ordinary source of Historical Progress XP. Follow each Work's evidence, submission, revision, and disposition requirements.</p></article>
                           <article className="rounded-lg border border-stone-200 bg-white p-4"><h2 className="font-semibold text-stone-900">Assignments</h2><p className="mt-2 text-sm leading-6 text-stone-700">Assignments are optional professional commitments. They can provide Career XP and compensation, but never Historical Progress XP. You may hold up to two accepted Assignments at once.</p></article>
                           <article className="rounded-lg border border-stone-200 bg-white p-4"><h2 className="font-semibold text-stone-900">Challenges</h2><p className="mt-2 text-sm leading-6 text-stone-700">Challenges are optional narrative situations. Their outcomes can affect Career XP, resources, reputation, and relationships, but they do not award Historical Progress XP.</p></article>
                           <article className="rounded-lg border border-stone-200 bg-white p-4"><h2 className="font-semibold text-stone-900">Evidence and records</h2><p className="mt-2 text-sm leading-6 text-stone-700">Acquiring evidence costs the AP shown by the action. Examining acquired evidence is free. Keep source claims, your interpretation, your judgment, and senior assessment distinct; do not claim more than the records establish.</p></article>
-                          <article className="rounded-lg border border-stone-200 bg-white p-4"><h2 className="font-semibold text-stone-900">Settlement</h2><p className="mt-2 text-sm leading-6 text-stone-700">End the Workday from the Hub to apply sustenance and Work provisions, advance the calendar, and receive tomorrow's AP allocation. Overtime adds one AP now, increases Stress by five, and reduces tomorrow's allocation by one.</p></article>
+                          <article className="rounded-lg border border-stone-200 bg-white p-4"><h2 className="font-semibold text-stone-900">Settlement</h2><p className="mt-2 text-sm leading-6 text-stone-700">End the Workday from the Hub to apply sustenance and any qualifying Work provisions, advance the calendar, and receive tomorrow's AP allocation. The first two Workdays without provisions are a grace period. This build records shortage transitions; the approved Stress and recovery consequences are not yet active. Overtime adds one AP now, increases Stress by five, and reduces tomorrow's allocation by one.</p></article>
                         </div>
                         <section className="rounded-lg border border-red-200 bg-red-50 p-4">
                           <h2 className="font-semibold text-red-950">Reset production save</h2>

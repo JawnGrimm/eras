@@ -14,6 +14,9 @@ describe('Day 1 Uruk production bootstrap', () => {
     const state = createNewGameState();
     expect(state.works.activeWorkId).toBe('work-storehouse-reckoning');
     expect(state.works.progress[STOREHOUSE_WORK_ID]).toBeDefined();
+    expect(state.works.progress[STOREHOUSE_WORK_ID].provisionContract).toBeUndefined();
+    expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet.provisions).toBe(5);
+    expect(state.calendar.displayDate).toBe('Day 1 · Uruk (c. 3200 BCE)');
     expect(Object.values(state.opportunities.assignments).map((x) => x.id)).toEqual([
       'assignment-storehouse-copy-check',
       'assignment-apprentice-tablet-preparation',

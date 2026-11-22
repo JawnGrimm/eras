@@ -28,6 +28,10 @@ export function ProductionRecordsAndJournal() {
           : source.kind === 'material' ? 'Material source' : 'Other source';
     return `${origin}: ${source.description}`;
   };
+  const assertionSourceLabel = (record: (typeof records)[number], sourceId: string) => {
+    const source = record.sources.find((item) => item.id === sourceId);
+    return source ? sourceLabel(source) : 'Unresolved source reference';
+  };
 
   return <div className="mx-auto max-w-6xl space-y-6">
     <header>
@@ -37,7 +41,7 @@ export function ProductionRecordsAndJournal() {
     </header>
 
     <section className="space-y-3">
-      <div><h2 className="font-serif text-2xl font-semibold">Records</h2><p className="text-sm text-stone-600">{records.length} archived records</p></div>
+      <div><h2 className="font-serif text-2xl font-semibold">Records</h2><p className="text-sm text-stone-600">{records.length} archived {records.length === 1 ? 'record' : 'records'}</p></div>
       {records.map((record) => <article key={record.id} className="rounded-xl border border-stone-300 bg-white p-5">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div><h3 className="font-serif text-xl font-semibold">{record.title}</h3>
@@ -51,7 +55,7 @@ export function ProductionRecordsAndJournal() {
         <section className="mt-4"><h4 className="text-sm font-semibold">Original assertions</h4>
           {record.assertions.length ? <ol className="mt-2 space-y-2">{record.assertions.map((assertion) => <li key={assertion.id} className="rounded bg-stone-50 p-3">
             <p className="text-sm text-stone-800">{assertion.text}</p>
-            <p className="mt-1 text-xs text-stone-500">{classificationLabel[assertion.classification] ?? assertion.classification} · Sources: {assertion.sourceIds.join(', ') || 'None cited'}</p>
+            <p className="mt-1 text-xs text-stone-500">{classificationLabel[assertion.classification] ?? assertion.classification} · Sources: {assertion.sourceIds.map((sourceId) => assertionSourceLabel(record, sourceId)).join('; ') || 'None cited'}</p>
           </li>)}</ol> : <p className="mt-1 text-xs text-stone-500">No assertions recorded.</p>}
         </section>
         <section className="mt-4"><h4 className="text-sm font-semibold">Original uncertainty limits</h4>

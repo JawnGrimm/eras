@@ -88,7 +88,7 @@ export function StorehouseWorkScreen({ onBack }: { onBack: () => void }) {
   const definition = storehouseReckoning;
   const progress = game.state.works.progress[workId];
   const person = game.state.world.people[game.state.player.currentCharacterId];
-  if (!progress || !person?.scribal) return <section className="rounded-xl border border-stone-300 bg-white p-6"><p>The Storehouse Work progress or active character is unavailable.</p><button onClick={onBack} className="mt-4 underline">Return to Workday</button></section>;
+  if (!progress || !person?.scribal) return <section className="rounded-xl border border-stone-300 bg-white p-6"><p>The tutorial progress or active character is unavailable.</p><button onClick={onBack} className="mt-4 underline">Return to Workday</button></section>;
 
   const scenario = progress.scenarioData as StorehouseScenarioData;
   const acquired = progress.acquiredEvidence;
@@ -131,9 +131,9 @@ export function StorehouseWorkScreen({ onBack }: { onBack: () => void }) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <button onClick={onBack} className="mb-2 text-sm text-amber-800 hover:underline">← Workday</button>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-800">Mandatory historical Work · Uruk</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-800">Introductory Tutorial · Uruk</p>
           <h1 className="font-serif text-3xl font-semibold text-stone-900">The Storehouse Reckoning</h1>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-stone-600">Reconcile the storehouse account, preserve the limits of the evidence, and make a proportionate recommendation for the Senior Scribe’s review.</p>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-stone-600">Complete a guided apprenticeship exercise in reconciling a storehouse account, preserving evidentiary limits, and making a proportionate recommendation for the Senior Scribe’s review.</p>
         </div>
         <div className="rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm">
           <div className="text-stone-500">Workday AP remaining</div>
@@ -228,17 +228,17 @@ export function StorehouseWorkScreen({ onBack }: { onBack: () => void }) {
               <span>{recommendationLabels[recommendation]}</span>
             </label>)}</div>
         </div>
-        <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-stone-200 pt-4">
+        {progress.status === 'active' && <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-stone-200 pt-4">
           <button disabled={!canSubmit || game.state.actionEconomy.apRemaining < initialCost}
             onClick={submit} className="rounded-lg bg-amber-800 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-40">
             {progress.submissionCount > 0 ? 'Revise and resubmit' : 'Submit for assessment'} · {initialCost} AP
           </button>
           <p className="text-xs text-stone-500">Initial submission: {definition.initialSubmissionApCost ?? definition.submissionApCost ?? 0} AP · Revision: {definition.revisionSubmissionApCost ?? definition.submissionApCost ?? 0} AP · Senior disposition: {definition.dispositionApCost ?? 0} AP</p>
-        </div>
+        </div>}
       </section>
 
       {progress.status === 'completed' && <section className="rounded-xl border border-emerald-300 bg-emerald-50 p-5" role="status">
-        <h2 className="font-serif text-xl font-semibold text-stone-900">Work completed</h2>
+        <h2 className="font-serif text-xl font-semibold text-stone-900">Tutorial completed</h2>
         <p className="mt-2 text-sm text-stone-700">Final disposition: {progress.finalDisposition ?? 'Completed'}.</p>
       </section>}
 
