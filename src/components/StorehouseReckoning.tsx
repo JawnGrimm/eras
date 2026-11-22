@@ -220,7 +220,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
               <button disabled={!canAct(action.cost) || isComplete} onClick={() => acquire(action.id)} className="px-3 py-2 text-xs rounded-lg bg-[#2B1B17] text-white disabled:opacity-40">Examine</button>}
           </div>)}
         </div>
-        <details className="rounded-lg border border-[#D6CEBE] dark:border-stone-700 p-3">
+        <details open className="rounded-lg border border-[#D6CEBE] dark:border-stone-700 p-3">
           <summary className="cursor-pointer text-sm font-semibold">Evidence dossier · {examined.length} of 7 records examined</summary>
           <div className="space-y-2 mt-3">{evidence.map((item) => <div key={item.id} className="rounded-lg bg-[#FAF7F0] dark:bg-stone-800 p-3">
             <div className="text-xs font-mono text-[#C86D33]">{item.code} · {item.title}</div><div className="text-xs text-stone-500 mt-1">{examined.includes(item.id) ? item.content : 'Not yet examined.'}</div><div className="text-xs text-stone-400 mt-1">Source: {item.source}</div>
@@ -229,8 +229,25 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
       </>)}
     </div>
 
-    {section('Prepare the reconciliation', 'Enter the figures as they should appear in the document. The form does not supply the answers.', <>
+    {section('Prepare the reconciliation', 'Use the source records and the accounting guide to construct a defensible account. The Senior Scribe is assessing your method and judgment, not testing whether you can guess an unstated rule.', <>
       {!draftReady && <div className="rounded-lg bg-amber-50 dark:bg-amber-950/20 p-3 text-xs text-amber-800 dark:text-amber-200">Examine the account records, intake and issue records, and physical recount before submitting. The custody notes are optional unless you choose to discuss the reported roof leak.</div>}
+      <div className="rounded-xl border border-[#D6CEBE] dark:border-stone-700 p-4 space-y-3">
+        <div><h4 className="text-sm font-semibold">How to read the account</h4><p className="text-xs text-stone-500 mt-1">A reconciliation follows the stock through time. Each record answers a different question; do not treat every quantity as the same kind of movement.</p></div>
+        <ol className="list-decimal pl-5 space-y-2 text-xs text-stone-700 dark:text-stone-300">
+          <li><strong>Begin with what was already there.</strong> E-01 is the opening usable balance before this delivery.</li>
+          <li><strong>Check what was sent against what arrived.</strong> E-02 records the quantity dispatched; E-03 records the quantity physically received. Compare them, but count the received quantity—not the dispatch instruction—as stock entering this storehouse.</li>
+          <li><strong>Separate condition at intake.</strong> E-04 divides the received stock into usable and held. Those two categories together should account for the whole receipt. Held stock is still physically present; it is not an issue or a loss.</li>
+          <li><strong>Subtract what was issued.</strong> E-05 records an authorized issue to the brewing-house. It reduces the storehouse's stock, and because the record says usable measures were issued, it reduces the usable balance.</li>
+          <li><strong>Compare the later count with the expected balance.</strong> E-07 is a new physical count, divided into usable and held. Compare both categories as well as their combined total.</li>
+        </ol>
+        <div className="rounded-lg bg-[#FAF7F0] dark:bg-stone-800 p-3 space-y-2 text-xs">
+          <div className="font-semibold">Work through the checks</div>
+          <p><strong>Total stock:</strong> opening stock + physical receipt − issue = expected closing total. Compare that result with usable-at-recount + held-at-recount.</p>
+          <p><strong>Usable stock:</strong> opening usable + usable received − usable issued = expected usable before any later condition change. Compare that with the later usable count.</p>
+          <p><strong>Held stock:</strong> compare the held quantity at intake with the held quantity at recount. If total stock still balances but usable stock falls while held stock rises by the same amount, the difference is a change of condition—not missing stock.</p>
+          <p className="text-stone-500">The records establish quantities and sequence. E-06 adds a reported roof leak, but because the timing of moisture spread was not recorded, it does not prove that the leak caused all later damage or identify a responsible person.</p>
+        </div>
+      </div>
       <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-3">{(Object.keys(fieldLabels) as RecordField[]).map((field) => <label key={field} className="text-xs text-stone-600 dark:text-stone-300">
         <span className="block mb-1">{fieldLabels[field]}</span><input type="number" min="0" disabled={isComplete} value={record[field] ?? ''} onChange={(event) => setField(field, event.target.value === '' ? undefined : Number(event.target.value))} className="w-full rounded-lg border border-[#D6CEBE] dark:border-stone-700 bg-white dark:bg-stone-800 px-3 py-2"/>
       </label>)}</div>
