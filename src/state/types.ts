@@ -152,6 +152,8 @@ export interface WorkProgress {
   examinedEvidence: EvidenceId[];
   workApSpentToday: number;
   rewardGranted: boolean;
+  completedActionIds: string[];
+  provisionContract?: { provisionsPerQualifiedWorkday: number; minimumWorkApPerDay: number };
   scenarioData: Record<string, unknown>;
   submissionCount: number;
   lastAssessment?: { outcome: 'accepted' | 'revise' | 'rejected'; summary: string; assessedDay: number };
@@ -188,9 +190,10 @@ export type GameAction =
   
   | { type: 'SPEND_AP'; amount: number; reason: string; workId?: WorkId }
   | { type: 'START_WORK'; workId: WorkId }
-  | { type: 'ACQUIRE_WORK_EVIDENCE'; workId: WorkId; evidenceId: EvidenceId }
+  | { type: 'ACQUIRE_WORK_EVIDENCE'; workId: WorkId; actionId: string }
   | { type: 'EXAMINE_WORK_EVIDENCE'; workId: WorkId; evidenceId: EvidenceId }
   | { type: 'SET_WORK_SCENARIO_DATA'; workId: WorkId; scenarioData: Record<string, unknown> }
+  | { type: 'SUBMIT_WORK'; workId: WorkId }
   | { type: 'RECORD_WORK_ASSESSMENT'; workId: WorkId; outcome: 'accepted' | 'revise' | 'rejected'; summary: string; historicalXpReward: number }
   | { type: 'ACTIVATE_OVERTIME' }
   | { type: 'END_DAY'; expectedDayNumber: number }
