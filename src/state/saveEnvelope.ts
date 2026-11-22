@@ -73,7 +73,7 @@ function isInstitution(value: unknown, locationIds: Set<string>): boolean {
   return isObject(value) && typeof value.id === 'string' && !!value.id && typeof value.name === 'string' && !!value.name
     && (value.locationId === undefined || (typeof value.locationId === 'string' && locationIds.has(value.locationId)))
     && stringArray(value.responsibilities) && stringArray(value.authority) && score(value.standing)
-    && Array.isArray(value.activeMatterIds) && value.activeMatterIds.every((id) => typeof id === 'string' && !!id);
+    && stringArray(value.activeMatters);
 }
 function isEvent(value: unknown, people: Record<string, unknown>, institutions: Record<string, unknown>, locations: Record<string, unknown>): boolean {
   return isObject(value) && typeof value.id === 'string' && !!value.id && finiteNonNegative(value.dayNumber)
