@@ -11,7 +11,7 @@ const institutionId = 'institution-temple-storehouse' as InstitutionId;
 const base = (): GameState => {
   const state = createInitialGameState();
   const other: Person = { id: otherId, name: 'Shuruppak-ilu', alive: true, affiliations: [], scribal: {
-    careerXp: 0, wallet: { money: 0, provisions: 0, shortageWorkdays: 0 }, skills: {}, attributes: {},
+    careerXp: 0, cumulativeShortageStress: 0, obligations: [], wallet: { money: 0, provisions: 0, shortageWorkdays: 0 }, skills: {}, attributes: {},
     specializations: [], traits: [], conditions: [], equipment: [], stress: 0,
     professionalReputation: { competence: 50, reliability: 50, discretion: 50, judgment: 50 },
     institutionalStanding: {},
