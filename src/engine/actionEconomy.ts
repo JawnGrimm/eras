@@ -5,6 +5,7 @@ import { settleAssignmentOffers, transitionOpportunityAction } from './opportuni
 import { transitionAssignmentActivityAction } from './assignmentActivity';
 import { validateWorkDefinition } from '../works/workDefinition';
 import { transitionCharacterContinuity } from './characterContinuity';
+import { advanceInstitutionalMatters } from './institutionalMatters';
 import type { WorkAssessment, WorkDefinition } from '../works/workDefinition';
 
 function feedback(kind: 'success' | 'error' | 'info', code: string, message: string) {
@@ -230,10 +231,8 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
         return { state, feedback: feedback('error', 'work-finalization-error', 'The disposition could not be finalized; no AP, rewards, or records were committed.') };
       }
       if (!finalization || (finalization.careerXpReward !== undefined && (!Number.isFinite(finalization.careerXpReward) || finalization.careerXpReward < 0)) || (finalization.knowledge !== undefined && !Array.isArray(finalization.knowledge))
-        || (finalization.retireInstitutionMatters !== undefined && (!Array.isArray(finalization.retireInstitutionMatters)
-          || finalization.retireInstitutionMatters.some((item) => !item || typeof item.institutionId !== 'string' || !item.institutionId || typeof item.matter !== 'string' || !item.matter)))
-        || (finalization.addInstitutionMatters !== undefined && (!Array.isArray(finalization.addInstitutionMatters)
-          || finalization.addInstitutionMatters.some((item) => !item || typeof item.institutionId !== 'string' || !item.institutionId || typeof item.matter !== 'string' || !item.matter)))
+        || (finalization.retireInstitutionMatters !== undefined && (!Array.isArray(finalization.retireInstitutionMatters) || finalization.retireInstitutionMatters.some((item) => !item || typeof item.institutionId !== 'string' || !item.institutionId || typeof item.matterId !== 'string' || !item.matterId)))
+        || (finalization.addInstitutionMatters !== undefined && (!Array.isArray(finalization.addInstitutionMatters) || finalization.addInstitutionMatters.some((item) => !item || typeof item.id !== 'string' || !item.id || !next.world.institutions[item.institutionId] || !item.summary || !Number.isInteger(item.createdDay) || item.createdDay < 1 || item.createdDay > state.calendar.dayNumber)))
         || (finalization.presentAssignments !== undefined && !Array.isArray(finalization.presentAssignments))) {
         return { state, feedback: feedback('error', 'work-finalization-invalid', 'The Work finalizer returned invalid rewards.') };
       }
@@ -248,11 +247,10 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
         if (result.feedback?.kind === 'error') return { state, feedback: feedback('error', 'work-knowledge-invalid', result.feedback.message) };
         next = result.state;
       }
-      for (const addition of finalization.addInstitutionMatters ?? []) {
-        const institution = next.world.institutions[addition.institutionId];
-        if (!institution || !addition.matter.trim()) return { state, feedback: feedback('error', 'work-institution-matter-invalid', 'A new institutional matter has an invalid institution or description.') };
-        if (!institution.activeMatters.includes(addition.matter)) next = { ...next, world: { ...next.world, institutions: { ...next.world.institutions,
-          [addition.institutionId]: { ...institution, activeMatters: [...institution.activeMatters, addition.matter] } } } };
+      for (const matter of finalization.addInstitutionMatters ?? []) {
+        const institution = next.world.institutions[matter.institutionId];
+        if (!institution || next.world.matters[matter.id] || !matter.summary.trim() || (matter.sourceRecordId && !next.records.entries[matter.sourceRecordId]) || (matter.locationId && !next.world.locations[matter.locationId])) return { state, feedback: feedback('error', 'work-institution-matter-invalid', 'A new institutional matter has invalid identity, provenance, institution, or location.') };
+        next = { ...next, world: { ...next.world, matters: { ...next.world.matters, [matter.id]: matter }, institutions: { ...next.world.institutions, [matter.institutionId]: { ...institution, activeMatters: [...institution.activeMatters, matter.id] } } } };
       }
       for (const offer of finalization.presentAssignments ?? []) {
         const result = transitionOpportunityAction(next, { type: 'PRESENT_ASSIGNMENT', offer });
@@ -260,10 +258,10 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
         next = result.state;
       }
       for (const retirement of finalization.retireInstitutionMatters ?? []) {
-        const institution = next.world.institutions[retirement.institutionId];
-        if (!institution) return { state, feedback: feedback('error', 'work-institution-matter-invalid', `Institution ${retirement.institutionId} does not exist.`) };
-        next = { ...next, world: { ...next.world, institutions: { ...next.world.institutions,
-          [retirement.institutionId]: { ...institution, activeMatters: institution.activeMatters.filter((matter) => matter !== retirement.matter) } } } };
+        const institution = next.world.institutions[retirement.institutionId]; if (!institution) return { state, feedback: feedback('error', 'work-institution-matter-invalid', `Institution ${retirement.institutionId} does not exist.`) };
+        const matter = next.world.matters[retirement.matterId];
+        next = { ...next, world: { ...next.world, matters: matter ? { ...next.world.matters, [matter.id]: { ...matter, status: 'resolved' } } : next.world.matters,
+          institutions: { ...next.world.institutions, [retirement.institutionId]: { ...institution, activeMatters: institution.activeMatters.filter((matterId) => matterId !== retirement.matterId) } } } };
       }
       const grantReward = !progress.rewardGranted;
       const finalProgress = { ...progress, status: 'completed' as const, rewardGranted: true, pendingDisposition: false, finalDisposition: action.disposition,
@@ -359,7 +357,7 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
         ...scribal,
         wallet: { ...scribal.wallet, provisions: endingProvisions, shortageWorkdays },
       };
-      const withExpiredOffers = settleAssignmentOffers(state);
+      const withExpiredOffers = settleAssignmentOffers(state, workCatalog);
       let next = {
         ...withExpiredOffers,
         calendar: { ...state.calendar, dayNumber: state.calendar.dayNumber + 1, displayDate: displayDate(state.calendar.dayNumber + 1) },
@@ -375,6 +373,7 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
           people: { ...withExpiredOffers.world.people, [person.id]: { ...person, scribal: updatedScribal } },
         },
       };
+      next = advanceInstitutionalMatters(next, state.calendar.dayNumber + 1);
       if (!hadProvision && (shortageWorkdays <= 2 || shortageWorkdays === 3)) {
         next = withNotice(next, 'settlement', shortageWorkdays <= 2
           ? `No provisions were available. Shortage day ${shortageWorkdays} of 2 grace days.`
