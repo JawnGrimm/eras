@@ -191,6 +191,7 @@ export type GameAction =
   | { type: 'SPEND_AP'; amount: number; reason: string; workId?: WorkId }
   | { type: 'START_WORK'; workId: WorkId }
   | { type: 'ACQUIRE_WORK_EVIDENCE'; workId: WorkId; actionId: string }
+  | { type: 'COMPLETE_WORK_ACTION'; workId: WorkId; actionId: string; scenarioData?: Record<string, unknown> }
   | { type: 'EXAMINE_WORK_EVIDENCE'; workId: WorkId; evidenceId: EvidenceId }
   | { type: 'SET_WORK_SCENARIO_DATA'; workId: WorkId; scenarioData: Record<string, unknown> }
   | { type: 'SUBMIT_WORK'; workId: WorkId }
