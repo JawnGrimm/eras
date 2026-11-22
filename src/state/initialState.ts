@@ -20,7 +20,7 @@ export function createInitialGameState(): GameState {
       appointments: {}, events: {}, knowledge: {},
     },
     historicalProgression: { historicalXp: 0, completedWorks: [] },
-    opportunities: { assignments: {}, challenges: {} },
+    opportunities: { assignments: {}, challenges: {}, challengeOutcomes: [], assignmentAggregates: {}, recentActivity: [] },
     works: { activeWorkId: null, progress: {} },
     records: { entries: {}, permanentOutcomes: [] },
     journal: { notices: [] },
