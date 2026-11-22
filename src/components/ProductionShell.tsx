@@ -8,19 +8,22 @@ import { ProductionWorkdayHub } from './ProductionWorkdayHub';
 import { StorehouseWorkScreen } from './StorehouseWorkScreen';
 import { ProductionAssignmentBoard } from './ProductionAssignmentBoard';
 import { ProductionChallengeJournal } from './ProductionChallengeJournal';
+import { SuccessionScreen } from './SuccessionScreen';
+import { ProductionPeopleAndInstitutions } from './ProductionPeopleAndInstitutions';
+import { ProductionRecordsAndJournal } from './ProductionRecordsAndJournal';
 
-type Screen = 'workday' | 'storehouse' | 'assignments' | 'challenges';
+type Screen = 'workday' | 'storehouse' | 'assignments' | 'challenges' | 'people' | 'records';
 
 function ProductionHeader() {
   const { state } = useGame();
   const person = state.world.people[state.player.currentCharacterId];
   const location = person?.currentLocationId ? state.world.locations[person.currentLocationId]?.name : 'Uruk';
-  const wallet = person?.scribal?.wallet;
+  const wallet = person?.alive ? person.scribal?.wallet : undefined;
   return <header className="sticky top-0 z-20 border-b border-stone-300 bg-[#f8f5ee]/95 shadow-sm backdrop-blur">
     <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-3 px-4 py-3 lg:px-6">
       <div className="min-w-[180px]"><p className="font-serif text-lg font-semibold text-stone-900">Scribe of Eras</p><p className="text-xs text-stone-500">{state.calendar.displayDate} · {location}</p></div>
       <div className="flex flex-wrap items-center gap-2 text-xs sm:gap-4">
-        <div className="rounded-lg border border-stone-300 bg-white px-3 py-2"><span className="text-stone-500">Character</span><p className="font-semibold text-stone-900">{person?.name ?? 'Unknown'}</p></div>
+        <div className="rounded-lg border border-stone-300 bg-white px-3 py-2"><span className="text-stone-500">Character</span><p className="font-semibold text-stone-900">{person?.name ?? 'Unknown'}</p>{state.pendingSuccession && <p className="text-[10px] font-semibold text-amber-800">{state.pendingSuccession.status === 'no_successor' ? 'No successor available' : 'Transition pending'}</p>}</div>
         <div className="rounded-lg border border-stone-300 bg-white px-3 py-2"><span className="text-stone-500">Action Points</span><p className="font-mono text-base font-semibold text-stone-900">{state.actionEconomy.apRemaining}/{state.actionEconomy.dailyApAllocation}</p></div>
         <div className="rounded-lg border border-stone-300 bg-white px-3 py-2"><span className="text-stone-500">Silver</span><p className="font-mono text-base font-semibold text-stone-900">{wallet?.money ?? 0}</p></div>
         <div className="rounded-lg border border-stone-300 bg-white px-3 py-2"><span className="text-stone-500">Provisions</span><p className="font-mono text-base font-semibold text-stone-900">{wallet?.provisions ?? 0}</p></div>
@@ -35,6 +38,13 @@ function ProductionShellContent() {
   const [settlement, setSettlement] = useState<DaySettlement | null>(null);
   const person = game.state.world.people[game.state.player.currentCharacterId];
 
+  if (game.state.pendingSuccession) {
+    return <div className="min-h-screen bg-[#f3efe6] text-stone-900">
+      <ProductionHeader />
+      <div className="mx-auto max-w-[1600px] px-4 py-6 lg:px-6"><SuccessionScreen /></div>
+    </div>;
+  }
+
   return <div className="min-h-screen bg-[#f3efe6] text-stone-900">
     <ProductionHeader />
     <div className="mx-auto grid max-w-[1600px] gap-5 px-4 py-5 lg:grid-cols-[230px_minmax(0,1fr)] lg:px-6">
@@ -45,6 +55,8 @@ function ProductionShellContent() {
           <button onClick={() => setScreen('storehouse')} aria-current={screen === 'storehouse' ? 'page' : undefined} className={`w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium ${screen === 'storehouse' ? 'bg-stone-900 text-white' : 'text-stone-700 hover:bg-white/70'}`}>Active Work · Storehouse</button>
           <button onClick={() => setScreen('assignments')} aria-current={screen === 'assignments' ? 'page' : undefined} className={`w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium ${screen === 'assignments' ? 'bg-stone-900 text-white' : 'text-stone-700 hover:bg-white/70'}`}>Assignment Board</button>
           <button onClick={() => setScreen('challenges')} aria-current={screen === 'challenges' ? 'page' : undefined} className={`w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium ${screen === 'challenges' ? 'bg-stone-900 text-white' : 'text-stone-700 hover:bg-white/70'}`}>Challenge Journal</button>
+          <button onClick={() => setScreen('people')} aria-current={screen === 'people' ? 'page' : undefined} className={`w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium ${screen === 'people' ? 'bg-stone-900 text-white' : 'text-stone-700 hover:bg-white/70'}`}>People & Institutions</button>
+          <button onClick={() => setScreen('records')} aria-current={screen === 'records' ? 'page' : undefined} className={`w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium ${screen === 'records' ? 'bg-stone-900 text-white' : 'text-stone-700 hover:bg-white/70'}`}>Records & Journal</button>
         </nav>
         <div className="mt-4 border-t border-stone-300 px-3 pt-4 text-xs leading-5 text-stone-600">
           <p className="font-semibold text-stone-800">{person?.name}</p>
@@ -74,7 +86,11 @@ function ProductionShellContent() {
             ? <StorehouseWorkScreen onBack={() => setScreen('workday')} />
             : screen === 'assignments'
               ? <ProductionAssignmentBoard />
-              : <ProductionChallengeJournal />}
+              : screen === 'challenges'
+                ? <ProductionChallengeJournal />
+                : screen === 'people'
+                  ? <ProductionPeopleAndInstitutions />
+                  : <ProductionRecordsAndJournal />}
       </main>
     </div>
   </div>;
