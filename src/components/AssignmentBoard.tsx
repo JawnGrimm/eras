@@ -91,11 +91,11 @@ export const AssignmentBoard: React.FC<AssignmentBoardProps> = ({
               <div className="flex items-center justify-between text-xs">
                 <span className="font-mono text-[#C86D33]">{assignment.employer}</span>
                 <span className={`px-2 py-0.5 rounded text-[11px] font-medium ${
-                  assignment.tier === 'Novice' ? 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300' :
-                  assignment.tier === 'Adept' ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300' :
-                  'bg-orange-50 dark:bg-orange-950/60 text-orange-800 dark:text-orange-300'
+                  assignment.difficulty === 'routine' ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300' :
+                  assignment.difficulty === 'demanding' ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300' :
+                  'bg-red-50 dark:bg-red-950/60 text-red-800 dark:text-red-300'
                 }`}>
-                  {assignment.tier}
+                  {assignment.difficulty.charAt(0).toUpperCase() + assignment.difficulty.slice(1)}
                 </span>
               </div>
 
