@@ -1252,6 +1252,8 @@ An institutional matter is a durable, typed record of an unresolved or developin
 
 Institutions should reference active matters by stable identifier. Matter descriptions and display text are not state keys. Resolved matters may remain in historical records where their outcomes matter, while unresolved matters persist across Workdays and saves. Do not delete an unresolved matter merely because it did not produce a player-facing opportunity.
 
+Completing an Assignment generated from a matter records the submitted report and its provenance against that same matter; it does not automatically resolve the underlying institutional situation. Report filing, institutional assessment, authorization, and execution are distinct events. A matter remains active or developed until an authored institutional response or world development changes its status. The same matter must not generate the same Assignment again after it has already produced an offer, regardless of whether that offer was completed, declined, lapsed, or cancelled.
+
 The END_DAY world update is a bounded, deterministic transition over active consequential matters and explicitly scheduled developments. A development advances only when its authored date or condition is met. It records a deterministic event with a stable identifier, updates the affected matter and relevant institutional references, and may create or update follow-up matters. Unresolved matters remain active. The same starting state and day must produce the same world transition; random daily busywork and arbitrary event rolls are not substitutes for causality.
 
 #### From world state to playable opportunities

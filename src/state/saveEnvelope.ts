@@ -367,7 +367,8 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
       || typeof offer.title !== 'string' || !offer.title || typeof offer.description !== 'string'
       || !isObject(offer.employer) || (offer.employer.kind !== 'person' && offer.employer.kind !== 'institution')
       || typeof offer.employer.id !== 'string' || !(offer.employer.kind === 'person' ? isObject(people[offer.employer.id]) : isObject(institutions[offer.employer.id]))
-      || (offer.sourceRecordId !== undefined && (typeof offer.sourceRecordId !== 'string' || !isObject(records[offer.sourceRecordId]))) || typeof offer.category !== 'string' || !offer.category || !isObject(offer.context)
+      || (offer.sourceRecordId !== undefined && (typeof offer.sourceRecordId !== 'string' || !isObject(records[offer.sourceRecordId])))
+      || (offer.originMatterId !== undefined && (typeof offer.originMatterId !== 'string' || !isObject(matters[offer.originMatterId]))) || typeof offer.category !== 'string' || !offer.category || !isObject(offer.context)
       || typeof offer.context.what !== 'string' || !offer.context.what || typeof offer.context.purpose !== 'string' || !offer.context.purpose
       || !Array.isArray(offer.context.who) || !stringArray(offer.context.responsibility) || !stringArray(offer.context.provenance)
       || !isObject(offer.requiredSkills) || Object.entries(offer.requiredSkills).some(([skill, level]) => !CORE_SKILL_IDS.includes(skill as SkillId) || !Number.isInteger(level) || (level as number) < 1 || (level as number) > 10)

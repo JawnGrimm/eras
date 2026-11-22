@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import type { AssignmentId, InstitutionId, MatterId } from '../state/ids';
 import { createInitialGameState } from '../state/initialState';
+import { createSaveEnvelope, isValidSaveEnvelope } from '../state/saveEnvelope';
+import { INITIAL_WORK_CATALOG } from '../state/newGameState';
 import { generateDailyAssignments } from '../engine/assignmentGenerator';
 import { runChallengeDirector } from '../engine/challengeDirector';
 import { transitionOpportunityAction } from '../engine/opportunities';
@@ -63,6 +65,8 @@ describe('P2-2 authored Uruk Assignment activities', () => {
     const secondOffers = Object.values(second.opportunities.assignments);
     expect(firstOffers.map((offer) => offer.id)).toEqual(secondOffers.map((offer) => offer.id));
     expect(firstOffers).toHaveLength(2);
+    expect(firstOffers.every((offer) => !!offer.originMatterId)).toBe(true);
+    expect(new Set(firstOffers.map((offer) => offer.originMatterId)).size).toBe(2);
     expect(firstOffers.reduce((sum, offer) => sum + (offer.estimatedTotalAp ?? 0), 0)).toBe(7);
     expect(first.opportunities.assignmentGeneratorLedger?.sequence).toBe(2);
     const sameDay = generateDailyAssignments(first);
@@ -74,8 +78,60 @@ describe('P2-2 authored Uruk Assignment activities', () => {
     const generated = generateDailyAssignments(withHeldMatter(createInitialGameState()));
     const held = Object.values(generated.opportunities.assignments).find((offer) => offer.activityId === heldBarleyInspection.id);
     expect(held?.estimatedTotalAp).toBe(5);
+    expect(held?.originMatterId).toBe(HELD_MATTER);
     const withoutMatter = generateDailyAssignments(createInitialGameState());
     expect(Object.values(withoutMatter.opportunities.assignments).some((offer) => offer.activityId === heldBarleyInspection.id)).toBe(false);
+  });
+
+  it('validates and persists Assignment origin-matter references while rejecting missing matters', () => {
+    const generated = generateDailyAssignments(createInitialGameState());
+    const envelope = createSaveEnvelope(generated, 1, '2026-11-22T23:00:00.000Z');
+    expect(isValidSaveEnvelope(envelope, INITIAL_WORK_CATALOG)).toBe(true);
+    const offer = Object.values(generated.opportunities.assignments)[0];
+    const invalid = {
+      ...envelope,
+      state: {
+        ...envelope.state,
+        opportunities: {
+          ...envelope.state.opportunities,
+          assignments: {
+            ...envelope.state.opportunities.assignments,
+            [offer.id]: { ...offer, originMatterId: 'matter-does-not-exist' as MatterId },
+          },
+        },
+      },
+    };
+    expect(isValidSaveEnvelope(invalid, INITIAL_WORK_CATALOG)).toBe(false);
+  });
+
+  it('requires an active institution-linked source matter and never duplicates an opportunity for that matter', () => {
+    const initial = createInitialGameState();
+    const deliveryId = MATTER_IDS.southCourtDelivery;
+    const delivery = initial.world.matters[deliveryId];
+    const inactive = {
+      ...initial,
+      world: {
+        ...initial.world,
+        matters: { ...initial.world.matters, [deliveryId]: { ...delivery, status: 'resolved' as const } },
+        institutions: { ...initial.world.institutions, [STOREHOUSE]: {
+          ...initial.world.institutions[STOREHOUSE],
+          activeMatters: initial.world.institutions[STOREHOUSE].activeMatters.filter((id) => id !== deliveryId),
+        } },
+      },
+    };
+    expect(Object.values(generateDailyAssignments(inactive).opportunities.assignments)
+      .some((offer) => offer.originMatterId === deliveryId)).toBe(false);
+
+    const generated = generateDailyAssignments(initial);
+    const deliveryOffer = Object.values(generated.opportunities.assignments)
+      .find((offer) => offer.originMatterId === deliveryId)!;
+    const declined = transitionOpportunityAction(generated, {
+      type: 'DECLINE_ASSIGNMENT', assignmentId: deliveryOffer.id,
+    }).state;
+    const later = { ...declined, calendar: { ...declined.calendar, dayNumber: declined.calendar.dayNumber + 5 } };
+    const regenerated = generateDailyAssignments(later);
+    expect(Object.values(regenerated.opportunities.assignments)
+      .filter((offer) => offer.originMatterId === deliveryId)).toHaveLength(1);
   });
 
   it('files Held-Barley as a recommendation and preserves measure/container/grain boundaries', () => {
@@ -101,6 +157,8 @@ describe('P2-2 authored Uruk Assignment activities', () => {
     expect(record?.uncertaintyLimits.join(' ')).toContain('capacity tally');
     expect(record?.uncertaintyLimits.join(' ')).toContain('internal grain soundness');
     expect(state.world.matters[HELD_MATTER]?.status).toBe('active');
+    expect(state.world.matters[HELD_MATTER]?.provenance?.some((source) => source.kind === 'record_copy' && source.description.includes('does not itself resolve'))).toBe(true);
+    expect(state.world.institutions[STOREHOUSE].activeMatters).toContain(HELD_MATTER);
     expect(state.historicalProgression.historicalXp).toBe(historicalXp);
   });
 
@@ -119,6 +177,9 @@ describe('P2-2 authored Uruk Assignment activities', () => {
     const record = Object.values(state.records.entries).find((entry) => entry.title === 'South-Court Delivery Reconciliation');
     expect(record?.assertions.some((assertion) => assertion.text.includes('24') && assertion.text.includes('23'))).toBe(true);
     expect(record?.assertions.some((assertion) => assertion.classification === 'disputed')).toBe(false);
+    expect(state.world.matters[MATTER_IDS.southCourtDelivery]?.status).toBe('active');
+    expect(state.world.matters[MATTER_IDS.southCourtDelivery]?.provenance?.some((source) => source.kind === 'record_copy')).toBe(true);
+    expect(state.world.matters['matter-south-court-delivery-discrepancy' as MatterId]).toBeUndefined();
     expect(state.world.relationships[state.player.currentCharacterId]?.['person-enlil-kisu' as never]?.dimensions.trust).toBe(53);
     expect(state.world.relationships['person-enlil-kisu' as never]?.[state.player.currentCharacterId]?.dimensions.trust).toBe(57);
     const directed = runChallengeDirector(state);
