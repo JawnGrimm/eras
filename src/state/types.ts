@@ -141,7 +141,7 @@ export interface ChallengeInstance {
 }
 export interface ChallengeOutcome {
   challengeId: ChallengeId; title: string; category: string; resolvedDay: number;
-  choiceId: string; choiceLabel: string; summary: string; assigneePersonId: PersonId;
+  choiceId: string; choiceLabel: string; summary: string; assigneePersonId?: PersonId;
 }
 export interface ChallengeTriggerRule {
   id: string; category?: string; minPresented?: number; minAccepted?: number; minDeclined?: number;
