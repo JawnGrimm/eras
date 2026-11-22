@@ -124,11 +124,12 @@ export function isValidGameState(value: unknown): value is GameState {
   for (const [fromId, targets] of Object.entries(world.relationships)) {
     if (!isObject(people[fromId]) || !isObject(targets)) return false;
     for (const [toId, rel] of Object.entries(targets)) {
-      if (fromId === toId || !isObject(people[toId]) || !isRelationship(rel)
-        || rel.history.some((h) => h.eventId !== undefined && !isObject(events[h.eventId as string]))) return false;
+      if (fromId === toId || !isObject(people[toId]) || !isObject(rel) || !isRelationship(rel)
+        || !Array.isArray(rel.history)
+        || rel.history.some((h) => isObject(h) && h.eventId !== undefined && !isObject(events[h.eventId as string]))) return false;
     }
   }
-  for (const [id, x] of Object.entries(institutions)) if (!isInstitution(x, new Set(Object.keys(locations))) || x.id !== id) return false;
+  for (const [id, x] of Object.entries(institutions)) if (!isObject(x) || !isInstitution(x, new Set(Object.keys(locations))) || x.id !== id) return false;
   for (const [id, x] of Object.entries(locations)) if (!isObject(x) || x.id !== id || typeof x.name !== 'string' || !x.name) return false;
   for (const [id, x] of Object.entries(world.appointments)) {
     if (!isObject(x) || x.id !== id || typeof x.personId !== 'string' || !isObject(people[x.personId])
@@ -137,7 +138,7 @@ export function isValidGameState(value: unknown): value is GameState {
       || !stringArray(x.responsibilities) || !finiteNonNegative(x.startDay) || !Number.isInteger(x.startDay) || x.startDay < 1
       || (x.endDay !== undefined && (!finiteNonNegative(x.endDay) || !Number.isInteger(x.endDay) || x.endDay < x.startDay))) return false;
   }
-  for (const [id, x] of Object.entries(events)) if (!isEvent(x, people, institutions, locations) || x.id !== id) return false;
+  for (const [id, x] of Object.entries(events)) if (!isObject(x) || !isEvent(x, people, institutions, locations) || x.id !== id) return false;
 
   for (const [id, r] of Object.entries(records)) {
     if (!isObject(r) || r.id !== id || !finiteNonNegative(r.createdDay) || !Number.isInteger(r.createdDay) || r.createdDay < 1
