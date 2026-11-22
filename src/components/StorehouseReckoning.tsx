@@ -110,9 +110,26 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
     const avoidsBlame = !selectedRecommendations.includes('assign_blame');
     const roofRecommendationSupported = !selectedRecommendations.includes('verify_roof_repair') ||
       (examined.includes('ev-06') && citations.includes('ev-06'));
-    const actionSpecific = selectedRecommendations.includes('inspect_held_stock') &&
-      (selectedRecommendations.includes('verify_roof_repair') || selectedRecommendations.includes('maintain_segregation'));
-    const judgmentValid = avoidsBlame && actionSpecific && roofRecommendationSupported && findingValid;
+    // Any one evidence-supported practical action is a defensible recommendation.
+    // The options describe different kinds of follow-up, not a mandatory bundle.
+    const hasPracticalAction = selectedRecommendations.some((id) =>
+      id === 'inspect_held_stock' || id === 'verify_roof_repair' || id === 'maintain_segregation'
+    );
+    const judgmentValid = avoidsBlame && hasPracticalAction && roofRecommendationSupported && findingValid;
+
+    const judgmentFeedback = !avoidsBlame
+      ? 'The records do not establish individual responsibility. Recommend an action that addresses the stock or the storehouse condition without assigning unsupported blame.'
+      : !hasPracticalAction
+        ? 'Choose at least one practical action supported by the account. A precaution, an inspection, or a supported maintenance follow-up can each be a defensible recommendation.'
+        : !roofRecommendationSupported
+          ? 'The roof inspection may be appropriate, but first examine and cite E-06, the custody and maintenance record.'
+          : selectedRecommendations.length === 1 && selectedRecommendations.includes('maintain_segregation')
+            ? 'Keeping the seven held measures separate is a sound immediate precaution. It prevents uncertain stock from being issued as usable. Inspection could determine whether any measures can later be returned to usable stock, but that additional step is not required to make this precaution reasonable.'
+            : selectedRecommendations.length === 1 && selectedRecommendations.includes('inspect_held_stock')
+              ? 'Inspecting the seven held measures is a sound next action. Their present condition must be established before any are returned to usable stock.'
+              : selectedRecommendations.length === 1 && selectedRecommendations.includes('verify_roof_repair')
+                ? 'Verifying the roof repair is a sound maintenance follow-up, supported by the custody and maintenance record. It addresses the storehouse condition without claiming the leak caused all the damage.'
+                : 'The selected actions are proportionate to the evidence and do not assign unsupported blame. Each is a distinct possible follow-up; no fixed combination is required.';
 
     const feedback = {
       accounting: accountingValid
@@ -121,9 +138,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
       evidence: evidenceValid
         ? 'The material claims are tied to their records, and the finding stays within what those records establish.'
         : 'Cite the records supporting each material figure. Do not treat the roof leak as proven cause, or name a responsible person, unless the evidence establishes it.',
-      judgment: judgmentValid
-        ? 'The recommendation protects the held stock and proposes proportionate follow-up without assigning unsupported blame.'
-        : 'A useful recommendation should identify a practical next action. Keep uncertain stock separate and request inspection; the records do not justify assigning individual blame.',
+      judgment: judgmentFeedback,
     };
     const result = { accounting: accountingValid, evidence: evidenceValid, judgment: judgmentValid, feedback };
     const passed = accountingValid && evidenceValid && judgmentValid;
