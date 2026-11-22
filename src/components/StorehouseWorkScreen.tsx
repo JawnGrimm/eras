@@ -41,18 +41,31 @@ export function parseNumericDraft(draft: string): { valid: true; value: number |
   return Number.isSafeInteger(parsed) ? { valid: true, value: parsed } : { valid: false };
 }
 
+export function commitNumericDraftOnBlur(
+  draft: string,
+  field: StorehouseField,
+  currentValue: number | undefined,
+  onCommit: (field: StorehouseField, value: number | undefined) => void,
+  onInvalid: () => void,
+): void {
+  const parsed = parseNumericDraft(draft);
+  if (!parsed.valid) { onInvalid(); return; }
+  onCommit(field, parsed.value);
+}
+
 export function NumericDraftField({ field, value, onCommit, disabled = false }: {
   field: StorehouseField; value: number | undefined; onCommit: (field: StorehouseField, value: number | undefined) => void; disabled?: boolean;
 }) {
   const [draft, setDraft] = useState(value === undefined ? '' : String(value));
   useEffect(() => setDraft(value === undefined ? '' : String(value)), [value]);
   const commit = () => {
-    const parsed = parseNumericDraft(draft);
-    if (!parsed.valid) {
-      setDraft(value === undefined ? '' : String(value));
-      return;
-    }
-    onCommit(field, parsed.value);
+    commitNumericDraftOnBlur(
+      draft,
+      field,
+      value,
+      onCommit,
+      () => setDraft(value === undefined ? '' : String(value)),
+    );
   };
   return (
     <label className="grid gap-1 text-sm text-stone-700">
