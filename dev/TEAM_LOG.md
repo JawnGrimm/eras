@@ -586,4 +586,5 @@ The detailed trait catalog, emergence and change conditions, mechanical effects,
 ### Repository changes
 
 - `docs/GDD.md`: expanded Section 3.4 with stable attributes, independent skill-experience tracks, the 1–10 skill scale, Career XP investment and eligibility principles, and initial/emergent/changeable personality traits. Updated Remaining Design Work item 22.
+- Updated the character-action model to name attributes, specializations, and personality traits explicitly alongside skills, equipment, conditions, and circumstances.
 - No runtime code, save schema, numerical balance, or gameplay behavior changed.
