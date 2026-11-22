@@ -1,5 +1,5 @@
 import { CORE_SKILL_IDS } from './ids';
-import { MATTER_IDS, NORTH_BAY_LOCATION_ID } from '../engine/institutionalMatters';
+import { MATTER_IDS } from '../engine/institutionalMatters';
 import type { AttributeId, SkillId } from './ids';
 import type { GameState, OpportunityConsequences, SaveEnvelope, ScribalCharacterState, WorkProgress } from './types';
 import { validateOpportunityConsequences } from './opportunityValidation';
