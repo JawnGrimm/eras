@@ -212,20 +212,21 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
           <p><strong>Person you answer to:</strong> Senior Scribe Shuruppak-ilu.</p>
         </div>
       </>)}
-      {section('Case records', 'Examine the records you need. Once acquired, they remain free to reread.', <>
-        <div className="space-y-2">
-          {EVIDENCE_ACTIONS.map((action) => <div key={action.id} className="flex items-center justify-between gap-3 border-b border-stone-100 dark:border-stone-800 py-3">
-            <div className="min-w-0"><div className="text-sm font-medium">{action.label}</div><div className="text-xs text-stone-500 mt-1">{has(action.id) ? action.result : action.cost + ' AP · ' + action.evidence.map((id) => evidence.find((item) => item.id === id)?.code).join(', ')}</div>{has(action.id) && <div className="mt-3 space-y-2">{action.evidence.map((id) => { const item = evidence.find((entry) => entry.id === id); return item ? <div key={item.id} className="rounded-lg bg-[#FAF7F0] dark:bg-stone-800 p-3"><div className="text-xs font-mono text-[#C86D33]">{item.code} · {item.title}</div><p className="text-xs text-stone-700 dark:text-stone-300 mt-1">{item.content}</p><p className="text-xs text-stone-400 mt-1">Source: {item.source}</p></div> : null; })}</div>}</div>
-            {has(action.id) ? <span className="text-xs text-emerald-600 flex items-center gap-1"><CheckCircle2 size={14}/> Examined</span> :
-              <button disabled={!canAct(action.cost) || isComplete} onClick={() => acquire(action.id)} className="px-3 py-2 text-xs rounded-lg bg-[#2B1B17] text-white disabled:opacity-40">Examine</button>}
+      {section('Case records', 'Choose an examination. Its records appear directly below and remain visible for rereading.', <>
+        <div className="space-y-3">
+          {EVIDENCE_ACTIONS.map((action) => <div key={action.id} className="rounded-xl border border-[#D6CEBE] dark:border-stone-700 p-4">
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="text-sm font-semibold">{action.label}</div>
+                <div className="text-xs text-stone-500 mt-1">{has(action.id) ? action.result : 'Records: ' + action.evidence.map((id) => evidence.find((item) => item.id === id)?.code).join(', ') + ' · ' + action.cost + ' AP'}</div>
+              </div>
+              {has(action.id)
+                ? <span className="text-xs text-emerald-600 flex items-center gap-1 shrink-0"><CheckCircle2 size={14}/> Examined</span>
+                : <button disabled={!canAct(action.cost) || isComplete} onClick={() => acquire(action.id)} className="px-3 py-2 text-xs rounded-lg bg-[#2B1B17] text-white disabled:opacity-40 shrink-0">Examine · {action.cost} AP</button>}
+            </div>
+            {has(action.id) && <div className="mt-3 space-y-2">{action.evidence.map((id) => { const item = evidence.find((entry) => entry.id === id); return item ? <div key={item.id} className="rounded-lg bg-[#FAF7F0] dark:bg-stone-800 p-3"><div className="text-xs font-mono text-[#C86D33]">{item.code} · {item.title}</div><p className="text-xs text-stone-700 dark:text-stone-300 mt-1">{item.content}</p><p className="text-xs text-stone-400 mt-1">Source: {item.source}</p></div> : null; })}</div>}
           </div>)}
         </div>
-        <details open className="rounded-lg border border-[#D6CEBE] dark:border-stone-700 p-3">
-          <summary className="cursor-pointer text-sm font-semibold">Evidence dossier · {examined.length} of 7 records examined</summary>
-          <div className="space-y-2 mt-3">{evidence.map((item) => <div key={item.id} className="rounded-lg bg-[#FAF7F0] dark:bg-stone-800 p-3">
-            <div className="text-xs font-mono text-[#C86D33]">{item.code} · {item.title}</div><div className="text-xs text-stone-500 mt-1">{examined.includes(item.id) ? item.content : 'Not yet examined.'}</div><div className="text-xs text-stone-400 mt-1">Source: {item.source}</div>
-          </div>)}</div>
-        </details>
       </>)}
     </div>
 
