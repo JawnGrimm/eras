@@ -218,7 +218,7 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
       } catch {
         return { state, feedback: feedback('error', 'work-finalization-error', 'The disposition could not be finalized; no AP, rewards, or records were committed.') };
       }
-      if (!finalization || (finalization.careerXpReward !== undefined && (!Number.isFinite(finalization.careerXpReward) || finalization.careerXpReward < 0))) {
+      if (!finalization || (finalization.careerXpReward !== undefined && (!Number.isFinite(finalization.careerXpReward) || finalization.careerXpReward < 0)) || (finalization.knowledge !== undefined && !Array.isArray(finalization.knowledge))) {
         return { state, feedback: feedback('error', 'work-finalization-invalid', 'The Work finalizer returned invalid rewards.') };
       }
       let next = state;
@@ -233,7 +233,7 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
         next = result.state;
       }
       const grantReward = !progress.rewardGranted;
-      const finalProgress = { ...progress, status: 'completed' as const, rewardGranted: true, pendingDisposition: false,
+      const finalProgress = { ...progress, status: 'completed' as const, rewardGranted: true, pendingDisposition: false, finalDisposition: action.disposition,
         workApSpentToday: progress.workApSpentToday + cost };
       const activePerson = next.world.people[person.id];
       const activeScribal = activePerson.scribal!;
