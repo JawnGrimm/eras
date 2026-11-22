@@ -619,3 +619,38 @@ Meaningful professional situations should connect human interests to consequenti
 
 - `docs/GDD.md`: added the approved principle as Design Pillar 2.10 and summarized the relationship between social causality, operational causality, and professional participation in the Executive Summary. Updated the document date.
 - No runtime code, save schema, simulation architecture, numerical balance, or gameplay behavior changed.
+
+
+## 2026-11-21 — Decision: simplify the personal economy to money and provisions
+
+**Contributor:** Chad (AI)  
+**Status:** Approved design decision
+
+The owner approved replacing the former three-resource personal economy (silver, bread, and beer) with two tracked resources: money and provisions. The owner also clarified that era transitions change the displayed currency name only; they do not require currency conversion.
+
+### Money
+
+- Money is the player's standardized spendable wealth for purchases, services, obligations, savings, and debts.
+- The displayed currency name and denomination should fit the current historical era. Examples include a shekel of silver in early Mesopotamia and a deben in ancient Egypt.
+- The underlying accumulated game value remains unchanged at era transitions. Only the historical name and presentation change; there is no conversion, exchange calculation, transition fee, or recalculation of the player's wealth.
+
+### Provisions
+
+- Provisions are one abstract personal resource representing food available for everyday sustenance.
+- The underlying resource remains consistent across eras, while the interface and narrative use historically and geographically appropriate food and ration descriptions.
+- Individual food types do not create separate personal resource balances.
+- The current daily sustenance proposal is one unit of provisions, deducted at daily settlement. The exact shortage consequences and full economy balance remain open.
+- Compensation in provisions is allowed when explicitly defined by an employment or Work contract.
+
+### Beer, inventory, and other systems
+
+- Beer is no longer a tracked personal resource or permanent balance.
+- Beer may still appear as a world or institutional commodity, a specific inventory item, or part of hospitality and social or institutional exchange.
+- Inventory represents possessions, equipment, and usable items; it does not create additional economy meters.
+- Stress, reputation, relationships, and professional standing remain separate character and social systems.
+- Grain has been removed from the personal-economy framework. It may still appear as a historically appropriate commodity in world and institutional scenarios, but it is not a personal resource category.
+
+### Repository changes
+
+- `docs/GDD.md`: revised the Executive Summary, Storehouse Work provision language, Section 12, Remaining Design Work, and Design Summary to use the approved two-resource model and remove the former three-resource model.
+- No runtime code, save schema, numerical balance, or gameplay behavior changed.
