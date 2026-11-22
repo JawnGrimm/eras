@@ -9,23 +9,13 @@ export type ChallengeId = string & { readonly __brand: 'ChallengeId' };
 export type TraitId = string & { readonly __brand: 'TraitId' };
 export type ConditionId = string & { readonly __brand: 'ConditionId' };
 export type SpecializationId = string & { readonly __brand: 'SpecializationId' };
+export type AppointmentId = string & { readonly __brand: 'AppointmentId' };
+export type EventId = string & { readonly __brand: 'EventId' };
+export type RecordId = string & { readonly __brand: 'RecordId' };
+export type KnowledgeEntryId = string & { readonly __brand: 'KnowledgeEntryId' };
+export type MatterId = string & { readonly __brand: 'MatterId' };
 export type CareerPathId = 'government' | 'military' | 'religious' | 'merchant';
-
 export type EraId = 'era-1' | 'era-2' | 'era-3' | 'era-4' | 'era-5' | 'era-6' | 'era-7';
 export type AttributeId = 'precision' | 'perception' | 'reasoning' | 'expression' | 'endurance' | 'composure';
-export type SkillId =
-  | 'reading_scripts'
-  | 'recordkeeping_accounts'
-  | 'analysis_research'
-  | 'writing_composition'
-  | 'administration_procedure'
-  | 'communication_instruction';
-
-export const CORE_SKILL_IDS = [
-  'reading_scripts',
-  'recordkeeping_accounts',
-  'analysis_research',
-  'writing_composition',
-  'administration_procedure',
-  'communication_instruction',
-] as const satisfies readonly SkillId[];
+export type SkillId = 'reading_scripts' | 'recordkeeping_accounts' | 'analysis_research' | 'writing_composition' | 'administration_procedure' | 'communication_instruction';
+export const CORE_SKILL_IDS = ['reading_scripts','recordkeeping_accounts','analysis_research','writing_composition','administration_procedure','communication_instruction'] as const satisfies readonly SkillId[];
