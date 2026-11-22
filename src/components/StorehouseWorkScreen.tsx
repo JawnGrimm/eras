@@ -36,7 +36,7 @@ const evidenceActions = storehouseReckoning.actions;
 export function parseNumericDraft(draft: string): { valid: true; value: number | undefined } | { valid: false } {
   const trimmed = draft.trim();
   if (!trimmed) return { valid: true, value: undefined };
-  if (!/^\\d+$/.test(trimmed)) return { valid: false };
+  if (!/^\d+$/.test(trimmed)) return { valid: false };
   const parsed = Number(trimmed);
   return Number.isSafeInteger(parsed) ? { valid: true, value: parsed } : { valid: false };
 }
