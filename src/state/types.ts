@@ -117,11 +117,26 @@ export interface OpportunityConsequences {
   institutionalStanding?: Array<{ institutionId: InstitutionId; delta: number }>;
   event?: WorldEvent; record?: RecordEntry; knowledge?: KnowledgeEntry[];
 }
+export interface AssignmentActivityDraft {
+  finding: string;
+  responsibilityClaim: string;
+  citedDiscoveryIds: string[];
+  limitations: string[];
+  recommendations: string[];
+}
+export interface AssignmentActivityProgress {
+  completedActionIds: string[];
+  discoveryIds: string[];
+  consultedPersonIds: PersonId[];
+  draft: AssignmentActivityDraft;
+}
 export interface AssignmentOffer {
-  id: AssignmentId; title: string; description: string; employer: OpportunityEmployer;
+  id: AssignmentId; title: string; description: string; employer: OpportunityEmployer; sourceRecordId?: RecordId;
   category: string; commodity?: string; context: AssignmentContext;
   requiredSkills: Partial<Record<SkillId, number>>; difficulty: 'routine' | 'demanding' | 'critical';
-  apCost: number; compensation: { money: number; provisions: number }; careerXpReward: number;
+  /** Single-action completion cost; omitted for interactive Assignments. */
+  apCost?: number; estimatedTotalAp?: number; activityId?: string; activityProgress?: AssignmentActivityProgress;
+  compensation: { money: number; provisions: number }; careerXpReward: number;
   deliveryChannels: OpportunityDeliveryChannel[];
   offeredDay: number; expiresDay: number; status: 'offered' | 'accepted' | 'declined' | 'lapsed' | 'completed' | 'cancelled';
   /** Character who accepted this commitment; legacy accepted offers without an owner belong to the active character. */
@@ -250,6 +265,9 @@ export type GameAction =
   | { type: 'DECLINE_ASSIGNMENT'; assignmentId: AssignmentId }
   | { type: 'CANCEL_ASSIGNMENT'; assignmentId: AssignmentId }
   | { type: 'COMPLETE_ASSIGNMENT'; assignmentId: AssignmentId }
+  | { type: 'PERFORM_ASSIGNMENT_ACTIVITY_ACTION'; assignmentId: AssignmentId; actionId: string }
+  | { type: 'UPDATE_ASSIGNMENT_ACTIVITY_DRAFT'; assignmentId: AssignmentId; draft: AssignmentActivityDraft }
+  | { type: 'SUBMIT_ASSIGNMENT_ACTIVITY'; assignmentId: AssignmentId }
   | { type: 'PRESENT_CHALLENGE'; challenge: Omit<ChallengeInstance, 'status' | 'assigneePersonId'> }
   | { type: 'ACCEPT_CHALLENGE'; challengeId: ChallengeId }
   | { type: 'DECLINE_CHALLENGE'; challengeId: ChallengeId }

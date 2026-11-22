@@ -7,13 +7,14 @@ import { INITIAL_WORK_CATALOG } from '../state/newGameState';
 import { ProductionWorkdayHub } from './ProductionWorkdayHub';
 import { StorehouseWorkScreen } from './StorehouseWorkScreen';
 import { ProductionAssignmentBoard } from './ProductionAssignmentBoard';
+import { AssignmentActivityScreen } from './AssignmentActivityScreen';
 import { ProductionChallengeJournal } from './ProductionChallengeJournal';
 import { SuccessionScreen } from './SuccessionScreen';
 import { ProductionPeopleAndInstitutions } from './ProductionPeopleAndInstitutions';
 import { ProductionRecordsAndJournal } from './ProductionRecordsAndJournal';
 import { deriveProfessionalRank } from '../engine/professionalRank';
 
-type Screen = 'workday' | 'storehouse' | 'assignments' | 'challenges' | 'people' | 'records' | 'help';
+type Screen = 'workday' | 'storehouse' | 'assignments' | 'activity' | 'challenges' | 'people' | 'records' | 'help';
 
 function ProductionHeader() {
   const { state } = useGame();
@@ -37,6 +38,8 @@ export function ProductionShellContent() {
   const game = useGame();
   const [screen, setScreen] = useState<Screen>('workday');
   const [settlement, setSettlement] = useState<DaySettlement | null>(null);
+  const [activeActivityId, setActiveActivityId] = useState<string | null>(null);
+  const openActivity = (assignmentId: string) => { setActiveActivityId(assignmentId); setScreen('activity'); };
   const person = game.state.world.people[game.state.player.currentCharacterId];
 
   const alerts = <>
@@ -91,12 +94,14 @@ export function ProductionShellContent() {
       <main className="min-w-0 space-y-4">
         {alerts}
         {screen === 'workday'
-          ? <ProductionWorkdayHub onOpenWork={() => setScreen('storehouse')} settlement={settlement} onSettlement={setSettlement} />
+          ? <ProductionWorkdayHub onOpenWork={() => setScreen('storehouse')} onOpenActivity={openActivity} settlement={settlement} onSettlement={setSettlement} />
           : screen === 'storehouse'
             ? <StorehouseWorkScreen onBack={() => setScreen('workday')} />
             : screen === 'assignments'
-              ? <ProductionAssignmentBoard />
-              : screen === 'challenges'
+              ? <ProductionAssignmentBoard onOpenActivity={openActivity} />
+               : screen === 'activity' && activeActivityId
+                ? <AssignmentActivityScreen assignmentId={activeActivityId as import('../state/ids').AssignmentId} onBack={() => setScreen('assignments')} />
+                : screen === 'challenges'
                 ? <ProductionChallengeJournal />
                 : screen === 'people'
                   ? <ProductionPeopleAndInstitutions />

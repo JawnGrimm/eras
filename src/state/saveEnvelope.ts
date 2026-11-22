@@ -4,6 +4,7 @@ import type { GameState, OpportunityConsequences, SaveEnvelope, ScribalCharacter
 import { validateOpportunityConsequences } from './opportunityValidation';
 import type { WorkDefinition } from '../works/workDefinition';
 import { rankSuccessorCandidates } from '../engine/characterContinuity';
+import { NORTH_BAY_ACTIVITY_ID, NORTH_BAY_PEOPLE, NORTH_BAY_LOCATION_ID, ASSIGNMENT_ACTIVITY_CATALOG, validateAssignmentActivityProgress } from '../content/assignments/northBayRoofInspection';
 
 export const SAVE_KEY = 'scribe_game_v2';
 // Keep schema v2 for compatibility with early production saves that contain empty opportunity maps and works.progress; populated entries are validated against the registered Work catalog.
@@ -269,11 +270,11 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
       || typeof offer.title !== 'string' || !offer.title || typeof offer.description !== 'string'
       || !isObject(offer.employer) || (offer.employer.kind !== 'person' && offer.employer.kind !== 'institution')
       || typeof offer.employer.id !== 'string' || !(offer.employer.kind === 'person' ? isObject(people[offer.employer.id]) : isObject(institutions[offer.employer.id]))
-      || typeof offer.category !== 'string' || !offer.category || !isObject(offer.context)
+      || (offer.sourceRecordId !== undefined && (typeof offer.sourceRecordId !== 'string' || !isObject(records[offer.sourceRecordId]))) || typeof offer.category !== 'string' || !offer.category || !isObject(offer.context)
       || typeof offer.context.what !== 'string' || !offer.context.what || typeof offer.context.purpose !== 'string' || !offer.context.purpose
       || !Array.isArray(offer.context.who) || !stringArray(offer.context.responsibility) || !stringArray(offer.context.provenance)
       || !isObject(offer.requiredSkills) || Object.entries(offer.requiredSkills).some(([skill, level]) => !CORE_SKILL_IDS.includes(skill as SkillId) || !Number.isInteger(level) || (level as number) < 1 || (level as number) > 10)
-      || !['routine','demanding','critical'].includes(offer.difficulty as string) || !Number.isInteger(offer.apCost) || (offer.apCost as number) < 1 || (offer.apCost as number) > 6
+      || !['routine','demanding','critical'].includes(offer.difficulty as string) || (offer.activityId ? (offer.activityId !== NORTH_BAY_ACTIVITY_ID || ASSIGNMENT_ACTIVITY_CATALOG[String(offer.activityId) as keyof typeof ASSIGNMENT_ACTIVITY_CATALOG]?.participants.some((personId) => !isObject(people[personId])) || !Number.isInteger(offer.estimatedTotalAp) || (offer.estimatedTotalAp as number) < 1 || offer.apCost !== undefined || (['accepted','completed','cancelled'].includes(offer.status as string) ? !validateAssignmentActivityProgress(ASSIGNMENT_ACTIVITY_CATALOG[String(offer.activityId) as keyof typeof ASSIGNMENT_ACTIVITY_CATALOG], offer.activityProgress) : offer.activityProgress !== undefined)) : (!Number.isInteger(offer.apCost) || (offer.apCost as number) < 1 || (offer.apCost as number) > 6 || offer.estimatedTotalAp !== undefined || offer.activityProgress !== undefined))
       || (offer.completionConsequences !== undefined && (!isObject(offer.completionConsequences) || !!validateOpportunityConsequences(offer.completionConsequences as OpportunityConsequences, opportunityContext, 'authoring')))
       || (offer.cancellationConsequences !== undefined && (!isObject(offer.cancellationConsequences) || !!validateOpportunityConsequences(offer.cancellationConsequences as OpportunityConsequences, opportunityContext, 'authoring')))
       || !isObject(offer.compensation) || !finiteNonNegative(offer.compensation.money) || !finiteNonNegative(offer.compensation.provisions)
@@ -345,6 +346,38 @@ export function isValidSaveEnvelope(value: unknown, workCatalog: Readonly<Record
     && finiteNonNegative(value.revision) && Number.isInteger(value.revision) && typeof value.savedAt === 'string'
     && Number.isFinite(Date.parse(value.savedAt)) && isValidGameState(value.state, workCatalog);
 }
+function normalizeNorthBayWorldBaseline(parsed: unknown): unknown {
+  if (!isObject(parsed) || !isObject(parsed.state) || !isObject(parsed.state.world)) return parsed;
+  const state = parsed.state, world = state.world as Record<string, unknown>;
+  const institutionId = 'institution-uruk-temple-storehouse';
+  if (!isObject(world.people) || !isObject(world.institutions) || !isObject(world.locations) || !isObject(world.appointments)) return parsed;
+  const people = { ...world.people };
+  const locations = { ...world.locations };
+  const institutions = { ...world.institutions };
+  const appointments = Object.fromEntries(Object.entries(world.appointments).filter(([, appointment]) =>
+    isObject(appointment) && typeof appointment.personId === 'string' && isObject(people[appointment.personId])
+      && typeof appointment.institutionId === 'string' && isObject(institutions[appointment.institutionId])));
+  if (!isObject(people[NORTH_BAY_PEOPLE.repairer])) people[NORTH_BAY_PEOPLE.repairer] = {
+    id: NORTH_BAY_PEOPLE.repairer, name: 'Dudu', alive: true, affiliations: [institutionId], currentLocationId: NORTH_BAY_LOCATION_ID,
+  };
+  if (!isObject(locations[NORTH_BAY_LOCATION_ID])) locations[NORTH_BAY_LOCATION_ID] = {
+    id: NORTH_BAY_LOCATION_ID, name: 'Temple Storehouse, north storage bay',
+  };
+  const existingInstitution = institutions[institutionId];
+  if (isObject(existingInstitution) && !existingInstitution.locationId) {
+    institutions[institutionId] = { ...existingInstitution, locationId: NORTH_BAY_LOCATION_ID };
+  }
+  const offices = [
+    { id: 'appointment-shuruppak-ilu-senior-scribe', personId: NORTH_BAY_PEOPLE.seniorScribe, title: 'Senior Scribe', authorityScope: ['Assign and review scribal work', 'Determine institutional follow-up from submitted records'], responsibilities: ['Review submitted accounts and reports', 'Determine whether further institutional action is warranted'] },
+    { id: 'appointment-ur-nanna-storehouse-steward', personId: NORTH_BAY_PEOPLE.steward, title: 'Storehouse Steward', authorityScope: ['Control ordinary storehouse access', 'Maintain custody and maintenance records'], responsibilities: ['Safeguard institutional stocks', 'Maintain custody and maintenance records'] },
+    { id: 'appointment-utu-mansum-receiving-official', personId: NORTH_BAY_PEOPLE.receivingOfficial, title: 'Receiving Official', authorityScope: ['Inspect and record incoming deliveries'], responsibilities: ['Record intake quantities and condition'] },
+  ];
+  for (const office of offices) if (!isObject(appointments[office.id]) && isObject(people[office.personId]) && isObject(institutions[institutionId])) {
+    appointments[office.id] = { ...office, personId: office.personId, institutionId, startDay: 1 };
+  }
+  return { ...parsed, state: { ...state, world: { ...world, people, locations, appointments, institutions } } };
+}
+
 function normalizeLegacyTutorialProgression(
   parsed: unknown,
   workCatalog: Readonly<Record<string, WorkDefinition<any>>>,
@@ -409,7 +442,7 @@ function normalizeLegacyTutorialProgression(
 export function restoreSave(raw: string | null, workCatalog: Readonly<Record<string, WorkDefinition<any>>> = {}): SaveEnvelope | null {
   if (!raw) return null;
   try {
-    const parsed: unknown = normalizeLegacyTutorialProgression(JSON.parse(raw), workCatalog);
+    const parsed: unknown = normalizeLegacyTutorialProgression(normalizeNorthBayWorldBaseline(JSON.parse(raw)), workCatalog);
     return isValidSaveEnvelope(parsed, workCatalog) ? parsed : null;
   } catch { return null; }
 }

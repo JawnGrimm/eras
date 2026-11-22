@@ -1,4 +1,5 @@
 import type { EventId, AssignmentId, ChallengeId, InstitutionId, PersonId, SkillId } from '../state/ids';
+import { ASSIGNMENT_ACTIVITY_CATALOG, validateAssignmentActivityDefinition } from '../content/assignments/northBayRoofInspection';
 import { resolveOpportunityDatePolicies, validateOpportunityConsequences } from '../state/opportunityValidation';
 import type {
   AssignmentActivityAggregate, AssignmentOffer, ChallengeInstance, ChallengeOutcome, ChallengeTriggerRule,
@@ -14,7 +15,7 @@ const score = (n: number) => Number.isFinite(n) && n >= 0 && n <= 100;
 export function assignmentAggregateKey(employer: AssignmentOffer['employer'], category: string, commodity?: string): string {
   return [employer.kind, employer.id, category, commodity ?? ''].join('|');
 }
-function addActivity(state: GameState, offer: AssignmentOffer, kind: OpportunityActivity['kind'], extra: Partial<OpportunityActivity> = {}): GameState {
+export function addActivity(state: GameState, offer: AssignmentOffer, kind: OpportunityActivity['kind'], extra: Partial<OpportunityActivity> = {}): GameState {
   const key = assignmentAggregateKey(offer.employer, offer.category, offer.commodity);
   const old = state.opportunities.assignmentAggregates[key] ?? {
     key, employer: offer.employer, category: offer.category, commodity: offer.commodity,
@@ -49,8 +50,7 @@ function validChannels(channels: OpportunityDeliveryChannel[], state: GameState)
     if (!c.explanation) return false;
     if (c.kind === 'relationship') return !!state.world.people[c.personId];
     if (c.kind === 'specialization') return !!state.world.people[state.player.currentCharacterId]?.scribal?.specializations.some((s) => s.id === c.specializationId);
-    if (c.kind === 'appointment') return !!state.world.appointments[c.appointmentId]
-      && state.world.appointments[c.appointmentId].personId === state.player.currentCharacterId;
+    if (c.kind === 'appointment') return !!state.world.appointments[c.appointmentId];
     if (c.kind === 'reputation') return ['competence','reliability','discretion','judgment'].includes(c.dimension);
     return c.kind === 'baseline_reach';
   });
@@ -163,9 +163,9 @@ export function transitionOpportunityAction(state: GameState, action: Opportunit
       const offer = action.offer;
       if (!offer.id || opportunities.assignments[offer.id] || !offer.title || !offer.description
         || !offer.employer.id || (offer.employer.kind === 'person' ? !state.world.people[offer.employer.id as PersonId] : !state.world.institutions[offer.employer.id as InstitutionId])
-        || !offer.category || !offer.context.what || !offer.context.purpose || !Array.isArray(offer.context.who)
+        || (offer.sourceRecordId && !state.records.entries[offer.sourceRecordId]) || !offer.category || !offer.context.what || !offer.context.purpose || !Array.isArray(offer.context.who)
         || !Array.isArray(offer.context.responsibility) || !Array.isArray(offer.context.provenance)
-        || !Number.isInteger(offer.apCost) || offer.apCost < 1 || offer.apCost > 6 || !validChannels(offer.deliveryChannels, state)
+        || (offer.activityId ? (!ASSIGNMENT_ACTIVITY_CATALOG[offer.activityId as keyof typeof ASSIGNMENT_ACTIVITY_CATALOG] || !Number.isInteger(offer.estimatedTotalAp) || (offer.estimatedTotalAp ?? 0) < 1 || offer.apCost !== undefined || offer.activityProgress !== undefined || validateAssignmentActivityDefinition(ASSIGNMENT_ACTIVITY_CATALOG[offer.activityId as keyof typeof ASSIGNMENT_ACTIVITY_CATALOG]).length > 0 || ASSIGNMENT_ACTIVITY_CATALOG[offer.activityId as keyof typeof ASSIGNMENT_ACTIVITY_CATALOG].participants.some((id) => !state.world.people[id])) : (!Number.isInteger(offer.apCost) || (offer.apCost ?? 0) < 1 || (offer.apCost ?? 0) > 6 || offer.estimatedTotalAp !== undefined || offer.activityProgress !== undefined)) || !validChannels(offer.deliveryChannels, state)
         || (offer.completionConsequences !== undefined && (!offer.completionConsequences || !!validateOpportunityConsequences(offer.completionConsequences, state, 'authoring')))
         || (offer.cancellationConsequences !== undefined && (!offer.cancellationConsequences || !!validateOpportunityConsequences(offer.cancellationConsequences, state, 'authoring')))
         || !['routine','demanding','critical'].includes(offer.difficulty)
@@ -186,7 +186,8 @@ export function transitionOpportunityAction(state: GameState, action: Opportunit
       if (state.calendar.dayNumber >= offer.expiresDay) return fail(state, 'assignment-expired', 'This Assignment has reached its expiry day.');
       if (Object.values(opportunities.assignments).filter((x) => x.status === 'accepted' && (x.assigneePersonId ?? state.player.currentCharacterId) === state.player.currentCharacterId).length >= 2) return fail(state, 'assignment-cap-reached', 'No more than two Assignments may be active at once.');
       if (!characterQualifiesForAssignment(state, offer)) return fail(state, 'assignment-unqualified', 'The character does not meet the Assignment skill requirements. Professional rank does not substitute for those skills.');
-      const next = { ...state, opportunities: { ...opportunities, assignments: { ...opportunities.assignments, [offer.id]: { ...offer, status: 'accepted', assigneePersonId: state.player.currentCharacterId } } } };
+      const activityProgress = offer.activityId ? ASSIGNMENT_ACTIVITY_CATALOG[offer.activityId as keyof typeof ASSIGNMENT_ACTIVITY_CATALOG].createInitialProgress() : undefined;
+      const next = { ...state, opportunities: { ...opportunities, assignments: { ...opportunities.assignments, [offer.id]: { ...offer, ...(activityProgress ? { activityProgress } : {}), status: 'accepted', assigneePersonId: state.player.currentCharacterId } } } };
       return succeed(addActivity(next, offer, 'accepted'), 'assignment-accepted', 'The Assignment was accepted without spending AP.');
     }
     case 'DECLINE_ASSIGNMENT': {
@@ -208,14 +209,15 @@ export function transitionOpportunityAction(state: GameState, action: Opportunit
     case 'COMPLETE_ASSIGNMENT': {
       const offer = opportunities.assignments[action.assignmentId];
       if (!offer || offer.status !== 'accepted' || (offer.assigneePersonId ?? state.player.currentCharacterId) !== state.player.currentCharacterId) return fail(state, 'assignment-not-active', 'Only an Assignment accepted by the current character can be completed.');
-      if (state.actionEconomy.apRemaining < offer.apCost) return fail(state, 'insufficient-ap', `Completing this Assignment costs ${offer.apCost} AP.`);
+      if (offer.activityId) return fail(state, 'interactive-assignment-required', 'This Assignment must be completed through its interactive activity.');
+      if (state.actionEconomy.apRemaining < (offer.apCost ?? 0)) return fail(state, 'insufficient-ap', `Completing this Assignment costs ${offer.apCost ?? 0} AP.`);
       const authored = offer.completionConsequences ?? {};
       const effects: OpportunityConsequences = { ...authored, moneyDelta: (authored.moneyDelta ?? 0) + offer.compensation.money,
         provisionsDelta: (authored.provisionsDelta ?? 0) + offer.compensation.provisions,
         careerXp: (authored.careerXp ?? 0) + offer.careerXpReward };
       const effected = applyConsequences(state, effects);
       if (!effected) return fail(state, 'assignment-outcome-invalid', 'The Assignment outcome contains invalid resource, relationship, institution, event, record, or knowledge effects.');
-      const next = { ...effected, actionEconomy: { ...effected.actionEconomy, apRemaining: effected.actionEconomy.apRemaining - offer.apCost },
+      const next = { ...effected, actionEconomy: { ...effected.actionEconomy, apRemaining: effected.actionEconomy.apRemaining - (offer.apCost ?? 0) },
         opportunities: { ...effected.opportunities, assignments: { ...effected.opportunities.assignments, [offer.id]: { ...offer, status: 'completed' } } } };
       return succeed(addActivity(next, offer, 'completed'), 'assignment-completed', 'The Assignment was completed and its authored compensation and consequences were applied.');
     }

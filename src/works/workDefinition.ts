@@ -1,5 +1,5 @@
 import type { EvidenceId, InstitutionId, PersonId, WorkId, SkillId, AttributeId } from '../state/ids';
-import type { KnowledgeEntry, RecordEntry, ScribalCharacterState, WorkAssessmentDimensionResult } from '../state/types';
+import type { AssignmentOffer, KnowledgeEntry, RecordEntry, ScribalCharacterState, WorkAssessmentDimensionResult } from '../state/types';
 import type { InterpretationRule, Predicate } from './evidenceInterpretation';
 
 export interface WorkEvidenceDefinition {
@@ -34,6 +34,8 @@ export interface WorkFinalization {
   knowledge?: KnowledgeEntry[];
   /** Institutional matters that are explicitly resolved by this final disposition. */
   retireInstitutionMatters?: Array<{ institutionId: InstitutionId; matter: string }>;
+  addInstitutionMatters?: Array<{ institutionId: InstitutionId; matter: string }>;
+  presentAssignments?: Array<Omit<AssignmentOffer, 'offeredDay' | 'expiresDay' | 'status' | 'lapsedDuringMandatoryWork'>>;
 }
 export interface WorkDefinition<TProgress extends Record<string, unknown> = Record<string, unknown>> {
   /** Tutorials use the Work engine's interaction machinery but are not historical Works. */

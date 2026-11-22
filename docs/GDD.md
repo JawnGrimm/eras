@@ -845,6 +845,25 @@ Examples of basic accounting constraints:
 
 The game should not create evidence and an answer independently and then hope they agree.
 
+### 8.5 Interactive Assignment activity definitions
+
+Substantive Assignments may use a typed, declarative activity definition registered in the Assignment Activity catalog. The definition identifies participants, interaction actions, prerequisites, discoveries, interpretation rules, a declarative report schema (finding options, cited discoveries, limitations, and recommendations, with optional responsibility claims), and the submission cost. A shared activity screen renders the declared interaction families; scenario content must not require a bespoke screen or a universal action sequence.
+
+Interactive progress remains inside the existing `opportunities.assignments` container. The single-action `apCost` applies only to non-interactive Assignments and remains bounded to 1–6 AP. Interactive Assignments instead declare an `estimatedTotalAp` for the full scope; each individual action and the submission cost is independently bounded to 1–6 AP. The estimate is informational and may span multiple Workdays. The engine rejects `COMPLETE_ASSIGNMENT` for an interactive offer. All activity actions, draft changes, and submissions require an accepted offer owned by the current character.
+
+Activity definitions require static validation before use: unique action and discovery IDs, valid PersonId / SkillId / AttributeId references, bounded AP costs, reachable acyclic prerequisites, and valid interpretation rules. Saved progress is validated against the registered definition. Existing schema-v2 saves are normalized with newly required baseline people, locations, and appointments before validation; existing Assignment offers without activity fields retain their prior single-action behavior.
+
+Activity submission is one atomic transition. It charges the declared submission AP, resolves the actual completed actions and submitted report, and applies the authored compensation, Career XP, record, knowledge, directional relationship changes, and institutional matter transitions. It awards no Historical Progress XP. Record and KnowledgeEntry identifiers must be deterministic and traceable to the Assignment and resolution day.
+
+### 8.6 Era I example: North-Bay Roof Inspection
+
+The North-Bay Roof Inspection is an optional, multi-day Assignment presented from the Storehouse Reckoning record only when the player cited the roof-leak evidence and recommended verifying the repair. On an `authorized` tutorial disposition, the Senior Scribe's authorization is the delivery basis. On `account_accepted`, the account is accepted but the Senior Scribe separately directs verification through the relevant Appointment; an account accepted without the cited leak evidence and recommendation does not generate the Assignment and awaits a later institutional opportunity loop.
+
+The physical truth is fixed: the mid-bay reed-mat and mud-plaster patch is intact; the north parapet runoff channel remains clogged with washed reeds and cracked plaster; the shaded north-east beam socket remains damp within its wall joint, without evidence of collapse; and seven held barley sacks remain segregated on dry reed matting. Their contents are not assessed by this Assignment. The roof inspection may recommend a separate Held-Barley Inspection, but P1 records that recommendation as an institutional active matter only. The follow-up Assignment and its own interactive activity are deferred to P2; no one-click docket or second full scenario is included in P1.
+
+Ur-Nanna controls ordinary bay access and knows the custody and repair arrangements, but cannot authorize major building expenditure alone. Dudu knows the scope and materials of his contracted mid-bay patch, but has no stock authority. Utu-mansum can attest only to the original intake inspection (56 usable / 4 held), not the storm or later roof condition. Shuruppak-ilu reviews the filed report and determines institutional follow-up from the record; he does not gain firsthand roof knowledge by reviewing it. The player may submit a qualified incomplete report. Unsupported certification or attribution of work outside Dudu's contract is a consequential overclaim, not merely a lower score.
+
+
 ---
 
 ## 9. Document Construction and Evaluation
