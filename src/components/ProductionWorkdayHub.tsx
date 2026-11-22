@@ -2,6 +2,7 @@ import React from 'react';
 import { useGame } from '../state/GameProvider';
 import type { DaySettlement } from '../state/types';
 import { STOREHOUSE_WORK_ID } from '../works/storehouseReckoning';
+import { selectCharacterOpportunities } from '../state/opportunitySelectors';
 
 function ContextDetails({ context }: { context: { what: string; who: string[]; quantity?: string; when?: string; where?: string; from?: string; to?: string; purpose: string; responsibility: string[]; authority?: string; provenance: string[] } }) {
   const rows: Array<[string, string | undefined]> = [
@@ -45,10 +46,11 @@ export function ProductionWorkdayHub({ onOpenWork, settlement, onSettlement }: {
   const person = state.world.people[state.player.currentCharacterId]!;
   const wallet = person.scribal!.wallet;
   const activeWork = state.works.progress[STOREHOUSE_WORK_ID];
-  const offeredAssignments = Object.values(state.opportunities.assignments).filter((item) => item.status === 'offered');
-  const activeAssignments = Object.values(state.opportunities.assignments).filter((item) => item.status === 'accepted' && (!item.assigneePersonId || item.assigneePersonId === person.id));
-  const offeredChallenges = Object.values(state.opportunities.challenges).filter((item) => item.status === 'offered');
-  const acceptedChallenges = Object.values(state.opportunities.challenges).filter((item) => item.status === 'accepted' && item.assigneePersonId === person.id);
+  const opportunities = selectCharacterOpportunities(state);
+  const offeredAssignments = opportunities.offeredAssignments;
+  const activeAssignments = opportunities.acceptedAssignments;
+  const offeredChallenges = opportunities.offeredChallenges;
+  const acceptedChallenges = opportunities.acceptedChallenges;
   const canEndDay = !(state.actionEconomy.overtimeUsedToday && state.actionEconomy.apRemaining > 0);
   const endDay = () => {
     const result = game.dispatch({ type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber });
