@@ -1,7 +1,7 @@
 import React, { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import { ProductionApp } from '../components/ProductionShell';
+import { ProductionShellContent } from '../components/ProductionShell';
 import { SuccessionScreen } from '../components/SuccessionScreen';
 import { ProductionPeopleAndInstitutions } from '../components/ProductionPeopleAndInstitutions';
 import { ProductionRecordsAndJournal } from '../components/ProductionRecordsAndJournal';
@@ -52,7 +52,7 @@ describe('production continuity and social screens', () => {
 
   it('replaces ordinary navigation with succession UI while transition is pending', () => {
     const state = transitionGame(createInitialGameState(), { type: 'BEGIN_CHARACTER_DEPARTURE', departureKind: 'death' }).state;
-    const markup = renderScreen(state, createElement(ProductionApp, { storage: null }));
+    const markup = renderScreen(state, createElement(ProductionShellContent));
     expect(markup).toContain('Choose who continues');
     expect(markup).not.toContain('Assignment Board</button>');
     expect(markup).not.toContain('Workday Hub</button>');
