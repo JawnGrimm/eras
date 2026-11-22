@@ -20,6 +20,7 @@ export function validateOpportunityConsequences(
   phase: ConsequenceValidationPhase,
 ): string | null {
   if (!effects) return null;
+  if (typeof effects !== 'object' || Array.isArray(effects)) return 'Consequences must be an object.';
   const currentDay = context.calendar.dayNumber;
   const raw = effects as OpportunityConsequences & { historicalXp?: unknown };
   if (Object.prototype.hasOwnProperty.call(raw, 'historicalXp')) return 'Opportunities cannot award Historical Progress XP.';
