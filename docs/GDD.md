@@ -1205,6 +1205,8 @@ The social network should be persistent enough that the player recognizes conseq
 
 Institutions use a **shared underlying gameplay model** rather than separate mechanical systems for each institutional or career type. Their common properties may include identity and historical context, responsibilities and authority, resources and personnel, relationships with other institutions and people, and current circumstances or unresolved matters. The model should remain proportionate: institutions have objectives, constraints, and organizational interests, but do not need the full personality, memory, or decision-making complexity of individual NPCs.
 
+Unresolved institutional matters are durable, typed world records with stable IDs, an owning institution, a concise summary, lifecycle status, and relevant provenance, location, or scheduled development. Institutions reference active matters by ID; presentation text is not a state key. Legacy saves containing matter descriptions are normalized into canonical matter records. A bounded daily world tick advances only authored consequential matters and scheduled developments; it is not an autonomous simulation of every citizen.
+
 Institutional rosters are specific to each historical era. Do not assume that the same organizations persist unchanged across eras or simply receive new names and visual skins. Each era should introduce institutions appropriate to its historical setting. The four initial career paths—Government, Military, Religious, and Merchant—can guide a small number of especially relevant institutions for each path, alongside general institutions and organizations that people from multiple careers may encounter.
 
 Career paths do not create exclusive access or membership boundaries. A character's career shapes their starting position, relationships, responsibilities, opportunities, and likely institutional contacts; it does not prevent them from interacting with institutions associated with other careers.
@@ -1216,6 +1218,8 @@ Institutional continuity across eras is not assumed. Professional traditions, re
 ### 15.4 Historical events
 
 Historical events can alter institutions, locations, opportunities, and relationships. Events may create Challenges, change Work conditions, or reshape the social network. They should be represented through human consequences rather than as detached timeline announcements.
+
+The daily world tick runs during END_DAY after opportunity expiry is settled. It advances explicitly scheduled, consequential developments for active institutional matters and records resulting events and follow-up matters. It remains bounded and deterministic; routine NPC activity without meaningful consequences stays outside the simulation.
 
 ---
 
