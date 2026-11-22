@@ -63,8 +63,11 @@ export function rankSuccessorCandidates(state: GameState): SuccessorCandidate[] 
     if (person.id === formerId || !person.alive || !person.scribal) continue;
 
     const reasons: SuccessorConnectionReason[] = [];
-    if (hasDirectRelationship(state, formerId, person.id)) {
+    if (state.world.relationships[formerId]?.[person.id]) {
       reasons.push({ kind: 'direct_relationship', fromId: formerId, toId: person.id });
+    }
+    if (state.world.relationships[person.id]?.[formerId]) {
+      reasons.push({ kind: 'direct_relationship', fromId: person.id, toId: formerId });
     }
 
     for (const institutionId of sharedInstitutions(state, formerId, person.id)) {
@@ -104,5 +107,6 @@ export function rankSuccessorCandidates(state: GameState): SuccessorCandidate[] 
   }
 
   return candidates.sort((a, b) =>
-    TIER_ORDER[a.tier] - TIER_ORDER[b.tier] || a.personId.localeCompare(b.personId));
+    TIER_ORDER[a.tier] - TIER_ORDER[b.tier]
+      || (a.personId < b.personId ? -1 : a.personId > b.personId ? 1 : 0));
 }
