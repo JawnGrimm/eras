@@ -224,6 +224,22 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
     expect(transitionGame(advance.state, { type: 'REQUEST_CONTACT_ADVANCE', contactId: 'person-uruk-ur-gir' as typeof INITIAL_PERSON_ID }).feedback?.code).toBe('contact-advance-unavailable');
   });
 
+  it('normalizes earlier v2 saves with no hardship fields without losing the save', () => {
+    const envelope = createSaveEnvelope(createInitialGameState(), 0, '2026-11-21T12:00:00.000Z');
+    const legacy = structuredClone(envelope) as unknown as { state: { actionEconomy: Record<string, unknown>; world: { people: Record<string, { scribal?: Record<string, unknown> }> } } };
+    delete legacy.state.actionEconomy.recoveryLaborUsedToday;
+    for (const person of Object.values(legacy.state.world.people)) {
+      if (!person.scribal) continue;
+      delete person.scribal.cumulativeShortageStress;
+      delete person.scribal.obligations;
+    }
+    const restored = restoreSave(JSON.stringify(legacy));
+    expect(restored).not.toBeNull();
+    expect(restored?.state.actionEconomy.recoveryLaborUsedToday).toBe(false);
+    expect(restored?.state.world.people[INITIAL_PERSON_ID].scribal?.cumulativeShortageStress).toBe(0);
+    expect(restored?.state.world.people[INITIAL_PERSON_ID].scribal?.obligations).toEqual([]);
+  });
+
   it('restores only structurally valid v2 envelopes and rejects partial or corrupt saves', () => {
     const envelope = createSaveEnvelope(createInitialGameState(), 0, '2026-11-21T12:00:00.000Z');
     expect(isValidSaveEnvelope(envelope)).toBe(true);
