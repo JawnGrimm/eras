@@ -34,6 +34,18 @@ function validSavedState(): GameState {
 }
 
 describe('GameProvider production persistence', () => {
+  it('creates and persists the authored Day 1 state only when the v2 key is absent', () => {
+    const storage = new MemoryStorage();
+    const game = renderProvider(storage);
+    const saved = restoreSave(storage.getItem(SAVE_KEY), INITIAL_WORK_CATALOG);
+
+    expect(game.loadStatus).toBe('ready');
+    expect(game.state.works.activeWorkId).toBe('work-storehouse-reckoning');
+    expect(Object.keys(game.state.opportunities.assignments)).toHaveLength(2);
+    expect(Object.keys(game.state.opportunities.challenges)).toHaveLength(1);
+    expect(saved?.state.calendar.dayNumber).toBe(1);
+  });
+
   it('restores a valid v2 save using the registered Work catalog', () => {
     const storage = new MemoryStorage();
     const state = transitionGame(validSavedState(), { type: 'SPEND_AP', amount: 2, reason: 'Test saved AP' }).state;
@@ -59,6 +71,20 @@ describe('GameProvider production persistence', () => {
     expect(result.state).toBe(before);
     expect(result.feedback?.code).toBe('save-load-confirmation-required');
     expect(storage.getItem(SAVE_KEY)).toBe(malformed);
+  });
+
+  it('guards read errors without writing a fallback over storage', () => {
+    let writes = 0;
+    const storage: ProductionStorage = {
+      getItem: () => { throw new Error('Storage access denied'); },
+      setItem: () => { writes += 1; },
+    };
+    const game = renderProvider(storage);
+    const result = game.dispatch({ type: 'SPEND_AP', amount: 1, reason: 'Must remain blocked' });
+
+    expect(game.loadStatus).toBe('read_error');
+    expect(result.feedback?.code).toBe('save-load-confirmation-required');
+    expect(writes).toBe(0);
   });
 
   it('keeps transitions in memory when a storage write fails', () => {
