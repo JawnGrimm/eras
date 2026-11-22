@@ -72,7 +72,7 @@ function starterAssignments(): Array<Omit<AssignmentOffer, 'offeredDay' | 'expir
   ];
 }
 
-function starterChallenge(): Omit<ChallengeInstance, 'presentedDay' | 'status' | 'assigneePersonId'> {
+function starterChallenge(): Omit<ChallengeInstance, 'status' | 'assigneePersonId'> {
   return {
     id: 'challenge-apprentice-copy-dispute' as ChallengeId,
     title: 'The Apprentice’s Copy',
@@ -97,6 +97,7 @@ function starterChallenge(): Omit<ChallengeInstance, 'presentedDay' | 'status' |
       personId: STOREHOUSE_PEOPLE.seniorScribe,
       explanation: 'The Senior Scribe has involved the current scribe in routine instruction.',
     }],
+    presentedDay: 1,
     apCost: 1,
     choices: [
       {
