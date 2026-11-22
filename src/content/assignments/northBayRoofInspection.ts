@@ -25,6 +25,8 @@ export interface AssignmentActivityActionDefinition {
 }
 export interface AssignmentActivityDiscoveryDefinition { id: string; title: string; text: string; }
 export interface AssignmentActivityReportSchema {
+  title: string;
+  responsibilityLabel: string;
   findings: Array<{ id: string; label: string }>;
   responsibilityClaims: Array<{ id: string; label: string }>;
   recommendations: Array<{ id: string; label: string }>;
@@ -33,7 +35,7 @@ export interface AssignmentActivityReportSchema {
 export interface AssignmentActivityDefinition {
   id: string; title: string; submissionApCost: number; participants: PersonId[];
   actions: AssignmentActivityActionDefinition[]; discoveries: AssignmentActivityDiscoveryDefinition[];
-  interpretationRules: InterpretationRule[]; reportSchema: AssignmentActivityReportSchema;
+  interpretationRules: InterpretationRule[]; reportSchema: AssignmentActivityReportSchema; submissionNote?: string;
   createInitialProgress(): AssignmentActivityProgress;
 }
 const interpretationRules: InterpretationRule[] = [
@@ -63,6 +65,8 @@ export const northBayRoofInspection: AssignmentActivityDefinition = {
   ],
   interpretationRules,
   reportSchema: {
+    title: 'Inspection report',
+    responsibilityLabel: 'Responsibility claim',
     findings: [
       { id: 'insufficient_evidence', label: 'Insufficient evidence to certify' },
       { id: 'repair_incomplete', label: 'Repair incomplete / further work required' },
@@ -80,6 +84,7 @@ export const northBayRoofInspection: AssignmentActivityDefinition = {
     ],
     limitationsLabel: 'Limitations and unverified matters',
   },
+  submissionNote: 'Submission closes the Assignment. Held barley remains a separate inspection.',
   createInitialProgress: () => ({ completedActionIds: [], discoveryIds: [], consultedPersonIds: [], draft: {
     finding: 'insufficient_evidence', responsibilityClaim: 'none', citedDiscoveryIds: [], limitations: [], recommendations: [],
   } }),
@@ -111,7 +116,7 @@ export function validateAssignmentActivityDefinition(definition: AssignmentActiv
   for (const [field, options] of Object.entries({ findings: definition.reportSchema.findings, responsibilityClaims: definition.reportSchema.responsibilityClaims, recommendations: definition.reportSchema.recommendations })) {
     if (!Array.isArray(options) || options.length === 0 || new Set(options.map((option) => option.id)).size !== options.length || options.some((option) => !option.id.trim() || !option.label.trim())) issues.push(`Report schema ${field} must contain unique, labeled options.`);
   }
-  if (!definition.reportSchema.limitationsLabel.trim()) issues.push('Report schema requires a limitations label.');
+  if (!definition.reportSchema.title.trim() || !definition.reportSchema.responsibilityLabel.trim() || !definition.reportSchema.limitationsLabel.trim()) issues.push('Report schema requires title, responsibility, and limitations labels.');
   if (definition.participants.some((id) => typeof id !== 'string' || !id.trim()) || new Set(definition.participants).size !== definition.participants.length) issues.push('Participants need unique, non-empty PersonIds.');
   for (const action of definition.actions) {
     if (!action.id || !Number.isInteger(action.apCost) || action.apCost < 1 || action.apCost > 6) issues.push(`Action ${action.id} AP must be 1..6.`);

@@ -1,14 +1,9 @@
 import React from 'react';
 import { useGame } from '../state/GameProvider';
 import type { AssignmentId } from '../state/ids';
-import { NORTH_BAY_PEOPLE, ASSIGNMENT_ACTIVITY_CATALOG } from '../content/assignments/northBayRoofInspection';
+import { ASSIGNMENT_ACTIVITY_CATALOG } from '../content/assignments/northBayRoofInspection';
 import { evaluateEvidenceInterpretation } from '../works/evidenceInterpretation';
 
-const personNames: Record<string, string> = {
-  [NORTH_BAY_PEOPLE.steward]: 'Ur-Nanna',
-  [NORTH_BAY_PEOPLE.repairer]: 'Dudu',
-  [NORTH_BAY_PEOPLE.receivingOfficial]: 'Utu-mansum',
-};
 export function AssignmentActivityScreen({ assignmentId, onBack }: { assignmentId: AssignmentId; onBack: () => void }) {
   const game = useGame();
   const offer = game.state.opportunities.assignments[assignmentId];
@@ -38,7 +33,7 @@ export function AssignmentActivityScreen({ assignmentId, onBack }: { assignmentI
   return <div className="mx-auto max-w-5xl space-y-5">
     <header className="rounded-xl border border-stone-300 bg-white p-5">
       <button onClick={onBack} className="text-xs font-semibold text-amber-900 underline">Back to Assignment Board</button>
-      <p className="mt-3 text-xs font-semibold uppercase tracking-wider text-amber-800">Interactive Assignment · Temple Storehouse</p>
+      <p className="mt-3 text-xs font-semibold uppercase tracking-wider text-amber-800">Interactive Assignment · {offer.employer.kind === 'institution' ? game.state.world.institutions[offer.employer.id]?.name : game.state.world.people[offer.employer.id]?.name}</p>
       <h1 className="mt-1 font-serif text-3xl font-semibold">{offer.title}</h1>
       <p className="mt-2 text-sm leading-6 text-stone-600">{offer.description}</p>
       <p className="mt-3 text-sm"><strong>{game.state.actionEconomy.apRemaining} AP</strong> remaining today · estimated {offer.estimatedTotalAp} AP total · submission {definition.submissionApCost} AP</p>
@@ -53,7 +48,7 @@ export function AssignmentActivityScreen({ assignmentId, onBack }: { assignmentI
           return <article key={action.id} className="rounded-lg border border-stone-200 bg-stone-50 p-3">
             <div className="flex justify-between gap-2"><h3 className="font-semibold">{action.label}</h3><span className="text-xs text-stone-500">{action.apCost} AP</span></div>
             <p className="mt-1 text-sm text-stone-600">{action.description}</p>
-            {action.consultedPersonId && <p className="mt-1 text-xs text-stone-500">Person: {personNames[action.consultedPersonId] ?? action.consultedPersonId}</p>}
+            {action.consultedPersonId && <p className="mt-1 text-xs text-stone-500">Person: {game.state.world.people[action.consultedPersonId]?.name ?? action.consultedPersonId}</p>}
             <button disabled={!ready || game.state.actionEconomy.apRemaining < action.apCost} onClick={() => game.dispatch({ type: 'PERFORM_ASSIGNMENT_ACTIVITY_ACTION', assignmentId, actionId: action.id })} className="mt-3 rounded bg-stone-900 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">{done ? 'Completed' : ready ? 'Perform action' : 'Prerequisite required'}</button>
           </article>;
         })}
@@ -70,13 +65,13 @@ export function AssignmentActivityScreen({ assignmentId, onBack }: { assignmentI
       </div>
     </section>
     <section className="rounded-xl border border-stone-300 bg-white p-5">
-      <h2 className="font-serif text-xl font-semibold">Draft inspection report</h2>
+      <h2 className="font-serif text-xl font-semibold">Draft {definition.reportSchema.title.toLowerCase()}</h2>
       <label className="mt-3 block text-sm font-medium">Finding
         <select value={draft.finding} onChange={(e) => dispatchDraft({ ...draft, finding: e.target.value as typeof draft.finding })} className="mt-1 block w-full rounded border border-stone-300 bg-white p-2">
           {definition.reportSchema.findings.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}
         </select>
       </label>
-      <label className="mt-4 block text-sm font-medium">Responsibility claim
+      <label className="mt-4 block text-sm font-medium">{definition.reportSchema.responsibilityLabel}
         <select value={draft.responsibilityClaim} onChange={(e) => dispatchDraft({ ...draft, responsibilityClaim: e.target.value as typeof draft.responsibilityClaim })} className="mt-1 block w-full rounded border border-stone-300 bg-white p-2">
           {definition.reportSchema.responsibilityClaims.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}
         </select>
@@ -105,7 +100,7 @@ export function AssignmentActivityScreen({ assignmentId, onBack }: { assignmentI
       </section>
       <div className="mt-5 flex flex-wrap items-center gap-3">
         <button disabled={game.state.actionEconomy.apRemaining < definition.submissionApCost} onClick={() => game.dispatch({ type: 'SUBMIT_ASSIGNMENT_ACTIVITY', assignmentId })} className="rounded bg-stone-900 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-40">Submit report · {definition.submissionApCost} AP</button>
-        <span className="text-xs text-stone-500">Submission closes the Assignment. Held barley remains a separate inspection.</span>
+        <span className="text-xs text-stone-500">{definition.submissionNote ?? 'Submission closes the Assignment.'}</span>
       </div>
     </section>
   </div>;

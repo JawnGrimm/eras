@@ -847,7 +847,7 @@ The game should not create evidence and an answer independently and then hope th
 
 ### 8.5 Interactive Assignment activity definitions
 
-Substantive Assignments may use a typed, declarative activity definition registered in the Assignment Activity catalog. The definition identifies participants, interaction actions, prerequisites, discoveries, interpretation rules, and the submission cost. A shared activity screen renders the declared interaction families; scenario content must not require a bespoke screen or a universal action sequence.
+Substantive Assignments may use a typed, declarative activity definition registered in the Assignment Activity catalog. The definition identifies participants, interaction actions, prerequisites, discoveries, interpretation rules, a declarative report schema, and the submission cost. A shared activity screen renders the declared interaction families; scenario content must not require a bespoke screen or a universal action sequence.
 
 Interactive progress remains inside the existing `opportunities.assignments` container. The single-action `apCost` applies only to non-interactive Assignments and remains bounded to 1–6 AP. Interactive Assignments instead declare an `estimatedTotalAp` for the full scope; each individual action and the submission cost is independently bounded to 1–6 AP. The estimate is informational and may span multiple Workdays. The engine rejects `COMPLETE_ASSIGNMENT` for an interactive offer. All activity actions, draft changes, and submissions require an accepted offer owned by the current character.
 
