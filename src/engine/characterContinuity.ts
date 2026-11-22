@@ -6,8 +6,13 @@ export type SuccessorConnectionTier = 'direct_personal' | 'direct_professional' 
 export type SuccessorConnectionReason =
   | { kind: 'direct_relationship'; fromId: PersonId; toId: PersonId }
   | { kind: 'shared_institution'; institutionId: InstitutionId }
-  | { kind: 'network_relationship'; intermediaryId: PersonId }
-  | { kind: 'network_institution'; intermediaryId: PersonId; institutionId: InstitutionId };
+  | {
+      kind: 'network_bridge';
+      intermediaryId: PersonId;
+      formerConnection: 'relationship' | 'institution';
+      candidateConnection: 'relationship' | 'institution';
+      sharedInstitutionIds: InstitutionId[];
+    };
 
 export interface SuccessorCandidate {
   personId: PersonId;
@@ -69,15 +74,21 @@ export function rankSuccessorCandidates(state: GameState): SuccessorCandidate[] 
     for (const intermediary of Object.values(state.world.people)) {
       if (intermediary.id === formerId || intermediary.id === person.id) continue;
 
-      if (hasDirectRelationship(state, formerId, intermediary.id)
-        && hasDirectRelationship(state, intermediary.id, person.id)) {
-        reasons.push({ kind: 'network_relationship', intermediaryId: intermediary.id });
-      }
+      const formerInstitutions = sharedInstitutions(state, formerId, intermediary.id);
+      const candidateInstitutions = sharedInstitutions(state, intermediary.id, person.id);
+      const formerHasRelationship = hasDirectRelationship(state, formerId, intermediary.id);
+      const candidateHasRelationship = hasDirectRelationship(state, intermediary.id, person.id);
+      const formerConnection = formerHasRelationship ? 'relationship' : formerInstitutions.length ? 'institution' : null;
+      const candidateConnection = candidateHasRelationship ? 'relationship' : candidateInstitutions.length ? 'institution' : null;
 
-      for (const institutionId of sharedInstitutions(state, intermediary.id, person.id)) {
-        if (hasDirectRelationship(state, formerId, intermediary.id)) {
-          reasons.push({ kind: 'network_institution', intermediaryId: intermediary.id, institutionId });
-        }
+      if (formerConnection && candidateConnection) {
+        reasons.push({
+          kind: 'network_bridge',
+          intermediaryId: intermediary.id,
+          formerConnection,
+          candidateConnection,
+          sharedInstitutionIds: [...formerInstitutions, ...candidateInstitutions].filter((id, index, all) => all.indexOf(id) === index).sort(),
+        });
       }
     }
 
