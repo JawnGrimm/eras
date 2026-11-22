@@ -43,6 +43,23 @@ describe('North-Bay Roof Inspection activity definition and engine', () => {
     expect(validateAssignmentActivityDefinition(circular).some((issue) => issue.includes('unreachable'))).toBe(true);
   });
 
+  it('rejects unknown PersonId, SkillId, and AttributeId references', () => {
+    const badRefs = {
+      ...northBayRoofInspection,
+      actions: northBayRoofInspection.actions.map((action, index) => index === 0
+        ? { ...action, consultedPersonId: 'person-not-registered' as never } : action),
+      interpretationRules: northBayRoofInspection.interpretationRules.map((rule, index) => index === 0
+        ? { ...rule, when: { kind: 'all' as const, predicates: [
+          { kind: 'skillAtLeast' as const, skillId: 'skill-not-registered' as never, level: 2 },
+          { kind: 'attributeAtLeast' as const, attributeId: 'attribute-not-registered' as never, value: 2 },
+        ] } } : rule),
+    };
+    const issues = validateAssignmentActivityDefinition(badRefs);
+    expect(issues.some((issue) => issue.includes('PersonId'))).toBe(true);
+    expect(issues.some((issue) => issue.includes('SkillId'))).toBe(true);
+    expect(issues.some((issue) => issue.includes('AttributeId'))).toBe(true);
+  });
+
   it('keeps legacy v2 saves loadable by normalizing Dudu, the storehouse location, and initial appointments', () => {
     const state = createInitialGameState();
     const world = { ...state.world, people: { ...state.world.people }, locations: {}, appointments: {},
@@ -69,6 +86,27 @@ describe('North-Bay Roof Inspection activity definition and engine', () => {
     expect(performed.state.actionEconomy.apRemaining).toBe(5);
     const reassigned = { ...performed.state, player: { currentCharacterId: 'person-uruk-ur-gir' as never } };
     expect(transitionGame(reassigned, { type: 'PERFORM_ASSIGNMENT_ACTIVITY_ACTION', assignmentId: NORTH_BAY_ASSIGNMENT_ID, actionId: 'consult-repairer' }).feedback?.code).toBe('assignment-activity-not-active');
+  });
+
+  it('records unsupported certification and blame as disputed claims with directional consequences', () => {
+    let state = present(createInitialGameState());
+    state = transitionGame(state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: NORTH_BAY_ASSIGNMENT_ID }).state;
+    for (const actionId of ['brief-steward','inspect-roof','consult-repairer','compare-scope']) {
+      state = transitionGame(state, { type: 'PERFORM_ASSIGNMENT_ACTIVITY_ACTION', assignmentId: NORTH_BAY_ASSIGNMENT_ID, actionId }).state;
+    }
+    state = { ...state, actionEconomy: { ...state.actionEconomy, apRemaining: 2 } };
+    const draft = { finding: 'repair_appears_sound' as const, responsibilityClaim: 'dudu' as const,
+      citedDiscoveryIds: ['roof-inspection','repairer-scope','scope-comparison'], limitations: [], recommendations: [] };
+    state = transitionGame(state, { type: 'UPDATE_ASSIGNMENT_ACTIVITY_DRAFT', assignmentId: NORTH_BAY_ASSIGNMENT_ID, draft }).state;
+    const result = transitionGame(state, { type: 'SUBMIT_ASSIGNMENT_ACTIVITY', assignmentId: NORTH_BAY_ASSIGNMENT_ID });
+    expect(result.feedback?.code).toBe('assignment-activity-submitted');
+    const record = result.state.records.entries['record-assignment-north-bay-roof-inspection-day-1' as never];
+    expect(record.assertions.some((assertion) => assertion.classification === 'disputed')).toBe(true);
+    expect(result.state.world.relationships['person-enlil-barni' as never]?.['person-dudu' as never]?.dimensions.trust).toBe(46);
+    expect(result.state.world.relationships['person-enlil-barni' as never]?.['person-ur-nanna' as never]?.dimensions.trust).toBe(45);
+    expect(result.state.world.people['person-enlil-barni' as never].scribal?.professionalReputation.judgment).toBe(44);
+    expect(result.state.world.knowledge['knowledge-assignment-north-bay-roof-inspection-day-1-person-person-dudu' as never]).toBeDefined();
+    expect(result.state.world.institutions['institution-uruk-temple-storehouse' as never].activeMatters.some((matter) => matter.includes('certified without sufficient supporting inspection'))).toBe(true);
   });
 
   it('accepts a qualified early report, writes deterministic records/knowledge, and grants no Historical Progress XP', () => {
