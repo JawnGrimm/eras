@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import type { EvidenceId } from '../state/ids';
 import { useGame } from '../state/GameProvider';
 import { STOREHOUSE_EVIDENCE, STOREHOUSE_WORK_ID, storehouseReckoning, interpretStorehouseEvidence } from '../works/storehouseReckoning';
 import type { StorehouseField, StorehouseFinding, StorehouseRecommendation, StorehouseScenarioData } from '../works/storehouseReckoning';
@@ -87,7 +88,7 @@ export function StorehouseWorkScreen({ onBack }: { onBack: () => void }) {
     else draft[field] = value;
     dispatch({ type: 'SET_WORK_SCENARIO_DATA', workId, scenarioData: { ...scenario, draft } });
   };
-  const toggleCitation = (id: string) => {
+  const toggleCitation = (id: EvidenceId) => {
     const citations = scenario.citations.includes(id)
       ? scenario.citations.filter((item) => item !== id)
       : [...scenario.citations, id];
