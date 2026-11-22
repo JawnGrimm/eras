@@ -8,145 +8,186 @@ export const SAVE_SCHEMA_VERSION = 2 as const;
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
-
 function finiteNonNegative(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value) && value >= 0;
 }
-
-const ATTRIBUTE_IDS: readonly AttributeId[] = [
-  'precision', 'perception', 'reasoning', 'expression', 'endurance', 'composure',
-];
-const SPECIALIZATION_LEVELS = ['practitioner', 'specialist', 'master'] as const;
-
-function isSkillState(value: unknown): boolean {
-  return isObject(value)
-    && Number.isInteger(value.level) && finiteNonNegative(value.level)
-    && value.level >= 1 && value.level <= 10
-    && finiteNonNegative(value.skillXp);
+function score(value: unknown): value is number { return finiteNonNegative(value) && value <= 100; }
+function stringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === 'string' && item.length > 0);
 }
+const ATTRIBUTE_IDS: readonly AttributeId[] = ['precision','perception','reasoning','expression','endurance','composure'];
+const SPECIALIZATION_LEVELS = ['practitioner','specialist','master'] as const;
+const RELATIONSHIP_DIMENSIONS = ['trust','respect','affection','resentment','rivalry','familiarity'] as const;
+const RECORD_CLASSES = ['observed','reported','inferred','disputed'] as const;
+const SOURCE_KINDS = ['person','institution','event','material','other'] as const;
+const KNOWLEDGE_BASES = ['direct-involvement','testimony','received-copy','consulted-record','public-disclosure','other'] as const;
 
+function isSkill(value: unknown): boolean {
+  return isObject(value) && Number.isInteger(value.level) && finiteNonNegative(value.level)
+    && value.level >= 1 && value.level <= 10 && finiteNonNegative(value.skillXp);
+}
 function isConditionModifier(value: unknown): boolean {
-  if (!isObject(value) || !isObject(value.target) || !Number.isFinite(value.value)
-    || !Array.isArray(value.actionTags) || value.actionTags.length === 0
-    || !value.actionTags.every((tag) => typeof tag === 'string' && tag.length > 0)) return false;
+  if (!isObject(value) || !isObject(value.target) || typeof value.value !== 'number'
+    || !Number.isFinite(value.value) || !stringArray(value.actionTags)) return false;
   if (value.target.kind === 'skill') return CORE_SKILL_IDS.includes(value.target.id as SkillId);
   if (value.target.kind === 'attribute') return ATTRIBUTE_IDS.includes(value.target.id as AttributeId);
   return false;
 }
-
-function isScribalCharacter(value: unknown): value is ScribalCharacterState {
+function isScribal(value: unknown, institutionIds: Set<string>): value is ScribalCharacterState {
   if (!isObject(value) || (value.careerPath !== undefined
-    && !['government', 'military', 'religious', 'merchant'].includes(value.careerPath as string))
-    || !finiteNonNegative(value.careerXp) || !finiteNonNegative(value.stress)
-    || value.stress > 100 || !isObject(value.wallet)
-    || !isObject(value.skills) || !isObject(value.attributes)
-    || !Array.isArray(value.specializations) || !Array.isArray(value.traits)
-    || !Array.isArray(value.conditions) || !Array.isArray(value.equipment)
-    || !value.equipment.every((item) => typeof item === 'string')
-    || !isObject(value.professionalReputation)) return false;
-
+    && !['government','military','religious','merchant'].includes(value.careerPath as string))
+    || !finiteNonNegative(value.careerXp) || !finiteNonNegative(value.stress) || value.stress > 100
+    || !isObject(value.wallet) || !isObject(value.skills) || !isObject(value.attributes)
+    || !Array.isArray(value.specializations) || !Array.isArray(value.traits) || !Array.isArray(value.conditions)
+    || !Array.isArray(value.equipment) || !value.equipment.every((x) => typeof x === 'string')
+    || !isObject(value.professionalReputation) || !isObject(value.institutionalStanding)) return false;
   const wallet = value.wallet;
   if (!finiteNonNegative(wallet.money) || !finiteNonNegative(wallet.provisions)
     || !finiteNonNegative(wallet.shortageWorkdays) || !Number.isInteger(wallet.shortageWorkdays)) return false;
-
-  for (const [skillId, skill] of Object.entries(value.skills)) {
-    if (!CORE_SKILL_IDS.includes(skillId as SkillId) || !isSkillState(skill)) return false;
+  for (const [id, skill] of Object.entries(value.skills)) if (!CORE_SKILL_IDS.includes(id as SkillId) || !isSkill(skill)) return false;
+  for (const [id, attribute] of Object.entries(value.attributes)) if (!ATTRIBUTE_IDS.includes(id as AttributeId) || !finiteNonNegative(attribute)) return false;
+  for (const [id, standing] of Object.entries(value.institutionalStanding)) if (!institutionIds.has(id) || !score(standing)) return false;
+  let primary = 0;
+  for (const s of value.specializations) {
+    if (!isObject(s) || typeof s.id !== 'string' || !s.id || !SPECIALIZATION_LEVELS.includes(s.level as typeof SPECIALIZATION_LEVELS[number])
+      || !finiteNonNegative(s.specializationXp) || typeof s.isPrimary !== 'boolean') return false;
+    if (s.isPrimary) primary++;
   }
-  for (const [attributeId, attribute] of Object.entries(value.attributes)) {
-    if (!ATTRIBUTE_IDS.includes(attributeId as AttributeId) || !finiteNonNegative(attribute)) return false;
-  }
-
-  let primaryCount = 0;
-  for (const specialization of value.specializations) {
-    if (!isObject(specialization) || typeof specialization.id !== 'string' || !specialization.id
-      || !SPECIALIZATION_LEVELS.includes(specialization.level as typeof SPECIALIZATION_LEVELS[number])
-      || !finiteNonNegative(specialization.specializationXp)
-      || typeof specialization.isPrimary !== 'boolean') return false;
-    if (specialization.isPrimary) primaryCount += 1;
-  }
-  if (primaryCount > 1) return false;
-
-  for (const trait of value.traits) {
-    if (!isObject(trait) || typeof trait.id !== 'string' || !trait.id
-      || ![1, 2, 3].includes(trait.intensity as number)
-      || (trait.origin !== 'starting' && trait.origin !== 'emergent')) return false;
-  }
-
-  for (const condition of value.conditions) {
-    if (!isObject(condition) || typeof condition.id !== 'string' || !condition.id
-      || ![1, 2, 3].includes(condition.severity as number)
-      || !Array.isArray(condition.modifiers) || !condition.modifiers.every(isConditionModifier)
-      || (condition.remainingWorkdays !== undefined
-        && (!finiteNonNegative(condition.remainingWorkdays) || !Number.isInteger(condition.remainingWorkdays)))) return false;
-  }
-
-  for (const dimension of ['competence', 'reliability', 'discretion', 'judgment'] as const) {
-    const score = value.professionalReputation[dimension];
-    if (!finiteNonNegative(score) || score > 100) return false;
-  }
+  if (primary > 1) return false;
+  for (const t of value.traits) if (!isObject(t) || typeof t.id !== 'string' || !t.id
+    || ![1,2,3].includes(t.intensity as number) || (t.origin !== 'starting' && t.origin !== 'emergent')) return false;
+  for (const c of value.conditions) if (!isObject(c) || typeof c.id !== 'string' || !c.id
+    || ![1,2,3].includes(c.severity as number) || !Array.isArray(c.modifiers) || !c.modifiers.every(isConditionModifier)
+    || (c.remainingWorkdays !== undefined && (!finiteNonNegative(c.remainingWorkdays) || !Number.isInteger(c.remainingWorkdays)))) return false;
+  for (const d of ['competence','reliability','discretion','judgment'] as const) if (!score(value.professionalReputation[d])) return false;
   return true;
+}
+function isRelationship(value: unknown): boolean {
+  if (!isObject(value) || !isObject(value.dimensions) || !Array.isArray(value.history)) return false;
+  for (const d of RELATIONSHIP_DIMENSIONS) if (!score(value.dimensions[d])) return false;
+  return value.history.every((h) => isObject(h) && typeof h.id === 'string' && !!h.id
+    && finiteNonNegative(h.dayNumber) && Number.isInteger(h.dayNumber) && typeof h.summary === 'string' && !!h.summary
+    && (h.eventId === undefined || typeof h.eventId === 'string'));
+}
+function isInstitution(value: unknown, locationIds: Set<string>): boolean {
+  return isObject(value) && typeof value.id === 'string' && !!value.id && typeof value.name === 'string' && !!value.name
+    && (value.locationId === undefined || (typeof value.locationId === 'string' && locationIds.has(value.locationId)))
+    && stringArray(value.responsibilities) && stringArray(value.authority) && score(value.standing)
+    && Array.isArray(value.activeMatterIds) && value.activeMatterIds.every((id) => typeof id === 'string' && !!id);
+}
+function isEvent(value: unknown, people: Record<string, unknown>, institutions: Record<string, unknown>, locations: Record<string, unknown>): boolean {
+  return isObject(value) && typeof value.id === 'string' && !!value.id && finiteNonNegative(value.dayNumber)
+    && Number.isInteger(value.dayNumber) && value.dayNumber >= 1 && typeof value.summary === 'string' && !!value.summary
+    && Array.isArray(value.personIds) && value.personIds.every((id) => typeof id === 'string' && isObject(people[id]))
+    && Array.isArray(value.institutionIds) && value.institutionIds.every((id) => typeof id === 'string' && isObject(institutions[id]))
+    && (value.locationId === undefined || (typeof value.locationId === 'string' && isObject(locations[value.locationId])));
+}
+function isSource(value: unknown, people: Record<string, unknown>, institutions: Record<string, unknown>, events: Record<string, unknown>): boolean {
+  if (!isObject(value) || typeof value.id !== 'string' || !value.id || !SOURCE_KINDS.includes(value.kind as typeof SOURCE_KINDS[number])
+    || typeof value.description !== 'string' || !value.description) return false;
+  if (value.kind === 'person') return typeof value.sourceId === 'string' && isObject(people[value.sourceId]);
+  if (value.kind === 'institution') return typeof value.sourceId === 'string' && isObject(institutions[value.sourceId]);
+  if (value.kind === 'event') return typeof value.sourceId === 'string' && isObject(events[value.sourceId]);
+  return value.sourceId === undefined || typeof value.sourceId === 'string';
+}
+function isAssertion(value: unknown, sourceIds: Set<string>): boolean {
+  return isObject(value) && typeof value.id === 'string' && !!value.id && typeof value.text === 'string' && !!value.text
+    && RECORD_CLASSES.includes(value.classification as typeof RECORD_CLASSES[number])
+    && Array.isArray(value.sourceIds) && value.sourceIds.every((id) => typeof id === 'string' && sourceIds.has(id));
 }
 
 export function isValidGameState(value: unknown): value is GameState {
-  if (!isObject(value) || !isObject(value.calendar) || !isObject(value.actionEconomy)
-    || !isObject(value.player) || !isObject(value.world) || !isObject(value.historicalProgression)
-    || !isObject(value.opportunities) || !isObject(value.works) || !isObject(value.records)
-    || !isObject(value.journal)) return false;
+  if (!isObject(value) || !isObject(value.calendar) || !isObject(value.actionEconomy) || !isObject(value.player)
+    || !isObject(value.world) || !isObject(value.historicalProgression) || !isObject(value.opportunities)
+    || !isObject(value.works) || !isObject(value.records) || !isObject(value.journal)) return false;
+  const calendar = value.calendar, economy = value.actionEconomy, player = value.player, world = value.world;
+  if (typeof calendar.eraId !== 'string' || !finiteNonNegative(calendar.dayNumber) || !Number.isInteger(calendar.dayNumber)
+    || calendar.dayNumber < 1 || typeof calendar.displayDate !== 'string') return false;
+  if ((economy.dailyApAllocation !== 5 && economy.dailyApAllocation !== 6) || !finiteNonNegative(economy.apRemaining)
+    || !Number.isInteger(economy.apRemaining) || economy.apRemaining > economy.dailyApAllocation
+    || typeof economy.overtimeUsedToday !== 'boolean' || typeof economy.nextDayApPenalty !== 'boolean') return false;
+  if (typeof player.currentCharacterId !== 'string' || !isObject(world.people) || !isObject(world.relationships)
+    || !isObject(world.institutions) || !isObject(world.locations) || !isObject(world.appointments)
+    || !isObject(world.events) || !isObject(world.knowledge) || !isObject(value.records.entries)) return false;
 
-  const calendar = value.calendar;
-  const economy = value.actionEconomy;
-  const player = value.player;
-  const world = value.world;
-  if (typeof calendar.eraId !== 'string' || !finiteNonNegative(calendar.dayNumber)
-    || !Number.isInteger(calendar.dayNumber) || calendar.dayNumber < 1 || typeof calendar.displayDate !== 'string') return false;
-  if ((economy.dailyApAllocation !== 5 && economy.dailyApAllocation !== 6)
-    || !finiteNonNegative(economy.apRemaining) || !Number.isInteger(economy.apRemaining)
-    || economy.apRemaining > economy.dailyApAllocation
-    || typeof economy.overtimeUsedToday !== 'boolean'
-    || typeof economy.nextDayApPenalty !== 'boolean') return false;
-  if (typeof player.currentCharacterId !== 'string' || !isObject(world.people)) return false;
-
-  for (const [personId, person] of Object.entries(world.people)) {
-    if (!isObject(person) || person.id !== personId || typeof person.alive !== 'boolean'
-      || typeof person.name !== 'string' || !Array.isArray(person.affiliations)
-      || !isObject(person.relationships)) return false;
-    if (person.scribal !== undefined && !isScribalCharacter(person.scribal)) return false;
+  const people = world.people, institutions = world.institutions, locations = world.locations;
+  const events = world.events, records = value.records.entries;
+  for (const [id, p] of Object.entries(people)) {
+    if (!isObject(p) || p.id !== id || typeof p.name !== 'string' || !p.name || typeof p.alive !== 'boolean'
+      || !Array.isArray(p.affiliations) || !p.affiliations.every((x) => typeof x === 'string' && isObject(institutions[x]))
+      || (p.currentLocationId !== undefined && (typeof p.currentLocationId !== 'string' || !isObject(locations[p.currentLocationId])))
+      || (p.scribal !== undefined && !isScribal(p.scribal, new Set(Object.keys(institutions))))) return false;
   }
-  const activePerson = world.people[player.currentCharacterId];
-  if (!isObject(activePerson) || activePerson.alive !== true || !isScribalCharacter(activePerson.scribal)) return false;
+  const active = people[player.currentCharacterId];
+  if (!isObject(active) || active.alive !== true || !isScribal(active.scribal, new Set(Object.keys(institutions)))) return false;
 
-  if (!isObject(world.institutions) || !isObject(world.locations) || !isObject(world.appointments)
-    || !finiteNonNegative(value.historicalProgression.historicalXp)
-    || !Array.isArray(value.historicalProgression.completedWorks)
-    || !isObject(value.opportunities.assignments) || !isObject(value.opportunities.challenges)
-    || (value.works.activeWorkId !== null && typeof value.works.activeWorkId !== 'string')
-    || !isObject(value.works.progress) || !Array.isArray(value.records.permanentOutcomes)
-    || !Array.isArray(value.journal.notices)) return false;
+  for (const [fromId, targets] of Object.entries(world.relationships)) {
+    if (!isObject(people[fromId]) || !isObject(targets)) return false;
+    for (const [toId, rel] of Object.entries(targets)) {
+      if (fromId === toId || !isObject(people[toId]) || !isRelationship(rel)
+        || rel.history.some((h) => h.eventId !== undefined && !isObject(events[h.eventId as string]))) return false;
+    }
+  }
+  for (const [id, x] of Object.entries(institutions)) if (!isInstitution(x, new Set(Object.keys(locations))) || x.id !== id) return false;
+  for (const [id, x] of Object.entries(locations)) if (!isObject(x) || x.id !== id || typeof x.name !== 'string' || !x.name) return false;
+  for (const [id, x] of Object.entries(world.appointments)) {
+    if (!isObject(x) || x.id !== id || typeof x.personId !== 'string' || !isObject(people[x.personId])
+      || typeof x.institutionId !== 'string' || !isObject(institutions[x.institutionId])
+      || typeof x.title !== 'string' || !x.title || !stringArray(x.authorityScope) || x.authorityScope.length === 0
+      || !stringArray(x.responsibilities) || !finiteNonNegative(x.startDay) || !Number.isInteger(x.startDay) || x.startDay < 1
+      || (x.endDay !== undefined && (!finiteNonNegative(x.endDay) || !Number.isInteger(x.endDay) || x.endDay < x.startDay))) return false;
+  }
+  for (const [id, x] of Object.entries(events)) if (!isEvent(x, people, institutions, locations) || x.id !== id) return false;
 
-  return true;
+  for (const [id, r] of Object.entries(records)) {
+    if (!isObject(r) || r.id !== id || !finiteNonNegative(r.createdDay) || !Number.isInteger(r.createdDay) || r.createdDay < 1
+      || typeof r.authorPersonId !== 'string' || !isObject(people[r.authorPersonId])
+      || (r.institutionId !== undefined && (typeof r.institutionId !== 'string' || !isObject(institutions[r.institutionId])))
+      || typeof r.title !== 'string' || !r.title || !Array.isArray(r.sources) || !Array.isArray(r.assertions)
+      || !stringArray(r.uncertaintyLimits) || !Array.isArray(r.amendments)) return false;
+    const sourceIds = new Set<string>();
+    for (const s of r.sources) { if (!isSource(s, people, institutions, events) || sourceIds.has(s.id)) return false; sourceIds.add(s.id); }
+    if (!r.assertions.every((a) => isAssertion(a, sourceIds))) return false;
+    const amendmentIds = new Set<string>();
+    for (const a of r.amendments) {
+      if (!isObject(a) || typeof a.id !== 'string' || !a.id || amendmentIds.has(a.id)
+        || !finiteNonNegative(a.dayNumber) || !Number.isInteger(a.dayNumber) || a.dayNumber < r.createdDay
+        || typeof a.authorPersonId !== 'string' || !isObject(people[a.authorPersonId])
+        || typeof a.reason !== 'string' || !a.reason || !Array.isArray(a.sourcesAdded)
+        || !Array.isArray(a.assertionsAdded) || !stringArray(a.uncertaintyLimitsAdded) || typeof a.note !== 'string') return false;
+      amendmentIds.add(a.id);
+      for (const s of a.sourcesAdded) { if (!isSource(s, people, institutions, events) || sourceIds.has(s.id)) return false; sourceIds.add(s.id); }
+      if (!a.assertionsAdded.every((x) => isAssertion(x, sourceIds))) return false;
+    }
+  }
+  for (const [id, k] of Object.entries(world.knowledge)) {
+    if (!isObject(k) || k.id !== id || !isObject(k.holder) || !isObject(k.subject)
+      || !KNOWLEDGE_BASES.includes(k.basis as typeof KNOWLEDGE_BASES[number])
+      || !finiteNonNegative(k.learnedDay) || !Number.isInteger(k.learnedDay) || k.learnedDay < 1
+      || (k.sourcePersonId !== undefined && (typeof k.sourcePersonId !== 'string' || !isObject(people[k.sourcePersonId])))) return false;
+    const holder = k.holder.kind === 'person' ? typeof k.holder.id === 'string' && isObject(people[k.holder.id])
+      : k.holder.kind === 'institution' && typeof k.holder.id === 'string' && isObject(institutions[k.holder.id]);
+    const subject = k.subject.kind === 'event' ? typeof k.subject.id === 'string' && isObject(events[k.subject.id])
+      : k.subject.kind === 'record' && typeof k.subject.id === 'string' && isObject(records[k.subject.id]);
+    if (!holder || !subject) return false;
+  }
+
+  return finiteNonNegative(value.historicalProgression.historicalXp) && Array.isArray(value.historicalProgression.completedWorks)
+    && isObject(value.opportunities.assignments) && isObject(value.opportunities.challenges)
+    && (value.works.activeWorkId === null || typeof value.works.activeWorkId === 'string')
+    && isObject(value.works.progress) && Array.isArray(value.records.permanentOutcomes)
+    && Array.isArray(value.journal.notices);
 }
-
 export function createSaveEnvelope(state: GameState, revision: number, savedAt = new Date().toISOString()): SaveEnvelope {
   return { schemaVersion: SAVE_SCHEMA_VERSION, gameVersion: '0.1.0', revision, savedAt, state };
 }
-
 export function isValidSaveEnvelope(value: unknown): value is SaveEnvelope {
-  return isObject(value)
-    && value.schemaVersion === SAVE_SCHEMA_VERSION
-    && typeof value.gameVersion === 'string'
-    && finiteNonNegative(value.revision)
-    && Number.isInteger(value.revision)
-    && typeof value.savedAt === 'string'
-    && Number.isFinite(Date.parse(value.savedAt))
-    && isValidGameState(value.state);
+  return isObject(value) && value.schemaVersion === SAVE_SCHEMA_VERSION && typeof value.gameVersion === 'string'
+    && finiteNonNegative(value.revision) && Number.isInteger(value.revision) && typeof value.savedAt === 'string'
+    && Number.isFinite(Date.parse(value.savedAt)) && isValidGameState(value.state);
 }
-
 export function restoreSave(raw: string | null): SaveEnvelope | null {
   if (!raw) return null;
-  try {
-    const parsed: unknown = JSON.parse(raw);
-    return isValidSaveEnvelope(parsed) ? parsed : null;
-  } catch {
-    return null;
-  }
+  try { const parsed: unknown = JSON.parse(raw); return isValidSaveEnvelope(parsed) ? parsed : null; }
+  catch { return null; }
 }
