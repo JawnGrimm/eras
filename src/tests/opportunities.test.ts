@@ -211,7 +211,8 @@ describe('Assignment and Challenge foundations', () => {
     const shown = transitionGame(base, { type: 'PRESENT_CHALLENGE', challenge: invalid });
     expect(shown.feedback?.code).toBe('challenge-presented');
     const beforeWallet = shown.state.world.people[INITIAL_PERSON_ID].scribal!.wallet;
-    const lowAp = { ...shown.state, actionEconomy: { ...shown.state.actionEconomy, apRemaining: 1 } };
+    const acceptedForLowAp = transitionGame(shown.state, { type: 'ACCEPT_CHALLENGE', challengeId: 'atomic-challenge' as ChallengeId });
+    const lowAp = { ...acceptedForLowAp.state, actionEconomy: { ...acceptedForLowAp.state.actionEconomy, apRemaining: 1 } };
     const failed = transitionGame(lowAp, { type: 'RESOLVE_CHALLENGE', challengeId: 'atomic-challenge' as ChallengeId, choiceId: invalid.choices[0].id });
     expect(failed.feedback?.code).toBe('insufficient-ap');
     expect(failed.state.actionEconomy.apRemaining).toBe(1);
