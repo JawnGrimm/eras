@@ -1,8 +1,11 @@
 import { CORE_SKILL_IDS } from './ids';
 import type { AttributeId, SkillId } from './ids';
 import type { GameState, SaveEnvelope, ScribalCharacterState } from './types';
+import { validateOpportunityConsequences } from './opportunityValidation';
 
 export const SAVE_KEY = 'scribe_game_v2';
+// Keep schema v2: the production provider has not been mounted, so shipped v2 saves have empty opportunity maps.
+// If any release persists Assignment/Challenge instances, migrate those records before changing this contract.
 export const SAVE_SCHEMA_VERSION = 2 as const;
 
 function isObject(value: unknown): value is Record<string, unknown> {
@@ -188,6 +191,7 @@ export function isValidGameState(value: unknown): value is GameState {
     || !isObject(value.opportunities.assignmentAggregates) || !Array.isArray(value.opportunities.challengeOutcomes)
     || !Array.isArray(value.opportunities.recentActivity)) return false;
   const assignmentStates = ['offered','accepted','declined','lapsed','completed','cancelled'];
+  const opportunityContext = value as unknown as GameState;
   for (const [id, offer] of Object.entries(value.opportunities.assignments)) {
     if (!isObject(offer) || offer.id !== id || !assignmentStates.includes(offer.status as string)
       || typeof offer.title !== 'string' || !offer.title || typeof offer.description !== 'string'
@@ -197,7 +201,9 @@ export function isValidGameState(value: unknown): value is GameState {
       || typeof offer.context.what !== 'string' || !offer.context.what || typeof offer.context.purpose !== 'string' || !offer.context.purpose
       || !Array.isArray(offer.context.who) || !stringArray(offer.context.responsibility) || !stringArray(offer.context.provenance)
       || !isObject(offer.requiredSkills) || Object.entries(offer.requiredSkills).some(([skill, level]) => !CORE_SKILL_IDS.includes(skill as SkillId) || !Number.isInteger(level) || (level as number) < 1 || (level as number) > 10)
-      || !['routine','demanding','critical'].includes(offer.difficulty as string) || !Number.isInteger(offer.estimatedAp) || (offer.estimatedAp as number) < 1
+      || !['routine','demanding','critical'].includes(offer.difficulty as string) || !Number.isInteger(offer.apCost) || (offer.apCost as number) < 1 || (offer.apCost as number) > 6
+      || !!validateOpportunityConsequences(offer.completionConsequences as GameState['opportunities'] extends never ? never : import('./types').OpportunityConsequences | undefined, opportunityContext, 'authoring')
+      || !!validateOpportunityConsequences(offer.cancellationConsequences as import('./types').OpportunityConsequences | undefined, opportunityContext, 'authoring')
       || !isObject(offer.compensation) || !finiteNonNegative(offer.compensation.money) || !finiteNonNegative(offer.compensation.provisions)
       || !finiteNonNegative(offer.careerXpReward) || !finiteNonNegative(offer.offeredDay) || !Number.isInteger(offer.offeredDay)
       || !finiteNonNegative(offer.expiresDay) || !Number.isInteger(offer.expiresDay) || (offer.expiresDay as number) <= (offer.offeredDay as number)
@@ -224,10 +230,11 @@ export function isValidGameState(value: unknown): value is GameState {
     if (!isObject(challenge) || challenge.id !== id || typeof challenge.title !== 'string' || !challenge.title
       || typeof challenge.description !== 'string' || typeof challenge.category !== 'string'
       || !isObject(challenge.context) || typeof challenge.context.what !== 'string' || typeof challenge.context.purpose !== 'string'
-      || !finiteNonNegative(challenge.presentedDay) || !Array.isArray(challenge.choices) || !challenge.choices.length
+      || !finiteNonNegative(challenge.presentedDay) || !Number.isInteger(challenge.apCost) || (challenge.apCost as number) < 1 || (challenge.apCost as number) > 6 || !Array.isArray(challenge.choices) || !challenge.choices.length
       || new Set(challenge.choices.filter(isObject).map((choice) => choice.id)).size !== challenge.choices.length
       || challenge.choices.some((choice) => !isObject(choice) || typeof choice.id !== 'string' || !choice.id
-        || typeof choice.label !== 'string' || !choice.label || typeof choice.description !== 'string' || !choice.description)) return false;
+        || typeof choice.label !== 'string' || !choice.label || typeof choice.description !== 'string' || !choice.description
+        || !!validateOpportunityConsequences(choice.consequences as import('./types').OpportunityConsequences | undefined, opportunityContext, 'authoring'))) return false;
   }
   return finiteNonNegative(value.historicalProgression.historicalXp) && Array.isArray(value.historicalProgression.completedWorks)
     && isObject(value.opportunities.assignments) && isObject(value.opportunities.challenges)
