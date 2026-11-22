@@ -67,7 +67,7 @@ Career progression and historical progression are separate. **Career XP** measur
 
 The player's personal economy uses two tracked resources: **money** and **provisions**. Money is presented using the historically appropriate currency name for the current era; provisions represent food and everyday sustenance using era-appropriate forms. Beer and other goods may appear in the world or inventory when relevant, but are not additional tracked personal resource balances.
 
-The long-term experience is intended to feel like one continuing historical journey rather than a sequence of disconnected era levels. Professional identity, reputation, knowledge, and a social network can persist through successors and institutional traditions, while relationships, institutions, and the wider world change. The exact continuity mechanism remains an open structural decision because the selected eras span distant periods and continents.
+The long-term experience is intended to feel like one continuing historical journey rather than a sequence of disconnected era levels. The player continues through existing scribal NPCs who have an established connection to the current character and their profession. A successor retains their own skills, personality, relationships, professional history, affiliations, obligations, possessions, and circumstances; the player does not simply transfer the previous character's identity or personal relationships. Professional traditions, records, knowledge, reputation, and institutional connections may persist where the world supports them. Succession and the fallback when no eligible successor exists are defined in Section 16.
 
 The world should continue to develop through the interaction of **social causality** and **operational causality**. People pursue interests and obligations within practical systems of work, resources, records, institutions, access, and time. The player's professional participation takes place where these forces meet: the player investigates, interprets, records, communicates, and makes decisions about situations created by both human intentions and ongoing processes.
 
@@ -188,7 +188,7 @@ This is a principle governing how existing systems intersect, not a separate inf
 
 ### 3.2 Single-player experience
 
-The experience is centered on a continuing professional tradition and the people, families, and institutions connected to it. The player may inhabit different people or successors as the calendar and geography change; the exact continuity model remains to be finalized. The player should feel responsible for decisions and records, while the surrounding world continues to develop through authored historical events and scenario consequences.
+The experience is centered on a continuing scribal profession and the people, households, and institutions connected to it. Across a character's lifetime and historical change, the player may continue through an existing scribal NPC who has an established connection to the current character and their profession. The player should feel responsible for decisions and records, while the surrounding world continues to develop through authored historical events and scenario consequences.
 
 ### 3.3 Player role
 
@@ -1175,29 +1175,26 @@ Historical events can alter institutions, locations, opportunities, and relation
 
 ### 16.1 One journey across generations
 
-The game is intended to feel like one continuing historical journey, not disconnected era levels. The player's original professional identity and tradition persist, while family members, successors, apprentices, and descendants can carry relationships, knowledge, reputation, and obligations forward.
+The game is intended to feel like one continuing historical journey, not disconnected era levels. The continuing thread is the player's participation in a scribal profession and its connected social and institutional world, not a requirement to remain within one bloodline. When succession is required, the player may take over an existing scribal NPC who has an established connection to the current character and their profession and whose skills are appropriate to continue the career. Possible connections include apprentices, former students, colleagues, professional associates, household or family members, and contacts established through mentors, patrons, or institutions. These are examples, not exclusive NPC classes or a requirement to maintain a particular relationship score.
 
 ### 16.2 What can persist
 
-Depending on the final generational design, continuity may include:
-- Family name and lineage.
-- The family's inherited desk, including its accumulated history, adaptations, and modest legacy effects from upgrades installed in earlier eras.
-- Professional identity and traditions.
-- Career accomplishments and recognized Works.
-- Wealth, property, or selected assets.
-- Reputation and institutional standing.
-- Individual relationships and family ties.
-- Mentorships, apprenticeships, and professional contacts.
-- Knowledge, methods, reference materials, and learned practices.
-- Favors, debts, promises, and unresolved obligations.
+Continuity across characters is selective. The previous character's history and consequences remain in the world where relevant, but a successor does not automatically inherit the previous character's personal relationships, reputation, resources, possessions, or obligations. Depending on the actual connection and circumstances, continuity may include:
+- Family name, lineage, or household ties where applicable.
+- The family desk and its accumulated history, adaptations, and legacy effects, when the successor has a plausible claim or access to it.
+- Professional identity, traditions, and recognized accomplishments.
+- Records, knowledge, methods, reference materials, and learned practices.
+- Reputation or institutional standing attached to a household, professional tradition, or institution rather than solely to the former individual.
+- Professional contacts, mentorships, apprenticeships, and relationships that the successor must develop in their own right.
+- Specific assets, favors, debts, promises, or unresolved obligations only where inheritance, transfer, or continuing responsibility is plausible in the circumstances.
 
 ### 16.3 Change and succession
 
-Not everything should pass unchanged. Relationships can weaken, institutions can disappear, skills can become obsolete, and new generations can reinterpret inherited traditions. Some contacts may persist through descendants or successors rather than as the same individual. The system should support continuity and change together.
+Not everything passes unchanged. Relationships can weaken or end; institutions can disappear; skills can become obsolete; and a successor brings their own identity and circumstances. The player chooses among eligible candidates, but the world does not freeze or rearrange itself to make a preferred candidate available. A candidate may be unavailable, committed elsewhere, or unwilling to take up the role. Eligibility does not guarantee availability.
 
-The family desk is an established physical heirloom passed down through the generations. It is upgraded and personalized during each era and provides a tangible connection between successive scribes. At an era transition, the desk remains in the family, but its previous era's upgrades become modest inherited bonuses rather than retaining their full former effects. The next era makes new, historically appropriate desk upgrades available.
+If no eligible successor is available when succession is required, the player begins again as a new character at the beginning of the current era. This is a career restart, not a historical reset: the era and its historical progression do not roll back, and the former character's consequential history remains in the world where appropriate. The new character begins with their own circumstances, skills, relationships, and professional opportunities. The game should not waive the established-connection requirement by silently generating an unrelated replacement.
 
-The desk is one concrete carrier of family continuity; it does not by itself settle the complete family tree, lifespan, succession, or inheritance model. Those broader mechanics remain to be designed. They should not be reduced to a simple reset that discards the player's social and professional history.
+The family desk remains an established family heirloom and a tangible carrier of professional history, but it is not proof that every successor must be a family member. A non-family successor does not automatically inherit or possess it. Whether and how a successor outside the family can gain access to the desk, and how the desk remains available when the player changes to a non-family NPC, require further design. The desk's previously established era-transition treatment remains: upgrades from earlier eras become modest inherited bonuses rather than retaining their full former effects.
 
 ---
 
@@ -1416,7 +1413,7 @@ The following details require further design before they can be treated as fixed
 7. The stress scale, ceiling, thresholds, crisis timing, recovery rates, and fully priced recovery options; define how crisis interventions are paced and how assistance affects Stress and relationships. Shortage consequences must remain recoverable.
 8. Complete the NPC relationship, agency, and obligation model: determine how directional, multi-dimensional relationships are represented and changed; how significant events and accumulated meaningful interactions shape them; how relationships persist through successors, institutions, and geographically separated eras; how positive relationships can provide crisis support; how repeated assistance affects those relationships; and how conflicting commitments are represented and resolved in specific contexts. Established principles include independent NPC agency, proportionate immediate objectives and longer-term ambitions, commitments with identifiable bases, the distinction between demands and obligations, contextually appropriate attempts at resolution, and the persistence of unresolved matters. Detailed decision rules, memory scope, presentation, and runtime mechanics remain open.
 9. The additional continuity carriers that should complement the established family line and inherited desk across long historical jumps: professional house, archive, institution, scribal tradition, or a deliberately combined model.
-10. Family lifespan, succession, inheritance beyond the desk, and generational transition rules. Family continuity and the inherited desk are established design directions; the detailed mechanics remain open.
+10. Succession details: define the exact skill/qualification threshold for an eligible successor, when succession is required, how candidate availability or willingness is represented, and what choices or consequences apply when several connected candidates qualify. The approved direction is that the player chooses among existing scribal NPCs with an established connection to the current character and their profession; if none is eligible and available, a new character begins at the start of the current era without resetting historical progression. Reconcile the family desk's access and transfer rules when the successor is not a family member.
 11. Era pacing in actual in-game days, including the number and expected duration of Works, optional activity density, and authored calendar transitions.
 12. The historical progression thresholds and XP allocation after Work plans are complete; rounder values may replace the current legacy targets.
 13. The exact institutional rosters and historical content for each era, alongside era-specific documents, Assignments, and Works; determine the relevant institutions for each career path and the shared institutions encountered across careers. The shared institutional gameplay model and era-specific presentation principle are established.
@@ -1464,4 +1461,4 @@ Career XP measures professional development. Historical Progress XP measures man
 
 The personal economy has two tracked resources: money and provisions. Money uses an era-appropriate currency name without conversion of the underlying value at era transitions; provisions remain an abstract food resource presented through era-appropriate foods and rations. Beer is not a tracked personal resource, though it may appear in the world, inventory, hospitality, and institutional or social exchanges. Exact prices, availability, storage, crisis timing, assistance frequency and effects, sustenance shortage consequences, and historical presentation remain open design work.
 
-The journey should remain continuous across eras, successors, and institutions without pretending that the same people or family relationships can persist unchanged across millennia and continents. The family desk is an established inherited object and a tangible carrier of professional history; the broader succession, family, and social continuity model remains to be completed.
+The journey continues through existing scribal NPCs connected to the current character and their profession. The player chooses among eligible candidates, subject to their actual circumstances and availability. If no eligible successor is available when succession is required, a new character begins at the start of the current era; historical progression does not reset. The family desk remains a legacy object, but its transfer or access is not automatic when succession passes outside the family. Exact eligibility thresholds, the point at which succession is required, and the desk's access rules for non-family successors remain open.
