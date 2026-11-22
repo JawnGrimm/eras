@@ -1,7 +1,7 @@
 ---
 title: "Scribe of Eras"
 subtitle: "Game Design Document — Revised Draft v1.2"
-date: "21 November 2026"
+date: "22 November 2026"
 lang: en-US
 ---
 
@@ -463,7 +463,7 @@ Every Work definition must include:
 
 Works use the same daily Action Points as Assignments, study, and other substantive activities. They may span multiple days, but a Work's scale should not be inflated merely to occupy time. Optional content may improve the player's information, relationships, resources, or outcome, but must not become a hidden prerequisite for mandatory historical progression.
 
-The first complete Era I example is specified in Section 7. It is a vertical slice for validating one kind of Work, not a template that all later Works must follow.
+The Storehouse Reckoning described in Section 7 is an introductory tutorial, not a Work example or a template for the Works system. Future Works must be designed around their own historical undertaking, human problem, mechanics, stages, and scale.
 
 ### 5.4 How the layers interact
 
@@ -549,17 +549,17 @@ The settlement must not grant a universal free ration merely because a day passe
 
 ---
 
-## 7. Era I Vertical Slice: The Storehouse Reckoning
+## 7. Era I Introductory Tutorial: The Storehouse Reckoning
 
 ### 7.1 Purpose and scope
 
-**The Storehouse Reckoning** is the first mandatory Work and the design test for the Work system. It takes place in a fictional institutional storehouse in Uruk around 3200 BCE. Its people and immediate incident are fictional; the scenario reflects early administrative uses of impressed clay records without claiming to depict a documented historical event or the invention of writing itself.
+**The Storehouse Reckoning** is the Introductory Tutorial, a guided apprenticeship exercise set in a fictional institutional storehouse in Uruk around 3200 BCE. It sits outside the three gameplay layers: it is not an Assignment / Commission, Challenge, or Work. Its people and immediate incident are fictional; the scenario reflects early administrative uses of impressed clay records without claiming to depict a documented historical event or the invention of writing itself.
 
-This Work is a **supervised apprenticeship assessment**, not a request to invent a permanent stockkeeping system. The Storehouse Steward has submitted a situation requiring a one-time reconciliation and practical recommendation. The Senior Scribe assigns the case to the apprentice, evaluates the resulting document, provides instruction, and decides what action to authorize or forward.
+This tutorial is a **supervised apprenticeship exercise**, not a request to invent a permanent stockkeeping system. The Storehouse Steward has submitted a situation requiring a one-time reconciliation and practical recommendation. The Senior Scribe assigns the case to the apprentice, evaluates the resulting document, provides instruction, and decides what action to authorize or forward.
 
 The document's primary reader is the **Storehouse Steward**. The apprentice answers to the **Senior Scribe**. The Steward would not ordinarily commission an apprentice directly; the Senior Scribe uses the Steward's case as real professional work through which to assess the apprentice.
 
-The Work tests whether the apprentice can:
+The tutorial introduces the apprentice to the ability to:
 - Reconcile opening stock, dispatch, physical receipt, issue, and closing condition.
 - Preserve the distinction between usable and held stock.
 - Distinguish an established fact from an inference or unresolved cause.
@@ -567,7 +567,7 @@ The Work tests whether the apprentice can:
 - Recommend practical, proportionate action without exceeding the evidence.
 - Respond to assessment and instruction, revising deficient work where appropriate.
 
-The Work does not ask the apprentice to solve a crime, identify a culprit, design a reusable register, or prove a new recordkeeping system against artificial unseen transactions. The ordinary institutional problem need not be sensational; its significance comes from the people relying on the account and the decisions it supports.
+The tutorial does not ask the apprentice to solve a crime, identify a culprit, design a reusable register, or prove a new recordkeeping system against artificial unseen transactions. The ordinary institutional problem need not be sensational; its significance comes from the people relying on the account and the decisions it supports.
 
 ### 7.2 People and institutional roles
 
@@ -631,9 +631,9 @@ The required relationships are:
 
 The assessment evaluates these relationships and the apprentice's treatment of evidence. It must not depend on one exact sentence where multiple phrasings preserve the same factual meaning.
 
-### 7.5 Work sequence and player actions
+### 7.5 Tutorial sequence and player actions
 
-The Work has three practical phases. These are not a universal Work template; they fit this supervised document assignment.
+The tutorial has three practical phases. These are specific to this guided exercise and are not a universal template for Assignments or Works.
 
 **Phase A — Examine the case**
 
@@ -723,31 +723,31 @@ The recommendation matters to the Senior Scribe because it informs the action th
 
 A sound submission can lead to inspection of the held stock, continued segregation pending inspection, and a check that the north-bay roof repair is adequate. No person is blamed on the current evidence. An accurate account with an unsupported recommendation can still be accepted as an account while the recommendation is withheld. An unreliable account is returned before it is used to authorize action.
 
-The Work must preserve separate outcomes for accounting accuracy, evidence discipline, and professional judgment. Do not collapse them into one opaque score or make an arithmetic error silently change the underlying stock state.
+The tutorial must preserve separate outcomes for accounting accuracy, evidence discipline, and professional judgment. Do not collapse them into one opaque score or make an arithmetic error silently change the underlying stock state.
 
-### 7.8 Work contract and provisions
+### 7.8 Tutorial sustenance and onboarding
 
-The apprentice is assigned to this Work under a specific institutional service arrangement. For each in-game day on which the Storehouse Reckoning remains active, the player must spend at least 1 AP on a Storehouse Reckoning action to qualify for **one unit of provisions** as the apprentice's meal provision. This is not a universal daily gift: it is compensation in kind under the Work contract and ends when the Work is completed, abandoned, or formally suspended. If the player spends no AP on the contracted Work that day, no Work provision is credited.
+The apprentice begins with **five units of provisions**. This is an initial personal resource balance, not a daily ration or a continuing tutorial stipend. The tutorial is expected to require approximately 7–8 AP across about two Workdays. The starting provisions, together with compensation from the paid starter Assignments, provide the intended onboarding runway and allow the player to learn the ordinary employment loop before shortage consequences can begin.
 
-Beer is not part of the player's tracked personal economy or this daily food provision. It may still appear as a world commodity, an inventory item in a specific situation, or part of hospitality and social or institutional exchanges.
+The tutorial provides no special provision contract. Completing, pausing, or leaving it does not create or end a separate sustenance entitlement. After onboarding, provisions come from ordinary compensation, purchases, assistance, or other established recovery routes under Sections 12.2–12.4.
 
-If the Work is suspended or abandoned, provisions stop according to the stated contract terms. The player must be told before confirming a suspension or abandonment. This arrangement ensures that the mandatory Work does not require the player to take optional Assignments merely to eat while performing the institution's contracted work.
+Beer is not part of the player's tracked personal economy. It may still appear as a world commodity, an inventory item in a specific situation, or part of hospitality and social or institutional exchanges. This arrangement ensures that the mandatory Work does not require the player to take optional Assignments merely to eat while performing the institution's contracted work.
 
 ### 7.9 Action-budget test and expected duration
 
-The minimum evidence path costs 4 AP: 1 AP for the opening/dispatch/arrival comparison, 1 AP for intake/issue records, and 2 AP for the physical recount. Requesting E-06 costs 1 additional AP. Initial submission costs 2 AP, and the Senior Scribe's disposition costs 1 AP. A first-time player who examines the complete dossier, prepares a complete document, and receives a disposition should therefore expect to spend approximately 7–8 AP, with additional AP for revision.
+The tutorial minimum evidence path costs 4 AP: 1 AP for the opening/dispatch/arrival comparison, 1 AP for intake/issue records, and 2 AP for the physical recount. Requesting E-06 costs 1 additional AP. Initial submission costs 2 AP, and the Senior Scribe's disposition costs 1 AP. A first-time player who examines the complete dossier, prepares a complete document, and receives a disposition should therefore expect to spend approximately 7–8 AP, with additional AP for revision.
 
-This is a tuning target, not a deadline. The Work may span two or more in-game days depending on the optional custody record, mistakes, and revision. The AP cost of every substantive action must be visible before commitment. Reviewing already acquired evidence, the case brief, and prior assessment feedback is free.
+This is a tuning target, not a deadline. The tutorial may span two or more in-game days depending on the optional custody record, mistakes, and revision. The AP cost of every substantive action must be visible before commitment. Reviewing already acquired evidence, the case brief, and prior assessment feedback is free.
 
-### 7.10 Completion and progression reward
+### 7.10 Completion and progression boundary
 
-The Work is complete when the Senior Scribe has issued a disposition: acceptance and authorization/forwarding, acceptance of the account while withholding the recommendation, or return for correction followed by a final disposition. A returned submission is not complete until it is corrected sufficiently for a final decision.
+The tutorial is complete when the Senior Scribe has issued a disposition: acceptance and authorization/forwarding, acceptance of the account while withholding the recommendation, or return for correction followed by a final disposition. A returned submission is not complete until it is corrected sufficiently for a final decision.
 
-The Work awards its fixed Historical Progress XP as part of the required Era I Work set. The exact award is allocated alongside the other mandatory Works and must satisfy the progression invariant in Section 4.4. A professional contribution may also award Career XP, separately balanced against other career activities. The current engine reference values—15,000 Historical Progress XP and 500 Career XP for either accepted disposition—are provisional balance values only, not approved GDD balance. They must be revisited during reward tuning; the two accepted dispositions do not currently have different Career XP values.
+The tutorial awards **0 Historical Progress XP** and must not add an entry to completedWorks. It is not a Work and does not count toward the required Era I Work set or any historical progression threshold. It may award Career XP for demonstrated professional learning; any Career XP amount is balanced separately from Work rewards. The current engine reference value of 500 Career XP for an accepted disposition is provisional and must be revisited during reward tuning.
 
-### 7.11 What this vertical slice validates
+### 7.11 What this tutorial teaches
 
-The revised Work tests whether the player can:
+The tutorial introduces whether the player can:
 - Understand who requested the document, who will use it, and why it matters.
 - Examine a compact dossier and reconstruct a stock position.
 - Distinguish dispatch, receipt, issue, condition, and balance.
@@ -756,7 +756,7 @@ The revised Work tests whether the player can:
 - Receive an assessment that separates accounting, evidence, and judgment.
 - Learn from instruction and revise deficient work.
 
-It does not test permanent register design, reusable register adoption, or unseen transaction validation. Those mechanics are removed from this Work. Future Works must introduce human and informational problems appropriate to their own subjects rather than repeat this storehouse scenario with different commodities.
+It does not test permanent register design, reusable register adoption, or unseen transaction validation. Those mechanics are not part of this tutorial. The tutorial validates basic onboarding interactions only. Future Works must be designed independently around their own historical undertakings, human and informational problems, mechanics, stages, and scale; they must not repeat this storehouse scenario with different commodities.
 
 ## 8. The Assignment Gameplay Loop
 
