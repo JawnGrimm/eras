@@ -1084,29 +1084,59 @@ The desk is one concrete carrier of family continuity; it does not by itself set
 
 ## 17. Tools, Equipment, and Workspaces
 
-Writing materials and equipment should change with historical context. The player may acquire and use era-appropriate tools, storage, authentication methods, reference materials, clothing, and workspace improvements.
+Equipment and workspace improvements should change with historical context and support the character-action model. The player and the family desk have separate inventories, but items and upgrades for either may be acquired through the same world sources, including merchants, artisans, institutions, patrons, and professional contacts. Acquisition does not require separate systems for player equipment and desk improvements.
 
-Potential equipment categories include:
-- Writing implements and materials.
-- Work surfaces and stations.
-- Seals and authentication tools.
-- Carrying, storage, and document protection.
-- Clothing and professional accessories.
-- Reference materials and research aids.
-- Personal quarters and workspaces.
+### 17.1 Player equipment and carried inventory
 
-Equipment can provide useful practical benefits or reflect status and access. It should not become a pile of arbitrary stat bonuses. A purchase by itself does not award Career XP. Study or training may award Career XP when it represents genuine professional development.
+The player's equipment includes clothing and accessories, tools and objects held or used, and a satchel or pack for carried possessions. The interface may present equipment through a straightforward series of clearly labeled buttons and item lists. It may be visually organized, but it should not require a spatial grid, drag-and-drop placement, or a tactical inventory minigame. Categories and labels communicate an item's function; they do not impose a spatial inventory model.
 
-Equipment progression must respect historical context. Most tools should not carry unchanged through eras where they no longer make sense; the player may need to acquire or adapt to the methods of a new period.
+The current equipment categories are:
 
-The family desk is a deliberate exception: it is passed down through the family as a persistent heirloom and workspace. The player can upgrade and personalize it during each era. When history advances, the desk remains, but its previous upgrades are treated as inherited craftsmanship or legacy features that provide modest bonuses based on what had been installed. They do not retain their full former-era mechanical strength. New era-specific desk upgrades and workspace capabilities then become available. This keeps the desk meaningful without allowing old upgrades to dominate later technology.
+- **Clothing:** headwear, torso garments, and footwear.
+- **Hands and tools:** left-hand and right-hand use. Some objects may require both hands.
+- **Neckwear:** a necklace.
+- **Accessories:** two accessory choices, which may be rings, bracelets, armbands, or compatible combinations.
+- **Satchel / pack:** carried storage for tools, supplies, and other possessions.
 
-Desk upgrades should have practical effects and connect to the wider character-action model. For example, writing tools may improve relevant work quality, while a lighting or viewing improvement may reveal details or provide useful information. These are examples of the intended contextual effect, not a finalized item list or numerical specification.
+The interface should provide clearly labeled controls for these categories and show relevant item information, including weight, effects, and whether an item is currently equipped or carried. The exact interface layout may evolve without changing the underlying equipment rules.
 
-The detailed upgrade economy, qualities, rarities, modifiers, transition bonuses, and item lists remain open design work.
+Carrying capacity is weight-based rather than based on a fixed number of inventory cells or item slots. The pack contributes to the character's carrying capacity, and carried items contribute their weight. The player may exceed normal carrying capacity; overburdening is not an absolute inventory prohibition. It creates contextual consequences, particularly for movement, travel, and sustained physical effort. The severity of those consequences should reflect how heavily the character is overburdened and the action being attempted. It should not automatically penalize unrelated activities, such as interpreting a document while seated at a desk.
 
----
+### 17.2 Family desk and its components
 
+The family desk has a separate inventory and three principal components:
+
+- **Writing surface / top:** the working surface and improvements that support writing, viewing, arranging, or handling materials.
+- **Storage:** compartments and improvements for keeping tools, materials, documents, and references.
+- **Construction:** the desk's underlying structure, materials, stability, and craftsmanship.
+
+The desk interface may use a series of clearly labeled buttons for these components, with lists of available, installed, or replaceable improvements. The desk is a persistent family heirloom and workspace, not simply another portable inventory.
+
+Player equipment and desk improvements may be obtained from the same acquisition sources. Their inventories remain distinct because they serve different purposes: the player carries and uses personal equipment, while the desk provides a persistent working environment.
+
+The desk is upgraded and personalized during each era. At an era transition, it remains in the family, but previous-era upgrades become modest inherited bonuses based on what was installed rather than retaining their full former-era effects. New eras make historically appropriate desk improvements and workspace capabilities available.
+
+### 17.3 Equipment effects
+
+Equipment modifies particular actions contextually rather than directly increasing the character's underlying attributes or skills. Its usefulness depends on the action, environment, available information, and circumstances.
+
+Equipment may provide three broad kinds of benefit:
+
+1. **Performance bonuses:** improve the quality, efficiency, reliability, or other outcome of particular actions.
+2. **Capability unlocks:** make additional actions or approaches available.
+3. **Information access:** reveal details, references, or useful information that would otherwise be unavailable or harder to obtain.
+
+An item may provide more than one kind of benefit. For example, a better stylus may improve relevant writing actions without raising the character's Precision attribute; improved lighting may reveal details in a document or workspace; and reference materials may provide information relevant to a research or writing action. These examples illustrate contextual effects, not a finalized item list or numerical specification.
+
+Equipment should connect to skills, specializations, conditions, and circumstances without replacing character development. Purchasing an item alone does not award Career XP.
+
+### 17.4 Condition, wear, repair, and replacement
+
+Equipment may deteriorate through use and may require repair or replacement. Durability loss should be gradual where wear is historically and mechanically appropriate, and should reflect the item's material, construction, use, and circumstances. Damage or deterioration may also result from specific accidents, environmental exposure, neglect, or other grounded events.
+
+Durability should create meaningful decisions about care, repair, replacement, and the use of equipment—not constant maintenance busywork. The game should communicate an item's condition and the practical consequences of deterioration before those consequences become significant. Not every item needs a durability mechanic; disposable materials, durable references, heirlooms, and other item types may require different treatment.
+
+The exact equipment catalog, item weights, carrying-capacity values, overburdening thresholds and effects, durability rules, repair costs, quality levels, acquisition costs, and era-specific progression remain open design work.
 ## 18. Interface and Visual Direction
 
 ### 18.1 General presentation
@@ -1247,7 +1277,7 @@ The following details require further design before they can be treated as fixed
 19. A defined minimum viable product (MVP): which era, Works, Assignments, characters, systems, and content must exist for a complete first release.
 20. Content-authoring and validation pipeline: scenario state schemas, evidence generation, invariant checks, branch coverage, historical review, and automated QA for authored or AI-assisted drafts.
 21. Evaluation implementation: define how the approved judgment principles are expressed through player-facing feedback, scoring or outcome tiers, and scenario validators. Preserve the distinction between a reasonable judgment based on evidence available at decision time and a careless or unsupported conclusion. Do not assume every scenario has one correct ruling; determine how task purpose and required information shape completeness. The evaluation principle is approved, but scoring weights, feedback language, and validator behavior remain undecided.
-22. Complete the character system: define skill scales and advancement, specialization content and qualification/advancement requirements, class-specific starting circumstances and benefits, the detailed condition catalog and numerical effects, equipment effects, and the action-resolution model that connects attributes, skills, equipment, conditions, and circumstances. The four initial career paths, six attributes, six core skills, primary attribute pairings, multi-specialization model, Primary Specialization, three expertise levels, and the condition principles in Section 3.4 are established; detailed mechanics are not yet fixed.
+22. Complete the character system: define skill scales and advancement, specialization content and qualification/advancement requirements, class-specific starting circumstances and benefits, the detailed condition catalog and numerical effects, the action-resolution model that connects attributes, skills, equipment, conditions, and circumstances, and the detailed equipment catalog and balancing. The four initial career paths, six attributes, six core skills, primary attribute pairings, multi-specialization model, Primary Specialization, three expertise levels, condition principles, and initial equipment principles in Section 17 are established; detailed mechanics are not yet fixed.
 23. Define the family desk's upgrade economy and era-transition treatment, including upgrade effects, costs, adaptation, and the modest inherited bonuses retained from previous eras. The desk's continuity role and broad transition principle are established; individual upgrades and numerical effects are not.
 
 These are open design tasks, not invitations to fill gaps with arbitrary placeholder systems.
