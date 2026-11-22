@@ -46,6 +46,8 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
     case 'CANCEL_ASSIGNMENT':
     case 'COMPLETE_ASSIGNMENT':
     case 'PRESENT_CHALLENGE':
+    case 'ACCEPT_CHALLENGE':
+    case 'DECLINE_CHALLENGE':
     case 'RESOLVE_CHALLENGE':
       return transitionOpportunityAction(state, action);
     case 'SET_INSTITUTIONAL_STANDING':
