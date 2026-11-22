@@ -45,6 +45,16 @@ describe('Assignment and Challenge foundations', () => {
     expect(capped.state.opportunities.assignments['a1'].deliveryChannels[0].kind).toBe('baseline_reach');
   });
 
+
+  it('keeps delivery separate from skill qualification and never uses rank as a skill substitute', () => {
+    const unqualifiedOffer = { ...offer('skill-gated'), requiredSkills: { recordkeeping_accounts: 2 } };
+    const shown = transitionGame(createInitialGameState(), { type: 'PRESENT_ASSIGNMENT', offer: unqualifiedOffer });
+    expect(shown.feedback?.code).toBe('assignment-presented');
+    const accepted = transitionGame(shown.state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: 'skill-gated' as AssignmentId });
+    expect(accepted.feedback?.code).toBe('assignment-unqualified');
+    expect(accepted.state.opportunities.assignments['skill-gated'].status).toBe('offered');
+  });
+
   it('expires after three days and counts only non-Work lapses for neglect triggers', () => {
     let state = present(createInitialGameState(), 'ordinary');
     for (let day = 1; day <= 4; day++) state = transitionGame(state, { type: 'END_DAY', expectedDayNumber: day }).state;
