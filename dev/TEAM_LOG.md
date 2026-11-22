@@ -654,3 +654,25 @@ The owner approved replacing the former three-resource personal economy (silver,
 
 - `docs/GDD.md`: revised the Executive Summary, Storehouse Work provision language, Section 12, Remaining Design Work, and Design Summary to use the approved two-resource model and remove the former three-resource model.
 - No runtime code, save schema, numerical balance, or gameplay behavior changed.
+
+
+## 2026-11-21 — Decision: allow a two-Workday provisions grace period
+
+**Contributor:** Chad (AI)  
+**Status:** Approved design decision
+
+The owner approved a limited grace period for sustenance shortages. The game is not intended to be a survival simulation, but provisions should still create a meaningful resource-management constraint.
+
+### Rule
+
+- The player normally consumes one unit of provisions at the end of each Workday.
+- The player may complete **two consecutive Workdays without provisions before suffering a shortage penalty**.
+- If the player remains without provisions at the end of a third consecutive Workday, shortage consequences begin.
+- The shortage count advances by completed Workdays, not calendar days, and resets when the player consumes provisions.
+- Time passing without a completed Workday does not advance the shortage count.
+- The exact shortage penalty and recovery mechanics remain open design work. Consequences must be bounded and recoverable, not an automatic compounding spiral.
+
+### Repository changes
+
+- `docs/GDD.md`: revised Section 12.3 to establish the two-Workday grace period and clarify the counter's scope and reset condition.
+- No runtime code, save schema, numerical penalty, or gameplay behavior changed.
