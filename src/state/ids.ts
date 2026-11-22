@@ -1,5 +1,6 @@
 /** Shared identity namespace: a playable character is always an existing world person. */
 export type PersonId = string & { readonly __brand: 'PersonId' };
+export const UR_GIR_PERSON_ID = 'person-uruk-ur-gir' as PersonId;
 export type CharacterId = PersonId;
 export type InstitutionId = string & { readonly __brand: 'InstitutionId' };
 export type MatterId = string & { readonly __brand: 'MatterId' };
