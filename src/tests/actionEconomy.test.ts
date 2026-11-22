@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
 import { transitionGame } from '../engine/actionEconomy';
 import { createSaveEnvelope, isValidSaveEnvelope, restoreSave } from '../state/saveEnvelope';
+import { createNewGameState, INITIAL_WORK_CATALOG } from '../state/newGameState';
+import { STOREHOUSE_WORK_ID } from '../works/storehouseReckoning';
 
 const endDay = (state: ReturnType<typeof createInitialGameState>) => transitionGame(state, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber });
 
@@ -62,11 +64,8 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
 
 
   it('reports a qualified Work provision, overtime stress, and tomorrow AP from the engine', async () => {
-    const { createNewGameState } = await import('../state/newGameState');
-    const { INITIAL_WORK_CATALOG } = await import('../state/newGameState');
-    const work = await import('../works/storehouseReckoning');
     let state = createNewGameState();
-    state = transitionGame(state, { type: 'ACQUIRE_WORK_EVIDENCE', workId: work.STOREHOUSE_WORK_ID, actionId: 'accounts' }, undefined, INITIAL_WORK_CATALOG).state;
+    state = transitionGame(state, { type: 'ACQUIRE_WORK_EVIDENCE', workId: STOREHOUSE_WORK_ID, actionId: 'accounts' }, undefined, INITIAL_WORK_CATALOG).state;
     state = transitionGame(state, { type: 'SPEND_AP', amount: 5, reason: 'Use remaining AP' }, undefined, INITIAL_WORK_CATALOG).state;
     state = transitionGame(state, { type: 'ACTIVATE_OVERTIME' }, undefined, INITIAL_WORK_CATALOG).state;
     state = transitionGame(state, { type: 'SPEND_AP', amount: 1, reason: 'Use overtime AP' }, undefined, INITIAL_WORK_CATALOG).state;
@@ -81,13 +80,10 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
   });
 
   it('reports a provision-contract shortfall when the Work AP threshold was not met', async () => {
-    const { createNewGameState, INITIAL_WORK_CATALOG } = await import('../state/newGameState');
-    const work = await import('../works/storehouseReckoning');
     const state = createNewGameState();
     const result = transitionGame(state, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber }, undefined, INITIAL_WORK_CATALOG);
     expect(result.settlement?.workContractProvisionReason).toBe('insufficient_work_ap');
     expect(result.settlement?.workContractProvisionEarned).toBe(0);
-    void work;
   });
 
   it('allows two consecutive Workdays without provisions before shortage consequences begin on the third', () => {
