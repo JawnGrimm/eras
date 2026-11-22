@@ -129,6 +129,8 @@ function isWorkProgress(value: unknown): value is WorkProgress {
     || !Number.isInteger(value.provisionContract.minimumWorkApPerDay)
     || (value.provisionContract.minimumWorkApPerDay as number) < 1
     || (value.provisionContract.minimumWorkApPerDay as number) > 6)) return false;
+  if (value.pendingDisposition !== undefined && typeof value.pendingDisposition !== 'boolean') return false;
+  if (value.pendingDisposition === true && value.lastAssessment === undefined) return false;
   if (value.lastAssessment !== undefined && (!isObject(value.lastAssessment)
     || !['accepted','revise','rejected'].includes(value.lastAssessment.outcome as string)
     || typeof value.lastAssessment.summary !== 'string' || !value.lastAssessment.summary

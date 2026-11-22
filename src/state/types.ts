@@ -164,6 +164,7 @@ export interface WorkProgress {
   provisionContract?: { provisionsPerQualifiedWorkday: number; minimumWorkApPerDay: number };
   scenarioData: Record<string, unknown>;
   submissionCount: number;
+  pendingDisposition?: boolean;
   lastAssessment?: { outcome: 'accepted' | 'revise' | 'rejected'; summary: string; assessedDay: number; dimensions: WorkAssessmentDimensionResult[] };
 }
 
@@ -222,6 +223,7 @@ export type GameAction =
   | { type: 'EXAMINE_WORK_EVIDENCE'; workId: WorkId; evidenceId: EvidenceId }
   | { type: 'SET_WORK_SCENARIO_DATA'; workId: WorkId; scenarioData: Record<string, unknown> }
   | { type: 'SUBMIT_WORK'; workId: WorkId }
+  | { type: 'DISPOSE_WORK'; workId: WorkId; disposition: string }
   | { type: 'RECORD_WORK_ASSESSMENT'; workId: WorkId; outcome: 'accepted' | 'revise' | 'rejected'; summary: string; historicalXpReward: number }
   | { type: 'ACTIVATE_OVERTIME' }
   | { type: 'END_DAY'; expectedDayNumber: number }

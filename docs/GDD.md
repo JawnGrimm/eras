@@ -743,7 +743,7 @@ This is a tuning target, not a deadline. The Work may span two or more in-game d
 
 The Work is complete when the Senior Scribe has issued a disposition: acceptance and authorization/forwarding, acceptance of the account while withholding the recommendation, or return for correction followed by a final disposition. A returned submission is not complete until it is corrected sufficiently for a final decision.
 
-The Work awards its fixed Historical Progress XP as part of the required Era I Work set. The exact award is allocated alongside the other mandatory Works and must satisfy the progression invariant in Section 4.4. A professional contribution may also award Career XP, separately balanced against other career activities. The current prototype reward values are provisional implementation values, not approved GDD balance.
+The Work awards its fixed Historical Progress XP as part of the required Era I Work set. The exact award is allocated alongside the other mandatory Works and must satisfy the progression invariant in Section 4.4. A professional contribution may also award Career XP, separately balanced against other career activities. The current engine reference values—15,000 Historical Progress XP and 500 Career XP for either accepted disposition—are provisional balance values only, not approved GDD balance. They must be revisited during reward tuning; the two accepted dispositions do not currently have different Career XP values.
 
 ### 7.11 What this vertical slice validates
 
@@ -1431,7 +1431,7 @@ The game may represent complex technologies, institutions, and historical events
 The following details require further design before they can be treated as fixed mechanics:
 
 1. The Works portfolio for Eras I–VII: identify historically grounded milestone opportunities and smaller career-scale undertakings; determine which Works are required for each era transition, how much choice the player has, how missed or declined date-based invitations are accommodated, and the appropriate scale, structure, and XP awards.
-2. Playtesting the Storehouse Reckoning: whether the recount, register-design choice, unseen transaction tests, and adoption consequences are engaging rather than procedural.
+2. Playtesting the Storehouse Reckoning: whether evidence examination, reconciliation, source discipline, professional judgment, revision, and Senior Scribe disposition are engaging and understandable rather than procedural. Permanent register design, unseen transaction tests, and adoption consequences are not part of this Work.
 3. The maximum active Assignment commitment count, cancellation costs, and offer-generation balance beyond the initial two-commitment / 6-AP model.
 4. The precise balance of Career XP rewards across Assignments, Challenges, Works, and study.
 5. Professional rank: define the skill-to-rank formula and test it against broad generalists and narrow specialists; decide whether a specialist ceiling is appropriate; localize in-world titles without treating offices as universal competence grades; define the opportunity profiles of all seven grades, including meaningful differences at ranks 5–7; and decide whether rank affects compensation. The approved direction is that rank shapes baseline opportunity access, while skills determine specific qualifications and appointments grant authority. Retain the former 200,000 Career XP total only as a provisional career-pacing target, not as a rank threshold, and reconcile it with total skill and specialization purchase costs once those costs are defined.

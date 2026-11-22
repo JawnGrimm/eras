@@ -1,4 +1,4 @@
-import type { EvidenceId, WorkId, SkillId, AttributeId } from '../state/ids';
+import type { EvidenceId, PersonId, WorkId, SkillId, AttributeId } from '../state/ids';
 import type { ScribalCharacterState, WorkAssessmentDimensionResult } from '../state/types';
 import type { InterpretationRule, Predicate } from './evidenceInterpretation';
 
@@ -18,6 +18,9 @@ export interface WorkActionDefinition {
 export interface WorkSubmissionContext<TProgress> {
   progress: TProgress;
   character: ScribalCharacterState;
+  examinedEvidence: readonly EvidenceId[];
+  personId: PersonId;
+  dayNumber: number;
 }
 export interface WorkAssessment {
   outcome: 'accepted' | 'revise' | 'rejected';
