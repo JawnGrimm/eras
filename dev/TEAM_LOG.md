@@ -1079,3 +1079,37 @@ The family desk remains a distinct family heirloom and workspace object, not the
 - `docs/GDD.md`: renamed and rewrote Section 16 around player continuity through successive characters; clarified the player/character distinction in the Executive Summary and Section 3.2; removed the era-restart fallback; revised Remaining Design Work items 9–10.
 - `README.md`: replaced the generational-succession summary with the approved player-continuity principle.
 - No runtime code, save schema, numerical balance, or gameplay behavior changed.
+
+
+## 2026-11-21 — Decision: date-based invitations and a varied portfolio of Works
+
+**Contributor:** Chad (AI)  
+**Status:** Approved design direction
+
+The owner approved a Works structure that retains the original historical purpose while allowing a broader range of scale and content. Works should help the player experience what writing has made possible and how people have used it across history. Real historical developments provide subject matter and narrative direction, but the player need not be inserted into a famous event as its singular cause.
+
+### Approved direction
+
+- Works vary in scale. Some are larger, authored, quest-like experiences grounded in significant historical developments; others are smaller and more numerous career-scale undertakings.
+- Some milestone Works can become available as **date-based invitations**. History establishes when the opportunity becomes relevant; the character's career and circumstances shape access.
+- Availability uses a historically appropriate date or window. Use precise dates only where the evidence supports that precision; otherwise use broader periods.
+- The player learns of an opportunity through plausible channels: people, institutions, notices, correspondence, colleagues, patrons, and other connections available to the character. An invitation need not be a personal summons from an important person.
+- Skills, professional standing, relationships, institutional position, location, and current commitments may affect eligibility and access, but should not become arbitrary gates.
+- Invitations are opportunities, not guarantees. The player may accept, decline, miss, or become unable to pursue them. The historical world continues regardless.
+- A missed or declined milestone invitation must not leave the player without a coherent historical career or progression route. The Works portfolio must accommodate other available undertakings.
+- Not every Work needs to be a major historical milestone, a scripted quest, or a large multi-stage project. Work structure and scale should follow the subject; the Storehouse Reckoning is one vertical slice, not a universal template.
+- Works remain the historical progression layer and the sole ordinary source of Historical Progress XP. The exact required portfolio, alternatives, player choice, and XP thresholds remain to be designed.
+
+### Boundaries
+
+- This does not approve a fixed number of Works per era, a fixed sequence of milestone quests, or a specific required/optional ratio.
+- It does not mean every historically significant event becomes a Work or that every invitation must be accepted.
+- Historical evidence governs the precision of dates and the claims made about the event. Fictional characters and situations may be used within historically grounded circumstances, with the distinction made clear.
+- The player experiences opportunities through their character's plausible knowledge and connections, not an omniscient quest feed.
+- No runtime scheduling, invitation UI, quest director, content schema, or progression formula is implied by this design decision.
+
+### Repository changes
+
+- `docs/GDD.md`: expanded Section 5.3 with variable-scale Works, authored milestone and career-scale content, and date-based historical invitations; clarified Section 4.4 progression requirements; updated Remaining Design Work and Design Summary.
+- `README.md`: updated the Works summary to reflect the approved direction.
+- No runtime code, save schema, numerical balance, or gameplay behavior changed. No build, type-check, tests, or deployment were run for this documentation-only change.
