@@ -2,6 +2,7 @@ import type { CareerProgressionPolicy, GameAction, GameState, TransitionResult }
 import { transitionCareerAction } from './careerProgression';
 import { transitionWorldAction } from './worldSocial';
 import { settleAssignmentOffers, transitionOpportunityAction } from './opportunities';
+import { transitionAssignmentActivityAction } from './assignmentActivity';
 import { validateWorkDefinition } from '../works/workDefinition';
 import { transitionCharacterContinuity } from './characterContinuity';
 import type { WorkAssessment, WorkDefinition } from '../works/workDefinition';
