@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { transitionGame } from '../engine/actionEconomy';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
-import { createSaveEnvelope, isValidSaveEnvelope } from '../state/saveEnvelope';
+import { createSaveEnvelope, isValidSaveEnvelope, restoreSave } from '../state/saveEnvelope';
+import { validateWorkDefinition } from '../works/workDefinition';
 import type { GameState } from '../state/types';
 import {
   STOREHOUSE_EVIDENCE, STOREHOUSE_WORK_ID, STOREHOUSE_PROVISIONAL_CAREER_XP,
@@ -39,6 +40,7 @@ function nextDay(state: GameState): GameState {
 
 describe('Storehouse Reckoning typed Work', () => {
   it('passes static Work validation and declares the revised evidence/AP path', () => {
+    expect(validateWorkDefinition(storehouseReckoning)).toEqual([]);
     expect(storehouseReckoning.evidence.map((item) => item.id)).toEqual(STOREHOUSE_EVIDENCE.map((item) => item.id));
     expect(storehouseReckoning.actions.map((item) => [item.id, item.apCost])).toEqual([
       ['accounts',1], ['intake_issue',1], ['recount',2], ['custody',1],
@@ -58,6 +60,8 @@ describe('Storehouse Reckoning typed Work', () => {
     expect(state.works.progress[STOREHOUSE_WORK_ID].pendingDisposition).toBe(true);
     expect(state.works.progress[STOREHOUSE_WORK_ID].status).toBe('active');
     expect(state.historicalProgression.historicalXp).toBe(0);
+    expect(state.world.people[INITIAL_PERSON_ID].scribal!.careerXp).toBe(150);
+    expect(state.actionEconomy.apRemaining).toBe(0);
   });
 
   it('acquires E-06 for one additional AP only when the player requests the custody record', () => {
@@ -221,6 +225,8 @@ describe('Storehouse Reckoning typed Work', () => {
     expect(state.world.people[INITIAL_PERSON_ID].scribal!.careerXp - beforeCareer).toBe(STOREHOUSE_PROVISIONAL_CAREER_XP);
     const record = Object.values(state.records.entries)[0];
     expect(record.assertions.some((item) => item.text.includes(disposition))).toBe(true);
+    expect(record.sources.some((item) => item.id === 'ev-06')).toBe(false);
+    expect(state.actionEconomy.apRemaining).toBe(5);
     expect(Object.values(state.world.knowledge).some((item) => item.holder.kind === 'person' && item.holder.id === 'person-shuruppak-ilu')).toBe(true);
     expect(isValidSaveEnvelope(createSaveEnvelope(state, 2), catalog)).toBe(true);
   });
@@ -252,6 +258,7 @@ describe('Storehouse Reckoning typed Work', () => {
     const draft = { ...validDraft(), draft: { ...validDraft().draft, received: 57 } };
     state = transitionGame(state, { type: 'SET_WORK_SCENARIO_DATA', workId: STOREHOUSE_WORK_ID, scenarioData: draft }, undefined, catalog).state;
     expect(isValidSaveEnvelope(createSaveEnvelope(state, 1), catalog)).toBe(true);
+    expect(restoreSave(JSON.stringify(createSaveEnvelope(state, 1)), catalog)?.state.works.progress[STOREHOUSE_WORK_ID].scenarioData).toEqual(draft);
     state = transitionGame(state, { type: 'SUBMIT_WORK', workId: STOREHOUSE_WORK_ID }, undefined, catalog).state;
     expect(isValidSaveEnvelope(createSaveEnvelope(state, 2), catalog)).toBe(true);
     const invalid = structuredClone(createSaveEnvelope(state, 3));
