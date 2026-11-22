@@ -330,8 +330,8 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
     }
     case 'PERFORM_RECOVERY_LABOR': {
       const storehouse = state.world.institutions['institution-uruk-temple-storehouse' as InstitutionId];
-      if (scribal.wallet.provisions > 0) return { state, feedback: feedback('error', 'recovery-not-needed', 'This recovery task is available when no provisions remain.') };
       if (economy.recoveryLaborUsedToday) return { state, feedback: feedback('error', 'recovery-labor-already-used', 'Auxiliary labor has already been performed today.') };
+      if (scribal.wallet.provisions > 0) return { state, feedback: feedback('error', 'recovery-not-needed', 'This recovery task is available when no provisions remain.') };
       if (!storehouse || !storehouse.locationId || !state.world.locations[storehouse.locationId]) return { state, feedback: feedback('error', 'recovery-labor-unavailable', 'No suitable storehouse labor is available in the current circumstances.') };
       if (economy.apRemaining < 2) return { state, feedback: feedback('error', 'insufficient-ap', 'Auxiliary storehouse labor requires 2 AP.') };
       return {
