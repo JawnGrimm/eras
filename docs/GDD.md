@@ -1222,8 +1222,10 @@ The existing `Person` model is the foundation for consequential NPCs. Extend it 
 type LifeStage =
   | 'apprentice'
   | 'junior_scribe'
+  | 'established_scribe'
   | 'active_official'
   | 'senior_scribe'
+  | 'craft_practitioner'
   | 'elder';
 ```
 
@@ -1234,6 +1236,8 @@ Keep **circumstances** and **commitments** distinct. A circumstance describes a 
 Consequential NPCs may pursue immediate objectives and longer-term ambitions independently of the player. Their goals can conflict with other NPCs' goals, with institutional priorities, and with their own commitments. Those conflicts can produce developments, losses, delays, alliances, disputes, or other consequences that do not involve the player. The player is not the center or automatic cause of every event. Independent action must still follow from plausible motivations, knowledge, relationships, authority, resources, and constraints; it must not be arbitrary or omniscient.
 
 NPC development should be updated only when there is a reason to do so: an event changes their circumstances, a scheduled commitment or matter reaches a relevant point, a condition becomes true, or a player interaction requires a current decision. This permits event-driven, scheduled, and on-demand evaluation without ticking every NPC through a full daily decision loop. Track knowledge, memories, and relationship history at the level needed to explain consequential behavior; do not create a complete transcript of every routine interaction.
+
+Player-facing dossiers and reports must respect the distinction between public circumstances, declared responsibilities, and private objectives. A dossier may show circumstances or commitments that are publicly observable or institutionally declared, but it must not expose a private objective merely because the simulation stores it. The player learns private motives through plausible testimony, records, observation, or interaction; the existence of an objective in world state does not grant the active character knowledge of it.
 
 #### Institutional matters as durable world state
 
