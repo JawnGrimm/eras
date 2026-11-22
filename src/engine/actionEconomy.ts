@@ -1,5 +1,6 @@
 import type { CareerProgressionPolicy, GameAction, GameState, TransitionResult } from '../state/types';
 import { transitionCareerAction } from './careerProgression';
+import { transitionWorldAction } from './worldSocial';
 
 function feedback(kind: 'success' | 'error' | 'info', code: string, message: string) {
   return { kind, code, message } as const;
@@ -29,6 +30,15 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
     case 'PURCHASE_SKILL_LEVEL':
     case 'SET_PRIMARY_SPECIALIZATION':
       return transitionCareerAction(state, action, careerPolicy);
+    case 'SET_RELATIONSHIP':
+    case 'CREATE_INSTITUTION':
+    case 'CREATE_APPOINTMENT':
+    case 'END_APPOINTMENT':
+    case 'CREATE_EVENT':
+    case 'CREATE_RECORD':
+    case 'AMEND_RECORD':
+    case 'GRANT_KNOWLEDGE':
+      return transitionWorldAction(state, action);
     case 'SPEND_AP': {
       if (!Number.isFinite(action.amount) || action.amount <= 0 || !Number.isInteger(action.amount)) {
         return { state, feedback: feedback('error', 'invalid-ap-cost', 'The AP cost must be a positive whole number.') };
