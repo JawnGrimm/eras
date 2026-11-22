@@ -1,6 +1,6 @@
 import React from 'react';
 import { useGame } from '../state/GameProvider';
-import type { AssignmentId } from '../state/ids';
+import type { AssignmentId, InstitutionId, PersonId } from '../state/ids';
 import { ASSIGNMENT_ACTIVITY_CATALOG } from '../content/assignments/northBayRoofInspection';
 import { evaluateEvidenceInterpretation } from '../works/evidenceInterpretation';
 
@@ -33,7 +33,7 @@ export function AssignmentActivityScreen({ assignmentId, onBack }: { assignmentI
   return <div className="mx-auto max-w-5xl space-y-5">
     <header className="rounded-xl border border-stone-300 bg-white p-5">
       <button onClick={onBack} className="text-xs font-semibold text-amber-900 underline">Back to Assignment Board</button>
-      <p className="mt-3 text-xs font-semibold uppercase tracking-wider text-amber-800">Interactive Assignment · {offer.employer.kind === 'institution' ? game.state.world.institutions[offer.employer.id]?.name : game.state.world.people[offer.employer.id]?.name}</p>
+      <p className="mt-3 text-xs font-semibold uppercase tracking-wider text-amber-800">Interactive Assignment · {offer.employer.kind === 'institution' ? game.state.world.institutions[offer.employer.id as InstitutionId]?.name : game.state.world.people[offer.employer.id as PersonId]?.name}</p>
       <h1 className="mt-1 font-serif text-3xl font-semibold">{offer.title}</h1>
       <p className="mt-2 text-sm leading-6 text-stone-600">{offer.description}</p>
       <p className="mt-3 text-sm"><strong>{game.state.actionEconomy.apRemaining} AP</strong> remaining today · estimated {offer.estimatedTotalAp} AP total · submission {definition.submissionApCost} AP</p>
@@ -96,7 +96,7 @@ export function AssignmentActivityScreen({ assignmentId, onBack }: { assignmentI
         <p className="mt-1 text-sm"><strong>Responsibility:</strong> {draft.responsibilityClaim === 'dudu' ? 'Attributes unresolved work to Dudu' : 'No individual responsibility assigned'}</p>
         <p className="mt-1 text-sm"><strong>Cited discoveries:</strong> {draft.citedDiscoveryIds.map((id) => definition.discoveries.find((item) => item.id === id)?.title ?? id).join('; ') || 'None'}</p>
         <p className="mt-1 text-sm"><strong>Limitations:</strong> {draft.limitations.join('; ') || 'None stated'}</p>
-        <p className="mt-1 text-sm"><strong>Recommendations:</strong> {draft.recommendations.map((id) => recommendations.find((item) => item[0] === id)?.[1] ?? id).join('; ') || 'None'}</p>
+        <p className="mt-1 text-sm"><strong>Recommendations:</strong> {draft.recommendations.map((id) => definition.reportSchema.recommendations.find((item) => item.id === id)?.label ?? id).join('; ') || 'None'}</p>
       </section>
       <div className="mt-5 flex flex-wrap items-center gap-3">
         <button disabled={game.state.actionEconomy.apRemaining < definition.submissionApCost} onClick={() => game.dispatch({ type: 'SUBMIT_ASSIGNMENT_ACTIVITY', assignmentId })} className="rounded bg-stone-900 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-40">Submit report · {definition.submissionApCost} AP</button>
