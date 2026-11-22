@@ -353,10 +353,10 @@ function normalizeNorthBayWorldBaseline(parsed: unknown): unknown {
   if (!isObject(world.people) || !isObject(world.institutions) || !isObject(world.locations) || !isObject(world.appointments)) return parsed;
   const people = { ...world.people };
   const locations = { ...world.locations };
+  const institutions = { ...world.institutions };
   const appointments = Object.fromEntries(Object.entries(world.appointments).filter(([, appointment]) =>
     isObject(appointment) && typeof appointment.personId === 'string' && isObject(people[appointment.personId])
       && typeof appointment.institutionId === 'string' && isObject(institutions[appointment.institutionId])));
-  const institutions = { ...world.institutions };
   if (!isObject(people[NORTH_BAY_PEOPLE.repairer])) people[NORTH_BAY_PEOPLE.repairer] = {
     id: NORTH_BAY_PEOPLE.repairer, name: 'Dudu', alive: true, affiliations: [institutionId], currentLocationId: NORTH_BAY_LOCATION_ID,
   };
