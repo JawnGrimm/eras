@@ -1,4 +1,5 @@
 import React from 'react';
+import { playSealStamp } from '../engine/audio';
 import { useGame } from '../state/GameProvider';
 import type { AssignmentId, InstitutionId, PersonId } from '../state/ids';
 import { ASSIGNMENT_ACTIVITY_CATALOG } from '../content/assignments/northBayRoofInspection';
@@ -22,6 +23,10 @@ export function AssignmentActivityScreen({ assignmentId, onBack }: { assignmentI
     return <section className="rounded-xl border border-stone-300 bg-white p-5"><h1 className="font-serif text-2xl">Activity unavailable</h1><p className="mt-2 text-sm text-stone-600">This activity is not an accepted commitment of the current character.</p><button onClick={onBack} className="mt-4 rounded bg-stone-900 px-3 py-2 text-sm text-white">Back</button></section>;
   }
   const dispatchDraft = (draft: typeof progress.draft) => game.dispatch({ type: 'UPDATE_ASSIGNMENT_ACTIVITY_DRAFT', assignmentId, draft });
+  const submitReport = () => {
+    const result = game.dispatch({ type: 'SUBMIT_ASSIGNMENT_ACTIVITY', assignmentId });
+    if (result.state !== game.state) playSealStamp();
+  };
   const actions = definition.actions;
   const canPerform = (action: typeof actions[number]) => !progress.completedActionIds.includes(action.id)
     && (action.prerequisites ?? []).every((id) => progress.completedActionIds.includes(id));
@@ -99,7 +104,7 @@ export function AssignmentActivityScreen({ assignmentId, onBack }: { assignmentI
         <p className="mt-1 text-sm"><strong>Recommendations:</strong> {draft.recommendations.map((id) => definition.reportSchema.recommendations.find((item) => item.id === id)?.label ?? id).join('; ') || 'None'}</p>
       </section>
       <div className="mt-5 flex flex-wrap items-center gap-3">
-        <button disabled={game.state.actionEconomy.apRemaining < definition.submissionApCost} onClick={() => game.dispatch({ type: 'SUBMIT_ASSIGNMENT_ACTIVITY', assignmentId })} className="rounded bg-stone-900 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-40">Submit report · {definition.submissionApCost} AP</button>
+        <button disabled={game.state.actionEconomy.apRemaining < definition.submissionApCost} onClick={submitReport} className="rounded bg-stone-900 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-40">Submit report · {definition.submissionApCost} AP</button>
         <span className="text-xs text-stone-500">{definition.submissionNote ?? 'Submission closes the Assignment.'}</span>
       </div>
     </section>

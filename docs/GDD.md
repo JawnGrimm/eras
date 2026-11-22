@@ -1417,7 +1417,16 @@ Career XP, Historical Progress XP, money and provisions, trust, stress, faction 
 
 ## 21. Audio, Feedback, and Accessibility
 
-Audio is optional. Local sound effects or music can support dispatch arrival, selection, document submission, Work milestones, and major historical events. Sound should never be required to understand gameplay.
+Audio is optional and must never be required to understand gameplay. The current Era I tactile feedback uses procedural Web Audio synthesis only; it must not load audio files or introduce network requests. The audio engine must be safe to import and call in headless Node/Vitest environments, where browser audio APIs may be absent, and must fail silently rather than interrupt gameplay.
+
+The audio context is created lazily from a user interaction and resumed when the browser reports it suspended. The player can mute or unmute feedback from the production header; the preference is stored under `scribe_audio_muted` in local storage, with unmuted as the default when no preference exists. Reduced-motion preference is not treated as an audio opt-out; the explicit audio mute control is authoritative. Failure to access browser storage or audio APIs is non-fatal. Audio is a redundant feedback layer, not a substitute for visual state changes or accessible labels.
+
+The three current synthesized profiles are:
+- **Stylus tap:** 35–45 ms descending triangle tone (320 Hz to 140 Hz) paired with a rapidly decaying high-passed micro-noise burst, for evidence examination and valid numeric draft commits.
+- **Seal stamp:** 110–130 ms descending sine impact (approximately 118 Hz to 42 Hz) through a 220 Hz low-pass filter, for successful Assignment report submission and Senior Scribe disposition.
+- **Settlement chime:** 550–700 ms dual sine resonance at 261.6 Hz and 523.2 Hz, with a 20 ms attack and long exponential release, after successful Workday settlement.
+
+Do not attach sounds indiscriminately to every click. Trigger them from the corresponding successful or semantically meaningful interaction, and do not replay them from render effects. Ambient soundscapes and music are outside this tactile-feedback step.
 
 Visual feedback is mandatory. The player must be able to understand:
 - What action is available.

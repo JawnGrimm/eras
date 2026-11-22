@@ -1,4 +1,5 @@
 import React from 'react';
+import { playSettlementChime } from '../engine/audio';
 import { useGame } from '../state/GameProvider';
 import type { DaySettlement } from '../state/types';
 import type { InstitutionId, PersonId } from '../state/ids';
@@ -78,7 +79,10 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenActivity, settlement, o
   const canEndDay = !(state.actionEconomy.overtimeUsedToday && state.actionEconomy.apRemaining > 0);
   const endDay = () => {
     const result = game.dispatch({ type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber });
-    if (result.settlement) onSettlement(result.settlement);
+    if (result.settlement) {
+      onSettlement(result.settlement);
+      playSettlementChime();
+    }
   };
   const activateOvertime = () => game.dispatch({ type: 'ACTIVATE_OVERTIME' });
 

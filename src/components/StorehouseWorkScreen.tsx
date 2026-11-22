@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { playSealStamp, playStylusTap } from '../engine/audio';
 import type { EvidenceId } from '../state/ids';
 import { useGame } from '../state/GameProvider';
 import { STOREHOUSE_EVIDENCE, STOREHOUSE_WORK_ID, storehouseReckoning, interpretStorehouseEvidence } from '../works/storehouseReckoning';
@@ -47,10 +48,12 @@ export function commitNumericDraftOnBlur(
   field: StorehouseField,
   onCommit: (field: StorehouseField, value: number | undefined) => void,
   onInvalid: () => void,
+  onCommitSuccess?: () => void,
 ): void {
   const parsed = parseNumericDraft(draft);
   if (!parsed.valid) { onInvalid(); return; }
   onCommit(field, parsed.value);
+  if (parsed.value !== undefined) onCommitSuccess?.();
 }
 
 export function NumericDraftField({ field, value, onCommit, disabled = false }: {
@@ -64,6 +67,7 @@ export function NumericDraftField({ field, value, onCommit, disabled = false }: 
       field,
       onCommit,
       () => setDraft(value === undefined ? '' : String(value)),
+      playStylusTap,
     );
   };
   return (
@@ -124,8 +128,10 @@ export function StorehouseWorkScreen({ onBack }: { onBack: () => void }) {
     && assessment?.outcome === 'accepted'
     && assessment.dimensions.every((dimension) => dimension.status === 'meets'));
   const submit = () => dispatch({ type: 'SUBMIT_WORK', workId });
-  const dispose = (disposition: 'returned' | 'account_accepted' | 'authorized') =>
-    dispatch({ type: 'DISPOSE_WORK', workId, disposition });
+  const dispose = (disposition: 'returned' | 'account_accepted' | 'authorized') => {
+    const result = dispatch({ type: 'DISPOSE_WORK', workId, disposition });
+    if (result.state !== game.state) playSealStamp();
+  };
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
@@ -162,7 +168,7 @@ export function StorehouseWorkScreen({ onBack }: { onBack: () => void }) {
                 <p className="mt-2 text-xs font-medium text-stone-600">Source: {item.source}</p>
                 <p className="mt-2 text-sm leading-6 text-stone-800">{item.objectiveText}</p>
                 <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <button disabled={!active} onClick={() => dispatch({ type: 'EXAMINE_WORK_EVIDENCE', workId, evidenceId: item.id })}
+                  <button disabled={!active} onClick={() => { dispatch({ type: 'EXAMINE_WORK_EVIDENCE', workId, evidenceId: item.id }); playStylusTap(); }}
                     className="rounded-md border border-stone-300 px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-100 disabled:opacity-50">
                     {isExamined ? 'Re-read · 0 AP' : 'Examine · 0 AP'}
                   </button>
