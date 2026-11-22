@@ -944,3 +944,26 @@ An explanation may be sincere but mistaken, incomplete, self-serving, or unsuppo
 
 - `docs/GDD.md`: added “Conflicting commitments and obligations” to Section 15.1, including commitment bases, the distinction between demands and obligations, contextual resolution attempts, persistence of unresolved matters, and separation of observable actions, attributed explanations, and supporting evidence. Updated Remaining Design Work item 8.
 - No runtime code or save data changed.
+
+
+## 2026-11-21 — Documentation audit and minor corrections
+
+**Contributor:** Chad (AI)  
+**Status:** Documentation housekeeping; no design change
+
+A cross-document review compared the current canonical GDD, README, and chronological decision log against approved design decisions.
+
+### Findings
+
+- The current GDD and README agree on the two-resource personal economy: money and provisions. Beer is not a tracked personal resource; grain remains a world or institutional commodity, not a player resource.
+- The six-AP Workday, optional Assignments and Challenges, mandatory Works, and the distinction between Career XP and Historical Progress XP are consistently represented in the current GDD and README.
+- The two-accepted-Assignment limit is a current GDD rule. Its balance remains open for review; this is not an unresolved choice between fixed slots and no limit.
+- Older TEAM_LOG entries that mention four time blocks or the former three-resource economy are historical discussion or superseded decisions. They remain in the chronological log and do not override the current GDD or later decision entries.
+- The current GDD's open-work list appropriately retains detailed economy balance, stress recovery, NPC mechanics, continuity, career pacing, evaluation implementation, content pipeline, and MVP scope as unfinished work.
+
+### Corrections
+
+- `README.md`: replaced the stale reference to a “stabilization branch” with a description of the current six-AP implementation on `main`. The note continues to identify Storehouse action/evidence behavior as requiring reconciliation with the GDD.
+- `docs/GDD.md`: corrected malformed Markdown emphasis in the Storehouse provision-contract description.
+
+No approved design was changed. No runtime code, save schema, or gameplay behavior changed. No build, type-check, test suite, or deployment was run for these documentation-only edits.
