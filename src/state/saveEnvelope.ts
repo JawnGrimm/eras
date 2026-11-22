@@ -158,9 +158,18 @@ export function isValidGameState(value: unknown): value is GameState {
         || !Array.isArray(a.assertionsAdded) || !stringArray(a.uncertaintyLimitsAdded) || typeof a.note !== 'string') return false;
       amendmentIds.add(a.id);
       for (const s of a.sourcesAdded) { if (!isSource(s, people, institutions, events) || sourceIds.has(s.id)) return false; sourceIds.add(s.id); }
-      if (a.assertionsAdded.some((x) => isObject(x) && (typeof x.id !== 'string' || !x.id || r.assertions.some((base) => base.id === x.id)
-        || r.amendments.some((prior) => prior.assertionsAdded.some((old) => old.id === x.id)))) return false;
-      if (!a.assertionsAdded.every((x) => isAssertion(x, sourceIds))) return false;
+      const existingAssertionIds = new Set<string>(r.assertions.map((base) => base.id));
+      for (const prior of r.amendments) {
+        if (isObject(prior) && Array.isArray(prior.assertionsAdded)) {
+          for (const priorAssertion of prior.assertionsAdded) {
+            if (isObject(priorAssertion) && typeof priorAssertion.id === 'string') existingAssertionIds.add(priorAssertion.id);
+          }
+        }
+      }
+      for (const added of a.assertionsAdded) {
+        if (!isAssertion(added, sourceIds) || existingAssertionIds.has(added.id)) return false;
+        existingAssertionIds.add(added.id);
+      }
     }
   }
   for (const [id, k] of Object.entries(world.knowledge)) {
