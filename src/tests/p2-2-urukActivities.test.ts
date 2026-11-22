@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import type { AssignmentId, InstitutionId, MatterId } from '../state/ids';
 import { createInitialGameState } from '../state/initialState';
+import { createSaveEnvelope, isValidSaveEnvelope } from '../state/saveEnvelope';
+import { INITIAL_WORK_CATALOG } from '../state/newGameState';
 import { generateDailyAssignments } from '../engine/assignmentGenerator';
 import { runChallengeDirector } from '../engine/challengeDirector';
 import { transitionOpportunityAction } from '../engine/opportunities';
@@ -79,6 +81,27 @@ describe('P2-2 authored Uruk Assignment activities', () => {
     expect(held?.originMatterId).toBe(HELD_MATTER);
     const withoutMatter = generateDailyAssignments(createInitialGameState());
     expect(Object.values(withoutMatter.opportunities.assignments).some((offer) => offer.activityId === heldBarleyInspection.id)).toBe(false);
+  });
+
+  it('validates and persists Assignment origin-matter references while rejecting missing matters', () => {
+    const generated = generateDailyAssignments(createInitialGameState());
+    const envelope = createSaveEnvelope(generated, 1, '2026-11-22T23:00:00.000Z');
+    expect(isValidSaveEnvelope(envelope, INITIAL_WORK_CATALOG)).toBe(true);
+    const offer = Object.values(generated.opportunities.assignments)[0];
+    const invalid = {
+      ...envelope,
+      state: {
+        ...envelope.state,
+        opportunities: {
+          ...envelope.state.opportunities,
+          assignments: {
+            ...envelope.state.opportunities.assignments,
+            [offer.id]: { ...offer, originMatterId: 'matter-does-not-exist' as MatterId },
+          },
+        },
+      },
+    };
+    expect(isValidSaveEnvelope(invalid, INITIAL_WORK_CATALOG)).toBe(false);
   });
 
   it('requires an active institution-linked source matter and never duplicates an opportunity for that matter', () => {
