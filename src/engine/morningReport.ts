@@ -45,9 +45,9 @@ export function buildSituatedMorningReport(previous: GameState, current: GameSta
       && offer.expiresDay <= day + 1);
   for (const offer of commitments) items.push(`Commitment approaching expiry: ${offer.title} (expires Day ${offer.expiresDay}).`);
 
-  const message = items.length
-    ? `Morning report · Day ${day}\n${items.map((item) => `• ${item}`).join('\n')}`
-    : `Morning report · Day ${day}\nNo new matters or opportunities requiring your attention were delivered today.`;
+  if (items.length === 0) return current;
+
+  const message = `Morning report · Day ${day}\n${items.map((item) => `• ${item}`).join('\n')}`;
   const notice = { id, dayNumber: day, category: newOffers.length ? 'opportunity' as const : 'world' as const, message, read: false };
   return { ...current, journal: { ...current.journal, notices: [...current.journal.notices, notice] } };
 }
