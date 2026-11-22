@@ -36,6 +36,7 @@ function SettlementSummary({ settlement }: { settlement: DaySettlement }) {
       <div><dt className="text-xs text-stone-500">Shortage workdays</dt><dd className="font-mono text-xl">{settlement.shortageWorkdays}</dd></div>
       <div><dt className="text-xs text-stone-500">Shortage Stress added</dt><dd className="font-mono text-xl">+{settlement.shortageStressDelta}</dd></div>
       <div><dt className="text-xs text-stone-500">Lifetime shortage Stress</dt><dd className="font-mono text-xl">{settlement.cumulativeShortageStress}/10</dd></div>
+      <div><dt className="text-xs text-stone-500">Underfed condition</dt><dd className="text-sm font-semibold">{settlement.shortageWorkdays >= 3 ? 'Active' : 'Not active'}</dd></div>
       <div><dt className="text-xs text-stone-500">Overtime Stress added</dt><dd className="font-mono text-xl">+{settlement.overtimeStress}</dd></div>
       <div><dt className="text-xs text-stone-500">Tomorrow’s AP allocation</dt><dd className="font-mono text-xl">{settlement.tomorrowAp}</dd></div>
     </dl>
@@ -120,6 +121,13 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenActivity, settlement, o
           {!canRequestUrGir && <p className="mt-2 text-xs text-stone-500">Unavailable: Ur-gir must be alive, have provisions to spare, meet the directional trust requirement, and have no outstanding advance.</p>}
         </article>
       </div>
+    </section>}
+    {person.scribal.obligations.length > 0 && <section aria-labelledby="obligations-heading" className="rounded-xl border border-stone-300 bg-white p-4">
+      <h2 id="obligations-heading" className="font-semibold text-stone-900">Outstanding obligations</h2>
+      <ul className="mt-2 space-y-2 text-sm text-stone-700">
+        {person.scribal.obligations.filter((obligation) => obligation.status === 'outstanding').map((obligation) =>
+          <li key={obligation.id}><strong>{state.world.people[obligation.creditorPersonId]?.name ?? 'Creditor'}:</strong> {obligation.description}</li>)}
+      </ul>
     </section>}
     <section className="rounded-xl border border-stone-300 bg-white p-5 shadow-sm">
       <div className="flex flex-wrap items-start justify-between gap-4">
