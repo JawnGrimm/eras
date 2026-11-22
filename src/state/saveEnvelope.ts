@@ -1,5 +1,5 @@
 import { CORE_SKILL_IDS } from './ids';
-import { MATTER_IDS } from '../engine/institutionalMatters';
+import { MATTER_IDS, SOUTH_COURT_LOCATION_ID, SOUTH_LOADING_LOCATION_ID } from '../engine/institutionalMatters';
 import type { AttributeId, SkillId } from './ids';
 import type { GameState, Institution, OpportunityConsequences, SaveEnvelope, ScribalCharacterState, WorkProgress } from './types';
 import { validateOpportunityConsequences } from './opportunityValidation';
@@ -462,6 +462,12 @@ function normalizeNorthBayWorldBaseline(parsed: unknown): unknown {
   };
   if (!isObject(locations[NORTH_BAY_LOCATION_ID])) locations[NORTH_BAY_LOCATION_ID] = {
     id: NORTH_BAY_LOCATION_ID, name: 'Temple Storehouse, north storage bay',
+  };
+  if (!isObject(locations[SOUTH_COURT_LOCATION_ID])) locations[SOUTH_COURT_LOCATION_ID] = {
+    id: SOUTH_COURT_LOCATION_ID, name: 'Temple Storehouse, south receiving court',
+  };
+  if (!isObject(locations[SOUTH_LOADING_LOCATION_ID])) locations[SOUTH_LOADING_LOCATION_ID] = {
+    id: SOUTH_LOADING_LOCATION_ID, name: 'Temple Storehouse, south loading court',
   };
   const existingInstitution = institutions[institutionId];
   if (isObject(existingInstitution) && !existingInstitution.locationId) {
