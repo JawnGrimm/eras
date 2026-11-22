@@ -1,0 +1,30 @@
+name: Accessibility barrier
+description: Report an accessibility issue or suggest an improvement.
+title: "[Accessibility]: "
+labels: ["accessibility"]
+body:
+  - type: textarea
+    id: barrier
+    attributes:
+      label: What barrier did you encounter?
+    validations:
+      required: true
+  - type: textarea
+    id: task
+    attributes:
+      label: What were you trying to do?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment and assistive technology
+      description: Browser, operating system, device, screen reader, magnifier, input method, or other relevant details.
+  - type: textarea
+    id: workaround
+    attributes:
+      label: Workaround or suggested improvement
