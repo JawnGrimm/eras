@@ -40,7 +40,10 @@ function ConnectionReasons({ state, candidateId }: { state: GameState; candidate
   const ranked = rankSuccessorCandidates(state).find((item) => item.personId === candidateId);
   if (!candidate || !former || !ranked) return null;
 
+  const tierLabel = ranked.tier === 'direct_personal' ? 'Direct personal connection'
+    : ranked.tier === 'direct_professional' ? 'Direct professional connection' : 'Wider professional network';
   return <div className="mt-3 space-y-2">
+    <p className="text-xs font-semibold text-amber-900">Connection priority: {tierLabel}</p>
     {ranked.reasons.map((reason, index) => {
       if (reason.kind === 'direct_relationship') {
         const from = state.world.people[reason.fromId];
