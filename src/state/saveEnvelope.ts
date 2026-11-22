@@ -143,6 +143,9 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
   const calendar = value.calendar, economy = value.actionEconomy, player = value.player, world = value.world, works = value.works;
   const workProgressMap = works.progress;
   if (!isObject(workProgressMap)) return false;
+  const activeWorkId = works.activeWorkId;
+  if (activeWorkId !== null && (typeof activeWorkId !== 'string'
+    || !isWorkProgress(workProgressMap[activeWorkId]) || workProgressMap[activeWorkId].status !== 'active')) return false;
   if (typeof calendar.eraId !== 'string' || !finiteNonNegative(calendar.dayNumber) || !Number.isInteger(calendar.dayNumber)
     || calendar.dayNumber < 1 || typeof calendar.displayDate !== 'string') return false;
   if ((economy.dailyApAllocation !== 5 && economy.dailyApAllocation !== 6) || !finiteNonNegative(economy.apRemaining)
@@ -280,15 +283,12 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
     && value.historicalProgression.completedWorks.every((id) => isWorkProgress(workProgressMap[id])
       && workProgressMap[id].status === 'completed')
     && isObject(value.opportunities.assignments) && isObject(value.opportunities.challenges)
-    && (works.activeWorkId === null || typeof works.activeWorkId === 'string')
-    && isObject(workProgressMap)
+    && (activeWorkId === null || typeof activeWorkId === 'string')
     && Object.entries(workProgressMap).every(([id, progress]) => !!id && isWorkProgress(progress)
       && !!workCatalog[id] && workCatalog[id].id === id
       && workCatalog[id].validateScenarioData((progress as WorkProgress).scenarioData)
       && (progress as WorkProgress).acquiredEvidence.every((evidenceId) => workCatalog[id].evidence.some((item) => item.id === evidenceId))
       && (progress as WorkProgress).completedActionIds.every((actionId) => workCatalog[id].actions.some((item) => item.id === actionId)))
-    && (works.activeWorkId === null || (isWorkProgress(workProgressMap[works.activeWorkId])
-      && workProgressMap[works.activeWorkId].status === 'active'))
     && Array.isArray(value.records.permanentOutcomes)
     && Array.isArray(value.journal.notices);
 }
