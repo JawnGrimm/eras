@@ -1,7 +1,7 @@
 ---
 title: "Scribe of Eras"
 subtitle: "Game Design Document — Revised Draft v1.2"
-date: "21 November 2026"
+date: "22 November 2026"
 lang: en-US
 ---
 
@@ -9,7 +9,9 @@ lang: en-US
 >
 > **Design decision (21 November 2026):** the Workday remains six shared Action Points (AP), with the end-of-day overtime rule in Section 6.4. The owner has explicitly confirmed this model for the current development phase. Four time blocks are not approved. Revisit the model only through an explicit design review informed by playtest evidence, followed by a deliberate GDD revision. This decision does not imply that every Work implementation or content definition is already compliant.
 >
-> **Implementation status (22 November 2026):** the production application is mounted from `src/App.tsx` through `ProductionApp` and `ProductionShell`. The live Storehouse Work is the typed definition in `src/works/storehouseReckoning.ts`, rendered by `src/components/StorehouseWorkScreen.tsx` and resolved through the production Work engine. The former prototype UI, the listed legacy state/data/engine modules, the disconnected `WorkRunner`, and the stale `src/content/works/storehouse_reckoning.json` definition have been retired. The production save uses only `scribe_game_v2`; legacy `scribe_*` keys are neither migrated nor deleted. This note describes implementation status, not a change to the approved six-AP rule.
+> **Design decisions (22 November 2026):** The Storehouse Reckoning is the Introductory Tutorial, a guided onboarding exercise outside Assignments / Commissions, Challenges, and Works. It awards 0 Historical Progress XP and is not recorded as a completed Work. It is not a template for future Works. Provision-shortage consequences begin on the third consecutive Workday without provisions: +2 Stress per affected Workday, capped at 10 cumulative shortage-attributed Stress per character, with a recoverable Underfed condition and recovery routes available in the same milestone. See Sections 7, 12.3–12.4, and 13.1.
+>
+> **Implementation status (22 November 2026):** the production application is mounted from `src/App.tsx` through `ProductionApp` and `ProductionShell`. The current production code still registers and renders Storehouse Reckoning as a typed Work through `src/works/storehouseReckoning.ts` and `src/components/StorehouseWorkScreen.tsx`; this is a known implementation/design discrepancy to be corrected after this documentation decision. The former prototype UI, the listed legacy state/data/engine modules, the disconnected `WorkRunner`, and the stale `src/content/works/storehouse_reckoning.json` definition have been retired. The production save uses only `scribe_game_v2`; legacy `scribe_*` keys are neither migrated nor deleted. This note describes implementation status, not a change to the approved six-AP rule.
 
 ---
 
@@ -29,7 +31,7 @@ lang: en-US
 - 4. Historical Scope and Era Progression
 - 5. The Three Gameplay Layers
 - 6. Workday and Action Economy
-- 7. Era I Vertical Slice: The Storehouse Reckoning
+- 7. Era I Introductory Tutorial: The Storehouse Reckoning
 - 8. The Assignment Gameplay Loop
 - 9. Document Construction and Evaluation
 - 10. Career Progression
@@ -56,11 +58,15 @@ lang: en-US
 
 The central activity is not copying text or completing typing tests. It is understanding a situation, examining evidence, deciding what the record must say, constructing an appropriate document, and accepting responsibility for its consequences. A delivery receipt can determine whether a storehouse is credited with usable goods. An inventory can expose a discrepancy. A disputed account can affect the standing of several people. The player's records matter because other people and institutions act on them.
 
+The opening Storehouse Reckoning is a separate Introductory Tutorial, not one of the three gameplay layers. It introduces basic evidence handling, numerical reconciliation, submission, and assessment without awarding Historical Progress XP or counting as a completed Work.
+
 The game has three distinct gameplay layers:
 
-1. **Assignments / Commissions** are optional, short professional jobs. The player chooses which available opportunities to pursue, subject to a shared daily action budget. Completing them develops the player's career and provides compensation, but is not required for historical advancement.
+1. **Assignments / Commissions** are optional, playable professional jobs. The player chooses which available opportunities to pursue, subject to a shared daily action budget. Completing them develops the player's career and provides compensation, but is not required for historical advancement.
 2. **Challenges** are optional, separate scenarios arising from behavior, neglected opportunities, relationships, or historical events. They are not ordinary employment and do not use the Assignment system.
-3. **Works** are mandatory, long-form historical undertakings. They represent significant human achievements made possible by writing, records, communication, and institutions. Works—not routine assignments or optional Challenges—drive Historical Progress XP and advancement between eras.
+3. **Works** are mandatory, substantial historical undertakings. They represent significant human achievements made possible by writing, records, communication, and institutions. Works—not routine assignments or optional Challenges—drive Historical Progress XP and advancement between eras.
+
+The **Storehouse Reckoning** is the Introductory Tutorial. It teaches basic professional concepts and interface interactions through a guided apprenticeship exercise. It is not an Assignment, Challenge, or Work; it awards no Historical Progress XP and is excluded from completedWorks. Its guided evidence, numerical-entry, submission, and assessment sequence must not be treated as the standard structure for future Works.
 
 Career progression and historical progression are separate. **Career XP** is earned through professional activity and serves as an investment currency for eligible skill improvements, specialization development, and other defined forms of professional development; it does not directly determine rank. A character's professional rank is derived from that character's own skill profile and influences the broad range of opportunities likely to reach them. Skills determine qualification for specific work, while appointments grant formal authority and responsibilities. **Historical Progress XP** measures the advancement represented by completed Works. A character can attain high professional standing while the player remains in an early historical era; entering a new era does not automatically increase that character's rank.
 
@@ -379,14 +385,27 @@ Assignments are short, optional professional jobs offered by employers, institut
 
 Examples include:
 - Receiving and reconciling deliveries.
-- Checking inventory and storage records.
+- Checking inventory and storage conditions.
 - Recording distributions and allocations.
 - Investigating discrepancies in accounts.
+- Inspecting buildings, equipment, goods, or worksites.
 - Preparing receipts, orders, reports, and correspondence.
 - Recording labor, obligations, and institutional activity.
 - Resolving administrative disputes and preparing findings.
 
-Assignments are optional professional opportunities available during the workday. Each substantive step uses the shared daily AP budget. Offers normally expire three in-game days after presentation if not accepted; the default expiry is the offered day plus three, and expiry is applied during daily settlement. A character may hold at most two accepted Assignments at once. Accepting or declining an offer costs no AP; cancelling an accepted Assignment costs 1 AP. Cancellation has no automatic relationship or institutional penalty: only consequences explicitly authored for that Assignment apply. Accepted work remains active until resolved or cancelled. In the current atomic resolution model, an Assignment authors a visible AP cost from 1–6, charged once when it is completed; its compensation and authored consequences are applied in the same transaction. Future multi-stage Assignments may charge for substantive stages across multiple days, but must not charge both a full-scope cost and separate stage costs. Completing an Assignment can award Career XP, money, provisions, and other appropriate authored consequences. Assignments do not directly award Historical Progress XP.
+An Assignment must be a playable professional activity, not a card that converts an AP cost directly into a completed outcome. It must give the player meaningful, context-appropriate actions and decisions before resolution. Most substantive Assignments will involve multiple steps; even a brief task must require more than a single generic completion click. Steps must represent actual work rather than interface filler.
+
+The structure follows the job. Depending on the situation, the player may inspect a place or object, examine a record, question or consult a person, compare accounts or testimony, make a judgment, prepare a document, direct a practical response, or verify that an action was carried out. These are reusable kinds of interaction, not a mandatory sequence. An Assignment uses only the actions appropriate to its purpose and may produce a record, finding, instruction, verified status, or other fitting deliverable. Not every Assignment must end in the same form or require a formal document.
+
+People are participants in the work, not decorative names attached to a docket. An NPC may share only information they plausibly know and are willing or authorized to disclose. Their knowledge, interests, obligations, authority, circumstances, and directional relationship with the player shape the interaction. The player may need to establish access, ask the right person, account for conflicting testimony, or proceed without information that cannot reasonably be obtained.
+
+Assignments must not become cloned dockets. A common data model may preserve contextual facts, provenance, roles, and state, but the player-facing activity must be designed around the actual job. Do not force every task through an identical evidence list, numeric form, interview, or report pipeline. Apply the complete-record dimensions in Section 8.1 where relevant; do not invent fields or roles that the situation does not require.
+
+Assignments are optional professional opportunities available during the workday. Each substantive action uses the shared daily AP budget, with its cost and consequences shown before commitment. The offer must communicate the expected scope and likely AP commitment. A larger Assignment may span more than one day; charge for its substantive stages without also charging a duplicate full-scope cost. Reviewing information already acquired and navigating the interface do not create hidden AP costs.
+
+Offers normally expire three in-game days after presentation if not accepted; the default expiry is the offered day plus three, and expiry is applied during daily settlement. A character may hold at most two accepted Assignments at once. Accepting or declining an offer costs no AP; cancelling an accepted Assignment costs 1 AP. Cancellation has no automatic relationship or institutional penalty: only consequences explicitly authored for that Assignment apply. Accepted work remains active until resolved or cancelled.
+
+Completing an Assignment can award Career XP, money, provisions, and other appropriate authored consequences. Assignments do not directly award Historical Progress XP.
 
 ### 5.2 Challenges
 
@@ -463,7 +482,7 @@ Every Work definition must include:
 
 Works use the same daily Action Points as Assignments, study, and other substantive activities. They may span multiple days, but a Work's scale should not be inflated merely to occupy time. Optional content may improve the player's information, relationships, resources, or outcome, but must not become a hidden prerequisite for mandatory historical progression.
 
-The first complete Era I example is specified in Section 7. It is a vertical slice for validating one kind of Work, not a template that all later Works must follow.
+The Storehouse Reckoning described in Section 7 is an introductory tutorial, not a Work example or a template for the Works system. Future Works must be designed around their own historical undertaking, human problem, mechanics, stages, and scale.
 
 ### 5.4 How the layers interact
 
@@ -549,17 +568,17 @@ The settlement must not grant a universal free ration merely because a day passe
 
 ---
 
-## 7. Era I Vertical Slice: The Storehouse Reckoning
+## 7. Era I Introductory Tutorial: The Storehouse Reckoning
 
 ### 7.1 Purpose and scope
 
-**The Storehouse Reckoning** is the first mandatory Work and the design test for the Work system. It takes place in a fictional institutional storehouse in Uruk around 3200 BCE. Its people and immediate incident are fictional; the scenario reflects early administrative uses of impressed clay records without claiming to depict a documented historical event or the invention of writing itself.
+**The Storehouse Reckoning** is the Introductory Tutorial, a guided apprenticeship exercise set in a fictional institutional storehouse in Uruk around 3200 BCE. It sits outside the three gameplay layers: it is not an Assignment / Commission, Challenge, or Work. Its people and immediate incident are fictional; the scenario reflects early administrative uses of impressed clay records without claiming to depict a documented historical event or the invention of writing itself.
 
-This Work is a **supervised apprenticeship assessment**, not a request to invent a permanent stockkeeping system. The Storehouse Steward has submitted a situation requiring a one-time reconciliation and practical recommendation. The Senior Scribe assigns the case to the apprentice, evaluates the resulting document, provides instruction, and decides what action to authorize or forward.
+This tutorial is a **supervised apprenticeship exercise**, not a request to invent a permanent stockkeeping system. The Storehouse Steward has submitted a situation requiring a one-time reconciliation and practical recommendation. The Senior Scribe assigns the case to the apprentice, evaluates the resulting document, provides instruction, and decides what action to authorize or forward.
 
 The document's primary reader is the **Storehouse Steward**. The apprentice answers to the **Senior Scribe**. The Steward would not ordinarily commission an apprentice directly; the Senior Scribe uses the Steward's case as real professional work through which to assess the apprentice.
 
-The Work tests whether the apprentice can:
+The tutorial introduces the apprentice to the following professional practices:
 - Reconcile opening stock, dispatch, physical receipt, issue, and closing condition.
 - Preserve the distinction between usable and held stock.
 - Distinguish an established fact from an inference or unresolved cause.
@@ -567,7 +586,7 @@ The Work tests whether the apprentice can:
 - Recommend practical, proportionate action without exceeding the evidence.
 - Respond to assessment and instruction, revising deficient work where appropriate.
 
-The Work does not ask the apprentice to solve a crime, identify a culprit, design a reusable register, or prove a new recordkeeping system against artificial unseen transactions. The ordinary institutional problem need not be sensational; its significance comes from the people relying on the account and the decisions it supports.
+The tutorial does not ask the apprentice to solve a crime, identify a culprit, design a reusable register, or prove a new recordkeeping system against artificial unseen transactions. The ordinary institutional problem need not be sensational; its significance comes from the people relying on the account and the decisions it supports.
 
 ### 7.2 People and institutional roles
 
@@ -631,9 +650,9 @@ The required relationships are:
 
 The assessment evaluates these relationships and the apprentice's treatment of evidence. It must not depend on one exact sentence where multiple phrasings preserve the same factual meaning.
 
-### 7.5 Work sequence and player actions
+### 7.5 Tutorial sequence and player actions
 
-The Work has three practical phases. These are not a universal Work template; they fit this supervised document assignment.
+The tutorial has three practical phases. These are specific to this guided exercise and are not a universal template for Assignments or Works.
 
 **Phase A — Examine the case**
 
@@ -683,7 +702,7 @@ The Senior Scribe assesses the submitted document in three distinct dimensions:
 
 The assessment is not a single pass/fail checklist. A correct account may accompany a poor recommendation; a sound recommendation cannot compensate for incorrect figures. Feedback identifies the dimension that needs attention and explains why.
 
-Instruction follows the assessment. The Senior Scribe explains the relevant professional standard and what should be corrected. Where the account or evidence is deficient, the apprentice may revise and resubmit. The Work must not permanently soft-lock after a mistake.
+Instruction follows the assessment. The Senior Scribe explains the relevant professional standard and what should be corrected. Where the account or evidence is deficient, the apprentice may revise and resubmit. The tutorial must not permanently soft-lock after a mistake.
 
 The Senior Scribe then makes the disposition:
 - **Accept and authorize/forward the recommendation:** the account and evidence are sound, and the recommendation is proportionate.
@@ -723,31 +742,31 @@ The recommendation matters to the Senior Scribe because it informs the action th
 
 A sound submission can lead to inspection of the held stock, continued segregation pending inspection, and a check that the north-bay roof repair is adequate. No person is blamed on the current evidence. An accurate account with an unsupported recommendation can still be accepted as an account while the recommendation is withheld. An unreliable account is returned before it is used to authorize action.
 
-The Work must preserve separate outcomes for accounting accuracy, evidence discipline, and professional judgment. Do not collapse them into one opaque score or make an arithmetic error silently change the underlying stock state.
+The tutorial must preserve separate outcomes for accounting accuracy, evidence discipline, and professional judgment. Do not collapse them into one opaque score or make an arithmetic error silently change the underlying stock state.
 
-### 7.8 Work contract and provisions
+### 7.8 Tutorial sustenance and onboarding
 
-The apprentice is assigned to this Work under a specific institutional service arrangement. For each in-game day on which the Storehouse Reckoning remains active, the player must spend at least 1 AP on a Storehouse Reckoning action to qualify for **one unit of provisions** as the apprentice's meal provision. This is not a universal daily gift: it is compensation in kind under the Work contract and ends when the Work is completed, abandoned, or formally suspended. If the player spends no AP on the contracted Work that day, no Work provision is credited.
+The apprentice begins with **five units of provisions**. This is an initial personal resource balance, not a daily ration or a continuing tutorial stipend. The tutorial is expected to require approximately 7–8 AP across about two Workdays. The starting provisions, together with compensation from the paid starter Assignments, provide the intended onboarding runway and allow the player to learn the ordinary employment loop before shortage consequences can begin.
 
-Beer is not part of the player's tracked personal economy or this daily food provision. It may still appear as a world commodity, an inventory item in a specific situation, or part of hospitality and social or institutional exchanges.
+The tutorial provides no special provision contract. Completing, pausing, or leaving it does not create or end a separate sustenance entitlement. After onboarding, provisions come from ordinary compensation, purchases, assistance, or other established recovery routes under Sections 12.2–12.4.
 
-If the Work is suspended or abandoned, provisions stop according to the stated contract terms. The player must be told before confirming a suspension or abandonment. This arrangement ensures that the mandatory Work does not require the player to take optional Assignments merely to eat while performing the institution's contracted work.
+Beer is not part of the player's tracked personal economy. It may still appear as a world commodity, an inventory item in a specific situation, or part of hospitality and social or institutional exchanges. This starting balance is intended to let the player complete onboarding without relying on optional Assignment acceptance merely to avoid an immediate shortage.
 
 ### 7.9 Action-budget test and expected duration
 
-The minimum evidence path costs 4 AP: 1 AP for the opening/dispatch/arrival comparison, 1 AP for intake/issue records, and 2 AP for the physical recount. Requesting E-06 costs 1 additional AP. Initial submission costs 2 AP, and the Senior Scribe's disposition costs 1 AP. A first-time player who examines the complete dossier, prepares a complete document, and receives a disposition should therefore expect to spend approximately 7–8 AP, with additional AP for revision.
+The tutorial minimum evidence path costs 4 AP: 1 AP for the opening/dispatch/arrival comparison, 1 AP for intake/issue records, and 2 AP for the physical recount. Requesting E-06 costs 1 additional AP. Initial submission costs 2 AP, and the Senior Scribe's disposition costs 1 AP. A first-time player who examines the complete dossier, prepares a complete document, and receives a disposition should therefore expect to spend approximately 7–8 AP, with additional AP for revision.
 
-This is a tuning target, not a deadline. The Work may span two or more in-game days depending on the optional custody record, mistakes, and revision. The AP cost of every substantive action must be visible before commitment. Reviewing already acquired evidence, the case brief, and prior assessment feedback is free.
+This is a tuning target, not a deadline. The tutorial may span two or more in-game days depending on the optional custody record, mistakes, and revision. The AP cost of every substantive action must be visible before commitment. Reviewing already acquired evidence, the case brief, and prior assessment feedback is free.
 
-### 7.10 Completion and progression reward
+### 7.10 Completion and progression boundary
 
-The Work is complete when the Senior Scribe has issued a disposition: acceptance and authorization/forwarding, acceptance of the account while withholding the recommendation, or return for correction followed by a final disposition. A returned submission is not complete until it is corrected sufficiently for a final decision.
+The tutorial is complete when the Senior Scribe has issued a disposition: acceptance and authorization/forwarding, acceptance of the account while withholding the recommendation, or return for correction followed by a final disposition. A returned submission is not complete until it is corrected sufficiently for a final decision.
 
-The Work awards its fixed Historical Progress XP as part of the required Era I Work set. The exact award is allocated alongside the other mandatory Works and must satisfy the progression invariant in Section 4.4. A professional contribution may also award Career XP, separately balanced against other career activities. The current engine reference values—15,000 Historical Progress XP and 500 Career XP for either accepted disposition—are provisional balance values only, not approved GDD balance. They must be revisited during reward tuning; the two accepted dispositions do not currently have different Career XP values.
+The tutorial awards **0 Historical Progress XP** and must not add an entry to completedWorks. It is not a Work and does not count toward the required Era I Work set or any historical progression threshold. It may award Career XP for demonstrated professional learning; any Career XP amount is balanced separately from Work rewards. The current engine reference value of 500 Career XP for an accepted disposition is provisional and must be revisited during reward tuning.
 
-### 7.11 What this vertical slice validates
+### 7.11 What this tutorial teaches
 
-The revised Work tests whether the player can:
+The tutorial teaches the player to:
 - Understand who requested the document, who will use it, and why it matters.
 - Examine a compact dossier and reconstruct a stock position.
 - Distinguish dispatch, receipt, issue, condition, and balance.
@@ -756,11 +775,11 @@ The revised Work tests whether the player can:
 - Receive an assessment that separates accounting, evidence, and judgment.
 - Learn from instruction and revise deficient work.
 
-It does not test permanent register design, reusable register adoption, or unseen transaction validation. Those mechanics are removed from this Work. Future Works must introduce human and informational problems appropriate to their own subjects rather than repeat this storehouse scenario with different commodities.
+It does not test permanent register design, reusable register adoption, or unseen transaction validation. Those mechanics are not part of this tutorial. The tutorial validates basic onboarding interactions only. Future Works must be designed independently around their own historical undertakings, human and informational problems, mechanics, stages, and scale; they must not repeat this storehouse scenario with different commodities.
 
 ## 8. The Assignment Gameplay Loop
 
-A typical Assignment follows this sequence. The AP cost is shown before acceptance and covers the defined scope of the job; a larger or multi-stage Assignment may require additional AP across more than one day. Reviewing already acquired evidence and navigating the document interface do not create hidden costs: the stated cost covers the substantive work. Challenges use the same principle, with costs based on their scope.
+The following sequence describes possible parts of an Assignment, not a required pipeline. Each scenario selects and orders only the steps appropriate to its job; some steps may be combined, repeated, replaced, or omitted. Assignments must still provide meaningful player-controlled work rather than a single completion action. AP costs for the defined scope and its substantive stages are shown before commitment, including when work may span more than one day. Reviewing already acquired evidence and navigating the document interface do not create hidden costs. Challenges use the same principle, with costs based on their scope.
 
 1. **Receive:** A person or institution presents a dispatch or request.
 2. **Understand:** Read the situation and identify what must be established or recorded.
@@ -772,7 +791,7 @@ A typical Assignment follows this sequence. The AP cost is shown before acceptan
 8. **Submit or certify:** Make the record official within the scenario's context.
 9. **Resolve:** Receive an evaluation and experience the resulting consequences.
 
-The player should never be shown a completed target document to copy. The dispatch provides the situation, instructions, and evidence—not the answer.
+The player should never be shown a completed target document to copy. The dispatch provides the situation, instructions, and available leads—not the answer. Depending on the Assignment, playable actions may include observing or inspecting a place or object, consulting or questioning people, comparing or reconciling sources, and drafting or submitting an appropriate result. These are reusable interaction patterns, not mandatory stages. NPC disclosure must respect what each person plausibly knows, their interests and obligations, their authority, and what they are willing to share. The final result should create the appropriate record, knowledge, relationship, or institutional consequence for that job; it need not always be a formal report.
 
 ### 8.1 Complete contextual records
 
@@ -1022,7 +1041,7 @@ Beer is not a tracked personal resource. It may appear as a world or institution
 
 The player receives money compensation for employment, with professional rank and legitimate performance bonuses potentially affecting pay. Poor performance may reduce money compensation. Good performance can earn legitimate bonuses. Compensation in kind, including provisions or specific items, is permitted only when it is part of an explicit employment or Work contract, with the amount, duration, and conditions shown before acceptance.
 
-There is no universal daily employment ration. A player who performs no paid work and has no active contract receives no automatic provisions. Mandatory Works must nevertheless define their own provisions when the institution expects the player to spend several days working for it. The Storehouse Reckoning provides one unit of provisions per active contracted Workday under its explicit service arrangement.
+There is no universal daily employment ration. A player who performs no paid work and has no active contract receives no automatic provisions. Mandatory Works must nevertheless define their own provisions when the institution expects the player to spend several days working for it. The Introductory Tutorial has no provision contract: the apprentice begins with five provisions, supplemented by compensation from the paid starter Assignments.
 
 ### 12.3 Daily sustenance
 
@@ -1030,22 +1049,19 @@ The player normally consumes one unit of provisions at the end of each Workday. 
 
 A player may complete **two consecutive Workdays without provisions before suffering a shortage penalty**. If the player still has no provisions at the end of a third consecutive Workday, shortage consequences begin. The shortage count advances by Workday, not by calendar time, and resets when the player consumes provisions. Time that passes without a Workday being completed does not advance the count.
 
-If the player lacks provisions, the game records the shortage rather than creating a negative balance or granting an automatic free resource. The specific penalty, recovery schedule, stress scale, and stress ceiling remain under design. Shortage consequences must be bounded and recoverable; they must not create an automatic, indefinitely compounding stress ratchet that makes recovery impossible.
+If the player lacks provisions, the game records the shortage rather than creating a negative balance or granting an automatic free resource. The first two consecutive Workdays without provisions are a grace period. At the end of the third consecutive Workday without provisions, the character gains the recoverable **Underfed** condition and receives **+2 Stress**. Each subsequent Workday ending without provisions adds a further +2 Stress. Shortage-attributed Stress is capped at **10 cumulative points per character**; this cap does not reset when provisions are consumed, so repeated shortage episodes cannot bypass it. Stress already gained remains part of the character's Stress and can be reduced through ordinary recovery. The Underfed condition persists while the character remains without provisions and clears when the character consumes provisions. It marks the current hardship and may shape contextually appropriate options or reactions, but it must not create an additional automatic Stress ratchet or cascading loss of resources.
 
 ### 12.4 Recovery from hardship
 
-Potential recovery routes include:
-- Selling or trading personal possessions.
-- Pawning or selling equipment.
-- Seeking an advance or loan with real obligations.
-- Asking for help or calling in a social favor.
-- Taking legitimate or informal work, including work paid in provisions.
-- Pursuing illicit opportunities, such as theft, fraud, smuggling, or black-market exchange, where plausible in the setting.
-- Accepting ethically compromising offers, including bribes, with consequences.
+Shortage consequences may be implemented only in the same release or milestone as concrete recovery actions. At least two of these recovery categories must be implemented in the system when shortage consequences ship, with at least one viable recovery path guaranteed in the character's actual circumstances:
 
-The game should not restrict the player to respectable or institutionally approved ways of responding to hardship. Legitimate, informal, and illicit actions are part of the same world; their availability, risks, and consequences depend on the people, institutions, laws, evidence, and circumstances involved. The game should not reduce these choices to a universal morality label.
+- **Quick provision-paid labor:** a short, plausible task that can be completed for provisions rather than money, with its work and payment terms shown before commitment.
+- **Personal help or an advance:** ask a trusted contact—such as Ur-gir or Nin-aya where the established relationship and circumstances support it—for provisions or an advance. Assistance carries a real obligation, such as repayment, future service, or a relationship cost; it is not an unexplained gift.
+- **Sell or pawn equipment:** exchange a possession or equipment item for provisions or money, with the item, value, and any recovery or repurchase terms made clear.
 
-The player cannot die from a depleted provisions balance, and economic hardship must not create an unavoidable game-over state. The world should preserve plausible avenues of recovery, even when those avenues are difficult, risky, or socially costly. This does not mean the player receives an automatic bailout, unlimited negative balance, or unexplained free resource.
+The availability of each route depends on the people, institutions, possessions, laws, and circumstances actually present. The game must not assume that every character has a trusted contact or saleable equipment. It must, however, preserve at least one viable recovery path and present the available routes when shortage consequences begin; a character must not be left with only the End Workday action. These routes may coexist with other legitimate, informal, or illicit responses where plausible in the setting.
+
+The game should not restrict the player to respectable or institutionally approved ways of responding to hardship. The player cannot die from a depleted provisions balance, and economic hardship must not create an unavoidable game-over state. This does not mean the player receives an automatic bailout, unlimited negative balance, or unexplained free resource.
 
 ### 12.5 Era-appropriate presentation
 
@@ -1061,13 +1077,15 @@ Stress represents the cumulative pressure of work, shortages, conflict, difficul
 
 Reaching the eventual critical or maximum Stress threshold should place the character in a **crisis state** and prompt the world to consider whether support is available. It is not an automatic rescue, a guaranteed Stress reset, or by itself a game-over condition.
 
+Provision-shortage Stress and the recoverable Underfed condition follow the fixed increment, cumulative cap, and recovery requirements in Sections 12.3–12.4. The shortage condition clears when provisions are consumed; Stress already gained remains and can be reduced through ordinary recovery.
+
 The character's positive personal relationships are the first potential source of intervention. A friend, relative, colleague, patron, or other contact may reach out or offer practical help when both willing and able. The form of assistance should reflect the relationship, the person's means, and their circumstances; a positive relationship does not guarantee that the person can help. Repeated hardship or repeated requests may strain a relationship, change the terms of assistance, or leave the contact unable or unwilling to intervene.
 
 When personal support is unavailable or insufficient—because the character lacks positive relationships, has already relied on them repeatedly, or remains in hardship over an extended period—the wider society may offer other avenues. These must be appropriate to the historical place and period, including relevant charitable, religious, household, civic, or institutional practices where they existed. Do not impose modern charitable organizations or assumptions on earlier societies.
 
 Support is an opportunity, not an entitlement or guaranteed bailout. The character may still need to seek work, negotiate obligations, accept assistance with conditions, or pursue informal and illicit alternatives. A character with no positive relationships must not be locked into an unavoidable failure state.
 
-The final stress scale, ceiling, thresholds, crisis timing, intervention frequency, recovery rates, and effects of assistance are not yet approved. Any shortage or crisis consequence must be bounded and recoverable; it must not compound automatically into an unavoidable poverty spiral. Stress changes must be explained when they occur, and the player must be able to see the likely cost of a recovery action before committing.
+The overall Stress scale is 0–100. The critical threshold, crisis timing, intervention frequency, general recovery rates, and effects of assistance remain open design work. The shortage-specific Stress increment and cumulative cap are established in Section 12.3. All Stress changes must be explained when they occur, and the player must be able to see the likely cost and obligations of a recovery action before committing.
 
 ### 13.2 Trust and reputation
 
@@ -1431,12 +1449,12 @@ The game may represent complex technologies, institutions, and historical events
 The following details require further design before they can be treated as fixed mechanics:
 
 1. The Works portfolio for Eras I–VII: identify historically grounded milestone opportunities and smaller career-scale undertakings; determine which Works are required for each era transition, how much choice the player has, how missed or declined date-based invitations are accommodated, and the appropriate scale, structure, and XP awards.
-2. Playtesting the Storehouse Reckoning: whether evidence examination, reconciliation, source discipline, professional judgment, revision, and Senior Scribe disposition are engaging and understandable rather than procedural. Permanent register design, unseen transaction tests, and adoption consequences are not part of this Work.
+2. Playtesting the Introductory Tutorial: whether its guided evidence examination, reconciliation, source discipline, professional judgment, revision, and Senior Scribe disposition teach basic professional concepts and interface interactions clearly without being mistaken for the normal Assignment or Work loop. The tutorial is not a Work-system template and awards no Historical Progress XP.
 3. The maximum active Assignment commitment count, cancellation costs, and offer-generation balance beyond the initial two-commitment / 6-AP model.
 4. The precise balance of Career XP rewards across Assignments, Challenges, Works, and study.
 5. Professional rank: define the skill-to-rank formula and test it against broad generalists and narrow specialists; decide whether a specialist ceiling is appropriate; localize in-world titles without treating offices as universal competence grades; define the opportunity profiles of all seven grades, including meaningful differences at ranks 5–7; and decide whether rank affects compensation. The approved direction is that rank shapes baseline opportunity access, while skills determine specific qualifications and appointments grant authority. Retain the former 200,000 Career XP total only as a provisional career-pacing target, not as a rank threshold, and reconcile it with total skill and specialization purchase costs once those costs are defined.
-6. The complete money and provisions economy: prices, availability, storage/spoilage, daily sustenance and shortage consequences, era-appropriate currency names and food presentation.
-7. The stress scale, ceiling, thresholds, crisis timing, recovery rates, and fully priced recovery options; define how crisis interventions are paced and how assistance affects Stress and relationships. Shortage consequences must remain recoverable.
+6. The complete money and provisions economy: prices, availability, storage/spoilage, compensation balance, and era-appropriate currency names and food presentation. The daily sustenance rule and shortage trigger are established in Section 12.3.
+7. The general Stress and crisis system: define the critical threshold, crisis timing, recovery rates, intervention pacing, and how assistance affects Stress and relationships. The shortage-specific +2 Stress increment, 10-point per-character cap, Underfed condition, and simultaneous recovery-route requirement are established in Sections 12.3–12.4 and are not open design questions.
 8. Complete the NPC relationship, agency, and obligation model: determine how directional, multi-dimensional relationships are represented and changed; how significant events and accumulated meaningful interactions shape them; how relationships persist through successors, institutions, and geographically separated eras; how positive relationships can provide crisis support; how repeated assistance affects those relationships; and how conflicting commitments are represented and resolved in specific contexts. Established principles include independent NPC agency, proportionate immediate objectives and longer-term ambitions, commitments with identifiable bases, the distinction between demands and obligations, contextually appropriate attempts at resolution, and the persistence of unresolved matters. Detailed decision rules, memory scope, presentation, and runtime mechanics remain open.
 9. Determine how professional traditions, records, archives, and institutions provide historical connections across distant eras. These are continuities within the world and its history, not mechanisms required to preserve the player's identity; the player continues through successive characters.
 10. Character-transition details: define how and when a player character leaves play, how connected scribal NPC candidates are presented and selected, and how their circumstances and availability are communicated. The approved principle is that the player continues through an existing scribal NPC connected to the former character and their professional world in the same historical period; the new character may be much less experienced or prominent. Character death does not require a family successor or restart the era. The engine now persists pending transitions, distinguishes death from non-death departure, records completed handoffs, preserves world and historical state, and starts the successor on the same day with six AP. A world with no eligible connected scribal candidate enters an explicit no-successor terminal state rather than generating a replacement. Candidate availability beyond alive + scribal + evidenced connection remains open.
@@ -1482,12 +1500,12 @@ These are open design tasks, not invitations to fill gaps with arbitrary placeho
 
 *Scribe of Eras* is about the human history of making knowledge durable and useful. The player begins in Uruk, develops a professional identity, and becomes involved in the people and institutions that shape written culture.
 
-Assignments provide optional professional work. Challenges introduce optional complications and opportunities. Works are the historical progression layer: a varied portfolio of historically grounded undertakings, from smaller career-scale projects to larger authored milestone experiences. Some milestone Works may be offered through date-based invitations, with availability windows appropriate to the historical evidence and access shaped by the character's career and circumstances. The player may miss or decline an invitation; history continues, and the wider Works portfolio must provide a coherent progression route. Works should be designed around the actual subject and the kind of gameplay it creates, not forced into one universal sequence or the Storehouse Reckoning template. The Storehouse Reckoning is the first vertical slice, not the model for every future Work.
+Assignments provide optional professional work. Challenges introduce optional complications and opportunities. Works are the historical progression layer: a varied portfolio of historically grounded undertakings, from smaller career-scale projects to larger authored milestone experiences. Some milestone Works may be offered through date-based invitations, with availability windows appropriate to the historical evidence and access shaped by the character's career and circumstances. The player may miss or decline an invitation; history continues, and the wider Works portfolio must provide a coherent progression route. Works should be designed around the actual subject and the kind of gameplay it creates, not forced into one universal sequence or the Storehouse Reckoning template. The Storehouse Reckoning is the Introductory Tutorial, outside Assignments, Challenges, and Works. It awards 0 Historical Progress XP, is excluded from completedWorks, and teaches basic evidence, numerical-entry, submission, and assessment interactions. It is not a Work vertical slice or a model for future Works.
 
-The daily economy of action is six shared Action Points, not a fixed number of commission slots, fixed commission count, or real-time timer. The player chooses how to divide those points among Assignments, Work progress, Challenges, study, and relationships. The Storehouse Reckoning provides one unit of provisions per active contracted Workday; provisions are the abstract daily food resource. Unaccepted offers normally expire after three in-game days, while accepted work remains active until resolved or cancelled. The player may hold at most two accepted Assignments; offers that lapse while a mandatory Work occupies the player do not count as ignored opportunities for Challenge triggers.
+The daily economy of action is six shared Action Points, not a fixed number of commission slots, fixed commission count, or real-time timer. The player chooses how to divide those points among Assignments, Work progress, Challenges, study, and relationships. The Introductory Tutorial has no provision contract. The apprentice begins with five provisions, supplemented by compensation from the paid starter Assignments; provisions remain the abstract daily food resource. Shortage consequences begin on the third consecutive Workday without provisions and follow the capped, recoverable rule in Section 12.3, with recovery routes required in the same milestone. Unaccepted offers normally expire after three in-game days, while accepted work remains active until resolved or cancelled. The player may hold at most two accepted Assignments; offers that lapse while a mandatory Work occupies the player do not count as ignored opportunities for Challenge triggers.
 
 Career XP is earned through professional activity and invested in eligible skill and specialization development; it does not directly determine rank. A character's rank follows from their own skill profile and shapes the broad range of opportunities likely to reach them. Skills determine qualification for specific work, and appointments grant formal authority. The former commission-tier ladder is removed; individual Assignments retain a separate difficulty marker. Historical Progress XP measures mandatory historical contributions. The calendar controls in-game dates; XP does not. Era-transition rewards must be calibrated so completing all required Works is sufficient to reach the next threshold without optional grinding.
 
-The personal economy has two tracked resources: money and provisions. Money uses an era-appropriate currency name without conversion of the underlying value at era transitions; provisions remain an abstract food resource presented through era-appropriate foods and rations. Beer is not a tracked personal resource, though it may appear in the world, inventory, hospitality, and institutional or social exchanges. Exact prices, availability, storage, crisis timing, assistance frequency and effects, sustenance shortage consequences, and historical presentation remain open design work.
+The personal economy has two tracked resources: money and provisions. Money uses an era-appropriate currency name without conversion of the underlying value at era transitions; provisions remain an abstract food resource presented through era-appropriate foods and rations. Beer is not a tracked personal resource, though it may appear in the world, inventory, hospitality, and institutional or social exchanges. Exact prices, availability, storage, crisis timing, assistance frequency and effects, and historical presentation remain open design work. The shortage trigger, shortage-attributed Stress cap, Underfed condition, and required recovery routes are established in Sections 12.3–12.4.
 
 The journey continues through existing scribal NPCs connected to the current character and their profession. The player chooses among plausible candidates, subject to their actual circumstances and availability. If no close apprentice or obvious successor exists, the player continues through another existing connected scribal NPC in the same historical period; the calendar, completed Works, and wider world do not restart. The new character retains their own skills, reputation, relationships, obligations, possessions, and circumstances. The family desk remains a family heirloom and workspace, not a vessel of player continuity; access depends on the current character's own relationships, household, location, and circumstances. Exact candidate eligibility and selection details, and the desk's access rules for non-family characters, remain open.
