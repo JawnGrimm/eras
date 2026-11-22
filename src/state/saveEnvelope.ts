@@ -302,7 +302,7 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
     || typeof outcome.challengeId !== 'string' || typeof outcome.title !== 'string' || typeof outcome.category !== 'string'
     || !Number.isInteger(outcome.resolvedDay) || (outcome.resolvedDay as number) < 1 || (outcome.resolvedDay as number) > (calendar.dayNumber as number)
     || typeof outcome.choiceId !== 'string' || typeof outcome.choiceLabel !== 'string' || typeof outcome.summary !== 'string'
-    || typeof outcome.assigneePersonId !== 'string' || !isObject(people[outcome.assigneePersonId]))) return false;
+    || (outcome.assigneePersonId !== undefined && (typeof outcome.assigneePersonId !== 'string' || !isObject(people[outcome.assigneePersonId]))))) return false;
   for (const [id, challenge] of Object.entries(value.opportunities.challenges)) {
     if (!isObject(challenge) || challenge.id !== id || !['offered','accepted','declined'].includes(challenge.status as string)
       || (challenge.status === 'accepted' && (typeof challenge.assigneePersonId !== 'string' || !isObject(people[challenge.assigneePersonId])))
