@@ -65,7 +65,7 @@ export function validateOpportunityConsequences(
     const assertionIds = new Set<string>();
     for (const assertion of record.assertions) {
       if (!assertion.id || assertionIds.has(assertion.id) || !assertion.text || !Array.isArray(assertion.sourceIds)
-        || assertion.sourceIds.some((id) => !sourceIds.has(id))
+        || assertion.sourceIds.some((id: string) => !sourceIds.has(id))
         || !['observed','reported','inferred','disputed'].includes(assertion.classification)) return 'Record assertion is invalid or unsupported by its sources.';
       assertionIds.add(assertion.id);
     }
@@ -91,14 +91,18 @@ export function validateOpportunityConsequences(
   return null;
 }
 
+function resolvedDay(policy: AuthoredDatePolicy | undefined, currentDay: number): number {
+  return policy?.kind === 'fixed' ? policy.dayNumber : currentDay;
+}
+
 export function resolveOpportunityDatePolicies(effects: OpportunityConsequences, currentDay: number): OpportunityConsequences {
   const policies = effects.datePolicies;
   return {
     ...effects,
-    ...(effects.event ? { event: { ...effects.event, dayNumber: policies?.event?.kind === 'fixed' ? policies.event.dayNumber : currentDay } } : {}),
-    ...(effects.record ? { record: { ...effects.record, createdDay: policies?.record?.kind === 'fixed' ? policies.record.dayNumber : currentDay } } : {}),
+    ...(effects.event ? { event: { ...effects.event, dayNumber: resolvedDay(policies?.event, currentDay) } } : {}),
+    ...(effects.record ? { record: { ...effects.record, createdDay: resolvedDay(policies?.record, currentDay) } } : {}),
     ...(effects.knowledge ? { knowledge: effects.knowledge.map((entry) => ({
-      ...entry, learnedDay: policies?.knowledge?.[entry.id]?.kind === 'fixed' ? policies.knowledge[entry.id].dayNumber : currentDay,
+      ...entry, learnedDay: resolvedDay(policies?.knowledge?.[entry.id], currentDay),
     })) } : {}),
   };
 }
