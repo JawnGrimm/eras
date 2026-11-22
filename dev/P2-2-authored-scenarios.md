@@ -1,6 +1,6 @@
-# P2-2 Authored Scenario Pack — Review Draft
+# P2-2 Authored Scenario Pack — Runtime Reference
 
-**Status:** Proposed authored content for review; not yet runtime-integrated or canonical GDD approval.  
+**Status:** Implemented in PR #33 and merged to `main` on 22 November 2026. This developer reference preserves authored scenario context; the canonical GDD governs approved design, and the runtime definitions govern implemented behavior. Some Challenge reward magnitudes and relationship consequences were adjusted during implementation; consult `src/engine/challengeDirector.ts` for the live values.  
 **Setting:** Uruk, c. 3200 BCE; Temple Storehouse and its immediate working spaces.  
 **Authoring note:** These are fictional game scenarios grounded in the currently implemented Uruk cast and institutions. Quantities and incident details below are authored scenario facts, not claims about a documented historical event.
 
@@ -10,7 +10,7 @@ This pack supplies three distinct recurring Assignment activities and two option
 
 ## 1. Held-Barley Inspection
 
-**Activity ID proposal:** `activity-held-barley-inspection`  
+**Activity ID:** `activity-held-barley-inspection`  
 **Assignment category:** `held_barley_inspection`  
 **Employer:** Ur-Nanna, Storehouse Steward, acting for the Temple Storehouse  
 **Recipient:** Shuruppak-ilu, Senior Scribe  
@@ -58,7 +58,7 @@ The order permits a qualified early report after the records and one or both con
 
 ## 2. South-Court Delivery Reconciliation
 
-**Activity ID proposal:** `activity-south-court-delivery-reconciliation`  
+**Activity ID:** `activity-south-court-delivery-reconciliation`  
 **Assignment category:** `delivery_reconciliation`  
 **Employer:** Temple Storehouse, represented by Ur-Nanna  
 **Recipient:** Shuruppak-ilu, Senior Scribe  
@@ -105,7 +105,7 @@ The storehouse account cannot be closed while the dispatch and receipt quantitie
 
 ## 3. South Loading-Awning Inspection
 
-**Activity ID proposal:** `activity-south-loading-awning-inspection`  
+**Activity ID:** `activity-south-loading-awning-inspection`  
 **Assignment category:** `institutional_maintenance`  
 **Employer:** Ur-Nanna, Storehouse Steward  
 **Recipient:** Shuruppak-ilu, Senior Scribe  
@@ -148,8 +148,8 @@ Ur-Nanna reports that rainwater has collected near the south loading threshold a
 
 ## 4. Optional Challenge: The Seven Sacks
 
-**Challenge ID proposal:** `challenge-seven-sacks`  
-**Trigger:** Completion of the Held-Barley Inspection Assignment, evaluated from the recent activity record.  
+**Challenge ID:** `challenge-seven-sacks`  
+**Runtime trigger:** The held-barley institutional matter has remained active for at least two days, or a completed Held-Barley report has the `qualified_incomplete` finding. The Challenge is presented once and is not reoffered after decline or resolution.  
 **Category:** `institutional_judgment`  
 **Delivery:** Ur-Nanna asks the current scribe for a recommendation after receiving the inspection report.  
 **AP cost:** 2 AP to resolve after accepting.  
@@ -175,8 +175,8 @@ Ur-Nanna reports that rainwater has collected near the south loading threshold a
 
 ## 5. Optional Challenge: The Missing Measure
 
-**Challenge ID proposal:** `challenge-missing-measure`  
-**Trigger:** Completion of the South-Court Delivery Reconciliation Assignment where the one-measure discrepancy remains unresolved.  
+**Challenge ID:** `challenge-missing-measure`  
+**Runtime trigger:** The ChallengeDirector detects a completed delivery-reconciliation activity in its recent activity window, or a completed reconciliation report has an unresolved/qualified finding. The separate carrier-volume aggregate fallback discussed during design is not implemented in the current trigger rule and should be tracked as a follow-up rather than assumed to exist. The Challenge is presented once and is not reoffered after decline or resolution.  
 **Category:** `professional_discretion`  
 **Delivery:** Shuruppak-ilu asks whether the storehouse account should be closed before the next tally.  
 **AP cost:** 2 AP to resolve after accepting.  
@@ -211,4 +211,4 @@ Ur-Nanna reports that rainwater has collected near the south loading threshold a
 - Challenge triggers are one-shot per authored trigger key and must not repeatedly offer the same scenario after it has been declined or resolved.
 - All outcomes are deterministic and authored. No runtime generative AI is used.
 - Character knowledge remains character-scoped. A successor does not inherit the former character's personal knowledge merely because the earlier character authored or received a report.
-- These scenarios are proposed content for review. The canonical GDD remains unchanged until the project owner approves the authored facts, outcomes, and resulting mechanics.
+- The three Assignment activities and two Challenges are registered in the production runtime. Assignment generation is deterministic, targets no more than 8 estimated AP of new offers per settlement, caps the board at four open offers, and tracks a three-day per-activity presentation interval. Challenge evaluation runs during end-of-day settlement. Consult `src/content/assignments/urukAssignments.ts`, `src/engine/assignmentGenerator.ts`, and `src/engine/challengeDirector.ts` for current implementation details. The authored proposal values above are retained as design history where runtime consequences differ.
