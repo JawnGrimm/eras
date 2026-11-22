@@ -89,7 +89,7 @@ describe('Challenge character ownership', () => {
   it('requires acceptance and current-character ownership before resolution', () => {
     let state = createNewGameState();
     const challengeId = Object.keys(state.opportunities.challenges)[0] as ChallengeId;
-    const offeredResolution = transitionGame(state, { type: 'RESOLVE_CHALLENGE', challengeId, choiceId: 'preserve' });
+    const offeredResolution = transitionGame(state, { type: 'RESOLVE_CHALLENGE', challengeId, choiceId: 'preserve-uncertain-reading' });
     expect(offeredResolution.feedback?.code).toBe('challenge-not-active');
     state = transitionGame(state, { type: 'ACCEPT_CHALLENGE', challengeId }).state;
     const otherCharacter = 'person-uruk-nin-aya' as PersonId;
