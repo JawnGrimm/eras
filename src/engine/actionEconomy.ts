@@ -6,6 +6,9 @@ import { transitionAssignmentActivityAction } from './assignmentActivity';
 import { validateWorkDefinition } from '../works/workDefinition';
 import { transitionCharacterContinuity } from './characterContinuity';
 import { advanceInstitutionalMatters } from './institutionalMatters';
+import { generateDailyAssignments } from './assignmentGenerator';
+import { runChallengeDirector } from './challengeDirector';
+import { buildSituatedMorningReport } from './morningReport';
 import type { WorkAssessment, WorkDefinition } from '../works/workDefinition';
 
 function feedback(kind: 'success' | 'error' | 'info', code: string, message: string) {
@@ -374,6 +377,9 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
         },
       };
       next = advanceInstitutionalMatters(next, state.calendar.dayNumber + 1);
+      next = generateDailyAssignments(next);
+      next = runChallengeDirector(next);
+      next = buildSituatedMorningReport(state, next);
       if (!hadProvision && (shortageWorkdays <= 2 || shortageWorkdays === 3)) {
         next = withNotice(next, 'settlement', shortageWorkdays <= 2
           ? `No provisions were available. Shortage day ${shortageWorkdays} of 2 grace days.`

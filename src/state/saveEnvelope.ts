@@ -5,7 +5,7 @@ import type { GameState, Institution, OpportunityConsequences, SaveEnvelope, Scr
 import { validateOpportunityConsequences } from './opportunityValidation';
 import type { WorkDefinition } from '../works/workDefinition';
 import { rankSuccessorCandidates } from '../engine/characterContinuity';
-import { NORTH_BAY_ACTIVITY_ID, NORTH_BAY_PEOPLE, NORTH_BAY_LOCATION_ID, ASSIGNMENT_ACTIVITY_CATALOG, validateAssignmentActivityProgress } from '../content/assignments/northBayRoofInspection';
+import { NORTH_BAY_PEOPLE, NORTH_BAY_LOCATION_ID, ASSIGNMENT_ACTIVITY_CATALOG, validateAssignmentActivityProgress } from '../content/assignments/northBayRoofInspection';
 
 export const SAVE_KEY = 'scribe_game_v2';
 // Keep schema v2 for compatibility with early production saves that contain empty opportunity maps and works.progress; populated entries are validated against the registered Work catalog.
@@ -293,7 +293,7 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
       || typeof offer.context.what !== 'string' || !offer.context.what || typeof offer.context.purpose !== 'string' || !offer.context.purpose
       || !Array.isArray(offer.context.who) || !stringArray(offer.context.responsibility) || !stringArray(offer.context.provenance)
       || !isObject(offer.requiredSkills) || Object.entries(offer.requiredSkills).some(([skill, level]) => !CORE_SKILL_IDS.includes(skill as SkillId) || !Number.isInteger(level) || (level as number) < 1 || (level as number) > 10)
-      || !['routine','demanding','critical'].includes(offer.difficulty as string) || (offer.activityId ? (offer.activityId !== NORTH_BAY_ACTIVITY_ID || ASSIGNMENT_ACTIVITY_CATALOG[String(offer.activityId) as keyof typeof ASSIGNMENT_ACTIVITY_CATALOG]?.participants.some((personId) => !isObject(people[personId])) || !Number.isInteger(offer.estimatedTotalAp) || (offer.estimatedTotalAp as number) < 1 || offer.apCost !== undefined || (['accepted','completed','cancelled'].includes(offer.status as string) ? !validateAssignmentActivityProgress(ASSIGNMENT_ACTIVITY_CATALOG[String(offer.activityId) as keyof typeof ASSIGNMENT_ACTIVITY_CATALOG], offer.activityProgress) : offer.activityProgress !== undefined)) : (!Number.isInteger(offer.apCost) || (offer.apCost as number) < 1 || (offer.apCost as number) > 6 || offer.estimatedTotalAp !== undefined || offer.activityProgress !== undefined))
+      || !['routine','demanding','critical'].includes(offer.difficulty as string) || (offer.activityId ? (!ASSIGNMENT_ACTIVITY_CATALOG[String(offer.activityId) as keyof typeof ASSIGNMENT_ACTIVITY_CATALOG] || ASSIGNMENT_ACTIVITY_CATALOG[String(offer.activityId) as keyof typeof ASSIGNMENT_ACTIVITY_CATALOG].participants.some((personId) => !isObject(people[personId])) || !Number.isInteger(offer.estimatedTotalAp) || (offer.estimatedTotalAp as number) < 1 || offer.apCost !== undefined || (['accepted','completed','cancelled'].includes(offer.status as string) ? !validateAssignmentActivityProgress(ASSIGNMENT_ACTIVITY_CATALOG[String(offer.activityId) as keyof typeof ASSIGNMENT_ACTIVITY_CATALOG], offer.activityProgress) : offer.activityProgress !== undefined)) : (!Number.isInteger(offer.apCost) || (offer.apCost as number) < 1 || (offer.apCost as number) > 6 || offer.estimatedTotalAp !== undefined || offer.activityProgress !== undefined))
       || (offer.completionConsequences !== undefined && (!isObject(offer.completionConsequences) || !!validateOpportunityConsequences(offer.completionConsequences as OpportunityConsequences, opportunityContext, 'authoring')))
       || (offer.cancellationConsequences !== undefined && (!isObject(offer.cancellationConsequences) || !!validateOpportunityConsequences(offer.cancellationConsequences as OpportunityConsequences, opportunityContext, 'authoring')))
       || !isObject(offer.compensation) || !finiteNonNegative(offer.compensation.money) || !finiteNonNegative(offer.compensation.provisions)
@@ -313,6 +313,9 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
       || typeof aggregate.category !== 'string'
       || !['presented','accepted','declined','nonWorkLapsed','completed'].every((field) => Number.isInteger(aggregate[field]) && finiteNonNegative(aggregate[field]))) return false;
   }
+  const generatorLedger = value.opportunities.assignmentGeneratorLedger;
+  if (generatorLedger !== undefined && (!isObject(generatorLedger) || !Number.isInteger(generatorLedger.sequence) || (generatorLedger.sequence as number) < 0
+    || !isObject(generatorLedger.lastPresentedDayByActivity) || Object.values(generatorLedger.lastPresentedDayByActivity).some((day) => !Number.isInteger(day) || !finiteNonNegative(day)))) return false;
   if (!Array.isArray(value.opportunities.recentActivity) || value.opportunities.recentActivity.length > 5
     || value.opportunities.recentActivity.some((entry) => !isObject(entry) || !finiteNonNegative(entry.dayNumber)
       || !['presented','accepted','declined','lapsed','completed','cancelled'].includes(entry.kind as string)

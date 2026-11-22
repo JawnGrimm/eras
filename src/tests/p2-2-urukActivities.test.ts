@@ -1,0 +1,140 @@
+import { describe, expect, it } from 'vitest';
+import type { AssignmentId, InstitutionId, MatterId } from '../state/ids';
+import { createInitialGameState } from '../state/initialState';
+import { generateDailyAssignments } from '../engine/assignmentGenerator';
+import { runChallengeDirector } from '../engine/challengeDirector';
+import { transitionOpportunityAction } from '../engine/opportunities';
+import { transitionAssignmentActivityAction } from '../engine/assignmentActivity';
+import { MATTER_IDS } from '../engine/institutionalMatters';
+import {
+  heldBarleyInspection, southCourtDeliveryReconciliation, southLoadingAwningInspection,
+} from '../content/assignments/urukAssignments';
+import { validateAssignmentActivityDefinition } from '../content/assignments/northBayRoofInspection';
+import type { AssignmentOffer, GameState } from '../state/types';
+
+const STOREHOUSE = 'institution-uruk-temple-storehouse' as InstitutionId;
+const HELD_MATTER = MATTER_IDS.heldBarley;
+
+function withHeldMatter(state: GameState, createdDay = 1): GameState {
+  const matter = {
+    id: HELD_MATTER, institutionId: STOREHOUSE, kind: 'held_barley_inspection' as const,
+    summary: 'Seven held measures remain segregated in seven sacks.', status: 'active' as const, createdDay,
+  };
+  const institution = state.world.institutions[STOREHOUSE];
+  return {
+    ...state,
+    world: {
+      ...state.world,
+      matters: { ...state.world.matters, [HELD_MATTER]: matter },
+      institutions: { ...state.world.institutions, [STOREHOUSE]: {
+        ...institution, activeMatters: [...institution.activeMatters, HELD_MATTER],
+      } },
+    },
+  };
+}
+
+function accept(state: GameState, offer: AssignmentOffer): GameState {
+  return transitionOpportunityAction(state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: offer.id }).state;
+}
+function perform(state: GameState, assignmentId: AssignmentId, actionId: string): GameState {
+  return transitionAssignmentActivityAction(state, { type: 'PERFORM_ASSIGNMENT_ACTIVITY_ACTION', assignmentId, actionId }).state;
+}
+function draft(state: GameState, assignmentId: AssignmentId, value: {
+  finding: string; responsibilityClaim: string; citedDiscoveryIds: string[]; limitations: string[]; recommendations: string[];
+}): GameState {
+  return transitionAssignmentActivityAction(state, { type: 'UPDATE_ASSIGNMENT_ACTIVITY_DRAFT', assignmentId, draft: value }).state;
+}
+function submit(state: GameState, assignmentId: AssignmentId): GameState {
+  return transitionAssignmentActivityAction(state, { type: 'SUBMIT_ASSIGNMENT_ACTIVITY', assignmentId }).state;
+}
+
+describe('P2-2 authored Uruk Assignment activities', () => {
+  it('validates all three typed activity definitions', () => {
+    expect(validateAssignmentActivityDefinition(heldBarleyInspection)).toEqual([]);
+    expect(validateAssignmentActivityDefinition(southCourtDeliveryReconciliation)).toEqual([]);
+    expect(validateAssignmentActivityDefinition(southLoadingAwningInspection)).toEqual([]);
+  });
+
+  it('generates deterministic, bounded offers toward an 8 AP target and persists anti-repetition', () => {
+    const state = createInitialGameState();
+    const first = generateDailyAssignments(state);
+    const second = generateDailyAssignments(state);
+    const firstOffers = Object.values(first.opportunities.assignments);
+    const secondOffers = Object.values(second.opportunities.assignments);
+    expect(firstOffers.map((offer) => offer.id)).toEqual(secondOffers.map((offer) => offer.id));
+    expect(firstOffers).toHaveLength(2);
+    expect(firstOffers.reduce((sum, offer) => sum + (offer.estimatedTotalAp ?? 0), 0)).toBe(7);
+    expect(first.opportunities.assignmentGeneratorLedger?.sequence).toBe(2);
+    const sameDay = generateDailyAssignments(first);
+    expect(Object.values(sameDay.opportunities.assignments)).toHaveLength(2);
+    expect(Object.keys(sameDay.opportunities.assignmentGeneratorLedger?.lastPresentedDayByActivity ?? {})).toHaveLength(2);
+  });
+
+  it('offers Held-Barley only while the structured held-stock matter is active', () => {
+    const generated = generateDailyAssignments(withHeldMatter(createInitialGameState()));
+    const held = Object.values(generated.opportunities.assignments).find((offer) => offer.activityId === heldBarleyInspection.id);
+    expect(held?.estimatedTotalAp).toBe(5);
+    const withoutMatter = generateDailyAssignments(createInitialGameState());
+    expect(Object.values(withoutMatter.opportunities.assignments).some((offer) => offer.activityId === heldBarleyInspection.id)).toBe(false);
+  });
+
+  it('files Held-Barley as a recommendation and preserves measure/container/grain boundaries', () => {
+    let state = withHeldMatter(createInitialGameState());
+    state = generateDailyAssignments(state);
+    const offer = Object.values(state.opportunities.assignments).find((item) => item.activityId === heldBarleyInspection.id)!;
+    state = accept(state, offer);
+    state = perform(state, offer.id, 'held-consult-steward');
+    state = perform(state, offer.id, 'held-inspect-sacks');
+    state = perform(state, offer.id, 'held-compare-measures');
+    state = draft(state, offer.id, {
+      finding: 'surface_condition_only', responsibilityClaim: 'none',
+      citedDiscoveryIds: ['held-container-observation','held-intake-record','held-recount-record'],
+      limitations: [], recommendations: ['release_five_retain_two'],
+    });
+    const historicalXp = state.historicalProgression.historicalXp;
+    state = submit(state, offer.id);
+    const completed = state.opportunities.assignments[offer.id];
+    expect(completed.status).toBe('completed');
+    const record = Object.values(state.records.entries).find((entry) => entry.title === 'Held-Barley Finding and Recommendation');
+    expect(record).toBeDefined();
+    expect(record?.assertions.some((assertion) => assertion.text.includes('not a release order'))).toBe(true);
+    expect(record?.uncertaintyLimits.join(' ')).toContain('capacity tally');
+    expect(record?.uncertaintyLimits.join(' ')).toContain('internal grain soundness');
+    expect(state.world.matters[HELD_MATTER]?.status).toBe('active');
+    expect(state.historicalProgression.historicalXp).toBe(historicalXp);
+  });
+
+  it('records a neutral 24/23 reconciliation and triggers The Missing Measure without blaming Enlil-kisu', () => {
+    let state = generateDailyAssignments(createInitialGameState());
+    const offer = Object.values(state.opportunities.assignments).find((item) => item.activityId === southCourtDeliveryReconciliation.id)!;
+    state = accept(state, offer);
+    state = perform(state, offer.id, 'delivery-compare-tablets');
+    state = perform(state, offer.id, 'delivery-consult-enlil');
+    state = draft(state, offer.id, {
+      finding: 'unlocated_discrepancy', responsibilityClaim: 'none',
+      citedDiscoveryIds: ['delivery-dispatch-copy','delivery-arrival-tally','delivery-enlil-testimony'],
+      limitations: [], recommendations: ['retain_both_request_origin'],
+    });
+    state = submit(state, offer.id);
+    const record = Object.values(state.records.entries).find((entry) => entry.title === 'South-Court Delivery Reconciliation');
+    expect(record?.assertions.some((assertion) => assertion.text.includes('24') && assertion.text.includes('23'))).toBe(true);
+    expect(record?.assertions.some((assertion) => assertion.classification === 'disputed')).toBe(false);
+    expect(state.world.relationships[state.player.currentCharacterId]?.['person-enlil-kisu' as never]?.dimensions.trust).toBe(53);
+    expect(state.world.relationships['person-enlil-kisu' as never]?.[state.player.currentCharacterId]?.dimensions.trust).toBe(57);
+    const directed = runChallengeDirector(state);
+    expect(directed.opportunities.challenges['challenge-missing-measure' as never]?.title).toBe('The Missing Measure');
+    expect(directed.historicalProgression.historicalXp).toBe(state.historicalProgression.historicalXp);
+  });
+
+  it('triggers The Seven Sacks after an open held-stock matter reaches two days and never reoffers after decline', () => {
+    let state = withHeldMatter(createInitialGameState(), 1);
+    state = { ...state, calendar: { ...state.calendar, dayNumber: 3 } };
+    const directed = runChallengeDirector(state);
+    const challenge = directed.opportunities.challenges['challenge-seven-sacks' as never];
+    expect(challenge?.title).toBe('The Seven Sacks');
+    const declined = transitionOpportunityAction(directed, { type: 'DECLINE_CHALLENGE', challengeId: challenge!.id }).state;
+    const again = runChallengeDirector(declined);
+    expect(again.opportunities.challenges['challenge-seven-sacks' as never]?.status).toBe('declined');
+    expect(again.historicalProgression.historicalXp).toBe(state.historicalProgression.historicalXp);
+  });
+});

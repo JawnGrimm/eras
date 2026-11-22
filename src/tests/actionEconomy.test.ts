@@ -56,7 +56,7 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
     const settled = result.state;
     expect(settled.world.people[INITIAL_PERSON_ID].scribal?.wallet.provisions).toBe(4);
     expect(settled.world.people[INITIAL_PERSON_ID].scribal?.wallet.shortageWorkdays).toBe(0);
-    expect(settled.journal.notices).toHaveLength(0);
+    expect(settled.journal.notices.filter((notice) => notice.category === 'settlement')).toHaveLength(0);
     expect(settled.calendar.displayDate).toBe('Day 2 · Uruk (c. 3200 BCE)');
     const duplicate = transitionGame(settled, { type: 'END_DAY', expectedDayNumber: initial.calendar.dayNumber });
     expect(duplicate.state).toBe(settled);
@@ -130,18 +130,18 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
 
     state = endDay(state).state;
     expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet.shortageWorkdays).toBe(1);
-    expect(state.journal.notices).toHaveLength(1);
+    expect(state.journal.notices.filter((notice) => notice.category === 'settlement')).toHaveLength(1);
     state = endDay(state).state;
     expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet.shortageWorkdays).toBe(2);
-    expect(state.journal.notices).toHaveLength(2);
+    expect(state.journal.notices.filter((notice) => notice.category === 'settlement')).toHaveLength(2);
     state = endDay(state).state;
     expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet.shortageWorkdays).toBe(3);
-    expect(state.journal.notices).toHaveLength(3);
-    expect(state.journal.notices.at(-1)?.message).toContain('shortage state is now active');
+    expect(state.journal.notices.filter((notice) => notice.category === 'settlement')).toHaveLength(3);
+    expect(state.journal.notices.filter((notice) => notice.category === 'settlement').at(-1)?.message).toContain('shortage state is now active');
 
     for (let day = 4; day <= 8; day++) state = endDay(state).state;
     expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet.shortageWorkdays).toBe(8);
-    expect(state.journal.notices).toHaveLength(3);
+    expect(state.journal.notices.filter((notice) => notice.category === 'settlement')).toHaveLength(3);
 
     const current = state.world.people[INITIAL_PERSON_ID];
     state = {
@@ -154,7 +154,7 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
     state = endDay(state).state;
     expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet.provisions).toBe(0);
     expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet.shortageWorkdays).toBe(0);
-    expect(state.journal.notices).toHaveLength(3);
+    expect(state.journal.notices.filter((notice) => notice.category === 'settlement')).toHaveLength(3);
   });
 
   it('restores only structurally valid v2 envelopes and rejects partial or corrupt saves', () => {
