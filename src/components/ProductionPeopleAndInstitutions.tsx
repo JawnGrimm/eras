@@ -49,7 +49,7 @@ export function ProductionPeopleAndInstitutions() {
         return <article key={person.id} className="rounded-xl border border-stone-300 bg-white p-5">
           <div className="flex flex-wrap items-start justify-between gap-2">
             <div><h3 className="font-serif text-xl font-semibold">{person.name}</h3>
-              <p className="text-xs text-stone-500">{person.alive ? 'Living' : 'Deceased'} · {person.ageYears === undefined ? 'Age unknown' : `${person.ageYears} years`}{person.lifeStage ? ` · ${person.lifeStage.replaceAll('_', ' ')}` : ''}</p>
+              <p className="text-xs text-stone-500">{person.alive ? 'Living' : 'Deceased'} · {person.ageYears === undefined ? 'Age unknown' : `${person.ageYears} years`}{person.lifeStage ? ` · ${person.lifeStage.replace(/_/g, ' ')}` : ''}</p>
               {person.socialIdentity && <p className="mt-1 max-w-2xl text-sm text-stone-600">{person.socialIdentity.summary}</p>}
             </div>
             {person.id === state.player.currentCharacterId && <span className="rounded bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-900">Current character</span>}
