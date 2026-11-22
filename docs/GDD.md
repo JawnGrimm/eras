@@ -58,6 +58,8 @@ lang: en-US
 
 The central activity is not copying text or completing typing tests. It is understanding a situation, examining evidence, deciding what the record must say, constructing an appropriate document, and accepting responsibility for its consequences. A delivery receipt can determine whether a storehouse is credited with usable goods. An inventory can expose a discrepancy. A disputed account can affect the standing of several people. The player's records matter because other people and institutions act on them.
 
+The opening Storehouse Reckoning is a separate Introductory Tutorial, not one of the three gameplay layers. It introduces basic evidence handling, numerical reconciliation, submission, and assessment without awarding Historical Progress XP or counting as a completed Work.
+
 The game has three distinct gameplay layers:
 
 1. **Assignments / Commissions** are optional, playable professional jobs. The player chooses which available opportunities to pursue, subject to a shared daily action budget. Completing them develops the player's career and provides compensation, but is not required for historical advancement.
@@ -700,7 +702,7 @@ The Senior Scribe assesses the submitted document in three distinct dimensions:
 
 The assessment is not a single pass/fail checklist. A correct account may accompany a poor recommendation; a sound recommendation cannot compensate for incorrect figures. Feedback identifies the dimension that needs attention and explains why.
 
-Instruction follows the assessment. The Senior Scribe explains the relevant professional standard and what should be corrected. Where the account or evidence is deficient, the apprentice may revise and resubmit. The Work must not permanently soft-lock after a mistake.
+Instruction follows the assessment. The Senior Scribe explains the relevant professional standard and what should be corrected. Where the account or evidence is deficient, the apprentice may revise and resubmit. The tutorial must not permanently soft-lock after a mistake.
 
 The Senior Scribe then makes the disposition:
 - **Accept and authorize/forward the recommendation:** the account and evidence are sound, and the recommendation is proportionate.
@@ -748,7 +750,7 @@ The apprentice begins with **five units of provisions**. This is an initial pers
 
 The tutorial provides no special provision contract. Completing, pausing, or leaving it does not create or end a separate sustenance entitlement. After onboarding, provisions come from ordinary compensation, purchases, assistance, or other established recovery routes under Sections 12.2–12.4.
 
-Beer is not part of the player's tracked personal economy. It may still appear as a world commodity, an inventory item in a specific situation, or part of hospitality and social or institutional exchanges. This arrangement ensures that the mandatory Work does not require the player to take optional Assignments merely to eat while performing the institution's contracted work.
+Beer is not part of the player's tracked personal economy. It may still appear as a world commodity, an inventory item in a specific situation, or part of hospitality and social or institutional exchanges. This starting balance is intended to let the player complete onboarding without relying on optional Assignment acceptance merely to avoid an immediate shortage.
 
 ### 7.9 Action-budget test and expected duration
 
@@ -1039,7 +1041,7 @@ Beer is not a tracked personal resource. It may appear as a world or institution
 
 The player receives money compensation for employment, with professional rank and legitimate performance bonuses potentially affecting pay. Poor performance may reduce money compensation. Good performance can earn legitimate bonuses. Compensation in kind, including provisions or specific items, is permitted only when it is part of an explicit employment or Work contract, with the amount, duration, and conditions shown before acceptance.
 
-There is no universal daily employment ration. A player who performs no paid work and has no active contract receives no automatic provisions. Mandatory Works must nevertheless define their own provisions when the institution expects the player to spend several days working for it. The Storehouse Reckoning provides one unit of provisions per active contracted Workday under its explicit service arrangement.
+There is no universal daily employment ration. A player who performs no paid work and has no active contract receives no automatic provisions. Mandatory Works must nevertheless define their own provisions when the institution expects the player to spend several days working for it. The Introductory Tutorial has no provision contract: the apprentice begins with five provisions, supplemented by compensation from the paid starter Assignments.
 
 ### 12.3 Daily sustenance
 
@@ -1074,6 +1076,8 @@ The two underlying resource systems remain consistent across eras, while their p
 Stress represents the cumulative pressure of work, shortages, conflict, difficult choices, and personal circumstances. It can change through Assignments, Challenges, daily settlement, sustenance shortages, rest, study, and social interactions.
 
 Reaching the eventual critical or maximum Stress threshold should place the character in a **crisis state** and prompt the world to consider whether support is available. It is not an automatic rescue, a guaranteed Stress reset, or by itself a game-over condition.
+
+Provision-shortage Stress and the recoverable Underfed condition follow the fixed increment, cumulative cap, and recovery requirements in Sections 12.3–12.4. The shortage condition clears when provisions are consumed; Stress already gained remains and can be reduced through ordinary recovery.
 
 The character's positive personal relationships are the first potential source of intervention. A friend, relative, colleague, patron, or other contact may reach out or offer practical help when both willing and able. The form of assistance should reflect the relationship, the person's means, and their circumstances; a positive relationship does not guarantee that the person can help. Repeated hardship or repeated requests may strain a relationship, change the terms of assistance, or leave the contact unable or unwilling to intervene.
 
@@ -1502,6 +1506,6 @@ The daily economy of action is six shared Action Points, not a fixed number of c
 
 Career XP is earned through professional activity and invested in eligible skill and specialization development; it does not directly determine rank. A character's rank follows from their own skill profile and shapes the broad range of opportunities likely to reach them. Skills determine qualification for specific work, and appointments grant formal authority. The former commission-tier ladder is removed; individual Assignments retain a separate difficulty marker. Historical Progress XP measures mandatory historical contributions. The calendar controls in-game dates; XP does not. Era-transition rewards must be calibrated so completing all required Works is sufficient to reach the next threshold without optional grinding.
 
-The personal economy has two tracked resources: money and provisions. Money uses an era-appropriate currency name without conversion of the underlying value at era transitions; provisions remain an abstract food resource presented through era-appropriate foods and rations. Beer is not a tracked personal resource, though it may appear in the world, inventory, hospitality, and institutional or social exchanges. Exact prices, availability, storage, crisis timing, assistance frequency and effects, sustenance shortage consequences, and historical presentation remain open design work.
+The personal economy has two tracked resources: money and provisions. Money uses an era-appropriate currency name without conversion of the underlying value at era transitions; provisions remain an abstract food resource presented through era-appropriate foods and rations. Beer is not a tracked personal resource, though it may appear in the world, inventory, hospitality, and institutional or social exchanges. Exact prices, availability, storage, crisis timing, assistance frequency and effects, and historical presentation remain open design work. The shortage trigger, shortage-attributed Stress cap, Underfed condition, and required recovery routes are established in Sections 12.3–12.4.
 
 The journey continues through existing scribal NPCs connected to the current character and their profession. The player chooses among plausible candidates, subject to their actual circumstances and availability. If no close apprentice or obvious successor exists, the player continues through another existing connected scribal NPC in the same historical period; the calendar, completed Works, and wider world do not restart. The new character retains their own skills, reputation, relationships, obligations, possessions, and circumstances. The family desk remains a family heirloom and workspace, not a vessel of player continuity; access depends on the current character's own relationships, household, location, and circumstances. Exact candidate eligibility and selection details, and the desk's access rules for non-family characters, remain open.
