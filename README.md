@@ -34,7 +34,7 @@ Outside contributions are welcome. Please read the project guidelines before ope
 
 Bug reports, accessibility barriers, documentation improvements, tests, historical research, and feature proposals are welcome. The Game Design Document remains the canonical authority for approved gameplay design.
 
-**Licensing is not yet established.** No license has been selected for the repository or its assets. Until one is added, public visibility does not grant reuse or redistribution rights. See the licensing note in [CONTRIBUTING.md](CONTRIBUTING.md).
+**The project's original material is dedicated to the public domain under [CC0 1.0 Universal](LICENSE).** You may use, modify, redistribute, and build upon it for any purpose, including commercially, without asking permission or providing attribution. Third-party materials remain subject to their own rights and licenses; see [CONTRIBUTING.md](CONTRIBUTING.md) for contribution and scope details.
 
 ## Development
 
