@@ -101,10 +101,12 @@ function isAssertion(value: unknown, sourceIds: Set<string>): boolean {
 }
 
 function isWorkProgress(value: unknown): value is WorkProgress {
-  if (!isObject(value) || !['active','submitted','completed','abandoned'].includes(value.status as string)
-    || !stringArray(value.acquiredEvidence) || new Set(value.acquiredEvidence).size !== value.acquiredEvidence.length
-    || !stringArray(value.examinedEvidence) || new Set(value.examinedEvidence).size !== value.examinedEvidence.length
-    || value.examinedEvidence.some((id) => !value.acquiredEvidence.includes(id))
+  if (!isObject(value) || !['active','completed','abandoned'].includes(value.status as string)) return false;
+  const acquiredEvidence = value.acquiredEvidence;
+  const examinedEvidence = value.examinedEvidence;
+  if (!stringArray(acquiredEvidence) || new Set(acquiredEvidence).size !== acquiredEvidence.length
+    || !stringArray(examinedEvidence) || new Set(examinedEvidence).size !== examinedEvidence.length
+    || examinedEvidence.some((id) => !acquiredEvidence.includes(id))
     || !Number.isInteger(value.workApSpentToday) || (value.workApSpentToday as number) < 0 || (value.workApSpentToday as number) > 7
     || typeof value.rewardGranted !== 'boolean' || (value.status === 'completed') !== value.rewardGranted || !stringArray(value.completedActionIds)
     || new Set(value.completedActionIds).size !== value.completedActionIds.length
@@ -126,7 +128,7 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
   if (!isObject(value) || !isObject(value.calendar) || !isObject(value.actionEconomy) || !isObject(value.player)
     || !isObject(value.world) || !isObject(value.historicalProgression) || !isObject(value.opportunities)
     || !isObject(value.works) || !isObject(value.records) || !isObject(value.journal)) return false;
-  const calendar = value.calendar, economy = value.actionEconomy, player = value.player, world = value.world;
+  const calendar = value.calendar, economy = value.actionEconomy, player = value.player, world = value.world, works = value.works;
   if (typeof calendar.eraId !== 'string' || !finiteNonNegative(calendar.dayNumber) || !Number.isInteger(calendar.dayNumber)
     || calendar.dayNumber < 1 || typeof calendar.displayDate !== 'string') return false;
   if ((economy.dailyApAllocation !== 5 && economy.dailyApAllocation !== 6) || !finiteNonNegative(economy.apRemaining)
@@ -261,10 +263,10 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
   }
   return finiteNonNegative(value.historicalProgression.historicalXp) && stringArray(value.historicalProgression.completedWorks)
     && new Set(value.historicalProgression.completedWorks).size === value.historicalProgression.completedWorks.length
-    && value.historicalProgression.completedWorks.every((id) => isObject(value.works.progress[id])
-      && (value.works.progress[id] as WorkProgress).status === 'completed')
+    && value.historicalProgression.completedWorks.every((id) => isObject(works.progress[id])
+      && (works.progress[id] as WorkProgress).status === 'completed')
     && isObject(value.opportunities.assignments) && isObject(value.opportunities.challenges)
-    && (value.works.activeWorkId === null || typeof value.works.activeWorkId === 'string')
+    && (works.activeWorkId === null || typeof value.works.activeWorkId === 'string')
     && isObject(value.works.progress)
     && Object.entries(value.works.progress).every(([id, progress]) => !!id && isWorkProgress(progress)
       && !!workCatalog[id] && workCatalog[id].id === id
