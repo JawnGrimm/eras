@@ -31,7 +31,6 @@ export interface InterpretationAnnotation {
   evidenceId: EvidenceId;
   text: string;
   displayOrder: number;
-  priority: number;
 }
 export interface EvaluateEvidenceInterpretationInput {
   evidenceId: EvidenceId;
@@ -85,5 +84,5 @@ export function evaluateEvidenceInterpretation(input: EvaluateEvidenceInterpreta
   }
   return [...ungrouped, ...winners.values()]
     .sort((a, b) => a.displayOrder - b.displayOrder || b.priority - a.priority || a.id.localeCompare(b.id))
-    .map(({ id, evidenceId, text, displayOrder, priority }) => ({ id, evidenceId, text, displayOrder, priority }));
+    .map(({ id, evidenceId, text, displayOrder }) => ({ id, evidenceId, text, displayOrder }));
 }
