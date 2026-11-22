@@ -150,7 +150,7 @@ export function isValidGameState(value: unknown): value is GameState {
     for (const s of r.sources) { if (!isSource(s, people, institutions, events) || sourceIds.has(s.id)) return false; sourceIds.add(s.id); }
     if (!r.assertions.every((a) => isAssertion(a, sourceIds))) return false;
     const amendmentIds = new Set<string>();
-    for (const a of r.amendments) {
+    for (const [amendmentIndex, a] of r.amendments.entries()) {
       if (!isObject(a) || typeof a.id !== 'string' || !a.id || amendmentIds.has(a.id)
         || !finiteNonNegative(a.dayNumber) || !Number.isInteger(a.dayNumber) || a.dayNumber < r.createdDay || a.dayNumber > calendar.dayNumber
         || typeof a.authorPersonId !== 'string' || !isObject(people[a.authorPersonId])
@@ -159,7 +159,7 @@ export function isValidGameState(value: unknown): value is GameState {
       amendmentIds.add(a.id);
       for (const s of a.sourcesAdded) { if (!isSource(s, people, institutions, events) || sourceIds.has(s.id)) return false; sourceIds.add(s.id); }
       const existingAssertionIds = new Set<string>(r.assertions.map((base) => base.id));
-      for (const prior of r.amendments) {
+      for (const prior of r.amendments.slice(0, amendmentIndex)) {
         if (isObject(prior) && Array.isArray(prior.assertionsAdded)) {
           for (const priorAssertion of prior.assertionsAdded) {
             if (isObject(priorAssertion) && typeof priorAssertion.id === 'string') existingAssertionIds.add(priorAssertion.id);
