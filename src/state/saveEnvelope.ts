@@ -22,22 +22,37 @@ export function isValidGameState(value: unknown): value is GameState {
   const player = value.player;
   const world = value.world;
   if (typeof calendar.eraId !== 'string' || !finiteNonNegative(calendar.dayNumber)
-    || calendar.dayNumber < 1 || typeof calendar.displayDate !== 'string') return false;
+    || !Number.isInteger(calendar.dayNumber) || calendar.dayNumber < 1 || typeof calendar.displayDate !== 'string') return false;
   if ((economy.dailyApAllocation !== 5 && economy.dailyApAllocation !== 6)
-    || !finiteNonNegative(economy.apRemaining)
+    || !finiteNonNegative(economy.apRemaining) || !Number.isInteger(economy.apRemaining)
     || economy.apRemaining > economy.dailyApAllocation
     || typeof economy.overtimeUsedToday !== 'boolean'
     || typeof economy.nextDayApPenalty !== 'boolean') return false;
   if (typeof player.currentCharacterId !== 'string' || !isObject(world.people)) return false;
 
   const activePerson = world.people[player.currentCharacterId];
-  if (!isObject(activePerson) || activePerson.id !== player.currentCharacterId || !isObject(activePerson.scribal)) return false;
+  if (!isObject(activePerson) || activePerson.id !== player.currentCharacterId || activePerson.alive !== true || !isObject(activePerson.scribal)) return false;
   const scribal = activePerson.scribal;
   if (!finiteNonNegative(scribal.careerXp) || !finiteNonNegative(scribal.stress)
-    || scribal.stress > 100 || !isObject(scribal.wallet)) return false;
+    || scribal.stress > 100 || !isObject(scribal.wallet)
+    || !isObject(scribal.skills) || !isObject(scribal.attributes)
+    || !Array.isArray(scribal.specializations) || !Array.isArray(scribal.traits)
+    || !Array.isArray(scribal.conditions) || !Array.isArray(scribal.equipment)
+    || !isObject(scribal.professionalReputation)) return false;
   const wallet = scribal.wallet;
   if (!finiteNonNegative(wallet.money) || !finiteNonNegative(wallet.provisions)
     || !finiteNonNegative(wallet.shortageWorkdays) || !Number.isInteger(wallet.shortageWorkdays)) return false;
+  for (const dimension of ['competence', 'reliability', 'discretion', 'judgment']) {
+    const score = scribal.professionalReputation[dimension];
+    if (!finiteNonNegative(score) || score > 100) return false;
+  }
+  for (const skill of Object.values(scribal.skills)) {
+    if (!isObject(skill) || !finiteNonNegative(skill.level) || !Number.isInteger(skill.level)
+      || skill.level < 1 || skill.level > 10 || !finiteNonNegative(skill.experience)) return false;
+  }
+  for (const attribute of Object.values(scribal.attributes)) {
+    if (!finiteNonNegative(attribute)) return false;
+  }
   if (!isObject(world.institutions) || !isObject(world.locations)
     || !finiteNonNegative(value.historicalProgression.historicalXp)
     || !Array.isArray(value.historicalProgression.completedWorks)
