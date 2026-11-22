@@ -12,7 +12,11 @@ describe('typed institutional matters and bounded world tick', () => {
       'Clear north-bay parapet runoff channel and assess damp north-east beam socket',
       'North-bay roof repair inspected; continue monitoring after heavy rain',
       'Held-Barley Inspection recommended; seven sacks remain segregated, grain condition not yet assessed'];
-    const state = { ...base, world: { ...base.world, matters: {}, institutions: { ...base.world.institutions,
+    // Model a pre-Phase-2 schema-v2 save: the newer profile links did not yet exist.
+    const people = Object.fromEntries(Object.entries(base.world.people).map(([id, person]) => [id, {
+      ...person, circumstances: undefined, objectives: undefined, commitments: undefined,
+    }]));
+    const state = { ...base, world: { ...base.world, people, matters: {}, institutions: { ...base.world.institutions,
       [STOREHOUSE_INSTITUTION_ID]: { ...base.world.institutions[STOREHOUSE_INSTITUTION_ID], activeMatters: legacyStrings as unknown as typeof base.world.institutions[typeof STOREHOUSE_INSTITUTION_ID]['activeMatters'] } } } } as GameState;
     const restored = restoreSave(JSON.stringify(createSaveEnvelope(state, 1, '2026-11-22T12:00:00.000Z')));
     expect(restored).not.toBeNull();
