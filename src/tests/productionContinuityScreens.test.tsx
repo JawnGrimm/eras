@@ -5,6 +5,9 @@ import { ProductionShellContent } from '../components/ProductionShell';
 import { SuccessionScreen } from '../components/SuccessionScreen';
 import { ProductionPeopleAndInstitutions } from '../components/ProductionPeopleAndInstitutions';
 import { ProductionRecordsAndJournal } from '../components/ProductionRecordsAndJournal';
+import { ProductionWorkdayHub } from '../components/ProductionWorkdayHub';
+import { ProductionChallengeJournal } from '../components/ProductionChallengeJournal';
+import { createNewGameState } from '../state/newGameState';
 import { transitionGame } from '../engine/actionEconomy';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
 import { GameProvider } from '../state/GameProvider';
@@ -56,6 +59,34 @@ describe('production continuity and social screens', () => {
     expect(markup).toContain('Choose who continues');
     expect(markup).not.toContain('Assignment Board</button>');
     expect(markup).not.toContain('Workday Hub</button>');
+  });
+
+  it('keeps Workday quick Accept disabled for expired or unqualified offers and labels Assignment-only rewards accurately', () => {
+    const fresh = createNewGameState();
+    const first = Object.values(fresh.opportunities.assignments)[0];
+    const expiredState: GameState = {
+      ...fresh,
+      calendar: { ...fresh.calendar, dayNumber: first.expiresDay },
+    };
+    const expiredMarkup = renderScreen(expiredState, createElement(ProductionWorkdayHub, {
+      onOpenWork: () => undefined, settlement: null, onSettlement: () => undefined,
+    }));
+    const unqualifiedOffer = { ...first, requiredSkills: { reading_scripts: 10 } };
+    const unqualifiedState: GameState = {
+      ...fresh,
+      opportunities: { ...fresh.opportunities, assignments: { [unqualifiedOffer.id]: unqualifiedOffer } },
+    };
+    const unqualifiedMarkup = renderScreen(unqualifiedState, createElement(ProductionWorkdayHub, {
+      onOpenWork: () => undefined, settlement: null, onSettlement: () => undefined,
+    }));
+    const journalMarkup = renderScreen(fresh, createElement(ProductionChallengeJournal));
+
+    expect(expiredMarkup).toContain('This offer has reached its expiry day.');
+    expect(expiredMarkup).toMatch(/disabled=""[^>]*>Accept</);
+    expect(unqualifiedMarkup).toContain('Current skills do not meet the stated requirements.');
+    expect(unqualifiedMarkup).toMatch(/disabled=""[^>]*>Accept</);
+    expect(journalMarkup).toContain('Assignment rewards');
+    expect(journalMarkup).not.toContain('Career rewards');
   });
 
   it('renders directional relationships separately and separates reputation from institution standing and authority', () => {
