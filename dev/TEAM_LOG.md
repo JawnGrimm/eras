@@ -1188,3 +1188,36 @@ The owner clarified that the Storehouse Steward is the intended reader of a one-
 - Revisit provisional Career XP / Historical Progress XP values during the broader progression allocation pass.
 
 No claim of successful build, deployment, or playtest is made in this entry.
+
+
+## 2026-11-21 — Design direction: character-situated internal monologue
+
+**Contributor:** Chad (AI)  
+**Status:** Approved design direction; system design and implementation remain open
+
+The owner approved presenting a character's internal monologue when evidence is examined. The monologue represents what that particular character makes of the evidence, based on their actual capabilities and circumstances.
+
+### Approved principles
+
+- Evidence presentation includes both the source material and the examining character's internal response.
+- The source evidence remains consistent; character state changes the interpretation, not the underlying facts.
+- Relevant influences include skills and professional knowledge, attributes and abilities, experience, equipment and items, relationships and background, and current circumstances.
+- These influences may shape what the character recognizes, how they reason, their confidence, and what they may overlook or misunderstand.
+- Low skill must not arbitrarily hide, falsify, or alter objective evidence already available to the character.
+- The monologue is not omniscient and must not reveal information the character has no plausible way to know. It may express uncertainty or contain a mistaken interpretation.
+- The monologue should communicate reasoning and its limits, not function as an infallible hint telling the player which option to select.
+- Keep four layers distinct: evidence (source content), interpretation (the character's understanding), judgment (the character's recommendation or decision), and assessment (another person's evaluation).
+- Build toward a reusable system driven by examined evidence and character state, rather than separately authored dialogue for every possible skill value.
+
+### Still open
+
+- The action-resolution model and exact contribution of skills, attributes, experience, equipment, relationships, background, and circumstances.
+- How confidence, uncertainty, mistaken interpretation, and overlooked implications are represented and communicated.
+- Content-authoring tools, data structures, and runtime implementation.
+- How the system is adapted to different professions, evidence types, and historical eras.
+
+### Repository changes
+
+- `docs/GDD.md`: added the approved direction to §9.4 and §19.6, and recorded the remaining system-design work in §23.
+- No runtime code, character statistics, action-resolution formulas, or gameplay behavior changed.
+- No build, type-check, test suite, or deployment was run; this is a documentation-only design update.
