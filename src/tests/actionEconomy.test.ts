@@ -65,6 +65,12 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
 
   it('reports a qualified Work provision, overtime stress, and tomorrow AP from the engine', async () => {
     let state = createNewGameState();
+    const activeProgress = state.works.progress[STOREHOUSE_WORK_ID];
+    const priorWorkId = 'work-prior-completed' as typeof STOREHOUSE_WORK_ID;
+    state = { ...state, works: { ...state.works, progress: {
+      [priorWorkId]: { ...activeProgress, status: 'completed', workApSpentToday: 0 },
+      ...state.works.progress,
+    } } };
     state = transitionGame(state, { type: 'ACQUIRE_WORK_EVIDENCE', workId: STOREHOUSE_WORK_ID, actionId: 'accounts' }, undefined, INITIAL_WORK_CATALOG).state;
     state = transitionGame(state, { type: 'SPEND_AP', amount: 5, reason: 'Use remaining AP' }, undefined, INITIAL_WORK_CATALOG).state;
     state = transitionGame(state, { type: 'ACTIVATE_OVERTIME' }, undefined, INITIAL_WORK_CATALOG).state;
