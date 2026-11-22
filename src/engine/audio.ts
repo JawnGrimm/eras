@@ -1,16 +1,19 @@
 const AUDIO_PREFERENCE_KEY = 'scribe_audio_muted';
 
 let audioContext: AudioContext | null = null;
-let mutedOverride: boolean | null = null;
+let memoryFallbackMuted: boolean | null = null;
+let cachedNoiseBuffer: AudioBuffer | null = null;
 
 function readMutedPreference(): boolean {
-  if (mutedOverride !== null) return mutedOverride;
   try {
-    if (typeof window === 'undefined') return false;
-    return window.localStorage.getItem(AUDIO_PREFERENCE_KEY) === 'true';
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const stored = window.localStorage.getItem(AUDIO_PREFERENCE_KEY);
+      if (stored !== null) return stored === 'true';
+    }
   } catch {
-    return false;
+    // Local storage access failed or is blocked; use the in-memory fallback.
   }
+  return memoryFallbackMuted ?? false;
 }
 
 export function isAudioMuted(): boolean {
@@ -18,9 +21,9 @@ export function isAudioMuted(): boolean {
 }
 
 export function setAudioMuted(muted: boolean): void {
-  mutedOverride = muted;
+  memoryFallbackMuted = muted;
   try {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && window.localStorage) {
       window.localStorage.setItem(AUDIO_PREFERENCE_KEY, String(muted));
     }
   } catch {
@@ -39,6 +42,19 @@ function getAudioContext(): AudioContext | null {
   } catch {
     return null;
   }
+}
+
+function getOrCreateNoiseBuffer(context: AudioContext, duration: number): AudioBuffer {
+  if (cachedNoiseBuffer && cachedNoiseBuffer.sampleRate === context.sampleRate) {
+    return cachedNoiseBuffer;
+  }
+  const buffer = context.createBuffer(1, Math.ceil(context.sampleRate * duration), context.sampleRate);
+  const samples = buffer.getChannelData(0);
+  for (let index = 0; index < samples.length; index += 1) {
+    samples[index] = Math.random() * 2 - 1;
+  }
+  cachedNoiseBuffer = buffer;
+  return buffer;
 }
 
 function withAudioContext(synthesize: (context: AudioContext) => void): void {
@@ -80,15 +96,10 @@ export function playStylusTap(): void {
     tone.stop(now + duration);
 
     const noiseDuration = 0.035;
-    const noiseBuffer = context.createBuffer(1, Math.ceil(context.sampleRate * noiseDuration), context.sampleRate);
-    const samples = noiseBuffer.getChannelData(0);
-    for (let index = 0; index < samples.length; index += 1) {
-      samples[index] = Math.random() * 2 - 1;
-    }
     const noise = context.createBufferSource();
     const highPass = context.createBiquadFilter();
     const noiseGain = context.createGain();
-    noise.buffer = noiseBuffer;
+    noise.buffer = getOrCreateNoiseBuffer(context, noiseDuration);
     highPass.type = 'highpass';
     highPass.frequency.setValueAtTime(1800, now);
     noiseGain.gain.setValueAtTime(0.045, now);
