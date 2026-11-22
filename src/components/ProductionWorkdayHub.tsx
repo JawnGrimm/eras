@@ -77,7 +77,14 @@ export function ProductionWorkdayHub({ onOpenWork, settlement, onSettlement }: {
             <div className="mt-2 flex gap-2"><button disabled={activeAssignments.length >= 2} onClick={() => game.dispatch({ type: 'ACCEPT_ASSIGNMENT', assignmentId: offer.id })} className="rounded-md bg-stone-900 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-40">Accept</button><button onClick={() => game.dispatch({ type: 'DECLINE_ASSIGNMENT', assignmentId: offer.id })} className="rounded-md border border-stone-300 px-3 py-1.5 text-xs">Decline</button></div>
           </article>)}
           {offeredAssignments.length === 0 && <p className="text-sm text-stone-500">No new commissions are currently offered.</p>}
-          {activeAssignments.map((item) => <p key={item.id} className="rounded-lg bg-stone-50 p-3 text-sm text-stone-700"><strong>{item.title}</strong> · Accepted commitment</p>)}
+          {activeAssignments.map((item) => <article key={item.id} className="rounded-lg bg-stone-50 p-3">
+            <h3 className="font-semibold text-stone-900">{item.title}</h3>
+            <p className="mt-1 text-xs text-stone-500">Accepted commitment · Completion costs {item.apCost} AP</p>
+            <div className="mt-2 flex gap-2">
+              <button disabled={state.actionEconomy.apRemaining < item.apCost} onClick={() => game.dispatch({ type: 'COMPLETE_ASSIGNMENT', assignmentId: item.id })} className="rounded-md bg-stone-900 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-40">Complete · {item.apCost} AP</button>
+              <button disabled={state.actionEconomy.apRemaining < 1} onClick={() => game.dispatch({ type: 'CANCEL_ASSIGNMENT', assignmentId: item.id })} className="rounded-md border border-stone-300 px-3 py-1.5 text-xs disabled:opacity-40">Cancel · 1 AP</button>
+            </div>
+          </article>)}
         </div>
       </section>
       <section className="rounded-xl border border-stone-300 bg-white p-5">
@@ -90,7 +97,7 @@ export function ProductionWorkdayHub({ onOpenWork, settlement, onSettlement }: {
           </article>)}
           {acceptedChallenges.map((challenge) => <article key={challenge.id} className="rounded-lg bg-stone-50 p-3">
             <h3 className="font-semibold text-stone-900">{challenge.title}</h3>
-            <div className="mt-2 flex flex-wrap gap-2">{challenge.choices.map((choice) => <button key={choice.id} onClick={() => game.dispatch({ type: 'RESOLVE_CHALLENGE', challengeId: challenge.id, choiceId: choice.id })} className="rounded-md border border-stone-300 px-3 py-1.5 text-xs">{choice.label}</button>)}</div>
+            <div className="mt-2 flex flex-wrap gap-2">{challenge.choices.map((choice) => <button key={choice.id} onClick={() => game.dispatch({ type: 'RESOLVE_CHALLENGE', challengeId: challenge.id, choiceId: choice.id })} className="rounded-md border border-stone-300 px-3 py-1.5 text-xs">{choice.label} · {challenge.apCost} AP</button>)}</div>
           </article>)}
           {offeredChallenges.length === 0 && acceptedChallenges.length === 0 && <p className="text-sm text-stone-500">No active challenges.</p>}
         </div>
