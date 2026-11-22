@@ -107,7 +107,7 @@ describe('production continuity and social screens', () => {
       opportunities: { ...fresh.opportunities, assignments: { [unqualifiedOffer.id]: unqualifiedOffer } },
     };
     const unqualifiedMarkup = renderScreen(unqualifiedState, createElement(ProductionWorkdayHub, {
-      onOpenWork: () => undefined, settlement: null, onSettlement: () => undefined,
+      onOpenWork: () => undefined, onOpenActivity: () => undefined, settlement: null, onSettlement: () => undefined,
     }));
     const journalMarkup = renderScreen(fresh, createElement(ProductionChallengeJournal));
 

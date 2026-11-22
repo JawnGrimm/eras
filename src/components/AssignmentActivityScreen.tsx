@@ -1,6 +1,6 @@
 import React from 'react';
 import { useGame } from '../state/GameProvider';
-import type { AssignmentId, PersonId } from '../state/ids';
+import type { AssignmentId } from '../state/ids';
 import { NORTH_BAY_PEOPLE, ASSIGNMENT_ACTIVITY_CATALOG } from '../content/assignments/northBayRoofInspection';
 import { evaluateEvidenceInterpretation } from '../works/evidenceInterpretation';
 
@@ -97,7 +97,7 @@ export function AssignmentActivityScreen({ assignmentId, onBack }: { assignmentI
         <textarea rows={3} value={draft.limitations.join('\n')} onChange={(e) => dispatchDraft({ ...draft, limitations: e.target.value.split('\n') })} placeholder="State what you did not inspect or cannot establish." className="mt-1 block w-full rounded border border-stone-300 p-2 text-sm" />
       </label>
       <div className="mt-5 flex flex-wrap items-center gap-3">
-        <button disabled={game.state.actionEconomy.apRemaining < definition.submissionApCost} onClick={() => game.dispatch({ type: 'SUBMIT_ASSIGNMENT_ACTIVITY', assignmentId })} className="rounded bg-stone-900 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-40">Submit report · {northBayRoofInspection.submissionApCost} AP</button>
+        <button disabled={game.state.actionEconomy.apRemaining < definition.submissionApCost} onClick={() => game.dispatch({ type: 'SUBMIT_ASSIGNMENT_ACTIVITY', assignmentId })} className="rounded bg-stone-900 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-40">Submit report · {definition.submissionApCost} AP</button>
         <span className="text-xs text-stone-500">Submission closes the Assignment. Held barley remains a separate inspection.</span>
       </div>
     </section>

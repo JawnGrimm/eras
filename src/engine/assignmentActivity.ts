@@ -1,4 +1,4 @@
-import type { GameAction, GameState, TransitionResult, AssignmentOffer, RecordAssertion } from '../state/types';
+import type { GameAction, GameState, TransitionResult, AssignmentOffer, RecordAssertion, RecordEntry } from '../state/types';
 import { addActivity } from './opportunities';
 import type { AssignmentId, KnowledgeEntryId, RecordId, InstitutionId } from '../state/ids';
 import { NORTH_BAY_PEOPLE, ASSIGNMENT_ACTIVITY_CATALOG, validateAssignmentActivityProgress, normalizeActivityDraft } from '../content/assignments/northBayRoofInspection';
@@ -15,26 +15,27 @@ function ownedOffer(state: GameState, id: AssignmentId): AssignmentOffer | undef
 }
 export function transitionAssignmentActivityAction(state: GameState, action: ActivityAction): TransitionResult {
   const offer = ownedOffer(state, action.assignmentId);
-  if (!offer?.activityProgress || !validateAssignmentActivityProgress(definition, offer.activityProgress)) {
+  const definition = offer?.activityId ? ASSIGNMENT_ACTIVITY_CATALOG[offer.activityId as keyof typeof ASSIGNMENT_ACTIVITY_CATALOG] : undefined;
+  if (!offer || !definition || !offer.activityProgress || !validateAssignmentActivityProgress(definition, offer.activityProgress)) {
     return fail(state, 'assignment-activity-not-active', 'Only the current character’s accepted interactive Assignment can be advanced.');
   }
   const progress = offer.activityProgress;
   if (action.type === 'PERFORM_ASSIGNMENT_ACTIVITY_ACTION') {
-    const definition = definition.actions.find((item) => item.id === action.actionId);
-    if (!definition || progress.completedActionIds.includes(action.actionId)) return fail(state, 'assignment-activity-action-invalid', 'This activity action is unavailable or already completed.');
-    if ((definition.prerequisites ?? []).some((id) => !progress.completedActionIds.includes(id))) return fail(state, 'assignment-activity-prerequisite', 'A required activity action has not been completed.');
-    if (state.actionEconomy.apRemaining < definition.apCost) return fail(state, 'insufficient-ap', `This action costs ${definition.apCost} AP.`);
+    const activityAction = definition.actions.find((item) => item.id === action.actionId);
+    if (!activityAction || progress.completedActionIds.includes(action.actionId)) return fail(state, 'assignment-activity-action-invalid', 'This activity action is unavailable or already completed.');
+    if ((activityAction.prerequisites ?? []).some((id) => !progress.completedActionIds.includes(id))) return fail(state, 'assignment-activity-prerequisite', 'A required activity action has not been completed.');
+    if (state.actionEconomy.apRemaining < activityAction.apCost) return fail(state, 'insufficient-ap', `This action costs ${activityAction.apCost} AP.`);
     const nextProgress = {
-      ...progress, completedActionIds: [...progress.completedActionIds, definition.id],
-      discoveryIds: [...new Set([...progress.discoveryIds, ...definition.discoveryIds])],
-      consultedPersonIds: definition.consultedPersonId
-        ? [...new Set([...progress.consultedPersonIds, definition.consultedPersonId])]
+      ...progress, completedActionIds: [...progress.completedActionIds, activityAction.id],
+      discoveryIds: [...new Set([...progress.discoveryIds, ...activityAction.discoveryIds])],
+      consultedPersonIds: activityAction.consultedPersonId
+        ? [...new Set([...progress.consultedPersonIds, activityAction.consultedPersonId])]
         : progress.consultedPersonIds,
     };
     if (!validateAssignmentActivityProgress(northBayRoofInspection, nextProgress)) return fail(state, 'assignment-activity-progress-invalid', 'The action produced invalid activity progress.');
-    return succeed({ ...state, actionEconomy: { ...state.actionEconomy, apRemaining: state.actionEconomy.apRemaining - definition.apCost },
+    return succeed({ ...state, actionEconomy: { ...state.actionEconomy, apRemaining: state.actionEconomy.apRemaining - activityAction.apCost },
       opportunities: { ...state.opportunities, assignments: { ...state.opportunities.assignments,
-        [offer.id]: { ...offer, activityProgress: nextProgress } } } }, 'assignment-activity-action-completed', definition.label + ' completed.');
+        [offer.id]: { ...offer, activityProgress: nextProgress } } } }, 'assignment-activity-action-completed', activityAction.label + ' completed.');
   }
   if (action.type === 'UPDATE_ASSIGNMENT_ACTIVITY_DRAFT') {
     const draft = normalizeActivityDraft(action.draft);
