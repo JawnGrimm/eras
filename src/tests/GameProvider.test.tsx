@@ -18,7 +18,7 @@ class MemoryStorage implements ProductionStorage {
   }
 }
 
-function renderProvider(storage: ProductionStorage) {
+function renderProvider(storage: ProductionStorage | null) {
   let value: ReturnType<typeof useGame> | undefined;
   function Probe() {
     value = useGame();
@@ -34,6 +34,16 @@ function validSavedState(): GameState {
 }
 
 describe('GameProvider production persistence', () => {
+  it('allows in-memory play when browser storage is unavailable', () => {
+    const game = renderProvider(null);
+    const result = game.dispatch({ type: 'SPEND_AP', amount: 1, reason: 'Continue without storage' });
+
+    expect(game.loadStatus).toBe('ready');
+    expect(game.feedback?.code).toBe('save-write-failed');
+    expect(result.state.actionEconomy.apRemaining).toBe(5);
+    expect(result.state).not.toBe(game.state);
+  });
+
   it('creates and persists the authored Day 1 state only when the v2 key is absent', () => {
     const storage = new MemoryStorage();
     const game = renderProvider(storage);
