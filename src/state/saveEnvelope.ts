@@ -1,7 +1,7 @@
 import { CORE_SKILL_IDS } from './ids';
 import { MATTER_IDS } from '../engine/institutionalMatters';
 import type { AttributeId, SkillId } from './ids';
-import type { GameState, OpportunityConsequences, SaveEnvelope, ScribalCharacterState, WorkProgress } from './types';
+import type { GameState, Institution, OpportunityConsequences, SaveEnvelope, ScribalCharacterState, WorkProgress } from './types';
 import { validateOpportunityConsequences } from './opportunityValidation';
 import type { WorkDefinition } from '../works/workDefinition';
 import { rankSuccessorCandidates } from '../engine/characterContinuity';
@@ -76,7 +76,7 @@ function isRelationship(value: unknown): boolean {
     && finiteNonNegative(h.dayNumber) && Number.isInteger(h.dayNumber) && typeof h.summary === 'string' && !!h.summary
     && (h.eventId === undefined || typeof h.eventId === 'string'));
 }
-function isInstitution(value: unknown, locationIds: Set<string>): boolean {
+function isInstitution(value: unknown, locationIds: Set<string>): value is Institution {
   return isObject(value) && typeof value.id === 'string' && !!value.id && typeof value.name === 'string' && !!value.name
     && (value.locationId === undefined || (typeof value.locationId === 'string' && locationIds.has(value.locationId)))
     && stringArray(value.responsibilities) && stringArray(value.authority) && score(value.standing)
@@ -198,8 +198,9 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
       || !['death','departure'].includes(entry.departureKind as string)
       || !Number.isInteger(entry.dayNumber) || (entry.dayNumber as number) < 1 || (entry.dayNumber as number) > (calendar.dayNumber as number)))) return false;
 
-  const matterIds = new Set(Object.keys(world.matters));
-  for (const [id, matter] of Object.entries(world.matters)) {
+  const matters = world.matters as Record<string, unknown>;
+  const matterIds = new Set(Object.keys(matters));
+  for (const [id, matter] of Object.entries(matters)) {
     if (!isObject(matter) || matter.id !== id || typeof matter.institutionId !== 'string' || !isObject(institutions[matter.institutionId])
       || !['tutorial','roof_repair_verification','held_barley_inspection','north_bay_water_ingress','general'].includes(matter.kind as string)
       || typeof matter.summary !== 'string' || !matter.summary || !['active','resolved','developed'].includes(matter.status as string)
@@ -208,8 +209,13 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
       || (matter.sourceEventId !== undefined && !isObject(events[matter.sourceEventId as string]))) return false;
     if (matter.scheduledDevelopment !== undefined && (!isObject(matter.scheduledDevelopment) || matter.scheduledDevelopment.kind !== 'rain' || !Number.isInteger(matter.scheduledDevelopment.dayNumber) || (matter.scheduledDevelopment.dayNumber as number) < (matter.createdDay as number))) return false;
   }
-  for (const [institutionId, institution] of Object.entries(institutions)) if (!isInstitution(institution, new Set(Object.keys(locations))) || institution.id !== institutionId
-    || institution.activeMatters.some((matterId) => !matterIds.has(matterId) || (world.matters[matterId] as any).institutionId !== institutionId || (world.matters[matterId] as any).status !== 'active')) return false;
+  for (const [institutionId, institution] of Object.entries(institutions)) {
+    if (!isInstitution(institution, new Set(Object.keys(locations))) || institution.id !== institutionId) return false;
+    for (const matterId of institution.activeMatters) {
+      const matter = matters[matterId];
+      if (!matterIds.has(matterId) || !isObject(matter) || matter.institutionId !== institutionId || matter.status !== 'active') return false;
+    }
+  }
   for (const [fromId, targets] of Object.entries(world.relationships)) {
     if (!isObject(people[fromId]) || !isObject(targets)) return false;
     for (const [toId, rel] of Object.entries(targets)) {
