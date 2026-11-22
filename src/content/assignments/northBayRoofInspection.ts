@@ -114,9 +114,10 @@ export function validateAssignmentActivityProgress(definition: AssignmentActivit
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
   const p = value as AssignmentActivityProgress;
   return Array.isArray(p.completedActionIds) && new Set(p.completedActionIds).size === p.completedActionIds.length
-    && p.completedActionIds.every((id) => definition.actions.some((a) => a.id === id))
+    && p.completedActionIds.every((id) => definition.actions.some((a) => a.id === id && (a.prerequisites ?? []).every((prerequisite) => p.completedActionIds.includes(prerequisite))))
     && Array.isArray(p.discoveryIds) && new Set(p.discoveryIds).size === p.discoveryIds.length
     && p.discoveryIds.every((id) => definition.discoveries.some((d) => d.id === id))
+    && definition.actions.filter((a) => p.completedActionIds.includes(a.id)).every((a) => a.discoveryIds.every((id) => p.discoveryIds.includes(id)))
     && Array.isArray(p.consultedPersonIds) && p.consultedPersonIds.every((id) => definition.participants.includes(id))
     && !!p.draft && ['repair_incomplete','repair_appears_sound','insufficient_evidence'].includes(p.draft.finding)
     && Array.isArray(p.draft.citedDiscoveryIds) && p.draft.citedDiscoveryIds.every((id) => p.discoveryIds.includes(id))
