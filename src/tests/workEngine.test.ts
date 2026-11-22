@@ -141,11 +141,11 @@ describe('Work lifecycle and save validation', () => {
 
   it('resolves non-evidence Work actions atomically with validated scenario data', () => {
     let state = transitionGame(createInitialGameState(), { type: 'START_WORK', workId: WORK }, undefined, catalog).state;
-    const failed = transitionGame(state, { type: 'COMPLETE_WORK_ACTION', workId: WORK, actionId: 'configure-register',
-      scenarioData: { accepted: true, recoveryCount: 0 } }, undefined, catalog);
-    expect(failed.state).toBe(state);
-    expect(failed.state.actionEconomy.apRemaining).toBe(6);
     state = transitionGame(state, { type: 'ACQUIRE_WORK_EVIDENCE', workId: WORK, actionId: 'retrieve-later-tally' }, undefined, catalog).state;
+    const failed = transitionGame(state, { type: 'COMPLETE_WORK_ACTION', workId: WORK, actionId: 'configure-register',
+      scenarioData: { accepted: 'yes', recoveryCount: 0 } }, undefined, catalog);
+    expect(failed.state).toBe(state);
+    expect(failed.state.actionEconomy.apRemaining).toBe(5);
     state = transitionGame(state, { type: 'COMPLETE_WORK_ACTION', workId: WORK, actionId: 'configure-register',
       scenarioData: { accepted: true, recoveryCount: 0 } }, undefined, catalog).state;
     expect(state.actionEconomy.apRemaining).toBe(4);
