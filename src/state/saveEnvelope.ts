@@ -42,7 +42,7 @@ export function isValidGameState(value: unknown): value is GameState {
   const wallet = scribal.wallet;
   if (!finiteNonNegative(wallet.money) || !finiteNonNegative(wallet.provisions)
     || !finiteNonNegative(wallet.shortageWorkdays) || !Number.isInteger(wallet.shortageWorkdays)) return false;
-  for (const dimension of ['competence', 'reliability', 'discretion', 'judgment']) {
+  for (const dimension of ['competence', 'reliability', 'discretion', 'judgment'] as const) {
     const score = scribal.professionalReputation[dimension];
     if (!finiteNonNegative(score) || score > 100) return false;
   }
