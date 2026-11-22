@@ -3,25 +3,29 @@ import { transitionGame } from '../engine/actionEconomy';
 import { createNewGameState, INITIAL_WORK_CATALOG } from '../state/newGameState';
 import { INITIAL_PERSON_ID } from '../state/initialState';
 import { createSaveEnvelope, isValidSaveEnvelope } from '../state/saveEnvelope';
-import type { AssignmentId, ChallengeId, PersonId } from '../state/ids';
+import type { ChallengeId, PersonId } from '../state/ids';
 import type { ChallengeInstance } from '../state/types';
 import { STOREHOUSE_WORK_ID } from '../works/storehouseReckoning';
 
 const catalog = INITIAL_WORK_CATALOG;
 
 describe('Day 1 Uruk production bootstrap', () => {
-  it('starts Storehouse and presents authored starter Assignments and Challenge through engine transitions', () => {
+  it('starts Storehouse and seeds interactive Day 1 Assignments and the authored Challenge', () => {
     const state = createNewGameState();
     expect(state.works.activeWorkId).toBe('work-storehouse-reckoning');
     expect(state.works.progress[STOREHOUSE_WORK_ID]).toBeDefined();
     expect(state.works.progress[STOREHOUSE_WORK_ID].provisionContract).toBeUndefined();
     expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet.provisions).toBe(5);
     expect(state.calendar.displayDate).toBe('Day 1 · Uruk (c. 3200 BCE)');
-    expect(Object.values(state.opportunities.assignments).map((x) => x.id)).toEqual([
-      'assignment-storehouse-copy-check',
-      'assignment-apprentice-tablet-preparation',
+    const dayOneOffers = Object.values(state.opportunities.assignments);
+    expect(dayOneOffers.map((offer) => offer.title)).toEqual([
+      'South-Court Delivery Reconciliation',
+      'South Loading-Awning Inspection',
     ]);
-    expect(Object.values(state.opportunities.assignments).every((x) => x.status === 'offered')).toBe(true);
+    expect(dayOneOffers.every((offer) => offer.status === 'offered' && !!offer.activityId
+      && Number.isInteger(offer.estimatedTotalAp) && offer.apCost === undefined)).toBe(true);
+    expect(dayOneOffers.reduce((total, offer) => total + (offer.estimatedTotalAp ?? 0), 0)).toBe(7);
+    expect(dayOneOffers.every((offer) => offer.offeredDay === 1 && offer.expiresDay === 4)).toBe(true);
     expect(Object.values(state.opportunities.challenges)).toHaveLength(1);
     const challenge = Object.values(state.opportunities.challenges)[0];
     expect(challenge.status).toBe('offered');
@@ -75,8 +79,9 @@ describe('Challenge character ownership', () => {
 
   it('does not share or consume the two-Assignment cap', () => {
     let state = createNewGameState();
-    state = transitionGame(state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: 'assignment-storehouse-copy-check' as AssignmentId }).state;
-    state = transitionGame(state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: 'assignment-apprentice-tablet-preparation' as AssignmentId }).state;
+    const assignmentIds = Object.keys(state.opportunities.assignments) as import('../state/ids').AssignmentId[];
+    state = transitionGame(state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: assignmentIds[0] }).state;
+    state = transitionGame(state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: assignmentIds[1] }).state;
     const challengeId = Object.keys(state.opportunities.challenges)[0] as ChallengeId;
     const acceptedChallenge = transitionGame(state, { type: 'ACCEPT_CHALLENGE', challengeId });
     expect(acceptedChallenge.feedback?.code).toBe('challenge-accepted');
@@ -85,7 +90,8 @@ describe('Challenge character ownership', () => {
     const second = createNewGameState();
     const secondChallengeId = Object.keys(second.opportunities.challenges)[0] as ChallengeId;
     const withChallenge = transitionGame(second, { type: 'ACCEPT_CHALLENGE', challengeId: secondChallengeId }).state;
-    const acceptedAssignment = transitionGame(withChallenge, { type: 'ACCEPT_ASSIGNMENT', assignmentId: 'assignment-storehouse-copy-check' as AssignmentId });
+    const firstAssignmentId = Object.keys(withChallenge.opportunities.assignments)[0] as import('../state/ids').AssignmentId;
+    const acceptedAssignment = transitionGame(withChallenge, { type: 'ACCEPT_ASSIGNMENT', assignmentId: firstAssignmentId });
     expect(acceptedAssignment.feedback?.code).toBe('assignment-accepted');
   });
 
