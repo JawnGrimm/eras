@@ -29,10 +29,10 @@ export function validateOpportunityConsequences(
   }
   if (effects.careerXp !== undefined && (!Number.isFinite(effects.careerXp) || effects.careerXp < 0)) return 'Career XP consequence is invalid.';
   if (effects.relationships !== undefined && (!Array.isArray(effects.relationships) || effects.relationships.some((x) =>
-    !context.world.people[x.fromId] || !context.world.people[x.toId] || x.fromId === x.toId || !x.summary
-      || !x.changes || Object.values(x.changes).some((n) => typeof n !== 'number' || !Number.isFinite(n))))) return 'Relationship consequence has invalid people or values.';
+    !x || !context.world.people[x.fromId] || !context.world.people[x.toId] || x.fromId === x.toId || !x.summary
+      || !x.changes || typeof x.changes !== 'object' || Object.entries(x.changes).some(([key, n]) => !['trust','respect','affection','resentment','rivalry','familiarity'].includes(key) || typeof n !== 'number' || !Number.isFinite(n))))) return 'Relationship consequence has invalid people or values.';
   if (effects.institutionalStanding !== undefined && (!Array.isArray(effects.institutionalStanding) || effects.institutionalStanding.some((x) =>
-    !context.world.institutions[x.institutionId] || typeof x.delta !== 'number' || !Number.isFinite(x.delta)))) return 'Institutional-standing consequence has invalid references or values.';
+    !x || !context.world.institutions[x.institutionId] || typeof x.delta !== 'number' || !Number.isFinite(x.delta)))) return 'Institutional-standing consequence has invalid references or values.';
 
   const policies = effects.datePolicies;
   const createdEvents = new Set<string>();
@@ -72,13 +72,14 @@ export function validateOpportunityConsequences(
     createdRecords.add(record.id);
   } else if (policies?.record !== undefined) return 'A record date policy has no record.';
 
+  if (effects.knowledge !== undefined && !Array.isArray(effects.knowledge)) return 'Knowledge consequences must be an array.';
   const knowledge = effects.knowledge ?? [];
   if (!Array.isArray(knowledge)) return 'Knowledge consequences must be an array.';
   const knowledgePolicies = policies?.knowledge ?? {};
   if (Object.keys(knowledgePolicies).some((id) => !knowledge.some((entry) => entry.id === id))) return 'Knowledge date policy references no knowledge entry.';
   const createdKnowledge = new Set<string>();
   for (const entry of knowledge) {
-    if (!validPolicy(knowledgePolicies[entry.id], currentDay, phase) || !entry.id || context.world.knowledge[entry.id] || createdKnowledge.has(entry.id)) return 'Knowledge entry or its date policy is invalid.';
+    if (!entry || typeof entry !== 'object' || !entry.holder || !entry.subject || !validPolicy(knowledgePolicies[entry.id], currentDay, phase) || !entry.id || context.world.knowledge[entry.id] || createdKnowledge.has(entry.id)) return 'Knowledge entry or its date policy is invalid.';
     const holderExists = entry.holder.kind === 'person' ? !!context.world.people[entry.holder.id]
       : entry.holder.kind === 'institution' ? !!context.world.institutions[entry.holder.id] : false;
     const subjectExists = entry.subject.kind === 'event' ? !!context.world.events[entry.subject.id] || createdEvents.has(entry.subject.id)
