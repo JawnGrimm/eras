@@ -104,12 +104,13 @@ function isWorkProgress(value: unknown): value is WorkProgress {
   if (!isObject(value) || !['active','completed','abandoned'].includes(value.status as string)) return false;
   const acquiredEvidence = value.acquiredEvidence;
   const examinedEvidence = value.examinedEvidence;
+  const completedActionIds = value.completedActionIds;
   if (!stringArray(acquiredEvidence) || new Set(acquiredEvidence).size !== acquiredEvidence.length
     || !stringArray(examinedEvidence) || new Set(examinedEvidence).size !== examinedEvidence.length
     || examinedEvidence.some((id) => !acquiredEvidence.includes(id))
     || !Number.isInteger(value.workApSpentToday) || (value.workApSpentToday as number) < 0 || (value.workApSpentToday as number) > 7
-    || typeof value.rewardGranted !== 'boolean' || (value.status === 'completed') !== value.rewardGranted || !stringArray(value.completedActionIds)
-    || new Set(value.completedActionIds).size !== value.completedActionIds.length
+    || typeof value.rewardGranted !== 'boolean' || (value.status === 'completed') !== value.rewardGranted || !stringArray(completedActionIds)
+    || new Set(completedActionIds).size !== completedActionIds.length
     || !isObject(value.scenarioData) || !Number.isInteger(value.submissionCount) || (value.submissionCount as number) < 0) return false;
   if (value.provisionContract !== undefined && (!isObject(value.provisionContract)
     || !Number.isInteger(value.provisionContract.provisionsPerQualifiedWorkday)
@@ -127,7 +128,7 @@ function isWorkProgress(value: unknown): value is WorkProgress {
 export function isValidGameState(value: unknown, workCatalog: Readonly<Record<string, WorkDefinition<any>>> = {}): value is GameState {
   if (!isObject(value) || !isObject(value.calendar) || !isObject(value.actionEconomy) || !isObject(value.player)
     || !isObject(value.world) || !isObject(value.historicalProgression) || !isObject(value.opportunities)
-    || !isObject(value.works) || !isObject(value.records) || !isObject(value.journal)) return false;
+    || !isObject(value.works) || !isObject(value.works.progress) || !isObject(value.records) || !isObject(value.journal)) return false;
   const calendar = value.calendar, economy = value.actionEconomy, player = value.player, world = value.world, works = value.works;
   if (typeof calendar.eraId !== 'string' || !finiteNonNegative(calendar.dayNumber) || !Number.isInteger(calendar.dayNumber)
     || calendar.dayNumber < 1 || typeof calendar.displayDate !== 'string') return false;
@@ -273,8 +274,8 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
       && workCatalog[id].validateScenarioData((progress as WorkProgress).scenarioData)
       && (progress as WorkProgress).acquiredEvidence.every((evidenceId) => workCatalog[id].evidence.some((item) => item.id === evidenceId))
       && (progress as WorkProgress).completedActionIds.every((actionId) => workCatalog[id].actions.some((item) => item.id === actionId)))
-    && (value.works.activeWorkId === null || (isObject(value.works.progress[value.works.activeWorkId])
-      && (value.works.progress[value.works.activeWorkId] as WorkProgress).status === 'active'))
+    && (works.activeWorkId === null || (isObject(works.progress[works.activeWorkId])
+      && (works.progress[works.activeWorkId] as WorkProgress).status === 'active'))
     && Array.isArray(value.records.permanentOutcomes)
     && Array.isArray(value.journal.notices);
 }
