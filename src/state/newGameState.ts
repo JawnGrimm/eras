@@ -1,8 +1,9 @@
 import { transitionGame } from '../engine/actionEconomy';
+import { generateDailyAssignments } from '../engine/assignmentGenerator';
 import { INITIAL_PERSON_ID, createInitialGameState } from './initialState';
-import type { AssignmentOffer, ChallengeInstance, GameState, OpportunityDeliveryChannel } from './types';
-import type { AssignmentId, ChallengeId, PersonId } from './ids';
-import { STOREHOUSE_WORK_ID, STOREHOUSE_INSTITUTION_ID, STOREHOUSE_PEOPLE, storehouseReckoning } from '../works/storehouseReckoning';
+import type { ChallengeInstance, GameState } from './types';
+import type { ChallengeId, PersonId } from './ids';
+import { STOREHOUSE_WORK_ID, STOREHOUSE_PEOPLE, storehouseReckoning } from '../works/storehouseReckoning';
 import { ASSIGNMENT_ACTIVITY_CATALOG } from '../content/assignments/northBayRoofInspection';
 
 /** The production Work catalog is supplied to every bootstrap transition. */
@@ -11,69 +12,6 @@ export const INITIAL_ASSIGNMENT_ACTIVITY_CATALOG = ASSIGNMENT_ACTIVITY_CATALOG;
 export const INITIAL_WORK_CATALOG = {
   [STOREHOUSE_WORK_ID]: storehouseReckoning,
 } as const;
-
-const baseline: OpportunityDeliveryChannel = {
-  kind: 'baseline_reach',
-  explanation: 'This matter is within the character’s ordinary professional reach in Uruk.',
-};
-
-function starterAssignments(): Array<Omit<AssignmentOffer, 'offeredDay' | 'expiresDay' | 'status' | 'lapsedDuringMandatoryWork'>> {
-  return [
-    {
-      id: 'assignment-storehouse-copy-check' as AssignmentId,
-      title: 'Check the Storehouse Copy',
-      description: 'Compare a steward’s working copy with the issued temple account before it is circulated.',
-      employer: { kind: 'institution', id: STOREHOUSE_INSTITUTION_ID },
-      category: 'document_copying',
-      commodity: 'barley',
-      context: {
-        what: 'Verify a working copy of the latest storehouse issue account.',
-        who: ['Ur-Nanna, Storehouse Steward', 'Enlil-barni, junior scribe'],
-        quantity: 'One tablet copy covering 30 standard measures of barley.',
-        when: 'Day 1, before the next routine issue.',
-        where: 'Temple Storehouse, Uruk',
-        from: 'The temple issue tablet held by the storehouse.',
-        to: 'Ur-Nanna, Storehouse Steward.',
-        purpose: 'Prevent a copying error from entering the steward’s working records.',
-        responsibility: ['The scribe must compare the copy against the source and report discrepancies without silently correcting the original.'],
-        authority: 'The steward may request a copy check; the scribe does not authorize stock movement.',
-        provenance: ['The steward’s request and the existing temple issue tablet.'],
-      },
-      requiredSkills: {},
-      difficulty: 'routine',
-      apCost: 1,
-      compensation: { money: 2, provisions: 0 },
-      careerXpReward: 8,
-      deliveryChannels: [baseline],
-    },
-    {
-      id: 'assignment-apprentice-tablet-preparation' as AssignmentId,
-      title: 'Prepare a Practice Tablet',
-      description: 'Prepare a clean practice tablet for a junior learner using the established scribal exercise.',
-      employer: { kind: 'person', id: STOREHOUSE_PEOPLE.seniorScribe },
-      category: 'scribal_training',
-      context: {
-        what: 'Prepare one practice tablet for supervised copying instruction.',
-        who: ['Shuruppak-ilu, Senior Scribe', 'Nin-aya, apprentice', 'Enlil-barni, assisting scribe'],
-        quantity: 'One prepared practice tablet.',
-        when: 'Day 1, during the morning instruction period.',
-        where: 'Temple scribal room, Uruk',
-        from: 'The Senior Scribe’s approved exercise text.',
-        to: 'Nin-aya, apprentice.',
-        purpose: 'Provide a legible exercise copy for supervised practice.',
-        responsibility: ['The assisting scribe prepares the tablet; the Senior Scribe remains responsible for instruction and review.'],
-        authority: 'The Senior Scribe controls the exercise text and approves its use.',
-        provenance: ['The Senior Scribe’s instruction and approved exercise text.'],
-      },
-      requiredSkills: {},
-      difficulty: 'routine',
-      apCost: 1,
-      compensation: { money: 1, provisions: 0 },
-      careerXpReward: 6,
-      deliveryChannels: [baseline],
-    },
-  ];
-}
 
 function starterChallenge(): Omit<ChallengeInstance, 'status' | 'assigneePersonId'> {
   return {
@@ -144,7 +82,6 @@ export function createNewGameState(): GameState {
   const catalog = INITIAL_WORK_CATALOG;
   const actions = [
     { type: 'START_WORK', workId: STOREHOUSE_WORK_ID } as const,
-    ...starterAssignments().map((offer) => ({ type: 'PRESENT_ASSIGNMENT', offer } as const)),
     { type: 'PRESENT_CHALLENGE', challenge: starterChallenge() } as const,
   ];
   for (const action of actions) {
@@ -154,5 +91,5 @@ export function createNewGameState(): GameState {
     }
     state = result.state;
   }
-  return state;
+  return generateDailyAssignments(state);
 }
