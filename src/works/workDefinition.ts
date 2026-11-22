@@ -124,7 +124,7 @@ export function validateWorkDefinition<TProgress extends Record<string, unknown>
   if (work.kind !== undefined && work.kind !== 'work' && work.kind !== 'tutorial') issues.push({ code: 'invalid-work-kind', message: 'Work kind must be work or tutorial.' });
   if (work.kind === 'tutorial' && work.provisionsContract) issues.push({ code: 'tutorial-provisions-contract', message: 'Tutorials cannot declare provision contracts.' });
   if (work.legacyHistoricalXpReward !== undefined && (!Number.isFinite(work.legacyHistoricalXpReward) || work.legacyHistoricalXpReward < 0)) issues.push({ code: 'invalid-legacy-historical-xp', message: 'Legacy Historical XP must be a non-negative finite number.' });
-  if (work.legacyCompletionCleanup?.retireInstitutionMatters?.some((item) => !item.institutionId || !item.matter.trim())) issues.push({ code: 'invalid-legacy-completion-cleanup', message: 'Legacy completion cleanup contains an invalid institutional matter.' });
+  if (work.legacyCompletionCleanup?.retireInstitutionMatters?.some((item) => !item.institutionId || !item.matterId.trim())) issues.push({ code: 'invalid-legacy-completion-cleanup', message: 'Legacy completion cleanup contains an invalid institutional matter.' });
   if (!String(work.id).trim()) issues.push({ code: 'empty-work-id', message: 'Work ID must not be empty.' });
   if (!work.title.trim()) issues.push({ code: 'empty-work-title', message: 'Work title must not be empty.' });
   for (const evidence of work.evidence) {
