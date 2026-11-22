@@ -18,7 +18,7 @@ describe('StorehouseWorkScreen numeric draft field', () => {
     expect(markup).toContain('aria-label="Opening usable stock"');
     expect(markup).toContain('inputmode="numeric"');
 
-    commitNumericDraftOnBlur('47', 'opening', undefined, onCommit, onInvalid);
+    commitNumericDraftOnBlur('47', 'opening', onCommit, onInvalid);
 
     expect(onCommit).toHaveBeenCalledExactlyOnceWith('opening', 47);
     expect(onInvalid).not.toHaveBeenCalled();
@@ -41,7 +41,7 @@ describe('StorehouseWorkScreen numeric draft field', () => {
     const onCommit = vi.fn();
     const onInvalid = vi.fn();
 
-    commitNumericDraftOnBlur('4x7', 'opening', 24, onCommit, onInvalid);
+    commitNumericDraftOnBlur('4x7', 'opening', onCommit, onInvalid);
 
     expect(onCommit).not.toHaveBeenCalled();
     expect(onInvalid).toHaveBeenCalledOnce();
