@@ -709,3 +709,42 @@ The owner approved the principle that a character's social network should be the
 - `docs/GDD.md`: expanded Sections 12.4 and 13.1 to record the hardship recovery boundaries, crisis-state principle, relationship-first support, historically appropriate wider-society assistance, and open balancing questions.
 - Updated Remaining Design Work and the Design Summary to reflect the approved direction.
 - No runtime code, save schema, numerical balance, or gameplay behavior changed.
+
+
+## 2026-11-21 — Decision: establish notifications and daily morning reports
+
+**Contributor:** Chad (AI)  
+**Status:** Approved design direction
+
+The owner approved a Total War-inspired notification approach adapted to the player's professional life. The player should receive regular information about consequential developments without having to monitor every person, institution, process, or location continuously.
+
+### Presentation channels
+
+- **Immediate notifications** surface developments during the Workday when timely awareness or action matters. Urgent developments do not wait for the next morning report. Most notices inform rather than forcibly interrupt.
+- **Persistent event log** preserves notices and notable developments for later review, including items dismissed or not acted on immediately. Entries should lead to relevant people, institutions, records, assignments, Works, or locations when applicable.
+- **Daily morning report** arrives at the beginning of each new Workday and concisely summarizes relevant developments since the previous report. It is a regular daily briefing, not an event-count-triggered digest.
+
+### Morning report principles
+
+- Cover significant personal circumstances, relationships, professional requests and deadlines, ongoing matters, and wider developments that could affect the player's work.
+- Be selective; do not repeat unchanged information merely to fill space.
+- Group developments when they share an established cause or affected matter.
+- Distinguish established facts from testimony, allegations, attributed explanations, and unresolved interpretations.
+- Treat the report as a briefing, not a mandatory task list. The player decides what deserves attention.
+- Preserve an archive of previous reports.
+
+### Attention and boundaries
+
+The design distinguishes conceptually between developments requiring timely prominence, developments relevant to current work or focus, related changes suitable for consolidated reporting, and background or resolved information that remains inspectable without demanding attention. These are presentation categories, not a finalized taxonomy or universal importance score. Urgency and broader significance are separate considerations.
+
+The attention system helps the player recognize developments; it does not generate world events, determine their causes, or replace the simulation. Important developments should also be discoverable through relevant people, records, and changed work. Grouping must reflect actual shared state rather than inventing a connection based only on timing.
+
+### Still open
+
+Exact notification thresholds, prioritization rules, Workday delivery timing, report layout, event-log organization, navigation behavior, and handling of missed or repeated developments remain open. No specific simulation architecture, runtime feature, or numerical rule was approved.
+
+### Repository changes
+
+- `docs/GDD.md`: added Section 18.5 to establish immediate notifications, a persistent event log, daily morning reports, attention categories, and the remaining design questions. Added notification design to Remaining Design Work.
+- `README.md`: corrected the personal economy summary to the approved money-and-provisions model and noted the notification/morning-report design direction as not yet implemented.
+- No runtime code, save schema, simulation architecture, or gameplay behavior changed.
