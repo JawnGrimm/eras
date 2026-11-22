@@ -99,7 +99,7 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
       }
       const acquired = [...new Set([...progress.acquiredEvidence, ...grants])];
       const examined = actionDefinition.autoExamine ? [...new Set([...progress.examinedEvidence, ...grants])] : progress.examinedEvidence;
-      const nextProgress = { ...progress, ...(submittedScenarioData === undefined ? {} : { scenarioData: submittedScenarioData, lastAssessment: undefined, pendingDisposition: false }), acquiredEvidence: acquired, examinedEvidence: examined,
+      const nextProgress = { ...progress, ...(submittedScenarioData === undefined ? {} : { scenarioData: submittedScenarioData }), lastAssessment: undefined, pendingDisposition: false, acquiredEvidence: acquired, examinedEvidence: examined,
         completedActionIds: [...progress.completedActionIds, action.actionId],
         workApSpentToday: progress.workApSpentToday + actionDefinition.apCost };
       return { state: { ...state, actionEconomy: { ...economy, apRemaining: economy.apRemaining - actionDefinition.apCost },
@@ -112,7 +112,7 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
       if (!definition || !definition.evidence.some((item) => item.id === action.evidenceId) || !progress || !progress.acquiredEvidence.includes(action.evidenceId)) return { state, feedback: feedback('error', 'evidence-not-acquired', 'Acquire this evidence before examining it.') };
       if (progress.examinedEvidence.includes(action.evidenceId)) return { state, feedback: feedback('info', 'evidence-already-examined', 'Re-examining acquired evidence costs no AP.') };
       return { state: { ...state, works: { ...state.works, progress: { ...state.works.progress,
-        [action.workId]: { ...progress, examinedEvidence: [...progress.examinedEvidence, action.evidenceId] } } } },
+        [action.workId]: { ...progress, examinedEvidence: [...progress.examinedEvidence, action.evidenceId], lastAssessment: undefined, pendingDisposition: false } } } },
         feedback: feedback('success', 'evidence-examined', 'Evidence examined.') };
     }
     case 'SET_WORK_SCENARIO_DATA': {
@@ -180,7 +180,7 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
       if (!definition.validateScenarioData(recovered)) return { state, feedback: feedback('error', 'invalid-work-recovery', 'The Work recovery path returned invalid progress; the prior state was preserved.') };
       return { state: { ...state, actionEconomy: { ...economy, apRemaining: apAfterSubmission }, works: { ...state.works, progress: { ...state.works.progress,
         [action.workId]: { ...progress, scenarioData: recovered, submissionCount, workApSpentToday: apSpentAfterSubmission,
-          lastAssessment: { ...assessment, assessedDay: state.calendar.dayNumber } } } } },
+          pendingDisposition: !!definition.finalizeDisposition, lastAssessment: { ...assessment, assessedDay: state.calendar.dayNumber } } } } },
         feedback: feedback('info', 'work-revision-needed', assessment.summary) };
     }
     case 'DISPOSE_WORK': {
@@ -293,10 +293,11 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
       if (economy.overtimeUsedToday && economy.apRemaining > 0) {
         return { state, feedback: feedback('error', 'overtime-ap-unspent', 'Spend the overtime AP before settling the day.') };
       }
-      const activeProgress = state.works.activeWorkId ? state.works.progress[state.works.activeWorkId] : Object.values(state.works.progress).find((item) => item.status === 'completed' && item.workApSpentToday > 0);
-      const contract = activeProgress?.status === 'active' ? activeProgress.provisionContract : undefined;
-      const contractProvision = contract && activeProgress && activeProgress.workApSpentToday >= contract.minimumWorkApPerDay
-        ? contract.provisionsPerQualifiedWorkday : 0;
+      const contractProgress = Object.values(state.works.progress).find((item) =>
+        (item.status === 'active' || item.status === 'completed') && !!item.provisionContract
+        && item.workApSpentToday >= item.provisionContract.minimumWorkApPerDay);
+      const contract = contractProgress?.provisionContract;
+      const contractProvision = contract ? contract.provisionsPerQualifiedWorkday : 0;
       const availableProvisions = scribal.wallet.provisions + contractProvision;
       const hadProvision = availableProvisions > 0;
       const shortageWorkdays = hadProvision ? 0 : scribal.wallet.shortageWorkdays + 1;
