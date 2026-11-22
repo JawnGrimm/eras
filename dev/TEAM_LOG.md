@@ -748,3 +748,33 @@ Exact notification thresholds, prioritization rules, Workday delivery timing, re
 - `docs/GDD.md`: added Section 18.5 to establish immediate notifications, a persistent event log, daily morning reports, attention categories, and the remaining design questions. Added notification design to Remaining Design Work.
 - `README.md`: corrected the personal economy summary to the approved money-and-provisions model and noted the notification/morning-report design direction as not yet implemented.
 - No runtime code, save schema, simulation architecture, or gameplay behavior changed.
+
+
+## 2026-11-21 — Decision: define the purpose and relevance of the morning report
+
+**Contributor:** Chad (AI)  
+**Status:** Approved design direction
+
+The owner confirmed that the daily morning report is intended to tell the player what is relevant to them **right now** at the beginning of the Workday. It is not an exhaustive world-news bulletin or a feed of every event known to the simulation.
+
+### Report priorities
+
+- Current circumstances affecting the player's personal, professional, social, or institutional situation.
+- Approaching deadlines and commitments, including work, deliveries, appointments, decisions, and obligations coming due.
+- Changes to ongoing matters the player already knows about.
+- New opportunities plausibly within the player's reach or professional sphere.
+- Warnings about emerging problems that could affect the player if left unattended.
+
+### Relevance and awareness
+
+- A development need not involve the player directly to be relevant. It may merit inclusion when it creates a credible opportunity or consequence within the player's reach, such as a nearby settlement's surplus creating demand for storage, transport, or recordkeeping.
+- Proximity alone does not make an event relevant. Ordinary developments without a meaningful connection to the player's present circumstances or plausible opportunities remain background information.
+- Distinguish what needs attention today from what the player should know today. An approaching deadline may deserve visibility without being an emergency; an opportunity may be worth knowing about without demanding immediate action.
+- The report informs the player's priorities and use of the six-AP Workday. It is not a mandatory task list.
+- Information must have a plausible path to the player through people, institutions, notices, correspondence, trade, travel, records, direct observation, or other appropriate sources. Do not present events as known merely because the simulation knows they occurred.
+- Preserve source and uncertainty. Market talk, testimony, allegations, and rumors are not automatically established facts. Useful information does not automatically become a quest or require action.
+
+### Repository changes
+
+- `docs/GDD.md`: refined Section 18.5 to define the morning report's immediate player relevance, include approaching deadlines, distinguish information from urgent action, include plausible opportunities, and require a credible path by which information reaches the player. Updated Remaining Design Work item 24.
+- No runtime code, save schema, simulation architecture, numerical balance, or gameplay behavior changed.
