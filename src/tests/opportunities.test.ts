@@ -3,7 +3,7 @@ import { transitionGame } from '../engine/actionEconomy';
 import { evaluateChallengeTriggers } from '../engine/opportunities';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
 import { createSaveEnvelope, isValidSaveEnvelope } from '../state/saveEnvelope';
-import type { AssignmentId, ChallengeId, WorkId } from '../state/ids';
+import type { AssignmentId, ChallengeId, EventId, KnowledgeEntryId, RecordId, WorkId } from '../state/ids';
 import type { AssignmentOffer, ChallengeInstance, GameState, OpportunityDeliveryChannel } from '../state/types';
 
 const channel: OpportunityDeliveryChannel = { kind: 'baseline_reach', explanation: 'Within the character’s ordinary professional reach.' };
@@ -156,13 +156,13 @@ describe('Assignment and Challenge foundations', () => {
 
   it('preserves fixed event and knowledge dates while stamping a record on resolution day in a chained consequence sequence', () => {
     const offerWithEffects = { ...offer('dated'), completionConsequences: {
-      event: { id: 'event-authored', dayNumber: 99, summary: 'The shipment arrived.', personIds: [INITIAL_PERSON_ID], institutionIds: [] },
-      record: { id: 'record-authored', createdDay: 99, authorPersonId: INITIAL_PERSON_ID, title: 'Arrival tally',
-        sources: [{ id: 'source-event', kind: 'event' as const, sourceId: 'event-authored', description: 'Arrival event' }],
+      event: { id: 'event-authored' as EventId, dayNumber: 99, summary: 'The shipment arrived.', personIds: [INITIAL_PERSON_ID], institutionIds: [] },
+      record: { id: 'record-authored' as RecordId, createdDay: 99, authorPersonId: INITIAL_PERSON_ID, title: 'Arrival tally',
+        sources: [{ id: 'source-event', kind: 'event' as const, sourceId: 'event-authored' as EventId, description: 'Arrival event' }],
         assertions: [{ id: 'assertion-arrival', text: 'The shipment arrived.', classification: 'observed' as const, sourceIds: ['source-event'] }],
         uncertaintyLimits: [], amendments: [] },
-      knowledge: [{ id: 'knowledge-authored', holder: { kind: 'person' as const, id: INITIAL_PERSON_ID },
-        subject: { kind: 'record' as const, id: 'record-authored' }, basis: 'consulted-record' as const, learnedDay: 99 }],
+      knowledge: [{ id: 'knowledge-authored' as KnowledgeEntryId, holder: { kind: 'person' as const, id: INITIAL_PERSON_ID },
+        subject: { kind: 'record' as const, id: 'record-authored' as RecordId }, basis: 'consulted-record' as const, learnedDay: 99 }],
       datePolicies: { event: { kind: 'fixed' as const, dayNumber: 1 }, record: { kind: 'resolution_day' as const },
         knowledge: { 'knowledge-authored': { kind: 'fixed' as const, dayNumber: 2 } } },
     } };
@@ -179,7 +179,7 @@ describe('Assignment and Challenge foundations', () => {
 
   it('accepts fixed future dates as authored data but rejects them when the consequence is committed', () => {
     const authored = { ...offer('future-date'), completionConsequences: {
-      event: { id: 'future-event', dayNumber: 1, summary: 'A future event.', personIds: [INITIAL_PERSON_ID], institutionIds: [] },
+      event: { id: 'future-event' as EventId, dayNumber: 1, summary: 'A future event.', personIds: [INITIAL_PERSON_ID], institutionIds: [] },
       datePolicies: { event: { kind: 'fixed' as const, dayNumber: 3 } },
     } };
     let state = transitionGame(createInitialGameState(), { type: 'PRESENT_ASSIGNMENT', offer: authored }).state;
