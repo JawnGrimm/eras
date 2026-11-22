@@ -66,19 +66,17 @@ export function rankSuccessorCandidates(state: GameState): SuccessorCandidate[] 
       reasons.push({ kind: 'shared_institution', institutionId });
     }
 
-    if (reasons.length === 0) {
-      for (const intermediary of Object.values(state.world.people)) {
-        if (intermediary.id === formerId || intermediary.id === person.id) continue;
+    for (const intermediary of Object.values(state.world.people)) {
+      if (intermediary.id === formerId || intermediary.id === person.id) continue;
 
-        if (hasDirectRelationship(state, formerId, intermediary.id)
-          && hasDirectRelationship(state, intermediary.id, person.id)) {
-          reasons.push({ kind: 'network_relationship', intermediaryId: intermediary.id });
-        }
+      if (hasDirectRelationship(state, formerId, intermediary.id)
+        && hasDirectRelationship(state, intermediary.id, person.id)) {
+        reasons.push({ kind: 'network_relationship', intermediaryId: intermediary.id });
+      }
 
-        for (const institutionId of sharedInstitutions(state, intermediary.id, person.id)) {
-          if (hasDirectRelationship(state, formerId, intermediary.id)) {
-            reasons.push({ kind: 'network_institution', intermediaryId: intermediary.id, institutionId });
-          }
+      for (const institutionId of sharedInstitutions(state, intermediary.id, person.id)) {
+        if (hasDirectRelationship(state, formerId, intermediary.id)) {
+          reasons.push({ kind: 'network_institution', intermediaryId: intermediary.id, institutionId });
         }
       }
     }
