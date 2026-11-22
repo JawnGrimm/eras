@@ -845,3 +845,47 @@ The owner approved keeping institutions mechanically consistent for now, while a
 
 - `docs/GDD.md`: expanded Section 15.3 to establish the shared institutional gameplay model, era-specific institutional rosters, cross-career access, and the distinction between institutional continuity and other forms of legacy. Updated Remaining Design Work item 13.
 - No runtime code or save data changed.
+
+
+## 2026-11-21 — Decision: establish bounded NPC agency and directional relationships
+
+**Contributor:** Chad (AI)  
+**Status:** Approved design direction
+
+The owner confirmed that NPCs should have independent agency and may make consequential decisions affecting the player without the player's permission or veto. Consequences must arise from understandable circumstances rather than arbitrary punishment. The design target is a game with a consequential, continuing world—not exhaustive simulation of every person's routine.
+
+### Independent agency
+
+- Relevant NPCs can pursue objectives, meet obligations, respond to changing circumstances, and interact with other people without player involvement.
+- Important recurring NPCs may have long-term ambitions alongside immediate objectives. Other relevant NPCs may need only immediate concerns and obligations.
+- Ambitions and immediate objectives can reinforce, delay, redirect, or undermine one another. NPC goals may conflict, including within one character.
+- NPC agency should be proportionate to the character's importance to play; not every NPC needs the same depth of goals or decision-making.
+- Consequential decisions must be causally understandable in light of motivations, circumstances, capabilities, knowledge, relationships, resources, and authority. NPCs should not routinely act on implausibly unavailable information or exercise powers they do not possess.
+- NPC actions may change relationships, institutional circumstances, ongoing work, opportunities, and the player's interests. The player may have an opportunity to anticipate an action, discover it afterward, or remain unaware until later information reaches them. The game should not provide advance warning merely because an event affects the player.
+- Preserve detail for developments that matter to play. Routine activity can be summarized or left in the background when it has no meaningful consequence.
+
+### NPC roles and institutional context
+
+- Keep an NPC's social identity, institutional position, and current involvement in a particular situation distinct.
+- Responsibility for an outcome does not automatically confer authority over every contributing action. Authority does not prove that a person acted, and participation does not by itself establish fault.
+- Duties, decision rights, practical capacity, knowledge, and accountability should be considered separately when relevant to a playable situation.
+- Historical designations and job titles must be interpreted in context; an attested designation is not automatically a complete job description or a reason to create a permanent NPC type.
+
+### Personal relationships
+
+- Relationships are directional: each person has their own perspective on the other, and those perspectives need not match.
+- Relationships can hold multiple qualities at once, including trust, respect, affection, resentment, rivalry, familiarity, and obligation. These qualities should not be collapsed into one shared friendship value.
+- Relationships develop through significant shared events or accumulated meaningful interactions. One consequential event can substantially change a relationship; repeated meaningful contact can gradually shape it.
+- Routine exchanges do not all require permanent individual memories. Preserve experiences that explain consequential relationship changes or later decisions.
+- Personal feelings and relationships are distinct from formal, customary, or institutional obligations. A merchant may dislike the player and still fulfill a tithe; personal relationships can influence how obligations are handled without automatically erasing them. Fulfilling an obligation does not prove affection, loyalty, or trust.
+
+### Boundaries and open work
+
+- This establishes design principles, not a complete NPC simulation, decision algorithm, memory architecture, relationship score model, or runtime implementation.
+- Detailed representation, thresholds, memory scope, action-selection rules, information presentation, and continuity across successors and eras remain open.
+- No code, save schema, simulation architecture, numerical balance, or gameplay behavior changed.
+
+### Repository changes
+
+- `docs/GDD.md`: expanded Section 15.1 with NPC agency, role distinctions, directional and multi-dimensional relationships, relationship development, and the separation between personal relationships and obligations. Revised Design Pillar 2.10 to emphasize game-focused, consequential continuity rather than exhaustive simulation. Updated Remaining Design Work item 8.
+- No runtime code or save data changed.
