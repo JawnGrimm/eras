@@ -889,3 +889,58 @@ The owner confirmed that NPCs should have independent agency and may make conseq
 
 - `docs/GDD.md`: expanded Section 15.1 with NPC agency, role distinctions, directional and multi-dimensional relationships, relationship development, and the separation between personal relationships and obligations. Revised Design Pillar 2.10 to emphasize game-focused, consequential continuity rather than exhaustive simulation. Updated Remaining Design Work item 8.
 - No runtime code or save data changed.
+
+
+## 2026-11-21 — Decision: NPCs may face conflicting commitments and obligations
+
+**Contributor:** Chad (AI)  
+**Status:** Approved design direction
+
+The owner approved a bounded approach to conflicting NPC commitments. Conflicts should explain autonomous behavior and create meaningful situations for the player, not become a universal hidden loyalty mechanic or a separate obligation-management simulation.
+
+### Historical evidence and reconstruction
+
+- Late Uruk administrative evidence can support differentiated relationships among people or designations, goods, contributions, labor, allocations, and accounts.
+- Such evidence does not generally preserve the conversations, explanations, motives, or deliberations needed to reconstruct how a particular person chose between incompatible demands.
+- The game may create NPCs who face conflicting commitments, but where the evidence does not establish their motives, procedures, or decisions, those elements are designed reconstruction—not recovered Late Uruk psychology or administrative procedure.
+- Do not infer discretion, control, personal liability, allegiance, or divided loyalties merely from a person's appearance in an account or association with goods.
+- Historical evidence boundaries are specific to the material being used; richer evidence from later periods must not be projected backward as if it described Late Uruk practice.
+
+### Commitments and apparent conflicts
+
+- A conflict arises when two or more recognized commitments cannot all be fulfilled under an NPC's present circumstances, given available time, resources, knowledge, authority, or practical capacity.
+- A commitment should have an identifiable basis when relevant: for example, a recorded allocation or agreement, an instruction, an office responsibility, a personal undertaking, or an expectation grounded in an ongoing relationship.
+- A demand or request is not automatically a valid obligation. A preference or desire is not equivalent to a duty.
+- Preserve distinctions between what someone expects, what someone claims is required, and what available evidence establishes. A commitment may be disputed, misunderstood, conditional, or beyond the person's authority or capacity.
+- Do not invent an obligation merely to explain an NPC's obstruction; it should have a basis in the situation and remain meaningful afterward.
+
+### NPC response and consequences
+
+- Where circumstances permit, NPCs may try to resolve an apparent conflict before making an irreversible choice. Contextual options can include clarification, authorization, more time, negotiation, delegation, assistance, substitution, partial or divided performance, or referral to another person.
+- These are possible responses, not a mandatory sequence or universal historical procedure.
+- If conflict remains, an NPC's response should be understandable in light of motivations, authority, dependence, relationships, knowledge, exposure to consequences, discretion, resources, and alternatives.
+- Do not reduce the decision to a single hidden loyalty or relationship score. Personality can shape the response but does not replace concrete circumstances or grant unavailable knowledge or authority.
+- Fulfilling one commitment does not silently erase another. Outstanding expectations or disputes may affect later interactions, relationships, institutional circumstances, and work.
+- Consequences are not automatic penalties; they depend on what affected parties know, can do, and believe. Failure alone does not establish dishonesty or bad faith.
+
+### Player knowledge and evidence
+
+Keep three layers distinct:
+1. **Observable action or result:** what happened or can be directly observed.
+2. **Attributed explanation or claim:** what an NPC says happened, what instruction they report, or what another person alleges.
+3. **Supporting evidence:** records, observations, testimony, or later confirmation that supports, qualifies, or contradicts the explanation.
+
+An explanation may be sincere but mistaken, incomplete, self-serving, or unsupported. It does not become established fact merely because an NPC states it. The player encounters information through plausible channels and does not receive automatic access to NPC motives.
+
+### Boundaries
+
+- Conflicting commitments are a source of situations and decisions, not a standalone subsystem or exhaustive negotiation simulator.
+- The categories used to reason about commitments and NPC responses are modern design tools, not claims about attested Late Uruk classifications.
+- Specific historical procedures, authority, sanctions, and enforceability must be researched in context rather than assumed.
+- Detailed representation, decision rules, memory scope, presentation, and runtime implementation remain open.
+- No code, save schema, simulation architecture, numerical balance, or gameplay behavior changed.
+
+### Repository changes
+
+- `docs/GDD.md`: added “Conflicting commitments and obligations” to Section 15.1, including commitment bases, the distinction between demands and obligations, contextual resolution attempts, persistence of unresolved matters, and separation of observable actions, attributed explanations, and supporting evidence. Updated Remaining Design Work item 8.
+- No runtime code or save data changed.
