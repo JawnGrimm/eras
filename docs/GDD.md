@@ -987,7 +987,7 @@ The underlying money and provisions systems remain standardized across eras. His
 
 Money's displayed currency name changes at an era transition to the appropriate historical unit (for example, a shekel of silver in early Mesopotamia or a deben in ancient Egypt). **This is a presentation change only:** the player's underlying accumulated wealth carries forward without currency conversion, exchange calculations, or a transition fee. The displayed name and denomination change; the standardized game value does not.
 
-Provisions remain one abstract personal resource rather than separate balances for bread, fish, dates, grain products, or other foods. The interface, contracts, and narrative use period- and place-appropriate descriptions of the food represented. Specific foods may still appear as goods, evidence, or inventory items when a scenario requires them, but they do not create additional personal economy meters.
+Provisions remain one abstract personal resource rather than separate balances for bread, fish, dates, or other foods. The interface, contracts, and narrative use period- and place-appropriate descriptions of the food represented. Specific foods may still appear as goods, evidence, or inventory items when a scenario requires them, but they do not create additional personal economy meters.
 
 Beer is not a tracked personal resource. It may appear as a world or institutional commodity, an item the player can acquire or receive in a particular situation, or part of hospitality and social exchange. Such appearances do not create a permanent beer balance.
 
