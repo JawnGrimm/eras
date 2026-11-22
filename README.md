@@ -23,6 +23,19 @@ The GDD is the canonical design reference for this repository. The current appli
 
 The Storehouse Reckoning is the first vertical slice and proof of concept. The next development phase is to replace the prototype shell with the production game architecture, mechanics, content model, and interface described by the GDD.
 
+## Community and contributing
+
+Outside contributions are welcome. Please read the project guidelines before opening an issue or pull request:
+
+- [Contributing guide](CONTRIBUTING.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [Security policy](SECURITY.md)
+- [Accessibility statement](ACCESSIBILITY.md)
+
+Bug reports, accessibility barriers, documentation improvements, tests, historical research, and feature proposals are welcome. The Game Design Document remains the canonical authority for approved gameplay design.
+
+**Licensing is not yet established.** No license has been selected for the repository or its assets. Until one is added, public visibility does not grant reuse or redistribution rights. See the licensing note in [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## Development
 
 Requirements: Node.js 22 or compatible.
