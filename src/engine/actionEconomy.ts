@@ -49,10 +49,14 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
     case 'DECLINE_ASSIGNMENT':
     case 'CANCEL_ASSIGNMENT':
     case 'COMPLETE_ASSIGNMENT':
+    case 'PERFORM_ASSIGNMENT_ACTIVITY_ACTION':
+    case 'UPDATE_ASSIGNMENT_ACTIVITY_DRAFT':
+    case 'SUBMIT_ASSIGNMENT_ACTIVITY':
     case 'PRESENT_CHALLENGE':
     case 'ACCEPT_CHALLENGE':
     case 'DECLINE_CHALLENGE':
     case 'RESOLVE_CHALLENGE':
+      if (action.type === 'PERFORM_ASSIGNMENT_ACTIVITY_ACTION' || action.type === 'UPDATE_ASSIGNMENT_ACTIVITY_DRAFT' || action.type === 'SUBMIT_ASSIGNMENT_ACTIVITY') return transitionAssignmentActivityAction(state, action);
       return transitionOpportunityAction(state, action);
     case 'SET_INSTITUTIONAL_STANDING':
     case 'SET_RELATIONSHIP':
@@ -238,6 +242,17 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
       for (const knowledge of finalization.knowledge ?? []) {
         const result = transitionWorldAction(next, { type: 'GRANT_KNOWLEDGE', knowledge });
         if (result.feedback?.kind === 'error') return { state, feedback: feedback('error', 'work-knowledge-invalid', result.feedback.message) };
+        next = result.state;
+      }
+      for (const addition of finalization.addInstitutionMatters ?? []) {
+        const institution = next.world.institutions[addition.institutionId];
+        if (!institution || !addition.matter.trim()) return { state, feedback: feedback('error', 'work-institution-matter-invalid', 'A new institutional matter has an invalid institution or description.') };
+        if (!institution.activeMatters.includes(addition.matter)) next = { ...next, world: { ...next.world, institutions: { ...next.world.institutions,
+          [addition.institutionId]: { ...institution, activeMatters: [...institution.activeMatters, addition.matter] } } } };
+      }
+      for (const offer of finalization.presentAssignments ?? []) {
+        const result = transitionOpportunityAction(next, { type: 'PRESENT_ASSIGNMENT', offer });
+        if (result.feedback?.kind === 'error') return { state, feedback: feedback('error', 'work-follow-up-assignment-invalid', result.feedback.message) };
         next = result.state;
       }
       for (const retirement of finalization.retireInstitutionMatters ?? []) {
