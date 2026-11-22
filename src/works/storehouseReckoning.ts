@@ -1,17 +1,18 @@
-import type { EvidenceId, WorkId } from '../state/ids';
+import type { EvidenceId, InstitutionId, KnowledgeEntryId, PersonId, RecordId, WorkId } from '../state/ids';
 import type { RecordAssertion, RecordEntry, RecordSource } from '../state/types';
 import { defineWork } from './workDefinition';
 import type { WorkAssessment, WorkFinalization, WorkSubmissionContext } from './workDefinition';
 import { evaluateEvidenceInterpretation } from './evidenceInterpretation';
+import type { InterpretationRule } from './evidenceInterpretation';
 
 export const STOREHOUSE_WORK_ID = 'work-storehouse-reckoning' as WorkId;
-export const STOREHOUSE_INSTITUTION_ID = 'institution-temple-storehouse';
+export const STOREHOUSE_INSTITUTION_ID = 'institution-temple-storehouse' as InstitutionId;
 export const STOREHOUSE_PEOPLE = {
-  seniorScribe: 'person-shuruppak-ilu',
-  steward: 'person-ur-nanna',
-  receivingOfficial: 'person-utu-mansum',
-  carrierForeman: 'person-enlil-kisu',
-  brewingRepresentative: 'person-nin-kasi',
+  seniorScribe: 'person-shuruppak-ilu' as PersonId,
+  steward: 'person-ur-nanna' as PersonId,
+  receivingOfficial: 'person-utu-mansum' as PersonId,
+  carrierForeman: 'person-enlil-kisu' as PersonId,
+  brewingRepresentative: 'person-nin-kasi' as PersonId,
 } as const;
 
 export const STOREHOUSE_PROVISION_CONTRACT = {
@@ -120,7 +121,7 @@ function assess(context: WorkSubmissionContext<StorehouseScenarioData>): {
   };
 }
 
-const interpretationRules = [
+const interpretationRules: InterpretationRule[] = [
   { id: 'ev07-novice-misread', evidenceId: 'ev-07' as EvidenceId,
     when: { kind: 'all' as const, predicates: [{ kind: 'skillAtMost' as const, skillId: 'recordkeeping_accounts' as const, level: 2 }] },
     text: 'The three additional held measures may look like missing stock when the condition categories are read as separate movements.', category: 'misinterpretation' as const, priority: 2, conflictGroup: 'ev07-skill-reading', displayOrder: 1 },
@@ -175,7 +176,7 @@ function finalize(context: WorkSubmissionContext<StorehouseScenarioData>, dispos
   const { progress, personId, dayNumber } = context;
   const sources = progress.citations.map((id) => sourceForEvidence(id));
   const record: RecordEntry = {
-    id: `record-storehouse-reckoning-day-${dayNumber}`,
+    id: `record-storehouse-reckoning-day-${dayNumber}` as RecordId,
     createdDay: dayNumber,
     authorPersonId: personId,
     institutionId: STOREHOUSE_INSTITUTION_ID,
@@ -190,9 +191,9 @@ function finalize(context: WorkSubmissionContext<StorehouseScenarioData>, dispos
     amendments: [],
   };
   const knowledge = [
-    { id: `knowledge-storehouse-record-senior-${dayNumber}`, holder: { kind: 'person' as const, id: STOREHOUSE_PEOPLE.seniorScribe }, subject: { kind: 'record' as const, id: record.id }, basis: 'consulted-record' as const, learnedDay: dayNumber, sourcePersonId: personId },
-    { id: `knowledge-storehouse-record-steward-${dayNumber}`, holder: { kind: 'person' as const, id: STOREHOUSE_PEOPLE.steward }, subject: { kind: 'record' as const, id: record.id }, basis: 'received-copy' as const, learnedDay: dayNumber, sourcePersonId: personId },
-    { id: `knowledge-storehouse-record-institution-${dayNumber}`, holder: { kind: 'institution' as const, id: STOREHOUSE_INSTITUTION_ID }, subject: { kind: 'record' as const, id: record.id }, basis: 'received-copy' as const, learnedDay: dayNumber, sourcePersonId: personId },
+    { id: `knowledge-storehouse-record-senior-${dayNumber}` as KnowledgeEntryId, holder: { kind: 'person' as const, id: STOREHOUSE_PEOPLE.seniorScribe }, subject: { kind: 'record' as const, id: record.id }, basis: 'consulted-record' as const, learnedDay: dayNumber, sourcePersonId: personId },
+    { id: `knowledge-storehouse-record-steward-${dayNumber}` as KnowledgeEntryId, holder: { kind: 'person' as const, id: STOREHOUSE_PEOPLE.steward }, subject: { kind: 'record' as const, id: record.id }, basis: 'received-copy' as const, learnedDay: dayNumber, sourcePersonId: personId },
+    { id: `knowledge-storehouse-record-institution-${dayNumber}` as KnowledgeEntryId, holder: { kind: 'institution' as const, id: STOREHOUSE_INSTITUTION_ID }, subject: { kind: 'record' as const, id: record.id }, basis: 'received-copy' as const, learnedDay: dayNumber, sourcePersonId: personId },
   ];
   return { careerXpReward: STOREHOUSE_PROVISIONAL_CAREER_XP, record, knowledge };
 }
