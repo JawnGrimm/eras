@@ -235,12 +235,18 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
       const grantReward = !progress.rewardGranted;
       const finalProgress = { ...progress, status: 'completed' as const, rewardGranted: true, pendingDisposition: false, finalDisposition: action.disposition,
         workApSpentToday: progress.workApSpentToday + cost };
-      const activePerson = next.world.people[person.id];
-      const activeScribal = activePerson.scribal!;
       const careerXp = finalization.careerXpReward ?? 0;
-      return { state: { ...next, actionEconomy: { ...economy, apRemaining: economy.apRemaining - cost },
-        world: { ...next.world, people: { ...next.world.people, [person.id]: { ...activePerson, scribal: { ...activeScribal, careerXp: activeScribal.careerXp + careerXp } } } },
-        works: { activeWorkId: null, progress: { ...next.works.progress, [action.workId]: finalProgress } },
+      let rewarded = next;
+      if (careerXp > 0) {
+        const careerResult = transitionCareerAction(next, {
+          type: 'AWARD_CAREER_XP', amount: careerXp,
+          reason: 'The Senior Scribe accepted the Storehouse Reckoning.',
+        }, careerPolicy);
+        if (careerResult.feedback?.kind === 'error') return { state, feedback: feedback('error', 'work-career-reward-invalid', careerResult.feedback.message) };
+        rewarded = careerResult.state;
+      }
+      return { state: { ...rewarded, actionEconomy: { ...economy, apRemaining: economy.apRemaining - cost },
+        works: { activeWorkId: null, progress: { ...rewarded.works.progress, [action.workId]: finalProgress } },
         historicalProgression: { historicalXp: next.historicalProgression.historicalXp + (grantReward ? definition.historicalXpReward : 0),
           completedWorks: next.historicalProgression.completedWorks.includes(action.workId) ? next.historicalProgression.completedWorks : [...next.historicalProgression.completedWorks, action.workId] } },
         feedback: feedback('success', 'work-completed', progress.lastAssessment.summary) };
