@@ -158,6 +158,44 @@ describe('Storehouse Reckoning typed Work', () => {
     expect(blocked.state).toBe(state);
   });
 
+  it('allows direct revision after a failed judgment dimension without first spending disposition AP', () => {
+    let state = acquireMinimum(start());
+    state = transitionGame(state, { type: 'SET_WORK_SCENARIO_DATA', workId: STOREHOUSE_WORK_ID,
+      scenarioData: { ...validDraft(), recommendations: ['assign_blame'] } }, undefined, catalog).state;
+    state = transitionGame(state, { type: 'SUBMIT_WORK', workId: STOREHOUSE_WORK_ID }, undefined, catalog).state;
+    expect(state.works.progress[STOREHOUSE_WORK_ID].lastAssessment?.dimensions.find((item) => item.dimension === 'responsibility')?.status).toBe('fails');
+    state = nextDay(state);
+    state = transitionGame(state, { type: 'SET_WORK_SCENARIO_DATA', workId: STOREHOUSE_WORK_ID, scenarioData: validDraft() }, undefined, catalog).state;
+    state = transitionGame(state, { type: 'SUBMIT_WORK', workId: STOREHOUSE_WORK_ID }, undefined, catalog).state;
+    expect(state.works.progress[STOREHOUSE_WORK_ID].submissionCount).toBe(2);
+    expect(state.actionEconomy.apRemaining).toBe(5);
+  });
+
+  it('rolls back the entire disposition if durable record creation fails', () => {
+    const brokenDefinition = {
+      ...storehouseReckoning,
+      finalizeDisposition: (
+        context: Parameters<NonNullable<typeof storehouseReckoning.finalizeDisposition>>[0],
+        disposition: string,
+      ) => {
+        const result = storehouseReckoning.finalizeDisposition!(context, disposition);
+        return { ...result, record: { ...result.record!, authorPersonId: 'missing-person' as never } };
+      },
+    };
+    const brokenCatalog = { [STOREHOUSE_WORK_ID]: brokenDefinition };
+    let state = acquireMinimum(start());
+    state = submitValid(state);
+    state = nextDay(state);
+    const before = state;
+    const failed = transitionGame(state, { type: 'DISPOSE_WORK', workId: STOREHOUSE_WORK_ID, disposition: 'authorized' }, undefined, brokenCatalog);
+    expect(failed.state).toBe(before);
+    expect(failed.state.actionEconomy.apRemaining).toBe(before.actionEconomy.apRemaining);
+    expect(failed.state.world.people[INITIAL_PERSON_ID].scribal!.careerXp).toBe(before.world.people[INITIAL_PERSON_ID].scribal!.careerXp);
+    expect(failed.state.historicalProgression.historicalXp).toBe(0);
+    expect(failed.state.records.entries).toEqual({});
+    expect(failed.state.world.knowledge).toEqual({});
+  });
+
   it('prevents authorization when the recommendation dimension failed but permits account acceptance', () => {
     let state = acquireMinimum(start());
     const unsupported = { ...validDraft(), recommendations: ['assign_blame'] as const };
