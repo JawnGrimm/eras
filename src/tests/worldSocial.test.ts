@@ -40,9 +40,14 @@ describe('world, relationships, institutions and records', () => {
     const institution = { id: institutionId, name: 'Temple Storehouse', responsibilities: ['Receive and safeguard grain'], authority: ['Maintain storehouse accounts'], standing: 65, activeMatterIds: [] };
     const created = transitionGame(state, { type: 'CREATE_INSTITUTION', institution });
     expect(created.feedback?.code).toBe('institution-created');
+    const standing = transitionGame(created.state, { type: 'SET_INSTITUTIONAL_STANDING', personId: otherId, institutionId, value: 72 });
+    expect(standing.feedback?.code).toBe('institutional-standing-updated');
+    expect(standing.state.world.people[otherId].scribal?.institutionalStanding[institutionId]).toBe(72);
+    expect(standing.state.world.relationships).toEqual(created.state.world.relationships);
+    expect(standing.state.world.people[otherId].scribal?.professionalReputation).toEqual(created.state.world.people[otherId].scribal?.professionalReputation);
     const appointment = { id: 'appointment-steward' as AppointmentId, personId: otherId, institutionId, title: 'Storehouse Steward',
       authorityScope: ['Approve receipt of grain', 'Authorize issue under decree'], responsibilities: ['Maintain custody of stock'], startDay: 1 };
-    const appointed = transitionGame(created.state, { type: 'CREATE_APPOINTMENT', appointment });
+    const appointed = transitionGame(standing.state, { type: 'CREATE_APPOINTMENT', appointment });
     expect(appointed.feedback?.code).toBe('appointment-created');
     expect(appointed.state.world.appointments[appointment.id].authorityScope).toContain('Approve receipt of grain');
     expect(deriveProfessionalRank(appointed.state.world.people[otherId].scribal!.skills)).toBe(1);
