@@ -53,13 +53,16 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
     || draft.responsibilityClaim === 'dudu';
   const qualified = draft.finding === 'insufficient_evidence' && draft.limitations.length > 0;
   const discoveries = northBayRoofInspection.discoveries.filter((item) => progress.discoveryIds.includes(item.id));
-  const sources = discoveries.map((item) => {
+  const sources = [
+    ...(offer.sourceRecordId ? [{ id: 'source-storehouse-reckoning', kind: 'other' as const, sourceId: offer.sourceRecordId, description: 'Storehouse Reckoning record that generated this roof-verification Assignment' }] : []),
+    { id: 'source-player-report', kind: 'other' as const, description: 'Submitted inspection report by the current scribe' },
+    ...discoveries.map((item) => {
     const personId = item.id === 'steward-briefing' ? NORTH_BAY_PEOPLE.steward
       : item.id === 'repairer-scope' || item.id === 'scope-comparison' ? NORTH_BAY_PEOPLE.repairer
       : item.id === 'intake-boundary' ? NORTH_BAY_PEOPLE.receivingOfficial : undefined;
     return { id: `source-${item.id}`, kind: personId ? 'person' as const : 'other' as const,
       ...(personId ? { sourceId: personId } : {}), description: item.id === 'roof-inspection' ? 'Direct physical inspection by Enlil-barni' : item.title };
-  });
+  })];
   const cited = new Set(draft.citedDiscoveryIds);
   const assertions = discoveries.filter((item) => cited.has(item.id)).map((item) => ({
     id: `assertion-${item.id}`, text: item.text,
@@ -73,12 +76,12 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
   });
   if (draft.responsibilityClaim === 'dudu') assertions.push({
     id: 'assertion-responsibility-claim', text: 'The report attributes the unresolved parapet and beam work to Dudu, although the recorded contract scope does not establish that he was responsible for those items.',
-    classification: 'disputed' as const, sourceIds: sources.some((source) => source.id === 'source-repairer-scope') ? ['source-repairer-scope'] : sources.map((source) => source.id).slice(0, 1),
+    classification: 'disputed' as const, sourceIds: sources.some((source) => source.id === 'source-repairer-scope') ? ['source-repairer-scope'] : ['source-player-report'],
   });
   if (draft.finding === 'insufficient_evidence') assertions.push({
     id: 'assertion-inspection-limits',
     text: 'The available inspection was insufficient to certify the full roof condition.',
-    classification: 'observed' as const, sourceIds: sources.length ? [sources[0].id] : [],
+    classification: 'observed' as const, sourceIds: ['source-player-report'],
   });
   const recordId = `record-${offer.id}-day-${state.calendar.dayNumber}` as RecordId;
   if (state.records.entries[recordId]) return fail(state, 'assignment-activity-record-exists', 'A record already exists for this deterministic submission ID.');

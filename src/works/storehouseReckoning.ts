@@ -210,7 +210,7 @@ function finalize(context: WorkSubmissionContext<StorehouseScenarioData>, dispos
     ...(shouldPresentRoofInspection ? {
       addInstitutionMatters: [{ institutionId: STOREHOUSE_INSTITUTION_ID, matter: 'Verify north-bay roof repair' }],
       presentAssignments: [{
-        id: NORTH_BAY_ASSIGNMENT_ID, activityId: NORTH_BAY_ACTIVITY_ID, estimatedTotalAp: 7,
+        id: NORTH_BAY_ASSIGNMENT_ID, activityId: NORTH_BAY_ACTIVITY_ID, estimatedTotalAp: 7, sourceRecordId: record.id,
         title: 'North-Bay Roof Inspection',
         description: 'Verify the reported repair to the north storage bay before the bay is returned to ordinary storage use.',
         employer: { kind: 'institution' as const, id: STOREHOUSE_INSTITUTION_ID },

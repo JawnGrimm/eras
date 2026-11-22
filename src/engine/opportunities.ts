@@ -163,7 +163,7 @@ export function transitionOpportunityAction(state: GameState, action: Opportunit
       const offer = action.offer;
       if (!offer.id || opportunities.assignments[offer.id] || !offer.title || !offer.description
         || !offer.employer.id || (offer.employer.kind === 'person' ? !state.world.people[offer.employer.id as PersonId] : !state.world.institutions[offer.employer.id as InstitutionId])
-        || !offer.category || !offer.context.what || !offer.context.purpose || !Array.isArray(offer.context.who)
+        || (offer.sourceRecordId && !state.records.entries[offer.sourceRecordId]) || !offer.category || !offer.context.what || !offer.context.purpose || !Array.isArray(offer.context.who)
         || !Array.isArray(offer.context.responsibility) || !Array.isArray(offer.context.provenance)
         || (offer.activityId ? (offer.activityId !== NORTH_BAY_ACTIVITY_ID || !Number.isInteger(offer.estimatedTotalAp) || (offer.estimatedTotalAp ?? 0) < 1 || offer.apCost !== undefined || offer.activityProgress !== undefined || validateAssignmentActivityDefinition(northBayRoofInspection).length > 0 || northBayRoofInspection.participants.some((id) => !state.world.people[id])) : (!Number.isInteger(offer.apCost) || (offer.apCost ?? 0) < 1 || (offer.apCost ?? 0) > 6 || offer.estimatedTotalAp !== undefined || offer.activityProgress !== undefined)) || !validChannels(offer.deliveryChannels, state)
         || (offer.completionConsequences !== undefined && (!offer.completionConsequences || !!validateOpportunityConsequences(offer.completionConsequences, state, 'authoring')))
