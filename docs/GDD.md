@@ -1083,9 +1083,9 @@ The final stress scale, ceiling, thresholds, crisis timing, intervention frequen
 ### 13.2 Trust and reputation
 
 Trust and reputation operate at more than one level:
-- An employer or institution may trust the player's work.
-- Individual NPCs may trust or distrust the player for personal reasons.
-- Factions or broad social groups may respond to the player's actions.
+- An employer or institution may trust a character's work.
+- Individual NPCs may trust or distrust a character for personal reasons.
+- Factions or broad social groups may respond to a character's actions.
 - A character's professional reputation can affect future opportunities.
 
 These levels should not be collapsed into a single universal approval number. A decision can earn an institution's approval while damaging a personal relationship, or protect an individual while frustrating an employer.
@@ -1396,7 +1396,6 @@ Visual feedback is mandatory. The player must be able to understand:
 - What information is missing.
 - What changed after submission or resolution.
 - Why resources, stress, trust, reputation, or relationships changed.
-- The character's current professional standing and, in plain language, the broad kinds of work and invitations that standing is likely to attract. This summary describes the character's known professional reach; it does not reveal opportunities or information that never reached them.
 - The character's current professional standing and, in plain language, the broad kinds of work and invitations that standing is likely to attract. This summary describes the character's known professional reach; it does not reveal opportunities or information that never reached them.
 
 Text must remain readable, controls must be clearly labeled, and color must not be the sole way to communicate difficulty or status. Layout should accommodate different screen sizes and input methods without hiding required information.
