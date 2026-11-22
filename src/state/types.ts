@@ -52,7 +52,7 @@ export interface Institution {
   activeMatterIds: MatterId[];
 }
 export interface Location { id: LocationId; name: string; }
-export interface WorldEvent { id: EventId; dayNumber: number; summary: string; personIds: PersonId[]; institutionIds: InstitutionId[]; locationId?: LocationId; }
+export interface WorldEvent { readonly id: EventId; readonly dayNumber: number; readonly summary: string; readonly personIds: readonly PersonId[]; readonly institutionIds: readonly InstitutionId[]; readonly locationId?: LocationId; }
 
 export interface RecordSource { id: string; kind: 'person' | 'institution' | 'event' | 'material' | 'other'; sourceId?: string; description: string; }
 export interface RecordAssertion { id: string; text: string; classification: 'observed' | 'reported' | 'inferred' | 'disputed'; sourceIds: string[]; }
@@ -63,9 +63,9 @@ export interface RecordAmendment {
 }
 /** Original content is retained; corrections and qualifications are appended as amendments. */
 export interface RecordEntry {
-  id: RecordId; createdDay: number; authorPersonId: PersonId; institutionId?: InstitutionId;
-  title: string; sources: RecordSource[]; assertions: RecordAssertion[];
-  uncertaintyLimits: string[]; amendments: RecordAmendment[];
+  readonly id: RecordId; readonly createdDay: number; readonly authorPersonId: PersonId; readonly institutionId?: InstitutionId;
+  readonly title: string; readonly sources: readonly RecordSource[]; readonly assertions: readonly RecordAssertion[];
+  readonly uncertaintyLimits: readonly string[]; readonly amendments: readonly RecordAmendment[];
 }
 export interface KnowledgeEntry {
   id: KnowledgeEntryId;
@@ -116,6 +116,7 @@ export type GameAction =
   | { type: 'PURCHASE_SKILL_LEVEL'; skillId: SkillId }
   | { type: 'SET_PRIMARY_SPECIALIZATION'; specializationId: SpecializationId }
   | { type: 'SET_RELATIONSHIP'; fromId: PersonId; toId: PersonId; relationship: PersonRelationship }
+  | { type: 'SET_INSTITUTIONAL_STANDING'; personId: PersonId; institutionId: InstitutionId; value: number }
   | { type: 'CREATE_INSTITUTION'; institution: Institution }
   | { type: 'CREATE_APPOINTMENT'; appointment: Appointment }
   | { type: 'END_APPOINTMENT'; appointmentId: AppointmentId }
