@@ -218,7 +218,8 @@ describe('Assignment and Challenge foundations', () => {
     expect(failed.state.opportunities.challenges['atomic-challenge' as ChallengeId]).toBeDefined();
     expect(failed.state.world.people[INITIAL_PERSON_ID].scribal!.wallet).toEqual(beforeWallet);
     expect(failed.state.opportunities.challengeOutcomes).toHaveLength(0);
-    const consequenceFailure = transitionGame(shown.state, { type: 'RESOLVE_CHALLENGE', challengeId: 'atomic-challenge' as ChallengeId, choiceId: invalid.choices[0].id });
+    const accepted = transitionGame(shown.state, { type: 'ACCEPT_CHALLENGE', challengeId: 'atomic-challenge' as ChallengeId });
+    const consequenceFailure = transitionGame(accepted.state, { type: 'RESOLVE_CHALLENGE', challengeId: 'atomic-challenge' as ChallengeId, choiceId: invalid.choices[0].id });
     expect(consequenceFailure.feedback?.code).toBe('challenge-outcome-invalid');
     expect(consequenceFailure.state.actionEconomy.apRemaining).toBe(shown.state.actionEconomy.apRemaining);
     expect(consequenceFailure.state.opportunities.challenges['atomic-challenge' as ChallengeId]).toBeDefined();
