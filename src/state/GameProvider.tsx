@@ -42,8 +42,8 @@ export function initializeProductionSession(
 ): ProductionSession {
   const freshState = () => createNewGameState();
   if (!storage) {
-    return { state: freshState(), loadStatus: 'read_error', revision: 0,
-      feedback: storageFeedback('save-read-failed', 'Production storage is unavailable. Start a fresh production save explicitly to continue.') };
+    return { state: freshState(), loadStatus: 'ready', revision: 0,
+      feedback: storageFeedback('save-write-failed', 'Browser storage is unavailable. You can continue in this session, but progress cannot be saved between visits.') };
   }
   let raw: string | null;
   try {
