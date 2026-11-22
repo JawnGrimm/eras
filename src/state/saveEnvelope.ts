@@ -208,7 +208,8 @@ export function isValidGameState(value: unknown): value is GameState {
   if (!Array.isArray(value.opportunities.recentActivity) || value.opportunities.recentActivity.length > 5
     || value.opportunities.recentActivity.some((entry) => !isObject(entry) || !finiteNonNegative(entry.dayNumber)
       || !['presented','accepted','declined','lapsed','completed','cancelled'].includes(entry.kind as string)
-      || typeof entry.employerKey !== 'string' || typeof entry.category !== 'string' || typeof entry.assignmentId !== 'string')) return false;
+      || typeof entry.employerKey !== 'string' || typeof entry.category !== 'string' || typeof entry.assignmentId !== 'string'
+      || (entry.lapsedDuringMandatoryWork !== undefined && typeof entry.lapsedDuringMandatoryWork !== 'boolean'))) return false;
   if (!Array.isArray(value.opportunities.challengeOutcomes)) return false;
   for (const [id, challenge] of Object.entries(value.opportunities.challenges)) {
     if (!isObject(challenge) || challenge.id !== id || typeof challenge.title !== 'string' || !challenge.title
