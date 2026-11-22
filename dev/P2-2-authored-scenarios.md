@@ -159,15 +159,15 @@ Ur-Nanna reports that rainwater has collected near the south loading threshold a
 
 1. **Maintain segregation and request authorized sampling.**  
    Preserve the seven sacks under hold, record the two stained exteriors, and ask the Steward to authorize a separate sampling procedure.  
-   **Consequences:** +3 Career XP; +2 trust with Ur-Nanna; no stock is released; a follow-up institutional matter remains active until an authorized inspection decision is recorded.
+   **Consequences:** +3 Career XP; +2 directional trust from the current character toward Ur-Nanna; preserve the existing held-barley matter as active; no stock is released. The authored outcome record notes that sampling remains unauthorized and outstanding.
 
 2. **Release the five apparently dry sacks, retain the two stained sacks.**  
    Recommend a partial release based only on exterior appearance. The Steward must explicitly accept the risk; the scribe's report records that the contents were not sampled.  
-   **Consequences:** +1 Career XP; -2 trust with Ur-Nanna if the recommendation is accepted; the report is preserved with an explicit uncertainty warning. The Challenge does not itself release stock.
+   **Consequences:** +1 Career XP; -1 Temple Storehouse institutional standing; preserve the recommendation and its explicit uncertainty warning in the outcome record. The Challenge does not itself release stock.
 
 3. **Certify all seven sacks as fit for issue.**  
    Treat the dry appearance of five sacks and the absence of visible leakage as sufficient proof for all seven.  
-   **Consequences:** -4 Career XP equivalent is not used; instead apply -4 professional judgment reputation and -4 trust with Ur-Nanna. Preserve a disputed assertion that the report certified contents never sampled. No automatic stock release occurs.
+   **Consequences:** -2 directional trust from the current character toward Ur-Nanna; -2 Temple Storehouse institutional standing; preserve a disputed assertion that the report certified contents never sampled. No automatic stock release occurs.
 
 **Resolution rule:** A Challenge choice records the player's recommendation and its social/professional consequences. It does not grant the player institutional authority. No choice awards Historical Progress XP.
 
@@ -190,11 +190,11 @@ Ur-Nanna reports that rainwater has collected near the south loading threshold a
 
 2. **Close the account at the receiving quantity with a qualification.**  
    Use 23 as the storehouse's received quantity while retaining the dispatch figure and a note that the origin-side count has not been checked.  
-   **Consequences:** +1 Career XP; +1 institutional standing with the Temple Storehouse; the discrepancy remains in the record and is not treated as proof of loss.
+   **Consequences:** +1 Career XP; +1 Temple Storehouse institutional standing; the discrepancy remains in the record and is not treated as proof of loss.
 
 3. **Attribute the missing measure to receiving error.**  
    Treat the difference as Utu-mansum's mistake without evidence of the loading or a second count.  
-   **Consequences:** -3 trust with Utu-mansum; -2 professional judgment reputation; add a disputed assertion identifying the accusation as unsupported. The source entry is not rewritten.
+   **Consequences:** -3 directional trust from the current character toward Utu-mansum; -1 Temple Storehouse institutional standing; add a disputed assertion identifying the accusation as unsupported. The source entry is not rewritten.
 
 **Resolution rule:** The Challenge concerns how the scribe handles uncertainty and institutional pressure. It does not determine whether the measure was lost, stolen, miscounted, or never loaded. No choice awards Historical Progress XP.
 
