@@ -114,11 +114,12 @@ function isWorkProgress(value: unknown): value is WorkProgress {
   const acquiredEvidence = value.acquiredEvidence;
   const examinedEvidence = value.examinedEvidence;
   const completedActionIds = value.completedActionIds;
-  if (!stringArray(acquiredEvidence) || new Set(acquiredEvidence).size !== acquiredEvidence.length
-    || !stringArray(examinedEvidence) || new Set(examinedEvidence).size !== examinedEvidence.length
+  if (!stringArray(acquiredEvidence) || !stringArray(examinedEvidence) || !stringArray(completedActionIds)) return false;
+  if (new Set(acquiredEvidence).size !== acquiredEvidence.length
+    || new Set(examinedEvidence).size !== examinedEvidence.length
     || examinedEvidence.some((id) => !acquiredEvidence.includes(id))
     || !Number.isInteger(value.workApSpentToday) || (value.workApSpentToday as number) < 0 || (value.workApSpentToday as number) > 7
-    || typeof value.rewardGranted !== 'boolean' || (value.status === 'completed') !== value.rewardGranted || !stringArray(completedActionIds)
+    || typeof value.rewardGranted !== 'boolean' || (value.status === 'completed') !== value.rewardGranted
     || new Set(completedActionIds).size !== completedActionIds.length
     || !isObject(value.scenarioData) || !Number.isInteger(value.submissionCount) || (value.submissionCount as number) < 0) return false;
   if (value.provisionContract !== undefined && (!isObject(value.provisionContract)
@@ -138,7 +139,7 @@ function isWorkProgress(value: unknown): value is WorkProgress {
 export function isValidGameState(value: unknown, workCatalog: Readonly<Record<string, WorkDefinition<any>>> = {}): value is GameState {
   if (!isObject(value) || !isObject(value.calendar) || !isObject(value.actionEconomy) || !isObject(value.player)
     || !isObject(value.world) || !isObject(value.historicalProgression) || !isObject(value.opportunities)
-    || !isObject(value.works) || !isObject(value.works.progress) || !isObject(value.records) || !isObject(value.journal)) return false;
+    || !isObject(value.works) || !isObject(value.records) || !isObject(value.journal)) return false;
   const calendar = value.calendar, economy = value.actionEconomy, player = value.player, world = value.world, works = value.works;
   const workProgressMap = works.progress;
   if (!isObject(workProgressMap)) return false;
