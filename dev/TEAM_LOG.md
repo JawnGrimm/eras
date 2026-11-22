@@ -1282,3 +1282,8 @@ PR [#33 — P2-2: implement Uruk interactive Assignments and ChallengeDirector](
 - Branch protection is currently disabled on `main`. Requiring pull-request validation is a repository-owner settings decision and has not been changed here.
 
 No P3 hardship mechanics were implemented in this milestone. The +2 shortage Stress, Underfed condition, cumulative cap, and recovery routes remain coupled work under GDD Sections 12.3–12.4.
+
+
+## 22 November 2026 — Personal economy clarification
+
+The approved personal economy has exactly two tracked resources: money and provisions. Both are reskinned with period-appropriate names, forms, denominations, and presentation when eras change. Their underlying balances carry forward unchanged; no currency or provisions conversion is performed. The GDD and README were aligned to this decision in the administrative cleanup PR. This is a design clarification and documentation correction; no runtime economy changes are included.
