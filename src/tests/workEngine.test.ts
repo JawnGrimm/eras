@@ -38,8 +38,8 @@ const definition = defineWork<ScenarioProgress>({
       && Number.isInteger((value as ScenarioProgress).recoveryCount),
   evaluateSubmission: ({ progress }) => progress,
   assessSubmission: (submission) => (submission as ScenarioProgress).accepted
-    ? { outcome: 'accepted', summary: 'The submission is supported.' }
-    : { outcome: 'revise', summary: 'Revise the submission using the available evidence.' },
+    ? { outcome: 'accepted', summary: 'The submission is supported.', dimensions: [{ dimension: 'accuracy', status: 'meets', summary: 'Quantities reconcile.' }] }
+    : { outcome: 'revise', summary: 'Revise the submission using the available evidence.', dimensions: [{ dimension: 'accuracy', status: 'partial', summary: 'A quantity remains unresolved.' }] },
   recover: ({ progress }) => ({ ...progress, recoveryCount: progress.recoveryCount + 1 }),
 });
 const catalog = { [WORK]: definition };
