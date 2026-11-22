@@ -1,4 +1,4 @@
-import type { AttributeId, AppointmentId, CareerPathId, ConditionId, EraId, EventId, InstitutionId, KnowledgeEntryId, LocationId, PersonId, RecordId, SkillId, TraitId, WorkId, SpecializationId } from './ids';
+import type { AssignmentId, ChallengeId, AttributeId, AppointmentId, CareerPathId, ConditionId, EraId, EventId, InstitutionId, KnowledgeEntryId, LocationId, PersonId, RecordId, SkillId, TraitId, WorkId, SpecializationId } from './ids';
 
 export interface WalletState { money: number; provisions: number; shortageWorkdays: number; }
 export interface SkillState { level: number; skillXp: number; }
