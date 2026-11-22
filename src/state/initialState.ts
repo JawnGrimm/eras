@@ -1,5 +1,5 @@
 import type { GameState } from './types';
-import type { PersonId } from './ids';
+import type { InstitutionId, PersonId } from './ids';
 export const INITIAL_PERSON_ID = 'person-enlil-barni' as PersonId;
 export function createInitialGameState(): GameState {
   const initialPerson = {
@@ -39,7 +39,7 @@ export function createInitialGameState(): GameState {
   const utuMansumId = 'person-utu-mansum' as PersonId;
   const enlilKisuId = 'person-enlil-kisu' as PersonId;
   const ninKasiId = 'person-nin-kasi' as PersonId;
-  const templeStorehouseId = 'institution-temple-storehouse';
+  const templeStorehouseId = 'institution-temple-storehouse' as InstitutionId;
   const casePeople = [
     { id: shuruppakId, name: 'Shuruppak-ilu', alive: true, affiliations: [templeStorehouseId] },
     { id: urNannaId, name: 'Ur-Nanna', alive: true, affiliations: [templeStorehouseId] },
