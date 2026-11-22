@@ -1,4 +1,4 @@
-import type { AssignmentId, ChallengeId, InstitutionId, PersonId, SkillId } from '../state/ids';
+import type { EventId, AssignmentId, ChallengeId, InstitutionId, PersonId, SkillId } from '../state/ids';
 import type {
   AssignmentActivityAggregate, AssignmentOffer, ChallengeInstance, ChallengeOutcome, ChallengeTriggerRule,
   GameAction, GameState, OpportunityActivity, OpportunityConsequences, OpportunityDeliveryChannel, TransitionResult,
@@ -105,7 +105,7 @@ function applyConsequences(state: GameState, effects: OpportunityConsequences | 
       || r.amendments.length !== 0 || r.sources.some((s) =>
         (s.kind === 'person' && !next.world.people[s.sourceId as PersonId])
         || (s.kind === 'institution' && !next.world.institutions[s.sourceId as InstitutionId])
-        || (s.kind === 'event' && !next.world.events[s.sourceId as string]))
+        || (s.kind === 'event' && !next.world.events[s.sourceId as EventId]))
       || r.assertions.some((a) => a.sourceIds.some((id) => !r.sources.some((s) => s.id === id)))) return null;
     next = { ...next, records: { ...next.records, entries: { ...next.records.entries, [r.id]: r } } };
   }
