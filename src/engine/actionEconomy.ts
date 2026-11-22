@@ -67,7 +67,8 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
       return { state: { ...state, works: { activeWorkId: action.workId, progress: { ...state.works.progress, [action.workId]: progress } } },
         feedback: feedback('success', 'work-started', definition.title) };
     }
-    case 'ACQUIRE_WORK_EVIDENCE': {
+    case 'ACQUIRE_WORK_EVIDENCE':
+    case 'COMPLETE_WORK_ACTION': {
       const definition = workCatalog[action.workId];
       const progress = state.works.progress[action.workId];
       const actionDefinition = definition?.actions.find((item) => item.id === action.actionId);
@@ -82,12 +83,16 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
         return { state, feedback: feedback('error', 'insufficient-ap', 'There is not enough AP remaining for this evidence action.') };
       }
       const grants = actionDefinition.grantsEvidence ?? [];
+      const submittedScenarioData = 'scenarioData' in action ? action.scenarioData : undefined;
+      if (submittedScenarioData !== undefined && !definition.validateScenarioData(submittedScenarioData)) {
+        return { state, feedback: feedback('error', 'invalid-work-progress', 'The Work action supplied invalid scenario progress.') };
+      }
       if (grants.some((id) => !definition.evidence.some((item) => item.id === id))) {
         return { state, feedback: feedback('error', 'invalid-work-evidence-grant', 'The Work action references evidence that is not defined.') };
       }
       const acquired = [...new Set([...progress.acquiredEvidence, ...grants])];
       const examined = actionDefinition.autoExamine ? [...new Set([...progress.examinedEvidence, ...grants])] : progress.examinedEvidence;
-      const nextProgress = { ...progress, acquiredEvidence: acquired, examinedEvidence: examined,
+      const nextProgress = { ...progress, ...(submittedScenarioData === undefined ? {} : { scenarioData: submittedScenarioData }), acquiredEvidence: acquired, examinedEvidence: examined,
         completedActionIds: [...progress.completedActionIds, action.actionId],
         workApSpentToday: progress.workApSpentToday + actionDefinition.apCost };
       return { state: { ...state, actionEconomy: { ...economy, apRemaining: economy.apRemaining - actionDefinition.apCost },
