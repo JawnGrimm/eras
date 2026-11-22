@@ -28,7 +28,7 @@ function isSkill(value: unknown): boolean {
 }
 function isConditionModifier(value: unknown): boolean {
   if (!isObject(value) || !isObject(value.target) || typeof value.value !== 'number'
-    || !Number.isFinite(value.value) || !stringArray(value.actionTags)) return false;
+    || !Number.isFinite(value.value) || !stringArray(value.actionTags) || value.actionTags.length === 0) return false;
   if (value.target.kind === 'skill') return CORE_SKILL_IDS.includes(value.target.id as SkillId);
   if (value.target.kind === 'attribute') return ATTRIBUTE_IDS.includes(value.target.id as AttributeId);
   return false;
