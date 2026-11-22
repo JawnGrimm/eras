@@ -264,7 +264,10 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
     && (value.works.activeWorkId === null || typeof value.works.activeWorkId === 'string')
     && isObject(value.works.progress)
     && Object.entries(value.works.progress).every(([id, progress]) => !!id && isWorkProgress(progress)
-      && !!workCatalog[id] && workCatalog[id].validateScenarioData((progress as WorkProgress).scenarioData))
+      && !!workCatalog[id] && workCatalog[id].id === id
+      && workCatalog[id].validateScenarioData((progress as WorkProgress).scenarioData)
+      && (progress as WorkProgress).acquiredEvidence.every((evidenceId) => workCatalog[id].evidence.some((item) => item.id === evidenceId))
+      && (progress as WorkProgress).completedActionIds.every((actionId) => workCatalog[id].actions.some((item) => item.id === actionId)))
     && (value.works.activeWorkId === null || (isObject(value.works.progress[value.works.activeWorkId])
       && (value.works.progress[value.works.activeWorkId] as WorkProgress).status === 'active'))
     && Array.isArray(value.records.permanentOutcomes)
