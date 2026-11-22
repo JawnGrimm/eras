@@ -113,7 +113,8 @@ export function generateDailyAssignments(state: GameState): GameState {
     const sourceMatter = next.world.matters[candidate.originMatterId];
     const sourceInstitution = sourceMatter ? next.world.institutions[sourceMatter.institutionId] : undefined;
     if (!sourceMatter || sourceMatter.status !== 'active' || !sourceInstitution?.activeMatters.includes(sourceMatter.id)) continue;
-    if (Object.values(next.opportunities.assignments).some((offer) => offer.originMatterId === candidate.originMatterId)) continue;
+    if (Object.values(next.opportunities.assignments).some((offer) => offer.originMatterId === candidate.originMatterId
+      || (!offer.originMatterId && offer.activityId === candidate.activityId))) continue;
     const lastDay = lastPresentedDayByActivity[candidate.activityId];
     if (lastDay !== undefined && next.calendar.dayNumber - lastDay < 3) continue;
     if (!ASSIGNMENT_ACTIVITY_CATALOG[candidate.activityId as keyof typeof ASSIGNMENT_ACTIVITY_CATALOG]) continue;
