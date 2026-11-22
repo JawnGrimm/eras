@@ -58,18 +58,21 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
   const sources = [
     ...(offer.sourceRecordId ? [{ id: 'source-storehouse-reckoning', kind: 'other' as const, sourceId: offer.sourceRecordId, description: 'Storehouse Reckoning record that generated this roof-verification Assignment' }] : []),
     { id: 'source-player-report', kind: 'other' as const, description: 'Submitted inspection report by the current scribe' },
-    ...discoveries.map((item) => {
-    const personId = item.id === 'steward-briefing' ? NORTH_BAY_PEOPLE.steward
-      : item.id === 'repairer-scope' || item.id === 'scope-comparison' ? NORTH_BAY_PEOPLE.repairer
-      : item.id === 'intake-boundary' ? NORTH_BAY_PEOPLE.receivingOfficial : undefined;
-    return { id: `source-${item.id}`, kind: personId ? 'person' as const : 'other' as const,
-      ...(personId ? { sourceId: personId } : {}), description: item.id === 'roof-inspection' ? 'Direct physical inspection by Enlil-barni' : item.title };
-  })];
+    ...discoveries.flatMap((item) => {
+      const personId = item.id === 'steward-briefing' ? NORTH_BAY_PEOPLE.steward
+        : item.id === 'repairer-scope' || item.id === 'scope-comparison' ? NORTH_BAY_PEOPLE.repairer
+        : item.id === 'intake-boundary' ? NORTH_BAY_PEOPLE.receivingOfficial : undefined;
+      const primary = { id: `source-${item.id}`, kind: personId ? 'person' as const : 'other' as const,
+        ...(personId ? { sourceId: personId } : {}), description: item.id === 'roof-inspection' ? 'Direct physical inspection by Enlil-barni' : item.title };
+      return item.id === 'scope-comparison' ? [primary, { id: 'source-steward-maintenance-note', kind: 'person' as const,
+        sourceId: NORTH_BAY_PEOPLE.steward, description: 'Ur-Nanna’s storehouse maintenance note describing the bay as repaired' }] : [primary];
+    }),
+  ];
   const cited = new Set(draft.citedDiscoveryIds);
   const assertions: RecordAssertion[] = discoveries.filter((item) => cited.has(item.id)).map((item) => ({
     id: `assertion-${item.id}`, text: item.text,
     classification: item.id === 'roof-inspection' ? 'observed' as const : 'reported' as const,
-    sourceIds: [`source-${item.id}`],
+    sourceIds: item.id === 'scope-comparison' ? ['source-scope-comparison','source-steward-maintenance-note'] : [`source-${item.id}`],
   }));
   if (draft.finding === 'repair_incomplete' && roofObserved && roofCited) assertions.push({
     id: 'assertion-inspection-conclusion',

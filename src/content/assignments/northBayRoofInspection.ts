@@ -12,11 +12,11 @@ export const NORTH_BAY_PEOPLE = {
 };
 export const NORTH_BAY_LOCATION_ID = 'location-uruk-temple-storehouse' as import('../../state/ids').LocationId;
 export const NORTH_BAY_DISCOVERIES = [
-  { id: 'steward-briefing', title: 'Steward’s account', text: 'Ur-Nanna reports that the north bay leaked during the storm, that a repairer was hired, and that seven held sacks remain segregated below.' },
-  { id: 'repairer-scope', title: 'Repairer’s account', text: 'Dudu states that he patched and replastered the mid-bay break. Clearing the parapet runoff channel and replacing damp beam-ends were not included in the fee.' },
-  { id: 'roof-inspection', title: 'Physical inspection', text: 'The mid-bay patch is intact. The north parapet runoff channel remains clogged with washed reeds and cracked plaster. The north-east beam socket is damp within the shaded wall joint. Seven sacks remain segregated on dry reed matting; their contents have not been tested.' },
+  { id: 'steward-briefing', title: 'Steward’s account', text: 'Ur-Nanna says storm wind tore the outer reed matting and mud-plaster coat and washed debris toward the north parapet. He describes the bay as repaired, names Dudu as the repairer, and confirms that seven held sacks remain segregated below.' },
+  { id: 'repairer-scope', title: 'Repairer’s account', text: 'Dudu states that he patched the mid-bay break with reed matting and mud plaster. Clearing the parapet runoff channel and replacing damp beam-ends were not included in the Steward’s fee.' },
+  { id: 'roof-inspection', title: 'Physical inspection', text: 'From the courtyard the center appears repaired. Close inspection finds the mid-bay patch intact, but the north parapet runoff channel remains clogged with storm-washed reeds and cracked plaster. The north-east beam socket is damp within the shaded wall joint, though not collapsed; do not stack fresh grain against that wall until it is assessed. Seven sacks remain segregated on dry reed matting; their contents have not been tested.' },
   { id: 'intake-boundary', title: 'Original intake boundary', text: 'Utu-mansum can attest that the original intake inspection recorded 56 usable and 4 held measures. He was not present for the storm or subsequent repair.' },
-  { id: 'scope-comparison', title: 'Repair scope comparison', text: 'The Steward’s maintenance note describes the bay as repaired; Dudu’s account limits the paid work to the mid-bay patch. The accounts differ in scope, not necessarily in whether Dudu completed his contracted work.' },
+  { id: 'scope-comparison', title: 'Repair scope comparison', text: 'The Steward’s maintenance note calls the bay repaired; Dudu’s account limits the paid work to the mid-bay patch. The accounts differ in scope, not necessarily in whether Dudu completed his contracted work.' },
 ] as const;
 
 export interface AssignmentActivityActionDefinition {
