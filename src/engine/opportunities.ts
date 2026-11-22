@@ -1,4 +1,5 @@
 import type { EventId, AssignmentId, ChallengeId, InstitutionId, PersonId, SkillId } from '../state/ids';
+import { resolveOpportunityDatePolicies, validateOpportunityConsequences } from '../state/opportunityValidation';
 import type {
   AssignmentActivityAggregate, AssignmentOffer, ChallengeInstance, ChallengeOutcome, ChallengeTriggerRule,
   GameAction, GameState, OpportunityActivity, OpportunityConsequences, OpportunityDeliveryChannel, TransitionResult,
@@ -56,6 +57,8 @@ function validChannels(channels: OpportunityDeliveryChannel[], state: GameState)
 }
 function applyConsequences(state: GameState, effects: OpportunityConsequences | undefined): GameState | null {
   if (!effects) return state;
+  if (validateOpportunityConsequences(effects, state, 'runtime')) return null;
+  effects = resolveOpportunityDatePolicies(effects, state.calendar.dayNumber);
   const person = state.world.people[state.player.currentCharacterId];
   if (!person?.scribal) return null;
   const money = effects.moneyDelta ?? 0, provisions = effects.provisionsDelta ?? 0, careerXp = effects.careerXp ?? 0;
@@ -162,7 +165,9 @@ export function transitionOpportunityAction(state: GameState, action: Opportunit
         || !offer.employer.id || (offer.employer.kind === 'person' ? !state.world.people[offer.employer.id as PersonId] : !state.world.institutions[offer.employer.id as InstitutionId])
         || !offer.category || !offer.context.what || !offer.context.purpose || !Array.isArray(offer.context.who)
         || !Array.isArray(offer.context.responsibility) || !Array.isArray(offer.context.provenance)
-        || !Number.isInteger(offer.estimatedAp) || offer.estimatedAp < 1 || !validChannels(offer.deliveryChannels, state)
+        || !Number.isInteger(offer.apCost) || offer.apCost < 1 || offer.apCost > 6 || !validChannels(offer.deliveryChannels, state)
+        || !!validateOpportunityConsequences(offer.completionConsequences, state, 'authoring')
+        || !!validateOpportunityConsequences(offer.cancellationConsequences, state, 'authoring')
         || !['routine','demanding','critical'].includes(offer.difficulty)
         || !finiteNonNegative(offer.compensation.money) || !finiteNonNegative(offer.compensation.provisions)
         || !finiteNonNegative(offer.careerXpReward) || Object.values(offer.requiredSkills).some((n) => !Number.isInteger(n) || (n ?? 0) < 1 || (n ?? 0) > 10)) {
@@ -203,19 +208,23 @@ export function transitionOpportunityAction(state: GameState, action: Opportunit
     case 'COMPLETE_ASSIGNMENT': {
       const offer = opportunities.assignments[action.assignmentId];
       if (!offer || offer.status !== 'accepted') return fail(state, 'assignment-not-active', 'Only an accepted Assignment can be completed.');
-      const effects = { ...action.consequences, moneyDelta: (action.consequences?.moneyDelta ?? 0) + offer.compensation.money,
-        provisionsDelta: (action.consequences?.provisionsDelta ?? 0) + offer.compensation.provisions,
-        careerXp: (action.consequences?.careerXp ?? 0) + offer.careerXpReward };
+      if (state.actionEconomy.apRemaining < offer.apCost) return fail(state, 'insufficient-ap', `Completing this Assignment costs ${offer.apCost} AP.`);
+      const authored = offer.completionConsequences ?? {};
+      const effects: OpportunityConsequences = { ...authored, moneyDelta: (authored.moneyDelta ?? 0) + offer.compensation.money,
+        provisionsDelta: (authored.provisionsDelta ?? 0) + offer.compensation.provisions,
+        careerXp: (authored.careerXp ?? 0) + offer.careerXpReward };
       const effected = applyConsequences(state, effects);
       if (!effected) return fail(state, 'assignment-outcome-invalid', 'The Assignment outcome contains invalid resource, relationship, institution, event, record, or knowledge effects.');
-      const next = { ...effected, opportunities: { ...effected.opportunities, assignments: { ...effected.opportunities.assignments, [offer.id]: { ...offer, status: 'completed' } } } };
+      const next = { ...effected, actionEconomy: { ...effected.actionEconomy, apRemaining: effected.actionEconomy.apRemaining - offer.apCost },
+        opportunities: { ...effected.opportunities, assignments: { ...effected.opportunities.assignments, [offer.id]: { ...offer, status: 'completed' } } } };
       return succeed(addActivity(next, offer, 'completed'), 'assignment-completed', 'The Assignment was completed and its authored compensation and consequences were applied.');
     }
     case 'PRESENT_CHALLENGE': {
       const c: ChallengeInstance = action.challenge;
       if (!c.id || opportunities.challenges[c.id] || !c.title || !c.description || !c.category || !c.context.what
-        || !c.context.purpose || !validChannels(c.deliveryChannels, state) || !Array.isArray(c.choices) || !c.choices.length
-        || new Set(c.choices.map((x) => x.id)).size !== c.choices.length || c.choices.some((x) => !x.id || !x.label || !x.description)
+        || !c.context.purpose || !validChannels(c.deliveryChannels, state) || !Number.isInteger(c.apCost) || c.apCost < 1 || c.apCost > 6
+        || !Array.isArray(c.choices) || !c.choices.length
+        || new Set(c.choices.map((x) => x.id)).size !== c.choices.length || c.choices.some((x) => !x.id || !x.label || !x.description || !!validateOpportunityConsequences(x.consequences, state, 'authoring'))
         || (c.employer && (c.employer.kind === 'person' ? !state.world.people[c.employer.id as PersonId] : !state.world.institutions[c.employer.id as InstitutionId]))) {
         return fail(state, 'challenge-invalid', 'A Challenge needs contextual grounding, a delivery reason, and distinct authored resolution choices.');
       }
@@ -227,12 +236,14 @@ export function transitionOpportunityAction(state: GameState, action: Opportunit
       if (!challenge) return fail(state, 'challenge-not-active', 'This Challenge is not active.');
       const choice = challenge.choices.find((x) => x.id === action.choiceId);
       if (!choice) return fail(state, 'challenge-choice-invalid', 'Select one of the authored Challenge rulings.');
+      if (state.actionEconomy.apRemaining < challenge.apCost) return fail(state, 'insufficient-ap', `Resolving this Challenge costs ${challenge.apCost} AP.`);
       const effected = applyConsequences(state, choice.consequences);
       if (!effected) return fail(state, 'challenge-outcome-invalid', 'The selected ruling contains invalid resource, relationship, institution, event, record, or knowledge effects.');
       const outcome: ChallengeOutcome = { challengeId: challenge.id, title: challenge.title, category: challenge.category,
         resolvedDay: state.calendar.dayNumber, choiceId: choice.id, choiceLabel: choice.label, summary: choice.description };
       const { [challenge.id]: _removed, ...active } = effected.opportunities.challenges;
-      const next = { ...effected, opportunities: { ...effected.opportunities, challenges: active,
+      const next = { ...effected, actionEconomy: { ...effected.actionEconomy, apRemaining: effected.actionEconomy.apRemaining - challenge.apCost },
+        opportunities: { ...effected.opportunities, challenges: active,
         challengeOutcomes: [...effected.opportunities.challengeOutcomes, outcome] } };
       return succeed(next, 'challenge-resolved', 'The Challenge was resolved and moved to the permanent outcome archive.');
     }
