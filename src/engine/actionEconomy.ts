@@ -95,8 +95,9 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
         feedback: feedback('success', 'work-evidence-acquired', actionDefinition.id) };
     }
     case 'EXAMINE_WORK_EVIDENCE': {
+      const definition = workCatalog[action.workId];
       const progress = state.works.progress[action.workId];
-      if (!progress || !progress.acquiredEvidence.includes(action.evidenceId)) return { state, feedback: feedback('error', 'evidence-not-acquired', 'Acquire this evidence before examining it.') };
+      if (!definition || !definition.evidence.some((item) => item.id === action.evidenceId) || !progress || !progress.acquiredEvidence.includes(action.evidenceId)) return { state, feedback: feedback('error', 'evidence-not-acquired', 'Acquire this evidence before examining it.') };
       if (progress.examinedEvidence.includes(action.evidenceId)) return { state, feedback: feedback('info', 'evidence-already-examined', 'Re-examining acquired evidence costs no AP.') };
       return { state: { ...state, works: { ...state.works, progress: { ...state.works.progress,
         [action.workId]: { ...progress, examinedEvidence: [...progress.examinedEvidence, action.evidenceId] } } } },
