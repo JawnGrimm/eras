@@ -1020,7 +1020,7 @@ The owner approved a succession model in which the player continues through an e
 
 ### No eligible successor
 
-If no eligible successor is available when succession is required, the player begins again as a new character at the beginning of the current era. This is a career restart, not a historical reset: the current era and its historical progression remain in place, and the former character's consequential history remains in the world where appropriate. The new character has their own circumstances, skills, relationships, and opportunities. The established-connection requirement is not waived by generating an unrelated replacement.
+If no eligible successor is available when succession is required, the player begins again as a new character at the beginning of the current era. The new character has their own circumstances, skills, relationships, and opportunities. How this restart affects the era calendar, completed or ongoing Works, and wider world state remains to be designed. The established-connection requirement is not waived by generating an unrelated replacement.
 
 ### Legacy and family desk
 
@@ -1039,6 +1039,6 @@ The family desk remains an established family heirloom and legacy object, but a 
 
 ### Repository changes
 
-- `docs/GDD.md`: revised the Executive Summary, Section 3.2, and Section 16 to establish connected-NPC succession, candidate choice subject to circumstances, the current-era career restart when no successor is available, and the distinction between professional continuity and bloodline continuity. Revised Remaining Design Work item 10.
+- `docs/GDD.md`: revised the Executive Summary, Section 3.2, and Section 16 to establish connected-NPC succession, candidate choice subject to circumstances, the current-era restart when no successor is available, and the distinction between professional continuity and bloodline continuity. Revised Remaining Design Work items 9–10 to clarify unresolved continuity carriers and restart consequences.
 - `README.md`: added the approved succession direction to the core design summary.
 - No runtime code, save schema, numerical balance, or gameplay behavior changed.
