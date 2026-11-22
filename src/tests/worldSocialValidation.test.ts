@@ -51,10 +51,10 @@ describe('world social record validation', () => {
     expect(transitionGame(institution, { type: 'CREATE_APPOINTMENT', appointment: malformed }).feedback?.code).toBe('appointment-invalid');
     const created = transitionGame(institution, { type: 'CREATE_RECORD', record: record() }).state;
     const malformedSave = structuredClone(created);
-    malformedSave.records.entries['record-check'].amendments.push({
+    malformedSave.records.entries['record-check'] = { ...malformedSave.records.entries['record-check'], amendments: [{
       id: 'future-amendment', dayNumber: 2, authorPersonId: other, reason: 'Future', sourcesAdded: [],
       assertionsAdded: [], uncertaintyLimitsAdded: [], note: '',
-    });
+    }] };
     expect(isValidGameState(malformedSave)).toBe(false);
   });
 });
