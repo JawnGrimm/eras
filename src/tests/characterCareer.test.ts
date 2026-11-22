@@ -39,6 +39,19 @@ describe('character and career foundation', () => {
     expect(advanced.careerXp).toBe(110);
   });
 
+  it('validates Career XP awards independently from Skill XP awards', () => {
+    const initial = createInitialGameState();
+    const invalidAmounts = [0, -1, Number.NaN, Number.POSITIVE_INFINITY];
+    for (const amount of invalidAmounts) {
+      const result = transitionGame(initial, { type: 'AWARD_CAREER_XP', amount, reason: 'Test award' }, policy);
+      expect(result.state).toBe(initial);
+      expect(result.feedback?.code).toBe('invalid-career-xp');
+    }
+    const awarded = transitionGame(initial, { type: 'AWARD_CAREER_XP', amount: 25, reason: 'Completed commission' }, policy);
+    expect(awarded.state.world.people[INITIAL_PERSON_ID].scribal!.careerXp).toBe(175);
+    expect(awarded.state.world.people[INITIAL_PERSON_ID].scribal!.skills).toEqual({});
+  });
+
   it('rejects advancement without skill eligibility, investment currency, or room below the level-10 cap', () => {
     const initial = createInitialGameState();
     const noSkillXp = transitionGame(initial, { type: 'PURCHASE_SKILL_LEVEL', skillId: 'reading_scripts' }, policy);
