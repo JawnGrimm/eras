@@ -60,19 +60,20 @@ export const northBayRoofInspection: AssignmentActivityDefinition = {
   } }),
 };
 
-function validatePredicate(predicate: Predicate, issues: string[]): void {
+function validatePredicate(predicate: Predicate, issues: string[], discoveryIds: Set<string>): void {
   const skills: SkillId[] = ['reading_scripts','recordkeeping_accounts','analysis_research','writing_composition','administration_procedure','communication_instruction'];
   const attributes: AttributeId[] = ['precision','perception','reasoning','expression','endurance','composure'];
   if (predicate.kind === 'all' || predicate.kind === 'any') {
     if (!predicate.predicates.length) issues.push('Empty predicate group.');
-    predicate.predicates.forEach((child) => validatePredicate(child, issues));
-  } else if (predicate.kind === 'not') validatePredicate(predicate.predicate, issues);
+    predicate.predicates.forEach((child) => validatePredicate(child, issues, discoveryIds));
+  } else if (predicate.kind === 'not') validatePredicate(predicate.predicate, issues, discoveryIds);
   else if (predicate.kind === 'skillAtLeast' || predicate.kind === 'skillAtMost') {
     if (!skills.includes(predicate.skillId) || !Number.isInteger(predicate.level) || predicate.level < 1 || predicate.level > 10) issues.push('Invalid SkillId or skill threshold.');
   } else if (predicate.kind === 'attributeAtLeast' || predicate.kind === 'attributeAtMost') {
     if (!attributes.includes(predicate.attributeId) || !Number.isFinite(predicate.value)) issues.push('Invalid AttributeId or attribute threshold.');
   } else if (predicate.kind === 'examinedAll' || predicate.kind === 'examinedNone') {
     if (!predicate.evidenceIds.length) issues.push('Empty discovery predicate.');
+    if (predicate.evidenceIds.some((id) => !discoveryIds.has(String(id)))) issues.push('Interpretation predicate references an unknown discovery.');
   }
 }
 export function validateAssignmentActivityDefinition(definition: AssignmentActivityDefinition): string[] {
@@ -82,7 +83,7 @@ export function validateAssignmentActivityDefinition(definition: AssignmentActiv
   if (actionIds.size !== definition.actions.length) issues.push('Action IDs must be unique.');
   if (discoveryIds.size !== definition.discoveries.length) issues.push('Discovery IDs must be unique.');
   if (!definition.id || !definition.title || !Number.isInteger(definition.submissionApCost) || definition.submissionApCost < 1 || definition.submissionApCost > 6) issues.push('Activity identity and submission AP (1..6) are required.');
-  if (definition.participants.some((id) => typeof id !== 'string' || !id.trim())) issues.push('Every participant needs a PersonId.');
+  if (definition.participants.some((id) => typeof id !== 'string' || !id.trim()) || new Set(definition.participants).size !== definition.participants.length) issues.push('Participants need unique, non-empty PersonIds.');
   for (const action of definition.actions) {
     if (!action.id || !Number.isInteger(action.apCost) || action.apCost < 1 || action.apCost > 6) issues.push(`Action ${action.id} AP must be 1..6.`);
     if (!['consult','observe','compare'].includes(action.family)) issues.push(`Action ${action.id} has an invalid interaction family.`);
@@ -101,11 +102,16 @@ export function validateAssignmentActivityDefinition(definition: AssignmentActiv
   }
   for (const action of definition.actions) if (!reachable.has(action.id)) issues.push(`Action ${action.id} is circular or unreachable.`);
   const ruleIds = new Set<string>();
+  const conflictPriorities = new Set<string>();
   for (const rule of definition.interpretationRules) {
     if (!rule.id || ruleIds.has(rule.id)) issues.push(`Duplicate or empty interpretation rule ID: ${rule.id}.`);
     ruleIds.add(rule.id);
     if (!discoveryIds.has(String(rule.evidenceId))) issues.push(`Rule ${rule.id} references an unknown discovery.`);
-    validatePredicate(rule.when, issues);
+    validatePredicate(rule.when, issues, discoveryIds);
+    if (!['observation','inference','uncertainty','misinterpretation','professional_reminder'].includes(rule.category)) issues.push(`Rule ${rule.id} has an invalid interpretation category.`);
+    const conflictKey = rule.conflictGroup ? `${rule.conflictGroup}:${rule.priority}` : '';
+    if (conflictKey && conflictPriorities.has(conflictKey)) issues.push(`Conflict group ${rule.conflictGroup} has duplicate priority ${rule.priority}.`);
+    if (conflictKey) conflictPriorities.add(conflictKey);
     if (!rule.text.trim() || !Number.isFinite(rule.priority) || !Number.isFinite(rule.displayOrder)) issues.push(`Rule ${rule.id} has invalid metadata.`);
   }
   return issues;
@@ -113,12 +119,17 @@ export function validateAssignmentActivityDefinition(definition: AssignmentActiv
 export function validateAssignmentActivityProgress(definition: AssignmentActivityDefinition, value: unknown): value is AssignmentActivityProgress {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
   const p = value as AssignmentActivityProgress;
-  return Array.isArray(p.completedActionIds) && new Set(p.completedActionIds).size === p.completedActionIds.length
-    && p.completedActionIds.every((id) => definition.actions.some((a) => a.id === id && (a.prerequisites ?? []).every((prerequisite) => p.completedActionIds.includes(prerequisite))))
-    && Array.isArray(p.discoveryIds) && new Set(p.discoveryIds).size === p.discoveryIds.length
-    && p.discoveryIds.every((id) => definition.discoveries.some((d) => d.id === id))
-    && definition.actions.filter((a) => p.completedActionIds.includes(a.id)).every((a) => a.discoveryIds.every((id) => p.discoveryIds.includes(id)))
-    && Array.isArray(p.consultedPersonIds) && p.consultedPersonIds.every((id) => definition.participants.includes(id))
+  if (!Array.isArray(p.completedActionIds) || new Set(p.completedActionIds).size !== p.completedActionIds.length
+    || !p.completedActionIds.every((id) => definition.actions.some((a) => a.id === id && (a.prerequisites ?? []).every((prerequisite) => p.completedActionIds.includes(prerequisite))))
+    || !Array.isArray(p.discoveryIds) || new Set(p.discoveryIds).size !== p.discoveryIds.length
+    || !Array.isArray(p.consultedPersonIds) || new Set(p.consultedPersonIds).size !== p.consultedPersonIds.length) return false;
+  const completedActions = definition.actions.filter((a) => p.completedActionIds.includes(a.id));
+  const expectedDiscoveries = [...new Set(completedActions.flatMap((a) => a.discoveryIds))].sort();
+  const expectedConsulted = [...new Set(completedActions.flatMap((a) => a.consultedPersonId ? [a.consultedPersonId] : []))].sort();
+  return p.discoveryIds.every((id) => definition.discoveries.some((d) => d.id === id))
+    && [...p.discoveryIds].sort().join('|') === expectedDiscoveries.join('|')
+    && p.consultedPersonIds.every((id) => definition.participants.includes(id))
+    && [...p.consultedPersonIds].sort().join('|') === expectedConsulted.join('|')
     && !!p.draft && ['repair_incomplete','repair_appears_sound','insufficient_evidence'].includes(p.draft.finding)
     && ['none','dudu'].includes(p.draft.responsibilityClaim)
     && Array.isArray(p.draft.citedDiscoveryIds) && p.draft.citedDiscoveryIds.every((id) => p.discoveryIds.includes(id))
