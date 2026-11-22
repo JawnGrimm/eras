@@ -47,6 +47,12 @@ function isScribal(value: unknown, institutionIds: Set<string>): value is Scriba
     || !isObject(value.wallet) || !isObject(value.skills) || !isObject(value.attributes)
     || !Array.isArray(value.specializations) || !Array.isArray(value.traits) || !Array.isArray(value.conditions)
     || !Array.isArray(value.equipment) || !value.equipment.every((x) => typeof x === 'string')
+    || !Number.isInteger(value.cumulativeShortageStress) || (value.cumulativeShortageStress as number) < 0 || (value.cumulativeShortageStress as number) > 10
+    || !Array.isArray(value.obligations) || value.obligations.some((item) => !isObject(item)
+      || typeof item.id !== 'string' || !item.id || typeof item.creditorPersonId !== 'string'
+      || !Number.isInteger(item.createdDay) || (item.createdDay as number) < 1
+      || item.kind !== 'repayment_or_service' || typeof item.description !== 'string' || !item.description
+      || item.status !== 'outstanding')
     || !isObject(value.professionalReputation) || !isObject(value.institutionalStanding)) return false;
   const wallet = value.wallet;
   if (!finiteNonNegative(wallet.money) || !finiteNonNegative(wallet.provisions)
@@ -159,7 +165,8 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
     || calendar.dayNumber < 1 || typeof calendar.displayDate !== 'string') return false;
   if ((economy.dailyApAllocation !== 5 && economy.dailyApAllocation !== 6) || !finiteNonNegative(economy.apRemaining)
     || !Number.isInteger(economy.apRemaining) || economy.apRemaining > economy.dailyApAllocation
-    || typeof economy.overtimeUsedToday !== 'boolean' || typeof economy.nextDayApPenalty !== 'boolean') return false;
+    || typeof economy.overtimeUsedToday !== 'boolean' || typeof economy.nextDayApPenalty !== 'boolean'
+    || typeof economy.recoveryLaborUsedToday !== 'boolean') return false;
   if (typeof player.currentCharacterId !== 'string' || !isObject(world.people) || !isObject(world.relationships)
     || !isObject(world.institutions) || !isObject(world.locations) || !isObject(world.appointments)
     || !isObject(world.events) || !isObject(world.knowledge) || !isObject(world.matters) || !isObject(value.records.entries)) return false;
@@ -485,10 +492,29 @@ function normalizeLegacyTutorialProgression(
   };
 }
 
+function normalizeHardshipState(parsed: unknown): unknown {
+  if (!isObject(parsed) || !isObject(parsed.state)) return parsed;
+  const state = parsed.state;
+  const economy = isObject(state.actionEconomy)
+    ? { ...state.actionEconomy, recoveryLaborUsedToday: state.actionEconomy.recoveryLaborUsedToday ?? false }
+    : state.actionEconomy;
+  if (!isObject(state.world) || !isObject(state.world.people)) return { ...parsed, state: { ...state, actionEconomy: economy } };
+  const people = Object.fromEntries(Object.entries(state.world.people).map(([id, rawPerson]) => {
+    if (!isObject(rawPerson) || !isObject(rawPerson.scribal)) return [id, rawPerson];
+    const scribal = rawPerson.scribal;
+    return [id, { ...rawPerson, scribal: {
+      ...scribal,
+      cumulativeShortageStress: scribal.cumulativeShortageStress ?? 0,
+      obligations: scribal.obligations ?? [],
+    } }];
+  }));
+  return { ...parsed, state: { ...state, actionEconomy: economy, world: { ...state.world, people } } };
+}
+
 export function restoreSave(raw: string | null, workCatalog: Readonly<Record<string, WorkDefinition<any>>> = {}): SaveEnvelope | null {
   if (!raw) return null;
   try {
-    const parsed: unknown = normalizeLegacyTutorialProgression(normalizeInstitutionalMatters(normalizeNorthBayWorldBaseline(JSON.parse(raw))), workCatalog);
+    const parsed: unknown = normalizeHardshipState(normalizeLegacyTutorialProgression(normalizeInstitutionalMatters(normalizeNorthBayWorldBaseline(JSON.parse(raw))), workCatalog));
     return isValidSaveEnvelope(parsed, workCatalog) ? parsed : null;
   } catch { return null; }
 }
