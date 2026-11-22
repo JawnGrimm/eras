@@ -64,7 +64,7 @@ describe('Challenge character ownership', () => {
       presentedDay: 1,
       apCost: 1,
       choices: [
-        { id: 'preserve', label: 'Preserve uncertainty', description: 'Mark the line uncertain.', consequences: { careerXp: 3 } },
+        { id: 'preserve-uncertain-reading', label: 'Preserve uncertainty', description: 'Mark the line uncertain.', consequences: { careerXp: 3 } },
         { id: 'recopy', label: 'Request recitation', description: 'Wait for another recitation.', consequences: { moneyDelta: -1 } },
       ],
     };
@@ -127,7 +127,7 @@ describe('Challenge character ownership', () => {
     state = transitionGame(state, { type: 'SELECT_SUCCESSOR', nextCharacterId: 'person-uruk-nin-aya' as PersonId }).state;
     expect(state.player.currentCharacterId).toBe('person-uruk-nin-aya');
     expect(state.opportunities.challenges[id].assigneePersonId).toBe(INITIAL_PERSON_ID);
-    const resolution = transitionGame(state, { type: 'RESOLVE_CHALLENGE', challengeId: id, choiceId: 'preserve' });
+    const resolution = transitionGame(state, { type: 'RESOLVE_CHALLENGE', challengeId: id, choiceId: 'preserve-uncertain-reading' });
     expect(resolution.feedback?.code).toBe('challenge-not-active');
   });
 
@@ -143,7 +143,7 @@ describe('Challenge character ownership', () => {
     let state = createNewGameState();
     const id = Object.keys(state.opportunities.challenges)[0] as ChallengeId;
     state = transitionGame(state, { type: 'ACCEPT_CHALLENGE', challengeId: id }).state;
-    const result = transitionGame(state, { type: 'RESOLVE_CHALLENGE', challengeId: id, choiceId: 'preserve' });
+    const result = transitionGame(state, { type: 'RESOLVE_CHALLENGE', challengeId: id, choiceId: 'preserve-uncertain-reading' });
     expect(result.feedback?.code).toBe('challenge-resolved');
     expect(result.state.opportunities.challengeOutcomes[0].assigneePersonId).toBe(INITIAL_PERSON_ID);
     expect(result.state.historicalProgression.historicalXp).toBe(0);
