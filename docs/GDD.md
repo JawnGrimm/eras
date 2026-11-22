@@ -1166,6 +1166,14 @@ An NPC's explanation may be sincere and mistaken, incomplete, self-serving, or u
 
 Historical evidence may establish that people participated in differentiated relationships to goods, labor, allocations, and accounts without revealing how they deliberated between competing demands. Where the historical record does not preserve motives, procedures, or individual decisions, those elements are designed reconstruction and must not be presented as recovered historical fact. The game should not invent an obligation merely to explain an NPC's obstruction; the commitment should have a basis in the situation and remain meaningful after the immediate encounter.
 
+#### Factions, affiliations, and overlapping loyalties
+
+Factions provide social and institutional context for behavior, but they do not replace individual relationships or reduce every person to a single group identity. A person may belong to, depend on, cooperate with, or be in conflict with more than one faction at the same time. Membership and affiliation are therefore not assumed to be mutually exclusive.
+
+Faction affiliations can shape how NPCs interpret one another, cooperate, compete, share access, exchange information, or respond to disputes. Those effects are contextual: an individual's own relationships, commitments, authority, interests, knowledge, and circumstances may reinforce or contradict the expectations of a faction. Two members of the same faction may disagree; people from different factions may cooperate or maintain strong personal ties.
+
+Faction standing is a useful broad representation of the player's or an institution's relationship with a group. It must not become a universal substitute for directional person-to-person relationships, nor a hidden score that automatically determines every NPC action. Where faction membership matters to a consequential decision, preserve the relevant affiliations and the specific reason they matter. Do not force every NPC into a faction merely to populate a social graph.
+
 Relationship information can include:
 - Trust, affinity, resentment, or professional respect.
 - Prior assignments and shared events.
@@ -1203,6 +1211,52 @@ Institutional continuity across eras is not assumed. Professional traditions, re
 Historical events can alter institutions, locations, opportunities, and relationships. Events may create Challenges, change Work conditions, or reshape the social network. They should be represented through human consequences rather than as detached timeline announcements.
 
 The daily world tick runs during END_DAY after opportunity expiry is settled. It advances explicitly scheduled, consequential developments for active institutional matters and records resulting events and follow-up matters. It remains bounded and deterministic; routine NPC activity without meaningful consequences stays outside the simulation.
+
+### 15.5 Bounded NPC simulation and world advancement
+
+The world must feel active beyond the player's immediate interactions without requiring a continuously simulated population. Simulate selectively: preserve the people, relationships, commitments, and institutional matters whose developments can produce meaningful consequences. Represent routine life in summaries or background context when individual detail would not change a later decision, relationship, obligation, opportunity, or event.
+
+The existing `Person` model is the foundation for consequential NPCs. Extend it with relevant social identity, institutional position, current circumstances, commitments, and life-stage information rather than creating a disconnected parallel NPC simulation. Not every person needs every field or the same level of simulation. Use typed life stages where a person's generational or professional standing matters and exact age is unknown or unnecessary. Do not invent numerical ages to create a false impression of historical precision. An illustrative stage vocabulary is:
+
+```ts
+type LifeStage =
+  | 'apprentice'
+  | 'junior_scribe'
+  | 'active_official'
+  | 'senior_scribe'
+  | 'elder';
+```
+
+Life stage is contextual information, not a substitute for a person's skills, authority, health, actual age where known, or current circumstances.
+
+Keep **circumstances** and **commitments** distinct. A circumstance describes a person's current situation or constraint; a commitment records an undertaking or responsibility they have accepted or that is established by an identifiable basis. A request, demand, preference, ambition, or expectation does not automatically become a commitment. Preserve the source and scope of a commitment when it may affect later decisions. NPC ambitions and preferences should also remain distinguishable from obligations.
+
+Consequential NPCs may pursue immediate objectives and longer-term ambitions independently of the player. Their goals can conflict with other NPCs' goals, with institutional priorities, and with their own commitments. Those conflicts can produce developments, losses, delays, alliances, disputes, or other consequences that do not involve the player. The player is not the center or automatic cause of every event. Independent action must still follow from plausible motivations, knowledge, relationships, authority, resources, and constraints; it must not be arbitrary or omniscient.
+
+NPC development should be updated only when there is a reason to do so: an event changes their circumstances, a scheduled commitment or matter reaches a relevant point, a condition becomes true, or a player interaction requires a current decision. This permits event-driven, scheduled, and on-demand evaluation without ticking every NPC through a full daily decision loop. Track knowledge, memories, and relationship history at the level needed to explain consequential behavior; do not create a complete transcript of every routine interaction.
+
+#### Institutional matters as durable world state
+
+An institutional matter is a durable, typed record of an unresolved or developing situation, not merely a notification or a block of presentation text. A matter should have:
+- A stable identifier and matter type.
+- An owning institution.
+- A concise summary and lifecycle status.
+- Its creation day and relevant schedule or condition for further development.
+- Involved people and relevant locations.
+- Provenance: the event, record, instruction, agreement, or other source that establishes the matter.
+- Authored development rules and possible consequences.
+
+Institutions should reference active matters by stable identifier. Matter descriptions and display text are not state keys. Resolved matters may remain in historical records where their outcomes matter, while unresolved matters persist across Workdays and saves. Do not delete an unresolved matter merely because it did not produce a player-facing opportunity.
+
+The END_DAY world update is a bounded, deterministic transition over active consequential matters and explicitly scheduled developments. A development advances only when its authored date or condition is met. It records a deterministic event with a stable identifier, updates the affected matter and relevant institutional references, and may create or update follow-up matters. Unresolved matters remain active. The same starting state and day must produce the same world transition; random daily busywork and arbitrary event rolls are not substitutes for causality.
+
+#### From world state to playable opportunities
+
+World matters, NPC circumstances, and unmet needs can create potential opportunities, but they do not automatically become Assignments. An authored activity definition determines whether a situation is suitable as an interactive Assignment, optional Challenge, conversation, institutional decision, or another form of play. The opportunity-generation process should check the situation's provenance and relevance, the character's access and skill qualification, required authority, involved people's knowledge and willingness, current commitments, and whether an equivalent opportunity is already active or recently resolved.
+
+Every generated opportunity should be traceable to the matter, circumstance, event, or authored historical trigger that caused it to exist. The player-facing explanation should describe the actual channel through which it reached the character, rather than use a generic claim of professional reach. Generation and presentation are separate: pacing may determine when an eligible opportunity is surfaced, but it must not rewrite the underlying event, fabricate a deadline, conceal a real deadline, or make an unresolved matter disappear. An empty board or quiet Workday is valid. Do not generate work solely to fill a quota.
+
+Not every NPC need or institutional matter should be converted into player work. Some developments should resolve between NPCs, remain outside the player's knowledge, alter an institution or relationship, or become visible only through later evidence or conversation. Assignments and Challenges remain optional and must never become hidden prerequisites for mandatory Works.
 
 ---
 
@@ -1409,7 +1463,13 @@ Career XP funds eligible professional development, including skill and specializ
 
 The game should allow enough in-game days for relationships, professional contacts, hardship, study, family developments, and ongoing stories to matter. Career rank should not be exhausted too early, and historical eras should not be skipped through repetitive routine work.
 
-### 20.3 Rewards must have a clear meaning
+### 20.3 Opening-day pacing
+
+The opening Workday should be welcoming without reducing professional activity to disposable one-click cards. The Introductory Tutorial is already active and remains the guided onboarding path. Alongside it, the Day 1 Assignment Board should offer one or two appropriate interactive activities generated from the same authored activity system used on later days. These offers should let a new player begin substantive multi-step work immediately, while keeping the initial choice manageable.
+
+Day 1 opportunities must be genuine jobs with contextual origins, meaningful actions, and visible estimated AP commitments. Do not restore generic starter cards whose only interaction is accepting or completing them. Do not make optional Assignments or Challenges prerequisites for the tutorial or mandatory Works. The tutorial, optional Challenge, and interactive Assignment offers should coexist as distinct activities; the player decides how to spend the shared six-AP Workday.
+
+### 20.4 Rewards must have a clear meaning
 
 Career XP, Historical Progress XP, money and provisions, trust, stress, faction standing, and relationship changes are different things. They should not be used interchangeably. A reward should communicate what the player accomplished and why that reward changed.
 
@@ -1469,7 +1529,7 @@ The following details require further design before they can be treated as fixed
 5. Professional rank: define the skill-to-rank formula and test it against broad generalists and narrow specialists; decide whether a specialist ceiling is appropriate; localize in-world titles without treating offices as universal competence grades; define the opportunity profiles of all seven grades, including meaningful differences at ranks 5–7; and decide whether rank affects compensation. The approved direction is that rank shapes baseline opportunity access, while skills determine specific qualifications and appointments grant authority. Retain the former 200,000 Career XP total only as a provisional career-pacing target, not as a rank threshold, and reconcile it with total skill and specialization purchase costs once those costs are defined.
 6. The money and provisions economy: prices, availability, storage/spoilage, compensation balance, and era-appropriate names and presentation. The daily provisions-sustenance rule and shortage trigger are established in Section 12.3; the specific historical forms and balancing of provisions remain content/system work.
 7. The general Stress and crisis system: define the critical threshold, crisis timing, recovery rates, intervention pacing, and how assistance affects Stress and relationships. The shortage-specific +2 Stress increment, 10-point per-character cap, Underfed condition, and simultaneous recovery-route requirement are established in Sections 12.3–12.4 and are not open design questions.
-8. Complete the NPC relationship, agency, and obligation model: determine how directional, multi-dimensional relationships are represented and changed; how significant events and accumulated meaningful interactions shape them; how relationships persist through successors, institutions, and geographically separated eras; how positive relationships can provide crisis support; how repeated assistance affects those relationships; and how conflicting commitments are represented and resolved in specific contexts. Established principles include independent NPC agency, proportionate immediate objectives and longer-term ambitions, commitments with identifiable bases, the distinction between demands and obligations, contextually appropriate attempts at resolution, and the persistence of unresolved matters. Detailed decision rules, memory scope, presentation, and runtime mechanics remain open.
+8. Complete the NPC relationship, agency, and obligation model: determine the detailed rules for directional, multi-dimensional relationships; how significant events and accumulated meaningful interactions shape them; how relationships persist through successors, institutions, and geographically separated eras; how positive relationships can provide crisis support; how repeated assistance affects those relationships; and how conflicting commitments are represented and resolved in specific contexts. Established principles include bounded/selective simulation rather than a full-population simulation; NPCs with independent immediate objectives and longer-term ambitions that can conflict and produce consequences without player involvement; overlapping faction affiliations whose relationships shape inter-NPC behavior without replacing individual ties; typed life-stage information where exact age is unknown; the distinction between current circumstances, ambitions, preferences, requests, and commitments; commitments with identifiable bases; contextually appropriate attempts at resolution; and the persistence of unresolved matters. The shared `Person` foundation, durable typed institutional matters, deterministic END_DAY advancement, and traceable world-driven opportunity generation are established design directions. Detailed decision rules, simulation triggers and budgets, faction effects, memory scope, presentation, and runtime mechanics remain open.
 9. Determine how professional traditions, records, archives, and institutions provide historical connections across distant eras. These are continuities within the world and its history, not mechanisms required to preserve the player's identity; the player continues through successive characters.
 10. Character-transition details: define how and when a player character leaves play, how connected scribal NPC candidates are presented and selected, and how their circumstances and availability are communicated. The approved principle is that the player continues through an existing scribal NPC connected to the former character and their professional world in the same historical period; the new character may be much less experienced or prominent. Character death does not require a family successor or restart the era. The engine now persists pending transitions, distinguishes death from non-death departure, records completed handoffs, preserves world and historical state, and starts the successor on the same day with six AP. A world with no eligible connected scribal candidate enters an explicit no-successor terminal state rather than generating a replacement. Candidate availability beyond alive + scribal + evidenced connection remains open.
 11. Era pacing in actual in-game days, including the number and expected duration of Works, optional activity density, and authored calendar transitions.
