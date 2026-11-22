@@ -1,6 +1,7 @@
 import type { AttributeId, PersonId, SkillId } from '../../state/ids';
 import type { AssignmentActivityDraft, AssignmentActivityProgress } from '../../state/types';
 import type { InterpretationRule, Predicate } from '../../works/evidenceInterpretation';
+import { URUK_ASSIGNMENT_ACTIVITY_CATALOG } from './urukAssignments';
 
 export const NORTH_BAY_ACTIVITY_ID = 'activity-north-bay-roof-inspection';
 export const NORTH_BAY_ASSIGNMENT_ID = 'assignment-north-bay-roof-inspection' as import('../../state/ids').AssignmentId;
@@ -150,7 +151,7 @@ export function validateAssignmentActivityDefinition(definition: AssignmentActiv
   }
   return issues;
 }
-export const ASSIGNMENT_ACTIVITY_CATALOG = { [NORTH_BAY_ACTIVITY_ID]: northBayRoofInspection } as const;
+export const ASSIGNMENT_ACTIVITY_CATALOG = { [NORTH_BAY_ACTIVITY_ID]: northBayRoofInspection, ...URUK_ASSIGNMENT_ACTIVITY_CATALOG } as const;
 
 export function validateAssignmentActivityProgress(definition: AssignmentActivityDefinition, value: unknown): value is AssignmentActivityProgress {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
