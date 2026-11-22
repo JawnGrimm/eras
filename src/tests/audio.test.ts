@@ -38,5 +38,7 @@ describe('tactile audio', () => {
     });
     expect(isAudioMuted()).toBe(false);
     expect(() => setAudioMuted(true)).not.toThrow();
+    expect(isAudioMuted()).toBe(true);
+    setAudioMuted(false);
   });
 });
