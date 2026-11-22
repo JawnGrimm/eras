@@ -3,7 +3,7 @@ import { transitionCareerAction } from './careerProgression';
 import { transitionWorldAction } from './worldSocial';
 import { settleAssignmentOffers, transitionOpportunityAction } from './opportunities';
 import { validateWorkDefinition } from '../works/workDefinition';
-import type { WorkDefinition } from '../works/workDefinition';
+import type { WorkAssessment, WorkDefinition } from '../works/workDefinition';
 
 function feedback(kind: 'success' | 'error' | 'info', code: string, message: string) {
   return { kind, code, message } as const;
@@ -124,7 +124,7 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
         return { state, feedback: feedback('error', 'insufficient-ap', 'There is not enough AP remaining to submit this Work.') };
       }
       const context = { progress: progress.scenarioData, character: scribal };
-      let assessment;
+      let assessment: WorkAssessment;
       try {
         const submission = definition.evaluateSubmission(context);
         assessment = definition.assessSubmission(submission, context);
@@ -147,7 +147,7 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
               : [...state.historicalProgression.completedWorks, action.workId] } },
           feedback: feedback('success', 'work-completed', assessment.summary) };
       }
-      let recovered;
+      let recovered: unknown;
       try { recovered = definition.recover(context, assessment); }
       catch { return { state, feedback: feedback('error', 'work-recovery-error', 'The Work recovery path failed; the prior progress was preserved.') }; }
       if (!definition.validateScenarioData(recovered)) return { state, feedback: feedback('error', 'invalid-work-recovery', 'The Work recovery path returned invalid progress; the prior state was preserved.') };
