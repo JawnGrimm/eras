@@ -138,7 +138,7 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
         return { state, feedback: feedback('error', 'work-assessment-error', 'The Work assessment failed; no progress or AP was changed.') };
       }
       if (!assessment || !['accepted','revise','rejected'].includes(assessment.outcome) || typeof assessment.summary !== 'string' || !assessment.summary
-        || !Array.isArray(assessment.dimensions)
+        || !Array.isArray(assessment.dimensions) || assessment.dimensions.length === 0
         || assessment.dimensions.some((item) => !item || !['accuracy','completeness','responsible_interpretation','procedure','traceability','responsibility'].includes(item.dimension)
           || !['meets','partial','fails'].includes(item.status) || typeof item.summary !== 'string' || !item.summary)
         || new Set(assessment.dimensions.map((item) => item.dimension)).size !== assessment.dimensions.length) {
