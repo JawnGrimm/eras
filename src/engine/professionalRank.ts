@@ -14,6 +14,7 @@ export type SkillProfile = Partial<Record<SkillId, SkillState>>;
  * produce a high broad-standing grade. Career XP, reputation, era, and history
  * are deliberately not accepted by this function.
  */
+// PROVISIONAL: replace or tune after the GDD §10.2 breadth/depth rank formula is approved.
 export function deriveProfessionalRank(skills: SkillProfile): ProfessionalRank {
   const totalSkillLevels = CORE_SKILL_IDS.reduce((total, skillId) => {
     const level = normalizedLevel(skills[skillId]);
