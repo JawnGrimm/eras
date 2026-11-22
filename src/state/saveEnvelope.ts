@@ -175,6 +175,9 @@ export function isValidGameState(value: unknown): value is GameState {
     if (!holder || !subject) return false;
   }
 
+  if (!isObject(value.opportunities.assignments) || !isObject(value.opportunities.challenges)
+    || !isObject(value.opportunities.assignmentAggregates) || !Array.isArray(value.opportunities.challengeOutcomes)
+    || !Array.isArray(value.opportunities.recentActivity)) return false;
   const assignmentStates = ['offered','accepted','declined','lapsed','completed','cancelled'];
   for (const [id, offer] of Object.entries(value.opportunities.assignments)) {
     if (!isObject(offer) || offer.id !== id || !assignmentStates.includes(offer.status as string)
