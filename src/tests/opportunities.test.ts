@@ -155,10 +155,7 @@ describe('Assignment and Challenge foundations', () => {
   });
 
   it('preserves fixed event and knowledge dates while stamping a record on resolution day in a chained consequence sequence', () => {
-    let state = present(createInitialGameState(), 'dated');
-    state = transitionGame(state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: 'dated' as AssignmentId }).state;
-    state = transitionGame(state, { type: 'END_DAY', expectedDayNumber: 1 }).state;
-    const offerWithEffects = { ...state.opportunities.assignments['dated' as AssignmentId], completionConsequences: {
+    const offerWithEffects = { ...offer('dated'), completionConsequences: {
       event: { id: 'event-authored', dayNumber: 99, summary: 'The shipment arrived.', personIds: [INITIAL_PERSON_ID], institutionIds: [] },
       record: { id: 'record-authored', createdDay: 99, authorPersonId: INITIAL_PERSON_ID, title: 'Arrival tally',
         sources: [{ id: 'source-event', kind: 'event' as const, sourceId: 'event-authored', description: 'Arrival event' }],
@@ -169,7 +166,10 @@ describe('Assignment and Challenge foundations', () => {
       datePolicies: { event: { kind: 'fixed' as const, dayNumber: 1 }, record: { kind: 'resolution_day' as const },
         knowledge: { 'knowledge-authored': { kind: 'fixed' as const, dayNumber: 2 } } },
     } };
-    state = { ...state, opportunities: { ...state.opportunities, assignments: { ...state.opportunities.assignments, ['dated' as AssignmentId]: offerWithEffects } } };
+    let state = transitionGame(createInitialGameState(), { type: 'PRESENT_ASSIGNMENT', offer: offerWithEffects }).state;
+    state = transitionGame(state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: 'dated' as AssignmentId }).state;
+    state = transitionGame(state, { type: 'END_DAY', expectedDayNumber: 1 }).state;
+    expect(isValidSaveEnvelope(createSaveEnvelope(state, 1))).toBe(true);
     const result = transitionGame(state, { type: 'COMPLETE_ASSIGNMENT', assignmentId: 'dated' as AssignmentId });
     expect(result.feedback?.code).toBe('assignment-completed');
     expect(result.state.world.events['event-authored' as keyof typeof result.state.world.events].dayNumber).toBe(1);
