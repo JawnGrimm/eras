@@ -37,7 +37,7 @@ describe('world, relationships, institutions and records', () => {
 
   it('uses one institution shape and stores office authority in appointments, not rank', () => {
     const state = base();
-    const institution = { id: institutionId, name: 'Temple Storehouse', responsibilities: ['Receive and safeguard grain'], authority: ['Maintain storehouse accounts'], standing: 65, activeMatterIds: [] };
+    const institution = { id: institutionId, name: 'Temple Storehouse', responsibilities: ['Receive and safeguard grain'], authority: ['Maintain storehouse accounts'], standing: 65, activeMatters: [] };
     const created = transitionGame(state, { type: 'CREATE_INSTITUTION', institution });
     expect(created.feedback?.code).toBe('institution-created');
     const standing = transitionGame(created.state, { type: 'SET_INSTITUTIONAL_STANDING', personId: otherId, institutionId, value: 72 });
