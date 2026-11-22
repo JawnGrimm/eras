@@ -277,6 +277,9 @@ describe('Storehouse Reckoning typed Work', () => {
     const invalidDisposition = structuredClone(createSaveEnvelope(state, 4));
     invalidDisposition.state.works.progress[STOREHOUSE_WORK_ID].finalDisposition = 'approve_everything';
     expect(isValidSaveEnvelope(invalidDisposition, catalog)).toBe(false);
+    const missingAssessment = structuredClone(createSaveEnvelope(state, 5));
+    missingAssessment.state.works.progress[STOREHOUSE_WORK_ID].lastAssessment = undefined;
+    expect(isValidSaveEnvelope(missingAssessment, catalog)).toBe(false);
   });
 
   it('does not duplicate Historical Progress XP on any repeated or rejected disposition', () => {
