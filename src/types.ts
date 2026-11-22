@@ -25,7 +25,7 @@ export interface PlayerProfile {
 export interface Assignment {
   id: string;
   title: string;
-  tier: 'Novice' | 'Adept' | 'Expert' | 'Perilous';
+  difficulty: 'routine' | 'demanding' | 'critical';
   employer: string;
   description: string;
   rewardSilver: number;
