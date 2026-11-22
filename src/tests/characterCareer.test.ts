@@ -43,6 +43,13 @@ describe('character and career foundation', () => {
     const initial = createInitialGameState();
     const invalidAmounts = [0, -1, Number.NaN, Number.POSITIVE_INFINITY];
     for (const amount of invalidAmounts) {
+      const result = transitionGame(initial, {
+        type: 'AWARD_SKILL_XP', skillId: 'reading_scripts', amount, reason: 'Test award',
+      }, policy);
+      expect(result.state).toBe(initial);
+      expect(result.feedback?.code).toBe('invalid-skill-xp');
+    }
+    for (const amount of invalidAmounts) {
       const result = transitionGame(initial, { type: 'AWARD_CAREER_XP', amount, reason: 'Test award' }, policy);
       expect(result.state).toBe(initial);
       expect(result.feedback?.code).toBe('invalid-career-xp');
