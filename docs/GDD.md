@@ -65,7 +65,7 @@ The game has three distinct gameplay layers:
 
 Career progression and historical progression are separate. **Career XP** measures the player's professional development and determines professional rank. **Historical Progress XP** measures the advancement represented by completed Works. A highly accomplished scribe can remain in an early historical era; entering a new era does not automatically promote the player.
 
-The player's personal economy contains exactly three resources: **silver, bread, and beer**. Grain remains an important world and institutional commodity, but it is never a player-owned wallet resource or daily stipend.
+The player's personal economy uses two tracked resources: **money** and **provisions**. Money is presented using the historically appropriate currency name for the current era; provisions represent food and everyday sustenance using era-appropriate forms. Beer and other goods may appear in the world or inventory when relevant, but are not additional tracked personal resource balances.
 
 The long-term experience is intended to feel like one continuing historical journey rather than a sequence of disconnected era levels. Professional identity, reputation, knowledge, and a social network can persist through successors and institutional traditions, while relationships, institutions, and the wider world change. The exact continuity mechanism remains an open structural decision because the selected eras span distant periods and continents.
 
@@ -505,7 +505,7 @@ The established study reward of 15 Career XP once per day remains provisional. I
 
 The player explicitly ends the in-game day. Daily settlement occurs exactly once. It applies compensation from completed work or active contracts, penalties, sustenance, shortages, stress consequences, and calendar advancement in a documented order. The player reviews the settlement before beginning the next day.
 
-The settlement must not grant a universal free ration merely because a day passed. Any bread, beer, or coin credited as compensation must be tied to a defined employment arrangement, completed service, or explicit reward. The details of the sustenance model remain under review in Section 12.
+The settlement must not grant a universal free ration merely because a day passed. Any money, provisions, or specific item credited as compensation must be tied to a defined employment arrangement, completed service, or explicit reward. The details of the sustenance model are defined in Section 12.
 
 ---
 
@@ -707,9 +707,9 @@ The Carrier Foreman and Brewing-House Representative react to whether the record
 
 ### 7.8 Work contract and provisions
 
-The apprentice is assigned to this Work under a specific institutional service arrangement. For each in-game day on which the Storehouse Reckoning remains active, the player must spend at least 1 AP on a Storehouse Reckoning action to qualify for **one bread** as the apprentice's meal provision. This is not a universal daily gift: it is compensation in kind under the Work contract and ends when the Work is completed, abandoned, or formally suspended. If the player spends no AP on the contracted Work that day, no Work provision is credited.
+The apprentice is assigned to this Work under a specific institutional service arrangement. For each in-game day on which the Storehouse Reckoning remains active, the player must spend at least 1 AP on a Storehouse Reckoning action to qualify for **one unit of **provisions** as the apprentice's meal provision. This is not a universal daily gift: it is compensation in kind under the Work contract and ends when the Work is completed, abandoned, or formally suspended. If the player spends no AP on the contracted Work that day, no Work provision is credited.
 
-Beer is not part of this daily food provision. Its separate role is defined in the Personal Economy section: it is used for hospitality, social obligations, certain institutional exchanges, and optional personal consumption. The Work contract does not automatically provide beer.
+Beer is not part of the player's tracked personal economy or this daily food provision. It may still appear as a world commodity, an inventory item in a specific situation, or part of hospitality and social or institutional exchanges.
 
 If the Work is suspended or abandoned, provisions stop according to the stated contract terms. The player must be told before confirming a suspension or abandonment. This arrangement ensures that the mandatory Work does not require the player to take optional Assignments merely to eat while performing the institution's contracted work.
 
@@ -974,29 +974,34 @@ Required Works are mandatory for the main historical journey. Assignments and Ch
 ---
 ## 12. Personal Economy
 
-### 12.1 The three personal resources
+### 12.1 The two personal resources
 
-The player's personal economy currently has exactly three resource categories:
+The player's tracked personal economy has exactly two resource categories:
 
 | Resource | Distinct role |
 |---|---|
-| **Silver / coins** | Spendable personal money for purchases, services, obligations, savings, and debts. |
-| **Bread** | Food and direct daily sustenance. It can be consumed, stored, traded, or used as compensation. |
-| **Beer** | A period-appropriate beverage with social, hospitality, and institutional uses; it may also have optional personal-consumption effects where appropriate. It is not automatically consumed as daily sustenance or treated as a substitute for bread. |
+| **Money** | The player's spendable wealth for purchases, services, obligations, savings, and debts. The interface uses the historically appropriate currency name and denomination for the current era. |
+| **Provisions** | An abstract food and sustenance resource. It represents what the player has available to meet everyday food needs, regardless of the specific foods customary in the current place and period. |
 
-**Grain is not a player resource.** It is a world and institutional commodity. Grain can appear in assignment scenarios, institutional inventories, shipment records, trade, prices, evidence, and historical content. It must not appear as a player-owned wallet balance, personal inventory commodity, daily stipend, or fourth resource.
+The underlying money and provisions systems remain standardized across eras. Historical presentation changes to fit the setting, but the game does not need a separate economy for each era.
+
+Money's displayed currency name changes at an era transition to the appropriate historical unit (for example, a shekel of silver in early Mesopotamia or a deben in ancient Egypt). **This is a presentation change only:** the player's underlying accumulated wealth carries forward without currency conversion, exchange calculations, or a transition fee. The displayed name and denomination change; the standardized game value does not.
+
+Provisions remain one abstract personal resource rather than separate balances for bread, fish, dates, grain products, or other foods. The interface, contracts, and narrative use period- and place-appropriate descriptions of the food represented. Specific foods may still appear as goods, evidence, or inventory items when a scenario requires them, but they do not create additional personal economy meters.
+
+Beer is not a tracked personal resource. It may appear as a world or institutional commodity, an item the player can acquire or receive in a particular situation, or part of hospitality and social exchange. Such appearances do not create a permanent beer balance.
 
 ### 12.2 Employment compensation
 
-The player receives coin compensation for employment, with professional rank and legitimate performance bonuses potentially affecting pay. Poor performance may reduce coin compensation. Good performance can earn legitimate bonuses. Compensation in kind is permitted only when it is part of an explicit employment or Work contract, with the amount, duration, and conditions shown before acceptance.
+The player receives money compensation for employment, with professional rank and legitimate performance bonuses potentially affecting pay. Poor performance may reduce money compensation. Good performance can earn legitimate bonuses. Compensation in kind, including provisions or specific items, is permitted only when it is part of an explicit employment or Work contract, with the amount, duration, and conditions shown before acceptance.
 
-There is no universal daily employment ration. A player who performs no paid work and has no active contract receives no automatic bread or beer. Mandatory Works must nevertheless define their own provisions when the institution expects the player to spend several days working for it. The Storehouse Reckoning provides one bread per active contracted Workday under its explicit service arrangement.
+There is no universal daily employment ration. A player who performs no paid work and has no active contract receives no automatic provisions. Mandatory Works must nevertheless define their own provisions when the institution expects the player to spend several days working for it. The Storehouse Reckoning provides one unit of provisions per active contracted Workday under its explicit service arrangement.
 
 ### 12.3 Daily sustenance
 
-The current proposed rule is one bread per in-game day. Bread is deducted at daily settlement. Beer is not part of the mandatory daily sustenance deduction.
+The current proposed rule is one unit of provisions per in-game day. Provisions are deducted at daily settlement. Other foods and beverages are not separate mandatory daily deductions.
 
-If the player lacks the required bread, the game records a shortage rather than creating a negative balance or granting an automatic free resource. The exact stress consequence, recovery schedule, stress scale, and stress ceiling remain under design. The former paired 1-bread/1-beer or 2-bread/2-beer requirement is retired. A shortage rule must not create an automatic, indefinitely compounding stress ratchet that makes recovery impossible.
+If the player lacks the required provisions, the game records a shortage rather than creating a negative balance or granting an automatic free resource. The exact stress consequence, recovery schedule, stress scale, and stress ceiling remain under design. A shortage rule must not create an automatic, indefinitely compounding stress ratchet that makes recovery impossible.
 
 ### 12.4 Recovery from hardship
 
@@ -1010,9 +1015,9 @@ Potential recovery routes include:
 
 Each recovery route must have an authored price, obligation, or trade-off. No automatic bailout, unlimited negative balance, or unexplained free resource is permitted. The specific costs and availability of recovery options remain open balancing work.
 
-### 12.5 Grain in the wider world
+### 12.5 Era-appropriate presentation
 
-Grain remains important to the world economy and institutional life. It can be owned by temples, merchants, households, or other actors; it can be counted, stored, allocated, shipped, inspected, lost, spoiled, traded, taxed, or disputed. The restriction is specifically on the player's personal resource economy, not on grain's role in the game world. The three resource categories are a current design abstraction, not a promise that a 1971 or later digital-era character literally carries ancient bread and beer as their only consumables. Later eras may use historically appropriate equivalents or a revised presentation while preserving a deliberately small resource economy. This mapping is unresolved.
+The two underlying resource systems remain consistent across eras, while their presentation adapts to historical context. Money uses the appropriate currency name and denomination for the setting without changing the player's standardized accumulated value. Provisions use appropriate food and ration descriptions without creating separate personal balances for individual foods. The exact historical labels and presentation for each era remain content work.
 
 ---
 
@@ -1251,7 +1256,7 @@ The game should allow enough in-game days for relationships, professional contac
 
 ### 20.3 Rewards must have a clear meaning
 
-Career XP, Historical Progress XP, silver, bread, beer, trust, stress, faction standing, and relationship changes are different things. They should not be used interchangeably. A reward should communicate what the player accomplished and why that reward changed.
+Career XP, Historical Progress XP, money, provisions, trust, stress, faction standing, and relationship changes are different things. They should not be used interchangeably. A reward should communicate what the player accomplished and why that reward changed.
 
 ---
 
@@ -1278,7 +1283,7 @@ The following are not part of the current core design unless deliberately approv
 - A typing-speed or transcription-only core mechanic.
 - Freehand handwriting recognition or a research-grade sign editor.
 - A real-time countdown workday or real-time commission deadline mechanic.
-- A fourth personal resource such as grain.
+- Additional tracked personal resource balances beyond money and provisions.
 - Historical Progress XP from ordinary Assignments or optional Challenges.
 - Optional Challenge completion as a mandatory prerequisite for Works.
 - Career rank determined by historical era or Historical Progress XP.
@@ -1298,7 +1303,7 @@ The following details require further design before they can be treated as fixed
 3. The maximum active Assignment commitment count, cancellation costs, and offer-generation balance beyond the initial two-commitment / 6-AP model.
 4. The precise balance of Career XP rewards across Assignments, Challenges, Works, and study.
 5. Rank titles and commission-tier naming across eras, meaningful unlocks and responsibilities for ranks 5–7, and rank-based pay adjustments and performance bonuses.
-6. The complete bread and beer economy: prices, availability, storage/spoilage, social uses, and era-appropriate equivalents.
+6. The complete money and provisions economy: prices, availability, storage/spoilage, daily sustenance and shortage consequences, era-appropriate currency names and food presentation.
 7. The stress scale, ceiling, thresholds, recovery rates, and fully priced recovery options; shortage consequences must remain recoverable.
 8. The complete NPC relationship model and how relationships persist through successors, institutions, and geographically separated eras.
 9. The additional continuity carriers that should complement the established family line and inherited desk across long historical jumps: professional house, archive, institution, scribal tradition, or a deliberately combined model.
@@ -1343,11 +1348,11 @@ These are open design tasks, not invitations to fill gaps with arbitrary placeho
 
 Assignments provide optional professional work. Challenges introduce optional complications and opportunities. Works are the mandatory historical layer, and they must be designed as complete sequences of player actions, evidence-based decisions, documents, validation, and consequences. The Storehouse Reckoning is the first vertical slice: the player reconciles a real institutional problem, distinguishes physical receipt from usable stock, records uncertainty honestly, and helps establish a register other people can rely on.
 
-The daily economy of action is six shared Action Points, not a fixed number of commission slots, fixed commission count, or real-time timer. The player chooses how to divide those points among Assignments, Work progress, Challenges, study, and relationships. The Storehouse Reckoning provides one bread per active contracted Workday; bread is the daily food resource, while beer serves separate social and institutional functions. Unaccepted offers normally expire after three in-game days, while accepted work remains active until resolved or cancelled. The player may hold at most two accepted Assignments; offers that lapse while a mandatory Work occupies the player do not count as ignored opportunities for Challenge triggers.
+The daily economy of action is six shared Action Points, not a fixed number of commission slots, fixed commission count, or real-time timer. The player chooses how to divide those points among Assignments, Work progress, Challenges, study, and relationships. The Storehouse Reckoning provides one unit of provisions per active contracted Workday; provisions are the abstract daily food resource. Unaccepted offers normally expire after three in-game days, while accepted work remains active until resolved or cancelled. The player may hold at most two accepted Assignments; offers that lapse while a mandatory Work occupies the player do not count as ignored opportunities for Challenge triggers.
 
 Career XP measures professional development. Historical Progress XP measures mandatory historical contributions. The calendar controls in-game dates; XP does not. Era-transition rewards must be calibrated so completing all required Works is sufficient to reach the next threshold without optional grinding.
 
-The personal economy remains limited to silver, bread, and beer, with grain reserved for the wider world and institutional economy. The distinct roles and later-era equivalents of bread and beer, as well as stress recovery and generational continuity, remain open design work.
+The personal economy has two tracked resources: money and provisions. Money uses an era-appropriate currency name without conversion of the underlying value at era transitions; provisions remain an abstract food resource presented through era-appropriate foods and rations. Beer is not a tracked personal resource, though it may appear in the world, inventory, hospitality, and institutional or social exchanges. Exact prices, availability, storage, sustenance shortage consequences, and historical presentation remain open design work.
 
 The journey should remain continuous across eras, successors, and institutions without pretending that the same people or family relationships can persist unchanged across millennia and continents. The family desk is an established inherited object and a tangible carrier of professional history; the broader succession, family, and social continuity model remains to be completed.
 
