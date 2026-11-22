@@ -3,6 +3,8 @@ import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState
 import { transitionGame } from '../engine/actionEconomy';
 import { createSaveEnvelope, isValidSaveEnvelope, restoreSave } from '../state/saveEnvelope';
 
+const endDay = (state: ReturnType<typeof createInitialGameState>) => transitionGame(state, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber });
+
 describe('production foundation: AP, overtime, settlement and saves', () => {
   it('starts each ordinary Workday with six shared AP and prevents overspending', () => {
     const initial = createInitialGameState();
@@ -25,7 +27,7 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
     const stacked = transitionGame(day, { type: 'ACTIVATE_OVERTIME' });
     expect(stacked.state).toBe(day);
     day = transitionGame(day, { type: 'SPEND_AP', amount: 1, reason: 'Overtime task' }).state;
-    day = transitionGame(day, { type: 'END_DAY' }).state;
+    day = endDay(day).state;
     expect(day.actionEconomy.dailyApAllocation).toBe(5);
 
     day = transitionGame(day, { type: 'SPEND_AP', amount: 5, reason: 'Use reduced day' }).state;
@@ -38,10 +40,13 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
 
   it('consumes one provision per Workday and resets shortage count when provisions are available', () => {
     const initial = createInitialGameState();
-    const settled = transitionGame(initial, { type: 'END_DAY' }).state;
+    const settled = endDay(initial).state;
     expect(settled.world.people[INITIAL_PERSON_ID].scribal?.wallet.provisions).toBe(4);
     expect(settled.world.people[INITIAL_PERSON_ID].scribal?.wallet.shortageWorkdays).toBe(0);
     expect(settled.journal.notices).toHaveLength(1);
+    const duplicate = transitionGame(initial, { type: 'END_DAY', expectedDayNumber: initial.calendar.dayNumber });
+    expect(duplicate.state).toBe(settled);
+    expect(duplicate.feedback?.code).toBe('stale-day-settlement');
   });
 
   it('allows two consecutive Workdays without provisions before shortage consequences begin on the third', () => {
@@ -53,13 +58,13 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
         ...person, scribal: { ...person.scribal!, wallet: { money: 0, provisions: 0, shortageWorkdays: 0 } },
       } } },
     };
-    state = transitionGame(state, { type: 'END_DAY' }).state;
+    state = endDay(state).state;
     expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet.shortageWorkdays).toBe(1);
     state = transitionGame(state, { type: 'END_DAY' }).state;
     expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet.shortageWorkdays).toBe(2);
     state = transitionGame(state, { type: 'END_DAY' }).state;
     expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet.shortageWorkdays).toBe(3);
-    expect(state.journal.notices.at(-1)?.message).toContain('Shortage day 3');
+    expect(state.journal.notices.at(-1)?.message).toContain('Shortage consequences begin');
   });
 
   it('restores only structurally valid v2 envelopes and rejects partial or corrupt saves', () => {
