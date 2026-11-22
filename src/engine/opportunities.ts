@@ -1,5 +1,5 @@
 import type { EventId, AssignmentId, ChallengeId, InstitutionId, PersonId, SkillId } from '../state/ids';
-import { NORTH_BAY_ACTIVITY_ID, northBayRoofInspection, validateAssignmentActivityDefinition } from '../content/assignments/northBayRoofInspection';
+import { ASSIGNMENT_ACTIVITY_CATALOG, validateAssignmentActivityDefinition } from '../content/assignments/northBayRoofInspection';
 import { resolveOpportunityDatePolicies, validateOpportunityConsequences } from '../state/opportunityValidation';
 import type {
   AssignmentActivityAggregate, AssignmentOffer, ChallengeInstance, ChallengeOutcome, ChallengeTriggerRule,
@@ -165,7 +165,7 @@ export function transitionOpportunityAction(state: GameState, action: Opportunit
         || !offer.employer.id || (offer.employer.kind === 'person' ? !state.world.people[offer.employer.id as PersonId] : !state.world.institutions[offer.employer.id as InstitutionId])
         || (offer.sourceRecordId && !state.records.entries[offer.sourceRecordId]) || !offer.category || !offer.context.what || !offer.context.purpose || !Array.isArray(offer.context.who)
         || !Array.isArray(offer.context.responsibility) || !Array.isArray(offer.context.provenance)
-        || (offer.activityId ? (offer.activityId !== NORTH_BAY_ACTIVITY_ID || !Number.isInteger(offer.estimatedTotalAp) || (offer.estimatedTotalAp ?? 0) < 1 || offer.apCost !== undefined || offer.activityProgress !== undefined || validateAssignmentActivityDefinition(northBayRoofInspection).length > 0 || northBayRoofInspection.participants.some((id) => !state.world.people[id])) : (!Number.isInteger(offer.apCost) || (offer.apCost ?? 0) < 1 || (offer.apCost ?? 0) > 6 || offer.estimatedTotalAp !== undefined || offer.activityProgress !== undefined)) || !validChannels(offer.deliveryChannels, state)
+        || (offer.activityId ? (!ASSIGNMENT_ACTIVITY_CATALOG[offer.activityId as keyof typeof ASSIGNMENT_ACTIVITY_CATALOG] || !Number.isInteger(offer.estimatedTotalAp) || (offer.estimatedTotalAp ?? 0) < 1 || offer.apCost !== undefined || offer.activityProgress !== undefined || validateAssignmentActivityDefinition(ASSIGNMENT_ACTIVITY_CATALOG[offer.activityId as keyof typeof ASSIGNMENT_ACTIVITY_CATALOG]).length > 0 || ASSIGNMENT_ACTIVITY_CATALOG[offer.activityId as keyof typeof ASSIGNMENT_ACTIVITY_CATALOG].participants.some((id) => !state.world.people[id])) : (!Number.isInteger(offer.apCost) || (offer.apCost ?? 0) < 1 || (offer.apCost ?? 0) > 6 || offer.estimatedTotalAp !== undefined || offer.activityProgress !== undefined)) || !validChannels(offer.deliveryChannels, state)
         || (offer.completionConsequences !== undefined && (!offer.completionConsequences || !!validateOpportunityConsequences(offer.completionConsequences, state, 'authoring')))
         || (offer.cancellationConsequences !== undefined && (!offer.cancellationConsequences || !!validateOpportunityConsequences(offer.cancellationConsequences, state, 'authoring')))
         || !['routine','demanding','critical'].includes(offer.difficulty)

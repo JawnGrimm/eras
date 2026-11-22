@@ -1,7 +1,7 @@
 import React from 'react';
 import { useGame } from '../state/GameProvider';
 import type { AssignmentId, PersonId } from '../state/ids';
-import { NORTH_BAY_ACTIVITY_ID, NORTH_BAY_PEOPLE, northBayRoofInspection } from '../content/assignments/northBayRoofInspection';
+import { NORTH_BAY_ACTIVITY_ID, NORTH_BAY_PEOPLE, ASSIGNMENT_ACTIVITY_CATALOG } from '../content/assignments/northBayRoofInspection';
 import { evaluateEvidenceInterpretation } from '../works/evidenceInterpretation';
 
 const personNames: Record<string, string> = {
@@ -18,18 +18,19 @@ const recommendations = [
 export function AssignmentActivityScreen({ assignmentId, onBack }: { assignmentId: AssignmentId; onBack: () => void }) {
   const game = useGame();
   const offer = game.state.opportunities.assignments[assignmentId];
+  const definition = offer?.activityId ? ASSIGNMENT_ACTIVITY_CATALOG[offer.activityId as keyof typeof ASSIGNMENT_ACTIVITY_CATALOG] : undefined;
   const progress = offer?.activityProgress;
   const character = game.state.world.people[game.state.player.currentCharacterId]?.scribal;
-  if (!offer || offer.activityId !== NORTH_BAY_ACTIVITY_ID || !progress || offer.status !== 'accepted' || offer.assigneePersonId !== game.state.player.currentCharacterId || !character) {
+  if (!offer || !definition || offer.activityId !== NORTH_BAY_ACTIVITY_ID || !progress || offer.status !== 'accepted' || offer.assigneePersonId !== game.state.player.currentCharacterId || !character) {
     return <section className="rounded-xl border border-stone-300 bg-white p-5"><h1 className="font-serif text-2xl">Activity unavailable</h1><p className="mt-2 text-sm text-stone-600">This activity is not an accepted commitment of the current character.</p><button onClick={onBack} className="mt-4 rounded bg-stone-900 px-3 py-2 text-sm text-white">Back</button></section>;
   }
   const dispatchDraft = (draft: typeof progress.draft) => game.dispatch({ type: 'UPDATE_ASSIGNMENT_ACTIVITY_DRAFT', assignmentId, draft });
-  const actions = northBayRoofInspection.actions;
+  const actions = definition.actions;
   const canPerform = (action: typeof actions[number]) => !progress.completedActionIds.includes(action.id)
     && (action.prerequisites ?? []).every((id) => progress.completedActionIds.includes(id));
   const annotations = progress.discoveryIds.flatMap((id) => evaluateEvidenceInterpretation({
     evidenceId: id as import('../state/ids').EvidenceId, character, examinedEvidence: progress.discoveryIds as import('../state/ids').EvidenceId[],
-    rules: northBayRoofInspection.interpretationRules,
+    rules: definition.interpretationRules,
   }));
   const draft = progress.draft;
   return <div className="mx-auto max-w-5xl space-y-5">
@@ -38,7 +39,7 @@ export function AssignmentActivityScreen({ assignmentId, onBack }: { assignmentI
       <p className="mt-3 text-xs font-semibold uppercase tracking-wider text-amber-800">Interactive Assignment · Temple Storehouse</p>
       <h1 className="mt-1 font-serif text-3xl font-semibold">{offer.title}</h1>
       <p className="mt-2 text-sm leading-6 text-stone-600">{offer.description}</p>
-      <p className="mt-3 text-sm"><strong>{game.state.actionEconomy.apRemaining} AP</strong> remaining today · estimated {offer.estimatedTotalAp} AP total · submission {northBayRoofInspection.submissionApCost} AP</p>
+      <p className="mt-3 text-sm"><strong>{game.state.actionEconomy.apRemaining} AP</strong> remaining today · estimated {offer.estimatedTotalAp} AP total · submission {definition.submissionApCost} AP</p>
     </header>
     <section className="rounded-xl border border-stone-300 bg-white p-5">
       <h2 className="font-serif text-xl font-semibold">Investigative actions</h2>
@@ -59,7 +60,7 @@ export function AssignmentActivityScreen({ assignmentId, onBack }: { assignmentI
     <section className="rounded-xl border border-stone-300 bg-white p-5">
       <h2 className="font-serif text-xl font-semibold">Discoveries and interpretation</h2>
       <div className="mt-3 space-y-3">
-        {northBayRoofInspection.discoveries.filter((item) => progress.discoveryIds.includes(item.id)).map((item) => <article key={item.id} className="rounded-lg bg-stone-50 p-3">
+        {definition.discoveries.filter((item) => progress.discoveryIds.includes(item.id)).map((item) => <article key={item.id} className="rounded-lg bg-stone-50 p-3">
           <h3 className="font-semibold">{item.title}</h3><p className="mt-1 text-sm leading-6 text-stone-700">{item.text}</p>
           {annotations.filter((annotation) => annotation.evidenceId === item.id).map((annotation) => <p key={annotation.id} className="mt-2 border-l-2 border-amber-700 pl-3 text-sm italic text-stone-600">{annotation.text}</p>)}
         </article>)}

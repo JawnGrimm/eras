@@ -3,10 +3,10 @@ import { INITIAL_PERSON_ID, createInitialGameState } from './initialState';
 import type { AssignmentOffer, ChallengeInstance, GameState, OpportunityDeliveryChannel } from './types';
 import type { AssignmentId, ChallengeId, PersonId } from './ids';
 import { STOREHOUSE_WORK_ID, STOREHOUSE_INSTITUTION_ID, STOREHOUSE_PEOPLE, storehouseReckoning } from '../works/storehouseReckoning';
-import { NORTH_BAY_ACTIVITY_ID, northBayRoofInspection } from '../content/assignments/northBayRoofInspection';
+import { ASSIGNMENT_ACTIVITY_CATALOG } from '../content/assignments/northBayRoofInspection';
 
 /** The production Work catalog is supplied to every bootstrap transition. */
-export const INITIAL_ASSIGNMENT_ACTIVITY_CATALOG = { [NORTH_BAY_ACTIVITY_ID]: northBayRoofInspection } as const;
+export const INITIAL_ASSIGNMENT_ACTIVITY_CATALOG = ASSIGNMENT_ACTIVITY_CATALOG;
 
 export const INITIAL_WORK_CATALOG = {
   [STOREHOUSE_WORK_ID]: storehouseReckoning,

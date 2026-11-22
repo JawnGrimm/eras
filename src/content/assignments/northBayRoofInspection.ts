@@ -116,6 +116,8 @@ export function validateAssignmentActivityDefinition(definition: AssignmentActiv
   }
   return issues;
 }
+export const ASSIGNMENT_ACTIVITY_CATALOG = { [NORTH_BAY_ACTIVITY_ID]: northBayRoofInspection } as const;
+
 export function validateAssignmentActivityProgress(definition: AssignmentActivityDefinition, value: unknown): value is AssignmentActivityProgress {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
   const p = value as AssignmentActivityProgress;
