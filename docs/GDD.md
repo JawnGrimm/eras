@@ -70,7 +70,7 @@ The **Storehouse Reckoning** is the Introductory Tutorial. It teaches basic prof
 
 Career progression and historical progression are separate. **Career XP** is earned through professional activity and serves as an investment currency for eligible skill improvements, specialization development, and other defined forms of professional development; it does not directly determine rank. A character's professional rank is derived from that character's own skill profile and influences the broad range of opportunities likely to reach them. Skills determine qualification for specific work, while appointments grant formal authority and responsibilities. **Historical Progress XP** measures the advancement represented by completed Works. A character can attain high professional standing while the player remains in an early historical era; entering a new era does not automatically increase that character's rank.
 
-The player's personal economy has exactly two tracked resources: **money and provisions**. Money is spendable wealth, presented using the historically appropriate currency name and denomination for the current era. Provisions represent food and everyday sustenance, presented in historically appropriate forms. Their underlying balances carry across eras unchanged; only their presentation is reskinned. Other goods, including grain and beer, may appear in the world or as scenario-specific inventory, but are not additional tracked personal resource balances.
+The player's personal economy has two resources: **money and provisions**. Money is spendable wealth, presented using the historically appropriate currency name and denomination for the current era. Provisions represent food and everyday sustenance, presented in historically appropriate forms. Their underlying balances carry across eras unchanged; only their presentation is reskinned. 
 
 The player, not any individual character, is the constant across the historical journey. The player experiences history through the work of successive scribal characters: people live, age, leave the profession, and die, while the player's participation in the world continues. When a character can no longer be played, the player takes up another existing scribal NPC with an established connection to that character and their professional world, in the same historical period. The new character may be far less experienced or socially prominent than the previous one; their own skills, personality, relationships, obligations, affiliations, possessions, and circumstances determine the player's new starting position. This is a change of viewpoint, not an inheritance of the former character's identity or an era restart. Section 16 defines the character-transition principle.
 
@@ -1039,18 +1039,9 @@ Required Works are mandatory for the main historical journey. Assignments and Ch
 ---
 ## 12. Personal Economy
 
-### 12.1 The two personal resources
+### 12.1 Personal resources
 
-The player's tracked personal economy has exactly two resource categories:
-
-| Resource | Distinct role |
-|---|---|
-| **Money** | The player's spendable wealth for purchases, services, obligations, savings, and debts. Its name, denomination, and presentation use the historically appropriate form for the current era. |
-| **Provisions** | The player's food and everyday sustenance resource. Its name, form, and presentation use historically appropriate foods and arrangements for the current era. One unit is normally consumed at the end of each Workday. |
-
-The underlying money and provisions balances carry across eras unchanged. At an era transition, the game reskins their names, denominations, forms, and visual presentation to fit the new historical setting. There is no currency conversion, exchange-rate calculation, conversion fee, or conversion of provisions. This is a presentation change, not a new economy or a simulation of historical purchasing-power equivalence.
-
-Other goods and commodities may appear in the world, in institutional records, or as specific inventory items when relevant to a scenario. They do not create additional tracked personal resource balances.
+The player's personal economy has two resources: **money and provisions**. Their names, forms, denominations, and presentation adapt to the current historical era. When eras change, the resources are reskinned and their balances carry forward unchanged; no conversion is required.
 
 ### 12.2 Employment compensation
 
@@ -1060,7 +1051,7 @@ There is no universal daily employment ration. A player who performs no paid wor
 
 ### 12.3 Daily sustenance
 
-The player normally consumes one unit of provisions at the end of each Workday. The specific food represented by provisions may change with the era; this does not alter the underlying balance or require conversion.
+The player normally consumes one unit of provisions at the end of each Workday.
 
 A player may complete **two consecutive Workdays without provisions before suffering a shortage penalty**. If the player still has no provisions at the end of a third consecutive Workday, shortage consequences begin. The shortage count advances by Workday, not by calendar time, and resets when the player consumes provisions. Time that passes without a Workday being completed does not advance the count.
 
@@ -1078,9 +1069,6 @@ The availability of each route depends on the people, institutions, possessions,
 
 The game should not restrict the player to respectable or institutionally approved ways of responding to hardship. The player cannot die from a depleted provisions balance, and economic hardship must not create an unavoidable game-over state. This does not mean the player receives an automatic bailout, unlimited negative balance, or unexplained free resource.
 
-### 12.5 Era-appropriate presentation
-
-Money and provisions remain the two underlying resource systems across eras, while their names, forms, denominations, and visual presentation adapt to historical context. The balances carry forward unchanged; no conversion is performed. The exact historical labels and presentation for each era remain content work.
 
 ---
 ## 13. Stress, Trust, and Institutional Consequences
@@ -1524,6 +1512,6 @@ The daily economy of action is six shared Action Points, not a fixed number of c
 
 Career XP is earned through professional activity and invested in eligible skill and specialization development; it does not directly determine rank. A character's rank follows from their own skill profile and shapes the broad range of opportunities likely to reach them. Skills determine qualification for specific work, and appointments grant formal authority. The former commission-tier ladder is removed; individual Assignments retain a separate difficulty marker. Historical Progress XP measures mandatory historical contributions. The calendar controls in-game dates; XP does not. Era-transition rewards must be calibrated so completing all required Works is sufficient to reach the next threshold without optional grinding.
 
-The personal economy has exactly two tracked resources: money and provisions. Money uses an era-appropriate currency name without conversion of the underlying value at era transitions; provisions are the daily food resource; Other goods may appear in the world and in scenario-specific inventories without becoming additional tracked personal resources. Exact prices, availability, storage, compensation balance, crisis timing, assistance frequency and effects, and historical presentation remain open design work. The shortage trigger, shortage-attributed Stress cap, Underfed condition, and required recovery routes are established in Sections 12.3–12.4.
+The personal economy has two resources: money and provisions. Money uses an era-appropriate currency name without conversion of the underlying value at era transitions; provisions are the daily food resource;  Exact prices, availability, storage, compensation balance, crisis timing, assistance frequency and effects, and historical presentation remain open design work. The shortage trigger, shortage-attributed Stress cap, Underfed condition, and required recovery routes are established in Sections 12.3–12.4.
 
 The journey continues through existing scribal NPCs connected to the current character and their profession. The player chooses among plausible candidates, subject to their actual circumstances and availability. If no close apprentice or obvious successor exists, the player continues through another existing connected scribal NPC in the same historical period; the calendar, completed Works, and wider world do not restart. The new character retains their own skills, reputation, relationships, obligations, possessions, and circumstances. The family desk remains a family heirloom and workspace, not a vessel of player continuity; access depends on the current character's own relationships, household, location, and circumstances. Exact candidate eligibility and selection details, and the desk's access rules for non-family characters, remain open.
