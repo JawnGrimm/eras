@@ -3,6 +3,7 @@ import type { PropsWithChildren } from 'react';
 import { createInitialGameState } from './initialState';
 import { transitionGame } from '../engine/actionEconomy';
 import type { ActionFeedback, CareerProgressionPolicy, GameAction, GameState, TransitionResult } from './types';
+import type { WorkDefinition } from '../works/workDefinition';
 
 interface GameContextValue {
   state: GameState;
@@ -19,18 +20,18 @@ const GameContext = createContext<GameContextValue | null>(null);
  * This provider is intentionally not mounted by App.tsx until the prototype shell
  * is replaced after the Storehouse regression port.
  */
-export function GameProvider({ children, initialState, careerPolicy }: PropsWithChildren<{ initialState?: GameState; careerPolicy?: CareerProgressionPolicy }>) {
+export function GameProvider({ children, initialState, careerPolicy, workCatalog }: PropsWithChildren<{ initialState?: GameState; careerPolicy?: CareerProgressionPolicy; workCatalog?: Readonly<Record<string, WorkDefinition<any>>> }>) {
   const [state, setState] = useState<GameState>(() => initialState ?? createInitialGameState());
   const stateRef = useRef(state);
   const [feedback, setFeedback] = useState<ActionFeedback | null>(null);
 
   const dispatch = useCallback((action: GameAction): TransitionResult => {
-    const result = transitionGame(stateRef.current, action, careerPolicy);
+    const result = transitionGame(stateRef.current, action, careerPolicy, workCatalog);
     stateRef.current = result.state;
     setState(result.state);
     setFeedback(result.feedback);
     return result;
-  }, [careerPolicy]);
+  }, [careerPolicy, workCatalog]);
 
   const clearFeedback = useCallback(() => setFeedback(null), []);
 
