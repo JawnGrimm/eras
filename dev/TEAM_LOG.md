@@ -676,3 +676,36 @@ The owner approved a limited grace period for sustenance shortages. The game is 
 
 - `docs/GDD.md`: revised Section 12.3 to establish the two-Workday grace period and clarify the counter's scope and reset condition.
 - No runtime code, save schema, numerical penalty, or gameplay behavior changed.
+
+
+## 2026-11-21 — Decision: establish social and institutional support during hardship
+
+**Contributor:** Chad (AI)  
+**Status:** Approved design principle
+
+The owner approved the principle that a character's social network should be the first potential source of support during serious hardship, with historically appropriate wider-society assistance as another possible avenue. The game is not a survival simulation, and an empty provisions balance must not create an unavoidable death or game-over state.
+
+### Personal support
+
+- Reaching the eventual critical or maximum Stress threshold places the character in a crisis state and prompts consideration of available support; it does not automatically trigger a rescue or reset Stress.
+- Positive personal relationships are the first potential source of intervention. A friend, relative, colleague, patron, or other contact may offer practical or emotional support when willing and able.
+- Assistance should reflect the relationship, the person's means, and their circumstances. A positive relationship does not guarantee that the person can help.
+- Repeated hardship or requests may strain relationships, alter the terms of help, or leave a contact unable or unwilling to intervene.
+
+### Wider-society support
+
+- When personal support is unavailable or insufficient, the world may offer historically appropriate alternatives, including charitable, religious, household, civic, or institutional practices where they existed.
+- Do not project modern charitable organizations or assumptions onto earlier historical settings.
+- Support is an opportunity, not an entitlement or guaranteed bailout. A character without positive relationships must still have plausible avenues of recovery.
+
+### Boundaries
+
+- The player cannot die from a depleted provisions balance; hardship must not create an unavoidable game-over state.
+- Recovery can involve legitimate work, informal arrangements, obligations, or illicit opportunities. Their availability and consequences depend on context rather than a universal morality label.
+- The exact Stress threshold, crisis timing, intervention frequency, assistance effects, and relationship-strain rules remain open. No numerical mechanics or runtime behavior were approved.
+
+### Repository changes
+
+- `docs/GDD.md`: expanded Sections 12.4 and 13.1 to record the hardship recovery boundaries, crisis-state principle, relationship-first support, historically appropriate wider-society assistance, and open balancing questions.
+- Updated Remaining Design Work and the Design Summary to reflect the approved direction.
+- No runtime code, save schema, numerical balance, or gameplay behavior changed.
