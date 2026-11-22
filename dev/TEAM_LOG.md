@@ -778,3 +778,36 @@ The owner confirmed that the daily morning report is intended to tell the player
 
 - `docs/GDD.md`: refined Section 18.5 to define the morning report's immediate player relevance, include approaching deadlines, distinguish information from urgent action, include plausible opportunities, and require a credible path by which information reaches the player. Updated Remaining Design Work item 24.
 - No runtime code, save schema, simulation architecture, numerical balance, or gameplay behavior changed.
+
+
+## 2026-11-21 — Decision: establish situated player knowledge
+
+**Contributor:** Chad (AI)  
+**Status:** Approved design principle
+
+The owner approved the principle that the player's knowledge is shaped by their place in the world and by the character they inhabit. Information reaches the player when people, institutions, activities, or material evidence intersect with that character; the player does not receive a complete view of the simulation simply because the simulation tracks an event.
+
+### Existing systems that shape information
+
+- **NPC relationships:** Who approaches the player, trusts them, avoids them, asks for help, or chooses to share information.
+- **Reputation:** What others are willing to disclose, what they assume the player already knows, and whether they consider the player credible or worth approaching.
+- **Attributes:** What the player notices, recognizes, or can make sense of in a situation.
+- **Skills:** What the player can interpret in conversations, documents, accounts, and other evidence.
+- **Equipment:** What information the player can access, examine, preserve, or communicate.
+- **World circumstances:** What is happening among connected people and institutions, nearby communities, and relevant trade, travel, and administrative networks.
+
+### Access, understanding, and truth
+
+Three questions remain distinct: whether the player can access information, whether they can understand or interpret it, and whether they can establish that it is true. A claim reaching the player is not automatically established fact; evaluating it may require skills, records, corroboration, and other evidence. Preserve the source, limits, and uncertainty of information where they matter.
+
+### Scope and boundaries
+
+- This principle describes how existing character and world systems intersect; it does not create a separate information-source subsystem.
+- The player's knowledge is a product of their place in the world, not a complete view of the world itself.
+- Morning reports and notifications should present information that has plausibly reached the player through those connections and circumstances, not expose events merely because the simulation knows they occurred.
+- No new numerical mechanics, simulation architecture, or runtime behavior were approved.
+
+### Repository changes
+
+- `docs/GDD.md`: added Design Pillar 2.11, “The player's knowledge is situated,” connecting information access to NPC relationships, reputation, attributes, skills, equipment, and world circumstances, and distinguishing access, understanding, and verification.
+- No runtime code, save schema, simulation architecture, numerical balance, or gameplay behavior changed.
