@@ -1417,7 +1417,16 @@ Career XP, Historical Progress XP, money and provisions, trust, stress, faction 
 
 ## 21. Audio, Feedback, and Accessibility
 
-Audio is optional. Local sound effects or music can support dispatch arrival, selection, document submission, Work milestones, and major historical events. Sound should never be required to understand gameplay.
+Audio is optional and must never be required to understand gameplay. The current Era I tactile feedback uses procedural Web Audio synthesis only; it must not load audio files or introduce network requests. The audio engine must be safe to import and call in headless Node/Vitest environments, where browser audio APIs may be absent, and must fail silently rather than interrupt gameplay.
+
+The audio context is created lazily from a user interaction and resumed when the browser reports it suspended. The player can mute or unmute feedback from the production header; the preference is stored under `scribe_audio_muted` in local storage, with unmuted as the default when no preference exists. Failure to access browser storage or audio APIs is non-fatal. Audio is a redundant feedback layer, not a substitute for visual state changes or accessible labels.
+
+The three current synthesized profiles are:
+- **Stylus tap:** a short, descending triangle tone with a high-passed noise transient for evidence examination and valid numeric draft commits.
+- **Seal stamp:** a brief low, filtered impact for successful Assignment report submission and Senior Scribe disposition.
+- **Settlement chime:** a gentle two-tone harmonic resonance after a successful Workday settlement.
+
+Do not attach sounds indiscriminately to every click. Trigger them from the corresponding successful or semantically meaningful interaction, and do not replay them from render effects. Ambient soundscapes and music are outside this tactile-feedback step.
 
 Visual feedback is mandatory. The player must be able to understand:
 - What action is available.
