@@ -58,8 +58,9 @@ export function transitionWorldAction(state: GameState, action: WorldAction): Tr
     case 'CREATE_RECORD': {
       const r = action.record;
       if (state.records.entries[r.id]) return fail(state, 'record-exists', 'A record with this ID already exists.');
-      const sourceIds = new Set(r.sources.map((s) => s.id));
-      const validSources = r.sources.every((s) => !!s.id && !!s.description
+      const sourceList = Array.isArray(r.sources) ? r.sources : [];
+      const sourceIds = new Set(sourceList.map((s) => s.id));
+      const validSources = Array.isArray(r.sources) && sourceList.every((s) => !!s.id && !!s.description
         && (s.kind === 'person' ? !!w.people[s.sourceId as PersonId]
           : s.kind === 'institution' ? !!w.institutions[s.sourceId as InstitutionId]
           : s.kind === 'event' ? !!w.events[s.sourceId as EventId]
@@ -78,8 +79,9 @@ export function transitionWorldAction(state: GameState, action: WorldAction): Tr
       const r = state.records.entries[action.recordId], a = action.amendment;
       if (!r) return fail(state, 'record-missing', 'This record does not exist.');
       const existingSources = sourceIds(r);
-      const addedIds = new Set(a.sourcesAdded.map((s) => s.id));
-      const validAddedSources = a.sourcesAdded.every((s) => !!s.id && !!s.description && !existingSources.has(s.id)
+      const addedList = Array.isArray(a.sourcesAdded) ? a.sourcesAdded : [];
+      const addedIds = new Set(addedList.map((s) => s.id));
+      const validAddedSources = Array.isArray(a.sourcesAdded) && addedList.every((s) => !!s.id && !!s.description && !existingSources.has(s.id)
         && (s.kind === 'person' ? !!w.people[s.sourceId as PersonId]
           : s.kind === 'institution' ? !!w.institutions[s.sourceId as InstitutionId]
           : s.kind === 'event' ? !!w.events[s.sourceId as EventId]
