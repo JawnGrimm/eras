@@ -386,7 +386,7 @@ Examples include:
 - Recording labor, obligations, and institutional activity.
 - Resolving administrative disputes and preparing findings.
 
-Assignments are optional professional opportunities available during the workday. Each substantive step uses the shared daily AP budget. Offers normally expire after three in-game days if not accepted; accepted work remains active until resolved or cancelled. Completing them can award Career XP, silver, and other appropriate compensation or consequences. Assignments do not directly award Historical Progress XP.
+Assignments are optional professional opportunities available during the workday. Each substantive step uses the shared daily AP budget. Offers normally expire three in-game days after presentation if not accepted; the default expiry is the offered day plus three, and expiry is applied during daily settlement. A character may hold at most two accepted Assignments at once. Accepting or declining an offer costs no AP; cancelling an accepted Assignment costs 1 AP. Cancellation has no automatic relationship or institutional penalty: only consequences explicitly authored for that Assignment apply. Accepted work remains active until resolved or cancelled. Completing it can award Career XP, money, provisions, and other appropriate authored compensation or consequences. Assignments do not directly award Historical Progress XP.
 
 ### 5.2 Challenges
 
@@ -399,7 +399,7 @@ Challenges may arise from:
 - Relationships, rivalries, favors, or prior decisions.
 - Historical events that alter the local situation.
 
-Behavioral triggers should consider opportunities presented as well as choices made. A history that records only completed assignments can misread player behavior. For example, repeatedly choosing routine grain records means something different if the player was never offered other kinds of work. Challenge logic should distinguish what the player could have chosen from what they actually chose, accepted, declined, or ignored.
+Behavioral triggers should consider opportunities presented as well as choices made. A history that records only completed assignments can misread player behavior. The Challenge Director should consume compact aggregates of presented, accepted, declined, non-Work-lapsed, and completed Assignments by employer, category, and commodity, plus no more than the five most recent activity entries; it must not scan an unbounded event log. An offer that lapses while the character is engaged in a mandatory Work is marked as such and excluded from non-Work lapse counts, so it cannot be treated as neglect. For example, repeatedly choosing routine grain records means something different if the player was never offered other kinds of work. Challenge logic should distinguish what the player could have chosen from what they actually chose, accepted, declined, or ignored.
 
 Challenges can grant Career XP, resources, relationship changes, faction changes, knowledge, or consequences. They do not award Historical Progress XP and cannot be required to complete a mandatory Work or advance an era.
 
@@ -927,7 +927,7 @@ Opportunity generation should use **a baseline range plus identifiable channels*
 - **Appointments** create opportunities and responsibilities attached to an office; the appointment, not rank, grants its formal authority.
 - **Reputation** influences whether a person or institution is willing to approach the character, trust their work, or offer particular terms and responsibility.
 
-These factors do not add together into a hidden eligibility score. Each opportunity should have an intelligible reason it reached the character, grounded in one or more of these channels and the actual circumstances. The player does not need to see opportunities that never reached the character, but should be able to read a plain-language description of their current professional standing and the kinds of work and invitations it typically attracts.
+These factors do not add together into a hidden eligibility score. Each opportunity should store an intelligible delivery reason, grounded in one or more explicit channels: baseline professional reach, relationship, specialization, appointment, or reputation. Delivery/visibility is separate from skill qualification. The offer may reach a character who does not yet qualify; any skill prerequisites are separately stated and determine qualification. Rank shapes reach only and is never a competence gate. The player does not need to see opportunities that never reached the character, but should be able to read a plain-language description of their current professional standing and the kinds of work and invitations it typically attracts.
 
 Skills determine qualification for a specific commission, action, or Work requirement. Any skill prerequisites must be stated at the opportunity level and shown to the player. Rank is not a second competence gate, and an offer does not imply qualification. Appointments separately determine whether the character has the authority to act in an institutional capacity.
 
