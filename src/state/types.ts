@@ -146,6 +146,12 @@ export interface ChallengeTriggerRule {
 
 
 export type WorkStatus = 'active' | 'completed' | 'abandoned';
+export type WorkAssessmentDimension = 'accuracy' | 'completeness' | 'responsible_interpretation' | 'procedure' | 'traceability' | 'responsibility';
+export interface WorkAssessmentDimensionResult {
+  dimension: WorkAssessmentDimension;
+  status: 'meets' | 'partial' | 'fails';
+  summary: string;
+}
 export interface WorkProgress {
   status: WorkStatus;
   acquiredEvidence: EvidenceId[];
@@ -156,7 +162,7 @@ export interface WorkProgress {
   provisionContract?: { provisionsPerQualifiedWorkday: number; minimumWorkApPerDay: number };
   scenarioData: Record<string, unknown>;
   submissionCount: number;
-  lastAssessment?: { outcome: 'accepted' | 'revise' | 'rejected'; summary: string; assessedDay: number };
+  lastAssessment?: { outcome: 'accepted' | 'revise' | 'rejected'; summary: string; assessedDay: number; dimensions: WorkAssessmentDimensionResult[] };
 }
 
 export interface GameState {
