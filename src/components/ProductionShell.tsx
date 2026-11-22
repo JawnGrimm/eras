@@ -12,7 +12,7 @@ import { SuccessionScreen } from './SuccessionScreen';
 import { ProductionPeopleAndInstitutions } from './ProductionPeopleAndInstitutions';
 import { ProductionRecordsAndJournal } from './ProductionRecordsAndJournal';
 
-type Screen = 'workday' | 'storehouse' | 'assignments' | 'challenges' | 'people' | 'records';
+type Screen = 'workday' | 'storehouse' | 'assignments' | 'challenges' | 'people' | 'records' | 'help';
 
 function ProductionHeader() {
   const { state } = useGame();
@@ -43,7 +43,7 @@ export function ProductionShellContent() {
       <h2 className="font-semibold text-red-950">{game.loadStatus === 'corrupt_save' ? 'Production save needs recovery' : 'Production save could not be read'}</h2>
       <p className="mt-1 text-sm text-red-900">{game.storageError ?? 'The existing save has not been replaced. Ordinary actions are paused.'}</p>
       <p className="mt-1 text-sm text-red-900">Starting fresh will replace only the production save key. Legacy prototype saves are left untouched.</p>
-      <button onClick={() => { if (game.startFreshProductionSave()) setSettlement(null); }} className="mt-3 rounded-lg bg-red-900 px-4 py-2 text-sm font-semibold text-white">Start Fresh Production Save</button>
+      <button onClick={() => { if (window.confirm('Replace the current production save with a new Day 1 save? This changes only scribe_game_v2. Legacy scribe_* saves will be left untouched.')) { if (game.startFreshProductionSave()) { setSettlement(null); setScreen('workday'); } } }} className="mt-3 rounded-lg bg-red-900 px-4 py-2 text-sm font-semibold text-white">Start Fresh Production Save</button>
     </section>}
     {game.hasUnsavedChanges && <section role="status" className="rounded-xl border border-amber-400 bg-amber-50 px-4 py-3">
       <p className="text-sm font-semibold text-amber-950">This session has unsaved changes</p>
@@ -75,6 +75,7 @@ export function ProductionShellContent() {
           <button onClick={() => setScreen('challenges')} aria-current={screen === 'challenges' ? 'page' : undefined} className={`w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium ${screen === 'challenges' ? 'bg-stone-900 text-white' : 'text-stone-700 hover:bg-white/70'}`}>Challenge Journal</button>
           <button onClick={() => setScreen('people')} aria-current={screen === 'people' ? 'page' : undefined} className={`w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium ${screen === 'people' ? 'bg-stone-900 text-white' : 'text-stone-700 hover:bg-white/70'}`}>People & Institutions</button>
           <button onClick={() => setScreen('records')} aria-current={screen === 'records' ? 'page' : undefined} className={`w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium ${screen === 'records' ? 'bg-stone-900 text-white' : 'text-stone-700 hover:bg-white/70'}`}>Records & Journal</button>
+          <button onClick={() => setScreen('help')} aria-current={screen === 'help' ? 'page' : undefined} className={`w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium ${screen === 'help' ? 'bg-stone-900 text-white' : 'text-stone-700 hover:bg-white/70'}`}>Help & Rules</button>
         </nav>
         <div className="mt-4 border-t border-stone-300 px-3 pt-4 text-xs leading-5 text-stone-600">
           <p className="font-semibold text-stone-800">{person?.name}</p>
@@ -96,7 +97,24 @@ export function ProductionShellContent() {
                 ? <ProductionChallengeJournal />
                 : screen === 'people'
                   ? <ProductionPeopleAndInstitutions />
-                  : <ProductionRecordsAndJournal />}
+                  : screen === 'records'
+                    ? <ProductionRecordsAndJournal />
+                    : <section className="space-y-5 rounded-xl border border-stone-300 bg-[#fbf9f4] p-5 sm:p-7">
+                        <div><p className="text-xs font-semibold uppercase tracking-wider text-stone-500">Player reference</p><h1 className="mt-1 font-serif text-2xl font-semibold text-stone-900">Help & Rules</h1><p className="mt-2 max-w-3xl text-sm leading-6 text-stone-700">A short guide to the current production slice. The Storehouse Reckoning is the first Work, not a template for every future historical undertaking.</p></div>
+                        <div className="grid gap-4 md:grid-cols-2">
+                          <article className="rounded-lg border border-stone-200 bg-white p-4"><h2 className="font-semibold text-stone-900">Your Workday</h2><p className="mt-2 text-sm leading-6 text-stone-700">You have six shared Action Points (AP) each day. Assignments, Challenges, Work actions, study, and other activities draw from the same budget. Unused AP do not carry over.</p></article>
+                          <article className="rounded-lg border border-stone-200 bg-white p-4"><h2 className="font-semibold text-stone-900">Works</h2><p className="mt-2 text-sm leading-6 text-stone-700">Works are substantial historical undertakings that advance the main journey. They are the sole ordinary source of Historical Progress XP. Follow each Work's evidence, submission, revision, and disposition requirements.</p></article>
+                          <article className="rounded-lg border border-stone-200 bg-white p-4"><h2 className="font-semibold text-stone-900">Assignments</h2><p className="mt-2 text-sm leading-6 text-stone-700">Assignments are optional professional commitments. They can provide Career XP and compensation, but never Historical Progress XP. You may hold up to two accepted Assignments at once.</p></article>
+                          <article className="rounded-lg border border-stone-200 bg-white p-4"><h2 className="font-semibold text-stone-900">Challenges</h2><p className="mt-2 text-sm leading-6 text-stone-700">Challenges are optional narrative situations. Their outcomes can affect Career XP, resources, reputation, and relationships, but they do not award Historical Progress XP.</p></article>
+                          <article className="rounded-lg border border-stone-200 bg-white p-4"><h2 className="font-semibold text-stone-900">Evidence and records</h2><p className="mt-2 text-sm leading-6 text-stone-700">Acquiring evidence costs the AP shown by the action. Examining acquired evidence is free. Keep source claims, your interpretation, your judgment, and senior assessment distinct; do not claim more than the records establish.</p></article>
+                          <article className="rounded-lg border border-stone-200 bg-white p-4"><h2 className="font-semibold text-stone-900">Settlement</h2><p className="mt-2 text-sm leading-6 text-stone-700">End the Workday from the Hub to apply sustenance and Work provisions, advance the calendar, and receive tomorrow's AP allocation. Overtime adds one AP now, increases Stress by five, and reduces tomorrow's allocation by one.</p></article>
+                        </div>
+                        <section className="rounded-lg border border-red-200 bg-red-50 p-4">
+                          <h2 className="font-semibold text-red-950">Reset production save</h2>
+                          <p className="mt-1 text-sm leading-6 text-red-900">This permanently replaces the current production save with a new Day 1 state. Only <code>scribe_game_v2</code> is changed; legacy <code>scribe_*</code> keys are not read, migrated, or deleted.</p>
+                          <button onClick={() => { if (window.confirm('Replace the current production save with a new Day 1 save? This changes only scribe_game_v2. Legacy scribe_* saves will be left untouched.')) { if (game.startFreshProductionSave()) { setSettlement(null); setScreen('workday'); } } }} className="mt-3 rounded-lg bg-red-900 px-4 py-2 text-sm font-semibold text-white">Reset Production Save</button>
+                        </section>
+                      </section>}
       </main>
     </div>
   </div>;
