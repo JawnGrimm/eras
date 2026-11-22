@@ -1,5 +1,5 @@
 import type { EvidenceId, WorkId, SkillId, AttributeId } from '../state/ids';
-import type { ScribalCharacterState } from '../state/types';
+import type { ScribalCharacterState, WorkAssessmentDimensionResult } from '../state/types';
 import type { InterpretationRule, Predicate } from './evidenceInterpretation';
 
 export interface WorkEvidenceDefinition {
@@ -22,6 +22,8 @@ export interface WorkSubmissionContext<TProgress> {
 export interface WorkAssessment {
   outcome: 'accepted' | 'revise' | 'rejected';
   summary: string;
+  /** Work-specific subset of the GDD §9.2 assessment dimensions. */
+  dimensions: WorkAssessmentDimensionResult[];
 }
 export interface WorkDefinition<TProgress extends Record<string, unknown> = Record<string, unknown>> {
   id: WorkId;
