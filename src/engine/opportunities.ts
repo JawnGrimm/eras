@@ -96,14 +96,14 @@ function applyConsequences(state: GameState, effects: OpportunityConsequences | 
   }
   if (effects.event) {
     const e = effects.event;
-    if (!e.id || next.world.events[e.id] || !e.summary || e.dayNumber !== next.calendar.dayNumber
+    if (!e.id || next.world.events[e.id] || !e.summary || !Number.isInteger(e.dayNumber) || e.dayNumber < 1 || e.dayNumber > next.calendar.dayNumber
       || e.personIds.some((id) => !next.world.people[id]) || e.institutionIds.some((id) => !next.world.institutions[id])
       || (e.locationId && !next.world.locations[e.locationId])) return null;
     next = { ...next, world: { ...next.world, events: { ...next.world.events, [e.id]: e } } };
   }
   if (effects.record) {
     const r = effects.record;
-    if (!r.id || next.records.entries[r.id] || !r.title || r.createdDay !== next.calendar.dayNumber
+    if (!r.id || next.records.entries[r.id] || !r.title || !Number.isInteger(r.createdDay) || r.createdDay < 1 || r.createdDay > next.calendar.dayNumber
       || !next.world.people[r.authorPersonId] || (r.institutionId && !next.world.institutions[r.institutionId])
       || r.amendments.length !== 0 || r.sources.some((s) =>
         (s.kind === 'person' && !next.world.people[s.sourceId as PersonId])
@@ -115,7 +115,7 @@ function applyConsequences(state: GameState, effects: OpportunityConsequences | 
   for (const k of effects.knowledge ?? []) {
     const holder = k.holder.kind === 'person' ? !!next.world.people[k.holder.id] : !!next.world.institutions[k.holder.id];
     const subject = k.subject.kind === 'event' ? !!next.world.events[k.subject.id] : !!next.records.entries[k.subject.id];
-    if (!k.id || next.world.knowledge[k.id] || !holder || !subject || k.learnedDay !== next.calendar.dayNumber
+    if (!k.id || next.world.knowledge[k.id] || !holder || !subject || !Number.isInteger(k.learnedDay) || k.learnedDay < 1 || k.learnedDay > next.calendar.dayNumber
       || (k.sourcePersonId && !next.world.people[k.sourcePersonId])) return null;
     next = { ...next, world: { ...next.world, knowledge: { ...next.world.knowledge, [k.id]: k } } };
   }
