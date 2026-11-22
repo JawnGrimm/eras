@@ -75,9 +75,9 @@ function isInstitution(value: unknown, locationIds: Set<string>): boolean {
     && stringArray(value.responsibilities) && stringArray(value.authority) && score(value.standing)
     && stringArray(value.activeMatters);
 }
-function isEvent(value: unknown, people: Record<string, unknown>, institutions: Record<string, unknown>, locations: Record<string, unknown>): boolean {
+function isEvent(value: unknown, calendarDay: number, people: Record<string, unknown>, institutions: Record<string, unknown>, locations: Record<string, unknown>): boolean {
   return isObject(value) && typeof value.id === 'string' && !!value.id && finiteNonNegative(value.dayNumber)
-    && Number.isInteger(value.dayNumber) && value.dayNumber >= 1 && typeof value.summary === 'string' && !!value.summary
+    && Number.isInteger(value.dayNumber) && value.dayNumber >= 1 && value.dayNumber <= calendarDay && typeof value.summary === 'string' && !!value.summary
     && Array.isArray(value.personIds) && value.personIds.every((id) => typeof id === 'string' && isObject(people[id]))
     && Array.isArray(value.institutionIds) && value.institutionIds.every((id) => typeof id === 'string' && isObject(institutions[id]))
     && (value.locationId === undefined || (typeof value.locationId === 'string' && isObject(locations[value.locationId])));
@@ -132,16 +132,16 @@ export function isValidGameState(value: unknown): value is GameState {
   for (const [id, x] of Object.entries(institutions)) if (!isObject(x) || !isInstitution(x, new Set(Object.keys(locations))) || x.id !== id) return false;
   for (const [id, x] of Object.entries(locations)) if (!isObject(x) || x.id !== id || typeof x.name !== 'string' || !x.name) return false;
   for (const [id, x] of Object.entries(world.appointments)) {
-    if (!isObject(x) || x.id !== id || typeof x.personId !== 'string' || !isObject(people[x.personId])
+    if (!isObject(x) || !id || x.id !== id || typeof x.personId !== 'string' || !isObject(people[x.personId])
       || typeof x.institutionId !== 'string' || !isObject(institutions[x.institutionId])
       || typeof x.title !== 'string' || !x.title || !stringArray(x.authorityScope) || x.authorityScope.length === 0
       || !stringArray(x.responsibilities) || !finiteNonNegative(x.startDay) || !Number.isInteger(x.startDay) || x.startDay < 1
       || (x.endDay !== undefined && (!finiteNonNegative(x.endDay) || !Number.isInteger(x.endDay) || x.endDay < x.startDay))) return false;
   }
-  for (const [id, x] of Object.entries(events)) if (!isObject(x) || !isEvent(x, people, institutions, locations) || x.id !== id) return false;
+  for (const [id, x] of Object.entries(events)) if (!isObject(x) || !isEvent(x, calendar.dayNumber, people, institutions, locations) || x.id !== id) return false;
 
   for (const [id, r] of Object.entries(records)) {
-    if (!isObject(r) || r.id !== id || !finiteNonNegative(r.createdDay) || !Number.isInteger(r.createdDay) || r.createdDay < 1
+    if (!isObject(r) || r.id !== id || !finiteNonNegative(r.createdDay) || !Number.isInteger(r.createdDay) || r.createdDay < 1 || r.createdDay > calendar.dayNumber
       || typeof r.authorPersonId !== 'string' || !isObject(people[r.authorPersonId])
       || (r.institutionId !== undefined && (typeof r.institutionId !== 'string' || !isObject(institutions[r.institutionId])))
       || typeof r.title !== 'string' || !r.title || !Array.isArray(r.sources) || !Array.isArray(r.assertions)
@@ -152,12 +152,14 @@ export function isValidGameState(value: unknown): value is GameState {
     const amendmentIds = new Set<string>();
     for (const a of r.amendments) {
       if (!isObject(a) || typeof a.id !== 'string' || !a.id || amendmentIds.has(a.id)
-        || !finiteNonNegative(a.dayNumber) || !Number.isInteger(a.dayNumber) || a.dayNumber < r.createdDay
+        || !finiteNonNegative(a.dayNumber) || !Number.isInteger(a.dayNumber) || a.dayNumber < r.createdDay || a.dayNumber > calendar.dayNumber
         || typeof a.authorPersonId !== 'string' || !isObject(people[a.authorPersonId])
         || typeof a.reason !== 'string' || !a.reason || !Array.isArray(a.sourcesAdded)
         || !Array.isArray(a.assertionsAdded) || !stringArray(a.uncertaintyLimitsAdded) || typeof a.note !== 'string') return false;
       amendmentIds.add(a.id);
       for (const s of a.sourcesAdded) { if (!isSource(s, people, institutions, events) || sourceIds.has(s.id)) return false; sourceIds.add(s.id); }
+      if (a.assertionsAdded.some((x) => isObject(x) && (typeof x.id !== 'string' || !x.id || r.assertions.some((base) => base.id === x.id)
+        || r.amendments.some((prior) => prior.assertionsAdded.some((old) => old.id === x.id)))) return false;
       if (!a.assertionsAdded.every((x) => isAssertion(x, sourceIds))) return false;
     }
   }
@@ -173,6 +175,47 @@ export function isValidGameState(value: unknown): value is GameState {
     if (!holder || !subject) return false;
   }
 
+  const assignmentStates = ['offered','accepted','declined','lapsed','completed','cancelled'];
+  for (const [id, offer] of Object.entries(value.opportunities.assignments)) {
+    if (!isObject(offer) || offer.id !== id || !assignmentStates.includes(offer.status as string)
+      || typeof offer.title !== 'string' || !offer.title || typeof offer.description !== 'string'
+      || !isObject(offer.employer) || (offer.employer.kind !== 'person' && offer.employer.kind !== 'institution')
+      || typeof offer.employer.id !== 'string' || !(offer.employer.kind === 'person' ? isObject(people[offer.employer.id]) : isObject(institutions[offer.employer.id]))
+      || typeof offer.category !== 'string' || !offer.category || !isObject(offer.context)
+      || typeof offer.context.what !== 'string' || !offer.context.what || typeof offer.context.purpose !== 'string' || !offer.context.purpose
+      || !Array.isArray(offer.context.who) || !stringArray(offer.context.responsibility) || !stringArray(offer.context.provenance)
+      || !isObject(offer.requiredSkills) || Object.entries(offer.requiredSkills).some(([skill, level]) => !CORE_SKILL_IDS.includes(skill as SkillId) || !Number.isInteger(level) || (level as number) < 1 || (level as number) > 10)
+      || !['routine','demanding','critical'].includes(offer.difficulty as string) || !Number.isInteger(offer.estimatedAp) || (offer.estimatedAp as number) < 1
+      || !isObject(offer.compensation) || !finiteNonNegative(offer.compensation.money) || !finiteNonNegative(offer.compensation.provisions)
+      || !finiteNonNegative(offer.careerXpReward) || !finiteNonNegative(offer.offeredDay) || !Number.isInteger(offer.offeredDay)
+      || !finiteNonNegative(offer.expiresDay) || !Number.isInteger(offer.expiresDay) || (offer.expiresDay as number) <= (offer.offeredDay as number)
+      || !Array.isArray(offer.deliveryChannels) || !offer.deliveryChannels.length
+      || offer.deliveryChannels.some((channel) => !isObject(channel) || typeof channel.explanation !== 'string' || !channel.explanation
+        || !['baseline_reach','relationship','specialization','appointment','reputation'].includes(channel.kind as string))
+      || (offer.lapsedDuringMandatoryWork !== undefined && typeof offer.lapsedDuringMandatoryWork !== 'boolean')) return false;
+  }
+  for (const [key, aggregate] of Object.entries(value.opportunities.assignmentAggregates)) {
+    if (!isObject(aggregate) || aggregate.key !== key || !isObject(aggregate.employer)
+      || !['person','institution'].includes(aggregate.employer.kind as string)
+      || typeof aggregate.employer.id !== 'string'
+      || !(aggregate.employer.kind === 'person' ? isObject(people[aggregate.employer.id]) : isObject(institutions[aggregate.employer.id]))
+      || typeof aggregate.category !== 'string'
+      || !['presented','accepted','declined','nonWorkLapsed','completed'].every((field) => Number.isInteger(aggregate[field]) && finiteNonNegative(aggregate[field]))) return false;
+  }
+  if (!Array.isArray(value.opportunities.recentActivity) || value.opportunities.recentActivity.length > 5
+    || value.opportunities.recentActivity.some((entry) => !isObject(entry) || !finiteNonNegative(entry.dayNumber)
+      || !['presented','accepted','declined','lapsed','completed','cancelled'].includes(entry.kind as string)
+      || typeof entry.employerKey !== 'string' || typeof entry.category !== 'string' || typeof entry.assignmentId !== 'string')) return false;
+  if (!Array.isArray(value.opportunities.challengeOutcomes)) return false;
+  for (const [id, challenge] of Object.entries(value.opportunities.challenges)) {
+    if (!isObject(challenge) || challenge.id !== id || typeof challenge.title !== 'string' || !challenge.title
+      || typeof challenge.description !== 'string' || typeof challenge.category !== 'string'
+      || !isObject(challenge.context) || typeof challenge.context.what !== 'string' || typeof challenge.context.purpose !== 'string'
+      || !finiteNonNegative(challenge.presentedDay) || !Array.isArray(challenge.choices) || !challenge.choices.length
+      || new Set(challenge.choices.filter(isObject).map((choice) => choice.id)).size !== challenge.choices.length
+      || challenge.choices.some((choice) => !isObject(choice) || typeof choice.id !== 'string' || !choice.id
+        || typeof choice.label !== 'string' || !choice.label || typeof choice.description !== 'string' || !choice.description)) return false;
+  }
   return finiteNonNegative(value.historicalProgression.historicalXp) && Array.isArray(value.historicalProgression.completedWorks)
     && isObject(value.opportunities.assignments) && isObject(value.opportunities.challenges)
     && (value.works.activeWorkId === null || typeof value.works.activeWorkId === 'string')
