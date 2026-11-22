@@ -113,18 +113,14 @@ export function validateWorkDefinition<TProgress extends Record<string, unknown>
   if (work.submissionApCost !== undefined && (!Number.isInteger(work.submissionApCost) || work.submissionApCost < 0 || work.submissionApCost > 6)) {
     issues.push({ code: 'invalid-submission-ap-cost', message: 'Submission AP cost must be an integer from 0 to 6.' });
   }
-  if (work.provisionsContract && (!Number.isInteger(work.provisionsContract.provisionsPerQualifiedWorkday)
-    || work.provisionsContract.provisionsPerQualifiedWorkday < 0
-    || !Number.isInteger(work.provisionsContract.minimumWorkApPerDay)
-    || work.provisionsContract.minimumWorkApPerDay < 1 || work.provisionsContract.minimumWorkApPerDay > 6)) {
-    issues.push({ code: 'invalid-provisions-contract', message: 'Work provision contract values are invalid.' });
-  }
+
   const reachable = new Set<EvidenceId>(work.startingEvidence);
   const actionIds = new Set(work.actions.map((action) => action.id));
   if (actionIds.size !== work.actions.length) issues.push({ code: 'duplicate-action-id', message: 'Work action IDs must be unique.' });
   const duplicateRuleIds = new Set<string>();
   const conflictPriorities = new Set<string>();
   if (work.kind !== undefined && work.kind !== 'work' && work.kind !== 'tutorial') issues.push({ code: 'invalid-work-kind', message: 'Work kind must be work or tutorial.' });
+  if (work.kind === 'tutorial' && work.provisionsContract) issues.push({ code: 'tutorial-provisions-contract', message: 'Tutorials cannot declare provision contracts.' });
   if (work.legacyHistoricalXpReward !== undefined && (!Number.isFinite(work.legacyHistoricalXpReward) || work.legacyHistoricalXpReward < 0)) issues.push({ code: 'invalid-legacy-historical-xp', message: 'Legacy Historical XP must be a non-negative finite number.' });
   if (work.legacyCompletionCleanup?.retireInstitutionMatters?.some((item) => !item.institutionId || !item.matter.trim())) issues.push({ code: 'invalid-legacy-completion-cleanup', message: 'Legacy completion cleanup contains an invalid institutional matter.' });
   if (!String(work.id).trim()) issues.push({ code: 'empty-work-id', message: 'Work ID must not be empty.' });
