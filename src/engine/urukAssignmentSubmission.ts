@@ -127,7 +127,7 @@ export function submitUrukAssignmentActivity(
     if (progress.consultedPersonIds.includes(STEWARD)) relationshipChanges.push({ from: state.player.currentCharacterId, to: STEWARD, trust: overclaim ? -4 : 2, respect: overclaim ? -3 : 1, summary: overclaim ? 'The Steward received a stock recommendation that exceeded the physical examination.' : 'The Steward received a qualified, source-aware finding that preserves release authority.' });
   } else if (id === 'activity-south-court-delivery-reconciliation') {
     title = 'South-Court Delivery Reconciliation';
-    matterId = 'matter-south-court-delivery-discrepancy' as MatterId;
+    matterId = MATTER_IDS.southCourtDelivery;
     matterSummary = 'The dispatch tablet records 24 measures and the receiving tally records 23. The one-measure discrepancy remains unresolved; cause and responsibility are not established.';
     const blamed = draft.responsibilityClaim === 'enlil_kisu' || draft.finding === 'blame_carrier';
     const routeInspected = progress.discoveryIds.includes('delivery-route-inspection') && cited.has('delivery-route-inspection');
@@ -157,7 +157,7 @@ export function submitUrukAssignmentActivity(
     judgmentDelta = blamed ? -4 : 3;
   } else {
     title = 'South Loading-Awning Condition Report';
-    matterId = 'matter-south-loading-awning-condition' as MatterId;
+    matterId = MATTER_IDS.southLoadingAwning;
     matterSummary = 'The south loading awning has two visibly frayed reed ties. The two inspected support posts remain upright; cause of threshold pooling and full structural condition remain unresolved.';
     const observed = progress.discoveryIds.includes('awning-physical-observation') && cited.has('awning-physical-observation');
     overclaim = draft.finding === 'structure_certified_sound' || draft.responsibilityClaim === 'dudu' || (draft.finding === 'ties_frayed_posts_upright' && !observed);
@@ -203,12 +203,29 @@ export function submitUrukAssignmentActivity(
     institutionalStanding: { ...scribal.institutionalStanding, [STOREHOUSE]: Math.max(0, Math.min(100, (scribal.institutionalStanding[STOREHOUSE] ?? 50) + (overclaim ? -2 : 1))) },
   } };
   const matter = matterId ? state.world.matters[matterId] : undefined;
+  const reportProvenanceId = `assignment-report-${recordId}`;
   const nextMatter = matterId ? {
-    id: matterId, institutionId: STOREHOUSE, kind: id === 'activity-held-barley-inspection' ? 'held_barley_inspection' as const : 'general' as const,
-    summary: matterSummary, status: 'active' as const, createdDay: matter?.createdDay ?? state.calendar.dayNumber,
-    sourceRecordId: recordId, ...(matter?.locationId ? { locationId: matter.locationId } : {}),
+    ...(matter ?? {
+      id: matterId,
+      institutionId: STOREHOUSE,
+      kind: id === 'activity-held-barley-inspection' ? 'held_barley_inspection' as const
+        : id === 'activity-south-court-delivery-reconciliation' ? 'south_court_delivery_reconciliation' as const
+          : 'south_loading_awning_inspection' as const,
+      summary: matterSummary,
+      status: 'active' as const,
+      createdDay: state.calendar.dayNumber,
+    }),
+    sourceRecordId: matter?.sourceRecordId ?? recordId,
+    provenance: [
+      ...(matter?.provenance ?? []).filter((source) => source.id !== reportProvenanceId),
+      { id: reportProvenanceId, kind: 'record_copy' as const, sourceId: recordId, description: 'Scribal report filed in response to this institutional matter; filing does not itself resolve the matter.' },
+    ],
   } : undefined;
-  const activeMatters = matterId && !institution.activeMatters.includes(matterId) ? [...institution.activeMatters, matterId] : institution.activeMatters;
+  const activeMatters = matterId && nextMatter
+    ? nextMatter.status === 'active'
+      ? (institution.activeMatters.includes(matterId) ? institution.activeMatters : [...institution.activeMatters, matterId])
+      : institution.activeMatters.filter((id) => id !== matterId)
+    : institution.activeMatters;
   const next: GameState = {
     ...state,
     actionEconomy: { ...state.actionEconomy, apRemaining: state.actionEconomy.apRemaining - cost },
