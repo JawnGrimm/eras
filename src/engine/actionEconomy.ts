@@ -272,4 +272,5 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
     default:
       return { state, feedback: feedback('error', 'unsupported-action', 'This action is not supported by the current engine.') };
   }
+  return { state, feedback: feedback('error', 'unsupported-action', 'This action is not supported by the current engine.') };
 }
