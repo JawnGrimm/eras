@@ -31,6 +31,7 @@ export interface WorkDefinition<TProgress extends Record<string, unknown> = Reco
   actions: WorkActionDefinition[];
   interpretationRules: InterpretationRule[];
   historicalXpReward: number;
+  submissionApCost?: number;
   createInitialProgress(): TProgress;
   provisionsContract?: { provisionsPerQualifiedWorkday: number; minimumWorkApPerDay: number };
   validateScenarioData(value: unknown): value is TProgress;
@@ -77,8 +78,20 @@ function validatePredicate(predicate: Predicate, issues: WorkValidationIssue[]):
 export function validateWorkDefinition<TProgress extends Record<string, unknown>>(work: WorkDefinition<TProgress>): WorkValidationIssue[] {
   const issues: WorkValidationIssue[] = [];
   const evidenceIds = new Set(work.evidence.map((item) => item.id));
+  if (evidenceIds.size !== work.evidence.length) issues.push({ code: 'duplicate-evidence-id', message: 'Evidence IDs must be unique within a Work.' });
+  if (!Number.isFinite(work.historicalXpReward) || work.historicalXpReward < 0) issues.push({ code: 'invalid-historical-xp-reward', message: 'Historical XP reward must be finite and non-negative.' });
+  if (work.submissionApCost !== undefined && (!Number.isInteger(work.submissionApCost) || work.submissionApCost < 0 || work.submissionApCost > 6)) {
+    issues.push({ code: 'invalid-submission-ap-cost', message: 'Submission AP cost must be an integer from 0 to 6.' });
+  }
+  if (work.provisionsContract && (!Number.isInteger(work.provisionsContract.provisionsPerQualifiedWorkday)
+    || work.provisionsContract.provisionsPerQualifiedWorkday < 0
+    || !Number.isInteger(work.provisionsContract.minimumWorkApPerDay)
+    || work.provisionsContract.minimumWorkApPerDay < 1 || work.provisionsContract.minimumWorkApPerDay > 6)) {
+    issues.push({ code: 'invalid-provisions-contract', message: 'Work provision contract values are invalid.' });
+  }
   const reachable = new Set<EvidenceId>(work.startingEvidence);
   const actionIds = new Set(work.actions.map((action) => action.id));
+  if (actionIds.size !== work.actions.length) issues.push({ code: 'duplicate-action-id', message: 'Work action IDs must be unique.' });
   const duplicateRuleIds = new Set<string>();
   const conflictPriorities = new Set<string>();
   if (!work.title.trim()) issues.push({ code: 'empty-work-title', message: 'Work title must not be empty.' });
