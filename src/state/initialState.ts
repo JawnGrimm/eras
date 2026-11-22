@@ -1,5 +1,6 @@
 import type { GameState } from './types';
 import type { InstitutionId, PersonId, AppointmentId } from './ids';
+import { UR_GIR_PERSON_ID } from './ids';
 import { NORTH_BAY_LOCATION_ID, NORTH_BAY_PEOPLE } from '../content/assignments/northBayRoofInspection';
 import { MATTER_IDS, STOREHOUSE_INSTITUTION_ID } from '../engine/institutionalMatters';
 export const INITIAL_PERSON_ID = 'person-enlil-barni' as PersonId;
@@ -14,7 +15,7 @@ export function createInitialGameState(): GameState {
     },
   };
   const apprenticeId = 'person-uruk-nin-aya' as PersonId;
-  const colleagueId = 'person-uruk-ur-gir' as PersonId;
+  const colleagueId = UR_GIR_PERSON_ID;
   // Authored fictional Uruk scribes provide a small, connected continuity network.
   const apprentice = {
     id: apprenticeId, name: 'Nin-aya', alive: true, affiliations: [],
