@@ -165,6 +165,7 @@ export interface WorkProgress {
   scenarioData: Record<string, unknown>;
   submissionCount: number;
   pendingDisposition?: boolean;
+  finalDisposition?: string;
   lastAssessment?: { outcome: 'accepted' | 'revise' | 'rejected'; summary: string; assessedDay: number; dimensions: WorkAssessmentDimensionResult[] };
 }
 
