@@ -967,3 +967,36 @@ A cross-document review compared the current canonical GDD, README, and chronolo
 - `docs/GDD.md`: corrected malformed Markdown emphasis in the Storehouse provision-contract description.
 
 No approved design was changed. No runtime code, save schema, or gameplay behavior changed. No build, type-check, test suite, or deployment was run for these documentation-only edits.
+
+
+## 2026-11-21 — Storehouse AP and evidence-retrieval reconciliation
+
+**Contributor:** Chad (AI)  
+**Status:** Implementation audit; no design change
+
+Compared the canonical Work specification in `docs/GDD.md` §§7.5–7.6 with the active player-facing implementation in `src/components/StorehouseReckoning.tsx`, tracing each action to its AP charge and state update.
+
+### Active implementation findings
+
+The active component's costs match the GDD:
+
+- **Stage A:** E-01 retrieval 1 AP; dispatch/receipt comparison 1 AP; E-04 retrieval 1 AP; physical recount 2 AP; optional E-06 maintenance notes 1 AP; Carrier Foreman consultation 1 AP; Brewing-House Representative confirmation 1 AP.
+- **Stage B:** Compact Balance Register setup 1 AP; Movement Ledger setup 2 AP; initial entry drafting 2 AP; source notation 1 AP; Senior Scribe review 1 AP; failed initial-entry revision 1 AP per pass.
+- **Stage C:** Each unseen test dossier retrieval 1 AP; transaction entry 1 AP; test audit 1 AP; optional C-2 Senior Scribe consultation 1 AP; revision after a failed test 1 AP before re-entry and re-audit.
+- **Stage D:** Final audit 2 AP; institutional review 1 AP; register revision 1 AP; presentation for institutional decision 1 AP.
+
+Initial evidence retrieval and unseen test-dossier retrieval consume AP. Previously acquired evidence can be reviewed without AP. The active component enforces the required Stage A actions, validates the initial record and source references, requires both test cases to pass, and gates institutional presentation behind final audit and review.
+
+### Disconnected implementation findings
+
+- `src/App.tsx` imports and renders `StorehouseReckoning`; it does not import or render `WorkRunner`.
+- `src/content/works/storehouse_reckoning.json` is not imported by the application. Its four-block configuration, zero-cost Stage A retrieval/consultation actions, and zero-cost test-evidence retrieval conflict with the GDD.
+- `src/components/WorkRunner.tsx` is also disconnected. It implements free evidence examination and a reduced workflow that does not reproduce the active component's initial-record validation, separate test entry/audit steps, or institutional review sequence.
+- These files are not a second live implementation and must not be wired into the app as a drop-in replacement. Their schema and future role remain separate architecture work.
+
+### Documentation updated
+
+- `docs/GDD.md`: implementation-status note now records that the active component's AP and retrieval behavior match §§7.5–7.6 and explicitly identifies the disconnected files' stale assumptions.
+- `README.md`: implementation-status summary updated to the same verified distinction.
+
+No AP costs, approved design rules, runtime code, or save data were changed. No build, type-check, test suite, or deployment was run; this was a source inspection and documentation update only.
