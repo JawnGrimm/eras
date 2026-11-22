@@ -49,7 +49,8 @@ export function ProductionPeopleAndInstitutions() {
         return <article key={person.id} className="rounded-xl border border-stone-300 bg-white p-5">
           <div className="flex flex-wrap items-start justify-between gap-2">
             <div><h3 className="font-serif text-xl font-semibold">{person.name}</h3>
-              <p className="text-xs text-stone-500">{person.alive ? 'Living' : 'Deceased'} · {person.ageYears === undefined ? 'Age unknown' : `${person.ageYears} years`}</p>
+              <p className="text-xs text-stone-500">{person.alive ? 'Living' : 'Deceased'} · {person.ageYears === undefined ? 'Age unknown' : `${person.ageYears} years`}{person.lifeStage ? ` · ${person.lifeStage.replaceAll('_', ' ')}` : ''}</p>
+              {person.socialIdentity && <p className="mt-1 max-w-2xl text-sm text-stone-600">{person.socialIdentity.summary}</p>}
             </div>
             {person.id === state.player.currentCharacterId && <span className="rounded bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-900">Current character</span>}
           </div>
@@ -68,7 +69,19 @@ export function ProductionPeopleAndInstitutions() {
               <div key={id} className="rounded bg-stone-50 p-3"><dt className="text-xs text-stone-500">{state.world.institutions[id as InstitutionId]?.name ?? id}</dt><dd className="font-mono">{value}/100</dd></div>)}</dl>
               : <p className="mt-1 text-xs text-stone-500">No institution-specific standing is recorded.</p>}
           </section>}
-          <section className="mt-4"><h4 className="text-sm font-semibold">Appointments and office scopes</h4>
+          {(() => {
+            const circumstances = (person.circumstances ?? []).filter((item) => item.status === 'active' && item.visibility === 'public');
+            const commitments = (person.commitments ?? []).filter((item) => item.status === 'active' && item.visibility === 'public');
+            return (circumstances.length > 0 || commitments.length > 0) ? <div className="mt-4 grid gap-4 lg:grid-cols-2">
+              {circumstances.length > 0 && <section><h4 className="text-sm font-semibold">Current circumstances</h4>
+                <ul className="mt-2 space-y-2">{circumstances.map((item) => <li key={item.id} className="rounded bg-stone-50 p-3 text-sm text-stone-700">{item.summary}</li>)}</ul>
+              </section>}
+              {commitments.length > 0 && <section><h4 className="text-sm font-semibold">Declared responsibilities and commitments</h4>
+                <ul className="mt-2 space-y-2">{commitments.map((item) => <li key={item.id} className="rounded bg-stone-50 p-3 text-sm text-stone-700">{item.summary}</li>)}</ul>
+              </section>}
+            </div> : null;
+          })()}
+                    <section className="mt-4"><h4 className="text-sm font-semibold">Appointments and office scopes</h4>
             {appointments.length ? <div className="mt-2 space-y-2">{appointments.map((appointment) => <div key={appointment.id} className="rounded bg-stone-50 p-3">
               <p className="text-sm font-semibold">{appointment.title} · {state.world.institutions[appointment.institutionId]?.name ?? appointment.institutionId}</p>
               <p className="mt-1 text-xs text-stone-500">From Day {appointment.startDay}{appointment.endDay === undefined ? ' · Current' : ` to Day ${appointment.endDay} · Ended`}</p>
