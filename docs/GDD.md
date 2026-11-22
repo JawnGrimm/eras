@@ -1229,6 +1229,25 @@ Markers must be readable through labels or shapes as well as color. Difficulty i
 ### 18.4 Era-specific material design
 The presentation should evolve with the era: clay and seals in early Mesopotamia, materials and conventions appropriate to Egypt and later societies, manuscript and paper traditions where relevant, printed pages and presses, and digital documents and networked interfaces in the modern era. Important information must remain readable; decorative generated marks must not be presented as verified historical writing.
 
+### 18.5 Notifications, event history, and morning reports
+
+The player needs a selective way to stay informed about developments in the wider simulation without having to monitor every person, institution, process, or location continuously. The notification approach should take inspiration from strategy games such as *Total War*, adapted to the player's professional life rather than a territory- or army-management interface.
+
+The presentation system should provide three complementary channels:
+
+- **Immediate notifications:** Surface developments during the Workday when they warrant timely awareness or action. Urgent matters must not wait for the next morning report. Most notifications should inform rather than forcibly interrupt the player's current activity.
+- **Persistent event log:** Preserve notifications and notable developments so the player can review items they dismissed or did not act on immediately. Entries should link to relevant people, institutions, records, assignments, Works, or locations when those references exist.
+- **Daily morning report:** At the beginning of each new Workday, provide a concise briefing of relevant developments since the previous report. This is a regular daily feature, not a report generated only after an arbitrary number of events.
+
+The morning report may cover significant personal circumstances, relationships, professional requests and deadlines, ongoing matters, and wider developments that could affect the player's work. Its contents must be selective: do not repeat unchanged information merely to fill space, and group developments when they share an established cause or affected matter. A report is a briefing, not a mandatory task list; the player remains free to decide what deserves attention.
+
+Notifications and reports must distinguish established facts from testimony, allegations, attributed explanations, and unresolved interpretations. Grouping must reflect actual shared state rather than inventing a causal connection because events occurred near one another. Important developments should be discoverable through relevant people, records, and changed work as well as through notifications.
+
+The attention system should distinguish at least these presentation needs conceptually: developments requiring timely interruption or prominence; developments relevant to the player's current work or focus; related changes suitable for a consolidated report; and background or resolved information that should remain inspectable without demanding attention. These are design categories, not a finalized notification taxonomy or numerical importance score. Urgency and broader significance are not interchangeable.
+
+The exact notification thresholds, prioritization rules, delivery timing within a Workday, report layout, archive navigation, and handling of missed or repeated developments remain open design work. No runtime notification system or simulation architecture is implied by this interface decision.
+The presentation should evolve with the era: clay and seals in early Mesopotamia, materials and conventions appropriate to Egypt and later societies, manuscript and paper traditions where relevant, printed pages and presses, and digital documents and networked interfaces in the modern era. Important information must remain readable; decorative generated marks must not be presented as verified historical writing.
+
 ---
 
 ## 19. Content and Scenario Quality Standards
@@ -1334,6 +1353,7 @@ The following details require further design before they can be treated as fixed
 21. Evaluation implementation: define how the approved judgment principles are expressed through player-facing feedback, scoring or outcome tiers, and scenario validators. Preserve the distinction between a reasonable judgment based on evidence available at decision time and a careless or unsupported conclusion. Do not assume every scenario has one correct ruling; determine how task purpose and required information shape completeness. The evaluation principle is approved, but scoring weights, feedback language, and validator behavior remain undecided.
 22. Complete the character system: define class-specific starting circumstances and benefits; specialization content, qualification and advancement requirements; the detailed personality-trait catalog, emergence and change rules, and mechanical effects; the detailed condition catalog and numerical effects; the action-resolution model connecting attributes, skills, specializations, equipment, conditions, and circumstances; and the detailed equipment catalog and balancing. The four initial career paths, six attributes and their relatively stable progression, six core skills and primary attribute pairings, independent skill-experience tracks, 1–10 skill scale, Career XP investment principle, multi-specialization model, Primary Specialization, three expertise levels, initial personality-trait selection and emergent/changeable personality principles, condition principles, and initial equipment principles are established. Exact thresholds, costs, trait content, and action-resolution mechanics remain open.
 23. Define the family desk's upgrade economy and era-transition treatment, including upgrade effects, costs, adaptation, and the modest inherited bonuses retained from previous eras. The desk's continuity role and broad transition principle are established; individual upgrades and numerical effects are not.
+24. Define the notification and attention rules: event prioritization, immediate-alert thresholds, daily morning-report content and grouping, event-log organization, and navigation from notices to relevant people, records, institutions, and locations. The direction for immediate notifications, a persistent event log, and a selective daily morning report is established; exact thresholds, layout, and runtime behavior remain open.
 
 These are open design tasks, not invitations to fill gaps with arbitrary placeholder systems.
 
