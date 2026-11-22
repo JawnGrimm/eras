@@ -1,1 +1,39 @@
 @import "tailwindcss";
+
+
+/* Era I: Sumerian Cuneiform Design Tokens */
+:root,
+[data-era='era-1'] {
+  --surface-ground: #F4F1EA;
+  --surface-card: #FAF8F3;
+  --surface-pressed: #EDE7DC;
+  --border-tablet: #D4A373;
+  --border-tablet-soft: #E5D5C3;
+  --ink-primary: #2B1B17;
+  --ink-muted: #6B5B54;
+  --accent-amber: #C86D33;
+  --seal-ochre: #A8422B;
+  --seal-border: #873320;
+}
+
+/* Debossed clay treatment; retains a visible keyboard focus indicator. */
+.clay-input-pressed {
+  background-color: var(--surface-pressed);
+  border: 1px solid var(--border-tablet);
+  color: var(--ink-primary);
+  box-shadow: inset 1px 2px 4px rgba(43, 27, 23, 0.16);
+  border-radius: 0.5rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.clay-input-pressed:focus {
+  outline: none;
+  border-color: var(--accent-amber);
+  box-shadow: inset 1px 2px 4px rgba(43, 27, 23, 0.16), 0 0 0 2px rgba(200, 109, 51, 0.25);
+}
+
+.clay-input-pressed:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
