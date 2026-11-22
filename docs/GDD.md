@@ -23,32 +23,31 @@ lang: en-US
 # Contents
 
 - Executive Summary
-- High Concept
-- Design Pillars
-- Genre, Structure, and Point of View
-- Character Foundations and Initial Career Paths
-- Historical Scope and Era Progression
-- The Three Gameplay Layers
-- Workday and Action Economy
-- Era I Vertical Slice: The Storehouse Reckoning
-- The Assignment Gameplay Loop
-- Document Construction and Evaluation
-- Career Progression
-- Historical Progression and Works
-- Personal Economy
-- Stress, Trust, and Institutional Consequences
-- Bribery and Ethical Choices
-- People, Institutions, and Social Network
-- Generational Continuity and Legacy
-- Tools, Equipment, and Workspaces
-- Interface and Visual Direction
-- Content and Scenario Quality Standards
-- Progression Pacing and Player Experience
-- Audio, Feedback, and Accessibility
-- Boundaries and Exclusions
-- Remaining Design Work
-- Glossary
-- Design Summary
+- 1. High Concept
+- 2. Design Pillars
+- 3. Genre, Structure, and Point of View
+- 4. Historical Scope and Era Progression
+- 5. The Three Gameplay Layers
+- 6. Workday and Action Economy
+- 7. Era I Vertical Slice: The Storehouse Reckoning
+- 8. The Assignment Gameplay Loop
+- 9. Document Construction and Evaluation
+- 10. Career Progression
+- 11. Historical Progression and Works
+- 12. Personal Economy
+- 13. Stress, Trust, and Institutional Consequences
+- 14. Bribery and Ethical Choices
+- 15. People, Institutions, and Social Network
+- 16. Player Continuity Through Successive Characters
+- 17. Tools, Equipment, and Workspaces
+- 18. Interface and Visual Direction
+- 19. Content and Scenario Quality Standards
+- 20. Progression Pacing and Player Experience
+- 21. Audio, Feedback, and Accessibility
+- 22. Boundaries and Exclusions
+- 23. Remaining Design Work
+- 24. Glossary
+- 25. Design Summary
 ---
 
 ## Executive Summary
@@ -63,7 +62,7 @@ The game has three distinct gameplay layers:
 2. **Challenges** are optional, separate scenarios arising from behavior, neglected opportunities, relationships, or historical events. They are not ordinary employment and do not use the Assignment system.
 3. **Works** are mandatory, long-form historical undertakings. They represent significant human achievements made possible by writing, records, communication, and institutions. Works—not routine assignments or optional Challenges—drive Historical Progress XP and advancement between eras.
 
-Career progression and historical progression are separate. **Career XP** measures the player's professional development and determines professional rank. **Historical Progress XP** measures the advancement represented by completed Works. A highly accomplished scribe can remain in an early historical era; entering a new era does not automatically promote the player.
+Career progression and historical progression are separate. **Career XP** is earned through professional activity and serves as an investment currency for eligible skill improvements, specialization development, and other defined forms of professional development; it does not directly determine rank. A character's professional rank is derived from that character's own skill profile and influences the broad range of opportunities likely to reach them. Skills determine qualification for specific work, while appointments grant formal authority and responsibilities. **Historical Progress XP** measures the advancement represented by completed Works. A character can attain high professional standing while the player remains in an early historical era; entering a new era does not automatically increase that character's rank.
 
 The player's personal economy uses two tracked resources: **money** and **provisions**. Money is presented using the historically appropriate currency name for the current era; provisions represent food and everyday sustenance using era-appropriate forms. Beer and other goods may appear in the world or inventory when relevant, but are not additional tracked personal resource balances.
 
@@ -115,7 +114,7 @@ New writing technologies matter because people adopt, adapt, distribute, regulat
 
 ### 2.5 Professional identity persists while the world changes
 
-The player's professional standing is not reset by an epoch transition. The work, tools, institutions, and social environment change, but the player's accumulated expertise and professional identity remain meaningful.
+The player's historical journey and professional identity continue across eras through successive characters. Each character retains their own skills, professional experience, relationships, reputation, and circumstances; those individual capabilities are not automatically transferred to the next character. The work, tools, institutions, and social environment change, while the player's continuing participation gives the journey its professional continuity.
 
 ### 2.6 Optional work enriches the journey; mandatory Works advance it
 
@@ -257,7 +256,7 @@ Each skill uses a numerical level from **1 to 10**, with the following descripti
 
 Skill-specific experience establishes eligibility for advancement; it does not automatically raise the skill. Once eligible, the player chooses whether to invest **Career XP** to improve that skill. Career XP is the shared investment currency for professional development. It may be spent on eligible skill improvements, specialization development, and other professional development options as those systems are defined. Relevant experience, qualifications, and accomplishments determine eligibility; Career XP alone cannot purchase expertise in a field the character has not meaningfully practiced or studied. Exact experience thresholds and XP costs remain open.
 
-Character skills and accumulated professional experience persist across era transitions; entering a new era does not reset the character's development. Historical transitions make additional era-appropriate branches of the skill tree available.
+Skills and their experience tracks belong to the individual character. They remain with that character, including through era transitions that the character personally experiences, but are not inherited or copied when the player takes up another scribal NPC. A successor's own skill profile determines that character's qualifications and professional rank. Historical transitions may make additional era-appropriate branches of the skill tree available to characters who experience them.
 
 #### Personality traits
 
@@ -1086,7 +1085,7 @@ Trust and reputation operate at more than one level:
 - An employer or institution may trust the player's work.
 - Individual NPCs may trust or distrust the player for personal reasons.
 - Factions or broad social groups may respond to the player's actions.
-- The player's professional reputation can affect future opportunities.
+- A character's professional reputation can affect future opportunities.
 
 These levels should not be collapsed into a single universal approval number. A decision can earn an institution's approval while damaging a personal relationship, or protect an individual while frustrating an employer.
 
@@ -1203,7 +1202,7 @@ When a character dies or otherwise leaves play, the player takes up another **ex
 
 ### 16.2 A different person, not an inherited character
 
-The player may choose among plausible connected NPCs, subject to their actual circumstances and availability. The next character does not need to match the former character's skill, rank, reputation, wealth, or authority. The player may continue as a low-ranking, inexperienced, or otherwise less established scribe. A character's existing skills and circumstances determine what the player can do and what opportunities are available; they are not adjusted to preserve the previous character's level of accomplishment.
+The player may choose among plausible connected NPCs, subject to their actual circumstances and availability. The next character does not need to match the former character's skill, rank, reputation, wealth, or authority. The player may continue as a low-ranking, inexperienced, or otherwise less established scribe. The successor's rank is determined from that character's own skills; no rank counter or former character's skill profile is transferred. A character's existing skills and circumstances determine what the player can do and what opportunities are available; they are not adjusted to preserve the previous character's level of accomplishment.
 
 Each NPC retains their own identity, skills, personality, relationships, professional history, institutional affiliations, obligations, possessions, and circumstances. These do not automatically become the former character's simply because the player now inhabits them. Records, knowledge, professional traditions, institutional standing, and other consequences of the former character's work remain in the world where appropriate, but their survival does not depend on being inherited by the next character.
 
@@ -1371,8 +1370,9 @@ Consequences should arise from the facts and choices in the scenario. Avoid arbi
 
 ### 20.1 Two different kinds of advancement
 
-Career XP provides a comparatively personal, professional progression curve. Historical Progress XP is slower, cumulative, and tied to major Works. The two tracks should create different rhythms:
-- Professional advancement recognizes repeated skilled work and learning.
+Career XP funds eligible professional development, including skill and specialization advancement. Character rank is derived from the character's skill profile and shapes professional opportunity access. Historical Progress XP is slower, cumulative, and tied to major Works. The systems should create different rhythms:
+- Professional advancement recognizes practice, learning, and the development of a character's capabilities.
+- Rank reflects broad professional standing and influences which opportunities are likely to reach the character.
 - Historical advancement recognizes substantial accomplishments with broader consequences.
 
 ### 20.2 Long-form pacing
@@ -1395,6 +1395,7 @@ Visual feedback is mandatory. The player must be able to understand:
 - What information is missing.
 - What changed after submission or resolution.
 - Why resources, stress, trust, reputation, or relationships changed.
+- The character's current professional standing and, in plain language, the broad kinds of work and invitations that standing is likely to attract. This summary describes the character's known professional reach; it does not reveal opportunities or information that never reached them.
 
 Text must remain readable, controls must be clearly labeled, and color must not be the sole way to communicate difficulty or status. Layout should accommodate different screen sizes and input methods without hiding required information.
 
@@ -1427,7 +1428,7 @@ The following details require further design before they can be treated as fixed
 2. Playtesting the Storehouse Reckoning: whether the recount, register-design choice, unseen transaction tests, and adoption consequences are engaging rather than procedural.
 3. The maximum active Assignment commitment count, cancellation costs, and offer-generation balance beyond the initial two-commitment / 6-AP model.
 4. The precise balance of Career XP rewards across Assignments, Challenges, Works, and study.
-5. Rank titles and commission-tier naming across eras, meaningful unlocks and responsibilities for ranks 5–7, and rank-based pay adjustments and performance bonuses.
+5. Professional rank: define the skill-to-rank formula and test it against broad generalists and narrow specialists; decide whether a specialist ceiling is appropriate; localize in-world titles without treating offices as universal competence grades; define the opportunity profiles of all seven grades, including meaningful differences at ranks 5–7; and decide whether rank affects compensation. The approved direction is that rank shapes baseline opportunity access, while skills determine specific qualifications and appointments grant authority. Retain the former 200,000 Career XP total only as a provisional career-pacing target, not as a rank threshold, and reconcile it with total skill and specialization purchase costs once those costs are defined.
 6. The complete money and provisions economy: prices, availability, storage/spoilage, daily sustenance and shortage consequences, era-appropriate currency names and food presentation.
 7. The stress scale, ceiling, thresholds, crisis timing, recovery rates, and fully priced recovery options; define how crisis interventions are paced and how assistance affects Stress and relationships. Shortage consequences must remain recoverable.
 8. Complete the NPC relationship, agency, and obligation model: determine how directional, multi-dimensional relationships are represented and changed; how significant events and accumulated meaningful interactions shape them; how relationships persist through successors, institutions, and geographically separated eras; how positive relationships can provide crisis support; how repeated assistance affects those relationships; and how conflicting commitments are represented and resolved in specific contexts. Established principles include independent NPC agency, proportionate immediate objectives and longer-term ambitions, commitments with identifiable bases, the distinction between demands and obligations, contextually appropriate attempts at resolution, and the persistence of unresolved matters. Detailed decision rules, memory scope, presentation, and runtime mechanics remain open.
@@ -1457,7 +1458,9 @@ These are open design tasks, not invitations to fill gaps with arbitrary placeho
 | Term | Meaning |
 |---|---|
 | **Assignment / Commission** | An optional short professional job offered by an employer, institution, official, merchant, or other contact. |
-| **Career XP** | Experience earned through professional work, Challenges, and qualifying learning; determines professional rank. |
+| **Career XP** | Experience earned through professional work, Challenges, and qualifying learning; used as an investment currency for eligible professional development, not as a direct rank score. |
+| **Professional rank** | A character-level grade derived from that character's own skill profile; it shapes baseline opportunity access but does not establish task competence or formal authority. |
+| **Appointment** | A specific institutional office or position that grants the authority and responsibilities attached to it. |
 | **Challenge** | An optional, separate scenario arising from behavior, relationships, neglected opportunities, or historical events. |
 | **Era** | A historical period with distinct people, institutions, materials, writing practices, and Works. |
 | **Historical Progress XP** | Progress earned through completed Works and used for historical milestone advancement. |
@@ -1476,8 +1479,8 @@ Assignments provide optional professional work. Challenges introduce optional co
 
 The daily economy of action is six shared Action Points, not a fixed number of commission slots, fixed commission count, or real-time timer. The player chooses how to divide those points among Assignments, Work progress, Challenges, study, and relationships. The Storehouse Reckoning provides one unit of provisions per active contracted Workday; provisions are the abstract daily food resource. Unaccepted offers normally expire after three in-game days, while accepted work remains active until resolved or cancelled. The player may hold at most two accepted Assignments; offers that lapse while a mandatory Work occupies the player do not count as ignored opportunities for Challenge triggers.
 
-Career XP measures professional development. Historical Progress XP measures mandatory historical contributions. The calendar controls in-game dates; XP does not. Era-transition rewards must be calibrated so completing all required Works is sufficient to reach the next threshold without optional grinding.
+Career XP is earned through professional activity and invested in eligible skill and specialization development; it does not directly determine rank. A character's rank follows from their own skill profile and shapes the broad range of opportunities likely to reach them. Skills determine qualification for specific work, and appointments grant formal authority. The former commission-tier ladder is removed; individual Assignments retain a separate difficulty marker. Historical Progress XP measures mandatory historical contributions. The calendar controls in-game dates; XP does not. Era-transition rewards must be calibrated so completing all required Works is sufficient to reach the next threshold without optional grinding.
 
 The personal economy has two tracked resources: money and provisions. Money uses an era-appropriate currency name without conversion of the underlying value at era transitions; provisions remain an abstract food resource presented through era-appropriate foods and rations. Beer is not a tracked personal resource, though it may appear in the world, inventory, hospitality, and institutional or social exchanges. Exact prices, availability, storage, crisis timing, assistance frequency and effects, sustenance shortage consequences, and historical presentation remain open design work.
 
-The journey continues through existing scribal NPCs connected to the current character and their profession. The player chooses among eligible candidates, subject to their actual circumstances and availability. If no eligible successor is available when succession is required, a new character begins at the start of the current era. How this restart affects the era calendar, completed or ongoing Works, and wider world state remains to be designed. The family desk remains a legacy object, but its transfer or access is not automatic when succession passes outside the family. Exact eligibility thresholds, the point at which succession is required, and the desk's access rules for non-family successors remain open.
+The journey continues through existing scribal NPCs connected to the current character and their profession. The player chooses among plausible candidates, subject to their actual circumstances and availability. If no close apprentice or obvious successor exists, the player continues through another existing connected scribal NPC in the same historical period; the calendar, completed Works, and wider world do not restart. The new character retains their own skills, reputation, relationships, obligations, possessions, and circumstances. The family desk remains a family heirloom and workspace, not a vessel of player continuity; access depends on the current character's own relationships, household, location, and circumstances. Exact candidate eligibility and selection details, and the desk's access rules for non-family characters, remain open.
