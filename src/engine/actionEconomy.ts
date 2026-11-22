@@ -30,6 +30,7 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
     case 'PURCHASE_SKILL_LEVEL':
     case 'SET_PRIMARY_SPECIALIZATION':
       return transitionCareerAction(state, action, careerPolicy);
+    case 'SET_INSTITUTIONAL_STANDING':
     case 'SET_RELATIONSHIP':
     case 'CREATE_INSTITUTION':
     case 'CREATE_APPOINTMENT':
