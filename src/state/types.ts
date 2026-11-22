@@ -113,10 +113,10 @@ export interface AssignmentOffer {
   id: AssignmentId; title: string; description: string; employer: OpportunityEmployer;
   category: string; commodity?: string; context: AssignmentContext;
   requiredSkills: Partial<Record<SkillId, number>>; difficulty: 'routine' | 'demanding' | 'critical';
-  estimatedAp: number; compensation: { money: number; provisions: number }; careerXpReward: number;
+  apCost: number; compensation: { money: number; provisions: number }; careerXpReward: number;
   deliveryChannels: OpportunityDeliveryChannel[];
   offeredDay: number; expiresDay: number; status: 'offered' | 'accepted' | 'declined' | 'lapsed' | 'completed' | 'cancelled';
-  lapsedDuringMandatoryWork?: boolean; cancellationConsequences?: OpportunityConsequences;
+  lapsedDuringMandatoryWork?: boolean; cancellationConsequences?: OpportunityConsequences; completionConsequences?: OpportunityConsequences;
 }
 export interface ChallengeChoice {
   id: string; label: string; description: string; consequences: OpportunityConsequences;
@@ -124,7 +124,7 @@ export interface ChallengeChoice {
 export interface ChallengeInstance {
   id: ChallengeId; title: string; description: string; category: string; commodity?: string;
   employer?: OpportunityEmployer; context: AssignmentContext; deliveryChannels: OpportunityDeliveryChannel[];
-  presentedDay: number; choices: ChallengeChoice[];
+  presentedDay: number; apCost: number; choices: ChallengeChoice[];
 }
 export interface ChallengeOutcome {
   challengeId: ChallengeId; title: string; category: string; resolvedDay: number;
@@ -185,7 +185,7 @@ export type GameAction =
   | { type: 'ACCEPT_ASSIGNMENT'; assignmentId: AssignmentId }
   | { type: 'DECLINE_ASSIGNMENT'; assignmentId: AssignmentId }
   | { type: 'CANCEL_ASSIGNMENT'; assignmentId: AssignmentId }
-  | { type: 'COMPLETE_ASSIGNMENT'; assignmentId: AssignmentId; consequences?: OpportunityConsequences }
+  | { type: 'COMPLETE_ASSIGNMENT'; assignmentId: AssignmentId }
   | { type: 'PRESENT_CHALLENGE'; challenge: ChallengeInstance }
   | { type: 'RESOLVE_CHALLENGE'; challengeId: ChallengeId; choiceId: string };
 export interface ActionFeedback { kind: 'success' | 'error' | 'info'; code: string; message: string; }
