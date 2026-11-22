@@ -71,6 +71,7 @@ function matches(predicate: Predicate, character: ScribalCharacterState, examine
 /** Pure interpretation only: objective evidence/source text is never modified or filtered. */
 export function evaluateEvidenceInterpretation(input: EvaluateEvidenceInterpretationInput): InterpretationAnnotation[] {
   const examined = new Set(input.examinedEvidence);
+  if (!examined.has(input.evidenceId)) return [];
   const matchesForEvidence = input.rules.filter((rule) =>
     rule.evidenceId === input.evidenceId && matches(rule.when, input.character, examined));
   const winners = new Map<string, InterpretationRule>();
