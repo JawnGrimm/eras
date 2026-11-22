@@ -834,6 +834,17 @@ The game should model these differences when they affect what a character can re
 
 When a record becomes the basis for later action, preserve enough context to interpret it responsibly: what it asserts, who or what supports the assertion, its relevant limits or uncertainty, and whether it has been amended or challenged. A later consequence should arise from the record's actual content and circulation, not from a hidden assumption that all parties know the underlying truth.
 
+### 8.4 Scenario consistency
+
+Every Assignment must have a coherent underlying situation from which both the player-facing evidence and the expected solution are derived. Quantities must reconcile. Dates, people, institutions, locations, roles, and relationships must remain consistent throughout the dossier and resulting document.
+
+Examples of basic accounting constraints:
+- Delivered quantity equals accepted plus held plus rejected quantities, with missing or disputed quantities represented explicitly where appropriate.
+- Opening stock plus receipts minus distributions equals closing stock.
+- Recipient allocations plus any stated reserve equal the available quantity.
+
+The game should not create evidence and an answer independently and then hope they agree.
+
 ### 8.5 Interactive Assignment activity definitions
 
 Substantive Assignments may use a typed, declarative activity definition registered in the Assignment Activity catalog. The definition identifies participants, interaction actions, prerequisites, discoveries, interpretation rules, and the submission cost. A shared activity screen renders the declared interaction families; scenario content must not require a bespoke screen or a universal action sequence.
@@ -852,16 +863,6 @@ The physical truth is fixed: the mid-bay reed-mat and mud-plaster patch is intac
 
 Ur-Nanna controls ordinary bay access and knows the custody and repair arrangements, but cannot authorize major building expenditure alone. Dudu knows the scope and materials of his contracted mid-bay patch, but has no stock authority. Utu-mansum can attest only to the original intake inspection (56 usable / 4 held), not the storm or later roof condition. Shuruppak-ilu reviews the filed report and determines institutional follow-up from the record; he does not gain firsthand roof knowledge by reviewing it. The player may submit a qualified incomplete report. Unsupported certification or attribution of work outside Dudu's contract is a consequential overclaim, not merely a lower score.
 
-### 8.4 Scenario consistency
-
-Every Assignment must have a coherent underlying situation from which both the player-facing evidence and the expected solution are derived. Quantities must reconcile. Dates, people, institutions, locations, roles, and relationships must remain consistent throughout the dossier and resulting document.
-
-Examples of basic accounting constraints:
-- Delivered quantity equals accepted plus held plus rejected quantities, with missing or disputed quantities represented explicitly where appropriate.
-- Opening stock plus receipts minus distributions equals closing stock.
-- Recipient allocations plus any stated reserve equal the available quantity.
-
-The game should not create evidence and an answer independently and then hope they agree.
 
 ---
 
