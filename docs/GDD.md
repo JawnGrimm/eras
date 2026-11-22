@@ -31,7 +31,7 @@ lang: en-US
 - 4. Historical Scope and Era Progression
 - 5. The Three Gameplay Layers
 - 6. Workday and Action Economy
-- 7. Era I Vertical Slice: The Storehouse Reckoning
+- 7. Era I Introductory Tutorial: The Storehouse Reckoning
 - 8. The Assignment Gameplay Loop
 - 9. Document Construction and Evaluation
 - 10. Career Progression
@@ -578,7 +578,7 @@ This tutorial is a **supervised apprenticeship exercise**, not a request to inve
 
 The document's primary reader is the **Storehouse Steward**. The apprentice answers to the **Senior Scribe**. The Steward would not ordinarily commission an apprentice directly; the Senior Scribe uses the Steward's case as real professional work through which to assess the apprentice.
 
-The tutorial introduces the apprentice to the ability to:
+The tutorial introduces the apprentice to the following professional practices:
 - Reconcile opening stock, dispatch, physical receipt, issue, and closing condition.
 - Preserve the distinction between usable and held stock.
 - Distinguish an established fact from an inference or unresolved cause.
@@ -766,7 +766,7 @@ The tutorial awards **0 Historical Progress XP** and must not add an entry to co
 
 ### 7.11 What this tutorial teaches
 
-The tutorial introduces whether the player can:
+The tutorial teaches the player to:
 - Understand who requested the document, who will use it, and why it matters.
 - Examine a compact dossier and reconstruct a stock position.
 - Distinguish dispatch, receipt, issue, condition, and balance.
