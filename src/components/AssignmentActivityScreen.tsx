@@ -21,6 +21,14 @@ export function AssignmentActivityScreen({ assignmentId, onBack }: { assignmentI
   const definition = offer?.activityId ? ASSIGNMENT_ACTIVITY_CATALOG[offer.activityId as keyof typeof ASSIGNMENT_ACTIVITY_CATALOG] : undefined;
   const progress = offer?.activityProgress;
   const character = game.state.world.people[game.state.player.currentCharacterId]?.scribal;
+  if (offer && definition && offer.status === 'completed') {
+    return <section className="rounded-xl border border-stone-300 bg-white p-5">
+      <p className="text-xs font-semibold uppercase tracking-wider text-amber-800">Assignment completed</p>
+      <h1 className="mt-1 font-serif text-2xl">{offer.title}</h1>
+      <p className="mt-2 text-sm leading-6 text-stone-600">The inspection report has been filed. Its findings, limitations, and institutional consequences are now part of the record.</p>
+      <button onClick={onBack} className="mt-4 rounded bg-stone-900 px-3 py-2 text-sm text-white">Return to Assignment Board</button>
+    </section>;
+  }
   if (!offer || !definition || !progress || offer.status !== 'accepted' || offer.assigneePersonId !== game.state.player.currentCharacterId || !character) {
     return <section className="rounded-xl border border-stone-300 bg-white p-5"><h1 className="font-serif text-2xl">Activity unavailable</h1><p className="mt-2 text-sm text-stone-600">This activity is not an accepted commitment of the current character.</p><button onClick={onBack} className="mt-4 rounded bg-stone-900 px-3 py-2 text-sm text-white">Back</button></section>;
   }
@@ -96,6 +104,14 @@ export function AssignmentActivityScreen({ assignmentId, onBack }: { assignmentI
       <label className="mt-4 block text-sm font-medium">Limitations and unverified matters
         <textarea rows={3} value={draft.limitations.join('\n')} onChange={(e) => dispatchDraft({ ...draft, limitations: e.target.value.split('\n') })} placeholder="State what you did not inspect or cannot establish." className="mt-1 block w-full rounded border border-stone-300 p-2 text-sm" />
       </label>
+      <section className="mt-5 rounded-lg border border-stone-200 bg-stone-50 p-3">
+        <h3 className="font-semibold">Report preview</h3>
+        <p className="mt-2 text-sm"><strong>Finding:</strong> {draft.finding.replaceAll('_', ' ')}</p>
+        <p className="mt-1 text-sm"><strong>Responsibility:</strong> {draft.responsibilityClaim === 'dudu' ? 'Attributes unresolved work to Dudu' : 'No individual responsibility assigned'}</p>
+        <p className="mt-1 text-sm"><strong>Cited discoveries:</strong> {draft.citedDiscoveryIds.map((id) => definition.discoveries.find((item) => item.id === id)?.title ?? id).join('; ') || 'None'}</p>
+        <p className="mt-1 text-sm"><strong>Limitations:</strong> {draft.limitations.join('; ') || 'None stated'}</p>
+        <p className="mt-1 text-sm"><strong>Recommendations:</strong> {draft.recommendations.map((id) => recommendations.find((item) => item[0] === id)?.[1] ?? id).join('; ') || 'None'}</p>
+      </section>
       <div className="mt-5 flex flex-wrap items-center gap-3">
         <button disabled={game.state.actionEconomy.apRemaining < definition.submissionApCost} onClick={() => game.dispatch({ type: 'SUBMIT_ASSIGNMENT_ACTIVITY', assignmentId })} className="rounded bg-stone-900 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-40">Submit report · {definition.submissionApCost} AP</button>
         <span className="text-xs text-stone-500">Submission closes the Assignment. Held barley remains a separate inspection.</span>

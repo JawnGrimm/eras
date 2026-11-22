@@ -49,9 +49,9 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
   const draft = progress.draft;
   const roofObserved = progress.discoveryIds.includes('roof-inspection');
   const roofCited = draft.citedDiscoveryIds.includes('roof-inspection');
-  const overclaims = draft.finding === 'repair_appears_sound'
-    || (draft.finding === 'repair_incomplete' && (!roofObserved || !roofCited))
-    || draft.responsibilityClaim === 'dudu';
+  const unsupportedCertification = draft.finding === 'repair_appears_sound'
+    || (draft.finding === 'repair_incomplete' && (!roofObserved || !roofCited));
+  const overclaims = unsupportedCertification || draft.responsibilityClaim === 'dudu';
   const incompleteReport = draft.finding === 'insufficient_evidence';
   const qualified = incompleteReport && draft.limitations.length > 0;
   const discoveries = definition.discoveries.filter((item) => progress.discoveryIds.includes(item.id));
@@ -114,7 +114,7 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
   if (!institution || !person?.scribal) return fail(state, 'assignment-activity-world-invalid', 'The report recipient or current character is unavailable.');
   let activeMatters = institution.activeMatters.filter((matter) => matter !== 'Verify north-bay roof repair');
   if (incompleteReport || !roofObserved) activeMatters = [...activeMatters, 'Verify north-bay roof repair (inspection incomplete)'];
-  else if (overclaims) activeMatters = [...activeMatters, 'Roof repair certified without sufficient supporting inspection; physical condition remains unverified'];
+  else if (unsupportedCertification) activeMatters = [...activeMatters, 'Roof repair certified without sufficient supporting inspection; physical condition remains unverified'];
   else if (draft.finding === 'repair_incomplete') activeMatters = [...activeMatters, 'Clear north-bay parapet runoff channel and assess damp north-east beam socket'];
   else activeMatters = [...activeMatters, 'North-bay roof repair inspected; continue monitoring after heavy rain'];
   if (draft.recommendations.includes('inspect_held_barley') && progress.discoveryIds.includes('roof-inspection')) {
