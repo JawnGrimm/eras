@@ -912,7 +912,7 @@ Rulings and document choices must lead to outcomes that reflect what the player 
 
 ### 10.1 Career XP
 
-Career XP measures the player's professional development. It is distinct from Historical Progress XP and does not measure the advancement of civilization.
+Career XP is earned through professional activity and serves as a shared investment currency for eligible skill improvements, specialization development, and other defined professional development. It is distinct from Historical Progress XP and does not measure the advancement of civilization. Career XP earned or spent is not itself a rank score; rank is derived from the current character's own skill profile.
 
 Appropriate Career XP sources include:
 - Successfully completed Assignments / Commissions.
@@ -923,38 +923,39 @@ The same activity should not award the same performance twice through separate s
 
 Career XP is not awarded for merely selecting an answer, purchasing equipment, receiving daily wages, or accepting a bribe. Accepted bribes award zero Career XP and zero Historical Progress XP.
 
-### 10.2 Approved professional ranks
+### 10.2 Professional rank
 
-Career rank is calculated from cumulative Career XP:
+The design retains **seven continuous rank grades** as a broad measure of a character's professional standing. Rank is derived from the current character's own skill profile, not from cumulative Career XP, Career XP spent, historical era, reputation, or an inherited counter. When the player takes up a different scribal NPC, that character's rank follows from their own skills; no rank value is transferred from the former character.
 
-| Rank | Professional title | Minimum cumulative Career XP |
-|---:|---|---:|
-| 1 | Apprentice Scribe | 0 |
-| 2 | Junior Scribe | 2,000 |
-| 3 | Journeyman Scribe | 7,500 |
-| 4 | Senior Scribe | 20,000 |
-| 5 | Master Scribe | 50,000 |
-| 6 | Chief Archivist | 100,000 |
-| 7 | Grand Archivist | 200,000 |
+The seven grades are numbered 1–7 for design purposes. The skill-to-rank formula, including how it rewards breadth without making a specialist's depth irrelevant, remains open. A breadth-oriented model and a ceiling on the highest grades for narrow specialists have been proposed, but the exact rule and its play consequences have not yet been approved.
 
-These are provisional progression labels, not a claim that the same literal office titles existed in every era. The in-world title, institutional role, and presentation should be localized to the historical setting while the underlying seven-rank progression remains continuous. Rank names and era-specific equivalents require a dedicated pass, especially for the digital era.
+Rank grades are not universal office titles, job titles, or appointments. The former labels Apprentice Scribe, Junior Scribe, Journeyman Scribe, Senior Scribe, Master Scribe, Chief Archivist, and Grand Archivist are removed as a universal ladder. In-world titles must be localized to the historical setting and the character's actual institutional context. In particular, Chief Archivist and Grand Archivist describe offices or positions rather than universal competence grades, while Senior Scribe already appears as a specific role in the Storehouse setting.
 
-### 10.3 Professional opportunity tiers
+### 10.3 Rank and opportunity access
 
-Career rank influences the complexity and professional tier of available commissions:
+Rank has a defined job: it influences the **baseline range of professional opportunities likely to reach the character**. Higher rank can widen the character's ordinary professional reach, make broader institutional circles more likely to approach them, and affect the initial level of trust or responsibility an opportunity offers. Rank does not establish whether the character is competent to perform a particular task, and it does not grant formal authority.
 
-| Professional standing | Highest regular commission tier unlocked |
-|---|---|
-| Apprentice Scribe | Novice |
-| Junior Scribe | Adept |
-| Journeyman Scribe | Expert |
-| Senior Scribe and above | Perilous |
+Opportunity generation should use **a baseline range plus identifiable channels**, not an opaque composite score:
 
-Higher rank can also affect professional access, institutional trust, and the range of opportunities offered. Each rank must eventually unlock a concrete benefit, responsibility, access level, or professional choice. Ranks 5–7 currently lack defined mechanical payoffs and are not considered fully designed.
+- **Rank** establishes the character's baseline professional reach and the broad kinds of opportunities normally presented.
+- **Relationships** can provide specific introductions, recommendations, and invitations that would not otherwise reach the character.
+- **Specializations** can surface focused opportunities that require depth in a particular discipline.
+- **Appointments** create opportunities and responsibilities attached to an office; the appointment, not rank, grants its formal authority.
+- **Reputation** influences whether a person or institution is willing to approach the character, trust their work, or offer particular terms and responsibility.
+
+These factors do not add together into a hidden eligibility score. Each opportunity should have an intelligible reason it reached the character, grounded in one or more of these channels and the actual circumstances. The player does not need to see opportunities that never reached the character, but should be able to read a plain-language description of their current professional standing and the kinds of work and invitations it typically attracts.
+
+Skills determine qualification for a specific commission, action, or Work requirement. Any skill prerequisites must be stated at the opportunity level and shown to the player. Rank is not a second competence gate, and an offer does not imply qualification. Appointments separately determine whether the character has the authority to act in an institutional capacity.
+
+Rank must not gate a required Work or eliminate a viable route through the required Works portfolio. A date-based milestone invitation may reach a lower-ranked character through a different channel or in a different form; whatever the route, the player must retain a valid progression path regardless of rank. Rank may shape access, not the existence of required historical progression.
+
+Rank should affect the **composition** of ordinary Assignment offers, not systematically starve lower-ranked characters of playable work. The initial target of roughly 8 AP worth of new Assignment offers per day in Section 6.3 remains a tuning target for the overall board, not a quota or rank-based entitlement.
+
+The former Novice / Adept / Expert / Perilous commission-tier ladder and rank-to-tier mapping are removed. Each commission retains a separate difficulty marker. Section 18.3's green / yellow / red convention remains: routine, demanding, or critical. Difficulty communicates the nature of the work; it does not determine qualification. Specific skill requirements do that.
 
 ### 10.4 Career progression and historical progression are independent
 
-A player may become a Grand Archivist while still in the earliest era. That achievement does not unlock the next historical era. Conversely, completing a major Work and moving into another era does not automatically increase the player's career rank.
+A character may attain high professional rank while the player remains in the earliest era. Rank does not unlock the next historical era. Conversely, completing a major Work and entering another era does not automatically increase the current character's rank.
 
 ### 10.5 Specialization and professional identity
 
