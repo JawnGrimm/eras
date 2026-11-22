@@ -1,4 +1,6 @@
 import type { CareerProgressionPolicy, GameAction, GameState, TransitionResult } from '../state/types';
+import type { ConditionId, InstitutionId } from '../state/ids';
+import { UR_GIR_PERSON_ID } from '../state/ids';
 import { transitionCareerAction } from './careerProgression';
 import { transitionWorldAction } from './worldSocial';
 import { settleAssignmentOffers, transitionOpportunityAction } from './opportunities';
@@ -327,6 +329,55 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
         feedback: feedback('success', 'overtime-activated', 'One overtime AP is available. Stress increased by 5; tomorrow will have five AP.'),
       };
     }
+    case 'PERFORM_RECOVERY_LABOR': {
+      const storehouse = state.world.institutions['institution-uruk-temple-storehouse' as InstitutionId];
+      if (economy.recoveryLaborUsedToday) return { state, feedback: feedback('error', 'recovery-labor-already-used', 'Auxiliary labor has already been performed today.') };
+      if (scribal.wallet.provisions > 0) return { state, feedback: feedback('error', 'recovery-not-needed', 'This recovery task is available when no provisions remain.') };
+      if (!storehouse || !storehouse.locationId || !state.world.locations[storehouse.locationId]) return { state, feedback: feedback('error', 'recovery-labor-unavailable', 'No suitable storehouse labor is available in the current circumstances.') };
+      if (economy.apRemaining < 2) return { state, feedback: feedback('error', 'insufficient-ap', 'Auxiliary storehouse labor requires 2 AP.') };
+      return {
+        state: {
+          ...state,
+          actionEconomy: { ...economy, apRemaining: economy.apRemaining - 2, recoveryLaborUsedToday: true },
+          world: { ...state.world, people: { ...state.world.people,
+            [person.id]: { ...person, scribal: { ...scribal, wallet: { ...scribal.wallet, provisions: scribal.wallet.provisions + 1 } } },
+          } },
+        },
+        feedback: feedback('success', 'recovery-labor-completed', 'You completed auxiliary grain-bagging at the Temple Storehouse and earned one provision.'),
+      };
+    }
+    case 'REQUEST_CONTACT_ADVANCE': {
+      const contact = state.world.people[action.contactId];
+      const relationship = state.world.relationships[action.contactId]?.[person.id];
+      const outstanding = scribal.obligations.some((item) => item.status === 'outstanding' && item.creditorPersonId === action.contactId);
+      if (action.contactId === person.id || action.contactId !== UR_GIR_PERSON_ID || !contact?.alive || !contact.scribal || !relationship
+        || relationship.dimensions.trust < 50 || relationship.dimensions.resentment !== 0
+        || contact.scribal.wallet.provisions < 1 || outstanding) {
+        return { state, feedback: feedback('error', 'contact-advance-unavailable', 'Ur-gir cannot provide an advance under the current relationship or material circumstances.') };
+      }
+      if (scribal.wallet.provisions > 0) return { state, feedback: feedback('error', 'recovery-not-needed', 'An emergency advance is available when no provisions remain.') };
+      if (economy.apRemaining < 1) return { state, feedback: feedback('error', 'insufficient-ap', 'Requesting an advance requires 1 AP.') };
+      const obligation = {
+        id: `obligation-urgir-advance-${state.calendar.dayNumber}`,
+        creditorPersonId: contact.id,
+        createdDay: state.calendar.dayNumber,
+        kind: 'repayment_or_service' as const,
+        description: 'Repay one silver or provide one day of scribal assistance to Ur-gir, by mutual arrangement.',
+        status: 'outstanding' as const,
+      };
+      return {
+        state: {
+          ...state,
+          actionEconomy: { ...economy, apRemaining: economy.apRemaining - 1 },
+          world: { ...state.world, people: {
+            ...state.world.people,
+            [person.id]: { ...person, scribal: { ...scribal, wallet: { ...scribal.wallet, provisions: scribal.wallet.provisions + 1 }, obligations: [...scribal.obligations, obligation] } },
+            [contact.id]: { ...contact, scribal: { ...contact.scribal, wallet: { ...contact.scribal.wallet, provisions: contact.scribal.wallet.provisions - 1 } } },
+          } },
+        },
+        feedback: feedback('success', 'contact-advance-received', 'Ur-gir advanced one provision. You owe him one silver or a day of scribal assistance, by mutual arrangement.'),
+      };
+    }
     case 'END_DAY': {
       if (action.expectedDayNumber !== state.calendar.dayNumber) {
         return { state, feedback: feedback('error', 'stale-day-settlement', 'This Workday has already been settled or the calendar has changed.') };
@@ -356,8 +407,22 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
       const sustenanceDeducted = hadProvision ? 1 : 0;
       const endingProvisions = hadProvision ? availableProvisions - sustenanceDeducted : 0;
       const shortageWorkdays = hadProvision ? 0 : scribal.wallet.shortageWorkdays + 1;
+      const cumulativeBefore = scribal.cumulativeShortageStress ?? 0;
+      const shortageStressDelta = endingProvisions === 0 && shortageWorkdays >= 3
+        ? Math.min(2, 10 - cumulativeBefore)
+        : 0;
+      const cumulativeShortageStress = cumulativeBefore + shortageStressDelta;
+      const underfedId = 'condition-underfed' as ConditionId;
+      const conditions = hadProvision
+        ? scribal.conditions.filter((condition) => condition.id !== underfedId)
+        : shortageWorkdays >= 3
+          ? [...scribal.conditions.filter((condition) => condition.id !== underfedId), { id: underfedId, severity: 2 as const, modifiers: [] }]
+          : scribal.conditions;
       const updatedScribal = {
         ...scribal,
+        stress: Math.min(100, scribal.stress + shortageStressDelta),
+        cumulativeShortageStress,
+        conditions,
         wallet: { ...scribal.wallet, provisions: endingProvisions, shortageWorkdays },
       };
       const withExpiredOffers = settleAssignmentOffers(state, workCatalog);
@@ -370,6 +435,7 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
           apRemaining: economy.nextDayApPenalty ? 5 : 6,
           overtimeUsedToday: false,
           nextDayApPenalty: false,
+          recoveryLaborUsedToday: false,
         },
         world: {
           ...withExpiredOffers.world,
@@ -383,7 +449,7 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
       if (!hadProvision && (shortageWorkdays <= 2 || shortageWorkdays === 3)) {
         next = withNotice(next, 'settlement', shortageWorkdays <= 2
           ? `No provisions were available. Shortage day ${shortageWorkdays} of 2 grace days.`
-          : 'No provisions were available for a third consecutive Workday; the shortage state is now active.');
+          : `No provisions were available (Shortage day ${shortageWorkdays}). +${shortageStressDelta} Stress (${cumulativeShortageStress}/10 cap); Underfed condition active.`);
       }
       return {
         state: next,
@@ -395,6 +461,8 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
           sustenanceDeducted,
           endingProvisions,
           shortageWorkdays,
+          shortageStressDelta,
+          cumulativeShortageStress,
           overtimeStress: economy.overtimeUsedToday ? 5 : 0,
           tomorrowAp: economy.nextDayApPenalty ? 5 : 6,
         },

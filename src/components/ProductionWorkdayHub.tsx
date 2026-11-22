@@ -1,6 +1,8 @@
 import React from 'react';
 import { useGame } from '../state/GameProvider';
 import type { DaySettlement } from '../state/types';
+import type { InstitutionId, PersonId } from '../state/ids';
+import { UR_GIR_PERSON_ID } from '../state/ids';
 import { STOREHOUSE_WORK_ID } from '../works/storehouseReckoning';
 import { selectCharacterOpportunities } from '../state/opportunitySelectors';
 import { characterQualifiesForAssignment } from '../engine/opportunities';
@@ -33,6 +35,9 @@ function SettlementSummary({ settlement }: { settlement: DaySettlement }) {
       <div><dt className="text-xs text-stone-500">Sustenance deducted</dt><dd className="font-mono text-xl">−{settlement.sustenanceDeducted}</dd></div>
       <div><dt className="text-xs text-stone-500">Ending provisions</dt><dd className="font-mono text-xl font-semibold">{settlement.endingProvisions}</dd></div>
       <div><dt className="text-xs text-stone-500">Shortage workdays</dt><dd className="font-mono text-xl">{settlement.shortageWorkdays}</dd></div>
+      <div><dt className="text-xs text-stone-500">Shortage Stress added</dt><dd className="font-mono text-xl">+{settlement.shortageStressDelta}</dd></div>
+      <div><dt className="text-xs text-stone-500">Lifetime shortage Stress</dt><dd className="font-mono text-xl">{settlement.cumulativeShortageStress}/10</dd></div>
+      <div><dt className="text-xs text-stone-500">Underfed condition</dt><dd className="text-sm font-semibold">{settlement.shortageWorkdays >= 3 ? 'Active' : 'Not active'}</dd></div>
       <div><dt className="text-xs text-stone-500">Overtime Stress added</dt><dd className="font-mono text-xl">+{settlement.overtimeStress}</dd></div>
       <div><dt className="text-xs text-stone-500">Tomorrow’s AP allocation</dt><dd className="font-mono text-xl">{settlement.tomorrowAp}</dd></div>
     </dl>
@@ -53,6 +58,18 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenActivity, settlement, o
   }
   const wallet = person.scribal.wallet;
   const activeWork = state.works.progress[STOREHOUSE_WORK_ID];
+  const shortageActive = wallet.shortageWorkdays >= 3;
+  const hardshipVisible = wallet.provisions === 0 || wallet.shortageWorkdays >= 1;
+  const storehouse = state.world.institutions['institution-uruk-temple-storehouse' as InstitutionId];
+  const laborAvailable = !!storehouse?.locationId && !!state.world.locations[storehouse.locationId];
+  const urGir = state.world.people[UR_GIR_PERSON_ID as PersonId];
+  const urGirRelationship = state.world.relationships[UR_GIR_PERSON_ID as PersonId]?.[person.id];
+  const hasUrGirObligation = person.scribal.obligations.some((obligation) =>
+    obligation.status === 'outstanding' && obligation.creditorPersonId === UR_GIR_PERSON_ID);
+  const canRequestUrGir = wallet.provisions === 0 && !!urGir?.alive && !!urGir.scribal
+    && urGir.scribal.wallet.provisions >= 1 && !!urGirRelationship
+    && urGirRelationship.dimensions.trust >= 50 && urGirRelationship.dimensions.resentment === 0
+    && !hasUrGirObligation;
   const opportunities = selectCharacterOpportunities(state);
   const offeredAssignments = opportunities.offeredAssignments;
   const activeAssignments = opportunities.acceptedAssignments;
@@ -72,6 +89,47 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenActivity, settlement, o
       <p className="mt-2 text-sm text-stone-600">The introductory tutorial guides your first professional exercise. Optional Assignments and Challenges remain separate commitments; mandatory historical Works come later.</p>
     </header>
     {settlement && <SettlementSummary settlement={settlement} />}
+    {hardshipVisible && <section aria-labelledby="hardship-heading" className="rounded-xl border border-amber-300 bg-amber-50 p-5">
+      <h2 id="hardship-heading" className="font-serif text-xl font-semibold text-stone-900">Sustenance &amp; Hardship</h2>
+      <p className="mt-2 text-sm text-stone-700">
+        {wallet.provisions > 0
+          ? 'A provision is available for tonight’s settlement.'
+          : shortageActive
+            ? `Shortage day ${wallet.shortageWorkdays}. Underfed is active; the condition clears when provisions are consumed.`
+            : `Grace period: ${Math.max(0, 2 - wallet.shortageWorkdays)} unprovisioned Workday(s) remain before shortage consequences begin.`}
+      </p>
+      <p className="mt-1 text-xs text-stone-600">Shortage-attributed Stress: {person.scribal.cumulativeShortageStress}/10 lifetime cap · Current AP: {state.actionEconomy.apRemaining}</p>
+      <div className="mt-4 grid gap-3 md:grid-cols-2">
+        {laborAvailable && <article className="rounded-lg border border-amber-200 bg-white p-3">
+          <h3 className="font-semibold text-stone-900">Temple Storehouse Auxiliary Labor</h3>
+          <p className="mt-1 text-sm text-stone-600">Bag and prepare grain at the Temple Storehouse in exchange for one provision.</p>
+          <p className="mt-2 text-xs text-stone-500">2 AP · +1 provision · Once per Workday</p>
+          <button disabled={wallet.provisions > 0 || state.actionEconomy.recoveryLaborUsedToday || state.actionEconomy.apRemaining < 2}
+            onClick={() => game.dispatch({ type: 'PERFORM_RECOVERY_LABOR' })}
+            className="mt-3 rounded-md bg-stone-900 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">
+            {state.actionEconomy.recoveryLaborUsedToday ? 'Used today' : 'Perform labor · 2 AP'}
+          </button>
+        </article>}
+        <article className="rounded-lg border border-amber-200 bg-white p-3">
+          <h3 className="font-semibold text-stone-900">Request an Advance from Ur-gir</h3>
+          <p className="mt-1 text-sm text-stone-600">Ur-gir may advance one provision. The existing obligation is to repay one silver or provide a day of scribal assistance, by mutual arrangement.</p>
+          <p className="mt-2 text-xs text-stone-500">1 AP · +1 provision · One outstanding obligation at a time</p>
+          <button disabled={!canRequestUrGir || state.actionEconomy.apRemaining < 1}
+            onClick={() => game.dispatch({ type: 'REQUEST_CONTACT_ADVANCE', contactId: UR_GIR_PERSON_ID as PersonId })}
+            className="mt-3 rounded-md bg-stone-900 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">
+            Request advance · 1 AP
+          </button>
+          {!canRequestUrGir && <p className="mt-2 text-xs text-stone-500">Unavailable: Ur-gir must be alive, have provisions to spare, meet the directional trust requirement, and have no outstanding advance.</p>}
+        </article>
+      </div>
+    </section>}
+    {person.scribal.obligations.some((obligation) => obligation.status === 'outstanding') && <section aria-labelledby="obligations-heading" className="rounded-xl border border-stone-300 bg-white p-4">
+      <h2 id="obligations-heading" className="font-semibold text-stone-900">Outstanding obligations</h2>
+      <ul className="mt-2 space-y-2 text-sm text-stone-700">
+        {person.scribal.obligations.filter((obligation) => obligation.status === 'outstanding').map((obligation) =>
+          <li key={obligation.id}><strong>{state.world.people[obligation.creditorPersonId]?.name ?? 'Creditor'}:</strong> {obligation.description}</li>)}
+      </ul>
+    </section>}
     <section className="rounded-xl border border-stone-300 bg-white p-5 shadow-sm">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>

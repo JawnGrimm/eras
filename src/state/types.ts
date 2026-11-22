@@ -9,7 +9,19 @@ export type ConditionModifierTarget = { kind: 'attribute'; id: AttributeId } | {
 export interface ConditionModifier { target: ConditionModifierTarget; value: number; actionTags: string[]; }
 export interface CharacterConditionState { id: ConditionId; severity: 1 | 2 | 3; modifiers: ConditionModifier[]; remainingWorkdays?: number; }
 
+export interface CharacterObligation {
+  id: string;
+  creditorPersonId: PersonId;
+  createdDay: number;
+  kind: 'repayment_or_service';
+  description: string;
+  status: 'outstanding';
+}
+
 export interface ScribalCharacterState {
+  /** Lifetime shortage-attributed Stress; never resets when provisions are consumed. */
+  cumulativeShortageStress: number;
+  obligations: CharacterObligation[];
   careerPath?: CareerPathId;
   careerXp: number;
   wallet: WalletState;
@@ -79,7 +91,7 @@ export interface KnowledgeEntry {
 }
 
 export interface CalendarState { eraId: EraId; dayNumber: number; displayDate: string; }
-export interface ActionEconomyState { dailyApAllocation: 5 | 6; apRemaining: number; overtimeUsedToday: boolean; nextDayApPenalty: boolean; }
+export interface ActionEconomyState { dailyApAllocation: 5 | 6; apRemaining: number; overtimeUsedToday: boolean; nextDayApPenalty: boolean; recoveryLaborUsedToday: boolean; }
 export interface DurableNotice { id: string; dayNumber: number; category: 'settlement' | 'opportunity' | 'relationship' | 'work' | 'world'; message: string; read: boolean; }
 
 
@@ -249,6 +261,8 @@ export type GameAction =
   | { type: 'RECORD_WORK_ASSESSMENT'; workId: WorkId; outcome: 'accepted' | 'revise' | 'rejected'; summary: string; historicalXpReward: number }
   | { type: 'ACTIVATE_OVERTIME' }
   | { type: 'END_DAY'; expectedDayNumber: number }
+  | { type: 'PERFORM_RECOVERY_LABOR' }
+  | { type: 'REQUEST_CONTACT_ADVANCE'; contactId: PersonId }
   | { type: 'MARK_NOTICE_READ'; noticeId: string }
   | { type: 'AWARD_SKILL_XP'; skillId: SkillId; amount: number; reason: string }
   | { type: 'AWARD_CAREER_XP'; amount: number; reason: string }
@@ -283,6 +297,8 @@ export interface DaySettlement {
   sustenanceDeducted: number;
   endingProvisions: number;
   shortageWorkdays: number;
+  shortageStressDelta: number;
+  cumulativeShortageStress: number;
   overtimeStress: number;
   tomorrowAp: 5 | 6;
 }

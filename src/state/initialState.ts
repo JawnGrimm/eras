@@ -1,5 +1,6 @@
 import type { GameState } from './types';
 import type { InstitutionId, PersonId, AppointmentId } from './ids';
+import { UR_GIR_PERSON_ID } from './ids';
 import { NORTH_BAY_LOCATION_ID, NORTH_BAY_PEOPLE } from '../content/assignments/northBayRoofInspection';
 import { MATTER_IDS, STOREHOUSE_INSTITUTION_ID } from '../engine/institutionalMatters';
 export const INITIAL_PERSON_ID = 'person-enlil-barni' as PersonId;
@@ -7,19 +8,19 @@ export function createInitialGameState(): GameState {
   const initialPerson = {
     id: INITIAL_PERSON_ID, name: 'Enlil-barni', alive: true, affiliations: [],
     scribal: {
-      careerXp: 150, wallet: { money: 12, provisions: 5, shortageWorkdays: 0 },
+      careerXp: 150, cumulativeShortageStress: 0, obligations: [], wallet: { money: 12, provisions: 5, shortageWorkdays: 0 },
       skills: {}, attributes: {}, specializations: [], traits: [], conditions: [], equipment: [], stress: 15,
       professionalReputation: { competence: 50, reliability: 50, discretion: 50, judgment: 50 },
       institutionalStanding: {},
     },
   };
   const apprenticeId = 'person-uruk-nin-aya' as PersonId;
-  const colleagueId = 'person-uruk-ur-gir' as PersonId;
+  const colleagueId = UR_GIR_PERSON_ID;
   // Authored fictional Uruk scribes provide a small, connected continuity network.
   const apprentice = {
     id: apprenticeId, name: 'Nin-aya', alive: true, affiliations: [],
     scribal: {
-      careerXp: 35, wallet: { money: 7, provisions: 3, shortageWorkdays: 0 },
+      careerXp: 35, cumulativeShortageStress: 0, obligations: [], wallet: { money: 7, provisions: 3, shortageWorkdays: 0 },
       skills: { reading_scripts: { level: 2, skillXp: 15 } }, attributes: {},
       specializations: [], traits: [], conditions: [], equipment: [], stress: 8,
       professionalReputation: { competence: 42, reliability: 48, discretion: 45, judgment: 40 },
@@ -29,7 +30,7 @@ export function createInitialGameState(): GameState {
   const colleague = {
     id: colleagueId, name: 'Ur-gir', alive: true, affiliations: [],
     scribal: {
-      careerXp: 90, wallet: { money: 16, provisions: 6, shortageWorkdays: 0 },
+      careerXp: 90, cumulativeShortageStress: 0, obligations: [], wallet: { money: 16, provisions: 6, shortageWorkdays: 0 },
       skills: { recordkeeping_accounts: { level: 3, skillXp: 30 } }, attributes: {},
       specializations: [], traits: [], conditions: [], equipment: [], stress: 12,
       professionalReputation: { competence: 55, reliability: 52, discretion: 50, judgment: 53 },
@@ -58,7 +59,7 @@ export function createInitialGameState(): GameState {
   ];
   return {
     calendar: { eraId: 'era-1', dayNumber: 1, displayDate: 'Day 1 · Uruk (c. 3200 BCE)' },
-    actionEconomy: { dailyApAllocation: 6, apRemaining: 6, overtimeUsedToday: false, nextDayApPenalty: false },
+    actionEconomy: { dailyApAllocation: 6, apRemaining: 6, overtimeUsedToday: false, nextDayApPenalty: false, recoveryLaborUsedToday: false },
     player: { currentCharacterId: INITIAL_PERSON_ID },
     pendingSuccession: null,
     characterTransitions: [],

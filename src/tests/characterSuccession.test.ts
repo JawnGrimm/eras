@@ -20,7 +20,7 @@ function withPriorHistory(state: GameState): GameState {
   return {
     ...state,
     calendar: { ...state.calendar, dayNumber: 8, displayDate: 'Day 8, Early Season of Inundation (c. 3200 BCE)' },
-    actionEconomy: { dailyApAllocation: 5, apRemaining: 1, overtimeUsedToday: true, nextDayApPenalty: true },
+    actionEconomy: { dailyApAllocation: 5, apRemaining: 1, overtimeUsedToday: true, nextDayApPenalty: true, recoveryLaborUsedToday: false },
     historicalProgression: { historicalXp: 275, completedWorks: [priorWorkId] },
     works: {
       activeWorkId: null,
@@ -104,7 +104,7 @@ describe('character departure and succession lifecycle', () => {
     expect(state.calendar.dayNumber).toBe(8);
     expect(state.historicalProgression).toEqual({ historicalXp: 275, completedWorks: [priorWorkId] });
     expect(state.records.entries[priorRecordId]).toBeDefined();
-    expect(state.actionEconomy).toEqual({ dailyApAllocation: 6, apRemaining: 6, overtimeUsedToday: false, nextDayApPenalty: false });
+    expect(state.actionEconomy).toEqual({ dailyApAllocation: 6, apRemaining: 6, overtimeUsedToday: false, nextDayApPenalty: false, recoveryLaborUsedToday: false });
     expect(state.works.progress[priorWorkId].workApSpentToday).toBe(0);
     expect(state.characterTransitions).toEqual([{
       formerCharacterId: INITIAL_PERSON_ID, nextCharacterId: apprenticeId, departureKind: 'death', dayNumber: 8,

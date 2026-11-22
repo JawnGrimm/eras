@@ -200,6 +200,7 @@ export function transitionCharacterContinuity(state: GameState, action: Continui
       apRemaining: 6,
       overtimeUsedToday: false,
       nextDayApPenalty: false,
+      recoveryLaborUsedToday: false,
     },
     works: {
       ...state.works,
