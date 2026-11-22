@@ -523,10 +523,13 @@ An unaccepted offer is normally available for three in-game days from the day it
 
 The player may hold at most **two accepted Assignments** at once. Accepting an offer costs no AP, but it occupies one of those commitment slots. When both slots are occupied, the player must complete or cancel an accepted Assignment before accepting another. Cancelling an accepted Assignment costs 1 AP and may affect trust or reputation only when the specific employer or circumstances make that consequence credible; the penalty is not automatic. The cancellation cost and any relationship consequence are shown before confirmation.
 
-The game distinguishes three states:
+The Assignment lifecycle uses explicit states:
+- **Offered:** presented to the character and awaiting a decision; the offer has a visible calendar expiry.
+- **Accepted:** the player commits to the Assignment. It remains active until completed or cancelled; it does not silently disappear on the original offer timer.
 - **Declined:** the player explicitly refuses the offer. The refusal is recorded, but does not automatically create a penalty.
-- **Ignored / allowed to lapse:** the player takes no action before the offer expires. The opportunity is recorded as having been available but not pursued.
-- **Accepted:** the player commits to the Assignment. It remains active until completed, cancelled, or resolved by a scenario-specific change; it does not silently disappear on the original offer timer.
+- **Lapsed:** the player takes no action before the offer expires. A lapse during a mandatory Work is marked separately and excluded from neglect-based Challenge counts.
+- **Completed:** the accepted Assignment has been resolved and its authored compensation and consequences applied.
+- **Cancelled:** the player ends an accepted Assignment by spending 1 AP. Only scenario-authored cancellation consequences apply; there is no default penalty.
 
 An expired or declined offer may contribute to a later Challenge only when the underlying situation has a credible consequence or a meaningful pattern has emerged. **Offers that expire while the player is occupied with a mandatory Work do not count as ignored opportunities for behavioral Challenge triggers.** The system records that they were unavailable in practical terms because the player had a mandatory commitment. Behavioral logic must distinguish offers presented, offers accepted, offers declined, offers allowed to lapse without a conflicting mandatory commitment, and work actually completed.
 
