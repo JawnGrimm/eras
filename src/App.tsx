@@ -222,7 +222,7 @@ export default function App() {
       commodity: assignment.title.toLowerCase().includes('wool') ? 'Wool' : assignment.title.toLowerCase().includes('barley') ? 'Barley' : 'Silver/General',
       documentType: 'Certified Reed-Stylus Clay Tablet',
       location: 'E-anna District Scriptorium',
-      category: assignment.tier,
+      category: assignment.difficulty,
       activity: assignment.description,
       decisionsMade: ['Verified quantities against official seal', 'Certified document in canonical script'],
       outcome: 'Successfully audited and sealed. Commission accepted by employer.',
