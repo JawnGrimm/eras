@@ -1,4 +1,4 @@
-import type { AttributeId, AppointmentId, CareerPathId, ConditionId, EraId, EventId, InstitutionId, KnowledgeEntryId, LocationId, MatterId, PersonId, RecordId, SkillId, TraitId, WorkId, SpecializationId } from './ids';
+import type { AttributeId, AppointmentId, CareerPathId, ConditionId, EraId, EventId, InstitutionId, KnowledgeEntryId, LocationId, PersonId, RecordId, SkillId, TraitId, WorkId, SpecializationId } from './ids';
 
 export interface WalletState { money: number; provisions: number; shortageWorkdays: number; }
 export interface SkillState { level: number; skillXp: number; }
@@ -49,17 +49,18 @@ export interface Institution {
   responsibilities: string[]; authority: string[];
   /** General institutional standing in its historical/social context. */
   standing: number;
-  activeMatterIds: MatterId[];
+  /** Concise descriptions of currently active matters; no full matter simulator is implied. */
+  activeMatters: string[];
 }
 export interface Location { id: LocationId; name: string; }
 export interface WorldEvent { readonly id: EventId; readonly dayNumber: number; readonly summary: string; readonly personIds: readonly PersonId[]; readonly institutionIds: readonly InstitutionId[]; readonly locationId?: LocationId; }
 
-export interface RecordSource { id: string; kind: 'person' | 'institution' | 'event' | 'material' | 'other'; sourceId?: string; description: string; }
-export interface RecordAssertion { id: string; text: string; classification: 'observed' | 'reported' | 'inferred' | 'disputed'; sourceIds: string[]; }
+export interface RecordSource { readonly id: string; readonly kind: 'person' | 'institution' | 'event' | 'material' | 'other'; readonly sourceId?: string; readonly description: string; }
+export interface RecordAssertion { readonly id: string; readonly text: string; readonly classification: 'observed' | 'reported' | 'inferred' | 'disputed'; readonly sourceIds: readonly string[]; }
 export interface RecordAmendment {
-  id: string; dayNumber: number; authorPersonId: PersonId; reason: string;
-  sourcesAdded: RecordSource[]; assertionsAdded: RecordAssertion[];
-  uncertaintyLimitsAdded: string[]; note: string;
+  readonly id: string; readonly dayNumber: number; readonly authorPersonId: PersonId; readonly reason: string;
+  readonly sourcesAdded: readonly RecordSource[]; readonly assertionsAdded: readonly RecordAssertion[];
+  readonly uncertaintyLimitsAdded: readonly string[]; readonly note: string;
 }
 /** Original content is retained; corrections and qualifications are appended as amendments. */
 export interface RecordEntry {
