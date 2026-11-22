@@ -130,6 +130,30 @@ describe('Assignment and Challenge foundations', () => {
     expect(transitionGame(completed.state, { type: 'COMPLETE_ASSIGNMENT', assignmentId: 'complete-me' as AssignmentId }).feedback?.code).toBe('assignment-not-active');
   });
 
+  it('rolls back Assignment compensation, consequences, AP, and status when the combined wallet result is negative', () => {
+    const authored = { ...offer('rollback'), completionConsequences: { moneyDelta: -999, provisionsDelta: -999 } };
+    let state = transitionGame(createInitialGameState(), { type: 'PRESENT_ASSIGNMENT', offer: authored }).state;
+    state = transitionGame(state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: 'rollback' as AssignmentId }).state;
+    const beforeWallet = state.world.people[INITIAL_PERSON_ID].scribal!.wallet;
+    const beforeAp = state.actionEconomy.apRemaining;
+    const failed = transitionGame(state, { type: 'COMPLETE_ASSIGNMENT', assignmentId: 'rollback' as AssignmentId });
+    expect(failed.feedback?.code).toBe('assignment-outcome-invalid');
+    expect(failed.state.actionEconomy.apRemaining).toBe(beforeAp);
+    expect(failed.state.world.people[INITIAL_PERSON_ID].scribal!.wallet).toEqual(beforeWallet);
+    expect(failed.state.opportunities.assignments['rollback' as AssignmentId].status).toBe('accepted');
+  });
+
+  it('rejects Historical Progress XP in Assignment-authored consequences at presentation and save validation', () => {
+    const invalid = { ...offer('xp-assignment'), completionConsequences: { historicalXp: 5 } as never };
+    expect(transitionGame(createInitialGameState(), { type: 'PRESENT_ASSIGNMENT', offer: invalid }).feedback?.code).toBe('assignment-invalid');
+    const validState = present(createInitialGameState(), 'xp-save');
+    const mutated = { ...validState, opportunities: { ...validState.opportunities, assignments: {
+      ...validState.opportunities.assignments,
+      ['xp-save' as AssignmentId]: { ...validState.opportunities.assignments['xp-save' as AssignmentId], completionConsequences: { historicalXp: 5 } },
+    } } };
+    expect(isValidSaveEnvelope(createSaveEnvelope(mutated, 1))).toBe(false);
+  });
+
   it('preserves fixed event and knowledge dates while stamping a record on resolution day in a chained consequence sequence', () => {
     let state = present(createInitialGameState(), 'dated');
     state = transitionGame(state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: 'dated' as AssignmentId }).state;
