@@ -2,6 +2,7 @@ import type { CareerProgressionPolicy, GameAction, GameState, TransitionResult }
 import { transitionCareerAction } from './careerProgression';
 import { transitionWorldAction } from './worldSocial';
 import { settleAssignmentOffers, transitionOpportunityAction } from './opportunities';
+import { validateWorkDefinition } from '../works/workDefinition';
 import type { WorkDefinition } from '../works/workDefinition';
 
 function feedback(kind: 'success' | 'error' | 'info', code: string, message: string) {
@@ -53,6 +54,7 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
     case 'START_WORK': {
       const definition = workCatalog[action.workId];
       if (!definition) return { state, feedback: feedback('error', 'unknown-work', 'This Work is not registered in the active content catalog.') };
+      if (validateWorkDefinition(definition).length) return { state, feedback: feedback('error', 'invalid-work-definition', 'This Work failed static content validation.') };
       if (state.works.activeWorkId !== null) return { state, feedback: feedback('error', 'work-already-active', 'Another Work is already active.') };
       if (state.historicalProgression.completedWorks.includes(action.workId)) return { state, feedback: feedback('error', 'work-already-completed', 'This Work has already been completed.') };
       const scenarioData = definition.createInitialProgress();
@@ -117,24 +119,40 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
         || !definition.validateScenarioData(progress.scenarioData)) {
         return { state, feedback: feedback('error', 'work-not-submittable', 'This Work cannot be submitted in its current state.') };
       }
+      const submissionCost = definition.submissionApCost ?? 0;
+      if (!Number.isInteger(submissionCost) || submissionCost < 0 || submissionCost > economy.apRemaining) {
+        return { state, feedback: feedback('error', 'insufficient-ap', 'There is not enough AP remaining to submit this Work.') };
+      }
       const context = { progress: progress.scenarioData, character: scribal };
-      const submission = definition.evaluateSubmission(context);
-      const assessment = definition.assessSubmission(submission, context);
+      let assessment;
+      try {
+        const submission = definition.evaluateSubmission(context);
+        assessment = definition.assessSubmission(submission, context);
+      } catch {
+        return { state, feedback: feedback('error', 'work-assessment-error', 'The Work assessment failed; no progress or AP was changed.') };
+      }
+      if (!assessment || !['accepted','revise','rejected'].includes(assessment.outcome) || typeof assessment.summary !== 'string' || !assessment.summary) {
+        return { state, feedback: feedback('error', 'invalid-work-assessment', 'The Work assessment returned an invalid result; no progress or AP was changed.') };
+      }
       const submissionCount = progress.submissionCount + 1;
+      const apAfterSubmission = economy.apRemaining - submissionCost;
+      const apSpentAfterSubmission = progress.workApSpentToday + submissionCost;
       if (assessment.outcome === 'accepted') {
         const grantReward = !progress.rewardGranted;
-        const nextProgress = { ...progress, status: 'completed' as const, rewardGranted: true, submissionCount,
+        const nextProgress = { ...progress, status: 'completed' as const, rewardGranted: true, submissionCount, workApSpentToday: apSpentAfterSubmission,
           lastAssessment: { ...assessment, assessedDay: state.calendar.dayNumber } };
-        return { state: { ...state, works: { activeWorkId: null, progress: { ...state.works.progress, [action.workId]: nextProgress } },
+        return { state: { ...state, actionEconomy: { ...economy, apRemaining: apAfterSubmission }, works: { activeWorkId: null, progress: { ...state.works.progress, [action.workId]: nextProgress } },
           historicalProgression: { historicalXp: state.historicalProgression.historicalXp + (grantReward ? definition.historicalXpReward : 0),
             completedWorks: state.historicalProgression.completedWorks.includes(action.workId) ? state.historicalProgression.completedWorks
               : [...state.historicalProgression.completedWorks, action.workId] } },
           feedback: feedback('success', 'work-completed', assessment.summary) };
       }
-      const recovered = definition.recover(context, assessment);
+      let recovered;
+      try { recovered = definition.recover(context, assessment); }
+      catch { return { state, feedback: feedback('error', 'work-recovery-error', 'The Work recovery path failed; the prior progress was preserved.') }; }
       if (!definition.validateScenarioData(recovered)) return { state, feedback: feedback('error', 'invalid-work-recovery', 'The Work recovery path returned invalid progress; the prior state was preserved.') };
-      return { state: { ...state, works: { ...state.works, progress: { ...state.works.progress,
-        [action.workId]: { ...progress, scenarioData: recovered, submissionCount,
+      return { state: { ...state, actionEconomy: { ...economy, apRemaining: apAfterSubmission }, works: { ...state.works, progress: { ...state.works.progress,
+        [action.workId]: { ...progress, scenarioData: recovered, submissionCount, workApSpentToday: apSpentAfterSubmission,
           lastAssessment: { ...assessment, assessedDay: state.calendar.dayNumber } } } } },
         feedback: feedback('info', 'work-revision-needed', assessment.summary) };
     }
