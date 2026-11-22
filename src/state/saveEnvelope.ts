@@ -175,7 +175,7 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
       || pendingSuccession.dayNumber !== calendar.dayNumber
       || !['awaiting_selection','no_successor'].includes(pendingSuccession.status as string)
       || !stringArray(pendingSuccession.candidateIds)
-      || new Set(pendingSuccession.candidateIds).size !== pendingSuccession.candidateIds.length
+      || new Set(pendingSuccession.candidateIds as string[]).size !== (pendingSuccession.candidateIds as string[]).length
       || (pendingSuccession.departureKind === 'death' ? active.alive !== false : active.alive !== true)) return false;
     const discovered = rankSuccessorCandidates(value as unknown as GameState).map((candidate) => candidate.personId);
     if (discovered.length !== pendingSuccession.candidateIds.length
@@ -188,7 +188,7 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
       || typeof entry.nextCharacterId !== 'string' || !isObject(people[entry.nextCharacterId])
       || entry.formerCharacterId === entry.nextCharacterId
       || !['death','departure'].includes(entry.departureKind as string)
-      || !Number.isInteger(entry.dayNumber) || (entry.dayNumber as number) < 1 || (entry.dayNumber as number) > calendar.dayNumber))) return false;
+      || !Number.isInteger(entry.dayNumber) || (entry.dayNumber as number) < 1 || (entry.dayNumber as number) > (calendar.dayNumber as number)))) return false;
 
   for (const [fromId, targets] of Object.entries(world.relationships)) {
     if (!isObject(people[fromId]) || !isObject(targets)) return false;

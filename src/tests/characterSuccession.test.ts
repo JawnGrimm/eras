@@ -3,13 +3,18 @@ import { transitionGame } from '../engine/actionEconomy';
 import { rankSuccessorCandidates } from '../engine/characterContinuity';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
 import { createSaveEnvelope, restoreSave } from '../state/saveEnvelope';
-import type { AssignmentId, PersonId, WorkId } from '../state/ids';
+import type { AssignmentId, PersonId, RecordId, WorkId } from '../state/ids';
+import type { Person } from '../state/types';
 import type { GameState } from '../state/types';
 import type { WorkDefinition } from '../works/workDefinition';
 
 const apprenticeId = 'person-uruk-nin-aya' as PersonId;
 const colleagueId = 'person-uruk-ur-gir' as PersonId;
 const priorWorkId = 'work-prior-record' as WorkId;
+const priorRecordId = 'record-prior-work' as RecordId;
+const oldOneId = 'old-one' as AssignmentId;
+const oldTwoId = 'old-two' as AssignmentId;
+const newOneId = 'new-one' as AssignmentId;
 
 function withPriorHistory(state: GameState): GameState {
   return {
@@ -28,7 +33,7 @@ function withPriorHistory(state: GameState): GameState {
     },
     records: {
       entries: {
-        'record-prior-work': {
+        [priorRecordId]: {
           id: 'record-prior-work', createdDay: 4, authorPersonId: INITIAL_PERSON_ID,
           title: 'Earlier storehouse account', sources: [], assertions: [],
           uncertaintyLimits: ['The surviving copy is incomplete.'], amendments: [],
@@ -70,11 +75,11 @@ describe('character departure and succession lifecycle', () => {
       opportunities: {
         ...state.opportunities,
         assignments: {
-          'old-one': {
+          [oldOneId]: {
             ...offer('old-one', state), offeredDay: state.calendar.dayNumber, expiresDay: state.calendar.dayNumber + 3,
             status: 'accepted', assigneePersonId: INITIAL_PERSON_ID,
           },
-          'old-two': {
+          [oldTwoId]: {
             ...offer('old-two', state), offeredDay: state.calendar.dayNumber, expiresDay: state.calendar.dayNumber + 3,
             status: 'accepted', assigneePersonId: INITIAL_PERSON_ID,
           },
@@ -98,7 +103,7 @@ describe('character departure and succession lifecycle', () => {
     expect(state.player.currentCharacterId).toBe(apprenticeId);
     expect(state.calendar.dayNumber).toBe(8);
     expect(state.historicalProgression).toEqual({ historicalXp: 275, completedWorks: [priorWorkId] });
-    expect(state.records.entries['record-prior-work']).toBeDefined();
+    expect(state.records.entries[priorRecordId]).toBeDefined();
     expect(state.actionEconomy).toEqual({ dailyApAllocation: 6, apRemaining: 6, overtimeUsedToday: false, nextDayApPenalty: false });
     expect(state.works.progress[priorWorkId].workApSpentToday).toBe(0);
     expect(state.characterTransitions).toEqual([{
@@ -120,11 +125,11 @@ describe('character departure and succession lifecycle', () => {
     expect(restored?.state.characterTransitions).toHaveLength(1);
 
     // Former-character commitments remain assigned to that person and do not consume the successor's slots.
-    expect(state.opportunities.assignments['old-one'].assigneePersonId).toBe(INITIAL_PERSON_ID);
-    let next = transitionGame(state, { type: 'PRESENT_ASSIGNMENT', offer: offer('new-one', state) }, undefined, priorWorkCatalog);
-    next = transitionGame(next.state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: 'new-one' as AssignmentId }, undefined, priorWorkCatalog);
+    expect(state.opportunities.assignments[oldOneId].assigneePersonId).toBe(INITIAL_PERSON_ID);
+    let next = transitionGame(state, { type: 'PRESENT_ASSIGNMENT', offer: offer(newOneId, state) }, undefined, priorWorkCatalog);
+    next = transitionGame(next.state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: newOneId }, undefined, priorWorkCatalog);
     expect(next.feedback?.code).toBe('assignment-accepted');
-    expect(next.state.opportunities.assignments['new-one'].assigneePersonId).toBe(apprenticeId);
+    expect(next.state.opportunities.assignments[newOneId].assigneePersonId).toBe(apprenticeId);
   });
 
   it('records a no-successor terminal state without inventing a person', () => {
@@ -152,8 +157,28 @@ describe('character departure and succession lifecycle', () => {
   });
 
   it('rejects disconnected, dead, non-scribal, and former-character selections', () => {
-    const begun = transitionGame(createInitialGameState(), { type: 'BEGIN_CHARACTER_DEPARTURE', departureKind: 'death' });
-    for (const id of [INITIAL_PERSON_ID, 'not-connected' as PersonId]) {
+    let state = createInitialGameState();
+    const deadId = 'person-dead-scribe' as PersonId;
+    const nonScribeId = 'person-connected-non-scribe' as PersonId;
+    const deadPerson: Person = { ...state.world.people[apprenticeId], id: deadId, name: 'Dead colleague', alive: false };
+    const nonScribe: Person = { id: nonScribeId, name: 'Connected non-scribe', alive: true, affiliations: [] };
+    state = {
+      ...state,
+      world: {
+        ...state.world,
+        people: { ...state.world.people, [deadId]: deadPerson, [nonScribeId]: nonScribe },
+        relationships: {
+          ...state.world.relationships,
+          [INITIAL_PERSON_ID]: {
+            ...state.world.relationships[INITIAL_PERSON_ID],
+            [deadId]: { dimensions: { trust: 40, respect: 40, affection: 20, resentment: 0, rivalry: 0, familiarity: 30 }, history: [] },
+            [nonScribeId]: { dimensions: { trust: 40, respect: 40, affection: 20, resentment: 0, rivalry: 0, familiarity: 30 }, history: [] },
+          },
+        },
+      },
+    };
+    const begun = transitionGame(state, { type: 'BEGIN_CHARACTER_DEPARTURE', departureKind: 'death' });
+    for (const id of [INITIAL_PERSON_ID, deadId, nonScribeId, 'not-connected' as PersonId]) {
       expect(transitionGame(begun.state, { type: 'SELECT_SUCCESSOR', nextCharacterId: id }).feedback?.code).toBe('successor-ineligible');
     }
   });
