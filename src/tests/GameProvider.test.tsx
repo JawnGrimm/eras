@@ -40,6 +40,8 @@ describe('GameProvider production persistence', () => {
 
     expect(game.loadStatus).toBe('ready');
     expect(game.feedback?.code).toBe('save-write-failed');
+    expect(game.hasUnsavedChanges).toBe(true);
+    expect(game.storageError).toContain('only in this session');
     expect(result.state.actionEconomy.apRemaining).toBe(5);
     expect(result.state).not.toBe(game.state);
   });
