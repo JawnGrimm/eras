@@ -81,17 +81,23 @@ export function rankSuccessorCandidates(state: GameState): SuccessorCandidate[] 
       const candidateInstitutions = sharedInstitutions(state, intermediary.id, person.id);
       const formerHasRelationship = hasDirectRelationship(state, formerId, intermediary.id);
       const candidateHasRelationship = hasDirectRelationship(state, intermediary.id, person.id);
-      const formerConnection = formerHasRelationship ? 'relationship' : formerInstitutions.length ? 'institution' : null;
-      const candidateConnection = candidateHasRelationship ? 'relationship' : candidateInstitutions.length ? 'institution' : null;
+      const formerConnections: Array<'relationship' | 'institution'> = [];
+      const candidateConnections: Array<'relationship' | 'institution'> = [];
+      if (formerHasRelationship) formerConnections.push('relationship');
+      if (formerInstitutions.length) formerConnections.push('institution');
+      if (candidateHasRelationship) candidateConnections.push('relationship');
+      if (candidateInstitutions.length) candidateConnections.push('institution');
 
-      if (formerConnection && candidateConnection) {
-        reasons.push({
-          kind: 'network_bridge',
-          intermediaryId: intermediary.id,
-          formerConnection,
-          candidateConnection,
-          sharedInstitutionIds: [...formerInstitutions, ...candidateInstitutions].filter((id, index, all) => all.indexOf(id) === index).sort(),
-        });
+      for (const formerConnection of formerConnections) {
+        for (const candidateConnection of candidateConnections) {
+          reasons.push({
+            kind: 'network_bridge',
+            intermediaryId: intermediary.id,
+            formerConnection,
+            candidateConnection,
+            sharedInstitutionIds: [...formerInstitutions, ...candidateInstitutions].filter((id, index, all) => all.indexOf(id) === index).sort(),
+          });
+        }
       }
     }
 
