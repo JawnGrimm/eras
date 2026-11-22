@@ -39,7 +39,7 @@ export function createInitialGameState(): GameState {
   const utuMansumId = 'person-utu-mansum' as PersonId;
   const enlilKisuId = 'person-enlil-kisu' as PersonId;
   const ninKasiId = 'person-nin-kasi' as PersonId;
-  const templeStorehouseId = 'institution-temple-storehouse' as InstitutionId;
+  const templeStorehouseId = 'institution-uruk-temple-storehouse' as InstitutionId;
   const casePeople = [
     { id: shuruppakId, name: 'Shuruppak-ilu', alive: true, affiliations: [templeStorehouseId] },
     { id: urNannaId, name: 'Ur-Nanna', alive: true, affiliations: [templeStorehouseId] },
