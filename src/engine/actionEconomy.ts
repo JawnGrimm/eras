@@ -129,7 +129,8 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
       const definition = workCatalog[action.workId];
       const progress = state.works.progress[action.workId];
       if (!definition || !progress || state.works.activeWorkId !== action.workId || progress.status !== 'active'
-        || (progress.pendingDisposition && progress.lastAssessment?.outcome === 'accepted')
+        || (progress.pendingDisposition && progress.lastAssessment?.outcome === 'accepted'
+          && progress.lastAssessment.dimensions.every((item) => item.status === 'meets'))
         || !definition.validateScenarioData(progress.scenarioData)) {
         return { state, feedback: feedback('error', 'work-not-submittable', 'This Work cannot be submitted in its current state.') };
       }
