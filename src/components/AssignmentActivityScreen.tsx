@@ -84,7 +84,7 @@ export function AssignmentActivityScreen({ assignmentId, onBack }: { assignmentI
         <span className="mt-1 block text-xs font-normal text-stone-500">Dudu’s contract covered the mid-bay patch only. The remaining work was outside the recorded fee.</span>
       </label>
       <fieldset className="mt-4"><legend className="text-sm font-medium">Cite discoveries</legend>
-        {northBayRoofInspection.discoveries.filter((item) => progress.discoveryIds.includes(item.id)).map((item) => <label key={item.id} className="mt-2 flex gap-2 text-sm">
+        {definition.discoveries.filter((item) => progress.discoveryIds.includes(item.id)).map((item) => <label key={item.id} className="mt-2 flex gap-2 text-sm">
           <input type="checkbox" checked={draft.citedDiscoveryIds.includes(item.id)} onChange={(e) => dispatchDraft({ ...draft, citedDiscoveryIds: e.target.checked ? [...draft.citedDiscoveryIds, item.id] : draft.citedDiscoveryIds.filter((id) => id !== item.id) })} />{item.title}
         </label>)}
       </fieldset>
@@ -97,7 +97,7 @@ export function AssignmentActivityScreen({ assignmentId, onBack }: { assignmentI
         <textarea rows={3} value={draft.limitations.join('\n')} onChange={(e) => dispatchDraft({ ...draft, limitations: e.target.value.split('\n') })} placeholder="State what you did not inspect or cannot establish." className="mt-1 block w-full rounded border border-stone-300 p-2 text-sm" />
       </label>
       <div className="mt-5 flex flex-wrap items-center gap-3">
-        <button disabled={game.state.actionEconomy.apRemaining < northBayRoofInspection.submissionApCost} onClick={() => game.dispatch({ type: 'SUBMIT_ASSIGNMENT_ACTIVITY', assignmentId })} className="rounded bg-stone-900 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-40">Submit report · {northBayRoofInspection.submissionApCost} AP</button>
+        <button disabled={game.state.actionEconomy.apRemaining < definition.submissionApCost} onClick={() => game.dispatch({ type: 'SUBMIT_ASSIGNMENT_ACTIVITY', assignmentId })} className="rounded bg-stone-900 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-40">Submit report · {northBayRoofInspection.submissionApCost} AP</button>
         <span className="text-xs text-stone-500">Submission closes the Assignment. Held barley remains a separate inspection.</span>
       </div>
     </section>

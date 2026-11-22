@@ -15,12 +15,12 @@ function ownedOffer(state: GameState, id: AssignmentId): AssignmentOffer | undef
 }
 export function transitionAssignmentActivityAction(state: GameState, action: ActivityAction): TransitionResult {
   const offer = ownedOffer(state, action.assignmentId);
-  if (!offer?.activityProgress || !validateAssignmentActivityProgress(northBayRoofInspection, offer.activityProgress)) {
+  if (!offer?.activityProgress || !validateAssignmentActivityProgress(definition, offer.activityProgress)) {
     return fail(state, 'assignment-activity-not-active', 'Only the current character’s accepted interactive Assignment can be advanced.');
   }
   const progress = offer.activityProgress;
   if (action.type === 'PERFORM_ASSIGNMENT_ACTIVITY_ACTION') {
-    const definition = northBayRoofInspection.actions.find((item) => item.id === action.actionId);
+    const definition = definition.actions.find((item) => item.id === action.actionId);
     if (!definition || progress.completedActionIds.includes(action.actionId)) return fail(state, 'assignment-activity-action-invalid', 'This activity action is unavailable or already completed.');
     if ((definition.prerequisites ?? []).some((id) => !progress.completedActionIds.includes(id))) return fail(state, 'assignment-activity-prerequisite', 'A required activity action has not been completed.');
     if (state.actionEconomy.apRemaining < definition.apCost) return fail(state, 'insufficient-ap', `This action costs ${definition.apCost} AP.`);
@@ -43,7 +43,7 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
     return succeed({ ...state, opportunities: { ...state.opportunities, assignments: { ...state.opportunities.assignments,
       [offer.id]: { ...offer, activityProgress: nextProgress } } } }, 'assignment-activity-draft-updated', 'The inspection report draft was updated.');
   }
-  const cost = northBayRoofInspection.submissionApCost;
+  const cost = definition.submissionApCost;
   if (state.actionEconomy.apRemaining < cost) return fail(state, 'insufficient-ap', `Submission costs ${cost} AP.`);
   const draft = progress.draft;
   const roofObserved = progress.discoveryIds.includes('roof-inspection');
@@ -53,7 +53,7 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
     || draft.responsibilityClaim === 'dudu';
   const incompleteReport = draft.finding === 'insufficient_evidence';
   const qualified = incompleteReport && draft.limitations.length > 0;
-  const discoveries = northBayRoofInspection.discoveries.filter((item) => progress.discoveryIds.includes(item.id));
+  const discoveries = definition.discoveries.filter((item) => progress.discoveryIds.includes(item.id));
   const sources = [
     ...(offer.sourceRecordId ? [{ id: 'source-storehouse-reckoning', kind: 'other' as const, sourceId: offer.sourceRecordId, description: 'Storehouse Reckoning record that generated this roof-verification Assignment' }] : []),
     { id: 'source-player-report', kind: 'other' as const, description: 'Submitted inspection report by the current scribe' },
