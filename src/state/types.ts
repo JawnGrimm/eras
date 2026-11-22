@@ -105,7 +105,7 @@ export interface SaveEnvelope {
 export type GameAction =
   | { type: 'SPEND_AP'; amount: number; reason: string }
   | { type: 'ACTIVATE_OVERTIME' }
-  | { type: 'END_DAY' }
+  | { type: 'END_DAY'; expectedDayNumber: number }
   | { type: 'MARK_NOTICE_READ'; noticeId: string };
 
 export interface ActionFeedback {
