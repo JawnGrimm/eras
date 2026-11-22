@@ -94,7 +94,7 @@ describe('Challenge character ownership', () => {
     state = transitionGame(state, { type: 'ACCEPT_CHALLENGE', challengeId }).state;
     const otherCharacter = 'person-uruk-nin-aya' as PersonId;
     const switched = { ...state, player: { currentCharacterId: otherCharacter } };
-    const wrongOwner = transitionGame(switched, { type: 'RESOLVE_CHALLENGE', challengeId, choiceId: 'preserve' });
+    const wrongOwner = transitionGame(switched, { type: 'RESOLVE_CHALLENGE', challengeId, choiceId: 'preserve-uncertain-reading' });
     expect(wrongOwner.feedback?.code).toBe('challenge-not-active');
     expect(wrongOwner.state.opportunities.challenges[challengeId].status).toBe('accepted');
     expect(wrongOwner.state.opportunities.challenges[challengeId].assigneePersonId).toBe(INITIAL_PERSON_ID);
