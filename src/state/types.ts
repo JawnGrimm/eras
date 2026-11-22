@@ -1,5 +1,5 @@
 import type {
-  AttributeId, ConditionId, EraId, PersonId, SkillId, InstitutionId, LocationId,
+  AttributeId, CareerPathId, ConditionId, EraId, PersonId, SkillId, InstitutionId, LocationId,
   WorkId, TraitId, SpecializationId,
 } from './ids';
 
@@ -52,6 +52,8 @@ export interface CharacterConditionState {
 }
 
 export interface ScribalCharacterState {
+  /** Starting professional context; it does not restrict later learning or institutional access. */
+  careerPath?: CareerPathId;
   /** Spendable professional-development currency; never used to derive rank. */
   careerXp: number;
   wallet: WalletState;
