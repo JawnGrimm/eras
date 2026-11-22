@@ -166,8 +166,8 @@ export function transitionOpportunityAction(state: GameState, action: Opportunit
         || !offer.category || !offer.context.what || !offer.context.purpose || !Array.isArray(offer.context.who)
         || !Array.isArray(offer.context.responsibility) || !Array.isArray(offer.context.provenance)
         || !Number.isInteger(offer.apCost) || offer.apCost < 1 || offer.apCost > 6 || !validChannels(offer.deliveryChannels, state)
-        || !!validateOpportunityConsequences(offer.completionConsequences, state, 'authoring')
-        || !!validateOpportunityConsequences(offer.cancellationConsequences, state, 'authoring')
+        || (offer.completionConsequences !== undefined && (!offer.completionConsequences || !!validateOpportunityConsequences(offer.completionConsequences, state, 'authoring')))
+        || (offer.cancellationConsequences !== undefined && (!offer.cancellationConsequences || !!validateOpportunityConsequences(offer.cancellationConsequences, state, 'authoring')))
         || !['routine','demanding','critical'].includes(offer.difficulty)
         || !finiteNonNegative(offer.compensation.money) || !finiteNonNegative(offer.compensation.provisions)
         || !finiteNonNegative(offer.careerXpReward) || Object.values(offer.requiredSkills).some((n) => !Number.isInteger(n) || (n ?? 0) < 1 || (n ?? 0) > 10)) {
@@ -224,7 +224,7 @@ export function transitionOpportunityAction(state: GameState, action: Opportunit
       if (!c.id || opportunities.challenges[c.id] || !c.title || !c.description || !c.category || !c.context.what
         || !c.context.purpose || !validChannels(c.deliveryChannels, state) || !Number.isInteger(c.apCost) || c.apCost < 1 || c.apCost > 6
         || !Array.isArray(c.choices) || !c.choices.length
-        || new Set(c.choices.map((x) => x.id)).size !== c.choices.length || c.choices.some((x) => !x.id || !x.label || !x.description || !!validateOpportunityConsequences(x.consequences, state, 'authoring'))
+        || new Set(c.choices.map((x) => x.id)).size !== c.choices.length || c.choices.some((x) => !x.id || !x.label || !x.description || !x.consequences || typeof x.consequences !== 'object' || Array.isArray(x.consequences) || !!validateOpportunityConsequences(x.consequences, state, 'authoring'))
         || (c.employer && (c.employer.kind === 'person' ? !state.world.people[c.employer.id as PersonId] : !state.world.institutions[c.employer.id as InstitutionId]))) {
         return fail(state, 'challenge-invalid', 'A Challenge needs contextual grounding, a delivery reason, and distinct authored resolution choices.');
       }
