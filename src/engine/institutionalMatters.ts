@@ -14,7 +14,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
   events[eventId] = events[eventId] ?? { id: eventId, dayNumber: nextDay, summary: 'A hard rain drives water back beneath the north-bay roof patch; the obstructed parapet runoff channel has not been cleared.', personIds: [], institutionIds: [matter.institutionId], locationId: matter.locationId };
   matters[matter.id] = { ...matter, status: 'developed', developedDay: nextDay, sourceEventId: eventId };
   matters[MATTER_IDS.waterIngress] = matters[MATTER_IDS.waterIngress] ?? { id: MATTER_IDS.waterIngress, institutionId: matter.institutionId, kind: 'north_bay_water_ingress', summary: 'Rainwater has entered the north bay beneath the roof patch; affected storage must be assessed.', status: 'active', createdDay: nextDay, sourceRecordId: matter.sourceRecordId, locationId: matter.locationId, sourceEventId: eventId };
-  const institution = institutions[matter.institutionId]; if (institution && !institution.activeMatters.includes(MATTER_IDS.waterIngress)) institutions[matter.institutionId] = { ...institution, activeMatters: [...institution.activeMatters, MATTER_IDS.waterIngress] };
+  const institution = institutions[matter.institutionId]; if (institution) institutions[matter.institutionId] = { ...institution, activeMatters: [...institution.activeMatters.filter((id) => id !== matter.id), ...(institution.activeMatters.includes(MATTER_IDS.waterIngress) ? [] : [MATTER_IDS.waterIngress])] };
   changed = true;
  }
  return changed ? { ...state, world: { ...state.world, matters, events, institutions } } : state;
