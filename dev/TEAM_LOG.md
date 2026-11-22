@@ -1000,3 +1000,45 @@ Initial evidence retrieval and unseen test-dossier retrieval consume AP. Previou
 - `README.md`: implementation-status summary updated to the same verified distinction.
 
 No AP costs, approved design rules, runtime code, or save data were changed. No build, type-check, test suite, or deployment was run; this was a source inspection and documentation update only.
+
+
+## 2026-11-21 — Decision: succession through connected scribal NPCs
+
+**Contributor:** Chad (AI)  
+**Status:** Approved design direction
+
+The owner approved a succession model in which the player continues through an existing scribal NPC who has an established connection to the current player character and their profession. Succession is not restricted to blood relatives, but it is not an unrestricted selection of any qualified scribe in the world.
+
+### Eligible successors
+
+- A successor must already exist as an NPC in the world.
+- The NPC must have an established connection to the current character and to the scribal profession. Plausible connections include an apprentice or former student, colleague, professional associate, household or family member, or a contact established through a mentor, patron, or institution.
+- The NPC must have skills appropriate to continue the professional career. The exact qualification threshold remains open.
+- The player chooses among eligible candidates, but each candidate retains their own skills, personality, relationships, professional history, institutional affiliations, obligations, possessions, and circumstances.
+- A candidate's eligibility does not guarantee availability or willingness. The world does not rearrange itself to provide a convenient replacement.
+- This is not a requirement to maintain a particular relationship score or to train a designated heir.
+
+### No eligible successor
+
+If no eligible successor is available when succession is required, the player begins again as a new character at the beginning of the current era. This is a career restart, not a historical reset: the current era and its historical progression remain in place, and the former character's consequential history remains in the world where appropriate. The new character has their own circumstances, skills, relationships, and opportunities. The established-connection requirement is not waived by generating an unrelated replacement.
+
+### Legacy and family desk
+
+The continuing thread is the player's participation in the scribal profession and its connected social and institutional world, not necessarily one bloodline. The former character's personal relationships, reputation, resources, possessions, and obligations do not automatically transfer to the successor. Specific records, knowledge, professional traditions, contacts, assets, or obligations may continue where the actual relationship and circumstances support it.
+
+The family desk remains an established family heirloom and legacy object, but a non-family successor does not automatically inherit or possess it. The desk's access and transfer rules for non-family successors must be reconciled with the approved succession model.
+
+### Still open
+
+- Exact skill and professional qualification threshold for successor eligibility.
+- When succession is required and how the transition is presented.
+- How candidate availability and willingness are determined and communicated.
+- How multiple eligible candidates' circumstances inform the player's choice.
+- How the family desk remains accessible, stays with the family, or otherwise continues when the player succeeds through a non-family NPC.
+- Broader rules for transferring particular assets, records, reputation, and obligations.
+
+### Repository changes
+
+- `docs/GDD.md`: revised the Executive Summary, Section 3.2, and Section 16 to establish connected-NPC succession, candidate choice subject to circumstances, the current-era career restart when no successor is available, and the distinction between professional continuity and bloodline continuity. Revised Remaining Design Work item 10.
+- `README.md`: added the approved succession direction to the core design summary.
+- No runtime code, save schema, numerical balance, or gameplay behavior changed.
