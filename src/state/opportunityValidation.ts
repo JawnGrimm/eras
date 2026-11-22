@@ -1,14 +1,4 @@
-import type { GameState, OpportunityConsequences } from './types';
-
-export type AuthoredDatePolicy =
-  | { kind: 'fixed'; dayNumber: number }
-  | { kind: 'resolution_day' };
-
-export interface OpportunityDatePolicies {
-  event?: AuthoredDatePolicy;
-  record?: AuthoredDatePolicy;
-  knowledge?: Record<string, AuthoredDatePolicy>;
-}
+import type { AuthoredDatePolicy, GameState, OpportunityConsequences } from './types';
 
 type ValidationContext = Pick<GameState, 'calendar' | 'world' | 'records'>;
 export type ConsequenceValidationPhase = 'authoring' | 'runtime';
@@ -34,7 +24,7 @@ export function validateOpportunityConsequences(
   const raw = effects as OpportunityConsequences & { historicalXp?: unknown };
   if (Object.prototype.hasOwnProperty.call(raw, 'historicalXp')) return 'Opportunities cannot award Historical Progress XP.';
   for (const n of [effects.moneyDelta ?? 0, effects.provisionsDelta ?? 0, effects.careerXp ?? 0]) {
-    if (typeof n !== 'number' || !Number.isFinite(n) || n < 0 && n === effects.careerXp) return 'Resource and Career XP consequences must be finite; Career XP cannot be negative.';
+    if (typeof n !== 'number' || !Number.isFinite(n)) return 'Resource and Career XP consequences must be finite.';
   }
   if (effects.careerXp !== undefined && (!Number.isFinite(effects.careerXp) || effects.careerXp < 0)) return 'Career XP consequence is invalid.';
   if (effects.relationships !== undefined && (!Array.isArray(effects.relationships) || effects.relationships.some((x) =>
