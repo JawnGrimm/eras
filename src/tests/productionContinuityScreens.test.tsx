@@ -30,6 +30,7 @@ describe('production continuity and social screens', () => {
     expect(ninAyaIndex).toBeGreaterThan(-1);
     expect(urGirIndex).toBeGreaterThan(ninAyaIndex);
     expect(markup).toContain('Derived professional rank: Grade');
+    expect(markup).toContain('Connection priority: Direct personal connection');
     expect(markup).toContain('Reading scripts');
     expect(markup).toContain('Silver');
     expect(markup).toContain('Enlil-barni → Nin-aya');
