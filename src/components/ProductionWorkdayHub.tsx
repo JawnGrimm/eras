@@ -3,6 +3,7 @@ import { useGame } from '../state/GameProvider';
 import type { DaySettlement } from '../state/types';
 import { STOREHOUSE_WORK_ID } from '../works/storehouseReckoning';
 import { selectCharacterOpportunities } from '../state/opportunitySelectors';
+import { characterQualifiesForAssignment } from '../engine/opportunities';
 
 function ContextDetails({ context }: { context: { what: string; who: string[]; quantity?: string; when?: string; where?: string; from?: string; to?: string; purpose: string; responsibility: string[]; authority?: string; provenance: string[] } }) {
   const rows: Array<[string, string | undefined]> = [
@@ -43,8 +44,14 @@ export function ProductionWorkdayHub({ onOpenWork, settlement, onSettlement }: {
 }) {
   const game = useGame();
   const state = game.state;
-  const person = state.world.people[state.player.currentCharacterId]!;
-  const wallet = person.scribal!.wallet;
+  const person = state.world.people[state.player.currentCharacterId];
+  if (state.pendingSuccession || !person?.alive || !person.scribal) {
+    return <section role="status" className="mx-auto max-w-3xl rounded-xl border border-amber-300 bg-amber-50 p-6">
+      <h1 className="font-serif text-2xl font-semibold">Workday paused</h1>
+      <p className="mt-2 text-sm text-stone-700">Ordinary workday actions are unavailable while the character transition is unresolved.</p>
+    </section>;
+  }
+  const wallet = person.scribal.wallet;
   const activeWork = state.works.progress[STOREHOUSE_WORK_ID];
   const opportunities = selectCharacterOpportunities(state);
   const offeredAssignments = opportunities.offeredAssignments;
@@ -88,12 +95,19 @@ export function ProductionWorkdayHub({ onOpenWork, settlement, onSettlement }: {
         <div className="flex items-center justify-between"><h2 className="font-serif text-xl font-semibold text-stone-900">Assignments / Commissions</h2><span className="text-xs text-stone-500">{activeAssignments.length}/2 active</span></div>
         <p className="mt-1 text-sm text-stone-600">Optional professional jobs award compensation and Career XP, not Historical Progress XP.</p>
         <div className="mt-4 space-y-3">
-          {offeredAssignments.map((offer) => <article key={offer.id} className="rounded-lg bg-stone-50 p-3">
+          {offeredAssignments.map((offer) => {
+            const qualifies = characterQualifiesForAssignment(state, offer);
+            const expired = state.calendar.dayNumber >= offer.expiresDay;
+            return <article key={offer.id} className="rounded-lg bg-stone-50 p-3">
             <h3 className="font-semibold text-stone-900">{offer.title}</h3><p className="mt-1 text-sm text-stone-600">{offer.description}</p>
             <ContextDetails context={offer.context} />
             <p className="mt-2 text-xs text-stone-500">Completion: {offer.apCost} AP · {offer.compensation.money} silver · {offer.careerXpReward} Career XP</p>
-            <div className="mt-2 flex gap-2"><button disabled={activeAssignments.length >= 2} onClick={() => game.dispatch({ type: 'ACCEPT_ASSIGNMENT', assignmentId: offer.id })} className="rounded-md bg-stone-900 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-40">Accept</button><button onClick={() => game.dispatch({ type: 'DECLINE_ASSIGNMENT', assignmentId: offer.id })} className="rounded-md border border-stone-300 px-3 py-1.5 text-xs">Decline</button></div>
-          </article>)}
+            <div className="mt-2 flex gap-2"><button disabled={activeAssignments.length >= 2 || !qualifies || expired} onClick={() => game.dispatch({ type: 'ACCEPT_ASSIGNMENT', assignmentId: offer.id })} className="rounded-md bg-stone-900 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-40">Accept</button><button onClick={() => game.dispatch({ type: 'DECLINE_ASSIGNMENT', assignmentId: offer.id })} className="rounded-md border border-stone-300 px-3 py-1.5 text-xs">Decline</button></div>
+            {Object.keys(offer.requiredSkills).length > 0 && <p className="mt-2 text-xs text-stone-500">Requirements: {Object.entries(offer.requiredSkills).map(([skill, level]) => `${skill.replaceAll('_', ' ')} ${level}`).join(', ')}</p>}
+            {!qualifies && <p className="mt-1 text-xs text-amber-800">Current skills do not meet the stated requirements.</p>}
+            {expired && <p className="mt-1 text-xs text-amber-800">This offer has reached its expiry day.</p>}
+          </article>;
+          })}
           {offeredAssignments.length === 0 && <p className="text-sm text-stone-500">No new commissions are currently offered.</p>}
           {activeAssignments.map((item) => <article key={item.id} className="rounded-lg bg-stone-50 p-3">
             <h3 className="font-semibold text-stone-900">{item.title}</h3>
