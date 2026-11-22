@@ -49,14 +49,14 @@ describe('Assignment and Challenge foundations', () => {
     let state = present(createInitialGameState(), 'ordinary');
     for (let day = 1; day <= 4; day++) state = transitionGame(state, { type: 'END_DAY', expectedDayNumber: day }).state;
     expect(state.opportunities.assignments['ordinary'].status).toBe('lapsed');
-    expect(state.opportunities.assignmentAggregates['person:person-enlil-barni|accounts|barley'].nonWorkLapsed).toBe(1);
+    expect(state.opportunities.assignmentAggregates['person|person-enlil-barni|accounts|barley'].nonWorkLapsed).toBe(1);
     expect(evaluateChallengeTriggers(state, [{ id: 'neglect', category: 'accounts', minNonWorkLapsed: 1 }])).toContain('neglect');
 
     let workState = present(createInitialGameState(), 'work-offer');
     workState = { ...workState, works: { ...workState.works, activeWorkId: 'work-storehouse' as WorkId } };
     for (let day = 1; day <= 4; day++) workState = transitionGame(workState, { type: 'END_DAY', expectedDayNumber: day }).state;
     expect(workState.opportunities.assignments['work-offer'].lapsedDuringMandatoryWork).toBe(true);
-    expect(workState.opportunities.assignmentAggregates['person:person-enlil-barni|accounts|barley'].nonWorkLapsed).toBe(0);
+    expect(workState.opportunities.assignmentAggregates['person|person-enlil-barni|accounts|barley'].nonWorkLapsed).toBe(0);
     expect(evaluateChallengeTriggers(workState, [{ id: 'neglect', category: 'accounts', minNonWorkLapsed: 1 }])).not.toContain('neglect');
   });
 
