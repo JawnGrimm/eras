@@ -4,6 +4,7 @@ export type CharacterId = PersonId;
 export type InstitutionId = string & { readonly __brand: 'InstitutionId' };
 export type LocationId = string & { readonly __brand: 'LocationId' };
 export type WorkId = string & { readonly __brand: 'WorkId' };
+export type EvidenceId = string & { readonly __brand: 'EvidenceId' };
 export type AssignmentId = string & { readonly __brand: 'AssignmentId' };
 export type ChallengeId = string & { readonly __brand: 'ChallengeId' };
 export type TraitId = string & { readonly __brand: 'TraitId' };
