@@ -32,7 +32,7 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
         ? [...new Set([...progress.consultedPersonIds, activityAction.consultedPersonId])]
         : progress.consultedPersonIds,
     };
-    if (!validateAssignmentActivityProgress(northBayRoofInspection, nextProgress)) return fail(state, 'assignment-activity-progress-invalid', 'The action produced invalid activity progress.');
+    if (!validateAssignmentActivityProgress(definition, nextProgress)) return fail(state, 'assignment-activity-progress-invalid', 'The action produced invalid activity progress.');
     return succeed({ ...state, actionEconomy: { ...state.actionEconomy, apRemaining: state.actionEconomy.apRemaining - activityAction.apCost },
       opportunities: { ...state.opportunities, assignments: { ...state.opportunities.assignments,
         [offer.id]: { ...offer, activityProgress: nextProgress } } } }, 'assignment-activity-action-completed', activityAction.label + ' completed.');
@@ -40,7 +40,7 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
   if (action.type === 'UPDATE_ASSIGNMENT_ACTIVITY_DRAFT') {
     const draft = normalizeActivityDraft(action.draft);
     const nextProgress = { ...progress, draft };
-    if (!validateAssignmentActivityProgress(northBayRoofInspection, nextProgress)) return fail(state, 'assignment-activity-draft-invalid', 'The report draft contains an unavailable citation or recommendation.');
+    if (!validateAssignmentActivityProgress(definition, nextProgress)) return fail(state, 'assignment-activity-draft-invalid', 'The report draft contains an unavailable citation or recommendation.');
     return succeed({ ...state, opportunities: { ...state.opportunities, assignments: { ...state.opportunities.assignments,
       [offer.id]: { ...offer, activityProgress: nextProgress } } } }, 'assignment-activity-draft-updated', 'The inspection report draft was updated.');
   }
