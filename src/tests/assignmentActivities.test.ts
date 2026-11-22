@@ -113,9 +113,9 @@ describe('North-Bay Roof Inspection activity definition and engine', () => {
       opportunities: {
         ...base.opportunities,
         assignments: {
-          'assignment-storehouse-copy-check' as AssignmentId: legacyOffer('assignment-storehouse-copy-check', 'offered'),
-          'assignment-apprentice-tablet-preparation' as AssignmentId: legacyOffer('assignment-apprentice-tablet-preparation', 'accepted'),
-          'assignment-completed-legacy' as AssignmentId: legacyOffer('assignment-completed-legacy', 'completed'),
+          ['assignment-storehouse-copy-check' as AssignmentId]: legacyOffer('assignment-storehouse-copy-check', 'offered'),
+          ['assignment-apprentice-tablet-preparation' as AssignmentId]: legacyOffer('assignment-apprentice-tablet-preparation', 'accepted'),
+          ['assignment-completed-legacy' as AssignmentId]: legacyOffer('assignment-completed-legacy', 'completed'),
         },
       },
     };
