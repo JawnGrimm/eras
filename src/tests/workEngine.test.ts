@@ -60,10 +60,14 @@ describe('evidence interpretation', () => {
       { id: 'base', evidenceId: E1, when: { kind: 'all' as const, predicates: [{ kind: 'examinedAll' as const, evidenceIds: [E2] }] }, text: 'Compare the later tally.', category: 'professional_reminder' as const, priority: 1, displayOrder: 2 },
       { id: 'high', evidenceId: E1, when: { kind: 'all' as const, predicates: [{ kind: 'examinedAll' as const, evidenceIds: [E2] }] }, text: 'A stronger interpretation.', category: 'inference' as const, priority: 5, conflictGroup: 'reading', displayOrder: 1 },
       { id: 'low', evidenceId: E1, when: { kind: 'all' as const, predicates: [{ kind: 'examinedAll' as const, evidenceIds: [E2] }] }, text: 'A weaker interpretation.', category: 'misinterpretation' as const, priority: 2, conflictGroup: 'reading', displayOrder: 0 },
+      { id: 'display-z', evidenceId: E1, when: { kind: 'all' as const, predicates: [{ kind: 'examinedAll' as const, evidenceIds: [E2] }] }, text: 'Lower priority.', category: 'observation' as const, priority: 1, displayOrder: 1 },
+      { id: 'display-a', evidenceId: E1, when: { kind: 'all' as const, predicates: [{ kind: 'examinedAll' as const, evidenceIds: [E2] }] }, text: 'Higher priority.', category: 'observation' as const, priority: 4, displayOrder: 1 },
+      { id: 'tie-z', evidenceId: E1, when: { kind: 'all' as const, predicates: [{ kind: 'examinedAll' as const, evidenceIds: [E2] }] }, text: 'Tie z.', category: 'inference' as const, priority: 3, conflictGroup: 'tie', displayOrder: 3 },
+      { id: 'tie-a', evidenceId: E1, when: { kind: 'all' as const, predicates: [{ kind: 'examinedAll' as const, evidenceIds: [E2] }] }, text: 'Tie a.', category: 'inference' as const, priority: 3, conflictGroup: 'tie', displayOrder: 3 },
     ];
     expect(evaluateEvidenceInterpretation({ evidenceId: E1, character: character(), examinedEvidence: [], rules })).toEqual([]);
     const result = evaluateEvidenceInterpretation({ evidenceId: E1, character: character(), examinedEvidence: [E2], rules });
-    expect(result.map((item) => item.id)).toEqual(['high', 'base']);
+    expect(result.map((item) => item.id)).toEqual(['display-a', 'display-z', 'high', 'base', 'tie-a']);
     expect(result[0]).not.toHaveProperty('category');
     expect(result[0]).not.toHaveProperty('conflictGroup');
   });
