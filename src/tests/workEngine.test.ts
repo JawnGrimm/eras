@@ -67,7 +67,7 @@ describe('evidence interpretation', () => {
     ];
     expect(evaluateEvidenceInterpretation({ evidenceId: E1, character: character(), examinedEvidence: [], rules })).toEqual([]);
     const result = evaluateEvidenceInterpretation({ evidenceId: E1, character: character(), examinedEvidence: [E2], rules });
-    expect(result.map((item) => item.id)).toEqual(['display-a', 'display-z', 'high', 'base', 'tie-a']);
+    expect(result.map((item) => item.id)).toEqual(['high', 'display-a', 'display-z', 'base', 'tie-a']);
     expect(result[0]).not.toHaveProperty('category');
     expect(result[0]).not.toHaveProperty('conflictGroup');
   });
