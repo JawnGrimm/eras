@@ -85,6 +85,23 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
     expect(result.settlement?.endingProvisions).toBe(result.settlement?.startingProvisions);
   });
 
+
+  it('honors a qualified completed Work even when a later active Work has not met its AP threshold', () => {
+    const state = createNewGameState();
+    const activeProgress = state.works.progress[STOREHOUSE_WORK_ID];
+    const priorWorkId = 'work-qualified-earlier-today' as typeof STOREHOUSE_WORK_ID;
+    const withPriorCompletion = {
+      ...state,
+      works: { ...state.works, progress: {
+        [priorWorkId]: { ...activeProgress, status: 'completed' as const, workApSpentToday: 1 },
+        [STOREHOUSE_WORK_ID]: { ...activeProgress, workApSpentToday: 0 },
+      } },
+    };
+    const result = transitionGame(withPriorCompletion, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber }, undefined, INITIAL_WORK_CATALOG);
+    expect(result.settlement?.workContractProvisionReason).toBe('qualified_workday');
+    expect(result.settlement?.workContractProvisionEarned).toBe(1);
+  });
+
   it('reports a provision-contract shortfall when the Work AP threshold was not met', async () => {
     const state = createNewGameState();
     const result = transitionGame(state, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber }, undefined, INITIAL_WORK_CATALOG);
