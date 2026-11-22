@@ -300,10 +300,7 @@ describe('Storehouse Reckoning introductory tutorial', () => {
     expect(restored?.state.historicalProgression.completedWorks).toEqual([]);
     expect(restored?.state.calendar.displayDate).toBe('Day 47 · Uruk (c. 3200 BCE)');
     expect(restored?.state.works.progress[STOREHOUSE_WORK_ID].status).toBe('completed');
-    expect(restored?.state.world.institutions[STOREHOUSE_INSTITUTION_ID].activeMatters).toEqual(
-      expect.arrayContaining([MATTER_IDS.southCourtDelivery, MATTER_IDS.southLoadingAwning]),
-    );
-    expect(restored?.state.world.institutions[STOREHOUSE_INSTITUTION_ID].activeMatters).not.toContain(MATTER_IDS.tutorial);
+    expect(restored?.state.world.institutions[STOREHOUSE_INSTITUTION_ID].activeMatters).toEqual([]);
     expect(isValidSaveEnvelope(restored, catalog)).toBe(true);
   });
 
