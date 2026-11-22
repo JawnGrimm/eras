@@ -1,7 +1,7 @@
 ---
 title: "Scribe of Eras"
 subtitle: "Game Design Document — Revised Draft v1.2"
-date: "20 November 2026"
+date: "21 November 2026"
 lang: en-US
 ---
 
@@ -68,6 +68,8 @@ Career progression and historical progression are separate. **Career XP** measur
 The player's personal economy contains exactly three resources: **silver, bread, and beer**. Grain remains an important world and institutional commodity, but it is never a player-owned wallet resource or daily stipend.
 
 The long-term experience is intended to feel like one continuing historical journey rather than a sequence of disconnected era levels. Professional identity, reputation, knowledge, and a social network can persist through successors and institutional traditions, while relationships, institutions, and the wider world change. The exact continuity mechanism remains an open structural decision because the selected eras span distant periods and continents.
+
+The world should continue to develop through the interaction of **social causality** and **operational causality**. People pursue interests and obligations within practical systems of work, resources, records, institutions, access, and time. The player's professional participation takes place where these forces meet: the player investigates, interprets, records, communicates, and makes decisions about situations created by both human intentions and ongoing processes.
 
 ---
 
@@ -144,6 +146,19 @@ Continuity should be selective and consequential, not an unlimited transcript of
 The wider world should continue to change where relevant to play, but this does not require a fully autonomous population simulation. NPCs are an important human interface to the world, but not every interaction must trigger a task, negotiation, or skill check; ordinary social presence and conversation are valid. Event pacing may regulate when an eligible opportunity is presented, but must not rewrite causal history, conceal a genuine deadline, or silently move one. An empty presentation slot is valid.
 
 Fairness means that the player can understand what a record or action asserts and can identify the evidence available to support a defensible response. It does not require one discoverable answer for every historical event or make every consequence predictable. Evaluate the quality of the player's judgment against the evidence available when the decision was made, not merely whether the conclusion matches a predetermined answer. A reasonable judgment later contradicted by new evidence should be distinguished from a careless judgment that ignored accessible evidence. More than one conclusion may be defensible when the evidence genuinely permits it. The evaluation principle is established; its scoring, feedback, and validation mechanics remain open design work.
+
+### 2.10 The world moves through people and processes
+
+The wider world develops through the interaction of **social causality** and **operational causality**:
+
+- **Social causality:** People act according to their interests, personalities, relationships, obligations, authority, knowledge, and circumstances. Their choices can change their own situations and those of other people.
+- **Operational causality:** Ongoing activities depend on resources, people, access, time, records, and other processes. These dependencies create requirements and consequences; interruptions or changes can affect connected activities and institutions.
+
+**Professional participation is where these two forms of causality meet.** The player does not merely observe social drama or manage disconnected processes. Their profession places them inside situations where people's intentions and relationships intersect with the practical requirements and consequences of ongoing work. The player investigates, interprets evidence, creates and evaluates records, communicates, exercises judgment, and takes responsibility for actions that can influence people and institutions.
+
+Meaningful professional situations should therefore connect human interests to consequential activity. Social interactions without practical stakes risk becoming isolated relationship mechanics; operational systems without people risk becoming abstract bookkeeping. Neither dimension should be treated as a separate substitute for the other.
+
+This principle calls for a **bounded, persistent simulation**, not unrestricted simulation of every person or transaction. Important people and consequential processes should retain enough state to produce intelligible future developments. Routine or temporary activity may be represented more simply when its details do not affect future obligations, relationships, disputes, information access, or plausible work. The exact simulation architecture, scope, update frequency, and numerical rules remain open design work.
 
 ---
 
