@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useGame } from '../state/GameProvider';
-import { STOREHOUSE_EVIDENCE, STOREHOUSE_WORK_ID, STOREHOUSE_PEOPLE, storehouseReckoning, interpretStorehouseEvidence } from '../works/storehouseReckoning';
+import { STOREHOUSE_EVIDENCE, STOREHOUSE_WORK_ID, storehouseReckoning, interpretStorehouseEvidence } from '../works/storehouseReckoning';
 import type { StorehouseField, StorehouseFinding, StorehouseRecommendation, StorehouseScenarioData } from '../works/storehouseReckoning';
 
 const fieldLabels: Record<StorehouseField, string> = {
