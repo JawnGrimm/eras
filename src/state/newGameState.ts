@@ -122,7 +122,7 @@ function starterChallenge(): Omit<ChallengeInstance, 'status' | 'assigneePersonI
           moneyDelta: -1,
           relationships: [{
             fromId: INITIAL_PERSON_ID,
-            toId: 'person-uruk-nin-aya' as never,
+            toId: 'person-uruk-nin-aya' as PersonId,
             changes: { trust: 3, familiarity: 1 },
             summary: 'The apprentice was asked to wait for a fresh recitation before correcting the line.',
           }],
