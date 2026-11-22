@@ -3,6 +3,7 @@ import { transitionGame } from '../engine/actionEconomy';
 import { deriveProfessionalRank } from '../engine/professionalRank';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
 import { isSkillEligibleForAdvancement } from '../engine/careerProgression';
+import { isValidGameState } from '../state/saveEnvelope';
 import type { CareerProgressionPolicy, SkillState } from '../state/types';
 import type { SpecializationId } from '../state/ids';
 
@@ -130,5 +131,9 @@ describe('character and career foundation', () => {
       } } },
     };
     expect(state.world.people[INITIAL_PERSON_ID].scribal!.conditions[0].modifiers[0].actionTags).toEqual(['prolonged-audit']);
+    expect(isValidGameState(state)).toBe(true);
+    const invalid = structuredClone(state);
+    invalid.world.people[INITIAL_PERSON_ID].scribal!.conditions[0].modifiers[0].actionTags = [];
+    expect(isValidGameState(invalid)).toBe(false);
   });
 });
