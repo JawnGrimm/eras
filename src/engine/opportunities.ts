@@ -5,7 +5,7 @@ import type {
   GameAction, GameState, OpportunityActivity, OpportunityConsequences, OpportunityDeliveryChannel, TransitionResult,
 } from '../state/types';
 
-type OpportunityAction = Extract<GameAction, { type: 'PRESENT_ASSIGNMENT' | 'ACCEPT_ASSIGNMENT' | 'DECLINE_ASSIGNMENT' | 'CANCEL_ASSIGNMENT' | 'COMPLETE_ASSIGNMENT' | 'PRESENT_CHALLENGE' | 'RESOLVE_CHALLENGE' }>;
+type OpportunityAction = Extract<GameAction, { type: 'PRESENT_ASSIGNMENT' | 'ACCEPT_ASSIGNMENT' | 'DECLINE_ASSIGNMENT' | 'CANCEL_ASSIGNMENT' | 'COMPLETE_ASSIGNMENT' | 'PRESENT_CHALLENGE' | 'ACCEPT_CHALLENGE' | 'DECLINE_CHALLENGE' | 'RESOLVE_CHALLENGE' }>;
 const fail = (state: GameState, code: string, message: string): TransitionResult => ({ state, feedback: { kind: 'error', code, message } });
 const succeed = (state: GameState, code: string, message: string): TransitionResult => ({ state, feedback: { kind: 'success', code, message } });
 const finiteNonNegative = (n: number) => Number.isFinite(n) && n >= 0;
@@ -220,7 +220,7 @@ export function transitionOpportunityAction(state: GameState, action: Opportunit
       return succeed(addActivity(next, offer, 'completed'), 'assignment-completed', 'The Assignment was completed and its authored compensation and consequences were applied.');
     }
     case 'PRESENT_CHALLENGE': {
-      const c: ChallengeInstance = action.challenge;
+      const c = action.challenge;
       if (!c.id || opportunities.challenges[c.id] || !c.title || !c.description || !c.category || !c.context.what
         || !c.context.purpose || !validChannels(c.deliveryChannels, state) || !Number.isInteger(c.apCost) || c.apCost < 1 || c.apCost > 6
         || !Array.isArray(c.choices) || !c.choices.length
@@ -228,19 +228,31 @@ export function transitionOpportunityAction(state: GameState, action: Opportunit
         || (c.employer && (c.employer.kind === 'person' ? !state.world.people[c.employer.id as PersonId] : !state.world.institutions[c.employer.id as InstitutionId]))) {
         return fail(state, 'challenge-invalid', 'A Challenge needs contextual grounding, a delivery reason, and distinct authored resolution choices.');
       }
-      const created = { ...c, presentedDay: state.calendar.dayNumber };
+      const created: ChallengeInstance = { ...c, presentedDay: state.calendar.dayNumber, status: 'offered' };
       return succeed({ ...state, opportunities: { ...opportunities, challenges: { ...opportunities.challenges, [c.id]: created } } }, 'challenge-presented', 'A Challenge became available through the stated channel.');
+    }
+    case 'ACCEPT_CHALLENGE': {
+      const challenge = opportunities.challenges[action.challengeId];
+      if (!challenge || challenge.status !== 'offered') return fail(state, 'challenge-not-offered', 'Only an offered Challenge can be accepted.');
+      const accepted = { ...challenge, status: 'accepted' as const, assigneePersonId: state.player.currentCharacterId };
+      return succeed({ ...state, opportunities: { ...opportunities, challenges: { ...opportunities.challenges, [challenge.id]: accepted } } }, 'challenge-accepted', 'The Challenge was accepted by the current character without spending AP.');
+    }
+    case 'DECLINE_CHALLENGE': {
+      const challenge = opportunities.challenges[action.challengeId];
+      if (!challenge || challenge.status !== 'offered') return fail(state, 'challenge-not-offered', 'Only an offered Challenge can be declined.');
+      const declined = { ...challenge, status: 'declined' as const };
+      return succeed({ ...state, opportunities: { ...opportunities, challenges: { ...opportunities.challenges, [challenge.id]: declined } } }, 'challenge-declined', 'The Challenge was declined.');
     }
     case 'RESOLVE_CHALLENGE': {
       const challenge = opportunities.challenges[action.challengeId];
-      if (!challenge) return fail(state, 'challenge-not-active', 'This Challenge is not active.');
+      if (!challenge || challenge.status !== 'accepted' || challenge.assigneePersonId !== state.player.currentCharacterId) return fail(state, 'challenge-not-active', 'Only a Challenge accepted by the current character can be resolved.');
       const choice = challenge.choices.find((x) => x.id === action.choiceId);
       if (!choice) return fail(state, 'challenge-choice-invalid', 'Select one of the authored Challenge rulings.');
       if (state.actionEconomy.apRemaining < challenge.apCost) return fail(state, 'insufficient-ap', `Resolving this Challenge costs ${challenge.apCost} AP.`);
       const effected = applyConsequences(state, choice.consequences);
       if (!effected) return fail(state, 'challenge-outcome-invalid', 'The selected ruling contains invalid resource, relationship, institution, event, record, or knowledge effects.');
       const outcome: ChallengeOutcome = { challengeId: challenge.id, title: challenge.title, category: challenge.category,
-        resolvedDay: state.calendar.dayNumber, choiceId: choice.id, choiceLabel: choice.label, summary: choice.description };
+        resolvedDay: state.calendar.dayNumber, choiceId: choice.id, choiceLabel: choice.label, summary: choice.description, assigneePersonId: challenge.assigneePersonId };
       const { [challenge.id]: _removed, ...active } = effected.opportunities.challenges;
       const next = { ...effected, actionEconomy: { ...effected.actionEconomy, apRemaining: effected.actionEconomy.apRemaining - challenge.apCost },
         opportunities: { ...effected.opportunities, challenges: active,

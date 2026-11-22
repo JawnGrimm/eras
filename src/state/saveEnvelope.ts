@@ -298,9 +298,15 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
       || !['presented','accepted','declined','lapsed','completed','cancelled'].includes(entry.kind as string)
       || typeof entry.employerKey !== 'string' || typeof entry.category !== 'string' || typeof entry.assignmentId !== 'string'
       || (entry.lapsedDuringMandatoryWork !== undefined && typeof entry.lapsedDuringMandatoryWork !== 'boolean'))) return false;
-  if (!Array.isArray(value.opportunities.challengeOutcomes)) return false;
+  if (!Array.isArray(value.opportunities.challengeOutcomes) || value.opportunities.challengeOutcomes.some((outcome) => !isObject(outcome)
+    || typeof outcome.challengeId !== 'string' || typeof outcome.title !== 'string' || typeof outcome.category !== 'string'
+    || !Number.isInteger(outcome.resolvedDay) || (outcome.resolvedDay as number) < 1 || (outcome.resolvedDay as number) > (calendar.dayNumber as number)
+    || typeof outcome.choiceId !== 'string' || typeof outcome.choiceLabel !== 'string' || typeof outcome.summary !== 'string'
+    || (outcome.assigneePersonId !== undefined && (typeof outcome.assigneePersonId !== 'string' || !isObject(people[outcome.assigneePersonId]))))) return false;
   for (const [id, challenge] of Object.entries(value.opportunities.challenges)) {
-    if (!isObject(challenge) || challenge.id !== id || typeof challenge.title !== 'string' || !challenge.title
+    if (!isObject(challenge) || challenge.id !== id || !['offered','accepted','declined'].includes(challenge.status as string)
+      || (challenge.status === 'accepted' && (typeof challenge.assigneePersonId !== 'string' || !isObject(people[challenge.assigneePersonId])))
+      || (challenge.assigneePersonId !== undefined && (typeof challenge.assigneePersonId !== 'string' || !isObject(people[challenge.assigneePersonId]))) || typeof challenge.title !== 'string' || !challenge.title
       || typeof challenge.description !== 'string' || typeof challenge.category !== 'string'
       || !isObject(challenge.context) || typeof challenge.context.what !== 'string' || typeof challenge.context.purpose !== 'string'
       || !finiteNonNegative(challenge.presentedDay) || !Number.isInteger(challenge.apCost) || (challenge.apCost as number) < 1 || (challenge.apCost as number) > 6 || !Array.isArray(challenge.choices) || !challenge.choices.length

@@ -24,7 +24,7 @@ function challenge(id: string): ChallengeInstance {
   return {
     id: id as ChallengeId, title: 'Disputed delivery', description: 'Two accounts disagree about a delivery.',
     category: 'accounts', context: { what: 'A disputed delivery account.', who: ['Steward'], purpose: 'Determine what can responsibly be stated.', responsibility: ['Scribe'], provenance: ['Two conflicting accounts'] },
-    deliveryChannels: [channel], presentedDay: 1, apCost: 1,
+    deliveryChannels: [channel], presentedDay: 1, apCost: 1, status: 'offered',
     choices: [
       { id: 'record-qualified', label: 'Record the discrepancy', description: 'Preserve both claims and their limits.',
         consequences: { moneyDelta: 1, careerXp: 4 } },
@@ -85,7 +85,9 @@ describe('Assignment and Challenge foundations', () => {
     const base = createInitialGameState();
     const presented = transitionGame(base, { type: 'PRESENT_CHALLENGE', challenge: challenge('challenge-1') });
     expect(presented.feedback?.code).toBe('challenge-presented');
-    const resolved = transitionGame(presented.state, { type: 'RESOLVE_CHALLENGE', challengeId: 'challenge-1' as ChallengeId, choiceId: 'endorse-claim' });
+    const accepted = transitionGame(presented.state, { type: 'ACCEPT_CHALLENGE', challengeId: 'challenge-1' as ChallengeId });
+    expect(accepted.feedback?.code).toBe('challenge-accepted');
+    const resolved = transitionGame(accepted.state, { type: 'RESOLVE_CHALLENGE', challengeId: 'challenge-1' as ChallengeId, choiceId: 'endorse-claim' });
     expect(resolved.feedback?.code).toBe('challenge-resolved');
     expect(resolved.state.opportunities.challenges['challenge-1' as ChallengeId]).toBeUndefined();
     expect(resolved.state.opportunities.challengeOutcomes).toHaveLength(1);
@@ -209,14 +211,16 @@ describe('Assignment and Challenge foundations', () => {
     const shown = transitionGame(base, { type: 'PRESENT_CHALLENGE', challenge: invalid });
     expect(shown.feedback?.code).toBe('challenge-presented');
     const beforeWallet = shown.state.world.people[INITIAL_PERSON_ID].scribal!.wallet;
-    const lowAp = { ...shown.state, actionEconomy: { ...shown.state.actionEconomy, apRemaining: 1 } };
+    const acceptedForLowAp = transitionGame(shown.state, { type: 'ACCEPT_CHALLENGE', challengeId: 'atomic-challenge' as ChallengeId });
+    const lowAp = { ...acceptedForLowAp.state, actionEconomy: { ...acceptedForLowAp.state.actionEconomy, apRemaining: 1 } };
     const failed = transitionGame(lowAp, { type: 'RESOLVE_CHALLENGE', challengeId: 'atomic-challenge' as ChallengeId, choiceId: invalid.choices[0].id });
     expect(failed.feedback?.code).toBe('insufficient-ap');
     expect(failed.state.actionEconomy.apRemaining).toBe(1);
     expect(failed.state.opportunities.challenges['atomic-challenge' as ChallengeId]).toBeDefined();
     expect(failed.state.world.people[INITIAL_PERSON_ID].scribal!.wallet).toEqual(beforeWallet);
     expect(failed.state.opportunities.challengeOutcomes).toHaveLength(0);
-    const consequenceFailure = transitionGame(shown.state, { type: 'RESOLVE_CHALLENGE', challengeId: 'atomic-challenge' as ChallengeId, choiceId: invalid.choices[0].id });
+    const accepted = transitionGame(shown.state, { type: 'ACCEPT_CHALLENGE', challengeId: 'atomic-challenge' as ChallengeId });
+    const consequenceFailure = transitionGame(accepted.state, { type: 'RESOLVE_CHALLENGE', challengeId: 'atomic-challenge' as ChallengeId, choiceId: invalid.choices[0].id });
     expect(consequenceFailure.feedback?.code).toBe('challenge-outcome-invalid');
     expect(consequenceFailure.state.actionEconomy.apRemaining).toBe(shown.state.actionEconomy.apRemaining);
     expect(consequenceFailure.state.opportunities.challenges['atomic-challenge' as ChallengeId]).toBeDefined();
