@@ -304,7 +304,10 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
       }
       const startingProvisions = scribal.wallet.provisions;
       const contractProgress = Object.values(state.works.progress).find((item) =>
-        (item.status === 'active' || item.status === 'completed') && !!item.provisionContract);
+        item.status === 'active' && !!item.provisionContract)
+        ?? Object.values(state.works.progress).find((item) =>
+          item.status === 'completed' && !!item.provisionContract
+          && item.workApSpentToday >= item.provisionContract.minimumWorkApPerDay);
       const contractQualified = !!contractProgress?.provisionContract
         && contractProgress.workApSpentToday >= contractProgress.provisionContract.minimumWorkApPerDay;
       const contractProvision = contractQualified ? contractProgress!.provisionContract!.provisionsPerQualifiedWorkday : 0;
