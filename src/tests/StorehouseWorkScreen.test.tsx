@@ -16,7 +16,7 @@ describe('StorehouseWorkScreen numeric draft field', () => {
     }));
 
     expect(markup).toContain('aria-label="Opening usable stock"');
-    expect(markup).toContain('inputmode="numeric"');
+    expect(markup).toContain('inputMode="numeric"');
 
     commitNumericDraftOnBlur('47', 'opening', onCommit, onInvalid);
 
