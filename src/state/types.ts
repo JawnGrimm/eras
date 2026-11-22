@@ -202,7 +202,7 @@ export interface AssignmentActivityProgress {
   draft: AssignmentActivityDraft;
 }
 export interface AssignmentOffer {
-  id: AssignmentId; title: string; description: string; employer: OpportunityEmployer; sourceRecordId?: RecordId;
+  id: AssignmentId; title: string; description: string; employer: OpportunityEmployer; sourceRecordId?: RecordId; originMatterId?: MatterId;
   category: string; commodity?: string; context: AssignmentContext;
   requiredSkills: Partial<Record<SkillId, number>>; difficulty: 'routine' | 'demanding' | 'critical';
   /** Single-action completion cost; omitted for interactive Assignments. */
