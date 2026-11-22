@@ -70,10 +70,13 @@ export function ProductionChallengeJournal() {
           <div className="text-[11px] font-semibold uppercase tracking-wide text-amber-800">Accepted commitment</div>
           <h3 className="mt-1 font-semibold text-stone-900">{challenge.title}</h3><p className="mt-2 text-sm text-stone-600">{challenge.description}</p>
           <DeliveryReasons channels={challenge.deliveryChannels} /><ContextDetails context={challenge.context} />
-          <div className="mt-3 flex flex-wrap gap-2">{challenge.choices.map((choice) => <button key={choice.id}
-            disabled={state.actionEconomy.apRemaining < challenge.apCost}
-            onClick={() => dispatch({ type: 'RESOLVE_CHALLENGE', challengeId: challenge.id, choiceId: choice.id })}
-            className="rounded-md border border-stone-300 bg-white px-3 py-2 text-xs disabled:opacity-40">{choice.label} · {challenge.apCost} AP</button>)}</div>
+          <div className="mt-3 space-y-2">{challenge.choices.map((choice) => <div key={choice.id} className="rounded-md border border-stone-200 bg-white p-3">
+            <p className="text-sm font-semibold text-stone-800">{choice.label}</p>
+            <p className="mt-1 text-xs leading-5 text-stone-600">{choice.description}</p>
+            <button disabled={state.actionEconomy.apRemaining < challenge.apCost}
+              onClick={() => dispatch({ type: 'RESOLVE_CHALLENGE', challengeId: challenge.id, choiceId: choice.id })}
+              className="mt-2 rounded-md border border-stone-300 px-3 py-2 text-xs disabled:opacity-40">Choose · {challenge.apCost} AP</button>
+          </div>)}</div>
         </article>)}
         {data.offeredChallenges.length === 0 && data.acceptedChallenges.length === 0 && <p className="text-sm text-stone-500">No current Challenges have reached this character.</p>}
       </div>
