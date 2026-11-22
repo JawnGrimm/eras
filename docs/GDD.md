@@ -1190,6 +1190,16 @@ The player is the continuing participant in the historical journey; individual p
 
 When a character dies or otherwise leaves play, the player takes up another **existing scribal NPC** in the same historical period. The NPC must have an established connection to the former character and their professional world. Connections may be personal or professional and may arise through colleagues, apprentices, former students, shared institutions, patrons, mentors, households, or the wider network of scribal work. This is not unrestricted selection of any scribe in the world, nor does it require a blood relationship or a designated heir.
 
+Connected candidates are presented in a **connection-priority ranking**:
+
+1. **Direct personal connection:** an established person-to-person relationship with the former character.
+2. **Direct professional connection:** an established professional link, such as a shared institution or appointment.
+3. **Wider professional network:** a connection through an identifiable intermediary in the former character's personal or professional network.
+
+A candidate with more than one kind of connection is placed in the highest-priority category they qualify for, while the other evidenced connections remain visible as context. This ranking orders the presentation of plausible candidates; it is not a competence score. Skills, rank, reputation, wealth, and authority do not determine connection priority. The candidate's own circumstances and availability still determine whether they can actually be taken up. Ties within a category must not be broken by an invented character-quality formula.
+
+The engine may only recognize connection types supported by actual world data. Shared affiliations, appointments, and recorded person-to-person relationships can support the initial ranking. More specific ties such as apprenticeship, mentorship, patronage, or household membership require explicit authored data before they can be treated as established connections.
+
 ### 16.2 A different person, not an inherited character
 
 The player may choose among plausible connected NPCs, subject to their actual circumstances and availability. The next character does not need to match the former character's skill, rank, reputation, wealth, or authority. The player may continue as a low-ranking, inexperienced, or otherwise less established scribe. The successor's rank is determined from that character's own skills; no rank counter or former character's skill profile is transferred. A character's existing skills and circumstances determine what the player can do and what opportunities are available; they are not adjusted to preserve the previous character's level of accomplishment.
