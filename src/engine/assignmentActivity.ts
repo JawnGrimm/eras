@@ -51,7 +51,8 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
   const overclaims = draft.finding === 'repair_appears_sound'
     || (draft.finding === 'repair_incomplete' && (!roofObserved || !roofCited))
     || draft.responsibilityClaim === 'dudu';
-  const qualified = draft.finding === 'insufficient_evidence' && draft.limitations.length > 0;
+  const incompleteReport = draft.finding === 'insufficient_evidence';
+  const qualified = incompleteReport && draft.limitations.length > 0;
   const discoveries = northBayRoofInspection.discoveries.filter((item) => progress.discoveryIds.includes(item.id));
   const sources = [
     ...(offer.sourceRecordId ? [{ id: 'source-storehouse-reckoning', kind: 'other' as const, sourceId: offer.sourceRecordId, description: 'Storehouse Reckoning record that generated this roof-verification Assignment' }] : []),
@@ -108,16 +109,16 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
   const person = state.world.people[state.player.currentCharacterId];
   if (!institution || !person?.scribal) return fail(state, 'assignment-activity-world-invalid', 'The report recipient or current character is unavailable.');
   let activeMatters = institution.activeMatters.filter((matter) => matter !== 'Verify north-bay roof repair');
-  if (qualified || !roofObserved) activeMatters = [...activeMatters, 'Verify north-bay roof repair (inspection incomplete)'];
+  if (incompleteReport || !roofObserved) activeMatters = [...activeMatters, 'Verify north-bay roof repair (inspection incomplete)'];
   else if (overclaims) activeMatters = [...activeMatters, 'Roof repair certified without sufficient supporting inspection; physical condition remains unverified'];
   else if (draft.finding === 'repair_incomplete') activeMatters = [...activeMatters, 'Clear north-bay parapet runoff channel and assess damp north-east beam socket'];
   else activeMatters = [...activeMatters, 'North-bay roof repair inspected; continue monitoring after heavy rain'];
   if (draft.recommendations.includes('inspect_held_barley') && progress.discoveryIds.includes('roof-inspection')) {
     activeMatters.push('Held-Barley Inspection recommended; seven sacks remain segregated, grain condition not yet assessed');
   }
-  const reputationDelta = overclaims ? -6 : qualified ? 1 : 3;
+  const reputationDelta = overclaims ? -6 : qualified ? 1 : incompleteReport ? -1 : 3;
   const relationshipChanges = [
-    { target: NORTH_BAY_PEOPLE.steward, trust: overclaims ? -5 : qualified ? 1 : 3,
+    { target: NORTH_BAY_PEOPLE.steward, trust: overclaims ? -5 : qualified ? 1 : incompleteReport ? -1 : 3,
       summary: overclaims ? 'The Steward received a report that exceeded the available inspection evidence.' : 'The Steward received a qualified, traceable inspection report.' },
     ...(progress.consultedPersonIds.includes(NORTH_BAY_PEOPLE.repairer) ? [{ target: NORTH_BAY_PEOPLE.repairer,
       trust: overclaims ? -4 : 2, summary: 'The repairer was consulted and the limits of the contracted work were recorded.' }] : []),
@@ -147,5 +148,5 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
   };
   next = addActivity(next, offer, 'completed');
   return succeed(next, 'assignment-activity-submitted',
-    `The report was filed. ${overclaims ? 'Its unsupported certification may mislead the institution.' : qualified ? 'Its limitations remain explicit.' : 'The findings and follow-up are recorded.'}`);
+    `The report was filed. ${overclaims ? 'Its unsupported certification may mislead the institution.' : qualified ? 'Its limitations remain explicit.' : incompleteReport ? 'The report is incomplete and its limitations are not sufficiently explained.' : 'The findings and follow-up are recorded.'}`);
 }
