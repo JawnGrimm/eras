@@ -46,19 +46,19 @@ function matches(predicate: Predicate, character: ScribalCharacterState, examine
     case 'not': return !matches(predicate.predicate, character, examined);
     case 'skillAtLeast': {
       const level = character.skills[predicate.skillId]?.level;
-      return level !== undefined && level >= predicate.level;
+      return typeof level === 'number' && Number.isFinite(level) && level >= predicate.level;
     }
     case 'skillAtMost': {
       const level = character.skills[predicate.skillId]?.level;
-      return level !== undefined && level <= predicate.level;
+      return typeof level === 'number' && Number.isFinite(level) && level <= predicate.level;
     }
     case 'attributeAtLeast': {
       const value = character.attributes[predicate.attributeId];
-      return value !== undefined && value >= predicate.value;
+      return typeof value === 'number' && Number.isFinite(value) && value >= predicate.value;
     }
     case 'attributeAtMost': {
       const value = character.attributes[predicate.attributeId];
-      return value !== undefined && value <= predicate.value;
+      return typeof value === 'number' && Number.isFinite(value) && value <= predicate.value;
     }
     case 'hasTrait': return character.traits.some((trait) => trait.id === predicate.traitId);
     case 'hasCondition': return character.conditions.some((condition) => condition.id === predicate.conditionId);
@@ -78,11 +78,11 @@ export function evaluateEvidenceInterpretation(input: EvaluateEvidenceInterpreta
   for (const rule of matchesForEvidence) {
     if (!rule.conflictGroup) { ungrouped.push(rule); continue; }
     const current = winners.get(rule.conflictGroup);
-    if (!current || rule.priority > current.priority || (rule.priority === current.priority && rule.id.localeCompare(current.id) < 0)) {
+    if (!current || rule.priority > current.priority || (rule.priority === current.priority && rule.id < current.id)) {
       winners.set(rule.conflictGroup, rule);
     }
   }
   return [...ungrouped, ...winners.values()]
-    .sort((a, b) => a.displayOrder - b.displayOrder || b.priority - a.priority || a.id.localeCompare(b.id))
+    .sort((a, b) => a.displayOrder - b.displayOrder || b.priority - a.priority || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
     .map(({ id, evidenceId, text, displayOrder }) => ({ id, evidenceId, text, displayOrder }));
 }
