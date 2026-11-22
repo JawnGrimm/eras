@@ -44,7 +44,7 @@ function ProductionShellContent() {
         </nav>
         <div className="mt-4 border-t border-stone-300 px-3 pt-4 text-xs leading-5 text-stone-600">
           <p className="font-semibold text-stone-800">{person?.name}</p>
-          <p>Uruk · Early Dynastic period</p>
+          <p>Uruk · Late Uruk period (c. 3200 BCE)</p>
           <p className="mt-2">Career XP: {person?.scribal?.careerXp.toLocaleString() ?? 0}</p>
           <p>Historical XP: {game.state.historicalProgression.historicalXp.toLocaleString()}</p>
         </div>
@@ -55,7 +55,7 @@ function ProductionShellContent() {
           <h2 className="font-semibold text-red-950">{game.loadStatus === 'corrupt_save' ? 'Production save needs recovery' : 'Production save could not be read'}</h2>
           <p className="mt-1 text-sm text-red-900">{game.storageError ?? 'The existing save has not been replaced. Ordinary actions are paused.'}</p>
           <p className="mt-1 text-sm text-red-900">Starting fresh will replace only the production save key. Legacy prototype saves are left untouched.</p>
-          <button onClick={game.startFreshProductionSave} className="mt-3 rounded-lg bg-red-900 px-4 py-2 text-sm font-semibold text-white">Start Fresh Production Save</button>
+          <button onClick={() => { if (game.startFreshProductionSave()) setSettlement(null); }} className="mt-3 rounded-lg bg-red-900 px-4 py-2 text-sm font-semibold text-white">Start Fresh Production Save</button>
         </section>}
         {game.hasUnsavedChanges && <section role="status" className="rounded-xl border border-amber-400 bg-amber-50 px-4 py-3">
           <p className="text-sm font-semibold text-amber-950">This session has unsaved changes</p>
