@@ -129,11 +129,13 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
     const submitted = commit('Submit reconciliation for Senior Scribe assessment', cost,
       { assessment: result, assessmentSubmitted: true, seniorDisposition: null, revisionPasses: (state.revisionPasses ?? 0) + (state.assessmentSubmitted ? 1 : 0) },
       passed ? 'The submission meets the assessment standards.' : 'The Senior Scribe has identified work that needs correction or further instruction.');
-    if (submitted) onUpdateWorkState({ assessment: result, assessmentSubmitted: true });
+    void submitted;
   };
 
   const disposition = () => {
     if (!assessment) return;
+    if (!canAct(1)) { onShowToast('Not enough AP remaining. The Senior Scribe’s disposition costs 1 AP.'); return; }
+    onConsumeBlocks(1);
     if (!assessment.accounting || !assessment.evidence) {
       onUpdateWorkState({ seniorDisposition: 'returned', stage: 'B_DESIGN' });
       onShowToast('The Senior Scribe returns the document for correction. No action is authorized on an unreliable account.');
@@ -157,7 +159,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
   };
 
   const revise = () => {
-    onUpdateWorkState({ assessment: null, assessmentSubmitted: false, seniorDisposition: null, revisionPasses: (state.revisionPasses ?? 0) + 1 });
+    onUpdateWorkState({ assessment: null, assessmentSubmitted: true, seniorDisposition: null, revisionPasses: (state.revisionPasses ?? 0) + 1 });
     onShowToast('The submission is reopened. Correct the document and submit it for assessment again.');
   };
 
@@ -230,7 +232,7 @@ export const StorehouseReckoning: React.FC<StorehouseReckoningProps> = ({
       <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-3">{(Object.keys(fieldLabels) as RecordField[]).map((field) => <label key={field} className="text-xs text-stone-600 dark:text-stone-300">
         <span className="block mb-1">{fieldLabels[field]}</span><input type="number" min="0" disabled={isComplete} value={record[field] ?? ''} onChange={(event) => setField(field, event.target.value === '' ? undefined : Number(event.target.value))} className="w-full rounded-lg border border-[#D6CEBE] dark:border-stone-700 bg-white dark:bg-stone-800 px-3 py-2"/>
       </label>)}</div>
-      <div className="rounded-lg bg-[#FAF7F0] dark:bg-stone-800 p-4 text-xs space-y-1"><div className="font-semibold">What the document must make clear</div><p>Dispatch is not the same thing as physical receipt. Intake condition is not the same thing as later condition. Held stock is still physically present. An issue requires a recipient and authority. A change in condition is not automatically a loss.</p></div>
+      <div className="rounded-lg bg-[#FAF7F0] dark:bg-stone-800 p-4 text-xs space-y-1"><div className="font-semibold">Transaction context established by the records</div><p>60 measures were dispatched from the outer fields to the central storehouse. The storehouse received 60. Later, 30 usable measures were issued to the brewing-house operation under temple decree for its brewing work.</p><div className="font-semibold pt-2">What the document must make clear</div><p>Dispatch is not the same thing as physical receipt. Intake condition is not the same thing as later condition. Held stock is still physically present. A change in condition is not automatically a loss.</p></div>
       <div className="space-y-2"><div className="text-sm font-semibold">Finding</div>
         <label className="flex gap-2 items-start text-sm"><input type="radio" name="finding" checked={state.findingRuling === 'status_change_cause_unestablished'} disabled={isComplete} onChange={() => onUpdateWorkState({ findingRuling: 'status_change_cause_unestablished', assessment: null, seniorDisposition: null })}/> <span>The records show a change in stock condition; the cause of the additional damage is not established.</span></label>
         <label className="flex gap-2 items-start text-sm"><input type="radio" name="finding" checked={state.findingRuling === 'roof_leak_reported_unproven'} disabled={isComplete || !examined.includes('ev-06')} onChange={() => onUpdateWorkState({ findingRuling: 'roof_leak_reported_unproven', assessment: null, seniorDisposition: null })}/> <span>A roof leak was reported after intake, but its exact contribution to the damage is not established. <span className="text-xs text-stone-500">(Requires E-06)</span></span></label>
