@@ -6,8 +6,8 @@ function feedback(kind: 'success' | 'error' | 'info', code: string, message: str
 
 function withNotice(state: GameState, category: 'settlement', message: string): GameState {
   const notice = {
-    id: `notice-${state.calendar.dayNumber}-${state.journal.notices.length + 1}`,
-    dayNumber: state.calendar.dayNumber,
+    id: `notice-${state.calendar.dayNumber - 1}-${state.journal.notices.length + 1}`,
+    dayNumber: state.calendar.dayNumber - 1,
     category,
     message,
     read: false,
