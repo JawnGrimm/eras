@@ -1113,3 +1113,39 @@ The owner approved a Works structure that retains the original historical purpos
 - `docs/GDD.md`: expanded Section 5.3 with variable-scale Works, authored milestone and career-scale content, and date-based historical invitations; clarified Section 4.4 progression requirements; updated Remaining Design Work and Design Summary.
 - `README.md`: updated the Works summary to reflect the approved direction.
 - No runtime code, save schema, numerical balance, or gameplay behavior changed. No build, type-check, tests, or deployment were run for this documentation-only change.
+
+
+## 2026-11-21 — Decision: professional rank as opportunity access
+
+**Contributor:** Chad (AI)  
+**Status:** Approved design direction; rank formula and rank-by-rank content remain open
+
+The owner approved a distinct role for professional rank: rank shapes the broad range of professional opportunities likely to reach a character. It is not a second competence gate and does not grant institutional authority.
+
+### Approved principles
+
+- **Skills determine qualification.** Specific skill requirements determine whether a character qualifies for a commission, action, or Work requirement. They must be stated at the opportunity level. Rank cannot substitute for a required skill or silently disqualify an otherwise qualified character.
+- **Appointments grant authority.** Formal authority and office-specific responsibilities come from an actual appointment, not from a professional rank grade.
+- **Rank shapes opportunity access.** Rank establishes the baseline professional reach and broad kinds of work and invitations normally presented. It can widen institutional circles and influence the initial trust or responsibility offered, but it does not prove competence or confer authority.
+- **Required Works remain reachable at every rank.** Rank may affect how a milestone opportunity reaches the character or the form of participation, but it must not remove every viable route through the required Works portfolio. Historical progression cannot be rank-gated.
+- **Opportunity sources remain legible.** Use a baseline opportunity range plus identifiable channels, not an opaque composite score: rank establishes baseline reach; relationships can provide specific introductions; specializations can surface discipline-specific opportunities; appointments create office-related opportunities and responsibilities; reputation influences whether sources approach or trust the character and the terms they offer. Each opportunity should have an intelligible reason it reached the character.
+- **Opportunity volume is not a rank reward.** The Section 6.3 target of roughly 8 AP of new Assignment offers per day remains a tuning target for the overall board. Rank can change the mix and source of offers, but lower rank must not systematically starve a character of ordinary playable work.
+- **Standing is readable without omniscience.** The player should be able to read a plain-language description of the character's current professional standing and the broad kinds of work likely to reach them. The interface need not disclose opportunities that never reached the character.
+- **No separate commission-tier ladder.** Remove the Novice / Adept / Expert / Perilous commission tiers and the rank-to-tier mapping. Retain a per-commission difficulty marker using the separate routine / demanding / critical presentation aligned with Section 18.3's green / yellow / red convention. Difficulty communicates the nature of the work; specific skill requirements determine qualification.
+- **Character-level rank.** Rank is derived from the current character's own skill profile. It is not a cumulative Career XP counter and is not transferred when the player takes up another scribal NPC.
+
+### Still open
+
+- The skill-to-rank formula, including the balance between breadth and depth. A breadth-oriented model and a ceiling on the highest grades for narrow specialists have been proposed, but the exact rule and specialist ceiling have not been approved.
+- The rank labels and localized titles. The former universal labels are unsuitable as a ladder: Chief Archivist and Grand Archivist are offices or positions, and Senior Scribe collides with a specific Storehouse NPC role.
+- The specific opportunity profile and payoff for each of the seven grades, especially ranks 5–7.
+- Whether rank should affect compensation.
+- The total Career XP pacing target and how the former 200,000-point total should reconcile with skill and specialization purchase costs.
+
+### Repository changes
+
+- docs/GDD.md: revised the career progression model, separated skill qualification, rank-based opportunity access, specialization, reputation, relationships, and appointments; removed the old commission-tier ladder; made required Works rank-independent; clarified character-level rank and skill continuity; updated the opportunity-board, feedback, glossary, and design-summary text. Also corrected the Contents list and the stale no-successor restart text in the Design Summary.
+- README.md: summarized the distinction between skills, rank, and appointments.
+- src/types.ts, src/components/AssignmentBoard.tsx, src/data/initialData.ts, and src/App.tsx: replaced the prototype Assignment tier field with a separate difficulty marker and updated its display and career-record classification.
+- Rank calculation in the prototype was not changed: its current Career-XP-based implementation cannot be replaced responsibly until the skill-to-rank formula and the runtime skill model are defined. This remains a known implementation discrepancy, not an approved design rule.
+- No save-schema migration was made. No build, type-check, tests, or deployment were run for this documentation and focused UI/type update.
