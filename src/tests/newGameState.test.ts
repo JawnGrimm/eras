@@ -118,6 +118,26 @@ describe('Challenge character ownership', () => {
     expect(isValidSaveEnvelope(createSaveEnvelope(invalid, 1), catalog)).toBe(false);
   });
 
+  it('preserves Challenge ownership through a real character handoff', () => {
+    let state = createNewGameState();
+    const id = Object.keys(state.opportunities.challenges)[0] as ChallengeId;
+    state = transitionGame(state, { type: 'ACCEPT_CHALLENGE', challengeId: id }).state;
+    state = transitionGame(state, { type: 'BEGIN_CHARACTER_DEPARTURE', departureKind: 'departure' }).state;
+    state = transitionGame(state, { type: 'SELECT_SUCCESSOR', nextCharacterId: 'person-uruk-nin-aya' as PersonId }).state;
+    expect(state.player.currentCharacterId).toBe('person-uruk-nin-aya');
+    expect(state.opportunities.challenges[id].assigneePersonId).toBe(INITIAL_PERSON_ID);
+    const resolution = transitionGame(state, { type: 'RESOLVE_CHALLENGE', challengeId: id, choiceId: 'preserve' });
+    expect(resolution.feedback?.code).toBe('challenge-not-active');
+  });
+
+  it('keeps declined Challenges archived as declined and unavailable for acceptance', () => {
+    let state = createNewGameState();
+    const id = Object.keys(state.opportunities.challenges)[0] as ChallengeId;
+    state = transitionGame(state, { type: 'DECLINE_CHALLENGE', challengeId: id }).state;
+    expect(state.opportunities.challenges[id].status).toBe('declined');
+    expect(transitionGame(state, { type: 'ACCEPT_CHALLENGE', challengeId: id }).feedback?.code).toBe('challenge-not-offered');
+  });
+
   it('archives the resolving character on the permanent Challenge outcome', () => {
     let state = createNewGameState();
     const id = Object.keys(state.opportunities.challenges)[0] as ChallengeId;
