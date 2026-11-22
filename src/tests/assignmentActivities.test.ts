@@ -75,6 +75,57 @@ describe('North-Bay Roof Inspection activity definition and engine', () => {
     expect(Object.keys(restored?.state.world.locations ?? {})).toContain('location-uruk-temple-storehouse');
   });
 
+  it('retires legacy Day 1 instant starter offers when restoring older saves', () => {
+    const base = createInitialGameState();
+    const legacyContext = {
+      what: 'Complete an obsolete one-click starter task.',
+      who: ['Enlil-barni', 'Ur-Nanna'],
+      quantity: 'One tablet copy.',
+      when: 'Day 1',
+      where: 'Temple Storehouse, Uruk',
+      from: 'An earlier storehouse record.',
+      to: 'Ur-Nanna',
+      purpose: 'Legacy save compatibility test.',
+      responsibility: ['The old starter card represented an instant task.'],
+      authority: 'No institutional authority is changed.',
+      provenance: ['Legacy starter content.'],
+    };
+    const legacyOffer = (id: string, status: 'offered' | 'accepted' | 'completed'): AssignmentOffer => ({
+      id: id as AssignmentId,
+      title: id === 'assignment-storehouse-copy-check' ? 'Check the Storehouse Copy' : 'Prepare a Practice Tablet',
+      description: 'Legacy instant starter card.',
+      employer: { kind: 'institution', id: 'institution-uruk-temple-storehouse' as never },
+      category: 'legacy_starter',
+      context: legacyContext,
+      requiredSkills: {},
+      difficulty: 'routine',
+      apCost: 1,
+      compensation: { money: 1, provisions: 0 },
+      careerXpReward: 1,
+      deliveryChannels: [baseline],
+      offeredDay: 1,
+      expiresDay: 4,
+      status,
+      ...(status === 'accepted' ? { assigneePersonId: base.player.currentCharacterId } : {}),
+    });
+    const state = {
+      ...base,
+      opportunities: {
+        ...base.opportunities,
+        assignments: {
+          'assignment-storehouse-copy-check' as AssignmentId: legacyOffer('assignment-storehouse-copy-check', 'offered'),
+          'assignment-apprentice-tablet-preparation' as AssignmentId: legacyOffer('assignment-apprentice-tablet-preparation', 'accepted'),
+          'assignment-completed-legacy' as AssignmentId: legacyOffer('assignment-completed-legacy', 'completed'),
+        },
+      },
+    };
+    const restored = restoreSave(JSON.stringify(createSaveEnvelope(state, 1)), INITIAL_WORK_CATALOG);
+    expect(restored).not.toBeNull();
+    expect(restored?.state.opportunities.assignments['assignment-storehouse-copy-check' as AssignmentId].status).toBe('lapsed');
+    expect(restored?.state.opportunities.assignments['assignment-apprentice-tablet-preparation' as AssignmentId].status).toBe('lapsed');
+    expect(restored?.state.opportunities.assignments['assignment-completed-legacy' as AssignmentId].status).toBe('completed');
+  });
+
   it('initializes activity progress, rejects single-click completion, and scopes actions to the accepting character', () => {
     let state = present(createInitialGameState());
     state = transitionGame(state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: NORTH_BAY_ASSIGNMENT_ID }).state;
