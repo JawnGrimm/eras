@@ -1,6 +1,7 @@
 import React from 'react';
 import { useGame } from '../state/GameProvider';
 import type { PersonRelationship } from '../state/types';
+import type { InstitutionId, PersonId } from '../state/ids';
 
 function RelationshipCard({ fromName, toName, relationship }: {
   fromName: string; toName: string; relationship: PersonRelationship;
@@ -28,8 +29,10 @@ export function ProductionPeopleAndInstitutions() {
   const people = Object.values(state.world.people);
   const institutions = Object.values(state.world.institutions);
   const relationshipRows = people.flatMap((from) => Object.entries(state.world.relationships[from.id] ?? {})
-    .map(([toId, relationship]) => ({ from, to: state.world.people[toId], relationship }))
-    .filter((entry) => !!entry.to));
+    .flatMap(([toId, relationship]) => {
+      const to = state.world.people[toId as PersonId];
+      return to && relationship ? [{ from, to, relationship }] : [];
+    }));
 
   return <main className="mx-auto max-w-6xl space-y-6">
     <header>
@@ -52,7 +55,7 @@ export function ProductionPeopleAndInstitutions() {
           </div>
           <div className="mt-4 grid gap-4 lg:grid-cols-2">
             <section><h4 className="text-sm font-semibold">Affiliations</h4>
-              {person.affiliations.length ? <ul className="mt-2 list-inside list-disc text-sm text-stone-700">{person.affiliations.map((id) => <li key={id}>{state.world.institutions[id]?.name ?? id}</li>)}</ul> : <p className="mt-1 text-xs text-stone-500">No affiliations recorded.</p>}
+              {person.affiliations.length ? <ul className="mt-2 list-inside list-disc text-sm text-stone-700">{person.affiliations.map((id) => <li key={id}>{state.world.institutions[id as InstitutionId]?.name ?? id}</li>)}</ul> : <p className="mt-1 text-xs text-stone-500">No affiliations recorded.</p>}
             </section>
             <section><h4 className="text-sm font-semibold">Professional reputation</h4>
               {scribal ? <dl className="mt-2 grid grid-cols-2 gap-2">{Object.entries(scribal.professionalReputation).map(([key, value]) =>
@@ -80,7 +83,7 @@ export function ProductionPeopleAndInstitutions() {
     <section className="space-y-3">
       <div><h2 className="font-serif text-2xl font-semibold">Directional relationships</h2>
         <p className="mt-1 text-sm text-stone-600">Each arrow is one person’s perspective. A reverse relationship appears as a separate entry only when the world records it.</p></div>
-      {relationshipRows.map(({ from, to, relationship }) => <RelationshipCard key={`${from.id}-${to!.id}`} fromName={from.name} toName={to!.name} relationship={relationship} />)}
+      {relationshipRows.map(({ from, to, relationship }) => <RelationshipCard key={`${from.id}-${to.id}`} fromName={from.name} toName={to.name} relationship={relationship} />)}
       {relationshipRows.length === 0 && <p className="rounded-lg border border-stone-300 bg-white p-4 text-sm text-stone-500">No personal relationships are recorded.</p>}
     </section>
 
