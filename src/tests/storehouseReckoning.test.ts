@@ -84,8 +84,17 @@ describe('Storehouse Reckoning typed Work', () => {
     expect(STOREHOUSE_EVIDENCE.find((item) => item.id === 'ev-07')!.objectiveText).toBe(before);
   });
 
-  it('requires both E-04 and E-07 for the cross-evidence condition inference', () => {
-    const character = createInitialGameState().world.people[INITIAL_PERSON_ID].scribal!;
+  it('gives a novice a bounded uncertainty reading without changing the evidence', () => {
+    const base = createInitialGameState().world.people[INITIAL_PERSON_ID].scribal!;
+    const novice = { ...base, skills: { recordkeeping_accounts: { level: 1, skillXp: 0 } } };
+    const notes = interpretStorehouseEvidence('ev-07' as never, novice, ['ev-04','ev-07'] as never[]);
+    expect(notes.some((item) => item.text.includes('do not tell you when'))).toBe(true);
+    expect(STOREHOUSE_EVIDENCE.find((item) => item.id === 'ev-07')!.objectiveText).toContain('47 measures still usable and 7 damp and held');
+  });
+
+  it('requires both E-04 and E-07 for the skilled cross-evidence condition inference', () => {
+    const base = createInitialGameState().world.people[INITIAL_PERSON_ID].scribal!;
+    const character = { ...base, skills: { recordkeeping_accounts: { level: 3, skillXp: 0 } } };
     const alone = interpretStorehouseEvidence('ev-04' as never, character, ['ev-04' as never]);
     const together = interpretStorehouseEvidence('ev-04' as never, character, ['ev-04','ev-07'] as never[]);
     expect(alone.some((item) => item.text.includes('three measures moved'))).toBe(false);
