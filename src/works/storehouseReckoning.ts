@@ -167,14 +167,16 @@ function makeAssertions(data: StorehouseScenarioData, disposition: Exclude<Store
   add('closing-condition', 'The witnessed recount found 47 usable and 7 held measures, 54 in total.', 'observed', ['ev-07']);
   add('condition-change', 'Comparison of intake and recount indicates that three measures changed from usable to held; the total stock did not decrease.', 'inferred', ['ev-04','ev-07']);
   if (citations.has('ev-06' as EvidenceId)) add('roof-leak-report', 'The custody log reports a two-day roof leak after intake; its precise contribution to the moisture damage is not established.', 'reported', ['ev-06']);
-  assertions.push({ id: 'senior-disposition', text: `Senior Scribe disposition: ${disposition}.`, classification: 'observed', sourceIds: ['ev-07'] });
+  assertions.push({ id: 'senior-disposition', text: `Senior Scribe disposition: ${disposition}.`, classification: 'observed', sourceIds: ['senior-disposition'] });
   return assertions;
 }
 
 function finalize(context: WorkSubmissionContext<StorehouseScenarioData>, disposition: string): WorkFinalization {
   if (disposition !== 'account_accepted' && disposition !== 'authorized') throw new Error('Unsupported final disposition.');
   const { progress, personId, dayNumber } = context;
-  const sources = progress.citations.map((id) => sourceForEvidence(id));
+  const sources = [...progress.citations.map((id) => sourceForEvidence(id)),
+    { id: 'senior-disposition', kind: 'person' as const, sourceId: STOREHOUSE_PEOPLE.seniorScribe, description: 'Senior Scribe Shuruppak-ilu disposition' },
+  ];
   const record: RecordEntry = {
     id: `record-storehouse-reckoning-day-${dayNumber}` as RecordId,
     createdDay: dayNumber,
