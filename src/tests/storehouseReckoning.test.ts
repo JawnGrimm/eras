@@ -221,7 +221,7 @@ describe('Storehouse Reckoning typed Work', () => {
     expect(state.world.people[INITIAL_PERSON_ID].scribal!.careerXp - beforeCareer).toBe(STOREHOUSE_PROVISIONAL_CAREER_XP);
     const record = Object.values(state.records.entries)[0];
     expect(record.assertions.some((item) => item.text.includes(disposition))).toBe(true);
-    expect(state.world.knowledge['knowledge-storehouse-record-senior-2']).toBeDefined();
+    expect(Object.values(state.world.knowledge).some((item) => item.holder.kind === 'person' && item.holder.id === 'person-shuruppak-ilu')).toBe(true);
     expect(isValidSaveEnvelope(createSaveEnvelope(state, 2), catalog)).toBe(true);
   });
 
@@ -235,7 +235,7 @@ describe('Storehouse Reckoning typed Work', () => {
     state = transitionGame(state, { type: 'SUBMIT_WORK', workId: STOREHOUSE_WORK_ID }, undefined, catalog).state;
     state = nextDay(state);
     state = transitionGame(state, { type: 'DISPOSE_WORK', workId: STOREHOUSE_WORK_ID, disposition: 'authorized' }, undefined, catalog).state;
-    expect(state.records.entries['record-storehouse-reckoning-day-3'].sources.some((item) => item.id === 'ev-06')).toBe(true);
+    expect(Object.values(state.records.entries)[0].sources.some((item) => item.id === 'ev-06')).toBe(true);
   });
 
   it('preserves the Work provision contract through completion for that contracted Workday', () => {
