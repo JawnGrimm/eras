@@ -29,6 +29,15 @@ export interface ScribalCharacterState {
   };
 }
 
+export interface Appointment {
+  id: string;
+  personId: PersonId;
+  institutionId: InstitutionId;
+  title: string;
+  startDay: number;
+  endDay?: number;
+}
+
 export interface Person {
   id: PersonId;
   name: string;
@@ -86,11 +95,12 @@ export interface GameState {
     people: Record<PersonId, Person>;
     institutions: Record<InstitutionId, Institution>;
     locations: Record<LocationId, Location>;
+    appointments: Record<string, Appointment>;
   };
   historicalProgression: { historicalXp: number; completedWorks: WorkId[] };
   opportunities: { assignments: Record<string, unknown>; challenges: Record<string, unknown> };
   works: { activeWorkId: WorkId | null; progress: Record<WorkId, unknown> };
-  records: { permanentOutcomes: Array<{ id: string; dayNumber: number; summary: string }> };
+  records: { permanentOutcomes: Array<{ id: string; dayNumber: number; summary: string; personIds: PersonId[] }> };
   journal: { notices: DurableNotice[] };
 }
 
