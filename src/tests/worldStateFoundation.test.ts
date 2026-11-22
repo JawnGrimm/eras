@@ -1,4 +1,8 @@
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
+import { ProductionPeopleAndInstitutions } from '../components/ProductionPeopleAndInstitutions';
+import { GameProvider } from '../state/GameProvider';
 import { advanceInstitutionalMatters, MATTER_IDS, STOREHOUSE_INSTITUTION_ID } from '../engine/institutionalMatters';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
 import { createNewGameState, INITIAL_WORK_CATALOG } from '../state/newGameState';
@@ -49,6 +53,16 @@ describe('Phase 2 Uruk world-state foundation', () => {
     const foreman = state.world.people['person-enlil-kisu' as PersonId];
     expect(foreman.objectives?.every((objective) => objective.visibility === 'private')).toBe(true);
     expect(foreman.circumstances?.every((circumstance) => circumstance.visibility === 'public')).toBe(true);
+  });
+
+  it('shows public circumstances and duties without revealing private NPC objectives', () => {
+    const state = createNewGameState();
+    const markup = renderToStaticMarkup(createElement(GameProvider, { initialState: state }, createElement(ProductionPeopleAndInstitutions)));
+    expect(markup).toContain('Current circumstances');
+    expect(markup).toContain('Declared responsibilities and commitments');
+    expect(markup).toContain('Two reed ties on the south loading awning are visibly frayed');
+    expect(markup).not.toContain('Ensure the dispatch quantity is distinguished from the receiving count.');
+    expect(markup).toContain('active official');
   });
 
   it('preserves the new profile and matter data through a schema-v2 save round trip', () => {
