@@ -137,7 +137,7 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
     state = endDay(state).state;
     expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet.shortageWorkdays).toBe(3);
     expect(state.journal.notices.filter((notice) => notice.category === 'settlement')).toHaveLength(3);
-    expect(state.journal.notices.at(-1)?.message).toContain('shortage state is now active');
+    expect(state.journal.notices.filter((notice) => notice.category === 'settlement').at(-1)?.message).toContain('shortage state is now active');
 
     for (let day = 4; day <= 8; day++) state = endDay(state).state;
     expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet.shortageWorkdays).toBe(8);
