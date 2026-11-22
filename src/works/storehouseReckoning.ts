@@ -128,6 +128,12 @@ const interpretationRules: InterpretationRule[] = [
   { id: 'ev07-experienced-observation', evidenceId: 'ev-07' as EvidenceId,
     when: { kind: 'all' as const, predicates: [{ kind: 'skillAtLeast' as const, skillId: 'recordkeeping_accounts' as const, level: 3 }] },
     text: 'The combined physical total remains 54; the change is between usable and held condition categories.', category: 'observation' as const, priority: 3, conflictGroup: 'ev07-skill-reading', displayOrder: 1 },
+  { id: 'ev07-novice-uncertainty', evidenceId: 'ev-07' as EvidenceId,
+    when: { kind: 'all' as const, predicates: [
+      { kind: 'skillAtMost' as const, skillId: 'recordkeeping_accounts' as const, level: 2 },
+      { kind: 'examinedAll' as const, evidenceIds: ['ev-04','ev-07'] as EvidenceId[] },
+    ] },
+    text: 'The intake and recount show different condition totals, but the records do not tell you when the change happened.', category: 'uncertainty' as const, priority: 1, displayOrder: 3 },
   { id: 'ev07-cause-uncertain', evidenceId: 'ev-07' as EvidenceId,
     when: { kind: 'examinedAll' as const, evidenceIds: ['ev-04','ev-07'] as EvidenceId[] },
     text: 'The records establish a three-measure change in condition, but do not establish exactly when or why it occurred.', category: 'uncertainty' as const, priority: 2, displayOrder: 2 },
