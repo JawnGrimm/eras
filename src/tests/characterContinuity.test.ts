@@ -39,7 +39,7 @@ function addScribe(state: GameState, id: PersonId, options: {
 describe('ranked character continuity candidates', () => {
   it('ranks direct personal relationships ahead of direct professional connections', () => {
     let state = createInitialGameState();
-    state = addScribe(state, personalId);
+    state = addScribe(state, personalId, { affiliations: [sharedInstitution] });
     state = addScribe(state, professionalId, { affiliations: [sharedInstitution] });
     state = {
       ...state,
@@ -65,6 +65,10 @@ describe('ranked character continuity candidates', () => {
       [personalId, 'direct_personal'],
       [professionalId, 'direct_professional'],
     ]);
+    expect(result[0].reasons).toContainEqual({
+      kind: 'shared_institution',
+      institutionId: sharedInstitution,
+    });
   });
 
   it('recognizes directional relationships from either side', () => {
@@ -83,7 +87,11 @@ describe('ranked character continuity candidates', () => {
         },
       },
     };
-    expect(rankSuccessorCandidates(state)[0]).toMatchObject({ personId: personalId, tier: 'direct_personal' });
+    expect(rankSuccessorCandidates(state)[0]).toMatchObject({
+      personId: personalId,
+      tier: 'direct_personal',
+      reasons: [{ kind: 'direct_relationship', fromId: personalId, toId: INITIAL_PERSON_ID }],
+    });
   });
 
   it('finds a wider-network candidate through an existing intermediary', () => {
