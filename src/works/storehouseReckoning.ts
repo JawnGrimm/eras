@@ -6,7 +6,7 @@ import { evaluateEvidenceInterpretation } from './evidenceInterpretation';
 import type { InterpretationRule } from './evidenceInterpretation';
 
 export const STOREHOUSE_WORK_ID = 'work-storehouse-reckoning' as WorkId;
-export const STOREHOUSE_INSTITUTION_ID = 'institution-temple-storehouse' as InstitutionId;
+export const STOREHOUSE_INSTITUTION_ID = 'institution-uruk-temple-storehouse' as InstitutionId;
 export const STOREHOUSE_PEOPLE = {
   seniorScribe: 'person-shuruppak-ilu' as PersonId,
   steward: 'person-ur-nanna' as PersonId,
