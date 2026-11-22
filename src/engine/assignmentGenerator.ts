@@ -1,4 +1,4 @@
-import type { AssignmentId, PersonId, RecordId } from '../state/ids';
+import type { AssignmentId, MatterId, PersonId, RecordId } from '../state/ids';
 import type { AssignmentOffer, GameState, TransitionResult } from '../state/types';
 import { ASSIGNMENT_ACTIVITY_CATALOG } from '../content/assignments/northBayRoofInspection';
 import { MATTER_IDS } from './institutionalMatters';
@@ -21,7 +21,7 @@ interface Candidate {
   difficulty: AssignmentOffer['difficulty'];
   deliveryChannels: AssignmentOffer['deliveryChannels'];
   sourceRecordId?: RecordId;
-  requiresHeldMatter?: boolean;
+  originMatterId: MatterId;
 }
 
 const candidates: Candidate[] = [
@@ -47,7 +47,7 @@ const candidates: Candidate[] = [
     },
     compensation: { money: 15, provisions: 1 }, careerXpReward: 25, difficulty: 'demanding',
     deliveryChannels: [{ kind: 'baseline_reach', explanation: 'The Storehouse Steward has asked the junior scribe who filed the north-bay report to inspect the segregated stock.' }],
-    requiresHeldMatter: true,
+    originMatterId: MATTER_IDS.heldBarley,
   },
   {
     activityId: 'activity-south-court-delivery-reconciliation',
@@ -71,6 +71,7 @@ const candidates: Candidate[] = [
     },
     compensation: { money: 12, provisions: 1 }, careerXpReward: 20, difficulty: 'demanding',
     deliveryChannels: [{ kind: 'relationship', personId: CARRIER, explanation: 'Enlil-kisu’s dispatch copy is being compared with the Temple Storehouse receiving tally.' }],
+    originMatterId: MATTER_IDS.southCourtDelivery,
   },
   {
     activityId: 'activity-south-loading-awning-inspection',
@@ -94,6 +95,7 @@ const candidates: Candidate[] = [
     },
     compensation: { money: 10, provisions: 1 }, careerXpReward: 15, difficulty: 'routine',
     deliveryChannels: [{ kind: 'baseline_reach', explanation: 'Ur-Nanna has asked a storehouse scribe to document the awning before further loading.' }],
+    originMatterId: MATTER_IDS.southLoadingAwning,
   },
 ];
 
@@ -101,8 +103,6 @@ export function generateDailyAssignments(state: GameState): GameState {
   const ledger = state.opportunities.assignmentGeneratorLedger ?? { sequence: 0, lastPresentedDayByActivity: {} };
   let next: GameState = { ...state, opportunities: { ...state.opportunities, assignmentGeneratorLedger: ledger } };
   const openCount = () => Object.values(next.opportunities.assignments).filter((offer) => offer.status === 'offered' || offer.status === 'accepted').length;
-  const heldMatter = next.world.matters[MATTER_IDS.heldBarley];
-  const activeHeldMatter = heldMatter?.status === 'active';
   const rotated = [...candidates.slice(ledger.sequence % candidates.length), ...candidates.slice(0, ledger.sequence % candidates.length)];
   let offeredAp = 0;
   let sequence = ledger.sequence;
@@ -110,7 +110,10 @@ export function generateDailyAssignments(state: GameState): GameState {
 
   for (const candidate of rotated) {
     if (offeredAp >= 8 || openCount() >= 4) break;
-    if (candidate.requiresHeldMatter && !activeHeldMatter) continue;
+    const sourceMatter = next.world.matters[candidate.originMatterId];
+    const sourceInstitution = sourceMatter ? next.world.institutions[sourceMatter.institutionId] : undefined;
+    if (!sourceMatter || sourceMatter.status !== 'active' || !sourceInstitution?.activeMatters.includes(sourceMatter.id)) continue;
+    if (Object.values(next.opportunities.assignments).some((offer) => offer.originMatterId === candidate.originMatterId)) continue;
     const lastDay = lastPresentedDayByActivity[candidate.activityId];
     if (lastDay !== undefined && next.calendar.dayNumber - lastDay < 3) continue;
     if (!ASSIGNMENT_ACTIVITY_CATALOG[candidate.activityId as keyof typeof ASSIGNMENT_ACTIVITY_CATALOG]) continue;
@@ -119,7 +122,8 @@ export function generateDailyAssignments(state: GameState): GameState {
     const offer: Omit<AssignmentOffer, 'offeredDay' | 'expiresDay' | 'status' | 'lapsedDuringMandatoryWork'> = {
       id, title: candidate.title, description: candidate.description,
       employer: { kind: 'person', id: STEWARD },
-      ...(candidate.requiresHeldMatter && heldMatter?.sourceRecordId ? { sourceRecordId: heldMatter.sourceRecordId } : {}),
+      originMatterId: candidate.originMatterId,
+      ...(sourceMatter.sourceRecordId ? { sourceRecordId: sourceMatter.sourceRecordId } : {}),
       category: candidate.category,
       context: candidate.context,
       requiredSkills: {},
