@@ -1,7 +1,7 @@
 import type { EventId, InstitutionId, LocationId, MatterId, RecordId } from '../state/ids';
 import type { GameState, InstitutionalMatter } from '../state/types';
 export const STOREHOUSE_INSTITUTION_ID = 'institution-uruk-temple-storehouse' as InstitutionId;
-export const NORTH_BAY_LOCATION_ID = 'location-temple-storehouse-north-bay' as LocationId;
+export const NORTH_BAY_LOCATION_ID = 'location-uruk-temple-storehouse' as LocationId;
 export const MATTER_IDS = { tutorial: 'matter-storehouse-reckoning-tutorial' as MatterId, roofRepair: 'matter-north-bay-roof-verification' as MatterId, heldBarley: 'matter-held-barley-inspection' as MatterId, waterIngress: 'matter-north-bay-water-ingress' as MatterId } as const;
 export function createRoofRepairMatter(dayNumber: number, sourceRecordId?: RecordId): InstitutionalMatter {
  return { id: MATTER_IDS.roofRepair, institutionId: STOREHOUSE_INSTITUTION_ID, kind: 'roof_repair_verification', summary: 'Verify the north-bay roof repair; the full condition remains unresolved.', status: 'active', createdDay: dayNumber, ...(sourceRecordId ? { sourceRecordId } : {}), locationId: NORTH_BAY_LOCATION_ID, scheduledDevelopment: { kind: 'rain', dayNumber: dayNumber + 3 } };
