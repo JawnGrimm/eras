@@ -44,7 +44,6 @@ export function parseNumericDraft(draft: string): { valid: true; value: number |
 export function commitNumericDraftOnBlur(
   draft: string,
   field: StorehouseField,
-  currentValue: number | undefined,
   onCommit: (field: StorehouseField, value: number | undefined) => void,
   onInvalid: () => void,
 ): void {
@@ -62,7 +61,6 @@ export function NumericDraftField({ field, value, onCommit, disabled = false }: 
     commitNumericDraftOnBlur(
       draft,
       field,
-      value,
       onCommit,
       () => setDraft(value === undefined ? '' : String(value)),
     );
