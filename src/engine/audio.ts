@@ -1,8 +1,10 @@
 const AUDIO_PREFERENCE_KEY = 'scribe_audio_muted';
 
 let audioContext: AudioContext | null = null;
+let mutedOverride: boolean | null = null;
 
 function readMutedPreference(): boolean {
+  if (mutedOverride !== null) return mutedOverride;
   try {
     if (typeof window === 'undefined') return false;
     return window.localStorage.getItem(AUDIO_PREFERENCE_KEY) === 'true';
@@ -16,6 +18,7 @@ export function isAudioMuted(): boolean {
 }
 
 export function setAudioMuted(muted: boolean): void {
+  mutedOverride = muted;
   try {
     if (typeof window !== 'undefined') {
       window.localStorage.setItem(AUDIO_PREFERENCE_KEY, String(muted));
@@ -43,17 +46,16 @@ function withAudioContext(synthesize: (context: AudioContext) => void): void {
   const context = getAudioContext();
   if (!context) return;
 
-  if (context.state === 'suspended') {
-    void context.resume()
-      .then(() => {
-        if (!readMutedPreference() && context.state === 'running') synthesize(context);
-      })
-      .catch(() => undefined);
-    return;
-  }
-  if (context.state !== 'running') return;
-
   try {
+    if (context.state === 'suspended') {
+      void context.resume()
+        .then(() => {
+          if (!readMutedPreference() && context.state === 'running') synthesize(context);
+        })
+        .catch(() => undefined);
+      return;
+    }
+    if (context.state !== 'running') return;
     synthesize(context);
   } catch {
     // Audio must never interrupt gameplay if a browser audio node fails.
