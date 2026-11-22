@@ -38,12 +38,35 @@ export function isSkillEligibleForAdvancement(
 
 export function transitionCareerAction(
   state: GameState,
-  action: Extract<GameAction, { type: 'AWARD_SKILL_XP' | 'PURCHASE_SKILL_LEVEL' | 'SET_PRIMARY_SPECIALIZATION' }>,
+  action: Extract<GameAction, { type: 'AWARD_SKILL_XP' | 'AWARD_CAREER_XP' | 'PURCHASE_SKILL_LEVEL' | 'SET_PRIMARY_SPECIALIZATION' }>,
   policy?: CareerProgressionPolicy,
 ): TransitionResult {
   const person = state.world.people[state.player.currentCharacterId];
   const scribal = person?.scribal;
   if (!scribal) return result(state, 'error', 'missing-active-character', 'The current character is unavailable.');
+
+  if (action.type === 'AWARD_CAREER_XP') {
+    if (!Number.isFinite(action.amount) || action.amount <= 0) {
+      return result(state, 'error', 'invalid-career-xp', 'Career XP awards must be positive finite values.');
+    }
+    const nextCareerXp = scribal.careerXp + action.amount;
+    if (!Number.isFinite(nextCareerXp)) {
+      return result(state, 'error', 'invalid-career-xp', 'The Career XP total would be invalid.');
+    }
+    return {
+      state: {
+        ...state,
+        world: {
+          ...state.world,
+          people: {
+            ...state.world.people,
+            [person.id]: { ...person, scribal: { ...scribal, careerXp: nextCareerXp } },
+          },
+        },
+      },
+      feedback: { kind: 'success', code: 'career-xp-awarded', message: action.reason },
+    };
+  }
 
   if (action.type === 'AWARD_SKILL_XP') {
     if (!Number.isFinite(action.amount) || action.amount <= 0) {
@@ -79,7 +102,7 @@ export function transitionCareerAction(
     if (!isSkillEligibleForAdvancement(skill, policy)) {
       return result(state, 'error', 'skill-xp-insufficient', 'More experience in this skill is required before it can be advanced.');
     }
-    if (scribal.careerXp < rule.careerXpCost) {
+    if (!Number.isFinite(scribal.careerXp) || scribal.careerXp < rule.careerXpCost) {
       return result(state, 'error', 'career-xp-insufficient', 'There is not enough Career XP to invest in this advancement.');
     }
     const nextSkill: SkillState = { ...skill, level: targetLevel };
