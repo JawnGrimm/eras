@@ -38,10 +38,28 @@ export function ProductionShellContent() {
   const [settlement, setSettlement] = useState<DaySettlement | null>(null);
   const person = game.state.world.people[game.state.player.currentCharacterId];
 
+  const alerts = <>
+    {game.loadStatus !== 'ready' && <section role="alert" className="rounded-xl border border-red-300 bg-red-50 p-4">
+      <h2 className="font-semibold text-red-950">{game.loadStatus === 'corrupt_save' ? 'Production save needs recovery' : 'Production save could not be read'}</h2>
+      <p className="mt-1 text-sm text-red-900">{game.storageError ?? 'The existing save has not been replaced. Ordinary actions are paused.'}</p>
+      <p className="mt-1 text-sm text-red-900">Starting fresh will replace only the production save key. Legacy prototype saves are left untouched.</p>
+      <button onClick={() => { if (game.startFreshProductionSave()) setSettlement(null); }} className="mt-3 rounded-lg bg-red-900 px-4 py-2 text-sm font-semibold text-white">Start Fresh Production Save</button>
+    </section>}
+    {game.hasUnsavedChanges && <section role="status" className="rounded-xl border border-amber-400 bg-amber-50 px-4 py-3">
+      <p className="text-sm font-semibold text-amber-950">This session has unsaved changes</p>
+      <p className="mt-1 text-sm text-amber-900">{game.storageError ?? 'The latest changes have not been confirmed in browser storage. Keep this session open.'}</p>
+    </section>}
+    {game.feedback && <section role="status" className={`flex items-start justify-between gap-3 rounded-lg border px-4 py-3 text-sm ${game.feedback.kind === 'error' ? 'border-red-200 bg-red-50 text-red-900' : 'border-stone-300 bg-white text-stone-700'}`}>
+      <p>{game.feedback.message}</p><button onClick={game.clearFeedback} aria-label="Dismiss message" className="text-xs underline">Dismiss</button>
+    </section>}
+  </>;
+
   if (game.state.pendingSuccession) {
     return <div className="min-h-screen bg-[#f3efe6] text-stone-900">
       <ProductionHeader />
-      <div className="mx-auto max-w-[1600px] px-4 py-6 lg:px-6"><SuccessionScreen /></div>
+      <div className="mx-auto max-w-[1600px] px-4 py-6 lg:px-6">
+        <main className="min-w-0 space-y-4">{alerts}<SuccessionScreen /></main>
+      </div>
     </div>;
   }
 
@@ -67,19 +85,7 @@ export function ProductionShellContent() {
       </aside>
 
       <main className="min-w-0 space-y-4">
-        {game.loadStatus !== 'ready' && <section role="alert" className="rounded-xl border border-red-300 bg-red-50 p-4">
-          <h2 className="font-semibold text-red-950">{game.loadStatus === 'corrupt_save' ? 'Production save needs recovery' : 'Production save could not be read'}</h2>
-          <p className="mt-1 text-sm text-red-900">{game.storageError ?? 'The existing save has not been replaced. Ordinary actions are paused.'}</p>
-          <p className="mt-1 text-sm text-red-900">Starting fresh will replace only the production save key. Legacy prototype saves are left untouched.</p>
-          <button onClick={() => { if (game.startFreshProductionSave()) setSettlement(null); }} className="mt-3 rounded-lg bg-red-900 px-4 py-2 text-sm font-semibold text-white">Start Fresh Production Save</button>
-        </section>}
-        {game.hasUnsavedChanges && <section role="status" className="rounded-xl border border-amber-400 bg-amber-50 px-4 py-3">
-          <p className="text-sm font-semibold text-amber-950">This session has unsaved changes</p>
-          <p className="mt-1 text-sm text-amber-900">{game.storageError ?? 'The latest changes have not been confirmed in browser storage. Keep this session open.'}</p>
-        </section>}
-        {game.feedback && <section role="status" className={`flex items-start justify-between gap-3 rounded-lg border px-4 py-3 text-sm ${game.feedback.kind === 'error' ? 'border-red-200 bg-red-50 text-red-900' : 'border-stone-300 bg-white text-stone-700'}`}>
-          <p>{game.feedback.message}</p><button onClick={game.clearFeedback} aria-label="Dismiss message" className="text-xs underline">Dismiss</button>
-        </section>}
+        {alerts}
         {screen === 'workday'
           ? <ProductionWorkdayHub onOpenWork={() => setScreen('storehouse')} settlement={settlement} onSettlement={setSettlement} />
           : screen === 'storehouse'
