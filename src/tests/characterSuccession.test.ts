@@ -20,7 +20,7 @@ function withPriorHistory(state: GameState): GameState {
   return {
     ...state,
     calendar: { ...state.calendar, dayNumber: 8, displayDate: 'Day 8, Early Season of Inundation (c. 3200 BCE)' },
-    actionEconomy: { dailyApAllocation: 5, apRemaining: 1, overtimeUsedToday: true, nextDayApPenalty: true },
+    actionEconomy: { dailyApAllocation: 5, apRemaining: 1, overtimeUsedToday: true, nextDayApPenalty: true, recoveryLaborUsedToday: false },
     historicalProgression: { historicalXp: 275, completedWorks: [priorWorkId] },
     works: {
       activeWorkId: null,
