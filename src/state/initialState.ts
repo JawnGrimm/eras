@@ -1,4 +1,4 @@
-import type { GameState } from './types';
+import type { GameState, Person } from './types';
 import type { InstitutionId, PersonId, AppointmentId } from './ids';
 import { UR_GIR_PERSON_ID } from './ids';
 import { NORTH_BAY_LOCATION_ID, NORTH_BAY_PEOPLE } from '../content/assignments/northBayRoofInspection';
@@ -8,7 +8,7 @@ import {
 } from '../engine/institutionalMatters';
 export const INITIAL_PERSON_ID = 'person-enlil-barni' as PersonId;
 export function createInitialGameState(): GameState {
-  const initialPerson = {
+  const initialPerson: Person = {
     id: INITIAL_PERSON_ID, name: 'Enlil-barni', alive: true, affiliations: [],
     lifeStage: 'junior_scribe' as const,
     socialIdentity: { occupation: 'Scribe', summary: 'A junior scribe attached to the Temple Storehouse work.' },
@@ -22,7 +22,7 @@ export function createInitialGameState(): GameState {
   const apprenticeId = 'person-uruk-nin-aya' as PersonId;
   const colleagueId = UR_GIR_PERSON_ID;
   // Authored fictional Uruk scribes provide a small, connected continuity network.
-  const apprentice = {
+  const apprentice: Person = {
     id: apprenticeId, name: 'Nin-aya', alive: true, affiliations: [],
     lifeStage: 'apprentice' as const,
     socialIdentity: { occupation: 'Scribal apprentice', summary: 'An apprentice learning tablet preparation and copying under senior instruction.' },
@@ -36,7 +36,7 @@ export function createInitialGameState(): GameState {
       institutionalStanding: {},
     },
   };
-  const colleague = {
+  const colleague: Person = {
     id: colleagueId, name: 'Ur-gir', alive: true, affiliations: [],
     lifeStage: 'established_scribe' as const,
     socialIdentity: { occupation: 'Scribe', summary: 'An established scribal colleague with his own household resources and professional obligations.' },
@@ -55,7 +55,7 @@ export function createInitialGameState(): GameState {
   const ninKasiId = 'person-nin-kasi' as PersonId;
   const templeStorehouseId = 'institution-uruk-temple-storehouse' as InstitutionId;
   const storehouseLocationId = NORTH_BAY_LOCATION_ID;
-  const dudu = {
+  const dudu: Person = {
     id: NORTH_BAY_PEOPLE.repairer, name: 'Dudu', alive: true, affiliations: [templeStorehouseId], currentLocationId: storehouseLocationId,
     lifeStage: 'craft_practitioner' as const,
     socialIdentity: { occupation: 'Repairer', summary: 'A repairer engaged for specific storehouse maintenance commissions.' },
@@ -67,7 +67,7 @@ export function createInitialGameState(): GameState {
   ];
   const deliveryMatterId = MATTER_IDS.southCourtDelivery;
   const awningMatterId = MATTER_IDS.southLoadingAwning;
-  const casePeople = [
+  const casePeople: Person[] = [
     {
       id: shuruppakId, name: 'Shuruppak-ilu', alive: true, affiliations: [templeStorehouseId],
       lifeStage: 'senior_scribe' as const,
@@ -106,6 +106,13 @@ export function createInitialGameState(): GameState {
     },
     { id: ninKasiId, name: 'Nin-kasi', alive: true, affiliations: [templeStorehouseId] },
   ];
+  const people: Record<PersonId, Person> = {
+    [INITIAL_PERSON_ID]: initialPerson,
+    [apprenticeId]: apprentice,
+    [colleagueId]: colleague,
+    ...Object.fromEntries(casePeople.map((person) => [person.id, person])) as Record<PersonId, Person>,
+    [dudu.id]: dudu,
+  };
   return {
     calendar: { eraId: 'era-1', dayNumber: 1, displayDate: 'Day 1 · Uruk (c. 3200 BCE)' },
     actionEconomy: { dailyApAllocation: 6, apRemaining: 6, overtimeUsedToday: false, nextDayApPenalty: false, recoveryLaborUsedToday: false },
@@ -113,7 +120,7 @@ export function createInitialGameState(): GameState {
     pendingSuccession: null,
     characterTransitions: [],
     world: {
-      people: { [INITIAL_PERSON_ID]: initialPerson, [apprenticeId]: apprentice, [colleagueId]: colleague, ...Object.fromEntries(casePeople.map((person) => [person.id, person])), [dudu.id]: dudu },
+      people,
       relationships: {
         [INITIAL_PERSON_ID]: {
           [apprenticeId]: { dimensions: { trust: 65, respect: 55, affection: 45, resentment: 0, rivalry: 5, familiarity: 60 }, history: [{ id: 'rel-enlil-nin-aya-1', dayNumber: 1, summary: 'Nin-aya has learned routine tablet preparation alongside Enlil-barni.' }] },
