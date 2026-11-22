@@ -3,6 +3,7 @@ import type { EvidenceId } from '../state/ids';
 import { useGame } from '../state/GameProvider';
 import { STOREHOUSE_EVIDENCE, STOREHOUSE_WORK_ID, storehouseReckoning, interpretStorehouseEvidence } from '../works/storehouseReckoning';
 import type { StorehouseField, StorehouseFinding, StorehouseRecommendation, StorehouseScenarioData } from '../works/storehouseReckoning';
+import { SealImpression } from './SealImpression';
 
 const fieldLabels: Record<StorehouseField, string> = {
   opening: 'Opening usable stock',
@@ -76,7 +77,7 @@ export function NumericDraftField({ field, value, onCommit, disabled = false }: 
         disabled={disabled}
         onChange={(event) => setDraft(event.target.value)}
         onBlur={commit}
-        className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 font-mono text-stone-900 outline-none focus:border-amber-700 focus:ring-2 focus:ring-amber-700/20"
+        className="clay-input-pressed w-full px-3 py-2 font-mono text-sm"
       />
     </label>
   );
@@ -237,9 +238,14 @@ export function StorehouseWorkScreen({ onBack }: { onBack: () => void }) {
         </div>}
       </section>
 
-      {progress.status === 'completed' && <section className="rounded-xl border border-emerald-300 bg-emerald-50 p-5" role="status">
-        <h2 className="font-serif text-xl font-semibold text-stone-900">Tutorial completed</h2>
-        <p className="mt-2 text-sm text-stone-700">Final disposition: {progress.finalDisposition ?? 'Completed'}.</p>
+      {progress.status === 'completed' && <section className="relative flex flex-wrap items-center justify-between gap-4 rounded-xl border border-emerald-300 bg-emerald-50 p-5" role="status">
+        <div>
+          <h2 className="font-serif text-xl font-semibold text-stone-900">Tutorial completed</h2>
+          <p className="mt-2 text-sm text-stone-700">Final disposition: {progress.finalDisposition ?? 'Completed'}.</p>
+        </div>
+        {progress.finalDisposition === 'authorized' && (
+          <SealImpression status="authorized" institutionName="Temple Storehouse" />
+        )}
       </section>}
 
       {assessment && <section className="rounded-xl border border-stone-300 bg-white p-5 shadow-sm">

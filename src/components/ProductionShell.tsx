@@ -59,7 +59,7 @@ export function ProductionShellContent() {
   </>;
 
   if (game.state.pendingSuccession) {
-    return <div className="min-h-screen bg-[#f3efe6] text-stone-900">
+    return <div data-era={game.state.calendar.eraId} className="min-h-screen bg-[var(--surface-ground)] text-[var(--ink-primary)]">
       <ProductionHeader />
       <div className="mx-auto max-w-[1600px] px-4 py-6 lg:px-6">
         <main className="min-w-0 space-y-4">{alerts}<SuccessionScreen /></main>
@@ -67,7 +67,7 @@ export function ProductionShellContent() {
     </div>;
   }
 
-  return <div className="min-h-screen bg-[#f3efe6] text-stone-900">
+  return <div data-era={game.state.calendar.eraId} className="min-h-screen bg-[var(--surface-ground)] text-[var(--ink-primary)]">
     <ProductionHeader />
     <div className="mx-auto grid max-w-[1600px] gap-5 px-4 py-5 lg:grid-cols-[230px_minmax(0,1fr)] lg:px-6">
       <aside className="h-fit rounded-xl border border-stone-300 bg-[#e9e3d7] p-3 lg:sticky lg:top-24">
