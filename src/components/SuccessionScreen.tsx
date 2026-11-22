@@ -127,7 +127,7 @@ export function SuccessionScreen() {
   const candidates = rankSuccessorCandidates(state).filter((candidate) => pending.candidateIds.includes(candidate.personId));
 
   if (pending.status === 'no_successor') {
-    return <main className="mx-auto max-w-3xl space-y-5 rounded-xl border border-stone-400 bg-[#eee8dc] p-7">
+    return <div className="mx-auto max-w-3xl space-y-5 rounded-xl border border-stone-400 bg-[#eee8dc] p-7">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-600">Continuity boundary</p>
       <h1 className="font-serif text-3xl font-semibold">No successor is available</h1>
       <p className="text-sm leading-6 text-stone-700">
@@ -135,10 +135,10 @@ export function SuccessionScreen() {
       </p>
       <p className="text-sm leading-6 text-stone-700">No replacement person will be generated. The calendar, era, completed Works, records, and world state have not been reset. This is a terminal continuity boundary for the currently authored roster, not an era restart.</p>
       <p className="border-t border-stone-300 pt-4 text-xs text-stone-600">Ordinary workspace actions remain paused. There is no automatic fallback character.</p>
-    </main>;
+    </div>;
   }
 
-  return <main className="mx-auto max-w-5xl space-y-5">
+  return <div className="mx-auto max-w-5xl space-y-5">
     <header className="rounded-xl border border-amber-300 bg-amber-50 p-6">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-800">Character transition · Day {pending.dayNumber}</p>
       <h1 className="mt-1 font-serif text-3xl font-semibold">Choose who continues</h1>
@@ -151,5 +151,5 @@ export function SuccessionScreen() {
       {candidates.map((candidate) => <CandidateCard key={candidate.personId} candidateId={candidate.personId} state={state} />)}
       {candidates.length === 0 && <p className="rounded-xl border border-stone-300 bg-white p-5 text-sm">No currently eligible successor is available.</p>}
     </div>
-  </main>;
+  </div>;
 }
