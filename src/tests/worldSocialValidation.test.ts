@@ -34,7 +34,7 @@ describe('world social record validation', () => {
       assertionsAdded: [], uncertaintyLimitsAdded: [], note: '' };
     const invalid = transitionGame(created.state, { type: 'AMEND_RECORD', recordId: 'record-check' as RecordId, amendment: bad });
     expect(invalid.feedback?.code).toBe('amendment-invalid');
-    expect(invalid.state.records.entries['record-check'].amendments).toHaveLength(0);
+    expect(invalid.state.records.entries['record-check' as RecordId].amendments).toHaveLength(0);
     const duplicate = { ...bad, id: 'amend-duplicate', sourcesAdded: [
       { id: 'source-one', kind: 'other' as const, description: 'Duplicate' },
       { id: 'source-one', kind: 'other' as const, description: 'Duplicate again' },
