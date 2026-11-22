@@ -4,6 +4,7 @@ import { defineWork } from './workDefinition';
 import type { WorkAssessment, WorkFinalization, WorkSubmissionContext } from './workDefinition';
 import { evaluateEvidenceInterpretation } from './evidenceInterpretation';
 import { NORTH_BAY_ASSIGNMENT_ID, NORTH_BAY_ACTIVITY_ID, NORTH_BAY_PEOPLE } from '../content/assignments/northBayRoofInspection';
+import { MATTER_IDS, createRoofRepairMatter } from '../engine/institutionalMatters';
 import type { InterpretationRule } from './evidenceInterpretation';
 
 export const STOREHOUSE_WORK_ID = 'work-storehouse-reckoning' as WorkId;
@@ -208,7 +209,7 @@ function finalize(context: WorkSubmissionContext<StorehouseScenarioData>, dispos
   return {
     careerXpReward: STOREHOUSE_PROVISIONAL_CAREER_XP,
     ...(shouldPresentRoofInspection ? {
-      addInstitutionMatters: [{ institutionId: STOREHOUSE_INSTITUTION_ID, matter: 'Verify north-bay roof repair' }],
+      addInstitutionMatters: [createRoofRepairMatter(dayNumber, record.id)],
       presentAssignments: [{
         id: NORTH_BAY_ASSIGNMENT_ID, activityId: NORTH_BAY_ACTIVITY_ID, estimatedTotalAp: 7, sourceRecordId: record.id,
         title: 'North-Bay Roof Inspection',
@@ -237,14 +238,14 @@ function finalize(context: WorkSubmissionContext<StorehouseScenarioData>, dispos
     } : {}),
     record,
     knowledge,
-    retireInstitutionMatters: [{ institutionId: STOREHOUSE_INSTITUTION_ID, matter: 'The Storehouse Reckoning' }],
+    retireInstitutionMatters: [{ institutionId: STOREHOUSE_INSTITUTION_ID, matterId: MATTER_IDS.tutorial }],
   };
 }
 
 export const storehouseReckoning = defineWork<StorehouseScenarioData>({
   kind: 'tutorial',
   legacyHistoricalXpReward: STOREHOUSE_LEGACY_HISTORICAL_XP,
-  legacyCompletionCleanup: { retireInstitutionMatters: [{ institutionId: STOREHOUSE_INSTITUTION_ID, matter: 'The Storehouse Reckoning' }] },
+  legacyCompletionCleanup: { retireInstitutionMatters: [{ institutionId: STOREHOUSE_INSTITUTION_ID, matterId: MATTER_IDS.tutorial }] },
   id: STOREHOUSE_WORK_ID,
   title: 'The Storehouse Reckoning',
   startingEvidence: [],
