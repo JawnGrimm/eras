@@ -85,7 +85,7 @@ Unresolved institutional matters are durable, typed world records with stable ID
 
 Institutional rosters are specific to each historical era. Do not assume that the same organizations persist unchanged across eras or simply receive new names and visual skins. Each era should introduce institutions appropriate to its historical setting. The four initial professional orientations—Civic, Religious, Commercial, and Martial—can guide a small number of especially relevant institutions for each orientation, alongside general institutions and organizations that people from multiple orientations may encounter.
 
-Career paths do not create exclusive access or membership boundaries. A character's career shapes their starting position, relationships, responsibilities, opportunities, and likely institutional contacts; it does not prevent them from interacting with institutions associated with other careers.
+Professional orientations do not create exclusive access or membership boundaries. An orientation shapes a character's starting position, relationships, responsibilities, opportunities, and likely institutional contacts; it does not prevent them from interacting with institutions associated with other orientations.
 
 Institutional differences should initially be expressed through historical and narrative character, style, terminology, customs, attitudes, priorities, and context. Differences in authority, responsibilities, resources, or available actions should be represented through the shared model's properties and circumstances, not bespoke mechanics. Introduce mechanically distinct institutional types only if later gameplay demonstrates a genuine need.
 
