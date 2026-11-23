@@ -1,0 +1,95 @@
+# Open Design Register
+
+**Authority:** Working inventory subordinate to the [canonical GDD](../GDD.md). It does not approve proposals or change locked decisions.  
+**Owner:** Game Director / Lead Designer retains approval over design decisions, formulas, thresholds, creative/scope trade-offs, and MVP.  
+**Last triaged:** 23 November 2026.
+
+## How to use this register
+
+Every unresolved question is investigated and given a recommendation; it is not ignored merely because it is not on the current critical path. Priority describes its relationship to the current Era I playable-foundation milestone, not its overall importance.
+
+- **Blocking:** A concrete dependency prevents the current implementation or verification task from proceeding safely. Name the exact missing input.
+- **Required soon:** Not blocking the active task, but needed for the next dependent milestone or a meaningful vertical-slice test.
+- **Future:** Important to the larger game, but not needed to complete the current Era I foundation. It remains in the register.
+
+Priority is a working triage, not a design decision. Reassess when the milestone changes or new evidence arrives. A broad item may contain subtasks at different priorities; split it rather than treating the entire subject as one gate.
+
+## Current milestone filter
+
+**Working milestone:** establish a coherent, deterministic Era I character/world opening and a testable playable foundation, using the merged character-history persistence and staged-identity boundaries. This is a planning description, not a newly approved scope lock.
+
+| Priority | Open item / dependency | Why it sits here |
+|---|---|---|
+| **Blocking** | Era I character-history authoring contract for the deterministic resolver (part of item 22): familiarity domain/scope/exposure mappings, chronology stage/order, event confidence, participant/role mappings, stable biography-fragment IDs, package version, and compatibility rules. | The resolver must not invent persisted history or infer familiarity from plausible prose. Implement only after these authored mappings are reviewed and approved. |
+| **Required soon** | 1. Works portfolio and Era I Work authoring | A coherent non-TSR portfolio is needed before historical progression can be playtested. |
+| **Required soon** | 2. Introductory Tutorial playtest | Verify onboarding clarity and that TSR is not mistaken for a Work or template. |
+| **Required soon** | 3. Assignment commitment, cancellation, and offer balance | Initial two-slot / 6-AP model exists; remaining balance and player comprehension need playtesting. |
+| **Required soon** | 4. Career XP reward balance | Needed before skill/rank pacing can be evaluated. |
+| **Required soon** | 5. Skill-to-rank formula and seven rank opportunity profiles | Rank shapes opportunity reach; it must not become a hidden skill or authority gate. |
+| **Required soon** | 6. Money and provisions economy balance | The two-resource model is established; prices, availability, compensation, and era presentation need a playable balance. |
+| **Required soon** | 7. General Stress and crisis system | Shortage-specific rules are established; broader crisis thresholds, recovery, and intervention need a coherent loop. |
+| **Required soon** | 8. NPC relationships, agency, obligations, and bounded simulation | Needed for a responsive world without simulating everyone. |
+| **Required soon** | 10. Successor candidate eligibility and presentation | Handoff infrastructure exists; candidate criteria beyond an evidenced connection need definition and verification. |
+| **Required soon** | 11. Era I pacing in actual days | Required to evaluate the first playable period and density of meaningful work. |
+| **Required soon** | 13. Era I institutional roster and content | Era I authoring must stay evidence-grounded and avoid unsupported institutional ladders. |
+| **Required soon** | 20. Content authoring and validation pipeline | Needed to scale authored activities and prevent contradictory scenario data. |
+| **Required soon** | 21. Evaluation feedback and scenario validator behavior | Existing engine contract is a foundation; feedback and validation need player-facing verification. |
+| **Required soon** | 22. Character system, excluding blocking resolver data | Character creation, specializations, traits, conditions, action resolution, and starting profiles need staged design; not all are prerequisites for the resolver. |
+| **Required soon** | 24. Notification and attention rules | Morning Report exists; prioritization, grouping, and navigation need playtesting. |
+| **Required soon** | 25. Internal-monologue authoring and character influence model | Evidence remains objective; situated interpretation needs content and threshold testing. |
+| **Future** | 9. Historical connections across distant eras | Important to long-range continuity, not a prerequisite for the Era I opening. |
+| **Future** | 12. Final historical progression thresholds and XP awards | Must follow the Works portfolio; current thresholds are provisional legacy targets. |
+| **Future** | 14. Detailed equipment catalog and balancing | Core equipment principles can support Era I; full catalog and costs can be developed as content requires. |
+| **Future** | 15. Document-building autonomy and professional training progression | Develop alongside the broader career/learning loop after the first playable document workflow is tested. |
+| **Future** | 16. Platform, audience, accessibility targets, and technical scope | Existing accessibility principles remain; broader product/platform decisions belong to release planning. |
+| **Future** | 17. Comparable games and market positioning | Useful strategic research, not a blocker for the current milestone. |
+| **Future** | 18. End state after Era VII and post-completion play | Requires the full historical journey and should not constrain Era I implementation. |
+| **Future** | 19. MVP definition | Settle before release scope is committed; avoid prematurely narrowing the seven-era vision during foundation work. |
+| **Future** | 23. Family desk upgrade economy and cross-era treatment | The desk's continuity role is established; upgrade details are not needed for the current opening. |
+
+## Original open-design inventory
+
+The numbered items below preserve the substance and numbering of the prior GDD Section 23. The priority table adds milestone triage; it does not close or rewrite these questions.
+
+## 23. Remaining Design Work
+
+The following details require further design before they can be treated as fixed mechanics:
+
+1. The Works portfolio for Eras I–VII: identify historically grounded milestone opportunities and smaller career-scale undertakings; determine which Works are required for each era transition, how much choice the player has, how missed or declined date-based invitations are accommodated, and the appropriate scale, structure, and XP awards.
+2. Playtesting the Introductory Tutorial: whether its guided evidence examination, reconciliation, source discipline, professional judgment, revision, and Senior Scribe disposition teach basic professional concepts and interface interactions clearly without being mistaken for the normal Assignment or Work loop. The tutorial is not a Work-system template and awards no Historical Progress XP.
+3. The maximum active Assignment commitment count, cancellation costs, and offer-generation balance beyond the initial two-commitment / 6-AP model.
+4. The precise balance of Career XP rewards across Assignments, Challenges, Works, and study.
+5. Professional rank: define the skill-to-rank formula and test it against broad generalists and narrow specialists; decide whether a specialist ceiling is appropriate; localize in-world titles without treating offices as universal competence grades; define the opportunity profiles of all seven grades, including meaningful differences at ranks 5–7; and decide whether rank affects compensation. The approved direction is that rank shapes baseline opportunity access, while skills determine specific qualifications and appointments grant authority. Retain the former 200,000 Career XP total only as a provisional career-pacing target, not as a rank threshold, and reconcile it with total skill and specialization purchase costs once those costs are defined.
+6. The money and provisions economy: prices, availability, storage/spoilage, compensation balance, and era-appropriate names and presentation. The daily provisions-sustenance rule and shortage trigger are established in Section 12.3; the specific historical forms and balancing of provisions remain content/system work.
+7. The general Stress and crisis system: define the critical threshold, crisis timing, recovery rates, intervention pacing, and how assistance affects Stress and relationships. The shortage-specific +2 Stress increment, 10-point per-character cap, Underfed condition, and simultaneous recovery-route requirement are established in Sections 12.3–12.4 and are not open design questions.
+8. Complete the NPC relationship, agency, and obligation model: determine the detailed rules for directional, multi-dimensional relationships; how significant events and accumulated meaningful interactions shape them; how relationships persist through successors, institutions, and geographically separated eras; how positive relationships can provide crisis support; how repeated assistance affects those relationships; and how conflicting commitments are represented and resolved in specific contexts. Established principles include bounded/selective simulation rather than a full-population simulation; NPCs with independent immediate objectives and longer-term ambitions that can conflict and produce consequences without player involvement; overlapping faction affiliations whose relationships shape inter-NPC behavior without replacing individual ties; typed life-stage information where exact age is unknown; the distinction between current circumstances, ambitions, preferences, requests, and commitments; commitments with identifiable bases; contextually appropriate attempts at resolution; and the persistence of unresolved matters. The shared `Person` foundation, durable typed institutional matters, deterministic END_DAY advancement, and traceable world-driven opportunity generation are established design directions. Detailed decision rules, simulation triggers and budgets, faction effects, memory scope, presentation, and runtime mechanics remain open.
+9. Determine how professional traditions, records, archives, and institutions provide historical connections across distant eras. These are continuities within the world and its history, not mechanisms required to preserve the player's identity; the player continues through successive characters.
+10. Character-transition details: define how and when a player character leaves play, how connected scribal NPC candidates are presented and selected, and how their circumstances and availability are communicated. The approved principle is that the player continues through an existing scribal NPC connected to the former character and their professional world in the same historical period; the new character may be much less experienced or prominent. Character death does not require a family successor or restart the era. The engine now persists pending transitions, distinguishes death from non-death departure, records completed handoffs, preserves world and historical state, and starts the successor on the same day with six AP. A world with no eligible connected scribal candidate enters an explicit no-successor terminal state rather than generating a replacement. Candidate availability beyond alive + scribal + evidenced connection remains open.
+11. Era pacing in actual in-game days, including the number and expected duration of Works, optional activity density, and authored calendar transitions.
+12. The historical progression thresholds and XP allocation after Work plans are complete; rounder values may replace the current legacy targets.
+13. The exact institutional rosters and historical content for each era, alongside era-specific documents, Assignments, and Works; determine the relevant institutions for each career path and the shared institutions encountered across careers. The shared institutional gameplay model and era-specific presentation principle are established.
+14. Detailed equipment categories, qualities, costs, and effects.
+15. The precise progression of document-building autonomy and professional training.
+16. Platform, target audience, accessibility targets, and technical scope.
+17. Comparable games and positioning, including the intended relationship to narrative investigation, administrative simulation, and historical RPG conventions.
+18. The end state after Era VII, the role of an ending or continuing mode, and any failure states or recovery boundaries.
+19. A defined minimum viable product (MVP): which era, Works, Assignments, characters, systems, and content must exist for a complete first release.
+20. Content-authoring and validation pipeline: scenario state schemas, evidence generation, invariant checks, branch coverage, historical review, and automated QA for authored or AI-assisted drafts.
+21. Evaluation implementation: define the detailed player-facing feedback language, scoring weights, and scenario-specific validator behavior. Preserve the distinction between a reasonable judgment based on evidence available at decision time and a careless or unsupported conclusion. Do not assume every scenario has one correct ruling; determine how task purpose and required information shape completeness. The engine contract now supports Work-specific assessment results across the applicable Section 9.2 dimensions, each with a meets/partial/fails status and explanation. Universal scoring weights, outcome thresholds, and final feedback language remain undecided.
+22. Complete the character system: define class-specific starting circumstances and benefits; specialization content, qualification and advancement requirements; the detailed personality-trait catalog, emergence and change rules, and mechanical effects; the detailed condition catalog and numerical effects; the action-resolution model connecting attributes, skills, specializations, equipment, conditions, and circumstances; and the detailed equipment catalog and balancing. The four initial career paths, six attributes and their relatively stable progression, six core skills and primary attribute pairings, independent skill-experience tracks, 1–10 skill scale, Career XP investment principle, multi-specialization model, Primary Specialization, three expertise levels, initial personality-trait selection and emergent/changeable personality principles, condition principles, and initial equipment principles are established. Exact thresholds, costs, trait content, and action-resolution mechanics remain open.
+23. Define the family desk's upgrade economy and era-transition treatment, including upgrade effects, costs, adaptation, and the modest inherited bonuses retained from previous eras. The desk's continuity role and broad transition principle are established; individual upgrades and numerical effects are not.
+24. Define the notification and attention rules: event prioritization, immediate-alert thresholds, morning-report grouping, event-log organization, and navigation from notices to relevant people, records, institutions, and locations. The engine now generates a character-situated daily Morning Report during settlement, including relevant institutional changes, new opportunities, and approaching Assignment expiries. Exact thresholds, layout, grouping, and navigation remain open.
+25. Define the reusable internal-monologue system: determine how examined evidence is paired with character-situated interpretation; how skills, attributes, experience, equipment, relationships, background, and current circumstances influence recognition, reasoning, confidence, and possible error; and how the system communicates uncertainty without becoming an omniscient hint or concealing objective evidence. The evidence/interpretation/judgment/assessment distinction and the initial deterministic predicate/rule engine contract are approved. The engine contract includes safe handling of missing skill/attribute values, cross-evidence re-evaluation, conflict resolution, display ordering, and a static authoring validator. The full set of character influences, authored interpretation content, confidence/error presentation, and playtested thresholds remain open.
+
+These are open design tasks, not invitations to fill gaps with arbitrary placeholder systems.
+
+---
+
+
+## Triage rules
+
+1. A question remains open until the owner explicitly approves a resolution.
+2. Assistant and research work should investigate open items proactively and bring forward concrete recommendations; open status is not a reason to defer analysis.
+3. Do not block current work on future decisions without a demonstrated dependency.
+4. Do not implement unresolved values as approved. Use clearly identified provisional configuration only when the current task can safely proceed and provisional behavior is explicitly acceptable.
+5. When a question is resolved, update this register, the Decision Register, and the relevant supporting specification. Update the GDD only when the approved decision changes a core principle or locked boundary.
