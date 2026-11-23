@@ -117,10 +117,13 @@ export function validateInstitutionalResponseEvent(state: GameState, event: Worl
     // Once persisted, the assignment event and the worker's typed commitment must exist together.
     if (state.world.events[event.id]) {
       const persisted = assignee.commitments?.find((item) => item.id === response.commitmentId);
-      if (!persisted || persisted.kind !== 'allocation' || persisted.status !== 'active'
+      const hasExecution = Object.values(state.world.events).some((existing) => existing?.institutionalResponse?.stage === 'execution'
+        && existing.institutionalResponse.commitmentId === response.commitmentId);
+      if (!persisted || persisted.kind !== 'allocation' || !['active','fulfilled'].includes(persisted.status)
+        || (persisted.status === 'fulfilled') !== hasExecution
         || persisted.basis.kind !== 'event' || persisted.basis.id !== event.id
         || !persisted.relatedMatterIds?.includes(matter.id) || persisted.institutionId !== matter.institutionId) {
-        return 'A recorded assignment must have its matching active worker commitment.';
+        return 'A recorded assignment must have its matching active or executed worker commitment.';
       }
     }
     return null;
@@ -145,7 +148,7 @@ export function validateInstitutionalResponseEvent(state: GameState, event: Worl
     }
     const worker = state.world.people[response.assigneePersonId];
     const commitment = worker?.commitments?.find((item) => item.id === response.commitmentId);
-    if (!worker?.alive || !commitment || commitment.status !== 'active'
+    if (!worker?.alive || !commitment || !['active','fulfilled'].includes(commitment.status)
       || commitment.basis.kind !== 'event' || commitment.basis.id !== assignment.id
       || !commitment.relatedMatterIds?.includes(matter.id) || commitment.institutionId !== matter.institutionId) {
       return 'Execution requires the worker’s active commitment created by the cited assignment.';
