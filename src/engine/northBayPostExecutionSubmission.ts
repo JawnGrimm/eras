@@ -43,7 +43,6 @@ export function submitNorthBayPostExecutionInspection(
   const finding = progress.draft.finding;
   const unsupportedFinding = finding === 'execution_not_confirmed';
   const unsupportedResponsibility = progress.draft.responsibilityClaim === 'aru';
-  const unsupportedNormalFinding = false;
   const playerId = state.player.currentCharacterId;
   const recordId = `record-${offer.id}-day-${state.calendar.dayNumber}` as RecordId;
   if (state.records.entries[recordId]) {
@@ -73,7 +72,7 @@ export function submitNorthBayPostExecutionInspection(
     classification: 'reported',
     sourceIds: ['source-execution-record'],
   });
-  if (unsupportedFinding || unsupportedResponsibility || unsupportedNormalFinding) assertions.push({
+  if (unsupportedFinding || unsupportedResponsibility) assertions.push({
     id: 'assertion-unsupported-post-execution-claim',
     text: unsupportedResponsibility
       ? 'The report assigns responsibility to the maintenance worker without evidence establishing fault.'
