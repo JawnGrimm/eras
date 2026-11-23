@@ -1,7 +1,8 @@
 import type { GameAction, GameState, TransitionResult, AssignmentOffer, RecordAssertion, RecordEntry } from '../state/types';
 import { addActivity } from './opportunities';
 import type { AssignmentId, KnowledgeEntryId, RecordId, InstitutionId } from '../state/ids';
-import { NORTH_BAY_ACTIVITY_ID, NORTH_BAY_PEOPLE, ASSIGNMENT_ACTIVITY_CATALOG, validateAssignmentActivityProgress, normalizeActivityDraft } from '../content/assignments/northBayRoofInspection';
+import { NORTH_BAY_ACTIVITY_ID, NORTH_BAY_POST_EXECUTION_ACTIVITY_ID, NORTH_BAY_PEOPLE, ASSIGNMENT_ACTIVITY_CATALOG, validateAssignmentActivityProgress, normalizeActivityDraft } from '../content/assignments/northBayRoofInspection';
+import { submitNorthBayPostExecutionInspection } from './northBayPostExecutionSubmission';
 import { submitUrukAssignmentActivity } from './urukAssignmentSubmission';
 import { MATTER_IDS, createRoofRepairMatter } from './institutionalMatters';
 
@@ -48,6 +49,10 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
   }
   const cost = definition.submissionApCost;
   if (state.actionEconomy.apRemaining < cost) return fail(state, 'insufficient-ap', `Submission costs ${cost} AP.`);
+  if (offer.activityId === NORTH_BAY_POST_EXECUTION_ACTIVITY_ID) {
+    return submitNorthBayPostExecutionInspection(state, offer, definition, progress)
+      ?? fail(state, 'assignment-activity-resolver-missing', 'No post-execution inspection resolver is registered.');
+  }
   if (offer.activityId !== NORTH_BAY_ACTIVITY_ID) {
     return submitUrukAssignmentActivity(state, offer, definition, progress)
       ?? fail(state, 'assignment-activity-resolver-missing', 'No report resolver is registered for this interactive Assignment.');
