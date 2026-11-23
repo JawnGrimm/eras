@@ -1,5 +1,5 @@
 import type { AssignmentId } from '../state/ids';
-import type { AssignmentOffer, GameState, TransitionResult } from '../state/types';
+import type { AssignmentOffer, GameState, TransitionResult, WorldEvent } from '../state/types';
 import { ASSIGNMENT_ACTIVITY_CATALOG, NORTH_BAY_POST_EXECUTION_ACTIVITY_ID } from '../content/assignments/northBayRoofInspection';
 import { URUK_ASSIGNMENT_OPPORTUNITY_DEFINITIONS } from '../content/assignments/opportunityDefinitions';
 import { transitionOpportunityAction } from './opportunities';
