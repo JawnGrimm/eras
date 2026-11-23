@@ -148,6 +148,12 @@ Three questions must remain distinct: **Can the player access the information? C
 
 This is a principle governing how existing systems intersect, not a separate information-source subsystem. The player's knowledge is a product of their place in the world, not a complete view of the world itself. Notifications and morning reports should present information that has plausibly reached the player through those connections and circumstances, while preserving its source, limits, and uncertainty.
 
+### 2.12 Personal economy and hardship
+
+The character's tracked personal economy has exactly two balances: **Money** and **Provisions**. Do not add a separate Beer balance or grant universal free daily rations. Era-specific names, denominations, and visual presentation may change; the underlying two-resource model remains consistent.
+
+A provisions shortage begins on the **third consecutive Workday without provisions**. Each affected Workday adds **+2 Stress**, up to **10 cumulative shortage-attributed Stress per character**. Shortage also causes the recoverable **Underfed** condition. Concrete recovery routes must be available in the same milestone that introduces the shortage consequences. These boundaries are locked; detailed prices, compensation, availability, and recovery balance are maintained in the Economy and Consequences Specification.
+
 ---
 
 ## 3. Genre, Structure, and Point of View
@@ -166,7 +172,7 @@ The player begins as an apprentice scribe in Uruk. The player's precise name, fa
 
 ### 3.4 Character foundations and initial career paths
 
-The character is a situated person, not a fixed class. Initial career paths shape starting context and access without permanently restricting future work. Detailed attributes, skills, specializations, traits, conditions, creation, and career progression are defined in the [Character and Career Specification](design/CHARACTER_AND_CAREER_SPEC.md).
+The character is a situated person, not a fixed class. The four initial career paths are **Government**, **Military**, **Religious**, and **Merchant**. They shape starting context, institutions, contacts, responsibilities, and opportunities without permanently restricting future work. Detailed attributes, skills, specializations, traits, conditions, creation, and career progression are defined in the [Character and Career Specification](design/CHARACTER_AND_CAREER_SPEC.md).
 
 
 ### 3.5 Tone
@@ -440,6 +446,8 @@ The following are not part of the current core design unless deliberately approv
 - Runtime dependence on generative AI to create assignments, validate records, or determine outcomes.
 
 The game may represent complex technologies, institutions, and historical events, but they should serve the central career and knowledge-history experience.
+
+The production application is implemented in TypeScript. The current production entry boundary is `src/App.tsx`, mounting `ProductionApp` and `ProductionShell`; the production save key is `scribe_game_v2`. These are technical boundaries, not a substitute for the dated implementation record in [Implementation Status](production/IMPLEMENTATION_STATUS.md).
 
 ---
 
