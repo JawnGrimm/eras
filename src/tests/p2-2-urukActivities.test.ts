@@ -20,7 +20,7 @@ const HELD_MATTER = MATTER_IDS.heldBarley;
 function withHeldMatter(state: GameState, createdDay = 1): GameState {
   const matter = {
     id: HELD_MATTER, institutionId: STOREHOUSE, kind: 'held_barley_inspection' as const,
-    summary: 'Seven held measures remain segregated in seven sacks.', status: 'active' as const, createdDay,
+    summary: 'Seven held measures remain segregated in seven sealed pottery storage jars.', status: 'active' as const, createdDay,
   };
   const institution = state.world.institutions[STOREHOUSE];
   return {
@@ -55,6 +55,24 @@ describe('P2-2 authored Uruk Assignment activities', () => {
     expect(validateAssignmentActivityDefinition(heldBarleyInspection)).toEqual([]);
     expect(validateAssignmentActivityDefinition(southCourtDeliveryReconciliation)).toEqual([]);
     expect(validateAssignmentActivityDefinition(southLoadingAwningInspection)).toEqual([]);
+  });
+
+  it('uses sealed pottery storage jars consistently in Held-Barley content', () => {
+    const observation = heldBarleyInspection.discoveries.find((item) => item.id === 'held-container-observation')!;
+    const inspectAction = heldBarleyInspection.actions.find((item) => item.id === 'held-inspect-sacks')!;
+    const recommendationText = heldBarleyInspection.reportSchema.recommendations.map((item) => item.label).join(' ');
+    expect(observation.title).toBe('Seven sealed pottery storage jars on reed matting');
+    expect(observation.text).toContain('seven sealed pottery storage jars');
+    expect(observation.text).not.toMatch(/\bsacks?\b/i);
+    expect(inspectAction.label).toBe('Inspect the seven sealed jars');
+    expect(recommendationText).toContain('jars');
+    expect(recommendationText).not.toMatch(/\bsacks?\b/i);
+
+    const generated = generateDailyAssignments(withHeldMatter(createInitialGameState()));
+    const offer = Object.values(generated.opportunities.assignments).find((item) => item.activityId === heldBarleyInspection.id)!;
+    expect(offer.description).toContain('sealed pottery storage jars');
+    expect(offer.context.quantity).toContain('sealed pottery storage jars');
+    expect(`${offer.description} ${offer.context.quantity}`).not.toMatch(/\bsacks?\b/i);
   });
 
   it('generates deterministic, bounded offers toward an 8 AP target and persists anti-repetition', () => {
@@ -156,6 +174,9 @@ describe('P2-2 authored Uruk Assignment activities', () => {
     expect(record?.assertions.some((assertion) => assertion.text.includes('not a release order'))).toBe(true);
     expect(record?.uncertaintyLimits.join(' ')).toContain('capacity tally');
     expect(record?.uncertaintyLimits.join(' ')).toContain('internal grain soundness');
+    expect(record?.uncertaintyLimits.join(' ')).toContain('sealed pottery storage jars');
+    expect(record?.uncertaintyLimits.join(' ')).not.toMatch(/\bsacks?\b/i);
+    expect(record?.assertions.map((assertion) => assertion.text).join(' ')).not.toMatch(/\bsacks?\b/i);
     expect(state.world.matters[HELD_MATTER]?.status).toBe('active');
     expect(state.world.matters[HELD_MATTER]?.provenance?.some((source) => source.kind === 'record_copy' && source.description.includes('does not itself resolve'))).toBe(true);
     expect(state.world.institutions[STOREHOUSE].activeMatters).toContain(HELD_MATTER);
@@ -192,7 +213,10 @@ describe('P2-2 authored Uruk Assignment activities', () => {
     state = { ...state, calendar: { ...state.calendar, dayNumber: 3 } };
     const directed = runChallengeDirector(state);
     const challenge = directed.opportunities.challenges['challenge-seven-sacks' as never];
-    expect(challenge?.title).toBe('The Seven Sacks');
+    expect(challenge?.title).toBe('The Seven Sealed Jars');
+    expect(challenge?.description).toContain('sealed pottery storage jars');
+    expect(challenge?.description).not.toMatch(/\bsacks?\b/i);
+    expect(challenge?.context.quantity).toContain('sealed pottery storage jars');
     const declined = transitionOpportunityAction(directed, { type: 'DECLINE_CHALLENGE', challengeId: challenge!.id }).state;
     const again = runChallengeDirector(declined);
     expect(again.opportunities.challenges['challenge-seven-sacks' as never]?.status).toBe('declined');
