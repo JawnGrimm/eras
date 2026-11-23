@@ -2,7 +2,7 @@
 
 **Status:** Historical/design proposal for Game Director review; not approved GDD canon  
 **Date:** 2026-11-23  
-**Scope:** Institutional settings, authority, resources, records, career-path contact, and playable administrative problems in Uruk c. 3200 BCE  
+**Scope:** Institutional settings, authority, resources, records, orientation contact, and playable administrative problems in Uruk c. 3200 BCE  
 **Authority:** `docs/GDD.md` remains canonical. This document does not revise the GDD.  
 **Implementation:** None. No production code, save schema, or runtime content is changed.
 
@@ -290,7 +290,7 @@ These are reconstructed scenarios. The player must not be told that a specific U
 
 **Authority and people**
 - A specific project may have an institutional sponsor, responsible official, skilled workers, general laborers, suppliers, and people responsible for provisions.
-- The precise authority and obligations must be authored per project; do not infer them from a broad career path or household background.
+- The precise authority and obligations must be authored per project; do not infer them from a broad professional orientation or household background.
 
 **Resources and flows**
 - Clay, timber, stone, reeds, tools, transport, provisions, and task-specific labor.
@@ -372,7 +372,7 @@ The following table describes likely *contact*, not exclusive membership or guar
 | Collective works | Core coordination contact | Monumental precinct works | Supply and transport | Conditional defensive/security works |
 | Security/armed activity | Institutional authority | Protection of precinct/property | Delivery/route protection | Provisional orientation, not a documented corps |
 
-A career path changes the player's initial people, responsibilities, and likely opportunities. It does not create an entitlement to enter every institution or perform every action. Actual access is governed by relationships, circumstances, appointments, skill, and the authority represented in the shared institutional model.
+An orientation shapes the player's initial people, responsibilities, and likely opportunities. It does not create an entitlement to enter every institution or perform every action. Actual access is governed by relationships, circumstances, appointments, skill, and the authority represented in the shared institutional model.
 
 ## 5. What this means for the four starting orientations
 
@@ -408,7 +408,7 @@ A career path changes the player's initial people, responsibilities, and likely 
 
 **Avoid:** professional standing army, quartermaster corps, city-ward conscription, standardized military rations, Bronze Age equipment sets, routine booty/captive accounts.
 
-**Recommendation:** Keep Martial provisionally because it is part of the GDD's four-path design, but mark Era I content as low-confidence and do not make it mechanically symmetrical with the other paths. Its opening may be a limited institutional responsibility or personal connection, not a formal military posting. The Game Director should decide whether the player-facing orientation label remains “Martial” or is locally glossed as “Security and Mobilization” in Era I.
+**Recommendation:** Retain Martial as a player-facing orientation. Its Era I expression remains provisional and low-confidence; do not make it mechanically symmetrical with better-attested contexts. Its opening may be a limited institutional responsibility or personal connection, not a formal military posting. Use “Security and Mobilization” as the local Era I gloss.
 
 ## 6. Era I scenario content that naturally follows
 
@@ -442,13 +442,13 @@ The previous Uruk character-creation matrix should be revised after this institu
 
 ## 8. GDD alignment
 
-- **§3.4 Initial career paths:** The four paths remain starting orientations. This matrix gives each a period-specific context without creating exclusive access.
+- **§3.4 Professional orientations:** Civic, Religious, Commercial, and Martial remain the four starting orientations. This matrix gives each a period-specific context without creating exclusive access.
 - **§4 Era identity:** Strengthens the administrative and material identity of Era I.
 - **§7 Storehouse Reckoning:** Supports early record, commodity, numerical, and sealing evidence without altering the tutorial.
 - **§15.3 Institutions and factions:** Directly applies the shared institutional model, era-specific rosters, overlapping contacts, and non-exclusive access rules.
 - **§15.4–15.5 Social network and NPCs:** Gives people, responsibilities, relationships, and commitments specific institutional contexts.
 - **§19 Content and scenario quality:** Supplies source confidence and scenario seed principles.
-- **§23 Open Design Work:** Advances item 13 (era-specific institutional rosters and content), item 22 (starting circumstances and career-path benefits), and item 25 (situated interpretation).
+- **§23 Open Design Work:** Advances item 13 (era-specific institutional rosters and content), item 22 (starting circumstances and orientation benefits), and item 25 (situated interpretation).
 
 No locked invariant is changed. No new progression track, resource balance, AP rule, activity layer, or generative-AI dependency is introduced.
 
@@ -456,7 +456,7 @@ No locked invariant is changed. No new progression track, resource balance, AP r
 
 - **Game Design:** Build opportunities from specific institutional matters and responsibilities. Career path changes starting context, not exclusive action access. Use administrative discrepancies and custody problems as the core conflict.
 - **Historical Research:** Highest-priority follow-up is the philology of archaic titles and personnel categories; Anu/Kullaba dedication and function; the range of Eanna activities; degree of control over craft production; and evidence for organized violence/security.
-- **Engineering & Architecture:** Model institutions as shared entities with responsibilities, authority, resources, personnel, relationships, and active matters. Keep career path, affiliation, appointment, qualification, and relationship separate. Do not create a new institutional subsystem for each orientation.
+- **Engineering & Architecture:** Model institutions as shared entities with responsibilities, authority, resources, personnel, relationships, and active matters. Keep orientation, affiliation, appointment, qualification, and relationship separate. Do not create a new institutional subsystem for each orientation.
 - **Art & UI/UX:** Eanna should be a complex multi-use precinct, not simply a temple façade or factory. Anu/Kullaba should feel monumental and sacred, but should not be dressed as a later ziggurat complex without date-specific support. Visualize tablets, tags, sealings, containers, stores, workshops, and material flows.
 - **Audio:** Establish work through clay, stylus, seals, vessels, animals, transport, building, and crowd ambience. Do not presume battlefield audio as a core Martial-orientation signature.
 - **Production & QA:** Create a historical claim ledger. Each content asset and scenario should have a period, source, confidence, and list of assumptions. QA must test path overlap, non-exclusive access, and identical objective evidence in the tutorial.
