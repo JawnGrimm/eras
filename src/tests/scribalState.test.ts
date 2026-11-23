@@ -25,6 +25,13 @@ function stateWithIdentityNpc() {
 }
 
 describe('staged scribal capability boundary', () => {
+  it('marks newly initialized prototype scribal records explicitly', () => {
+    const state = createInitialGameState();
+    const initialized = Object.values(state.world.people).filter((person) => !!person.scribal);
+    expect(initialized.length).toBeGreaterThan(0);
+    expect(initialized.every((person) => person.scribal?.stage === 'initialized')).toBe(true);
+  });
+
   it('treats only the explicit identity stage as non-initialized', () => {
     const state = createInitialGameState();
     const legacyScribal = state.world.people[INITIAL_PERSON_ID].scribal;
@@ -66,6 +73,12 @@ describe('staged scribal capability boundary', () => {
     const state = createInitialGameState();
     delete state.world.people[INITIAL_PERSON_ID].scribal!.stage;
     delete (state.world.people[INITIAL_PERSON_ID].scribal as unknown as Record<string, unknown>).wallet;
+    expect(isValidGameState(state)).toBe(false);
+  });
+
+  it('rejects unknown scribal stages rather than treating them as legacy initialized records', () => {
+    const state = createInitialGameState();
+    (state.world.people[INITIAL_PERSON_ID].scribal as unknown as Record<string, unknown>).stage = 'pending';
     expect(isValidGameState(state)).toBe(false);
   });
 

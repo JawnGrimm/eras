@@ -56,7 +56,7 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenActivity, settlement, o
   if (state.pendingSuccession || !person?.alive || !scribal) {
     return <section role="status" className="mx-auto max-w-3xl rounded-xl border border-amber-300 bg-amber-50 p-6">
       <h1 className="font-serif text-2xl font-semibold">Workday paused</h1>
-      <p className="mt-2 text-sm text-stone-700">Ordinary workday actions are unavailable while the character transition is unresolved.</p>
+      <p className="mt-2 text-sm text-stone-700">Ordinary workday actions require an initialized career state and remain paused until a playable character is available.</p>
     </section>;
   }
   const wallet = scribal.wallet;
