@@ -1,182 +1,263 @@
 # Design Investigation 02A — Uruk Character-Creation Content Matrix
 
-**Status:** Proposal for Game Director review; not approved or canonical  
+**Status:** Revised proposal for Game Director review; not canonical GDD text  
 **Date:** 2026-11-23  
-**Scope:** Player-facing life-history sequence and deterministic starting-state content for the Era I Uruk opening  
+**Scope:** Cross-era character-creation framework, with Era I Uruk as its first historical expression  
 **Authority:** `docs/GDD.md` remains the canonical design source. This document does not revise it.  
-**Implementation:** None. No production code, save schema, or runtime content is changed by this proposal.
+**Implementation:** Design documentation only. No production code, save schema, or runtime content is changed.
 
 ## 1. Design intent
 
-Use a Bannerlord-like sequence of life-history chapters, not a class/build screen. The player is answering:
+*Scribe of Eras* is a historical RPG, not a comprehensive reconstruction or simulation of every society it visits. Character creation should make the player feel that they are taking up the life of a particular person in a credible historical setting. It should not require the player to understand the full institutional structure of that setting, nor should it create a separate character system for every era.
+
+Use a life-history sequence inspired by games such as *Bannerlord*, rather than a conventional class/build screen. The central question remains:
 
 > What kind of life has this person lived, and how has that life brought them to the profession of scribe?
 
-The choices establish a person who already exists in the world. They are not a blank avatar, a bundle of bonuses, or a modern occupational class transplanted into Uruk.
+The framework must be reusable across all seven eras. Its chapter structure and underlying concepts remain recognizable; the available choices, people, institutions, work, tools, and professional descriptions are authored for the era and location.
 
-The resulting character should have:
-- An identifiable household and social context.
-- A small number of remembered experiences represented as Life Events.
-- Practical familiarity grounded in those experiences.
-- A plausible route into scribal training, with actual people and relationships.
-- A modest, coherent record of early professional practice.
-- One of the four GDD career paths as an initial professional orientation.
+**Historical grounding should shape the content, not dictate the size of the simulation.** We need enough historical context to make each choice believable and consequential. We do not need a complete model of ancient household structures, labor administration, institutional jurisdictions, or every route by which a person could enter scribal work.
+
+The character created is an existing person in the world, not a blank avatar or a collection of bonuses. Their history should establish:
+- A recognizable origin and social context.
+- A small number of meaningful formative experiences.
+- Practical familiarity grounded in lived experience.
+- A plausible route into scribal work, involving identifiable people.
+- Some early professional practice.
+- An initial professional orientation.
 - One or two player-selected starting personality traits.
-- A deterministic opening position in the existing world.
+- A coherent opening situation and connections to the existing world.
 
-The sequence should not assign numerical attribute or skill values until the rank/action-resolution dependencies have been tested. It should not grant expertise merely because a character was exposed to a task.
+Do not assign numerical attributes, skill levels, Career XP, or professional-rank benefits through this matrix. Those require the separate character balance and action-resolution work.
 
-## 2. Historical confidence key
+## 2. Design principles
 
-- **Attested:** Directly supported by archaeological or textual evidence for the period, while retaining the limits of the surviving sample.
-- **Inferred:** A cautious interpretation of attested evidence, social organization, or material practice.
-- **Reconstruction:** A playable human-scale detail authored to make a plausible life, but not directly documented by the surviving Uruk evidence.
+### 2.1 One framework, era-specific expression
 
-Important limitation: most surviving Uruk IV administrative texts concern the operations of central decision-making bodies. They tell us much more about recorded commodities and institutional transactions than about the childhood, family life, or training histories of individual scribes. The options below are therefore deliberately marked as reconstructions where appropriate. They should not be presented in-game as recovered biographies.
+Use the same broad life-history questions throughout the game:
+1. What kind of place and community did you grow up in?
+2. What responsibilities did you take on?
+3. What experience shaped how you see your work and other people?
+4. How did you enter the profession of scribe?
+5. What did you learn first?
+6. What kind of professional life are you beginning?
 
-## 3. Proposed player sequence
+These are narrative prompts, not mandatory simulation systems. A later era may express an origin through a family workshop, a monastery, a merchant household, a government office, a printing shop, or a digital workplace. The framework does not assume that every era has the same household structure, educational system, social categories, or professional institutions.
 
-### Chapter 1 — Where did you grow up?
+### 2.2 Professional orientation is a generalized player choice
 
-**Player-facing question:** “Before you learned to work with tablets, whose work did you grow up around?”
+The four GDD career paths—**Government, Military, Religious, and Merchant**—are broad professional orientations. They are not four historically universal institutions, castes, guilds, modern departments, or exclusive career classes.
 
-The player chooses a formative household environment, not a social class or permanent occupation. The household may be in Uruk or outside the city; an outside origin should be available only where the world initialization can establish a credible move/contact into Uruk.
+When the player chooses one, explain:
+- What kind of professional work the orientation generally represents across the game.
+- What that orientation means in the current era and location.
+- What kinds of people, responsibilities, and opportunities it is likely to bring the character into contact with.
+- What it does **not** automatically grant: authority, appointment, qualification, rank, exclusive access, or mastery.
 
-| Choice | Player-facing description | Confidence | Starting state created |
+The underlying orientation can remain stable across eras while its local expression changes. For example, Government may mean institutional administration in Uruk, a royal or civic administrative service in another period, and a state department or public records office in a later one. The game should explain the local meaning at the moment of choice rather than expect the player to infer it from a historical label.
+
+### 2.3 History creates texture and context, not exhaustive simulation
+
+Historical research should establish the credible range of people, work, materials, institutions, and relationships available to the author. The game then selects the details needed to create a coherent and interesting character.
+
+Do not build:
+- A complete Uruk household or kinship simulator for character creation.
+- A universal social-class ladder.
+- A detailed institutional hierarchy solely to justify a starting path.
+- A formal scribal school or standardized apprenticeship system without evidence.
+- A standing military bureaucracy to make the Military orientation look symmetrical.
+- A numerical bonus for every biographical choice.
+
+A few well-authored relationships and responsibilities are more valuable than a large network of weakly justified entities.
+
+## 3. Historical confidence and presentation
+
+Use these labels in internal research and content review:
+
+- **Attested:** A relevant object, text, architectural feature, or image is directly present in the archaeological record for the period. Attestation of an object does not automatically prove its interpretation.
+- **Inferred:** A cautious interpretation supported by evidence or scholarly reconstruction, but not directly recorded in the form used by the game.
+- **Reconstruction:** A specific person, biography, relationship, procedure, or playable event authored to make a plausible human story. It must not be presented as a documented historical event or universal practice.
+- **Unsupported / reject:** The claim exceeds available evidence or imports a later institution or practice without justification.
+
+The surviving Uruk IV administrative record tells us much more about commodities and institutional transactions than about the childhood, family life, or training histories of individual scribes. Most specific life-history vignettes will therefore be authored reconstructions. That is acceptable for a historical RPG, provided they are plausible and are not falsely presented as recovered biographies.
+
+The player-facing experience should not be cluttered with scholarly confidence labels. Historical uncertainty belongs in the content's research record and in the wording of the fiction where it matters. Use qualified descriptions rather than turning every choice into a lecture about archaeological uncertainty.
+
+## 4. Proposed life-history sequence: Era I expression
+
+The following choices are an initial content set for Uruk c. 3200 BCE. They are not claims that these were formal social categories or standardized life stages. They provide distinct, readable routes into the character's professional life.
+
+### Chapter 1 — What kind of world did you grow up in?
+
+**Player-facing question:** “Before you learned to work with tablets, what kind of work and people shaped your world?”
+
+The player chooses a formative environment. Avoid presenting the options as castes, fixed occupations, or mutually exclusive ancient household types.
+
+| Origin emphasis | Player-facing description | Historical basis | Character context created |
 |---|---|---|---|
-| Provisioning and food preparation | “The household's days were shaped by grain, food preparation, storage, and the movement of provisions.” | Inferred / Reconstruction | Household identity; familiarity with provisioning contexts and food commodities; one or more household contacts. |
-| Fields and herds | “Much of the work you knew began beyond the crowded streets: fields, animals, seasonal tasks, and bringing produce where it was needed.” | Inferred / Reconstruction | Household identity; familiarity with agricultural or pastoral contexts and seasonal labor; a household contact. |
-| Skilled production | “You grew up around people who shaped useful things, judged materials, and learned how much work a finished object concealed.” | Inferred / Reconstruction | Household identity; familiarity with one authored craft/material domain; a household contact. |
-| Exchange and transport | “You knew the work of moving goods: deliveries, routes, quantities, handovers, and the people waiting at the other end.” | Inferred / Reconstruction | Household identity; familiarity with movement, delivery, and exchange contexts; a household contact. |
+| Food and provisioning | “You grew up around the work of preparing, storing, and moving food. You learned how much effort sits behind an apparently simple allocation.” | Inferred / Reconstruction | Familiarity with provisions, storage, distribution, and people involved in supplying others. |
+| Fields and herds | “Much of the work you knew began beyond the city: fields, animals, seasonal tasks, and bringing produce where it was needed.” | Inferred / Reconstruction | Familiarity with agricultural or pastoral work, seasonal conditions, and connections between producers and recipients. |
+| Skilled making | “You grew up around people who shaped useful things, judged materials, and knew how much work a finished object concealed.” | Inferred / Reconstruction | Familiarity with one authored craft or material context, workmanship, and production relationships. |
+| Exchange and movement | “You knew the work of moving goods: deliveries, routes, quantities, handovers, and the people waiting at the other end.” | Inferred / Reconstruction | Familiarity with transport, delivery, exchange, and relationships between counterparties. |
+| Institutional service | “People close to you worked in or around a larger institution, where resources and responsibilities had to be organized.” | Inferred / Reconstruction; use only with a specific authored context | Familiarity with an institutional environment and its people. Do not imply a universal institutional household or a modern employer/employee relationship. |
 
-**Guardrails**
-- These are not four castes, classes, or mutually exclusive ancient social categories. They are player-readable emphases within a household's working life.
-- A household may have several activities; the selected option identifies the work most formative to this character.
-- Do not imply that every household was a nuclear family, an isolated economic unit, or a formal institution. Household organization in early Mesopotamia is debated; the household model is a useful interpretive lens, not a settled universal description.
-- Do not make the provisioning background the default “poor” path or craft/exchange backgrounds more prestigious. Each must offer a distinct kind of familiarity and social contact, not a better starting build.
-- Do not add an “institutional dependent” origin until targeted research establishes what relationship and household form the option would actually represent.
+**Authoring guardrails**
+- The selected option is the strongest influence on the character, not the only work their household or community performed.
+- An origin outside Uruk is possible only when the authored character history establishes a credible route into the opening setting.
+- Do not make one origin the default poor path or another the prestigious path. Origins should create different contacts and familiarity, not a better build.
+- “Institutional service” is a contextual option, not a new social class. Include it only when a specific relationship and circumstance can be authored.
+- Do not force every character into a modern nuclear-family model. Use a household, kin group, work group, or other relevant social context as the particular biography requires.
 
-### Chapter 2 — What work were you trusted to do?
+### Chapter 2 — What responsibilities did you take on?
 
-**Player-facing question:** “When you were old enough to be useful, what did people begin to trust you with?”
+**Player-facing question:** “When you were old enough to be useful, what did people begin to rely on you to do?”
 
-| Choice | Player-facing description | Confidence | Starting state created |
-|---|---|---|---|
-| Count or measure | “You were asked to count, compare, or measure things that someone else needed to account for.” | Inferred / Reconstruction | A Life Event recording repeated practical responsibility; familiarity with quantities and the relevant commodity context. |
-| Help with deliveries | “You learned who was expecting a delivery, what had to travel, and what could go wrong between handover and arrival.” | Inferred / Reconstruction | Familiarity with delivery and custody contexts; a contact beyond the immediate household may be established if authored. |
-| Judge materials or quality | “You learned to notice when material, workmanship, or condition did not match what was expected.” | Inferred / Reconstruction | Familiarity with a selected material/quality domain; a habit candidate such as close inspection may be recorded, but not automatically assigned as a personality trait. |
-| Coordinate a small task | “People began relying on you to remember who was doing what and whether the work had been finished.” | Reconstruction | Familiarity with coordination and responsibility; a Life Event with the people involved. |
-| Observe a record or seal in use | “You watched someone use a mark, seal, token, or tablet to make a transaction or responsibility recognizable.” | Inferred / Reconstruction | Familiarity with a specific information or authorization practice. This does not grant reading or writing skill. |
+| Responsibility | Player-facing description | Context created |
+|---|---|---|
+| Count or measure | “You were asked to count, compare, or measure things that someone else needed to account for.” | Familiarity with quantities and a relevant commodity or measurement context. |
+| Help with deliveries | “You learned who was expecting a delivery, what had to travel, and what could go wrong between handover and arrival.” | Familiarity with movement, custody, and delivery relationships; possibly a contact beyond the immediate household. |
+| Judge materials or quality | “You learned to notice when material, workmanship, or condition did not match what was expected.” | Familiarity with one material or quality domain; possible habit of close inspection, not an automatic personality trait. |
+| Coordinate a small task | “People began relying on you to remember who was doing what and whether the work had been finished.” | Familiarity with coordination and responsibility; named participants where relevant. |
+| Observe a record or seal in use | “You watched someone use a mark, seal, token, or tablet to make a transaction or responsibility recognizable.” | Familiarity with a specific record, marking, or custody practice. Seeing a record does not grant literacy. |
 
-**State rules**
-- A single selected vignette creates one authored Life Event. Repeated-responsibility language may create a small number of linked events only if the content explicitly represents repeated practice.
-- Familiarity records what the character has encountered and in what context. It is not a skill level, qualification, appointment, or authority.
-- Do not infer literacy from seeing a tablet, seal, or mark. Recognition of a material object is not the same as reading its notation.
-- If a relationship is created, its initial dimensions must follow the actual event. Kinship or repeated contact may establish familiarity; it does not automatically establish trust, affection, respect, or obligation.
+A selected vignette creates one concise Life Event. If the text describes repeated practice, the event may record that repetition; do not simulate every instance. Familiarity is experience with a domain or practice, not a skill level, qualification, appointment, or authority.
 
-### Chapter 3 — What changed how you saw the world?
+### Chapter 3 — What experience changed how you see the world?
 
 **Player-facing question:** “Was there a moment that changed what you paid attention to?”
 
-| Choice | Player-facing description | Confidence | Starting state created |
-|---|---|---|---|
-| A quantity did not match | “A quantity everyone relied on turned out not to match what had actually been received or used.” | Reconstruction grounded in administrative context | Life Event; familiarity with discrepancy and comparison; possible relationship history with the person involved. |
-| You were blamed unfairly | “You were held responsible for a mistake you did not believe was yours.” | Reconstruction | Life Event; a specific directional relationship history entry if another person was involved; possible habit candidate of caution about attribution. |
-| You helped settle a disagreement | “Two people remembered an agreement differently, and you helped establish what each had actually seen or promised.” | Reconstruction | Life Event; familiarity with testimony and competing accounts; relationship history with participants. |
-| You were trusted with an adult responsibility | “Someone gave you responsibility before others thought you were ready.” | Reconstruction | Life Event; a relationship event with the person who trusted you; possible habit candidate concerning responsibility. |
-| Household difficulty forced adaptation | “A difficult season or loss of resources changed how your household divided its work.” | Inferred / Reconstruction | Life Event; changed household circumstance at the time; familiarity with adaptation and resource pressure. It must not create a permanent current hardship unless the authored opening state supports it. |
+| Formative experience | Player-facing description | Context created |
+|---|---|---|
+| A quantity did not match | “A quantity everyone relied on turned out not to match what had actually been received or used.” | Experience with discrepancy and comparison; relationship history with a participant where relevant. |
+| You were blamed unfairly | “You were held responsible for a mistake you did not believe was yours.” | A remembered dispute and a specific relationship history; possible caution about assigning blame. |
+| You helped settle a disagreement | “Two people remembered an agreement differently, and you helped establish what each had actually seen or promised.” | Familiarity with competing accounts and the people involved. |
+| You were trusted with an adult responsibility | “Someone gave you responsibility before others thought you were ready.” | A meaningful relationship event and experience of responsibility. |
+| Your circumstances changed | “A difficult season or loss of resources changed how the people around you divided their work.” | A past circumstance and familiarity with adaptation. Do not impose a current hardship unless the opening situation supports it. |
 
-**Guardrails**
-- The event should shape memory and interpretation, not predetermine a moral identity or future answer.
-- A habit is an interpretive tendency derived from experience, not a verdict. It may influence what the character notices or initially suspects; it must never alter or conceal objective evidence.
-- Do not automatically convert a formative event into a permanent personality trait. The player chooses one or two initial traits in the final identity step; emergent traits require meaningful play.
+The event should shape memory and interpretation, not predetermine a moral identity or future answer. A habit may be recorded when the experience supports a stable interpretive tendency. It must not alter or conceal objective evidence. Do not automatically convert a formative event into a permanent personality trait.
 
-### Chapter 4 — How did you enter scribal training?
+### Chapter 4 — How did you enter the profession of scribe?
 
 **Player-facing question:** “How did the chance to learn the work of a scribe come to you?”
 
-| Route | Player-facing description | Confidence | Starting state created |
-|---|---|---|---|
-| Household introduction | “Someone who knew your household introduced you to a person involved in scribal work.” | Reconstruction | A named introducer and a named training contact; an evidenced relationship route, not automatic affection or trust. |
-| Recommendation through practical work | “Someone noticed how you handled a responsibility and recommended that you be given a chance to learn.” | Reconstruction | Recommender tied to the earlier Life Event; a reason for the recommendation; possible expectation or obligation only if explicitly stated. |
-| Institutional need | “An office or working group needed a dependable assistant, and you were brought in to learn by helping.” | Inferred / Reconstruction | A specific institutional context and contact; no assumption of a modern formal recruitment office or centralized school. |
-| Unexpected encounter | “A delivery, disagreement, or other piece of work brought you into contact with someone willing to teach you.” | Reconstruction | A contact whose identity and reason for involvement are recorded; route must connect to the earlier history or an authored world event. |
+| Route | Player-facing description | Context created |
+|---|---|---|
+| Someone introduced you | “Someone who knew you or your work introduced you to a person involved in keeping records.” | A named introducer and a named professional contact, with a clear basis for the connection. |
+| Your work earned a recommendation | “Someone noticed how you handled a responsibility and recommended that you be given a chance to learn.” | A recommender connected to an earlier event and a reason for the recommendation. |
+| You were needed as an assistant | “A group or institution needed a dependable assistant, and you were brought in to learn by helping.” | A specific work context and contact. Do not imply a modern recruitment office or centralized school. |
+| An encounter opened a door | “A delivery, disagreement, or other piece of work brought you into contact with someone willing to teach you.” | A professional contact connected to the earlier life history or a plausible authored event. |
 
-**Critical historical caution**
-Nissen's suggestion that the economic administration also recruited and trained the next generation of administrators is explicitly a reconstruction: he notes that there is no direct evidence for such “schools.” This design may portray instruction and transmission of expertise, but must not state that a formal Uruk scribal academy, standardized apprenticeship contract, or universal school system is archaeologically established.
+The trainer or mentor must be an actual Person in the shared world, not a character-creation-only placeholder. A recommender and trainer may be the same person, but the recommendation and teaching relationship are distinct facts.
 
-**State rules**
-- The trainer/mentor must be an actual Person in the shared world model, with a stable PersonId.
-- A recommender and a trainer may be the same person, but the relationship route and the teaching relationship remain distinct facts.
-- A recommendation records why the person acted. It does not create trust, affection, or a debt unless the authored event establishes those.
-- Any obligation must be explicit, scoped, and based on an identifiable agreement, event, or other supported basis. Never silently deduct AP or create an unspoken debt.
+Nissen's suggestion that economic administration recruited and trained later administrators is explicitly a reconstruction; he notes there is no direct evidence for such schools. The game may portray instruction and transmission of expertise, but must not claim that a formal Uruk scribal academy, standardized apprenticeship contract, or universal school system is archaeologically established.
+
+A recommendation does not automatically create trust, affection, respect, or debt. Any obligation must have an explicit basis and scope. A mentor is a person, not a free bundle of bonuses or a guaranteed patron.
 
 ### Chapter 5 — What did you learn first?
 
 **Player-facing question:** “What part of the work did your early instruction make familiar?”
 
-The player selects one primary emphasis. It represents actual supervised practice, not a complete curriculum or a modern subject specialization.
+The player selects one primary emphasis. It represents remembered supervised practice, not a complete curriculum or a modern subject specialization.
 
-| Training emphasis | Player-facing description | Skills genuinely practiced | Familiarity / limits |
+| Training emphasis | Player-facing description | Practice represented | Familiarity and limits |
 |---|---|---|---|
-| Quantities and commodity notation | “You practiced recording quantities beside the goods they described, and learned that a number only made sense in its proper system.” | Recordkeeping & Accounts; potentially Reading & Scripts where signs were actually recognized | Familiarity with one authored commodity and numerical context. No universal numeracy bonus. |
-| Clay, stylus, and tablet preparation | “You learned how clay behaved, how a tablet was prepared, and how marks had to be made to remain legible.” | Writing & Composition only where the character actually made marks; otherwise no automatic core-skill award | Material familiarity with clay/tablet preparation. This is not equivalent to reading or composing a complete text. |
-| Signs and category lists | “You practiced recognizing and reproducing a limited set of signs and categories used in the work around you.” | Reading & Scripts and Writing & Composition, at novice practice level only | Familiarity with the practiced sign/category set. Do not imply fluent language literacy or the ability to write ordinary speech. |
-| Checking and organizing records | “You helped compare entries, keep related information together, and notice when two accounts did not agree.” | Recordkeeping & Accounts; Analysis & Research only where comparison and inference were practiced | Familiarity with one record type and the context in which it was used. |
-| Listening and explaining | “You learned by listening to instructions, repeating them accurately, and explaining a task to someone else.” | Communication & Instruction | Familiarity with the relevant oral procedure. No general authority to instruct or supervise. |
-| Comparing sources | “You were taught not to rely on one account when another source could confirm or challenge it.” | Analysis & Research; potentially Recordkeeping & Accounts if actual entries were compared | Familiarity with comparison and source differences. Do not make the character a modern investigator. |
+| Quantities and commodity notation | “You practiced recording quantities beside the goods they described, and learned that a number only made sense in its proper system.” | Recordkeeping & Accounts; Reading & Scripts only where signs were actually recognized | One authored commodity and numerical context; no universal numeracy bonus. |
+| Clay, stylus, and tablet preparation | “You learned how clay behaved, how a tablet was prepared, and how marks had to be made to remain legible.” | Material preparation; Writing & Composition only where the character actually made marks | Familiarity with clay and tablet preparation; not equivalent to reading or composing a complete text. |
+| Signs and category lists | “You practiced recognizing and reproducing a limited set of signs and categories used in the work around you.” | Reading & Scripts and Writing & Composition at an introductory level | Familiarity with the practiced sign/category set; not fluent language literacy or ordinary prose writing. |
+| Checking and organizing records | “You helped compare entries, keep related information together, and notice when two accounts did not agree.” | Recordkeeping & Accounts; Analysis & Research where comparison and inference were practiced | Familiarity with one record type and its working context. |
+| Listening and explaining | “You learned by listening to instructions, repeating them accurately, and explaining a task to someone else.” | Communication & Instruction | Familiarity with a relevant oral procedure; no general authority to instruct or supervise. |
+| Comparing sources | “You were taught not to rely on one account when another source could confirm or challenge it.” | Analysis & Research; Recordkeeping & Accounts where actual entries were compared | Familiarity with source comparison; do not make the character a modern investigator. |
 
-**Authoring rules**
-- The selected emphasis creates a training Life Event with a trainer, setting, subject, and actual practice described.
-- Award skill experience only for the skill(s) genuinely practiced. Do not award Career XP or a specialization automatically merely for selecting a childhood/training vignette.
-- The exact starting skill levels, skill XP, and attribute values remain unassigned until the skill-to-rank and action-resolution tests are complete.
-- The historical content should reflect the early administrative and proto-cuneiform environment: economic notation, quantities, categories, and material practices. Avoid modern ideas of essays, fluent prose composition, alphabetic reading, or a standardized school syllabus.
-- Training may include more than one skill over time, but the player-selected emphasis is the strongest remembered focus, not a claim that all other learning was absent.
+Award skill experience only for skills genuinely practiced, and only after skill attribution has been validated. Do not award Career XP or a specialization merely for selecting a life-history vignette. Numerical skill levels, attributes, and rank remain outside this proposal.
 
-### Final identity — What kind of person have you become?
+### Final identity — What kind of professional life are you beginning?
 
-This is the player's final authorship step, not another occupational class selection.
+This final step presents the four generalized career orientations. The player sees both the broad meaning and the local Era I interpretation before choosing.
 
-1. **Initial career path / professional orientation:** choose one of the four GDD paths after seeing the life history. The path frames the kind of institutional work and contacts the character is entering; it is not a caste, exclusive membership, or permanent restriction.
-2. **Personality:** choose one or two initial traits from the approved trait catalog when that catalog is authored. Do not invent a temporary catalog just to fill the screen.
-3. **Name:** choose or confirm a name from an era-appropriate naming pool. Human-readable names remain an explicit readability liberty; do not imply that every name is archaeologically attested.
-4. **Ambition (optional):** choose a personal hope or professional aspiration as narrative context. It is not a new progression track, quest obligation, or guaranteed opportunity.
-5. **Review:** show the resulting biography, household context, Life Events, contacts, familiarity, training, and orientation. Allow the player to revisit choices before finalizing.
-
-## 4. Four career paths in Uruk: provisional local interpretation
-
-The GDD's four paths remain. Their Era I implementation should describe overlapping professional orientations, not four modern ministries or fully separate scribal corps.
-
-| GDD path | Cautious Uruk-facing interpretation | Starting emphasis | Historical confidence / open risk |
+| GDD orientation | General player-facing meaning | Uruk c. 3200 BCE explanation | Likely initial context |
 |---|---|---|---|
-| Government | Administrative coordination and the management of institutional work, goods, or labor | Contact with an administrative setting and familiarity with coordination or accounts | Inferred from administrative records. Avoid projecting a later state bureaucracy or a modern civil service. |
-| Religious | Work connected with cultic institutions, offerings, ceremonial goods, and their administration | Contact with a cultic/temple context where authored evidence supports it | Inferred; the relationship between economic administration, cult, and political authority is not cleanly separable in this period. |
-| Merchant | Exchange, movement of goods, deliveries, and relationships between producers, carriers, and recipients | Contact with exchange or delivery networks | Inferred from commodity movement and wider networks; avoid projecting later merchant houses or commercial law. |
-| Military | Organized security, mobilization, or logistical responsibilities associated with armed activity | Contact with a specific, historically supported person or institution; no combat skill or military command | **Weakest evidence as a distinct scribal career path in c. 3200 BCE.** Preserve the GDD path provisionally, but do not invent a standing military bureaucracy or a dedicated military scribal school. Targeted research is required before detailed content is authored. |
+| **Government** | “You are drawn to the work of institutions: organizing resources, keeping responsibilities clear, and helping collective work function.” | In Uruk, this may bring you into administrative activity associated with storage, distribution, labor, and institutional coordination. These responsibilities overlap with sacred and ceremonial life. | Contacts in an administrative setting; familiarity with coordination, records, goods, or labor, depending on the life history. |
+| **Military** | “You are drawn to the work that supports security, organized movement, and the coordination of people and resources in dangerous circumstances.” | In this period, the evidence for a distinct military scribal career is weak. The game may represent specific security, transport, or mobilization matters, but does not assume a standing army, military bureaucracy, or combat training. | A specific contact or circumstance tied to a security or mobilization matter. This orientation remains historically provisional in Era I. |
+| **Religious** | “You are drawn to institutions and people whose work is connected with sacred practice, ritual, and the responsibilities that support them.” | In Uruk, sacred activity and economic administration may overlap. Eanna provides the strongest administrative evidence; Anu/Kullaba is a distinct monumental/sacred context with a thinner excavated administrative record. | Contacts connected with cultic, ceremonial, or institutional activity where the authored scenario supports them. |
+| **Merchant** | “You are drawn to exchange: moving goods, maintaining relationships between counterparties, and making sure what is promised reaches the people expecting it.” | In Uruk, this is best understood through procurement, exchange, delivery, and movement networks—not as a modern merchant house or a fully documented commercial profession. | Contacts among producers, carriers, recipients, and people involved in procurement or exchange. |
 
-**Shared access rule:** all four paths can encounter institutions associated with other orientations. The path changes starting context, relationships, responsibilities, and likely opportunities; it does not create exclusive access.
+**Shared access rule:** orientations influence the character's initial professional context, contacts, responsibilities, and likely opportunities. They do not create exclusive access to institutions or content. A Government-oriented character may encounter religious or exchange matters; a Merchant-oriented character may work with institutional records. The player's actual skills, relationships, appointments, circumstances, and opportunities determine what they can do.
 
-## 5. Deterministic state-construction contract
+**Presentation rule:** explain the orientation in plain language first, then explain what it means in the current era. Do not expect the player to know what an ancient title or institutional category means. Avoid presenting a speculative historical title as the name of a universal career class.
 
-Character creation must produce one coherent existing-world Person. It should not create a disconnected player-only character object.
+The player also:
+1. Chooses one or two initial personality traits from the approved trait catalog once that catalog is authored.
+2. Chooses or confirms an era-appropriate name. Human-readable names are a readability liberty; do not imply every name is archaeologically attested.
+3. May choose an optional personal ambition as narrative context, not as a new progression track or guaranteed quest.
+4. Reviews the resulting biography, contacts, formative events, familiarity, training, and professional orientation before finalizing.
 
-### State to establish
+## 5. Era I institutional grounding
 
-| State element | Source in choices | Proposed handling |
+The institutional research is used here as a content guide, not as a mandate to reproduce a complete institutional simulation.
+
+### Eanna and associated administration
+
+Eanna is the strongest available Era I setting for administrative records, sealings, storage and distribution, production-related activity, and ceremonial or public gatherings. It should be a recurring institutional context for the opening era. Do not portray it as a fully reconstructed modern department, a single office, or proof of a neat separation between civic and religious authority.
+
+### Anu/Kullaba monumental and sacred context
+
+Anu/Kullaba provides a distinct monumental/sacred setting. Its exact divine dedication and internal administrative structure remain uncertain, and it has not yielded a tablet corpus comparable to Eanna. Use it for appropriately authored sacred, monumental, maintenance, material, or ceremonial situations; do not invent a parallel archive or detailed hierarchy simply to balance the paths.
+
+### Wider working world
+
+Character origins and contacts may connect to:
+- Agricultural and pastoral provisioning.
+- Craft and processing activities.
+- Exchange, procurement, and transport networks.
+- Institutional households, personnel, and work groups.
+- Collective labor and construction.
+- Specific security or mobilization matters where supported.
+
+These are overlapping contexts, not eight separate player factions or a complete roster of ancient departments. A character may have a personal connection to one context and a professional contact in another. The authored scenario needs only the people, responsibilities, and institutional facts required for coherent play.
+
+## 6. People, relationships, and opening responsibilities
+
+Character creation should produce a small, intelligible social starting point rather than simulate a complete biography.
+
+For each selected route, author only the people needed to make the history concrete:
+- A household, kin, work-group, or community contact appropriate to the chosen origin.
+- A participant in a meaningful formative event, if another person was involved.
+- An introducer or recommender, if that route was selected.
+- A trainer or mentor.
+- One initial professional contact connected to the chosen orientation, if distinct from the above.
+
+One person may fill more than one role when the biography supports it. Avoid generating a large cast just to satisfy a schema.
+
+Each consequential person must be an existing Person in the shared world model, with a stable identity and plausible place in the world. Their connection to the player must have a specific basis. Kinship, repeated contact, recommendation, instruction, and professional dependence are not interchangeable with trust, affection, respect, resentment, or obligation.
+
+The character should begin with one or two concrete responsibilities or expectations that arise naturally from their training and current circumstances. These are narrative and operational context, not mandatory quest hooks. Do not silently create debt, consume AP, or make an NPC's commitment binding without an explicit basis.
+
+## 7. Deterministic starting-state contract
+
+Character creation should establish the player character as an existing Person in the world. It must not create a disconnected player-only character object or run a detailed simulation of every year of childhood.
+
+### State established from the choices
+
+| State element | Source | Handling |
 |---|---|---|
-| Person identity | Final name and generated biography | Existing shared `Person` identity; player control remains a control flag/state reference, not a second Person model. |
-| Household | Chapter 1 | New household/social-identity data is required; current `Person` has no household field. Do not misuse institutional `affiliations` as household membership. |
-| Life History | Chapters 1–5 | Append-only, typed Life Events with stable IDs, dates, participants, and provenance. This is not currently represented as a dedicated history collection in the visible Person schema. |
-| Relationships | Named household contacts, recommender, trainer, formative-event participants | Use existing directional relationship dimensions and history. Structural ties must not imply affection or trust. |
-| Familiarity | Actual repeated or supervised experience | Requires a distinct domain-familiarity model; do not encode it as a relationship's social familiarity dimension or as a skill. |
-| Habits | Formative event and repeated experience | Add only if the event supports a stable interpretive tendency; no automatic trait conversion. |
-| Skill experience | Chapter 5 practice | Record eligible practice/experience only after skill attribution is validated. Do not set numerical levels in this proposal. |
-| Attributes | Character creation rules | Not assigned by this matrix. GDD says attributes are established at creation and relatively stable; exact values and derivation remain open. |
-| Career path | Final identity | Existing `ScribalCharacterState.careerPath` field is available; its starting benefits and downstream effects remain open. |
-| Appointment / authority | None automatically | A path, mentor, recommendation, or training event grants no appointment or formal authority. |
-| Commitments / obligations | Only explicit authored agreement or duty | Create only with identifiable basis, scope, and status. A sponsor is not automatically a creditor. |
-| Equipment / resources | Authored opening circumstances | Do not award special tools, money, or provisions from household background without a separate balance and historical review. |
-| Opening world | All prior choices plus world seed and authored rules | Deterministic initialization; no random roll that can kill, displace, or invalidate the player before control begins. |
+| Person identity | Name and biography | Use the shared Person identity; player control is a control state/reference, not a second Person model. |
+| Origin/social context | Chapter 1 | Use the appropriate household, kin, work-group, or community context. Do not force all eras into one household schema. |
+| Life history | Chapters 1–5 | Store a small number of meaningful, typed Life Events with dates, participants, and provenance. Do not log routine childhood activity. |
+| Relationships | Named contacts and event participants | Use the existing directional relationship model; relationship dimensions must follow the actual basis of the connection. |
+| Familiarity | Actual exposure and practice | Represent domain familiarity separately from skills and relationship familiarity. Do not create a comprehensive knowledge ontology. |
+| Habits | Formative events and repeated experience | Record only when an authored experience supports a meaningful interpretive tendency. Never conceal or alter objective evidence. |
+| Skill experience | Chapter 5 practice | Attribute only to skills genuinely practiced, subject to separate validation. No numerical starting values approved here. |
+| Career orientation | Final identity | Use the existing four GDD paths as generalized orientations; localize their display name and explanation by era. |
+| Appointment/authority | None automatically | A path, mentor, recommendation, or training event grants no formal office or authority. |
+| Commitments | Explicit authored duty or agreement only | Require an identifiable basis, scope, and status. No implicit debt or hidden AP cost. |
+| Equipment/resources | Authored opening circumstances | No automatic wealth, equipment, or provisions bonuses from background without separate balance and historical review. |
+| Opening world | World seed, choices, and authored rules | Deterministic initialization. No random event may invalidate or kill the player before control begins. |
+
+### Initialization boundary
+
+Use authored life events and a bounded pre-play initialization to establish a coherent opening situation. Do not simulate childhood day by day. Routine activity can be summarized; only consequential people, relationships, circumstances, and events need persistent detail.
+
+The same world seed and the same character choices must produce the same character and opening state. Initialization consumes no player AP and awards no Career XP or Historical Progress XP. It must not create a separate tutorial path for each orientation.
 
 ### Existing implementation observations
 
@@ -187,108 +268,113 @@ The current main-branch model already provides:
 - `careerPath` on `ScribalCharacterState`.
 - A deterministic `createNewGameState()` bootstrap that currently creates a fixed initial character and then applies the tutorial and starter Challenge.
 
-The current visible schema does **not** yet provide a dedicated household, Life Event history, domain familiarity, or habit model. These are model gaps to design, not fields this proposal assumes already exist. Do not implement them as an unrelated parallel character system.
+The visible schema does not yet provide dedicated household, Life Event history, domain familiarity, or habit models. These are design gaps, not fields this proposal assumes already exist. Do not implement them as an unrelated parallel character system. Any future implementation must first reconcile the desired data with the existing Person architecture and save model.
 
-## 6. Three contrasting character tests
+## 8. Three contrasting character tests
 
-These are authored test profiles, not canonical named NPCs. Their purpose is to check whether life history creates distinct people without creating unequal classes or bonus packages.
+These profiles are test fixtures, not canonical characters or prescribed builds. They test whether the framework produces distinct people without creating unequal classes or bonus packages.
 
-### Test A — Provisioning-household apprentice
+### Test A — Provisioning-connected apprentice
+- Origin: food and provisioning.
+- Early responsibility: count or measure.
+- Formative experience: a quantity did not match.
+- Entry route: work earned a recommendation.
+- Training emphasis: quantities and commodity notation.
+- Orientation: Government.
+- Likely context: provisions, quantities, storage/distribution, discrepancy comparison, limited commodity notation.
+- Likely contacts: one household/work contact, recommender, trainer, and an administrative contact if distinct.
+- Does not receive: authority over stores, accounting mastery, automatic trust from a steward, or an appointment.
 
-- **Origin:** provisioning and food preparation.
-- **Early responsibility:** count or measure goods.
-- **Formative event:** a quantity did not match.
-- **Training route:** recommendation through practical work.
-- **Training emphasis:** quantities and commodity notation.
-- **Orientation:** Government.
-- **Likely familiarity:** grain/provisions, quantities, storage or distribution context, discrepancy comparison, limited commodity notation.
-- **Likely relationships:** household contact, recommender, trainer; each relationship has a specific basis.
-- **Not granted:** authority over stores, mastery of accounting, automatic trust from the steward, or an appointment.
+### Test B — Skilled-making apprentice
+- Origin: skilled making.
+- Early responsibility: judge materials or quality.
+- Formative experience: circumstances changed how the people around them divided their work.
+- Entry route: an encounter opened a door through a work interaction.
+- Training emphasis: clay, stylus, and tablet preparation.
+- Orientation: Religious, but only where the authored contact provides a credible connection to sacred or ceremonial work.
+- Likely context: materials, workmanship, condition, clay handling, and a specific institutional or ceremonial connection.
+- Does not receive: broad literacy, specialist craft qualification, religious office, or higher starting wealth.
 
-### Test B — Skilled-production household apprentice
-
-- **Origin:** skilled production.
-- **Early responsibility:** judge materials or quality.
-- **Formative event:** household difficulty forced adaptation.
-- **Training route:** unexpected encounter through a delivery or work interaction.
-- **Training emphasis:** clay, stylus, and tablet preparation.
-- **Orientation:** Religious (provisional example only; the path must be justified by the actual institutional contact, not by the household's craft identity).
-- **Likely familiarity:** one or more production materials, workmanship/condition, clay handling, preparation of tablets.
-- **Likely relationships:** household contact, person who noticed the work, trainer.
-- **Not granted:** broad literacy, specialist craft qualification, religious office, or higher starting wealth.
-
-### Test C — Field- or transport-connected apprentice
-
-- **Origin:** fields and herds **or** exchange and transport; use one as the primary test and the other as a sensitivity variant.
-- **Early responsibility:** help with deliveries.
-- **Formative event:** helped settle a disagreement.
-- **Training route:** household introduction.
-- **Training emphasis:** comparing sources.
-- **Orientation:** Merchant.
-- **Likely familiarity:** seasonal or delivery context, handovers, people and places connected by movement, comparison of accounts or testimony.
-- **Likely relationships:** household contact, introducer, trainer, and at least one person involved in the disagreement.
-- **Not granted:** commercial authority, ownership of transported goods, or automatic access to every merchant contact.
+### Test C — Movement-connected apprentice
+- Origin: exchange and movement, with fields/herds as a sensitivity variant.
+- Early responsibility: help with deliveries.
+- Formative experience: helped settle a disagreement.
+- Entry route: someone introduced them.
+- Training emphasis: comparing sources.
+- Orientation: Merchant.
+- Likely context: handovers, routes, counterparties, delivery expectations, and comparison of accounts or testimony.
+- Does not receive: commercial authority, ownership of transported goods, or automatic access to every exchange contact.
 
 ### Comparative acceptance criteria
 
-The three profiles pass only if:
+The profiles pass only if:
 1. Each has a distinct biography and at least one genuinely different domain familiarity.
-2. Their opening actions differ in plausible ways, but none is universally stronger.
-3. No profile receives an unearned appointment, authority, qualification, specialization, or high skill level.
-4. All can engage with the introductory tutorial and its objective evidence on the same terms.
-5. The character's interpretation may differ because of familiarity and actual practice, but the evidence itself is identical and complete.
+2. Their contacts and opening responsibilities differ for understandable reasons.
+3. None is universally stronger or receives unearned rank, appointment, authority, qualification, specialization, or high skill.
+4. All can engage with the Storehouse Reckoning on the same terms.
+5. Their interpretation may differ through familiarity and actual practice, but the objective tutorial evidence remains identical and complete.
 6. The same seed and same choices produce the same person, relationships, history, and opening world.
-7. Different paths alter initial contacts and likely opportunity channels without blocking cross-path play.
-8. The Military path is not treated as a balanced, fully evidenced option until the historical gap is researched.
+7. Orientations alter initial context and likely opportunities without blocking cross-orientation play.
+8. The Military orientation is presented honestly as a generalized professional path whose Era I expression is provisional and narrowly authored.
 
-## 7. Tutorial compatibility
+## 9. Tutorial compatibility
 
-The Storehouse Reckoning remains the fixed introductory tutorial outside Assignments, Challenges, and Works, with zero Historical Progress XP. Character background may affect the character's situated interpretation, but must not change:
+The Storehouse Reckoning remains the fixed introductory tutorial outside Assignments, Challenges, and Works, with zero Historical Progress XP.
+
+Character background may influence the character's situated interpretation, but must not change:
 - The objective evidence supplied by the tutorial.
 - The tutorial's required record fields or assessment criteria.
 - The Senior Scribe's formal authority or disposition.
 - The tutorial's progression rewards or Historical Progress XP.
 - The tutorial's role as a common first supervised exercise.
 
-A character familiar with provisioning or quantities may recognize the context more readily; that must not make the tutorial's evidence easier to obtain, hide evidence from other characters, or predetermine the assessment. The current runtime tutorial and starter Challenge are fixed in `src/state/newGameState.ts`; any future character-creation integration must preserve their authored identities and avoid silently changing their relationships or responsibilities.
+A character familiar with provisioning or quantities may recognize the context more readily. That must not make evidence easier to obtain, hide evidence from other characters, or predetermine the assessment. Every starting orientation completes the same tutorial with the same authored people, evidence, and assessment rules. Background may affect interpretation, not the tutorial's underlying facts or formal outcome criteria.
 
-## 8. GDD alignment and cross-track impact
+## 10. GDD alignment and cross-track impact
 
 ### GDD alignment
 
-- **§3.3–3.4:** Directly develops the player's Uruk origin, four initial career paths, attributes, skills, personality traits, and specializations.
-- **§15.2–15.5:** Uses the persistent social network, shared Person model, era-specific institutions, and bounded deterministic world.
-- **§23 items 8, 10, 13, 22, and 25:** Touches relationship detail, character transition connections, Era I institutions, complete character system, and situated interpretation.
-- **§25 design summary:** Supports continuity through existing people and a world that continues independently of the player.
+- **§3.3–3.4:** Develops the Uruk origin, four initial career paths, attributes, skills, and personality traits.
+- **§4.2:** Establishes a reusable character-creation framework whose local expression changes by era.
+- **§15.2–15.5:** Uses the shared Person model, social network, era-specific institutions, and bounded deterministic world.
+- **§23 items 8, 10, 13, 22, and 25:** Informs relationships, character transitions, Era I institutions, the character system, and situated interpretation.
+- **§25:** Supports continuity through existing people and a world that continues independently of the player.
 
-No locked invariant is contradicted. The proposal does not alter the six-AP Workday, the three gameplay layers, progression independence, the two-resource economy, succession rules, or the no-runtime-generative-AI boundary.
+No locked GDD invariant is contradicted. This proposal does not change the six-AP Workday, the three gameplay layers, progression independence, the two-resource economy, succession principles, or the no-runtime-generative-AI boundary. It does not revise the GDD or approve numerical starting values.
 
 ### Cross-department impact
 
-- **Game Design:** Defines a life-history sequence and avoids class/build-screen framing. Starting mechanical parity still requires rank/action testing.
-- **Historical Research:** Must verify household language, Uruk social organization, training routes, the four path interpretations, especially Military, and names.
-- **Engineering:** Requires future design for household identity, Life Events, domain familiarity, habits, deterministic character/world initialization, and save migration. Existing Person model remains the foundation.
-- **Art/UI:** Chapter-based vignette UI; no physical avatar editor required. Use period-appropriate clay, seals, counters, tools, commodities, and work settings. Do not depict later wedge-shaped writing or modern school desks in Era I.
-- **Audio:** Optional light environmental and material cues for the vignettes; no separate audio system or expensive cinematic dependency.
-- **Production/QA:** Author choice/state fixtures, deterministic seed tests, profile parity tests, tutorial invariance tests, and historical review gates.
+- **Game Design:** Establishes one reusable life-history framework; keeps career paths as understandable professional orientations rather than era-specific classes; avoids turning biography into a bonus-selection exercise.
+- **Historical Research:** Validates the Era I vignettes and local path descriptions. Prioritize household/social-context wording, training plausibility, and the weak evidence for a distinct Military scribal career.
+- **Engineering & Architecture:** Future design may need compact Life Event and familiarity representations and era-localized orientation descriptions. Reuse the shared Person and careerPath foundations; do not create a parallel character model or simulate childhood day by day.
+- **Art & UI/UX:** Present the sequence as concise narrative chapters or vignettes. The professional orientation screen must explain the general role and its Era I meaning. No physical avatar editor is required. Use period-appropriate materials and settings; avoid later writing forms or modern school imagery in Uruk.
+- **Audio:** Optional restrained material and environmental cues. No separate audio system or cinematic dependency is required.
+- **Production & QA:** Test choice combinations, deterministic initialization, distinct biographies, orientation explanation, profile parity, and tutorial invariance. Historical review should focus on claims actually presented to the player.
 
-## 9. Recommendation and decisions still required
+## 11. Recommendation and remaining owner decisions
 
-**Recommendation:** adopt the life-history sequence as the working design direction, with the six stages above (five chapters plus final identity). Keep the matrix as authored Era I content under review, not as canonical GDD text yet.
+**Recommendation:** adopt the reusable life-history framework as the working direction for character creation. Keep the five life-history chapters and final identity/orientation step, with the Era I content above serving as the first authored expression rather than a permanent template for all eras.
 
-Before implementation, the Game Director should approve:
-1. The sequence and player-facing choice families.
-2. Whether the four household environments are suitable as the first playable origin set.
-3. Whether Military remains selectable in Era I pending targeted research, or is presented with an explicit provisional framing.
-4. Whether the opening character's household and Life Events are authored as a bounded pre-play history in the world initialization pass.
+The revision deliberately treats the four career paths as generalized professional orientations. Their descriptions should explain the broad fantasy first and the historical meaning second. The institutional matrix supplies credible context and content possibilities; it does not require four separate institutional career systems.
 
-Do not approve numerical starting attributes, skill levels, Career XP, or benefits from this document. Those require a separate balance/action-resolution test.
+The following remain open and are not approved by this document:
+1. The final wording and availability of individual Era I origin and vignette choices.
+2. Whether the institutional-service origin belongs in the first playable set or should remain a conditional authored option.
+3. The precise Era I presentation of the Military orientation and whether its first playable scenario is included in the vertical slice.
+4. The exact character-state representation for household/social context, Life Events, familiarity, and habits.
+5. Starting attributes, skill levels, skill experience, Career XP, equipment, resources, and any mechanical benefits.
+6. The final trait catalog, ambition presentation, and whether ambition is included in the first release.
+7. Whether the first character's pre-play history is established entirely through authored events or uses a bounded initialization pass.
 
-## 10. Research basis and limitations
+These are design tasks, not reasons to postpone the content framework. Resolve each with evidence and playability tests before implementation; do not fill gaps with arbitrary placeholder mechanics.
 
-1. Hans J. Nissen, “Uruk: Early Administration Practices and the Development of Proto-Cuneiform Writing,” *Archéo-Nil* 26 (2016), pp. 33–48. [Persée article](https://www.persee.fr/doc/arnil_1161-0492_2016_num_26_1_1102). Supports the importance of early administration, commodity movement, seals/counters, proto-cuneiform development, and the limited scope of surviving records. Nissen explicitly identifies the proposed “school before writing” as an assumption without direct evidence.
+## 12. Research basis and limitations
+
+1. Hans J. Nissen, “Uruk: Early Administration Practices and the Development of Proto-Cuneiform Writing,” *Archéo-Nil* 26 (2016), pp. 33–48. [Persée article](https://www.persee.fr/doc/arnil_1161-0492_2016_num_26_1_1102). Supports early administration, commodity movement, seals/counters, proto-cuneiform development, and the limited scope of surviving records. Nissen explicitly identifies the proposed “school before writing” as an assumption without direct evidence.
 2. Jason Ur, “Households and the Emergence of Cities in Ancient Mesopotamia,” *Cambridge Archaeological Journal* 24:2 (2014), pp. 249–268. [Author-hosted PDF](https://jasonur.scholars.harvard.edu/sites/g/files/omnuum6996/files/jasonur/files/ur_2014_caj_households_and_the_emergence_of_cities.pdf). Offers a household-centered interpretive model and cautions against assuming an abrupt shift to rational bureaucracy. It is a model, not proof that every Uruk household had one fixed structure.
 3. Digital Corpus of Cuneiform Lexical Texts, “The Archaic Administrative Corpus.” [ORACC](https://oracc.museum.upenn.edu/dcclt/intro/arch_intro.html). Summarizes the administrative character of the earliest writing and its commodity, labor, and land-management contexts.
 4. Davide Domenici and Nicolò Marchetti (eds.), *Urbanized Landscapes in Early Syro-Mesopotamia* (2018), [open-access volume](https://site.unibo.it/eduu/en/work-package-1-archaeological-cultural-and-environmental-research/results/978-3-447-11086-0_free-open-access_.pdf). Provides context for Late Chalcolithic networks and proto-cuneiform, while noting that surviving written evidence is concentrated on central institutional operations.
+5. “The Political Economy of Mesopotamian Colonial Encounters,” Gil J. Stein (2005). Informs the cautious treatment of procurement and interregional exchange; it does not justify treating all exchange as a modern merchant profession.
+6. “Mesopotamia and the ‘New’ Military History,” Oriental Institute / University of Chicago. Informs the low-confidence treatment of a distinct military scribal path in the Uruk period.
 
-The sources support the administrative and material contexts more strongly than the specific biographies, household experiences, or training routes. Most player-facing vignette details therefore remain authored reconstructions and must be presented as plausible lives, not documented facts.
+The evidence supports the administrative and material contexts more strongly than the specific biographies, household experiences, or training routes. Most player-facing vignette details therefore remain authored reconstructions and should be presented as plausible lives, not documented facts.
