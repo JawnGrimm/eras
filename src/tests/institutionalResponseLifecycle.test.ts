@@ -194,7 +194,7 @@ describe('institutional response lifecycle', () => {
     expect(validateInstitutionalResponseEvent(selfVerifying, makeVerification({ actorPersonId: workerId,
       appointmentId: workerAppointmentId }))?.toLowerCase()).toContain('cannot independently verify');
 
-    const rejectedVerification = makeVerification({ id: undefined, decision: 'verification_rejected',
+    const rejectedVerification = makeVerification({ decision: 'verification_rejected',
       verification: { executionEventId: executionId, outcome: 'rejected', rationale: 'The observed condition contradicts the reported result.' } });
     const withRejected = { ...base, world: { ...base.world, events: { ...base.world.events, [rejectedVerification.id]: rejectedVerification } } };
     const makeResolution = (disposition: 'accepted_verification' | 'escalated_override', rationale: string, decision: 'resolved' | 'escalated_override' = disposition === 'accepted_verification' ? 'resolved' : 'escalated_override'): WorldEvent => ({
@@ -208,7 +208,7 @@ describe('institutional response lifecycle', () => {
     expect(validateInstitutionalResponseEvent(withRejected, makeResolution('escalated_override', 'Override.'))?.toLowerCase()).toContain('substantive recorded escalation');
     expect(validateInstitutionalResponseEvent(withRejected, makeResolution('escalated_override', 'Senior review authorizes an explicit escalation override.'))).toBeNull();
 
-    const acceptedVerification = makeVerification({ id: undefined });
+    const acceptedVerification = makeVerification();
     const withAccepted = { ...base, world: { ...base.world, events: { ...base.world.events, [acceptedVerification.id]: acceptedVerification } } };
     const acceptedResolution: WorldEvent = { ...makeResolution('accepted_verification', 'Accepted verification is entered as final disposition.'),
       institutionalResponse: { ...makeResolution('accepted_verification', 'Accepted verification is entered as final disposition.').institutionalResponse!,
