@@ -16,3 +16,18 @@ This document preserves the implementation-status note formerly embedded in the 
 - Later repository commits supersede this snapshot where implementation has changed.
 
 Implementation facts do not amend the GDD. A code change that alters approved behavior requires owner review and, if approved, an explicit design-document update.
+
+
+## Production update — 23 November 2026
+
+**Verified repository baseline:** `main` at `3785889d4e1f8972fe8f47d948edf0ecb2db533c` (PR #72 merged). This update supplements the dated 22 November snapshot above; it does not rewrite that historical note or amend design authority.
+
+- **Character history:** PR #68 approved and merged the Era I history content map. PR #70 remains a draft/open implementation branch containing the five-event resolver, familiarity/provenance merging, biography read model, deterministic Person ID primitive, tests, and a bootstrap-consumer audit. Its current head passed GitHub Actions run #344 (TypeScript, 27 test files / 201 tests, production build) and CodeQL run #193. The branch is 18 commits ahead and one commit behind current main; validation must be repeated after rebasing.
+- **Character-creation direction:** The Game Director's 23 November direction supersedes the earlier blanket prohibition on starting benefits. Design HQ is preparing a replacement specification for traceable life-history- and orientation-derived starting consequences. No starting-benefit or new-game bootstrap runtime integration has yet been implemented. Approved opening balances remain Career XP 0, Historical Progress XP 0, Money 0, Provisions 5.
+- **Protagonist gap:** The current main bootstrap still constructs Enlil-barni in `createInitialGameState()`; `createNewGameState()` remains zero-argument and uses fixed-protagonist references in starter Challenge context/consequences. The player-created protagonist decision is therefore not yet implemented in the fresh-game path. Existing save restore remains separate and must preserve legacy identities.
+- **Bootstrap consumer findings:** Empty skill and attribute maps are structurally accepted. Initialized scribal state still requires a four-score professional-reputation object; Assignment activity and Uruk Assignment submission update judgment. The old 50-point helper has no runtime call sites and is not an approved baseline. The provisional rank helper displays Grade 1 for an empty skill map; the approved rank formula remains open.
+- **Orientation and opportunities:** PR #72 merged the approved Assignment Orientation and Institutional Context behavioral contract. Production's specified cross-system delivery-channel/access audit remains outstanding.
+- **Other open PRs:** PR #74 (HC-003 sealed pottery storage jars) passed validation run #337 and CodeQL #186. PR #75 (Civic / Religious / Commercial / Martial player-facing orientation vocabulary; persisted IDs unchanged) passed validation run #334 and CodeQL #183. Both remain open and unmerged. PR #71's starting-state proposal was closed as superseded by the revised Game Director direction; its branch remains as reference material.
+- **Issue tracking:** Issue #69 remains open. Its former no-starting-benefits acceptance clause is superseded by the revised direction and must be reconciled with the replacement specification before full bootstrap completion.
+
+No save-schema change, migration, new-game replacement, merge, or deployment is recorded by this status update.
