@@ -116,7 +116,8 @@ export function validateInstitutionalResponseEvent(state: GameState, event: Worl
     const commitmentIdUsed = Object.values(state.world.people).some((person) =>
       (person.commitments ?? []).some((commitment) => commitment.id === response.commitmentId
         && !(person.id === assignee.id && commitment.basis.kind === 'event' && commitment.basis.id === event.id)));
-    if (duplicate || commitmentIdUsed) return 'This maintenance commitment identifier or worker assignment is already in use.';
+    const knowledgeId = `knowledge-${response.commitmentId}-report`;
+    if (duplicate || commitmentIdUsed || state.world.knowledge[knowledgeId]) return 'This maintenance commitment identifier, worker assignment, or knowledge identifier is already in use.';
     // Once persisted, the assignment event and the worker's typed commitment must exist together.
     if (state.world.events[event.id]) {
       const persisted = assignee.commitments?.find((item) => item.id === response.commitmentId);
