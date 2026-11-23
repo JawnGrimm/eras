@@ -50,10 +50,9 @@
 | Historical Progress XP thresholds | PROVISIONAL | Legacy balancing targets only; re-evaluate after Works portfolio authoring. |
 | Career XP rewards and study reward | PROVISIONAL | Balance against actual progression costs and playtests. |
 | Skill-to-rank formula and rank titles | OPEN | No formula or universal office ladder is approved. |
-| Era I starting rank display | PROVISIONAL | Six explicit level-1 skills display Grade 1 under the current provisional runtime helper. This is a starting display only; the skill-to-rank formula and rank titles remain OPEN. | Game Director approval, 23 Nov 2026; GD-CHARACTER-START-001 §6 |
+| Era I starting rank display | PROVISIONAL | Six explicit level-1 skills display Grade 1 under the current provisional runtime helper. This is a starting display only; the skill-to-rank formula and rank titles remain OPEN. Game Director approval, 23 Nov 2026; GD-CHARACTER-START-001 §6. |
 | Era I starting attributes, skills, Skill XP, and reputation | PROVISIONAL | Baseline attributes 5 with +1 for each Chapter 2/3 emphasis; all six skills level 1; lesson-specific Skill XP per GD-CHARACTER-START-001; Competence/Reliability/Discretion/Judgment 50 each. Values are for playtest calibration, not final balance. Game Director approval, 23 Nov 2026; GD-CHARACTER-START-001 §§3–6. |
 | Era I opening balances and exclusions | LOCKED | Career XP 0, Historical Progress XP 0, Money 0, Provisions 5, apprentice life stage; no appointments, formal authority, obligations, stress, conditions, specializations, traits, or equipment. Game Director approval, 23 Nov 2026; GD-CHARACTER-START-001 §2. |
-
 | Trait and ambition catalogs/effects | OPEN | UI placeholders are inactive; no fake IDs or mechanics. |
 | Martial orientation expression in Era I | APPROVED PRINCIPLE | Selectable but historically restrained: custody, transport, protection, security, and organized movement; do not invent a formal military bureaucracy. |
 
