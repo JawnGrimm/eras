@@ -102,7 +102,7 @@ export const northBayPostExecutionInspection: AssignmentActivityDefinition = {
   participants: [NORTH_BAY_PEOPLE.steward, NORTH_BAY_PEOPLE.seniorScribe],
   discoveries: [
     { id: 'post-execution-observation', title: 'Physical inspection after maintenance',
-      text: 'The north-bay runoff channel is clear of the washed reeds and cracked plaster. The north-east beam socket remains damp within the shaded wall joint; no collapse is visible. This inspection does not establish that the joint has dried or certify the entire roof.' },
+      text: 'Inspect the runoff channel and shaded beam socket after this specific execution. Record the physical condition visible at the time of inspection; do not assume that a prior execution’s result still holds. This inspection does not certify the entire roof or establish future performance.' },
     { id: 'post-execution-record', title: 'Recorded maintenance execution',
       text: 'The Steward’s execution record states that the runoff channel was cleared and the damp beam socket assessed. The recorded result says the socket remained damp and required a separate inspection after drying. This is the worker’s recorded result, not independent physical confirmation.' },
     { id: 'post-execution-steward-request', title: 'Steward’s verification request',
@@ -125,6 +125,8 @@ export const northBayPostExecutionInspection: AssignmentActivityDefinition = {
     responsibilityLabel: 'Responsibility claim',
     findings: [
       { id: 'channel_clear_beam_followup', label: 'Channel clear; damp beam joint requires follow-up after drying' },
+      { id: 'channel_clear_beam_dry', label: 'Channel clear; beam joint appears dry at inspection' },
+      { id: 'channel_obstructed', label: 'Runoff channel remains obstructed after execution' },
       { id: 'execution_not_confirmed', label: 'Claim that the recorded execution is not confirmed' },
     ],
     responsibilityClaims: [
