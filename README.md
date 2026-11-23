@@ -19,6 +19,11 @@ The GDD is the canonical design reference for this repository. The current appli
 - The production application generates a character-situated **daily morning report** during Workday settlement, alongside journal notices. Event prioritization, thresholds, report layout, and navigation to related records and people remain areas for refinement.
 - The player, not an individual character, is the constant across the historical journey. When a character dies or leaves play, the player continues through another existing scribal NPC connected to that character and their professional world, in the same historical period. The new character may be a low-ranking or inexperienced scribe; no family heir or era restart is required.
 
+## Historical and architectural references
+
+- [Historical Correction Register](docs/HISTORICAL_CORRECTION_REGISTER.md) — prioritized historical findings and deferred correction work; it does not interrupt active implementation.
+- [Comparative Design Reference](docs/COMPARATIVE_DESIGN_REFERENCE.md) — standing architectural lessons and scope guardrails drawn from the comparative RPG study; it is not an implementation backlog.
+
 ## Project status
 
 The current application is a proof of concept and first integrated playable slice, not the complete game. It mounts the production architecture through `ProductionApp` and `ProductionShell`, including the Introductory Tutorial, recurring Uruk Assignments, optional Challenges, succession, people, records, and Help workspaces. The Storehouse Reckoning teaches basic professional concepts and interface interactions; it is not a Work and does not represent the structure of future Works. Additional era content, a varied Works portfolio, systems, balancing, and human playtesting remain.
