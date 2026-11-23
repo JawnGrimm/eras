@@ -8,6 +8,7 @@ import { transitionAssignmentActivityAction } from './assignmentActivity';
 import { validateWorkDefinition } from '../works/workDefinition';
 import { transitionCharacterContinuity } from './characterContinuity';
 import { advanceInstitutionalMatters } from './institutionalMatters';
+import { advanceInstitutionalResponses } from './institutionalResponseLifecycle';
 import { generateDailyAssignments } from './assignmentGenerator';
 import { runChallengeDirector } from './challengeDirector';
 import { buildSituatedMorningReport } from './morningReport';
@@ -443,6 +444,7 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
         },
       };
       next = advanceInstitutionalMatters(next, state.calendar.dayNumber + 1);
+      next = advanceInstitutionalResponses(next, state.calendar.dayNumber + 1);
       next = generateDailyAssignments(next);
       next = runChallengeDirector(next);
       next = buildSituatedMorningReport(state, next);
