@@ -218,7 +218,7 @@ describe('world, relationships, institutions and records', () => {
         authorizedAction: 'routine_storehouse_maintenance' as const, scope: authorization.institutionalResponse.scope,
         assigneePersonId: workerId, commitmentId: 'commitment-aru-north-bay-maintenance',
         execution: {
-          workPerformed: 'Cleared the north-bay parapet runoff channel and assessed the damp north-east beam socket.',
+          workPerformed: authorization.institutionalResponse.scope,
           laborBasis: 'Aru’s assigned labor under the existing storehouse maintenance allocation.',
           materialsBasis: 'No new materials issued; work used the existing maintenance allocation and available tools.',
           result: 'The runoff channel is clear; the beam socket remains damp and requires separate inspection after drying.',
