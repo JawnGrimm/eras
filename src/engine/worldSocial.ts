@@ -56,6 +56,11 @@ export function transitionWorldAction(state: GameState, action: WorldAction): Tr
       if (!e || typeof e !== 'object' || !Array.isArray(e.personIds) || !Array.isArray(e.institutionIds)) return fail(state, 'event-invalid', 'An event needs valid participant and institution lists.');
       if (w.events[e.id]) return fail(state, 'event-exists', 'An event with this ID already exists.');
       if (!e.id || !e.summary || !Number.isInteger(e.dayNumber) || e.dayNumber < 1 || e.dayNumber > state.calendar.dayNumber || e.personIds.some((id) => !w.people[id]) || e.institutionIds.some((id) => !w.institutions[id]) || (e.locationId && !w.locations[e.locationId])) return fail(state, 'event-invalid', 'The event has invalid identity, date, or world references.');
+      // Keep legacy "referred" responses readable in schema-v2 saves, but do not
+      // create new referrals until the response model can identify and validate a recipient.
+      if (e.institutionalResponse?.stage === 'assessment' && e.institutionalResponse.decision === 'referred') {
+        return fail(state, 'institutional-response-invalid', 'Referral decisions cannot be newly recorded until a receiving person or institution can be identified.');
+      }
       const responseError = validateInstitutionalResponseEvent(state, e);
       if (responseError) return fail(state, 'institutional-response-invalid', responseError);
       return succeed({ ...state, world: { ...w, events: { ...w.events, [e.id]: e } } }, 'event-created', e.institutionalResponse ? 'An institutional response was recorded with its authority and evidence basis.' : 'A world event was recorded.');
