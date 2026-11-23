@@ -252,10 +252,18 @@ function isWorkProgress(value: unknown): value is WorkProgress {
 }
 
 
-function isCompatibleWorkProgress(id: string, value: unknown, workCatalog: Readonly<Record<string, WorkDefinition<any>>>): boolean {
-  if (!isWorkProgress(value)) return false;
-  if (value.status === 'suspended') return true;
+/**
+ * Checks the persisted progress payload against the current definition, including
+ * completion-only disposition contracts. Suspended progress is checked using its
+ * preserved effective status so normalization and save validation cannot disagree.
+ */
+function matchesWorkDefinition(
+  id: string,
+  value: WorkProgress,
+  workCatalog: Readonly<Record<string, WorkDefinition<any>>>,
+): boolean {
   const definition = workCatalog[id];
+  const effectiveStatus = value.status === 'suspended' ? value.suspendedFromStatus : value.status;
   return !!definition && definition.id === id
     && (definition.kind === 'work' || definition.kind === 'tutorial')
     && validateWorkDefinition(definition).length === 0
@@ -264,11 +272,16 @@ function isCompatibleWorkProgress(id: string, value: unknown, workCatalog: Reado
     && value.acquiredEvidence.every((evidenceId) => definition.evidence.some((item) => item.id === evidenceId))
     && value.completedActionIds.every((actionId) => definition.actions.some((item) => item.id === actionId))
     && (definition.finalizeDisposition
-      ? (value.status === 'completed'
+      ? (effectiveStatus === 'completed'
         ? definition.dispositions?.includes(value.finalDisposition ?? '') === true
           && value.submissionCount >= 1 && value.lastAssessment?.outcome === 'accepted'
         : value.finalDisposition === undefined)
       : value.finalDisposition === undefined);
+}
+
+function isCompatibleWorkProgress(id: string, value: unknown, workCatalog: Readonly<Record<string, WorkDefinition<any>>>): boolean {
+  if (!isWorkProgress(value)) return false;
+  return value.status === 'suspended' || matchesWorkDefinition(id, value, workCatalog);
 }
 
 export function isValidGameState(value: unknown, workCatalog: Readonly<Record<string, WorkDefinition<any>>> = {}): value is GameState {
@@ -692,19 +705,8 @@ function normalizeUnavailableWorkProgress(
   const state = parsed.state as Record<string, unknown>;
   const works = state.works as Record<string, unknown>;
   const progress = { ...(works.progress as Record<string, unknown>) };
-  const isCompatible = (id: string, raw: Record<string, unknown>): boolean => {
-    const definition = workCatalog[id];
-    return !!definition && definition.id === id
-      && (definition.kind === 'work' || definition.kind === 'tutorial')
-      && validateWorkDefinition(definition).length === 0
-      && typeof raw.definitionCompatibilityKey === 'string'
-      && raw.definitionCompatibilityKey === definition.progressCompatibilityKey
-      && definition.validateScenarioData(raw.scenarioData)
-      && Array.isArray(raw.acquiredEvidence)
-      && raw.acquiredEvidence.every((evidenceId) => definition.evidence.some((item) => item.id === evidenceId))
-      && Array.isArray(raw.completedActionIds)
-      && raw.completedActionIds.every((actionId) => definition.actions.some((item) => item.id === actionId));
-  };
+  const isCompatible = (id: string, raw: Record<string, unknown>): boolean =>
+    isWorkProgress(raw) && matchesWorkDefinition(id, raw, workCatalog);
 
   let activeWorkId = typeof works.activeWorkId === 'string' ? works.activeWorkId : null;
   if (activeWorkId !== null) {
