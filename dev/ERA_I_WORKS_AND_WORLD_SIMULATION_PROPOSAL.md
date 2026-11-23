@@ -8,7 +8,7 @@
 
 ## 1. Executive recommendation
 
-Build Era I around **one required historical milestone Work and a small number of optional career-scale Works**, all grounded in the same overlapping institutional world. The first recommended milestone is a multi-party institutional provisioning undertaking associated with a major Eanna gathering. Two optional career-scale candidates are:
+Build Era I around **one required historical milestone Work and a small number of career-scale Work alternatives**, all grounded in the same overlapping institutional world. The first recommended milestone is a multi-party institutional provisioning undertaking associated with a major Eanna gathering. Two career-scale candidates are:
 
 1. **The Ordered List** — maintain, compare, and produce a useful copy of an existing lexical/reference list.
 2. **The Long Delivery** — coordinate and preserve the record of a complex procurement and delivery undertaking across multiple counterparties.
@@ -45,7 +45,7 @@ The distinction must be apparent in the human purpose and scope, not merely in t
 |---|---|---|---|
 | **Assignment / Commission** | A bounded job or request from a person or institution | Optional; offer lifecycle and commitment limits apply | Career XP, compensation, a report or defined service, and possible consequences |
 | **Challenge** | A behavioral or situational choice | Optional; event-driven | A consequential choice and an archived Career Journal outcome |
-| **Work** | A substantial historical undertaking that coordinates people, information, resources, or institutions over a meaningful arc | Required for the main historical journey where designated; other Works may be optional | A durable achievement, institutional or historical consequences, and Historical Progress XP |
+| **Work** | A substantial historical undertaking that coordinates people, information, resources, or institutions over a meaningful arc | Part of the mandatory historical-progression layer; the portfolio determines which undertakings or alternatives are required | A durable achievement, institutional or historical consequences, and Historical Progress XP |
 | **Storehouse Reckoning** | Guided supervised apprenticeship exercise | Introductory Tutorial | Teaches basic professional interaction; 0 Historical Progress XP and no completed-Work entry |
 
 A Work must not be a longer Assignment merely because it has more evidence. It should have several of the following:
@@ -214,10 +214,12 @@ This is a possible alternative to *The Long Delivery*, or a later career-scale W
 ### Recommended portfolio for initial Era I playtesting
 
 - **One required milestone Work:** The Eanna Provisioning Undertaking.
-- **Two optional career-scale Works:** The Ordered List and The Long Delivery.
+- **Two career-scale alternatives:** The Ordered List and The Long Delivery.
 - **One reserve candidate:** The Work Group Account, to be used only if research and playtesting show a distinct need.
 
-This is a deliberately small portfolio. It gives the first era one substantial shared undertaking and two different forms of optional long-form work: reference/knowledge organization and procurement/custody. It avoids creating a separate mandatory Work for each career orientation.
+**Recommended progression shape:** require the milestone Work and let the player choose one of the two career-scale alternatives as the second required Work for Era I progression. The unchosen alternative is not a failure or an abandoned obligation; it is simply the other authored route. This keeps Works within the mandatory historical-progression layer while offering meaningful choice. Whether a later build also includes additional non-required Works remains an explicit owner decision.
+
+This is a deliberately small portfolio. It gives the first era one substantial shared undertaking and two different forms of career-scale work: reference/knowledge organization and procurement/custody. It avoids creating a separate mandatory Work for each career orientation.
 
 Government, Religious, Merchant, and Military orientations should affect initial context, contacts, responsibilities, and plausible approaches—not exclusive eligibility for a Work. Military participation remains especially conditional and historically restrained. No Work should grant a combat role or imply a standing military bureaucracy.
 
@@ -225,11 +227,12 @@ Government, Religious, Merchant, and Military orientations should affect initial
 
 Recommended:
 - The milestone Work is required for the main historical journey.
-- Career-scale Works are optional and may contribute Historical Progress XP, but they are not prerequisites for completing the Era I milestone.
-- Optional Works may deepen the player's professional history, relationships, familiarity, and institutional consequences.
-- A mandatory Work has a complete viable route without optional Assignments, Challenges, or career-scale Works.
+- One career-scale Work is also required for Era I progression, selected by the player from the authored alternatives.
+- The selected career-scale Work is not a side quest; it is part of the mandatory Work layer and awards Historical Progress XP.
+- The unselected alternative is not required in that playthrough. It may be reserved for replayability or a later content expansion; do not silently classify it as an optional Work.
+- Every required Work has a complete viable route without optional Assignments or Challenges.
 
-This interpretation keeps the main historical journey coherent while allowing a player's career to be richer or narrower. It also needs owner approval because the exact relationship between optional career-scale Works and era thresholds remains open.
+This interpretation preserves the GDD's mandatory Works layer while allowing a player's historical contribution to take one of several forms. Whether non-required Works should exist as an additional category is a separate owner decision.
 
 ### Historical Progress XP
 
@@ -253,7 +256,8 @@ Recommended distinction:
 - **No real-time timer:** all timing is expressed in the in-game calendar and AP economy.
 - **No hidden deadline:** the simulation may not invent or conceal a deadline merely to force activity.
 - **Required Work recovery:** if the player misses the original invitation, provide a historically plausible later entry, reduced-scope version, successor undertaking, or other authored catch-up route. Missing a date must not silently make the main historical journey impossible.
-- **Optional Work lapse:** an optional career-scale Work may genuinely become unavailable when its underlying circumstances pass, but only where the content defines why. The player should see that risk before committing to another use of time.
+- **Unselected alternative:** where the player chooses between two required career-scale routes, the unselected route is not treated as a declined obligation and creates no automatic penalty.
+- **Any future non-required Work:** if such Works are approved, one may genuinely become unavailable when its underlying circumstances pass, but only where the content defines why. The player should see that risk before committing to another use of time.
 - **Declining is not automatically misconduct:** consequences depend on an actual responsibility, promise, or institutional need—not on a hidden penalty for refusing content.
 
 The exact catch-up forms are scenario-specific. Do not make every Work infinitely repeatable or automatically re-offer the same event.
@@ -405,20 +409,20 @@ The existing typed transition architecture is a good starting point. Prefer smal
 
 ### Decision A — Era I portfolio shape
 
-**Option 1 — Recommended:** One required milestone Work plus two optional career-scale Works (*The Ordered List* and *The Long Delivery*); retain *The Work Group Account* as a reserve.
+**Option 1 — Recommended:** One required milestone Work plus one required career-scale Work chosen from two alternatives (*The Ordered List* or *The Long Delivery*); retain *The Work Group Account* as a reserve.
 
-- Strengths: compact first portfolio; demonstrates distinct forms of writing and administration; avoids four career-path-specific tracks.
-- Costs: requires the milestone Work to carry a substantial share of Era I historical progression; optional Work rewards and thresholds need later balance.
+- Strengths: compact first portfolio; demonstrates distinct forms of writing and administration; preserves player choice while keeping all required content in the mandatory Works layer; avoids four career-path-specific tracks.
+- Costs: requires two substantial Work definitions and a fair choice between career-scale alternatives; the alternatives must be comparable in historical significance and progression value.
 
-**Option 2:** Two required milestone Works, with one or two optional career-scale Works.
+**Option 2:** Require the milestone Work and both career-scale Works.
 
-- Strengths: more substantial mandatory historical arc; less reliance on one large undertaking.
-- Costs: more content and historical dependencies before Era I can be tested; risks turning the opening into a long checklist.
+- Strengths: more substantial mandatory historical arc and broader Era I coverage.
+- Costs: more content and historical dependencies before Era I can be tested; risks turning the opening into a long checklist and reducing player choice.
 
-**Option 3:** One required milestone Work with several alternative career-scale Works, of which the player must complete a selected number.
+**Option 3:** Require the milestone Work only; treat career-scale Works as additional non-required Works.
 
-- Strengths: strong career choice and replayability.
-- Costs: requires careful reward and threshold balancing; alternatives must be genuinely comparable and not path-exclusive.
+- Strengths: smaller mandatory path and greater freedom to pursue additional historical undertakings.
+- Costs: requires an explicit owner decision clarifying how non-required Works fit the GDD's mandatory Works layer; progression rewards and thresholds become more complex.
 
 ### Decision B — Work invitation dates
 
@@ -450,7 +454,7 @@ The following remain OPEN until explicitly approved:
 
 1. Portfolio shape: Option 1, 2, or 3 under Decision A.
 2. Whether *The Eanna Provisioning Undertaking* is the right first mandatory milestone concept.
-3. Whether *The Ordered List* and *The Long Delivery* are the right optional career-scale candidates, or whether *The Work Group Account* should replace one.
+3. Whether *The Ordered List* and *The Long Delivery* are the right career-scale alternatives, or whether *The Work Group Account* should replace one.
 4. Work invitation date and catch-up policy.
 5. Whether Work stages may commit world effects before final disposition.
 6. Whether one active Work at a time is acceptable for the first implementation.
