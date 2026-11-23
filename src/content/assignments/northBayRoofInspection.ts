@@ -88,7 +88,7 @@ export const northBayRoofInspection: AssignmentActivityDefinition = {
   },
   submissionNote: 'Submission closes the Assignment. Held barley remains a separate inspection.',
   createInitialProgress: () => ({ completedActionIds: [], discoveryIds: [], consultedPersonIds: [], draft: {
-    finding: 'insufficient_evidence', responsibilityClaim: 'none', citedDiscoveryIds: [], limitations: [], recommendations: [],
+    finding: 'channel_clear_beam_followup', responsibilityClaim: 'none', citedDiscoveryIds: [], limitations: [], recommendations: [],
   } }),
 };
 
@@ -125,7 +125,6 @@ export const northBayPostExecutionInspection: AssignmentActivityDefinition = {
     responsibilityLabel: 'Responsibility claim',
     findings: [
       { id: 'channel_clear_beam_followup', label: 'Channel clear; damp beam joint requires follow-up after drying' },
-      { id: 'insufficient_evidence', label: 'Inspection incomplete; no conclusion on execution' },
       { id: 'execution_not_confirmed', label: 'Claim that the recorded execution is not confirmed' },
     ],
     responsibilityClaims: [
