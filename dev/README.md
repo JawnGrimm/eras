@@ -7,6 +7,7 @@ It is separate from the game itself. Nothing in this folder is gameplay content,
 ## How to use this space
 
 - **[Team Communication Log](TEAM_LOG.md):** Add dated updates, questions, discussion topics, handoffs, and implementation notes.
+- **[Performance Risks and Engineering Watchlist](PERFORMANCE_NOTES.md):** Track unverified scalability risks, measurement priorities, and data-preservation guardrails.
 - **GitHub Issues:** Use issues for bugs, concrete tasks, and work that needs tracking or assignment.
 - **Pull request discussions:** Keep code-specific review comments with the pull request they concern.
 - **[Game Design Document](../docs/GDD.md):** This remains the canonical source for approved game design. A discussion note here does not change the GDD. Once a design decision is agreed, update the GDD as appropriate.
