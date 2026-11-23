@@ -28,9 +28,10 @@ function eligibleAppointment(
     .sort((a, b) => a.id.localeCompare(b.id))[0];
 }
 
-function hasAcceptedPlayerCommitment(state: GameState, matterId: InstitutionalMatter['id']): boolean {
+function hasAcceptedPlayerCommitment(state: GameState, matterId: InstitutionalMatter['id'], executionEventId: EventId): boolean {
+  const assignmentId = `assignment-auto-post-execution-${executionEventId}`;
   return Object.values(state.opportunities.assignments).some((offer) =>
-    offer.status === 'accepted' && offer.originMatterId === matterId
+    offer.id === assignmentId && offer.status === 'accepted' && offer.originMatterId === matterId
       && offer.activityId === NORTH_BAY_POST_EXECUTION_ACTIVITY_ID);
 }
 
@@ -65,7 +66,7 @@ export function advanceInstitutionalResponses(state: GameState, dayNumber: numbe
   for (const executionEvent of executions) {
     const execution = executionEvent.institutionalResponse!;
     const matter = next.world.matters[execution.matterId];
-    if (!matter || matter.status === 'resolved' || hasAcceptedPlayerCommitment(next, matter.id)) continue;
+    if (!matter || matter.status === 'resolved' || hasAcceptedPlayerCommitment(next, matter.id, executionEvent.id)) continue;
 
     const priorVerifications = Object.values(next.world.events).filter((event) =>
       event.institutionalResponse?.stage === 'verification'
