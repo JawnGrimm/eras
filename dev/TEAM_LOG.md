@@ -1371,3 +1371,38 @@ The document proposes one primary choice per chapter, revisitable before confirm
 - Decide whether the Military orientation has a playable Era I opening connection in the vertical slice.
 - Decide whether traits and ambition appear in the first playable character creator.
 
+
+
+## 2026-11-23 — Character creation flow decisions and Era I content specification
+
+**Contributor:** ChatGPT  
+**Status:** Decision recorded / detailed content proposal
+
+The Game Director approved the following character-creation directions:
+
+1. The nine-screen flow and one primary choice per chapter.
+2. The narrower Era I first-playable option set.
+3. Inclusion of the Military orientation in Era I.
+4. Inclusion of traits and ambition as visible placeholders.
+
+Updated [Character Creation — Player-Facing Flow Proposal](CHARACTER_CREATION_PLAYER_FLOW.md) to reflect those approvals.
+
+Added [Character Creation — Era I Authored Content and Starting-State Specification](CHARACTER_CREATION_ERA_I_CONTENT_SPEC.md). It defines the first-playable four-option catalog for origins, responsibilities, formative experiences, entry routes, and first instruction; the four orientation descriptions; deterministic recommender/trainer mappings; four complete biography baselines; choice compatibility rules; starting-state invariants; and Storehouse Reckoning parity tests.
+
+### Military expression
+
+Military remains selectable, with an Era I expression centered on custody, protection, transport, and movement under risk. The existing Carrier Foreman Enlil-kisu is the proposed contact through a specific delivery/custody experience. This is explicitly not a military posting and does not imply a standing army, quartermaster corps, conscription, combat skill, or military appointment. The individual experience is authored reconstruction, and the broader historical framing remains low-confidence.
+
+### Traits and ambition placeholders
+
+The character creator reserves visible trait and ambition areas, but they remain inactive. No placeholder trait IDs, invented catalog entries, quest objectives, or mechanical modifiers are introduced.
+
+### Existing architecture observations
+
+The current production model already uses a shared `Person` identity, the four `CareerPathId` values, and a `ScribalCharacterState` that can store a career path and typed trait states. The current Person model does not yet include dedicated Life Event or domain-familiarity fields. The new-game bootstrap currently initializes a fixed Enlil-barni character and fixed opening world. These are implementation dependencies to resolve in a separate architecture task; no code or save schema was changed in this pass.
+
+### GDD alignment and boundaries
+
+The work develops §§3.3–3.4, 4, 7, 15, and 16 and informs Section 23 items 8, 10, 13, 22, and 25. It does not revise the canonical GDD, assign numerical attributes/skills/XP/rank, change the opening tutorial, or alter production code/save schema.
+
+**Next action:** Game Director review of the four biography baselines, NPC reuse map, Military expression, and minimum persistent Life Event/familiarity contract before implementation planning.
