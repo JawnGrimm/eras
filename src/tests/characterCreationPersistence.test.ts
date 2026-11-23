@@ -104,6 +104,36 @@ describe('persistent character creation data validation', () => {
     expect(isValidGameState(duplicateFamiliarity)).toBe(false);
   });
 
+  it('accepts events without named participants and rejects duplicate participant references', () => {
+    const anonymousHistory = structuredClone(stateWithHistory());
+    anonymousHistory.world.people[INITIAL_PERSON_ID].lifeEvents![0].participants = [];
+    expect(isValidGameState(anonymousHistory)).toBe(true);
+
+    const duplicateParticipants = structuredClone(stateWithHistory());
+    duplicateParticipants.world.people[INITIAL_PERSON_ID].lifeEvents![0].participants.push({
+      ...duplicateParticipants.world.people[INITIAL_PERSON_ID].lifeEvents![0].participants[0],
+      role: 'helper',
+    });
+    expect(isValidGameState(duplicateParticipants)).toBe(false);
+  });
+
+  it('rejects duplicate Life Event IDs and whitespace-only identifiers or summaries', () => {
+    const duplicateId = structuredClone(stateWithHistory());
+    duplicateId.world.people[INITIAL_PERSON_ID].lifeEvents!.push({
+      ...duplicateId.world.people[INITIAL_PERSON_ID].lifeEvents![0],
+      chronology: { stage: 'youth', order: 1 },
+    });
+    expect(isValidGameState(duplicateId)).toBe(false);
+
+    const whitespaceId = structuredClone(stateWithHistory());
+    (whitespaceId.world.people[INITIAL_PERSON_ID].lifeEvents![0] as unknown as Record<string, unknown>).contentId = '   ';
+    expect(isValidGameState(whitespaceId)).toBe(false);
+
+    const whitespaceScope = structuredClone(stateWithHistory());
+    (whitespaceScope.world.people[INITIAL_PERSON_ID].familiarities![0] as unknown as Record<string, unknown>).scopeId = '  ';
+    expect(isValidGameState(whitespaceScope)).toBe(false);
+  });
+
   it('rejects malformed familiarity and duplicate provenance IDs', () => {
     const invalidExposure = structuredClone(stateWithHistory());
     (invalidExposure.world.people[INITIAL_PERSON_ID].familiarities![0] as unknown as Record<string, unknown>).exposure = 'mastered';
