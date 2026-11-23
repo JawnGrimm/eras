@@ -1,12 +1,12 @@
 # Work Contribution Architecture Decision
 
-**Status:** APPROVED PRINCIPLE; implementation details remain open.  
+**Status:** Recommended architecture; owner review pending.  
 **Depends on:** [Work Contribution Behavior Specification](WORK_CONTRIBUTION_BEHAVIOR_SPEC.md).  
 **Repository baseline reviewed:** `main`, 23 November 2026.  
 **Scope:** Conceptual ownership, persistence boundaries, compatibility strategy, and implementation sequence.  
 **Non-goals:** This document does not define final TypeScript interfaces, a serialized schema, exact IDs, migrations, reward formulas, or individual Work content. It does not authorize implementation of the full system.
 
-## 1. Approved architecture principle
+## 1. Decision to be made
 
 The accepted Work Contribution Contract requires a durable professional history that the current engine does not represent. The key architecture decision is where that history belongs.
 
@@ -17,9 +17,9 @@ Two viable approaches are evaluated:
 
 Both approaches retain Work-authored contribution definitions in the Work catalog. Neither makes records, events, institutional matters, or character XP balances the owner of contribution history.
 
-**Approved principle: Approach B — a separate contribution ledger owned by the persistent Work undertaking.** The ledger is conceptually distinct from the mutable Work interaction-progress cursor, not owned by the current character, a submission, or a record. Under today's one-instance-per-Work-ID constraint, the existing Work ID may provisionally scope the ledger. Introduce a distinct runtime undertaking ID only when repeated instances, concurrent instances, or multiple active Works become a demonstrated requirement.
+**Recommendation: Approach B**, with a deliberately narrow first increment. The contribution ledger should be conceptually owned by the persistent Work undertaking, not by the current character, a submission, a record, or the mutable action-progress cursor. Under today's one-instance-per-Work-ID constraint, the existing Work ID can provisionally scope that ledger. A distinct runtime undertaking ID should be introduced only when repeated instances, concurrent instances, or multiple active Works become a real requirement; this document does not pre-empt that decision.
 
-This approval establishes the ownership and persistence boundary only. It does not approve final TypeScript interfaces, serialized field names, collection shape, ID generation, schema versioning, migration behavior, reward formulas, lifecycle states, or individual Work content. Those remain subject to separate review.
+This is a recommended architecture direction, not yet an approved schema or a locked design decision.
 
 ## 2. Current architecture facts
 
@@ -153,7 +153,7 @@ Ratings mean: **Strong** = naturally supports the requirement; **Partial** = pos
 | WC-18 One-time Work-level Historical Progress XP | Strong | Strong | Existing Work-level reward guard and completedWorks list provide a starting point; keep this guard separate from contribution XP receipts. |
 | WC-19 Institutional process continues independently | Partial | Strong | B leaves institutional matter and world event lifecycles outside the contribution ledger and WorkProgress. |
 | WC-20 No automatic succession transfer | Partial | Strong | B makes undertaking handoff an explicit ledger lifecycle event, not a side effect of preserving progress. |
-| WC-21 Acknowledgment is not handoff | Partial | Strong | B can record acknowledgment/invitation/handoff as distinct states/events without altering character selection logic. |
+| WC-21 Acknowledgment is not handoff | Partial | Strong | B can record acknowledgment/invitation/handoff as distinct states/events without altering contribution ownership. |
 | WC-22 Conditional invitation | Partial | Strong | B provides an explicit place to retain invitation basis, scope, response, and remit without changing character selection logic. |
 | WC-23 Valid handoff | Partial | Strong | B can append a handoff record and retain its documentary basis independently of the current active character. |
 | WC-24 Preserve contribution segments | Partial | Strong | B is designed for multiple actor-attributed segments under one undertaking. |
@@ -186,7 +186,7 @@ Ratings mean: **Strong** = naturally supports the requirement; **Partial** = pos
 | AT-16 Invitation declined/unavailable | Partial | Strong | B records no handoff and leaves predecessor's contributions unchanged. |
 | AT-17 Independent successor access/remit | Partial | Strong | B can record the alternative basis for handoff without requiring institutional invitation. |
 | AT-18 Multiple successions | Partial | Strong | B can retain an ordered chain of explicit handoffs and contribution segments. |
-| AT-19 Legacy save lacks actor history | Partial | Strong | B allows old progress to remain legacy/unattributed without fabricating authorship. |
+| AT-19 Legacy save lacks actor history | Partial | Strong | B allows old progress to remain legacy/unattributed without fabricating actors. |
 | AT-20 Completed Work restored/finalized again | Partial | Strong | B keeps contribution award receipts and Work completion reward guard separately durable and idempotent. |
 
 "Partial" for Approach A means the behavior is implementable but depends on additional internal partitioning and invariants inside WorkProgress; it does not mean the behavior is impossible.
@@ -268,10 +268,10 @@ This document does not settle:
 
 If an implementation step requires one of these decisions, present the concrete options and consequences before committing to a behavior that would effectively settle it.
 
-## 10. Approved principle and implementation boundary
+## 10. Recommendation for owner review
 
-The owner has approved the following architecture principle:
+Approve or revise the following proposed architecture direction:
 
 > Professional contribution history belongs to the persistent Work undertaking and should be stored separately from the mutable Work interaction-progress cursor. Work definitions author contribution contracts; the undertaking ledger records actor-attributed contribution instances and their professional history; character state holds earned Career XP balances; world/institutional state holds events, records, knowledge, responses, and execution. The first implementation can scope the ledger by the existing Work ID while the single-instance constraint remains, without defining a new undertaking-ID scheme or final save schema.
 
-This approval authorizes preparation of a bounded Step 1 type/transition/migration proposal. It does not authorize runtime implementation, the entire implementation sequence, or individual Work content.
+Approval of this architecture direction would authorize engineering to prepare a detailed type/transition/migration proposal for the first implementation increment. It would not, by itself, authorize the entire sequence or approve individual Work content.
