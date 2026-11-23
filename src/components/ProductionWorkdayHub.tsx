@@ -105,7 +105,7 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenActivity, settlement, o
             ? `Shortage day ${wallet.shortageWorkdays}. Underfed is active; the condition clears when provisions are consumed.`
             : `Grace period: ${Math.max(0, 2 - wallet.shortageWorkdays)} unprovisioned Workday(s) remain before shortage consequences begin.`}
       </p>
-      <p className="mt-1 text-xs text-stone-600">Shortage-attributed Stress: {person.scribal.cumulativeShortageStress}/10 lifetime cap · Current AP: {state.actionEconomy.apRemaining}</p>
+      <p className="mt-1 text-xs text-stone-600">Shortage-attributed Stress: {scribal.cumulativeShortageStress}/10 lifetime cap · Current AP: {state.actionEconomy.apRemaining}</p>
       <div className="mt-4 grid gap-3 md:grid-cols-2">
         {laborAvailable && <article className="rounded-lg border border-amber-200 bg-white p-3">
           <h3 className="font-semibold text-stone-900">Temple Storehouse Auxiliary Labor</h3>
@@ -130,10 +130,10 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenActivity, settlement, o
         </article>
       </div>
     </section>}
-    {person.scribal.obligations.some((obligation) => obligation.status === 'outstanding') && <section aria-labelledby="obligations-heading" className="rounded-xl border border-stone-300 bg-white p-4">
+    {scribal.obligations.some((obligation) => obligation.status === 'outstanding') && <section aria-labelledby="obligations-heading" className="rounded-xl border border-stone-300 bg-white p-4">
       <h2 id="obligations-heading" className="font-semibold text-stone-900">Outstanding obligations</h2>
       <ul className="mt-2 space-y-2 text-sm text-stone-700">
-        {person.scribal.obligations.filter((obligation) => obligation.status === 'outstanding').map((obligation) =>
+        {scribal.obligations.filter((obligation) => obligation.status === 'outstanding').map((obligation) =>
           <li key={obligation.id}><strong>{state.world.people[obligation.creditorPersonId]?.name ?? 'Creditor'}:</strong> {obligation.description}</li>)}
       </ul>
     </section>}
