@@ -31,7 +31,8 @@ export function validateInstitutionalResponseEvent(state: GameState, event: Worl
     return 'The response must be made by a person holding an active appointment at the matter’s institution.';
   }
   const knowsRecord = Object.values(state.world.knowledge).some((entry) =>
-    entry.holder.kind === 'person' && entry.holder.id === response.actorPersonId
+    !!entry && typeof entry === 'object' && !!entry.holder && !!entry.subject
+    && entry.holder.kind === 'person' && entry.holder.id === response.actorPersonId
     && entry.subject.kind === 'record' && entry.subject.id === record.id);
   if (!knowsRecord) return 'The appointed actor must have an explicit knowledge entry for the report being assessed or acted upon.';
 
@@ -47,6 +48,7 @@ export function validateInstitutionalResponseEvent(state: GameState, event: Worl
   }
 
   if (response.stage === 'authorization') {
+    if (matter.kind !== 'roof_repair_verification') return 'Routine storehouse maintenance authorization is only defined for the North-Bay roof matter in this phase.';
     if (!appointment.authorityCapabilities?.includes('authorize_routine_storehouse_maintenance')) {
       return 'This appointment does not authorize routine storehouse maintenance.';
     }
@@ -68,8 +70,8 @@ export function validateInstitutionalResponseEvent(state: GameState, event: Worl
       && (response.authorizedAction !== undefined || response.scope !== undefined)) {
       return 'A declined authorization cannot carry an authorized action or scope.';
     }
-    const alreadyAuthorized = Object.values(state.world.events).some((existing) =>
-      existing.institutionalResponse?.stage === 'authorization'
+    const alreadyAuthorized = Object.values(state.world.events).some((existing) => existing.id !== event.id
+      && existing.institutionalResponse?.stage === 'authorization'
       && existing.institutionalResponse.decision === 'authorized'
       && existing.institutionalResponse.matterId === matter.id
       && existing.institutionalResponse.recordId === record.id);
