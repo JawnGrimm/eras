@@ -127,7 +127,7 @@ export const northBayPostExecutionInspection: AssignmentActivityDefinition = {
       { id: 'channel_clear_beam_followup', label: 'Channel clear; damp beam joint requires follow-up after drying' },
       { id: 'channel_clear_beam_dry', label: 'Channel clear; beam joint appears dry at inspection' },
       { id: 'channel_obstructed', label: 'Runoff channel remains obstructed after execution' },
-      { id: 'execution_not_confirmed', label: 'Claim that the recorded execution is not confirmed' },
+
     ],
     responsibilityClaims: [
       { id: 'none', label: 'No individual responsibility assigned' },
