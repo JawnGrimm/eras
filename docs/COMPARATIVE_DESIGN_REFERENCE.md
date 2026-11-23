@@ -134,7 +134,7 @@
 
 **Study takeaway:** Three Kingdoms is worth examining selectively for character satisfaction, appointments, titles, court positions, and diplomacy. Its official manual describes how characters can become dissatisfied when requests for advancement are ignored and may defect; a contemporary review also noted the prominence of character satisfaction and the expanded diplomacy system.
 
-**Reception and production caveat:** Do not present Three Kingdoms as universally hated, but do not use aggregate review scores to dismiss the project owner's warning or treat it as a consensus exemplar. Creative Assembly announced in May 2021 that development had moved on after two years and seven DLC releases, prompting public fan dissatisfaction. The support decision and the quality of individual systems are separate questions.
+**Reception and production caveat:** Treat Three Kingdoms as a contested reference, not a consensus exemplar. The May 2021 announcement that development had moved on after two years and seven DLC releases prompted visible fan dissatisfaction. Aggregate review scores alone do not establish community consensus, and the support decision should be distinguished from the quality of individual systems.
 
 **Potential application:** Study how an individual's career expectations and formal position can affect their behavior. This is relevant to appointments, obligations, institutional standing, and professional relationships.
 
