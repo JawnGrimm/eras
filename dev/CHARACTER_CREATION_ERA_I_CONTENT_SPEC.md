@@ -384,7 +384,7 @@ These profiles are the minimum authoring and QA set. They demonstrate the choice
 - Formative experience: FE-01 A quantity did not match.
 - Entry: EN-02 Your work earned a recommendation; Ur-Nanna recommends the character.
 - First instruction: TR-01 Quantities and commodity notation.
-- Orientation: Government.
+- Orientation: Civic.
 
 **People and connections**
 
@@ -442,7 +442,7 @@ These profiles are the minimum authoring and QA set. They demonstrate the choice
 - Formative experience: FE-03 You helped settle a disagreement.
 - Entry: EN-01 Someone introduced you; Enlil-kisu introduces the character through delivery work.
 - First instruction: TR-04 Checking and organizing records.
-- Orientation: Merchant.
+- Orientation: Commercial.
 
 **People and connections**
 
@@ -471,7 +471,7 @@ These profiles are the minimum authoring and QA set. They demonstrate the choice
 - Formative experience: FE-01 A quantity did not match, personalized as a delayed or uncertain handover.
 - Entry: EN-02 Your work earned a recommendation; Enlil-kisu recommends the character.
 - First instruction: TR-04 Checking and organizing records.
-- Orientation: Military (Era I gloss: Security and Mobilization).
+- Orientation: Martial (Era I gloss: Security and Mobilization).
 
 **People and connections**
 
