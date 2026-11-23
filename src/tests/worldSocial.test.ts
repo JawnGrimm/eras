@@ -5,6 +5,7 @@ import { deriveProfessionalRank } from '../engine/professionalRank';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
 import { createSaveEnvelope, isValidGameState, restoreSave } from '../state/saveEnvelope';
 import { createRoofRepairMatter, MATTER_IDS, STOREHOUSE_INSTITUTION_ID, NORTH_BAY_LOCATION_ID } from '../engine/institutionalMatters';
+import { NORTH_BAY_POST_EXECUTION_ACTIVITY_ID } from '../content/assignments/northBayRoofInspection';
 import type { PersonId, InstitutionId, AppointmentId, EventId, RecordId, KnowledgeEntryId } from '../state/ids';
 import type { GameState, Person } from '../state/types';
 
@@ -249,35 +250,43 @@ describe('world, relationships, institutions and records', () => {
     expect(restored?.state.world.events[authorization.id].institutionalResponse?.precedingEventId).toBe(assessment.id);
     expect(restored?.state.world.events[execution.id].institutionalResponse?.stage).toBe('execution');
     expect(restored?.state.world.matters[MATTER_IDS.roofRepair].status).toBe('active');
-    // A separately authored, post-execution inspection can be received by an
-    // authorized verifier and then resolved through the same END_DAY lifecycle.
-    const postExecutionRecord = {
-      id: 'record-north-bay-post-execution' as RecordId, createdDay: 1, authorPersonId: INITIAL_PERSON_ID,
-      institutionId: storehouseId, title: 'Post-execution physical inspection',
-      sources: [{ id: 'source-post-execution-observer', kind: 'person' as const, sourceId: INITIAL_PERSON_ID,
-        description: 'Direct physical inspection by the current scribe after Aru’s work.' }],
-      assertions: [{ id: 'assertion-channel-clear', text: 'The inspected runoff channel is clear after the maintenance execution.',
-        classification: 'observed' as const, sourceIds: ['source-post-execution-observer'] }],
-      uncertaintyLimits: ['The observation is limited to the inspected runoff channel.'], amendments: [],
-    };
-    const inspectionCreated = transitionGame(executed.state, { type: 'CREATE_RECORD', record: postExecutionRecord });
-    expect(inspectionCreated.feedback?.code).toBe('record-created');
-    const matterWithInspection = { ...inspectionCreated.state.world.matters[MATTER_IDS.roofRepair],
-      provenance: [...(inspectionCreated.state.world.matters[MATTER_IDS.roofRepair].provenance ?? []),
-        { id: 'post-execution-inspection', kind: 'observation' as const, sourceId: postExecutionRecord.id,
-          description: 'Independent post-execution inspection record.' }] };
-    const linkedInspection = { ...inspectionCreated.state, world: { ...inspectionCreated.state.world, matters:
-      { ...inspectionCreated.state.world.matters, [MATTER_IDS.roofRepair]: matterWithInspection } } };
-    const informedVerifier = transitionGame(linkedInspection, { type: 'GRANT_KNOWLEDGE', knowledge: {
-      id: 'knowledge-post-execution-shuruppak' as KnowledgeEntryId, holder: { kind: 'person' as const, id: shuruppakId },
-      subject: { kind: 'record' as const, id: postExecutionRecord.id }, basis: 'received-copy' as const,
-      learnedDay: 1, sourcePersonId: INITIAL_PERSON_ID,
-    } });
-    expect(informedVerifier.feedback?.code).toBe('knowledge-granted');
-    const lifecycle = transitionGame(informedVerifier.state, { type: 'END_DAY', expectedDayNumber: 1 });
+    // The post-execution Assignment is the ordinary player path for supplying
+    // independent evidence. The player does not perform the official verification.
+    const assignmentDay = transitionGame(executed.state, { type: 'END_DAY', expectedDayNumber: 1 });
+    expect(assignmentDay.feedback?.code).toBe('day-settled');
+    expect(Object.values(assignmentDay.state.world.events).some((item) => item.institutionalResponse?.stage === 'verification')).toBe(false);
+    const postExecutionOffer = Object.values(assignmentDay.state.opportunities.assignments).find((item) =>
+      item.activityId === NORTH_BAY_POST_EXECUTION_ACTIVITY_ID && item.originMatterId === MATTER_IDS.roofRepair);
+    expect(postExecutionOffer).toBeDefined();
+    const acceptedInspection = transitionGame(assignmentDay.state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: postExecutionOffer!.id });
+    expect(acceptedInspection.feedback?.code).toBe('assignment-accepted');
+    let inspectionState = acceptedInspection.state;
+    for (const actionId of ['inspect-completed-work', 'review-execution-record']) {
+      const performed = transitionGame(inspectionState, { type: 'PERFORM_ASSIGNMENT_ACTIVITY_ACTION', assignmentId: postExecutionOffer!.id, actionId });
+      expect(performed.feedback?.code).toBe('assignment-activity-action-completed');
+      inspectionState = performed.state;
+    }
+    const inspectionProgress = inspectionState.opportunities.assignments[postExecutionOffer!.id].activityProgress!;
+    const inspectionDraft = { ...inspectionProgress.draft, finding: 'channel_clear_beam_followup',
+      responsibilityClaim: 'none', citedDiscoveryIds: ['post-execution-observation', 'post-execution-record'],
+      limitations: ['The shaded beam joint remains damp and requires a separate inspection after drying.'],
+      recommendations: ['accept_execution_with_followup', 'inspect_beam_after_drying'] };
+    const draftedInspection = transitionGame(inspectionState, { type: 'UPDATE_ASSIGNMENT_ACTIVITY_DRAFT',
+      assignmentId: postExecutionOffer!.id, draft: inspectionDraft });
+    expect(draftedInspection.feedback?.code).toBe('assignment-activity-draft-updated');
+    const submittedInspection = transitionGame(draftedInspection.state, { type: 'SUBMIT_ASSIGNMENT_ACTIVITY', assignmentId: postExecutionOffer!.id });
+    expect(submittedInspection.feedback?.code).toBe('assignment-activity-submitted');
+    const postExecutionRecord = Object.values(submittedInspection.state.records.entries).find((record) =>
+      record.title === 'North-Bay Post-Execution Inspection Record');
+    expect(postExecutionRecord?.assertions.some((assertion) => assertion.classification === 'observed')).toBe(true);
+    expect(Object.values(submittedInspection.state.world.knowledge).some((entry) => entry.holder.kind === 'person'
+      && entry.holder.id === shuruppakId && entry.subject.kind === 'record' && entry.subject.id === postExecutionRecord?.id)).toBe(true);
+    expect(submittedInspection.state.opportunities.assignments[postExecutionOffer!.id].status).toBe('completed');
+    const lifecycle = transitionGame(submittedInspection.state, { type: 'END_DAY', expectedDayNumber: 2 });
     const verification = Object.values(lifecycle.state.world.events).find((item) => item.institutionalResponse?.stage === 'verification');
     const resolution = Object.values(lifecycle.state.world.events).find((item) => item.institutionalResponse?.stage === 'resolution');
     expect(verification?.institutionalResponse?.verification?.outcome).toBe('accepted');
+    expect(verification?.institutionalResponse?.recordId).toBe(postExecutionRecord?.id);
     expect(resolution?.institutionalResponse?.resolution?.verificationEventId).toBe(verification?.id);
     expect(lifecycle.state.world.matters[MATTER_IDS.roofRepair].status).toBe('resolved');
     expect(isValidGameState(lifecycle.state)).toBe(true);
