@@ -355,4 +355,29 @@ describe('institutional response lifecycle', () => {
     expect(settled.state.world.events[rejected.id]).toBeDefined();
     expect(settled.state.world.matters[MATTER_IDS.roofRepair].status).toBe('resolved');
   });
+  it('supersedes an unaccepted inspection offer when a later execution is recorded', () => {
+    const firstDay = transitionGame(stateWithExecution(false), { type: 'END_DAY', expectedDayNumber: 1 });
+    const oldOffer = Object.values(firstDay.state.opportunities.assignments).find((offer) =>
+      offer.activityId === NORTH_BAY_POST_EXECUTION_ACTIVITY_ID && offer.originMatterId === MATTER_IDS.roofRepair);
+    expect(oldOffer).toBeDefined();
+    const firstExecution = firstDay.state.world.events['event-lifecycle-execution' as EventId];
+    const secondExecutionId = 'event-lifecycle-remediation-execution' as EventId;
+    const secondExecution: WorldEvent = { ...firstExecution, id: secondExecutionId, dayNumber: 2,
+      summary: 'Aru completed a later remediation execution.',
+      institutionalResponse: { ...firstExecution.institutionalResponse!,
+        precedingEventId: 'event-lifecycle-remediation-assignment' as EventId,
+        execution: { workPerformed: 'Remediate the runoff channel and reassess the beam socket.',
+          laborBasis: 'Existing maintenance labor.', materialsBasis: 'Existing maintenance materials.',
+          result: 'The runoff channel is clear after remediation.' } },
+    };
+    const state = { ...firstDay.state, calendar: { ...firstDay.state.calendar, dayNumber: 2 },
+      world: { ...firstDay.state.world, events: { ...firstDay.state.world.events, [secondExecution.id]: secondExecution } } };
+    const staleAcceptance = transitionGame(state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: oldOffer!.id });
+    expect(staleAcceptance.feedback?.code).toBe('assignment-superseded');
+    const nextDay = transitionGame(state, { type: 'END_DAY', expectedDayNumber: 2 });
+    const latestOffer = Object.values(nextDay.state.opportunities.assignments).find((offer) =>
+      offer.activityId === NORTH_BAY_POST_EXECUTION_ACTIVITY_ID && offer.originMatterId === MATTER_IDS.roofRepair
+        && offer.id.endsWith(secondExecutionId));
+    expect(latestOffer).toBeDefined();
+  });
 });
