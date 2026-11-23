@@ -3,6 +3,7 @@ import { transitionGame } from '../engine/actionEconomy';
 import { validateInstitutionalResponseEvent } from '../engine/institutionalResponseValidation';
 import { createRoofRepairMatter, MATTER_IDS, NORTH_BAY_LOCATION_ID, STOREHOUSE_INSTITUTION_ID } from '../engine/institutionalMatters';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
+import { NORTH_BAY_POST_EXECUTION_ACTIVITY_ID } from '../content/assignments/northBayRoofInspection';
 import type { AssignmentOffer, GameState, InstitutionalResponse, RecordEntry, WorldEvent } from '../state/types';
 import type { AppointmentId, AssignmentId, EventId, InstitutionId, KnowledgeEntryId, PersonId, RecordId } from '../state/ids';
 
@@ -83,7 +84,8 @@ describe('institutional response lifecycle', () => {
     expect(Object.values(noEvidence.state.world.events).some((event) => event.institutionalResponse?.stage === 'verification')).toBe(false);
     state = stateWithExecution(true);
     const acceptedOffer = {
-      id: 'assignment-player-inspection' as AssignmentId,
+      id: 'assignment-auto-post-execution-event-lifecycle-execution' as AssignmentId,
+      activityId: NORTH_BAY_POST_EXECUTION_ACTIVITY_ID,
       originMatterId: MATTER_IDS.roofRepair,
       status: 'accepted',
     } as unknown as AssignmentOffer;
