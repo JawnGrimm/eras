@@ -1,6 +1,6 @@
 # Assignment Orientation and Institutional Context Specification
 
-**Status:** PROPOSED — DESIGN CONTRACT FOR GAME DIRECTOR REVIEW  
+**Status:** APPROVED — BEHAVIORAL CONTRACT  
 **Date:** 23 November 2026  
 **Authority:** Subordinate to `docs/GDD.md`; implements the approved professional-orientation principle.  
 **Scope:** Assignment authoring, contextual access, and the relationship between professional orientation and institutional circumstances.  
@@ -139,9 +139,11 @@ An Assignment set satisfies this contract when:
 
 ## 11. Production handoff boundary
 
-After this contract is approved, Production should audit all consumers of Assignment availability and authored context before proposing technical changes. The first implementation step is a compatibility proposal: identify what current definitions and generator already support, what is missing, and the smallest deterministic extension needed.
+Production's first step is a cross-system compatibility audit of all consumers of Assignment availability, authored context, and delivery channels before proposing technical changes. Specifically inspect the relationship delivery channel used by South-Court Delivery Reconciliation (Enlil-kisu) against the approved Era I character-history contract (`era1-character-history-v1` / GD-CHARACTER-START-001): EN-01 through EN-04 record an existing NPC as a factual `PersonLifeEvent` participant, but deliberately create no numeric trust, affection, or other `PersonRelationship` dimensions. Determine exactly what a `relationship` delivery channel currently means and inspects. If eligibility requires an existing relationship dimension/score, it may silently exclude a character whose only supported connection is a factual LifeEvent participant. Test that case explicitly; do not solve it by fabricating relationship scores. Decide whether the channel is merely explanatory/provenance metadata or an eligibility predicate, and specify the supported factual-connection route if access is intended.
 
-This document does not prescribe TypeScript types, schema fields, module placement, save migrations, or transition API signatures. Those belong to Production after the behavioral contract is approved.
+The live implementation baseline inspected for this approval has an important distinction: `validChannels()` in `src/engine/opportunities.ts` currently validates a `relationship` channel by checking that the referenced Person exists; it does not inspect a relationship score. `generateDailyAssignments()` in `src/engine/assignmentGenerator.ts` currently discovers matching active institutional matters and presents authored definitions without filtering on delivery-channel relationship dimensions. This does not remove the audit requirement: Production must trace all consumers and preserve the intended semantics when access rules are expanded.
+
+The first implementation step is a compatibility proposal: identify what current definitions and generator already support, what is missing, and the smallest deterministic extension needed. This document does not prescribe TypeScript types, schema fields, module placement, save migrations, or transition API signatures. Those belong to Production after the behavioral contract is approved.
 
 ## 12. GDD alignment and department impact
 
@@ -155,4 +157,4 @@ This document does not prescribe TypeScript types, schema fields, module placeme
 - **Audio:** No material impact.
 - **Production/QA:** After approval, test distinct set-and-setting across orientations, including cross-institutional access and the absence of arbitrary filters.
 
-**Next action:** Review this proposed contract alongside `dev/ERA_I_ASSIGNMENT_ORIENTATION_AUDIT.md`. Do not implement until the Game Director approves the behavioral contract.
+**Next action:** Production performs the cross-system compatibility audit described in §11. No runtime change is authorized until that audit and its technical proposal are reviewed under the normal Production handoff process.
