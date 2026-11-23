@@ -3,6 +3,7 @@ import { advanceInstitutionalMatters, createRoofRepairMatter, MATTER_IDS, STOREH
 import { createInitialGameState } from '../state/initialState';
 import { createSaveEnvelope, restoreSave } from '../state/saveEnvelope';
 import type { GameState } from '../state/types';
+import type { MatterId } from '../state/ids';
 
 describe('typed institutional matters and bounded world tick', () => {
   it('normalizes the tutorial and all P1 north-bay matter descriptions into stable IDs', () => {
@@ -31,14 +32,15 @@ describe('typed institutional matters and bounded world tick', () => {
     const oldSummary = 'Seven held barley sacks remain segregated; grain condition has not yet been assessed.';
     const customSummary = 'A custom note about sacks remains as originally authored.';
     const matter = { id: MATTER_IDS.heldBarley, institutionId: STOREHOUSE_INSTITUTION_ID, kind: 'held_barley_inspection' as const, summary: oldSummary, status: 'active' as const, createdDay: 1 };
-    const customMatter = { ...matter, id: 'matter-custom-held-note' as never, summary: customSummary };
+    const customMatterId = 'matter-custom-held-note' as MatterId;
+    const customMatter = { ...matter, id: customMatterId, summary: customSummary };
     const state = { ...base, world: { ...base.world,
-      matters: { ...base.world.matters, [MATTER_IDS.heldBarley]: matter, [customMatter.id]: customMatter },
-      institutions: { ...base.world.institutions, [STOREHOUSE_INSTITUTION_ID]: { ...base.world.institutions[STOREHOUSE_INSTITUTION_ID], activeMatters: [...base.world.institutions[STOREHOUSE_INSTITUTION_ID].activeMatters, MATTER_IDS.heldBarley, customMatter.id] } },
+      matters: { ...base.world.matters, [MATTER_IDS.heldBarley]: matter, [customMatterId]: customMatter },
+      institutions: { ...base.world.institutions, [STOREHOUSE_INSTITUTION_ID]: { ...base.world.institutions[STOREHOUSE_INSTITUTION_ID], activeMatters: [...base.world.institutions[STOREHOUSE_INSTITUTION_ID].activeMatters, MATTER_IDS.heldBarley, customMatterId] } },
     } } as GameState;
     const restored = restoreSave(JSON.stringify(createSaveEnvelope(state, 1)));
     expect(restored?.state.world.matters[MATTER_IDS.heldBarley].summary).toBe('Seven sealed pottery storage jars containing held barley remain segregated; grain condition has not yet been assessed.');
-    expect(restored?.state.world.matters[customMatter.id].summary).toBe(customSummary);
+    expect(restored?.state.world.matters[customMatterId].summary).toBe(customSummary);
   });
 
   it('advances an unresolved roof matter once when its scheduled rain arrives', () => {
