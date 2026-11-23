@@ -29,6 +29,13 @@ export function submitNorthBayPostExecutionInspection(
   const executionEventId = offer.id.slice(assignmentPrefix.length) as EventId;
   const executionEvent = state.world.events[executionEventId];
   const execution = executionEvent?.institutionalResponse;
+  const latestExecution = Object.values(state.world.events)
+    .filter((event) => event.institutionalResponse?.stage === 'execution'
+      && event.institutionalResponse.matterId === MATTER_IDS.roofRepair)
+    .sort((a, b) => b.dayNumber - a.dayNumber || b.id.localeCompare(a.id))[0];
+  if (latestExecution && latestExecution.id !== executionEventId) {
+    return fail(state, 'post-execution-assignment-superseded', 'A later maintenance execution superseded this inspection Assignment. Cancel this offer and use the latest execution’s inspection Assignment.');
+  }
   if (!matter || matter.kind !== 'roof_repair_verification' || matter.institutionId !== STOREHOUSE
     || matter.status === 'resolved' || !executionEvent || execution?.stage !== 'execution'
     || execution.matterId !== matter.id || executionEvent.dayNumber > state.calendar.dayNumber
