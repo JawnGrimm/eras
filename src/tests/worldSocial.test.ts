@@ -171,6 +171,66 @@ describe('world, relationships, institutions and records', () => {
     expect(restored?.state.world.events[authorization.id].institutionalResponse?.precedingEventId).toBe(assessment.id);
   });
 
+  it('blocks new referrals without a recipient while preserving legacy referral events in saves', () => {
+    const baseState = createInitialGameState();
+    const report = {
+      id: 'record-referral-completeness-test' as RecordId, createdDay: 1, authorPersonId: INITIAL_PERSON_ID,
+      institutionId: STOREHOUSE_INSTITUTION_ID, title: 'North-Bay Roof Inspection Report',
+      sources: [], assertions: [], uncertaintyLimits: ['The report is limited to the inspected roof areas.'], amendments: [],
+    };
+    const created = transitionGame(baseState, { type: 'CREATE_RECORD', record: report });
+    expect(created.feedback?.code).toBe('record-created');
+    const matter = createRoofRepairMatter(1, report.id);
+    let state: GameState = {
+      ...created.state,
+      world: {
+        ...created.state.world,
+        matters: { ...created.state.world.matters, [MATTER_IDS.roofRepair]: matter },
+        institutions: {
+          ...created.state.world.institutions,
+          [STOREHOUSE_INSTITUTION_ID]: {
+            ...created.state.world.institutions[STOREHOUSE_INSTITUTION_ID],
+            activeMatters: [...created.state.world.institutions[STOREHOUSE_INSTITUTION_ID].activeMatters, MATTER_IDS.roofRepair],
+          },
+        },
+      },
+    };
+    const actorId = 'person-shuruppak-ilu' as PersonId;
+    const knowledge = transitionGame(state, { type: 'GRANT_KNOWLEDGE', knowledge: {
+      id: 'knowledge-referral-report' as KnowledgeEntryId,
+      holder: { kind: 'person', id: actorId }, subject: { kind: 'record', id: report.id },
+      basis: 'received-copy', learnedDay: 1, sourcePersonId: INITIAL_PERSON_ID,
+    } });
+    expect(knowledge.feedback?.code).toBe('knowledge-granted');
+    state = knowledge.state;
+
+    const referral = {
+      id: 'event-incomplete-referral' as EventId, dayNumber: 1,
+      summary: 'The report is referred without a recorded receiving official or institution.',
+      personIds: [actorId], institutionIds: [STOREHOUSE_INSTITUTION_ID], locationId: NORTH_BAY_LOCATION_ID,
+      institutionalResponse: {
+        matterId: MATTER_IDS.roofRepair, stage: 'assessment' as const, actorPersonId: actorId,
+        appointmentId: 'appointment-shuruppak-ilu-senior-scribe' as AppointmentId,
+        recordId: report.id, decision: 'referred' as const,
+      },
+    };
+    const attempted = transitionGame(state, { type: 'CREATE_EVENT', event: referral });
+    expect(attempted.state).toBe(state);
+    expect(attempted.feedback?.code).toBe('institutional-response-invalid');
+    expect(attempted.feedback?.message).toContain('receiving person or institution');
+
+    // Existing schema-v2 saves may already contain a referral decision. Keep those
+    // historical events loadable; they are not retroactively assigned a recipient.
+    const legacyState: GameState = {
+      ...state,
+      world: { ...state.world, events: { ...state.world.events, [referral.id]: referral } },
+    };
+    expect(isValidGameState(legacyState)).toBe(true);
+    const restored = restoreSave(JSON.stringify(createSaveEnvelope(legacyState, 1, '2026-11-23T00:00:00.000Z')));
+    expect(restored).not.toBeNull();
+    expect(restored?.state.world.events[referral.id].institutionalResponse?.decision).toBe('referred');
+  });
+
   it('rejects an assessment by an appointed official without the required authority capability', () => {
     const baseState = createInitialGameState();
     const report = {
