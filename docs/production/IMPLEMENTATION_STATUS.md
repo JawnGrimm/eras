@@ -62,4 +62,4 @@ These findings are implementation/documentation reconciliation items. Production
 - **PR #74 — MERGED** as `302e64b610c924c8408826aab255f17138e53347`. Applied the Game Director-approved sealed pottery jar correction to the Held-Barley / North-Bay content. Rebased onto current main before merge. Production tightened the exact-string legacy summary normalization so replacements require the canonical Held-Barley matter in the Temple Storehouse; unrelated matter IDs and unknown/custom summaries are preserved. Added regression coverage for identical legacy wording on an unrelated matter ID. Pull Request Validation run #350 passed TypeScript, all 24 test files / 184 tests, and production build; CodeQL run #204 passed.
 - Both PRs were squash-merged after the final rebased-head checks. No deployment is recorded by these merges.
 
-**Current main after both merges:** `302e64b610c924c8408826aab255f17138e53347`.
+**Post-merge integration commit (before this status entry):** `302e64b610c924c8408826aab255f17138e53347`.
