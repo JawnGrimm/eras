@@ -243,6 +243,15 @@ describe('world, relationships, institutions and records', () => {
     expect(restored?.state.world.matters[MATTER_IDS.roofRepair].status).toBe('active');
   });
 
+  it('migrates older North-Bay saves with the authored maintenance worker', () => {
+    const legacy = structuredClone(createInitialGameState());
+    delete legacy.world.people['person-aru' as PersonId];
+    const restored = restoreSave(JSON.stringify(createSaveEnvelope(legacy, 1, '2026-11-23T00:00:00.000Z')));
+    expect(restored).not.toBeNull();
+    expect(restored?.state.world.people['person-aru' as PersonId]?.name).toBe('Aru');
+    expect(restored?.state.world.people['person-aru' as PersonId]?.affiliations).toContain(STOREHOUSE_INSTITUTION_ID);
+  });
+
   it('blocks new referrals without a recipient while preserving legacy referral events in saves', () => {
     const baseState = createInitialGameState();
     const report = {
