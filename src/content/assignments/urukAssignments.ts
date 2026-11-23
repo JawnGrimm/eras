@@ -40,15 +40,15 @@ export const heldBarleyInspection = activity({
   participants: [people.steward, people.receiver, people.senior],
   discoveries: [
     { id: 'held-steward-briefing', title: 'Steward’s custody briefing', text: 'Ur-Nanna confirms that seven capacity measures of barley remain held in the Temple Storehouse after the north-bay leak. He requests a finding and recommendation; he retains authority over ordinary stock custody and release.' },
-    { id: 'held-container-observation', title: 'Seven physical sacks on reed matting', text: 'The seven held capacity measures are physically contained in seven sacks segregated on reed matting. Two sacks show exterior damp-staining and crusting. Five sacks are surface-dry. This observation describes the containers only; it does not establish the condition of grain inside any sack.' },
-    { id: 'held-intake-record', title: 'Original intake measure record', text: 'The immutable intake record ev-04 records 4 capacity measures held at intake. It does not record a physical sack count.' },
-    { id: 'held-recount-record', title: 'Current recount measure record', text: 'The immutable recount record ev-07 records 7 capacity measures held at recount. It does not record a physical sack count.' },
+    { id: 'held-container-observation', title: 'Seven sealed pottery storage jars on reed matting', text: 'The seven held capacity measures are contained in seven sealed pottery storage jars segregated on reed matting. Two jar exteriors show damp-staining and crusting. Five jar exteriors are surface-dry. This observation describes the containers only; it does not establish the condition of grain inside any jar.' },
+    { id: 'held-intake-record', title: 'Original intake measure record', text: 'The immutable intake record ev-04 records 4 capacity measures held at intake. It does not record a physical container count.' },
+    { id: 'held-recount-record', title: 'Current recount measure record', text: 'The immutable recount record ev-07 records 7 capacity measures held at recount. It does not record a physical container count.' },
     { id: 'held-senior-authority', title: 'Senior Scribe’s authority', text: 'Shuruppak-ilu confirms that the scribe may record findings and recommend disposition. Formal release authority belongs to Steward Ur-Nanna or Senior Scribe Shuruppak-ilu; this report itself is not a release order.' },
   ],
   actions: [
     { id: 'held-consult-steward', family: 'consult', label: 'Consult Ur-Nanna', description: 'Establish custody, urgency, and the requested report.', apCost: 1, discoveryIds: ['held-steward-briefing'], consultedPersonId: people.steward },
-    { id: 'held-inspect-sacks', family: 'observe', label: 'Inspect the seven sacks', description: 'Observe the container exteriors and their segregation on reed matting.', apCost: 2, prerequisites: ['held-consult-steward'], discoveryIds: ['held-container-observation'] },
-    { id: 'held-compare-measures', family: 'compare', label: 'Compare intake and recount', description: 'Keep the capacity-measure records distinct from the physical sack observation.', apCost: 1, discoveryIds: ['held-intake-record','held-recount-record'] },
+    { id: 'held-inspect-sacks', family: 'observe', label: 'Inspect the seven sealed jars', description: 'Observe the container exteriors and their segregation on reed matting.', apCost: 2, prerequisites: ['held-consult-steward'], discoveryIds: ['held-container-observation'] },
+    { id: 'held-compare-measures', family: 'compare', label: 'Compare intake and recount', description: 'Keep the capacity-measure records distinct from the physical container observation.', apCost: 1, discoveryIds: ['held-intake-record','held-recount-record'] },
     { id: 'held-consult-authority', family: 'consult', label: 'Consult Shuruppak-ilu', description: 'Clarify the boundary between a scribal recommendation and an authorized release.', apCost: 1, discoveryIds: ['held-senior-authority'], consultedPersonId: people.senior },
   ],
   interpretationRules: [],
@@ -65,13 +65,13 @@ export const heldBarleyInspection = activity({
       { id: 'roof_leak_cause', label: 'Attribute all internal damage to the roof leak' },
     ],
     recommendations: [
-      { id: 'release_five_retain_two', label: 'Recommend release of 5 surface-dry sacks; retain 2 stained sacks for authorized sampling or cleaning' },
-      { id: 'retain_all_sample', label: 'Recommend retaining all 7 sacks pending authorized sampling' },
-      { id: 'release_all', label: 'Recommend release of all 7 sacks' },
+      { id: 'release_five_retain_two', label: 'Recommend release of 5 surface-dry jars; retain 2 stained jars for authorized sampling or cleaning' },
+      { id: 'retain_all_sample', label: 'Recommend retaining all 7 jars pending authorized sampling' },
+      { id: 'release_all', label: 'Recommend release of all 7 jars' },
     ],
     limitationsLabel: 'Unverified condition and authority limits',
   },
-  submissionNote: 'The report is a finding and recommendation, not an executive release order. Sampling/coring or opening a sack is required to establish internal grain condition.',
+  submissionNote: 'The report is a finding and recommendation, not an executive release order. Sampling/coring or opening a jar is required to establish internal grain condition.',
 });
 
 export const southCourtDeliveryReconciliation = activity({
