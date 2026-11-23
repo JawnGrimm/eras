@@ -1,5 +1,6 @@
 import type { EventId, InstitutionId, PersonId } from '../state/ids';
 import type { GameAction, GameState, PersonRelationship, RecordEntry, TransitionResult } from '../state/types';
+import { validateInstitutionalResponseEvent } from './institutionalResponseValidation';
 type WorldAction = Extract<GameAction, { type: 'SET_RELATIONSHIP' | 'SET_INSTITUTIONAL_STANDING' | 'CREATE_INSTITUTION' | 'CREATE_APPOINTMENT' | 'END_APPOINTMENT' | 'CREATE_EVENT' | 'CREATE_RECORD' | 'AMEND_RECORD' | 'GRANT_KNOWLEDGE' }>;
 function fail(state: GameState, code: string, message: string): TransitionResult { return { state, feedback: { kind: 'error', code, message } }; }
 function succeed(state: GameState, code: string, message: string): TransitionResult { return { state, feedback: { kind: 'success', code, message } }; }
@@ -40,7 +41,7 @@ export function transitionWorldAction(state: GameState, action: WorldAction): Tr
     case 'CREATE_APPOINTMENT': {
       const a = action.appointment;
       if (w.appointments[a.id]) return fail(state, 'appointment-exists', 'An appointment with this ID already exists.');
-      if (!a.id || !w.people[a.personId] || !w.institutions[a.institutionId] || !a.title || !Array.isArray(a.authorityScope) || !a.authorityScope.length || !Array.isArray(a.responsibilities) || !Number.isInteger(a.startDay) || a.startDay < 1 || a.startDay > state.calendar.dayNumber || (a.endDay !== undefined && (!Number.isInteger(a.endDay) || a.endDay < a.startDay || a.endDay > state.calendar.dayNumber))) return fail(state, 'appointment-invalid', 'An appointment needs an existing person and institution, an office, an authority scope, and valid dates.');
+      if (!a.id || !w.people[a.personId] || !w.institutions[a.institutionId] || !a.title || !Array.isArray(a.authorityScope) || !a.authorityScope.length || !Array.isArray(a.responsibilities) || (a.authorityCapabilities !== undefined && (!Array.isArray(a.authorityCapabilities) || a.authorityCapabilities.some((capability) => !['assess_institutional_reports','authorize_routine_storehouse_maintenance'].includes(capability)))) || !Number.isInteger(a.startDay) || a.startDay < 1 || a.startDay > state.calendar.dayNumber || (a.endDay !== undefined && (!Number.isInteger(a.endDay) || a.endDay < a.startDay || a.endDay > state.calendar.dayNumber))) return fail(state, 'appointment-invalid', 'An appointment needs an existing person and institution, an office, an authority scope, and valid dates.');
       return succeed({ ...state, world: { ...w, appointments: { ...w.appointments, [a.id]: a } } }, 'appointment-created', a.title + ' was recorded as an appointment.');
     }
     case 'END_APPOINTMENT': {
@@ -55,7 +56,9 @@ export function transitionWorldAction(state: GameState, action: WorldAction): Tr
       if (!e || typeof e !== 'object' || !Array.isArray(e.personIds) || !Array.isArray(e.institutionIds)) return fail(state, 'event-invalid', 'An event needs valid participant and institution lists.');
       if (w.events[e.id]) return fail(state, 'event-exists', 'An event with this ID already exists.');
       if (!e.id || !e.summary || !Number.isInteger(e.dayNumber) || e.dayNumber < 1 || e.dayNumber > state.calendar.dayNumber || e.personIds.some((id) => !w.people[id]) || e.institutionIds.some((id) => !w.institutions[id]) || (e.locationId && !w.locations[e.locationId])) return fail(state, 'event-invalid', 'The event has invalid identity, date, or world references.');
-      return succeed({ ...state, world: { ...w, events: { ...w.events, [e.id]: e } } }, 'event-created', 'A world event was recorded.');
+      const responseError = validateInstitutionalResponseEvent(state, e);
+      if (responseError) return fail(state, 'institutional-response-invalid', responseError);
+      return succeed({ ...state, world: { ...w, events: { ...w.events, [e.id]: e } } }, 'event-created', e.institutionalResponse ? 'An institutional response was recorded with its authority and evidence basis.' : 'A world event was recorded.');
     }
     case 'CREATE_RECORD': {
       const r = action.record;
