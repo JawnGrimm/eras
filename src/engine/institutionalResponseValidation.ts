@@ -1,10 +1,11 @@
+import type { EventId, MatterId, RecordId } from '../state/ids';
 import type { GameState, WorldEvent } from '../state/types';
 
 function nonEmpty(value: unknown): value is string {
   return typeof value === 'string' && !!value.trim();
 }
 
-function authorizedMaintenance(state: GameState, eventId: string | undefined, matterId: string, recordId: string) {
+function authorizedMaintenance(state: GameState, eventId: EventId | undefined, matterId: MatterId, recordId: RecordId) {
   if (!eventId) return null;
   const event = state.world.events[eventId];
   const response = event?.institutionalResponse;
