@@ -1,6 +1,6 @@
 import type { EventId, InstitutionId, PersonId } from '../state/ids';
 import type { GameAction, GameState, PersonRelationship, RecordEntry, TransitionResult } from '../state/types';
-import { validateInstitutionalResponseEvent } from './institutionalResponseValidation';
+import { applyInstitutionalResponseEvent, validateInstitutionalResponseEvent } from './institutionalResponseValidation';
 type WorldAction = Extract<GameAction, { type: 'SET_RELATIONSHIP' | 'SET_INSTITUTIONAL_STANDING' | 'CREATE_INSTITUTION' | 'CREATE_APPOINTMENT' | 'END_APPOINTMENT' | 'CREATE_EVENT' | 'CREATE_RECORD' | 'AMEND_RECORD' | 'GRANT_KNOWLEDGE' }>;
 function fail(state: GameState, code: string, message: string): TransitionResult { return { state, feedback: { kind: 'error', code, message } }; }
 function succeed(state: GameState, code: string, message: string): TransitionResult { return { state, feedback: { kind: 'success', code, message } }; }
@@ -63,7 +63,9 @@ export function transitionWorldAction(state: GameState, action: WorldAction): Tr
       }
       const responseError = validateInstitutionalResponseEvent(state, e);
       if (responseError) return fail(state, 'institutional-response-invalid', responseError);
-      return succeed({ ...state, world: { ...w, events: { ...w.events, [e.id]: e } } }, 'event-created', e.institutionalResponse ? 'An institutional response was recorded with its authority and evidence basis.' : 'A world event was recorded.');
+      const appended = { ...state, world: { ...w, events: { ...w.events, [e.id]: e } } };
+      const updated = applyInstitutionalResponseEvent(appended, e);
+      return succeed(updated, 'event-created', e.institutionalResponse ? 'An institutional response was recorded with its authority and evidence basis.' : 'A world event was recorded.');
     }
     case 'CREATE_RECORD': {
       const r = action.record;
