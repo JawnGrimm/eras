@@ -31,6 +31,24 @@ function resolve(overrides: Partial<EraICharacterHistoryChoices> = {}) {
   return resolveEraICharacterHistory({ personId: playerId, choices: choices(overrides), people });
 }
 
+function resolveForOrientation(
+  orientation: 'government' | 'religious' | 'merchant' | 'military',
+  overrides: Partial<EraICharacterHistoryChoices>,
+) {
+  const orientationPerson: Person = {
+    ...people[playerId],
+    scribal: { stage: 'identity', careerPath: orientation },
+  };
+  const orientationPeople: Record<string, Person> = { ...people, [playerId]: orientationPerson };
+  const result = resolveEraICharacterHistory({
+    personId: playerId,
+    choices: choices(overrides),
+    people: orientationPeople,
+  });
+  expect(orientationPeople[playerId].scribal).toEqual({ stage: 'identity', careerPath: orientation });
+  return result;
+}
+
 describe('Era I deterministic character-history resolver', () => {
   it('resolves the approved content package into exactly five ordered events and a five-choice record', () => {
     const result = resolve();
@@ -205,11 +223,9 @@ describe('Era I deterministic character-history resolver', () => {
       for (const formativeExperienceId of formativeByResponsibility[responsibilityId])
         for (const entryRouteId of routes) for (const instructionId of instructions)
           {
-            const byOrientation = Object.fromEntries(orientations.map((orientation) => [
-              orientation,
-              resolve({ originId, responsibilityId, formativeExperienceId, entryRouteId, instructionId }),
-            ]));
-            const results = Object.values(byOrientation);
+            const results = orientations.map((orientation) => resolveForOrientation(orientation, {
+              originId, responsibilityId, formativeExperienceId, entryRouteId, instructionId,
+            }));
             expect(results).toHaveLength(4);
             expect(results.every((result) => JSON.stringify(result) === JSON.stringify(results[0]))).toBe(true);
             for (const result of results) {
