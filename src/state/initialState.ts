@@ -53,8 +53,14 @@ export function createInitialGameState(): GameState {
   const utuMansumId = 'person-utu-mansum' as PersonId;
   const enlilKisuId = 'person-enlil-kisu' as PersonId;
   const ninKasiId = 'person-nin-kasi' as PersonId;
+  const maintenanceWorkerId = 'person-aru' as PersonId;
   const templeStorehouseId = 'institution-uruk-temple-storehouse' as InstitutionId;
   const storehouseLocationId = NORTH_BAY_LOCATION_ID;
+  const maintenanceWorker: Person = {
+    id: maintenanceWorkerId, name: 'Aru', alive: true, affiliations: [templeStorehouseId], currentLocationId: storehouseLocationId,
+    lifeStage: 'craft_practitioner' as const,
+    socialIdentity: { occupation: 'Storehouse maintenance worker', summary: 'A storehouse laborer available for routine maintenance assigned from the existing maintenance allocation.' },
+  };
   const dudu: Person = {
     id: NORTH_BAY_PEOPLE.repairer, name: 'Dudu', alive: true, affiliations: [templeStorehouseId], currentLocationId: storehouseLocationId,
     lifeStage: 'craft_practitioner' as const,
@@ -112,6 +118,7 @@ export function createInitialGameState(): GameState {
     [colleagueId]: colleague,
     ...Object.fromEntries(casePeople.map((person) => [person.id, person])) as Record<PersonId, Person>,
     [dudu.id]: dudu,
+    [maintenanceWorker.id]: maintenanceWorker,
   };
   return {
     calendar: { eraId: 'era-1', dayNumber: 1, displayDate: 'Day 1 · Uruk (c. 3200 BCE)' },

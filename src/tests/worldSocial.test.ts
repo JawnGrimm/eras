@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { transitionGame } from '../engine/actionEconomy';
+import { validateInstitutionalResponseEvent } from '../engine/institutionalResponseValidation';
 import { deriveProfessionalRank } from '../engine/professionalRank';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
 import { createSaveEnvelope, isValidGameState, restoreSave } from '../state/saveEnvelope';
@@ -166,9 +167,97 @@ describe('world, relationships, institutions and records', () => {
     expect(authorized.feedback?.code).toBe('event-created');
     expect(authorized.state.world.events[authorization.id].institutionalResponse?.stage).toBe('authorization');
     expect(authorized.state.world.matters[MATTER_IDS.roofRepair].status).toBe('active');
-    expect(isValidGameState(authorized.state)).toBe(true);
-    const restored = restoreSave(JSON.stringify(createSaveEnvelope(authorized.state, 1, '2026-11-22T12:00:00.000Z')));
+
+    const workerId = 'person-aru' as PersonId;
+    expect(authorized.state.world.people[workerId]?.name).toBe('Aru');
+    const assignment = {
+      id: 'event-north-bay-maintenance-assignment' as EventId, dayNumber: 1,
+      summary: 'Ur-Nanna assigns Aru to carry out the authorized North-Bay maintenance using the existing allocation.',
+      personIds: [stewardId, workerId], institutionIds: [storehouseId], locationId: NORTH_BAY_LOCATION_ID,
+      institutionalResponse: {
+        matterId: MATTER_IDS.roofRepair, stage: 'commitment' as const, actorPersonId: stewardId,
+        appointmentId: 'appointment-ur-nanna-storehouse-steward' as AppointmentId,
+        recordId: report.id, precedingEventId: authorization.id, decision: 'assigned' as const,
+        authorizedAction: 'routine_storehouse_maintenance' as const, scope: authorization.institutionalResponse.scope,
+        assigneePersonId: workerId, commitmentId: 'commitment-aru-north-bay-maintenance',
+      },
+    };
+    const assigned = transitionGame(authorized.state, { type: 'CREATE_EVENT', event: assignment });
+    expect(assigned.feedback?.code).toBe('event-created');
+    state = assigned.state;
+    const commitment = state.world.people[workerId].commitments?.find((item) => item.id === 'commitment-aru-north-bay-maintenance');
+    expect(commitment?.status).toBe('active');
+    expect(commitment?.basis).toEqual({ kind: 'event', id: assignment.id });
+    expect(Object.values(state.world.knowledge).some((entry) => entry.holder.kind === 'person'
+      && entry.holder.id === workerId && entry.subject.kind === 'record' && entry.subject.id === report.id)).toBe(true);
+    expect(validateInstitutionalResponseEvent(state, state.world.events[assignment.id])).toBeNull();
+    expect(isValidGameState(state)).toBe(true);
+
+    const outOfScope = {
+      id: 'event-north-bay-maintenance-out-of-scope' as EventId, dayNumber: 1,
+      summary: 'An attempted execution expands the authorized work.',
+      personIds: [stewardId, workerId], institutionIds: [storehouseId], locationId: NORTH_BAY_LOCATION_ID,
+      institutionalResponse: {
+        matterId: MATTER_IDS.roofRepair, stage: 'execution' as const, actorPersonId: stewardId,
+        appointmentId: 'appointment-ur-nanna-storehouse-steward' as AppointmentId,
+        recordId: report.id, precedingEventId: assignment.id, decision: 'executed' as const,
+        authorizedAction: 'routine_storehouse_maintenance' as const, scope: 'Replace the entire north roof structure.',
+        assigneePersonId: workerId, commitmentId: 'commitment-aru-north-bay-maintenance',
+        execution: { workPerformed: 'Replace the entire north roof structure.', laborBasis: 'Existing maintenance labor.', materialsBasis: 'Existing maintenance materials.', result: 'Roof replaced.' },
+      },
+    };
+    const rejectedScope = transitionGame(state, { type: 'CREATE_EVENT', event: outOfScope });
+    expect(rejectedScope.state).toBe(state);
+    expect(rejectedScope.feedback?.code).toBe('institutional-response-invalid');
+
+    const execution = {
+      id: 'event-north-bay-maintenance-execution' as EventId, dayNumber: 1,
+      summary: 'Ur-Nanna records Aru’s completed North-Bay maintenance.',
+      personIds: [stewardId, workerId], institutionIds: [storehouseId], locationId: NORTH_BAY_LOCATION_ID,
+      institutionalResponse: {
+        matterId: MATTER_IDS.roofRepair, stage: 'execution' as const, actorPersonId: stewardId,
+        appointmentId: 'appointment-ur-nanna-storehouse-steward' as AppointmentId,
+        recordId: report.id, precedingEventId: assignment.id, decision: 'executed' as const,
+        authorizedAction: 'routine_storehouse_maintenance' as const, scope: authorization.institutionalResponse.scope,
+        assigneePersonId: workerId, commitmentId: 'commitment-aru-north-bay-maintenance',
+        execution: {
+          workPerformed: authorization.institutionalResponse.scope,
+          laborBasis: 'Aru’s assigned labor under the existing storehouse maintenance allocation.',
+          materialsBasis: 'No new materials issued; work used the existing maintenance allocation and available tools.',
+          result: 'The runoff channel is clear; the beam socket remains damp and requires separate inspection after drying.',
+        },
+      },
+    };
+    const executed = transitionGame(state, { type: 'CREATE_EVENT', event: execution });
+    expect(executed.feedback?.code).toBe('event-created');
+    expect(executed.state.world.people[workerId].commitments?.find((item) => item.id === 'commitment-aru-north-bay-maintenance')?.status).toBe('fulfilled');
+    expect(executed.state.world.matters[MATTER_IDS.roofRepair].status).toBe('active');
+    const responseErrors = Object.values(executed.state.world.events).flatMap((event) => {
+      const error = validateInstitutionalResponseEvent(executed.state, event);
+      return error ? [[event.id, error]] : [];
+    });
+    expect(responseErrors).toEqual([]);
+    expect(isValidGameState(executed.state)).toBe(true);
+
+    const duplicateExecution = transitionGame(executed.state, { type: 'CREATE_EVENT', event: {
+      ...execution, id: 'event-north-bay-maintenance-execution-duplicate' as EventId,
+    } });
+    expect(duplicateExecution.state).toBe(executed.state);
+    expect(duplicateExecution.feedback?.code).toBe('institutional-response-invalid');
+
+    const restored = restoreSave(JSON.stringify(createSaveEnvelope(executed.state, 1, '2026-11-22T12:00:00.000Z')));
     expect(restored?.state.world.events[authorization.id].institutionalResponse?.precedingEventId).toBe(assessment.id);
+    expect(restored?.state.world.events[execution.id].institutionalResponse?.stage).toBe('execution');
+    expect(restored?.state.world.matters[MATTER_IDS.roofRepair].status).toBe('active');
+  });
+
+  it('migrates older North-Bay saves with the authored maintenance worker', () => {
+    const legacy = structuredClone(createInitialGameState());
+    delete legacy.world.people['person-aru' as PersonId];
+    const restored = restoreSave(JSON.stringify(createSaveEnvelope(legacy, 1, '2026-11-23T00:00:00.000Z')));
+    expect(restored).not.toBeNull();
+    expect(restored?.state.world.people['person-aru' as PersonId]?.name).toBe('Aru');
+    expect(restored?.state.world.people['person-aru' as PersonId]?.affiliations).toContain(STOREHOUSE_INSTITUTION_ID);
   });
 
   it('blocks new referrals without a recipient while preserving legacy referral events in saves', () => {
