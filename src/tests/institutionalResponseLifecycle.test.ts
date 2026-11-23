@@ -29,7 +29,9 @@ function stateWithExecution(includeEvidence = true): GameState {
       description: 'The specific execution event being inspected.' }],
     assertions: [{ id: 'assertion-independent-observation',
       text: 'The inspected north-bay runoff channel is clear after the maintenance execution.',
-      classification: 'observed', sourceIds: ['source-independent-observer'] }],
+      classification: 'observed', sourceIds: ['source-independent-observer'] },
+    { id: 'assertion-linked-execution', text: 'The inspection is explicitly linked to the recorded execution.',
+      classification: 'reported', sourceIds: ['source-linked-execution'] }],
     uncertaintyLimits: ['The inspection is limited to the runoff channel.'], amendments: [],
   };
   const matter = {
@@ -174,7 +176,8 @@ describe('institutional response lifecycle', () => {
       ...base.records.entries[recordId], id: workerRecordId,
        sources: [{ id: 'source-worker-claim', kind: 'person', sourceId: workerId, description: 'The execution worker’s own statement.' },
         { id: 'source-linked-execution', kind: 'other', sourceId: 'event-lifecycle-execution', description: 'The specific execution event being inspected.' }],
-      assertions: [{ id: 'assertion-worker-claim', text: 'The work was completed.', classification: 'observed', sourceIds: ['source-worker-claim'] }],
+      assertions: [{ id: 'assertion-worker-claim', text: 'The work was completed.', classification: 'observed', sourceIds: ['source-worker-claim'] },
+        { id: 'assertion-linked-execution', text: 'The inspection is linked to the recorded execution.', classification: 'reported', sourceIds: ['source-linked-execution'] }],
     };
     const workerOnly = { ...base, records: { ...base.records, entries: { ...base.records.entries, [workerRecordId]: workerRecord } },
       world: { ...base.world, matters: { ...base.world.matters, [MATTER_IDS.roofRepair]: {
@@ -327,7 +330,9 @@ describe('institutional response lifecycle', () => {
         { id: 'source-remediation-execution', kind: 'other', sourceId: secondExecutionId,
           description: 'The specific remediation execution being inspected.' }],
       assertions: [{ id: 'assertion-remediation-observed', text: 'The runoff channel is clear after remediation.',
-        classification: 'observed', sourceIds: ['source-remediation-observer'] }],
+        classification: 'observed', sourceIds: ['source-remediation-observer'] },
+        { id: 'assertion-remediation-execution', text: 'This inspection is linked to the remediation execution.',
+          classification: 'reported', sourceIds: ['source-remediation-execution'] }],
       uncertaintyLimits: ['The observation is limited to the runoff channel.'], amendments: [],
     };
     const matter = base.world.matters[MATTER_IDS.roofRepair];
