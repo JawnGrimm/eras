@@ -1,7 +1,7 @@
 # Era I Character-History Resolver Content Map
 
-**Status:** PROPOSED — Design HQ authored; Game Director review required  
-**Implementation status:** Not ready for Production until this content map is approved  
+**Status:** APPROVED — READY FOR IMPLEMENTATION  
+**Implementation status:** Authorized for Production handoff; Production owns technical design and implementation within this approved behavior  
 **Package version:** `era1-character-history-v1` (proposed)  
 **Authority:** `docs/GDD.md`; approved character-creation decisions in `docs/design/DECISION_REGISTER.md`  
 **Depends on:** `dev/CHARACTER_CREATION_ERA_I_CONTENT_SPEC.md`, `dev/CHARACTER_CREATION_DATA_CONTRACT.md`, `dev/URUK_CHARACTER_CREATION_MATRIX.md`, `dev/ERA_I_INSTITUTION_RESPONSIBILITY_MATRIX.md`, `dev/ERA_I_INSTITUTIONAL_HISTORICAL_AUDIT.md`
