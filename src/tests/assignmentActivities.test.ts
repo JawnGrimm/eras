@@ -6,7 +6,7 @@ import { createSaveEnvelope, isValidSaveEnvelope, restoreSave } from '../state/s
 import { INITIAL_WORK_CATALOG } from '../state/newGameState';
 import type { AssignmentOffer, GameState } from '../state/types';
 import type { AssignmentId } from '../state/ids';
-import { NORTH_BAY_ACTIVITY_ID, NORTH_BAY_ASSIGNMENT_ID, northBayRoofInspection, validateAssignmentActivityDefinition } from '../content/assignments/northBayRoofInspection';
+import { NORTH_BAY_ACTIVITY_ID, NORTH_BAY_ASSIGNMENT_ID, NORTH_BAY_DISCOVERIES, northBayRoofInspection, validateAssignmentActivityDefinition } from '../content/assignments/northBayRoofInspection';
 
 const baseline = { kind: 'baseline_reach' as const, explanation: 'The Senior Scribe directed the inspection after reviewing the prior record.' };
 function roofOffer(): Omit<AssignmentOffer, 'offeredDay' | 'expiresDay' | 'status' | 'lapsedDuringMandatoryWork'> {
@@ -16,7 +16,7 @@ function roofOffer(): Omit<AssignmentOffer, 'offeredDay' | 'expiresDay' | 'statu
     employer: { kind: 'institution', id: 'institution-uruk-temple-storehouse' as never },
     category: 'building_inspection', commodity: 'barley',
     context: { what: 'Inspect the north-bay repair.', who: ['Ur-Nanna','Dudu','Enlil-barni'],
-      quantity: 'One roof section and seven segregated sacks.', when: 'After the storm repair.',
+      quantity: 'One roof section and seven sealed pottery storage jars.', when: 'After the storm repair.',
       where: 'Temple Storehouse, Uruk', from: 'Storehouse Reckoning record', to: 'Shuruppak-ilu',
       purpose: 'Verify repair scope and remaining storage risks.',
       responsibility: ['Report findings; do not release held stock or authorize building expenditure.'],
@@ -32,6 +32,14 @@ function present(state: GameState): GameState {
 describe('North-Bay Roof Inspection activity definition and engine', () => {
   it('passes static validation for unique IDs, bounded AP, reachable prerequisites, valid person/skill/attribute references, and interpretation rules', () => {
     expect(validateAssignmentActivityDefinition(northBayRoofInspection)).toEqual([]);
+  });
+
+  it('uses sealed pottery storage jars throughout North-Bay evidence and actions', () => {
+    const evidence = NORTH_BAY_DISCOVERIES.map((item) => item.text).join(' ');
+    expect(evidence).toContain('seven sealed pottery storage jars');
+    expect(evidence).not.toMatch(/\bsacks?\b/i);
+    expect(northBayRoofInspection.actions.find((action) => action.id === 'inspect-roof')?.description).toContain('storage jars');
+    expect(northBayRoofInspection.reportSchema.recommendations.find((item) => item.id === 'inspect_held_barley')?.label).toContain('held jars');
   });
 
   it('rejects duplicate IDs, out-of-range AP, and circular action prerequisites', () => {
@@ -172,6 +180,7 @@ describe('North-Bay Roof Inspection activity definition and engine', () => {
     expect(result.feedback?.code).toBe('assignment-activity-submitted');
     expect(result.state.opportunities.assignments[NORTH_BAY_ASSIGNMENT_ID].status).toBe('completed');
     expect(result.state.records.entries['record-assignment-north-bay-roof-inspection-day-1' as never]?.title).toBe('North-Bay Roof Inspection Report');
+    expect(result.state.records.entries['record-assignment-north-bay-roof-inspection-day-1' as never]?.uncertaintyLimits.join(' ')).toContain('seven sealed pottery storage jars');
     expect(result.state.world.knowledge['knowledge-assignment-north-bay-roof-inspection-day-1-person-person-ur-nanna' as never]).toBeDefined();
     expect(result.state.historicalProgression.historicalXp).toBe(0);
     expect(result.state.world.institutions['institution-uruk-temple-storehouse' as never].activeMatters.some((matterId) => result.state.world.matters[matterId]?.summary.includes('inspection incomplete'))).toBe(true);
