@@ -244,6 +244,7 @@ function finalize(context: WorkSubmissionContext<StorehouseScenarioData>, dispos
 
 export const storehouseReckoning = defineWork<StorehouseScenarioData>({
   kind: 'tutorial',
+  progressCompatibilityKey: 'storehouse-reckoning-v1',
   legacyHistoricalXpReward: STOREHOUSE_LEGACY_HISTORICAL_XP,
   legacyCompletionCleanup: { retireInstitutionMatters: [{ institutionId: STOREHOUSE_INSTITUTION_ID, matterId: MATTER_IDS.tutorial }] },
   id: STOREHOUSE_WORK_ID,
