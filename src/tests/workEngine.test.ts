@@ -15,6 +15,8 @@ const WORK = 'test-work' as WorkId;
 
 interface ScenarioProgress extends Record<string, unknown> { accepted: boolean; recoveryCount: number; }
 const definition = defineWork<ScenarioProgress>({
+  kind: 'work',
+  progressCompatibilityKey: 'test-work-v1',
   id: WORK,
   title: 'Evidence Test Work',
   startingEvidence: [E1],
