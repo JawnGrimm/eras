@@ -20,7 +20,7 @@ The most defensible opening landscape is:
 7. **Collective labor and public/monumental works** — people, materials, and provisioning assembled for construction, maintenance, and other large tasks. Specific labor obligations and command structures remain scenario-specific reconstructions.
 8. **Security, coercion, and armed activity** — visible in limited iconographic evidence, but not sufficiently documented to posit a standing army, a military bureaucracy, or a standard military scribal career.
 
-The four GDD career paths remain player-facing **professional orientations**. Government and Religious should overlap heavily in the institutional world; Merchant should focus on movement and exchange relationships; Military should remain provisional and low-confidence, represented through specific security, movement, and mobilization matters rather than a fabricated army institution.
+The four GDD professional orientations remain player-facing **professional emphases**. Civic and Religious should overlap heavily in the institutional world; Commercial should focus on movement and exchange relationships; Martial should remain provisional and low-confidence in Era I, represented through specific security, movement, and mobilization matters rather than a fabricated army institution.
 
 ## 2. Evidence and confidence rules
 
@@ -67,10 +67,10 @@ The design should not make an exact date carry more certainty than the archaeolo
 - Lexical lists of professions, titles, and categories.
 
 **Career-path relevance**
-- **Government:** very high. Institutional coordination, records, storage, resource movement, and workforce matters.
+- **Civic:** very high. Institutional coordination, records, storage, resource movement, and workforce matters.
 - **Religious:** very high. Cultic/public activity, offerings and ceremonial goods where scenario evidence supports them, and the administration of an institution whose sacred and economic functions overlap.
-- **Merchant:** medium-high. Procurement, delivery, imported materials, and external counterparties.
-- **Military:** low/conditional. Only where a specific security, transport, or mobilization matter is authored and evidenced.
+- **Commercial:** medium-high. Procurement, delivery, imported materials, and external counterparties.
+- **Martial:** low/conditional. Only where a specific security, transport, or mobilization matter is authored and evidenced.
 
 **Playable administrative problems**
 1. A tablet total does not reconcile with separate commodity entries.
@@ -109,9 +109,9 @@ The design should not make an exact date carry more certainty than the archaeolo
 
 **Career-path relevance**
 - **Religious:** high as a sacred/monumental context, but the administrative mechanics and documentation are less directly evidenced than at Eanna.
-- **Government:** conditional, where shared construction, resources, or civic/institutional relationships are involved.
-- **Merchant:** conditional, where materials or goods are procured or delivered.
-- **Military:** none by default.
+- **Civic:** conditional, where shared construction, resources, or civic/institutional relationships are involved.
+- **Commercial:** conditional, where materials or goods are procured or delivered.
+- **Martial:** none by default.
 
 **Playable administrative problems**
 1. A delivery of building material or a valuable object has no complete written chain of custody.
@@ -148,10 +148,10 @@ These are reconstructed scenarios. The player must not be told that a specific U
 - Oral instructions and situated knowledge remain important because early records are context-dependent and do not narrate full procedures.
 
 **Career-path relevance**
-- **Government:** high, where institutional coordination and accountability are involved.
+- **Civic:** high, where institutional coordination and accountability are involved.
 - **Religious:** high, where personnel serve a sacred or ceremonial institution.
-- **Merchant:** medium, where people, goods, or obligations move between counterparties.
-- **Military:** low/conditional; do not interpret workforce categories as military muster categories.
+- **Commercial:** medium, where people, goods, or obligations move between counterparties.
+- **Martial:** low/conditional; do not interpret workforce categories as military muster categories.
 
 **Playable administrative problems**
 1. A person's allocation appears under an unexpected category.
@@ -186,10 +186,10 @@ These are reconstructed scenarios. The player must not be told that a specific U
 - Distinguish the recorded quantity from the unrecorded route, source, and final destination.
 
 **Career-path relevance**
-- **Government:** high, for institutional provisioning and allocation.
+- **Civic:** high, for institutional provisioning and allocation.
 - **Religious:** high where the goods are directed to a cultic or ceremonial use.
-- **Merchant:** high, for movement and exchange between producers, carriers, and recipients.
-- **Military:** conditional, for a specific traveling or security-related provision task, not a default military ration system.
+- **Commercial:** high, for movement and exchange between producers, carriers, and recipients.
+- **Martial:** conditional, for a specific traveling or security-related provision task, not a default military ration system.
 
 **Playable administrative problems**
 1. A recorded warehouse receipt cannot be reconciled with the field/yield account.
@@ -225,10 +225,10 @@ These are reconstructed scenarios. The player must not be told that a specific U
 - Production stages may be represented through scenario-authored documents where a historical basis is established.
 
 **Career-path relevance**
-- **Government:** medium-high, where output is commissioned, allocated, or accounted for.
+- **Civic:** medium-high, where output is commissioned, allocated, or accounted for.
 - **Religious:** medium-high, where goods are made for sacred or ceremonial use.
-- **Merchant:** high, where materials or finished products are exchanged or transported.
-- **Military:** conditional, for a specific tool/equipment request only; do not assume an established armory.
+- **Commercial:** high, where materials or finished products are exchanged or transported.
+- **Martial:** conditional, for a specific tool/equipment request only; do not assume an established armory.
 
 **Playable administrative problems**
 1. A finished quantity does not match the amount of raw material issued.
@@ -252,7 +252,7 @@ These are reconstructed scenarios. The player must not be told that a specific U
 **Authority and people**
 - Possible actors include local carriers, intermediaries, institutional agents, external counterparties, and people responsible for receipt or custody.
 - Do not assume a later private merchant house, formal commercial law, or a single central trade ministry.
-- The GDD Merchant path is an orientation toward exchange and movement, not proof of a standardized merchant profession.
+- The GDD Commercial orientation is an orientation toward exchange and movement, not proof of a standardized merchant profession.
 
 **Resources and flows**
 - Timber, metals, stones, prestige materials, animals, and other imported goods; local commodities moving outward; containers, loads, and transport animals.
@@ -263,10 +263,10 @@ These are reconstructed scenarios. The player must not be told that a specific U
 - Oral agreements and contextual knowledge can fill gaps, but they must remain distinguishable from written evidence.
 
 **Career-path relevance**
-- **Merchant:** very high.
-- **Government:** high where procurement or institutional resources are involved.
+- **Commercial:** very high.
+- **Civic:** high where procurement or institutional resources are involved.
 - **Religious:** medium where materials serve a precinct or ceremonial purpose.
-- **Military:** low/conditional, where security or escort is explicitly part of a scenario.
+- **Martial:** low/conditional, where security or escort is explicitly part of a scenario.
 
 **Playable administrative problems**
 1. A delivery arrives without a matching receipt or tag.
@@ -301,10 +301,10 @@ These are reconstructed scenarios. The player must not be told that a specific U
 - A project plan or schedule is a gameplay reconstruction unless tied to a specific attested source.
 
 **Career-path relevance**
-- **Government:** high.
+- **Civic:** high.
 - **Religious:** high where the project is within a sacred/monumental precinct.
-- **Merchant:** medium, through materials procurement and transport.
-- **Military:** medium/conditional, where a defensive or security-related task is specifically authored. This does not prove that construction was military-controlled.
+- **Commercial:** medium, through materials procurement and transport.
+- **Martial:** medium/conditional, where a defensive or security-related task is specifically authored. This does not prove that construction was military-controlled.
 
 **Playable administrative problems**
 1. A work party lacks a material allocation.
@@ -341,10 +341,10 @@ These are reconstructed scenarios. The player must not be told that a specific U
 - Iconographic evidence should be presented as imagery, not as a complete description of actual force organization.
 
 **Career-path relevance**
-- **Military:** provisional and low-confidence. A player can be oriented toward security, protection, transport, and mobilization matters where authored, but should not begin as a quartermaster in a documented standing army.
-- **Government:** medium, through institutional authority and protection of resources.
+- **Martial:** provisional and low-confidence. A player can be oriented toward security, protection, transport, and mobilization matters where authored, but should not begin as a quartermaster in a documented standing army.
+- **Civic:** medium, through institutional authority and protection of resources.
 - **Religious:** conditional, where sacred property or precinct security is involved.
-- **Merchant:** conditional, where the security of a delivery or route is at issue.
+- **Commercial:** conditional, where the security of a delivery or route is at issue.
 
 **Playable administrative problems**
 1. A sealed storeroom has been opened without a clear record of authorization.
@@ -361,7 +361,7 @@ These are security and accountability scenarios, not proof of a Uruk military of
 
 The following table describes likely *contact*, not exclusive membership or guaranteed access.
 
-| Organizational context | Government | Religious | Merchant | Military |
+| Organizational context | Civic | Religious | Commercial | Martial |
 |---|---|---|---|---|
 | Eanna administration | Core contact | Core contact | Procurement/delivery contact | Conditional security or mobilization contact |
 | Anu/Kullaba precinct | Shared construction/resource matters | Core sacred-context contact | Material/delivery contact | No default role |
@@ -376,7 +376,7 @@ A career path changes the player's initial people, responsibilities, and likely 
 
 ## 5. What this means for the four starting orientations
 
-### Government
+### Civic
 
 **Starting fantasy:** You are learning to make institutional work legible and accountable: goods, people, stores, allocations, and obligations must agree.
 
@@ -392,7 +392,7 @@ A career path changes the player's initial people, responsibilities, and likely 
 
 **Avoid:** a separate church hierarchy outside economic life; a fully documented daily divine household schedule; assuming Eanna and Anu have distinct, fully known bureaucracies.
 
-### Merchant
+### Commercial
 
 **Starting fantasy:** Your work connects goods, people, and places; the difficulty is knowing what was sent, what arrived, who accepted it, and what the record actually proves.
 
@@ -400,7 +400,7 @@ A career path changes the player's initial people, responsibilities, and likely 
 
 **Avoid:** importing later private merchant houses, modern contracts, or a universal market economy.
 
-### Military
+### Martial
 
 **Starting fantasy:** Your work concerns the protection and movement of people and valuable goods, and the accountability of tasks undertaken under conditions of risk.
 
@@ -408,7 +408,7 @@ A career path changes the player's initial people, responsibilities, and likely 
 
 **Avoid:** professional standing army, quartermaster corps, city-ward conscription, standardized military rations, Bronze Age equipment sets, routine booty/captive accounts.
 
-**Recommendation:** Keep Military provisionally because it is part of the GDD's four-path design, but mark Era I content as low-confidence and do not make it mechanically symmetrical with the other paths. Its opening may be a limited institutional responsibility or personal connection, not a formal military posting. The Game Director should decide whether the player-facing path label remains “Military” or is locally glossed as “Security and Mobilization” in Era I.
+**Recommendation:** Keep Martial provisionally because it is part of the GDD's four-path design, but mark Era I content as low-confidence and do not make it mechanically symmetrical with the other paths. Its opening may be a limited institutional responsibility or personal connection, not a formal military posting. The Game Director should decide whether the player-facing orientation label remains “Martial” or is locally glossed as “Security and Mobilization” in Era I.
 
 ## 6. Era I scenario content that naturally follows
 
@@ -434,9 +434,9 @@ The previous Uruk character-creation matrix should be revised after this institu
 
 1. **Household origins remain broad life-history contexts**, not four fixed economic classes. Add the possibility that a character's household has ties to an institutional household or work group only after the exact relation is authored and historically reviewed.
 2. **Scribal entry routes should connect to a real institutional responsibility**, such as provisioning, commodity movement, a precinct activity, a production account, or a delivery chain. Avoid implying that a formal school is documented.
-3. **Government and Religious orientation should not determine different institutions by default.** They should differ through the player's initial responsibilities, contacts, and interpretation of the same overlapping institutional world.
-4. **Merchant orientation should not imply independent private trading status.** It can begin through a relationship to transport, procurement, delivery, or an external counterparty.
-5. **Military orientation should not grant combat skill or a military appointment.** It should begin through a defensible contact or task context, with explicit low-confidence framing until more research is complete.
+3. **Civic and Religious orientation should not determine different institutions by default.** They should differ through the player's initial responsibilities, contacts, and interpretation of the same overlapping institutional world.
+4. **Commercial orientation should not imply independent private trading status.** It can begin through a relationship to transport, procurement, delivery, or an external counterparty.
+5. **Martial orientation should not grant combat skill or a military appointment.** It should begin through a defensible contact or task context, with explicit low-confidence framing until more research is complete.
 6. **Familiarity should be commodity-, process-, and context-specific.** Examples include grain storage, livestock accounting, clay/tablet handling, sealing/custody, transport/delivery, or a particular craft material.
 7. **The Storehouse Reckoning remains unchanged.** The tutorial is a fictional supervised exercise. Its evidence and assessment are not made dependent on the character's path; familiarity can shape interpretation only.
 
@@ -458,7 +458,7 @@ No locked invariant is changed. No new progression track, resource balance, AP r
 - **Historical Research:** Highest-priority follow-up is the philology of archaic titles and personnel categories; Anu/Kullaba dedication and function; the range of Eanna activities; degree of control over craft production; and evidence for organized violence/security.
 - **Engineering & Architecture:** Model institutions as shared entities with responsibilities, authority, resources, personnel, relationships, and active matters. Keep career path, affiliation, appointment, qualification, and relationship separate. Do not create a new institutional subsystem for each orientation.
 - **Art & UI/UX:** Eanna should be a complex multi-use precinct, not simply a temple façade or factory. Anu/Kullaba should feel monumental and sacred, but should not be dressed as a later ziggurat complex without date-specific support. Visualize tablets, tags, sealings, containers, stores, workshops, and material flows.
-- **Audio:** Establish work through clay, stylus, seals, vessels, animals, transport, building, and crowd ambience. Do not presume battlefield audio as a core Military-path signature.
+- **Audio:** Establish work through clay, stylus, seals, vessels, animals, transport, building, and crowd ambience. Do not presume battlefield audio as a core Martial-orientation signature.
 - **Production & QA:** Create a historical claim ledger. Each content asset and scenario should have a period, source, confidence, and list of assumptions. QA must test path overlap, non-exclusive access, and identical objective evidence in the tutorial.
 
 ## 10. Decisions for Game Director review
@@ -468,9 +468,9 @@ The design work supports the following recommendations but does not approve them
 1. **Institutional model:** Adopt overlapping institutional contexts rather than a four-department map.
 2. **Eanna:** Make it the principal Era I administrative setting, with multiple functions and uncertain internal divisions.
 3. **Anu/Kullaba:** Include as a distinct monumental/sacred precinct, but do not invent a parallel administrative archive or claim a certain divine dedication.
-4. **Government/Religious:** Preserve as separate starting orientations whose contexts overlap heavily.
+4. **Civic/Religious:** Preserve as separate starting orientations whose contexts overlap heavily.
 5. **Merchant:** Focus on procurement, exchange, transport, and counterparties rather than a modern merchant institution.
-6. **Military:** Retain provisionally, with lower historical confidence and no invented standing army or military scribal corps. Decide whether to gloss the Era I label as “Security and Mobilization.”
+6. **Military:** Retain provisionally, with lower historical confidence and no invented standing army or military scribal corps. Decide whether to retain the player-facing label “Martial” with the local Era I gloss “Security and Mobilization.”
 7. **Labor:** Treat collective labor as a task-specific relationship among institutions and people; do not assume universal corvée rules or city-ward quotas.
 8. **Character creation:** Revise the prior matrix only after the institutional model and Military framing are accepted.
 
