@@ -52,6 +52,21 @@ describe('typed institutional matters and bounded world tick', () => {
     expect(submittedRestored?.state.world.matters[MATTER_IDS.heldBarley].summary).toBe('Seven held capacity measures are contained in seven sealed pottery storage jars segregated on reed matting. A finding and recommendation have been filed; internal grain condition and formal release remain unresolved.');
   });
 
+  it('does not rewrite matching legacy copy outside the Temple Storehouse', () => {
+    const base = createInitialGameState();
+    const unrelatedInstitutionId = Object.keys(base.world.institutions).find((id) => id !== STOREHOUSE_INSTITUTION_ID)!;
+    const legacySummary = 'Held-Barley Inspection recommended; seven sacks remain segregated, grain condition not yet assessed';
+    const state = { ...base, world: { ...base.world,
+      matters: {},
+      institutions: { ...base.world.institutions,
+        [unrelatedInstitutionId]: { ...base.world.institutions[unrelatedInstitutionId as keyof typeof base.world.institutions],
+          activeMatters: [legacySummary] as unknown as typeof base.world.institutions[typeof STOREHOUSE_INSTITUTION_ID]['activeMatters'] },
+      },
+    } } as GameState;
+    const restored = restoreSave(JSON.stringify(createSaveEnvelope(state, 1)));
+    expect(restored?.state.world.matters[MATTER_IDS.heldBarley].summary).toBe(legacySummary);
+  });
+
   it('advances an unresolved roof matter once when its scheduled rain arrives', () => {
     const base = createInitialGameState();
     const matter = { ...createRoofRepairMatter(1), scheduledDevelopment: { kind: 'rain' as const, dayNumber: 4 } };
