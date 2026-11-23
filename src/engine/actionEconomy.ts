@@ -1,4 +1,5 @@
 import type { CareerProgressionPolicy, GameAction, GameState, TransitionResult } from '../state/types';
+import { getInitializedScribal } from '../state/scribalState';
 import type { ConditionId, InstitutionId } from '../state/ids';
 import { UR_GIR_PERSON_ID } from '../state/ids';
 import { transitionCareerAction } from './careerProgression';
@@ -43,8 +44,8 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
     return transitionCharacterContinuity(state, action);
   }
   const person = state.world.people[state.player.currentCharacterId];
-  const scribal = person?.scribal;
-  if (!scribal) return { state, feedback: feedback('error', 'missing-active-character', 'The current character is unavailable.') };
+  const scribal = getInitializedScribal(person);
+  if (!person || !scribal) return { state, feedback: feedback('error', 'missing-active-character', 'The current character is unavailable.') };
 
   switch (action.type) {
     case 'AWARD_SKILL_XP':
@@ -349,11 +350,12 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
     }
     case 'REQUEST_CONTACT_ADVANCE': {
       const contact = state.world.people[action.contactId];
+      const contactScribal = getInitializedScribal(contact);
       const relationship = state.world.relationships[action.contactId]?.[person.id];
       const outstanding = scribal.obligations.some((item) => item.status === 'outstanding' && item.creditorPersonId === action.contactId);
-      if (action.contactId === person.id || action.contactId !== UR_GIR_PERSON_ID || !contact?.alive || !contact.scribal || !relationship
+      if (action.contactId === person.id || action.contactId !== UR_GIR_PERSON_ID || !contact?.alive || !contactScribal || !relationship
         || relationship.dimensions.trust < 50 || relationship.dimensions.resentment !== 0
-        || contact.scribal.wallet.provisions < 1 || outstanding) {
+        || contactScribal.wallet.provisions < 1 || outstanding) {
         return { state, feedback: feedback('error', 'contact-advance-unavailable', 'Ur-gir cannot provide an advance under the current relationship or material circumstances.') };
       }
       if (scribal.wallet.provisions > 0) return { state, feedback: feedback('error', 'recovery-not-needed', 'An emergency advance is available when no provisions remain.') };
@@ -373,7 +375,7 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
           world: { ...state.world, people: {
             ...state.world.people,
             [person.id]: { ...person, scribal: { ...scribal, wallet: { ...scribal.wallet, provisions: scribal.wallet.provisions + 1 }, obligations: [...scribal.obligations, obligation] } },
-            [contact.id]: { ...contact, scribal: { ...contact.scribal, wallet: { ...contact.scribal.wallet, provisions: contact.scribal.wallet.provisions - 1 } } },
+            [contact.id]: { ...contact, scribal: { ...contactScribal, wallet: { ...contactScribal.wallet, provisions: contactScribal.wallet.provisions - 1 } } },
           } },
         },
         feedback: feedback('success', 'contact-advance-received', 'Ur-gir advanced one provision. You owe him one silver or a day of scribal assistance, by mutual arrangement.'),

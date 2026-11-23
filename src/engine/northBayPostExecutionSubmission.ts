@@ -1,4 +1,5 @@
 import type { EventId, KnowledgeEntryId, RecordId } from '../state/ids';
+import { getInitializedScribal } from '../state/scribalState';
 import type { AssignmentActivityDefinition } from '../content/assignments/northBayRoofInspection';
 import { NORTH_BAY_POST_EXECUTION_ACTIVITY_ID, NORTH_BAY_PEOPLE } from '../content/assignments/northBayRoofInspection';
 import type { AssignmentActivityProgress, AssignmentOffer, GameState, RecordAssertion, RecordEntry, TransitionResult } from '../state/types';
@@ -127,7 +128,8 @@ export function submitNorthBayPostExecutionInspection(
   }));
   const institution = state.world.institutions[STOREHOUSE];
   const person = state.world.people[playerId];
-  if (!institution || !person?.alive || !person.scribal) {
+  const scribal = getInitializedScribal(person);
+  if (!institution || !person?.alive || !scribal) {
     return fail(state, 'post-execution-inspection-world-invalid', 'The current scribe or Storehouse recipient is unavailable.');
   }
 
@@ -141,7 +143,6 @@ export function submitNorthBayPostExecutionInspection(
       description: 'Independent post-execution inspection record submitted by the player.',
     }],
   };
-  const scribal = person.scribal;
   const updatedPerson = {
     ...person,
     scribal: {

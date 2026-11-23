@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getInitializedScribal } from '../state/scribalState';
 import { Volume2, VolumeX } from 'lucide-react';
 import { isAudioMuted, setAudioMuted } from '../engine/audio';
 import { GameProvider, useGame } from '../state/GameProvider';
@@ -23,7 +24,8 @@ function ProductionHeader() {
   const [audioMuted, setAudioMutedState] = useState(isAudioMuted);
   const person = state.world.people[state.player.currentCharacterId];
   const location = person?.currentLocationId ? state.world.locations[person.currentLocationId]?.name : 'Uruk';
-  const wallet = person?.alive ? person.scribal?.wallet : undefined;
+  const scribal = getInitializedScribal(person);
+  const wallet = person?.alive ? scribal?.wallet : undefined;
   return <header className="sticky top-0 z-20 border-b border-stone-300 bg-[#f8f5ee]/95 shadow-sm backdrop-blur">
     <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-3 px-4 py-3 lg:px-6">
       <div className="min-w-[180px]"><p className="font-serif text-lg font-semibold text-stone-900">Scribe of Eras</p><p className="text-xs text-stone-500">{state.calendar.displayDate} · {location}</p></div>
@@ -90,10 +92,10 @@ export function ProductionShellContent() {
         <div className="mt-4 border-t border-stone-300 px-3 pt-4 text-xs leading-5 text-stone-600">
           <p className="font-semibold text-stone-800">{person?.name}</p>
           <p>Uruk · Late Uruk period (c. 3200 BCE)</p>
-          <p className="mt-2">Career XP: {person?.scribal?.careerXp.toLocaleString() ?? 0}</p>
+          <p className="mt-2">Career XP: {scribal?.careerXp.toLocaleString() ?? 'Not initialized'}</p>
           <p>Historical XP: {game.state.historicalProgression.historicalXp.toLocaleString()}</p>
-          <p>Stress: {person?.scribal?.stress ?? 0}/100</p>
-          <p>Professional Rank: Grade {person?.scribal ? deriveProfessionalRank(person.scribal.skills) : 1}</p>
+          <p>Stress: {scribal ? `${scribal.stress}/100` : 'Not initialized'}</p>
+          <p>Professional Rank: {scribal ? `Grade ${deriveProfessionalRank(scribal.skills)}` : 'Not initialized'}</p>
         </div>
       </aside>
 

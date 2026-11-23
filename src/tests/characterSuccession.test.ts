@@ -187,4 +187,28 @@ describe('character departure and succession lifecycle', () => {
       expect(transitionGame(begun.state, { type: 'SELECT_SUCCESSOR', nextCharacterId: id }).feedback?.code).toBe('successor-ineligible');
     }
   });
+
+  it('does not consider identity-only scribal people eligible successors', () => {
+    const state = createInitialGameState();
+    const identityId = 'person-identity-successor' as PersonId;
+    const identityPerson: Person = {
+      id: identityId, name: 'Identity-only candidate', alive: true, affiliations: [],
+      scribal: { stage: 'identity', careerPath: 'government' },
+    };
+    const connected = {
+      ...state,
+      world: {
+        ...state.world,
+        people: { ...state.world.people, [identityId]: identityPerson },
+        relationships: {
+          ...state.world.relationships,
+          [INITIAL_PERSON_ID]: {
+            ...state.world.relationships[INITIAL_PERSON_ID],
+            [identityId]: { dimensions: { trust: 60, respect: 50, affection: 20, resentment: 0, rivalry: 0, familiarity: 20 }, history: [] },
+          },
+        },
+      },
+    };
+    expect(rankSuccessorCandidates(connected).some((candidate) => candidate.personId === identityId)).toBe(false);
+  });
 });

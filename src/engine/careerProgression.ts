@@ -1,4 +1,5 @@
 import type { SkillId, SpecializationId } from '../state/ids';
+import { getInitializedScribal } from '../state/scribalState';
 import type {
   CareerProgressionPolicy, GameAction, GameState, Person, SkillState, TargetSkillLevel, TransitionResult,
 } from '../state/types';
@@ -8,7 +9,7 @@ function result(state: GameState, kind: 'success' | 'error', code: string, messa
 }
 
 function activeScribal(state: GameState) {
-  return state.world.people[state.player.currentCharacterId]?.scribal;
+  return getInitializedScribal(state.world.people[state.player.currentCharacterId]);
 }
 
 function currentSkill(scribal: NonNullable<ReturnType<typeof activeScribal>>, skillId: SkillId): SkillState {
@@ -42,8 +43,8 @@ export function transitionCareerAction(
   policy?: CareerProgressionPolicy,
 ): TransitionResult {
   const person = state.world.people[state.player.currentCharacterId];
-  const scribal = person?.scribal;
-  if (!scribal) return result(state, 'error', 'missing-active-character', 'The current character is unavailable.');
+  const scribal = getInitializedScribal(person);
+  if (!person || !scribal) return result(state, 'error', 'missing-active-character', 'The current character is unavailable.');
 
   if (action.type === 'AWARD_CAREER_XP') {
     if (!Number.isFinite(action.amount) || action.amount <= 0) {

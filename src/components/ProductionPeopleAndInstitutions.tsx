@@ -1,4 +1,5 @@
 import React from 'react';
+import { getInitializedScribal } from '../state/scribalState';
 import { useGame } from '../state/GameProvider';
 import type { PersonRelationship } from '../state/types';
 import type { InstitutionId, PersonId } from '../state/ids';
@@ -44,7 +45,7 @@ export function ProductionPeopleAndInstitutions() {
     <section className="space-y-4">
       <h2 className="font-serif text-2xl font-semibold">People</h2>
       {people.map((person) => {
-        const scribal = person.scribal;
+        const scribal = getInitializedScribal(person);
         const appointments = Object.values(state.world.appointments).filter((item) => item.personId === person.id);
         return <article key={person.id} className="rounded-xl border border-stone-300 bg-white p-5">
           <div className="flex flex-wrap items-start justify-between gap-2">
@@ -61,7 +62,7 @@ export function ProductionPeopleAndInstitutions() {
             <section><h4 className="text-sm font-semibold">Professional reputation</h4>
               {scribal ? <dl className="mt-2 grid grid-cols-2 gap-2">{Object.entries(scribal.professionalReputation).map(([key, value]) =>
                 <div key={key} className="rounded bg-stone-50 p-2"><dt className="text-xs capitalize text-stone-500">{key}</dt><dd className="font-mono">{value}/100</dd></div>)}</dl>
-                : <p className="mt-1 text-xs text-stone-500">No scribal reputation profile.</p>}
+                : <p className="mt-1 text-xs text-stone-500">No initialized scribal capability sheet.</p>}
             </section>
           </div>
           {scribal && <section className="mt-4"><h4 className="text-sm font-semibold">Institutional standing</h4>

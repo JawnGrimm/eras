@@ -1,4 +1,5 @@
 import type { InstitutionId, PersonId } from '../state/ids';
+import { getInitializedScribal, isInitializedScribalState } from '../state/scribalState';
 import type { GameAction, GameState, TransitionResult } from '../state/types';
 
 export type SuccessorConnectionTier = 'direct_personal' | 'direct_professional' | 'wider_network';
@@ -60,7 +61,7 @@ export function rankSuccessorCandidates(state: GameState): SuccessorCandidate[] 
 
   const candidates: SuccessorCandidate[] = [];
   for (const person of Object.values(state.world.people)) {
-    if (person.id === formerId || !person.alive || !person.scribal) continue;
+    if (person.id === formerId || !person.alive || !isInitializedScribalState(person.scribal)) continue;
 
     const reasons: SuccessorConnectionReason[] = [];
     if (state.world.relationships[formerId]?.[person.id]) {
@@ -137,7 +138,7 @@ export function transitionCharacterContinuity(state: GameState, action: Continui
     }
     const formerId = state.player.currentCharacterId;
     const former = state.world.people[formerId];
-    if (!former?.alive || !former.scribal) {
+    if (!former?.alive || !getInitializedScribal(former)) {
       return continuityFailure(state, 'departure-character-invalid', 'Only the living active scribal character can begin a departure.');
     }
     const people = {
@@ -178,7 +179,7 @@ export function transitionCharacterContinuity(state: GameState, action: Continui
   const nextPerson = state.world.people[nextId];
   const eligible = rankSuccessorCandidates(state).some((candidate) => candidate.personId === nextId);
   if (nextId === pending.formerCharacterId || !pending.candidateIds.includes(nextId)
-    || !eligible || !nextPerson?.alive || !nextPerson.scribal) {
+    || !eligible || !nextPerson?.alive || !getInitializedScribal(nextPerson)) {
     return continuityFailure(state, 'successor-ineligible', 'The selected successor must be a living, existing scribal NPC in the connected candidate list.');
   }
 

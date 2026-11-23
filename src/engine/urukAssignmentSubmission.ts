@@ -1,4 +1,5 @@
 import type { AssignmentOffer, AssignmentActivityProgress, GameState, TransitionResult, RecordEntry, RecordSource, RecordAssertion, KnowledgeEntry } from '../state/types';
+import { getInitializedScribal } from '../state/scribalState';
 import type { AssignmentId, InstitutionId, KnowledgeEntryId, MatterId, PersonId, RecordId } from '../state/ids';
 import type { AssignmentActivityDefinition } from '../content/assignments/northBayRoofInspection';
 import { addActivity } from './opportunities';
@@ -79,7 +80,8 @@ export function submitUrukAssignmentActivity(
   if (state.actionEconomy.apRemaining < cost) return fail(state, 'insufficient-ap', `Submission costs ${cost} AP.`);
   const person = state.world.people[state.player.currentCharacterId];
   const institution = state.world.institutions[STOREHOUSE];
-  if (!person?.scribal || !institution) return fail(state, 'assignment-activity-world-invalid', 'The current character or Temple Storehouse is unavailable.');
+  const scribal = getInitializedScribal(person);
+  if (!person || !scribal || !institution) return fail(state, 'assignment-activity-world-invalid', 'The current character or Temple Storehouse is unavailable.');
 
   const draft = progress.draft;
   const discoveries = definition.discoveries.filter((item) => progress.discoveryIds.includes(item.id));
@@ -195,7 +197,6 @@ export function submitUrukAssignmentActivity(
     const partial = relationship({ ...state, world: { ...state.world, relationships } }, change.from, change.to, change.trust, change.respect, change.summary);
     relationships = partial;
   }
-  const scribal = person.scribal;
   const updatedPerson = { ...person, scribal: {
     ...scribal, careerXp: scribal.careerXp + offer.careerXpReward,
     wallet: { ...scribal.wallet, money: scribal.wallet.money + offer.compensation.money, provisions: scribal.wallet.provisions + offer.compensation.provisions },

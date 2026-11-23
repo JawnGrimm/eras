@@ -1,4 +1,5 @@
 import React from 'react';
+import { getInitializedScribal } from '../state/scribalState';
 import { playSettlementChime } from '../engine/audio';
 import { useGame } from '../state/GameProvider';
 import type { DaySettlement } from '../state/types';
@@ -51,24 +52,26 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenActivity, settlement, o
   const game = useGame();
   const state = game.state;
   const person = state.world.people[state.player.currentCharacterId];
-  if (state.pendingSuccession || !person?.alive || !person.scribal) {
+  const scribal = getInitializedScribal(person);
+  if (state.pendingSuccession || !person?.alive || !scribal) {
     return <section role="status" className="mx-auto max-w-3xl rounded-xl border border-amber-300 bg-amber-50 p-6">
       <h1 className="font-serif text-2xl font-semibold">Workday paused</h1>
       <p className="mt-2 text-sm text-stone-700">Ordinary workday actions are unavailable while the character transition is unresolved.</p>
     </section>;
   }
-  const wallet = person.scribal.wallet;
+  const wallet = scribal.wallet;
   const activeWork = state.works.progress[STOREHOUSE_WORK_ID];
   const shortageActive = wallet.shortageWorkdays >= 3;
   const hardshipVisible = wallet.provisions === 0 || wallet.shortageWorkdays >= 1;
   const storehouse = state.world.institutions['institution-uruk-temple-storehouse' as InstitutionId];
   const laborAvailable = !!storehouse?.locationId && !!state.world.locations[storehouse.locationId];
   const urGir = state.world.people[UR_GIR_PERSON_ID as PersonId];
+  const urGirScribal = getInitializedScribal(urGir);
   const urGirRelationship = state.world.relationships[UR_GIR_PERSON_ID as PersonId]?.[person.id];
   const hasUrGirObligation = person.scribal.obligations.some((obligation) =>
     obligation.status === 'outstanding' && obligation.creditorPersonId === UR_GIR_PERSON_ID);
-  const canRequestUrGir = wallet.provisions === 0 && !!urGir?.alive && !!urGir.scribal
-    && urGir.scribal.wallet.provisions >= 1 && !!urGirRelationship
+  const canRequestUrGir = wallet.provisions === 0 && !!urGir?.alive && !!urGirScribal
+    && urGirScribal.wallet.provisions >= 1 && !!urGirRelationship
     && urGirRelationship.dimensions.trust >= 50 && urGirRelationship.dimensions.resentment === 0
     && !hasUrGirObligation;
   const opportunities = selectCharacterOpportunities(state);
