@@ -73,7 +73,7 @@ export function generateDailyAssignments(state: GameState): GameState {
       difficulty: 'demanding',
       estimatedTotalAp: 5,
       compensation: { money: 3, provisions: 0 },
-      careerXpReward: 15,
+      careerXpReward: 35,
       deliveryChannels: [{ kind: 'baseline_reach', explanation: 'The Storehouse requests an independent inspection record after the assigned maintenance.' }],
     };
     const result: TransitionResult = transitionOpportunityAction(next, { type: 'PRESENT_ASSIGNMENT', offer });
