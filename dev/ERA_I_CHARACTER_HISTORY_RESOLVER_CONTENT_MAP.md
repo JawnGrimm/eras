@@ -200,7 +200,7 @@ Legal combinations:
 - All 4 entry routes and all 4 instruction choices remain available for every valid origin/responsibility/formative combination.
 - All 4 orientations remain available for every valid life-history combination.
 
-This yields 3,328 valid complete combinations before name input. The resolver must validate compatibility as authored data, not encode career-path restrictions. The four curated profiles in the persistent data contract remain regression fixtures, not the only valid builds.
+This yields 3,328 valid complete combinations before name input. The resolver must validate compatibility as authored data, not encode orientation restrictions. The four curated profiles in the persistent data contract remain regression fixtures, not the only valid builds.
 
 Deterministic resolution order:
 1. Validate the five choice IDs and the RS/FE compatibility pair.
