@@ -452,7 +452,7 @@ No locked invariant is changed. The Workday economy, gameplay layers, progressio
 
 ## 10. Recommendation and owner decisions
 
-**Recommendation:** Use the eight-step flow (opening, five life-history/orientation chapters, identity, biography review) as the working player-facing structure. For the first playable content pass, author the narrower four-option set listed in §7. Keep the four GDD orientations and explain them in plain language with era-local meaning.
+**Recommendation:** Use the nine-screen flow (opening, five life-history/orientation chapters, identity, biography review) as the working player-facing structure. For the first playable content pass, author the narrower four-option set listed in §7. Keep the four GDD orientations and explain them in plain language with era-local meaning.
 
 The most important implementation gate is not numerical balance. It is whether the authored choice chains can produce a small, coherent cast of existing Persons and a believable opening biography without creating a large branching system.
 
