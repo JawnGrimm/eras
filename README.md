@@ -21,6 +21,7 @@ The GDD defines game identity, pillars, approved principles, and locked gameplay
 
 ## Historical and architectural references
 
+- [Historical and Content Documentation](docs/content/README.md) — Era I research, authoring proposals, and content standards.
 - [Historical Correction Register](docs/HISTORICAL_CORRECTION_REGISTER.md) — prioritized historical findings and deferred correction work; it does not interrupt active implementation.
 - [Comparative Design Reference](docs/COMPARATIVE_DESIGN_REFERENCE.md) — standing architectural lessons and scope guardrails drawn from the comparative RPG study; it is not an implementation backlog.
 
