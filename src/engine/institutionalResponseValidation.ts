@@ -117,17 +117,23 @@ export function validateInstitutionalResponseEvent(state: GameState, event: Worl
       (person.commitments ?? []).some((commitment) => commitment.id === response.commitmentId
         && !(person.id === assignee.id && commitment.basis.kind === 'event' && commitment.basis.id === event.id)));
     const knowledgeId = `knowledge-${response.commitmentId}-report`;
-    if (duplicate || commitmentIdUsed || state.world.knowledge[knowledgeId as KnowledgeEntryId]) return 'This maintenance commitment identifier, worker assignment, or knowledge identifier is already in use.';
-    // Once persisted, the assignment event and the worker's typed commitment must exist together.
-    if (state.world.events[event.id]) {
+    const persistedEvent = state.world.events[event.id];
+    if (duplicate || commitmentIdUsed || (!persistedEvent && state.world.knowledge[knowledgeId as KnowledgeEntryId])) {
+      return 'This maintenance commitment identifier, worker assignment, or knowledge identifier is already in use.';
+    }
+    // Once persisted, the assignment event, worker commitment, and report knowledge must exist together.
+    if (persistedEvent) {
       const persisted = assignee.commitments?.find((item) => item.id === response.commitmentId);
       const hasExecution = Object.values(state.world.events).some((existing) => existing?.institutionalResponse?.stage === 'execution'
         && existing.institutionalResponse.commitmentId === response.commitmentId);
+      const knowledge = state.world.knowledge[knowledgeId as KnowledgeEntryId];
       if (!persisted || persisted.kind !== 'allocation' || !['active','fulfilled'].includes(persisted.status)
         || (persisted.status === 'fulfilled') !== hasExecution
         || persisted.basis.kind !== 'event' || persisted.basis.id !== event.id
-        || !persisted.relatedMatterIds?.includes(matter.id) || persisted.institutionId !== matter.institutionId) {
-        return 'A recorded assignment must have its matching active or executed worker commitment.';
+        || !persisted.relatedMatterIds?.includes(matter.id) || persisted.institutionId !== matter.institutionId
+        || !knowledge || knowledge.holder.kind !== 'person' || knowledge.holder.id !== assignee.id
+        || knowledge.subject.kind !== 'record' || knowledge.subject.id !== record.id) {
+        return 'A recorded assignment must have its matching worker commitment and report knowledge.';
       }
     }
     return null;
