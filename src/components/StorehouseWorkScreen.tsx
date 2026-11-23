@@ -94,6 +94,7 @@ export function StorehouseWorkScreen({ onBack }: { onBack: () => void }) {
   const definition = storehouseReckoning;
   const progress = game.state.works.progress[workId];
   const person = game.state.world.people[game.state.player.currentCharacterId];
+  if (progress?.status === 'suspended') return <section role="status" className="mx-auto max-w-3xl rounded-xl border border-amber-300 bg-amber-50 p-6"><h1 className="font-serif text-2xl font-semibold text-stone-900">Tutorial progress unavailable</h1><p className="mt-2 text-sm leading-6 text-stone-700">Your saved tutorial progress has been preserved, but this content version cannot currently be confirmed as compatible. This is not a failed or abandoned tutorial. You can return to the Workday Hub and continue other activities.</p><button onClick={onBack} className="mt-4 underline">Return to Workday</button></section>;
   const scribal = getInitializedScribal(person);
   if (!progress || !person || !scribal) return <section className="rounded-xl border border-stone-300 bg-white p-6"><p>The tutorial progress or active character is unavailable.</p><button onClick={onBack} className="mt-4 underline">Return to Workday</button></section>;
 

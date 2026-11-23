@@ -4,11 +4,19 @@ import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState
 import { transitionGame } from '../engine/actionEconomy';
 import { createSaveEnvelope, isValidSaveEnvelope, restoreSave } from '../state/saveEnvelope';
 import { createNewGameState, INITIAL_WORK_CATALOG } from '../state/newGameState';
-import { STOREHOUSE_WORK_ID } from '../works/storehouseReckoning';
+import { STOREHOUSE_WORK_ID, storehouseReckoning } from '../works/storehouseReckoning';
 
 const endDay = (state: ReturnType<typeof createInitialGameState>) => transitionGame(state, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber });
 
 describe('production foundation: AP, overtime, settlement and saves', () => {
+  const genuineWorkCatalog = {
+    [STOREHOUSE_WORK_ID]: {
+      ...storehouseReckoning,
+      kind: 'work' as const,
+      provisionsContract: { provisionsPerQualifiedWorkday: 1, minimumWorkApPerDay: 1 },
+    },
+  };
+
   it('starts each ordinary Workday with six shared AP and prevents overspending', () => {
     const initial = createInitialGameState();
     expect(initial.actionEconomy.apRemaining).toBe(6);
@@ -75,11 +83,11 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
       [priorWorkId]: { ...activeProgress, status: 'completed', workApSpentToday: 1, provisionContract: { provisionsPerQualifiedWorkday: 1, minimumWorkApPerDay: 1 } },
       ...state.works.progress,
     } } };
-    state = transitionGame(state, { type: 'ACQUIRE_WORK_EVIDENCE', workId: STOREHOUSE_WORK_ID, actionId: 'accounts' }, undefined, INITIAL_WORK_CATALOG).state;
-    state = transitionGame(state, { type: 'SPEND_AP', amount: 5, reason: 'Use remaining AP' }, undefined, INITIAL_WORK_CATALOG).state;
-    state = transitionGame(state, { type: 'ACTIVATE_OVERTIME' }, undefined, INITIAL_WORK_CATALOG).state;
-    state = transitionGame(state, { type: 'SPEND_AP', amount: 1, reason: 'Use overtime AP' }, undefined, INITIAL_WORK_CATALOG).state;
-    const result = transitionGame(state, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber }, undefined, INITIAL_WORK_CATALOG);
+    state = transitionGame(state, { type: 'ACQUIRE_WORK_EVIDENCE', workId: STOREHOUSE_WORK_ID, actionId: 'accounts' }, undefined, genuineWorkCatalog).state;
+    state = transitionGame(state, { type: 'SPEND_AP', amount: 5, reason: 'Use remaining AP' }, undefined, genuineWorkCatalog).state;
+    state = transitionGame(state, { type: 'ACTIVATE_OVERTIME' }, undefined, genuineWorkCatalog).state;
+    state = transitionGame(state, { type: 'SPEND_AP', amount: 1, reason: 'Use overtime AP' }, undefined, genuineWorkCatalog).state;
+    const result = transitionGame(state, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber }, undefined, genuineWorkCatalog);
     expect(result.settlement).toMatchObject({
       workContractProvisionEarned: 1,
       workContractProvisionReason: 'qualified_workday',
@@ -94,14 +102,21 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
     const state = createNewGameState();
     const activeProgress = state.works.progress[STOREHOUSE_WORK_ID];
     const priorWorkId = 'work-qualified-earlier-today' as typeof STOREHOUSE_WORK_ID;
+    const priorDefinition = {
+      ...storehouseReckoning,
+      kind: 'work' as const,
+      id: priorWorkId,
+      progressCompatibilityKey: 'prior-work-v1',
+      provisionsContract: { provisionsPerQualifiedWorkday: 1, minimumWorkApPerDay: 1 },
+    };
     const withPriorCompletion = {
       ...state,
       works: { ...state.works, progress: {
-        [priorWorkId]: { ...activeProgress, status: 'completed' as const, workApSpentToday: 1, provisionContract: { provisionsPerQualifiedWorkday: 1, minimumWorkApPerDay: 1 } },
+        [priorWorkId]: { ...activeProgress, status: 'completed' as const, definitionCompatibilityKey: 'prior-work-v1', workApSpentToday: 1, provisionContract: { provisionsPerQualifiedWorkday: 1, minimumWorkApPerDay: 1 } },
         [STOREHOUSE_WORK_ID]: { ...activeProgress, workApSpentToday: 0 },
       } },
     };
-    const result = transitionGame(withPriorCompletion, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber }, undefined, INITIAL_WORK_CATALOG);
+    const result = transitionGame(withPriorCompletion, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber }, undefined, { ...genuineWorkCatalog, [priorWorkId]: priorDefinition });
     expect(result.settlement?.workContractProvisionReason).toBe('qualified_workday');
     expect(result.settlement?.workContractProvisionEarned).toBe(1);
   });

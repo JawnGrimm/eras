@@ -39,7 +39,9 @@ export interface WorkFinalization {
 }
 export interface WorkDefinition<TProgress extends Record<string, unknown> = Record<string, unknown>> {
   /** Tutorials use the Work engine's interaction machinery but are not historical Works. */
-  kind?: 'work' | 'tutorial';
+  kind: 'work' | 'tutorial';
+  /** Stable authored identity for the persisted scenario shape; change when progress is no longer compatible. */
+  progressCompatibilityKey: string;
   /** Historical XP credited by the pre-tutorial classification; used only to normalize legacy v2 saves. */
   legacyHistoricalXpReward?: number;
   /** Cleanup needed when restoring v2 saves completed before tutorial classification. */
@@ -121,7 +123,8 @@ export function validateWorkDefinition<TProgress extends Record<string, unknown>
   if (actionIds.size !== work.actions.length) issues.push({ code: 'duplicate-action-id', message: 'Work action IDs must be unique.' });
   const duplicateRuleIds = new Set<string>();
   const conflictPriorities = new Set<string>();
-  if (work.kind !== undefined && work.kind !== 'work' && work.kind !== 'tutorial') issues.push({ code: 'invalid-work-kind', message: 'Work kind must be work or tutorial.' });
+  if (work.kind !== 'work' && work.kind !== 'tutorial') issues.push({ code: 'invalid-work-kind', message: 'Work kind must be explicitly declared as work or tutorial.' });
+  if (typeof work.progressCompatibilityKey !== 'string' || !work.progressCompatibilityKey.trim()) issues.push({ code: 'missing-progress-compatibility-key', message: 'A non-empty progress compatibility key must be authored for this Work definition.' });
   if (work.kind === 'tutorial' && work.provisionsContract) issues.push({ code: 'tutorial-provisions-contract', message: 'Tutorials cannot declare provision contracts.' });
   if (work.legacyHistoricalXpReward !== undefined && (!Number.isFinite(work.legacyHistoricalXpReward) || work.legacyHistoricalXpReward < 0)) issues.push({ code: 'invalid-legacy-historical-xp', message: 'Legacy Historical XP must be a non-negative finite number.' });
   if (work.legacyCompletionCleanup?.retireInstitutionMatters?.some((item) => !item.institutionId || !item.matterId.trim())) issues.push({ code: 'invalid-legacy-completion-cleanup', message: 'Legacy completion cleanup contains an invalid institutional matter.' });

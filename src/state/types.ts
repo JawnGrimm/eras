@@ -307,7 +307,7 @@ export interface ChallengeTriggerRule {
 }
 
 
-export type WorkStatus = 'active' | 'completed' | 'abandoned';
+export type WorkStatus = 'active' | 'completed' | 'abandoned' | 'suspended';
 export type WorkAssessmentDimension = 'accuracy' | 'completeness' | 'responsible_interpretation' | 'procedure' | 'traceability' | 'responsibility';
 export interface WorkAssessmentDimensionResult {
   dimension: WorkAssessmentDimension;
@@ -316,6 +316,10 @@ export interface WorkAssessmentDimensionResult {
 }
 export interface WorkProgress {
   status: WorkStatus;
+  /** Original operational status retained while unavailable content is suspended. */
+  suspendedFromStatus?: 'active' | 'completed' | 'abandoned';
+  /** Must match the authored definition before this progress can resume or advance. */
+  definitionCompatibilityKey?: string;
   acquiredEvidence: EvidenceId[];
   examinedEvidence: EvidenceId[];
   workApSpentToday: number;

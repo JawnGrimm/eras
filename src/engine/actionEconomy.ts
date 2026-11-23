@@ -1,4 +1,4 @@
-import type { CareerProgressionPolicy, GameAction, GameState, TransitionResult } from '../state/types';
+import type { CareerProgressionPolicy, GameAction, GameState, TransitionResult, WorkProgress } from '../state/types';
 import { getInitializedScribal } from '../state/scribalState';
 import type { ConditionId, InstitutionId } from '../state/ids';
 import { UR_GIR_PERSON_ID } from '../state/ids';
@@ -28,6 +28,19 @@ function withNotice(state: GameState, category: 'settlement', message: string): 
     read: false,
   };
   return { ...state, journal: { ...state.journal, notices: [...state.journal.notices, notice] } };
+}
+
+function isValidWorkDefinition(definition: WorkDefinition<any> | undefined): definition is WorkDefinition<any> {
+  return !!definition && (definition.kind === 'work' || definition.kind === 'tutorial')
+    && validateWorkDefinition(definition).length === 0;
+}
+
+function progressMatchesDefinition(definition: WorkDefinition<any>, progress: WorkProgress | undefined): boolean {
+  return !!progress && progress.status !== 'suspended'
+    && progress.definitionCompatibilityKey === definition.progressCompatibilityKey
+    && definition.validateScenarioData(progress.scenarioData)
+    && progress.acquiredEvidence.every((id) => definition.evidence.some((item) => item.id === id))
+    && progress.completedActionIds.every((id) => definition.actions.some((item) => item.id === id));
 }
 
 function displayDate(dayNumber: number): string {
@@ -80,25 +93,42 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
     case 'START_WORK': {
       const definition = workCatalog[action.workId];
       if (!definition) return { state, feedback: feedback('error', 'unknown-work', 'This Work is not registered in the active content catalog.') };
-      if (validateWorkDefinition(definition).length) return { state, feedback: feedback('error', 'invalid-work-definition', 'This Work failed static content validation.') };
-      if (state.works.activeWorkId !== null) return { state, feedback: feedback('error', 'work-already-active', 'Another Work is already active.') };
-      if (state.historicalProgression.completedWorks.includes(action.workId) || state.works.progress[action.workId]?.status === 'completed') return { state, feedback: feedback('error', 'work-already-completed', 'This activity has already been completed.') };
+      if (!isValidWorkDefinition(definition)) return { state, feedback: feedback('error', 'invalid-work-definition', 'This Work is unavailable because its classification or content definition is invalid.') };
+      let baseState = state;
+      const activeId = state.works.activeWorkId;
+      if (activeId !== null) {
+        const activeProgress = state.works.progress[activeId];
+        const activeDefinition = workCatalog[activeId];
+        if (activeProgress && isValidWorkDefinition(activeDefinition) && progressMatchesDefinition(activeDefinition, activeProgress)) {
+          return { state, feedback: feedback('error', 'work-already-active', 'Another Work is already active.') };
+        }
+        const progress = { ...state.works.progress };
+        if (activeProgress && activeProgress.status !== 'suspended') {
+          progress[activeId] = { ...activeProgress, status: 'suspended', suspendedFromStatus: activeProgress.status };
+        }
+        baseState = { ...state, works: { ...state.works, activeWorkId: null, progress } };
+      }
+      const priorProgress = baseState.works.progress[action.workId];
+      if (priorProgress?.status === 'suspended') return { state: baseState, feedback: feedback('error', 'work-content-unavailable', 'This saved activity is preserved but unavailable. Its progress cannot be replaced; you may continue with another valid Work.') };
+      if (baseState.historicalProgression.completedWorks.includes(action.workId) || priorProgress?.status === 'completed') return { state: baseState, feedback: feedback('error', 'work-already-completed', 'This activity has already been completed.') };
+      if (priorProgress && priorProgress.status !== 'abandoned') return { state: baseState, feedback: feedback('error', 'work-progress-exists', 'Existing progress for this activity cannot be overwritten.') };
       const scenarioData = definition.createInitialProgress();
       if (!definition.validateScenarioData(scenarioData)) return { state, feedback: feedback('error', 'invalid-work-initial-state', 'The Work supplied invalid initial progress data.') };
       const progress = {
-        status: 'active' as const, acquiredEvidence: [...definition.startingEvidence], examinedEvidence: [],
+        status: 'active' as const, definitionCompatibilityKey: definition.progressCompatibilityKey,
+        acquiredEvidence: [...definition.startingEvidence], examinedEvidence: [],
         workApSpentToday: 0, rewardGranted: false, completedActionIds: [],
-        provisionContract: definition.kind === 'tutorial' ? undefined : definition.provisionsContract, scenarioData, submissionCount: 0,
+        provisionContract: definition.kind === 'work' ? definition.provisionsContract : undefined, scenarioData, submissionCount: 0,
       };
-      return { state: { ...state, works: { activeWorkId: action.workId, progress: { ...state.works.progress, [action.workId]: progress } } },
+      return { state: { ...baseState, works: { activeWorkId: action.workId, progress: { ...baseState.works.progress, [action.workId]: progress } } },
         feedback: feedback('success', 'work-started', definition.title) };
     }
     case 'ACQUIRE_WORK_EVIDENCE':
     case 'COMPLETE_WORK_ACTION': {
-      const definition = workCatalog[action.workId];
+      const definition = isValidWorkDefinition(workCatalog[action.workId]) ? workCatalog[action.workId] : undefined;
       const progress = state.works.progress[action.workId];
       const actionDefinition = definition?.actions.find((item) => item.id === action.actionId);
-      if (!definition || !progress || state.works.activeWorkId !== action.workId || progress.status !== 'active' || !actionDefinition) {
+      if (!definition || !progress || !progressMatchesDefinition(definition, progress) || state.works.activeWorkId !== action.workId || progress.status !== 'active' || !actionDefinition) {
         return { state, feedback: feedback('error', 'invalid-work-evidence-action', 'The evidence action is unavailable for the active Work.') };
       }
       if (progress.completedActionIds.includes(action.actionId)) return { state, feedback: feedback('info', 'work-action-already-completed', 'This evidence action has already been completed.') };
@@ -126,18 +156,18 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
         feedback: feedback('success', 'work-evidence-acquired', actionDefinition.id) };
     }
     case 'EXAMINE_WORK_EVIDENCE': {
-      const definition = workCatalog[action.workId];
+      const definition = isValidWorkDefinition(workCatalog[action.workId]) ? workCatalog[action.workId] : undefined;
       const progress = state.works.progress[action.workId];
-      if (!definition || !definition.evidence.some((item) => item.id === action.evidenceId) || !progress || state.works.activeWorkId !== action.workId || progress.status !== 'active' || !progress.acquiredEvidence.includes(action.evidenceId)) return { state, feedback: feedback('error', 'evidence-not-acquired', 'Acquire this evidence before examining it.') };
+      if (!definition || !definition.evidence.some((item) => item.id === action.evidenceId) || !progress || !progressMatchesDefinition(definition, progress) || state.works.activeWorkId !== action.workId || progress.status !== 'active' || !progress.acquiredEvidence.includes(action.evidenceId)) return { state, feedback: feedback('error', 'evidence-not-acquired', 'Acquire this evidence before examining it.') };
       if (progress.examinedEvidence.includes(action.evidenceId)) return { state, feedback: feedback('info', 'evidence-already-examined', 'Re-examining acquired evidence costs no AP.') };
       return { state: { ...state, works: { ...state.works, progress: { ...state.works.progress,
         [action.workId]: { ...progress, examinedEvidence: [...progress.examinedEvidence, action.evidenceId], lastAssessment: undefined, pendingDisposition: false } } } },
         feedback: feedback('success', 'evidence-examined', 'Evidence examined.') };
     }
     case 'SET_WORK_SCENARIO_DATA': {
-      const definition = workCatalog[action.workId];
+      const definition = isValidWorkDefinition(workCatalog[action.workId]) ? workCatalog[action.workId] : undefined;
       const progress = state.works.progress[action.workId];
-      if (!definition || !progress || state.works.activeWorkId !== action.workId || progress.status !== 'active'
+      if (!definition || !progress || !progressMatchesDefinition(definition, progress) || state.works.activeWorkId !== action.workId || progress.status !== 'active'
         || !definition.validateScenarioData(action.scenarioData)) {
         return { state, feedback: feedback('error', 'invalid-work-progress', 'The Work progress data is invalid or the Work is not active.') };
       }
@@ -145,9 +175,9 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
         [action.workId]: { ...progress, scenarioData: action.scenarioData, lastAssessment: undefined, pendingDisposition: false } } } }, feedback: null };
     }
     case 'SUBMIT_WORK': {
-      const definition = workCatalog[action.workId];
+      const definition = isValidWorkDefinition(workCatalog[action.workId]) ? workCatalog[action.workId] : undefined;
       const progress = state.works.progress[action.workId];
-      if (!definition || !progress || state.works.activeWorkId !== action.workId || progress.status !== 'active'
+      if (!definition || !progress || !progressMatchesDefinition(definition, progress) || state.works.activeWorkId !== action.workId || progress.status !== 'active'
         || (progress.pendingDisposition && progress.lastAssessment?.outcome === 'accepted'
           && progress.lastAssessment.dimensions.every((item) => item.status === 'meets'))
         || !definition.validateScenarioData(progress.scenarioData)) {
@@ -189,8 +219,8 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
         const nextProgress = { ...progress, status: 'completed' as const, rewardGranted: true, pendingDisposition: false, submissionCount, workApSpentToday: apSpentAfterSubmission,
           lastAssessment: { ...assessment, assessedDay: state.calendar.dayNumber } };
         return { state: { ...state, actionEconomy: { ...economy, apRemaining: apAfterSubmission }, works: { activeWorkId: null, progress: { ...state.works.progress, [action.workId]: nextProgress } },
-          historicalProgression: { historicalXp: state.historicalProgression.historicalXp + (grantReward && definition.kind !== 'tutorial' ? definition.historicalXpReward : 0),
-            completedWorks: definition.kind === 'tutorial' || state.historicalProgression.completedWorks.includes(action.workId) ? state.historicalProgression.completedWorks
+          historicalProgression: { historicalXp: state.historicalProgression.historicalXp + (grantReward && definition.kind === 'work' ? definition.historicalXpReward : 0),
+            completedWorks: definition.kind !== 'work' || state.historicalProgression.completedWorks.includes(action.workId) ? state.historicalProgression.completedWorks
               : [...state.historicalProgression.completedWorks, action.workId] } },
           feedback: feedback('success', 'work-completed', assessment.summary) };
       }
@@ -204,9 +234,9 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
         feedback: feedback('info', 'work-revision-needed', assessment.summary) };
     }
     case 'DISPOSE_WORK': {
-      const definition = workCatalog[action.workId];
+      const definition = isValidWorkDefinition(workCatalog[action.workId]) ? workCatalog[action.workId] : undefined;
       const progress = state.works.progress[action.workId];
-      if (!definition?.finalizeDisposition || !definition.dispositions?.includes(action.disposition) || !progress
+      if (!definition?.finalizeDisposition || !definition.dispositions?.includes(action.disposition) || !progress || !progressMatchesDefinition(definition, progress)
         || state.works.activeWorkId !== action.workId || progress.status !== 'active' || !progress.pendingDisposition
         || !progress.lastAssessment || !definition.validateScenarioData(progress.scenarioData)) {
         return { state, feedback: feedback('error', 'work-disposition-unavailable', 'A current assessed submission and a valid disposition are required.') };
@@ -285,8 +315,8 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
       }
       return { state: { ...rewarded, actionEconomy: { ...economy, apRemaining: economy.apRemaining - cost },
         works: { activeWorkId: null, progress: { ...rewarded.works.progress, [action.workId]: finalProgress } },
-        historicalProgression: { historicalXp: next.historicalProgression.historicalXp + (grantReward && definition.kind !== 'tutorial' ? definition.historicalXpReward : 0),
-          completedWorks: definition.kind === 'tutorial' || next.historicalProgression.completedWorks.includes(action.workId) ? next.historicalProgression.completedWorks : [...next.historicalProgression.completedWorks, action.workId] } },
+        historicalProgression: { historicalXp: next.historicalProgression.historicalXp + (grantReward && definition.kind === 'work' ? definition.historicalXpReward : 0),
+          completedWorks: definition.kind !== 'work' || next.historicalProgression.completedWorks.includes(action.workId) ? next.historicalProgression.completedWorks : [...next.historicalProgression.completedWorks, action.workId] } },
         feedback: feedback('success', 'work-completed', progress.lastAssessment.summary) };
     }
     case 'SPEND_AP': {
@@ -295,7 +325,8 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
       }
       if (action.workId !== undefined) {
         const progress = state.works.progress[action.workId];
-        if (state.works.activeWorkId !== action.workId || !progress || progress.status !== 'active') {
+        const definition = workCatalog[action.workId];
+        if (!isValidWorkDefinition(definition) || !progress || !progressMatchesDefinition(definition, progress) || state.works.activeWorkId !== action.workId || progress.status !== 'active') {
           return { state, feedback: feedback('error', 'inactive-work-ap', 'Work AP must be charged to the currently active Work.') };
         }
         if (economy.apRemaining < action.amount) return { state, feedback: feedback('error', 'insufficient-ap', 'There is not enough AP remaining today.') };
@@ -389,17 +420,22 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
         return { state, feedback: feedback('error', 'overtime-ap-unspent', 'Spend the overtime AP before settling the day.') };
       }
       const startingProvisions = scribal.wallet.provisions;
-      // Ignore tutorial snapshots as well as current definitions: older v2 saves may
-      // still contain the tutorial's former provision contract on WorkProgress.
-      const nonTutorialProgress = Object.entries(state.works.progress)
-        .filter(([workId]) => workCatalog[workId]?.kind !== 'tutorial')
-        .map(([, progress]) => progress);
-      const contractProgress = nonTutorialProgress.find((item) =>
-        (item.status === 'active' || item.status === 'completed') && !!item.provisionContract
-        && item.workApSpentToday >= item.provisionContract.minimumWorkApPerDay);
-      const activeContractExists = nonTutorialProgress.some((item) => item.status === 'active' && !!item.provisionContract);
-      const contractQualified = !!contractProgress?.provisionContract;
-      const contractProvision = contractQualified ? (contractProgress?.provisionContract?.provisionsPerQualifiedWorkday ?? 0) : 0;
+      // Eligibility and the contract values come from the current validated definition,
+      // never from a persisted WorkProgress provision snapshot.
+      const genuineWorkProgress = Object.entries(state.works.progress).flatMap(([workId, progress]) => {
+        const definition = workCatalog[workId];
+        if (!isValidWorkDefinition(definition) || definition.kind !== 'work'
+          || !progressMatchesDefinition(definition, progress)
+          || (progress.status === 'active' && state.works.activeWorkId !== workId)
+          || !definition.provisionsContract) return [];
+        return [{ progress, contract: definition.provisionsContract }];
+      });
+      const contractProgress = genuineWorkProgress.find(({ progress, contract }) =>
+        (progress.status === 'active' || progress.status === 'completed')
+        && progress.workApSpentToday >= contract.minimumWorkApPerDay);
+      const activeContractExists = genuineWorkProgress.some(({ progress }) => progress.status === 'active');
+      const contractQualified = !!contractProgress;
+      const contractProvision = contractQualified ? contractProgress.contract.provisionsPerQualifiedWorkday : 0;
       const workContractProvisionReason = contractQualified
         ? 'qualified_workday' as const
         : activeContractExists

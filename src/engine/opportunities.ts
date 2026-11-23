@@ -2,6 +2,8 @@ import type { EventId, AssignmentId, ChallengeId, InstitutionId, PersonId, Skill
 import { getInitializedScribal } from '../state/scribalState';
 import { ASSIGNMENT_ACTIVITY_CATALOG, NORTH_BAY_POST_EXECUTION_ACTIVITY_ID, validateAssignmentActivityDefinition } from '../content/assignments/northBayRoofInspection';
 import { resolveOpportunityDatePolicies, validateOpportunityConsequences } from '../state/opportunityValidation';
+import { validateWorkDefinition } from '../works/workDefinition';
+import type { WorkDefinition } from '../works/workDefinition';
 import type {
   AssignmentActivityAggregate, AssignmentOffer, ChallengeInstance, ChallengeOutcome, ChallengeTriggerRule,
   GameAction, GameState, OpportunityActivity, OpportunityConsequences, OpportunityDeliveryChannel, TransitionResult,
@@ -125,12 +127,22 @@ function applyConsequences(state: GameState, effects: OpportunityConsequences | 
   return next;
 }
 
-export function settleAssignmentOffers(state: GameState, workCatalog: Readonly<Record<string, { kind?: 'work' | 'tutorial' }>> = {}): GameState {
+export function settleAssignmentOffers(state: GameState, workCatalog: Readonly<Record<string, WorkDefinition<any>>> = {}): GameState {
   let next = state;
   for (const offer of Object.values(state.opportunities.assignments)) {
     if (offer.status !== 'offered' || offer.expiresDay > state.calendar.dayNumber) continue;
     const activeWorkId = state.works.activeWorkId;
-    const lapsedDuringMandatoryWork = activeWorkId !== null && workCatalog[activeWorkId]?.kind !== 'tutorial';
+    const activeProgress = activeWorkId === null ? undefined : state.works.progress[activeWorkId];
+    const activeDefinition = activeWorkId === null ? undefined : workCatalog[activeWorkId];
+    const validMandatoryWork = !!activeProgress && activeProgress.status === 'active'
+      && !!activeDefinition && activeDefinition.id === activeWorkId && activeDefinition.kind === 'work'
+      && typeof activeDefinition.progressCompatibilityKey === 'string' && !!activeDefinition.progressCompatibilityKey.trim()
+      && validateWorkDefinition(activeDefinition).length === 0
+      && activeProgress.definitionCompatibilityKey === activeDefinition.progressCompatibilityKey
+      && activeDefinition.validateScenarioData(activeProgress.scenarioData)
+      && activeProgress.acquiredEvidence.every((id) => activeDefinition.evidence.some((item) => item.id === id))
+      && activeProgress.completedActionIds.every((id) => activeDefinition.actions.some((item) => item.id === id));
+    const lapsedDuringMandatoryWork = validMandatoryWork;
     const updated = { ...offer, status: 'lapsed' as const, lapsedDuringMandatoryWork };
     next = { ...next, opportunities: { ...next.opportunities, assignments: { ...next.opportunities.assignments, [offer.id]: updated } } };
     next = addActivity(next, offer, 'lapsed', { lapsedDuringMandatoryWork });
