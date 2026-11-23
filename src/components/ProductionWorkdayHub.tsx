@@ -61,6 +61,7 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenActivity, settlement, o
   }
   const wallet = scribal.wallet;
   const activeWork = state.works.progress[STOREHOUSE_WORK_ID];
+  const unavailableWorks = Object.entries(state.works.progress).filter(([, progress]) => progress.status === 'suspended');
   const shortageActive = wallet.shortageWorkdays >= 3;
   const hardshipVisible = wallet.provisions === 0 || wallet.shortageWorkdays >= 1;
   const storehouse = state.world.institutions['institution-uruk-temple-storehouse' as InstitutionId];
@@ -96,6 +97,11 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenActivity, settlement, o
       <p className="mt-2 text-sm text-stone-600">The introductory tutorial guides your first professional exercise. Optional Assignments and Challenges remain separate commitments; mandatory historical Works come later.</p>
     </header>
     {settlement && <SettlementSummary settlement={settlement} />}
+    {unavailableWorks.length > 0 && <section role="status" aria-labelledby="unavailable-work-heading" className="rounded-xl border border-amber-300 bg-amber-50 p-5">
+      <h2 id="unavailable-work-heading" className="font-serif text-xl font-semibold text-stone-900">Saved activity unavailable</h2>
+      <p className="mt-2 text-sm leading-6 text-stone-700">The following saved activity cannot currently be matched to a compatible, valid content definition. Its saved progress and history have been preserved. This is not a failed or abandoned activity, and it does not prevent you from continuing ordinary play or starting another available Work.</p>
+      <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-stone-700">{unavailableWorks.map(([id]) => <li key={id}><code>{id}</code></li>)}</ul>
+    </section>}
     {hardshipVisible && <section aria-labelledby="hardship-heading" className="rounded-xl border border-amber-300 bg-amber-50 p-5">
       <h2 id="hardship-heading" className="font-serif text-xl font-semibold text-stone-900">Sustenance &amp; Hardship</h2>
       <p className="mt-2 text-sm text-stone-700">
