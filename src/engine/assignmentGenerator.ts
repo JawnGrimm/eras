@@ -37,6 +37,8 @@ export function generateDailyAssignments(state: GameState): GameState {
       || !next.records.entries[response.recordId]) continue;
     const id = `assignment-auto-post-execution-${executionEvent.id}` as AssignmentId;
     if (next.opportunities.assignments[id]) continue;
+    if (Object.values(next.world.events).some((event) => event.institutionalResponse?.stage === 'verification'
+      && event.institutionalResponse.verification?.executionEventId === executionEvent.id)) continue;
     const hasVerifier = Object.values(next.world.appointments).some((appointment) =>
       appointment.institutionId === matter.institutionId
       && appointment.authorityCapabilities?.includes('verify_institutional_execution')
