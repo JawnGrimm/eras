@@ -588,7 +588,7 @@ Character background may shape the internal monologue only when the specific exp
 | Traits and ambition | Visible placeholder slots only | Fake traits or quest mechanics presented as real |
 | Biography assembly | Clear, consistent person and relationships | Contradictory choices or unsupported recommender claims |
 | Determinism | Same seed and choices reproduce same starting state | Randomly generated NPC identities or biography drift |
-| Tutorial parity | Same evidence and assessment for all four paths | Path-specific objective evidence or authority |
+| Tutorial parity | Same evidence and assessment for all four orientations | Path-specific objective evidence or authority |
 | Progression parity | No free rank, XP, skill, qualification, or appointment | Background becomes an unapproved numerical build |
 
 ## 11. GDD alignment and cross-department impact
