@@ -47,7 +47,8 @@ The inspected production model already provides the required shared identity bou
 
 - `Person` is the identity model for player characters and NPCs.
 - `GameState.player.currentCharacterId` identifies the active player character.
-- `Person.scribal.careerPath` stores one of the existing `government | military | religious | merchant` orientations.
+- `Person.scribal.careerPath` retains the existing persisted values `government | military | religious | merchant`.
+- Player-facing labels map to those values as follows: `government` → Civic, `religious` → Religious, `merchant` → Commercial, and `military` → Martial. This is a display/content terminology change, not a save-schema or identifier migration.
 - `Person` already supports life stage, social identity, circumstances, objectives, commitments, affiliations, location, and optional scribal state.
 - `world.relationships[fromId][toId]` is directional; the reverse perspective is stored separately.
 - The save validator's `isPersonProfile` function validates the existing optional Person profile fields.
@@ -363,10 +364,10 @@ The four authored profiles in the Era I content specification are required QA fi
 
 | Fixture | Life-history choices | Orientation | Key assertions |
 |---|---|---|---|
-| A — Provisioning-connected administrator | OR-01 / RS-01 / FE-01 / EN-02 / TR-01 | Government | Ur-Nanna recommendation; narrow provisioning/quantity familiarity; no storehouse authority |
+| A — Provisioning-connected administrator | OR-01 / RS-01 / FE-01 / EN-02 / TR-01 | Civic | Ur-Nanna recommendation; narrow provisioning/quantity familiarity; no storehouse authority |
 | B — Materials-conscious religious orientation | OR-03 / RS-03 / FE-04 / EN-01 / TR-02 | Religious | Ur-gir introduction; Shuruppak-ilu trainer; no priestly office or craft qualification |
-| C — Delivery-connected merchant orientation | OR-04 / RS-02 / FE-03 / EN-01 / TR-04 | Merchant | Enlil-kisu introduction; delivery/custody familiarity; no ownership or commercial authority |
-| D — Custody-conscious Military orientation | OR-04 / RS-04 / FE-01 / EN-02 / TR-04 | Military | Enlil-kisu recommendation; custody/transport context; no army, combat skill, or military appointment |
+| C — Delivery-connected commercial orientation | OR-04 / RS-02 / FE-03 / EN-01 / TR-04 | Commercial | Enlil-kisu introduction; delivery/custody familiarity; no ownership or commercial authority |
+| D — Custody-conscious Martial orientation | OR-04 / RS-04 / FE-01 / EN-02 / TR-04 | Martial | Enlil-kisu recommendation; custody/transport context; no army, combat skill, or military appointment |
 
 These four fixtures are examples and regression baselines, not the only legal combinations. Test the broader authored compatibility matrix separately.
 

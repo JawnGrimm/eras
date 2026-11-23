@@ -11,7 +11,7 @@ The Game Director has approved:
 
 1. The nine-screen character-creation flow and one primary choice per chapter.
 2. The narrower first-playable Era I content set.
-3. Inclusion of the Military orientation in Era I character creation.
+3. Inclusion of the Martial orientation in Era I character creation.
 4. Inclusion of traits and ambition in the character-creation experience as placeholders.
 
 These approvals establish the content direction. They do not approve numerical starting attributes, skill levels, Career XP, rank, equipment, money, provisions, or any new action-resolution formula.
@@ -267,7 +267,7 @@ Every route ends in supervised instruction by **Shuruppak-ilu**, the existing Se
 
 The four GDD orientations remain available. The general explanation appears first, followed by the local Uruk expression. The local expression is not a claim that four distinct bureaucracies existed.
 
-### Government
+### Civic
 
 **General role**
 
@@ -279,7 +279,7 @@ The four GDD orientations remain available. The general explanation appears firs
 
 **Opening contact/context:** Ur-Nanna and the Temple Storehouse's existing responsibilities are the most direct contact. Shuruppak-ilu remains the shared trainer.
 
-**Starting result:** Government orientation; a plausible administrative contact; one relevant responsibility from earlier choices.
+**Starting result:** Civic orientation; a plausible administrative contact; one relevant responsibility from earlier choices.
 
 **Exclusions:** No office, appointment, authority to issue goods, institutional command, or exclusive access.
 
@@ -303,7 +303,7 @@ The four GDD orientations remain available. The general explanation appears firs
 
 **Confidence:** Inferred for the overlap between sacred and administrative activity; Reconstruction for this person's interest and route.
 
-### Merchant
+### Commercial
 
 **General role**
 
@@ -315,13 +315,13 @@ The four GDD orientations remain available. The general explanation appears firs
 
 **Opening contact/context:** Enlil-kisu is the most direct existing contact for dispatch and transport; Nin-kasi can be relevant where the biography involves goods received or issued to the brewing-house operation.
 
-**Starting result:** Merchant orientation; a delivery, movement, or counterparty context; non-exclusive access to wider institutional work.
+**Starting result:** Commercial orientation; a delivery, movement, or counterparty context; non-exclusive access to wider institutional work.
 
 **Exclusions:** No private merchant-house membership, ownership of goods, commercial authority, or automatic access to every counterparty.
 
 **Confidence:** Attested for exchange and movement networks; Inferred/Reconstruction for the specific person's route.
 
-### Military — included by owner decision
+### Martial — included by owner decision
 
 **General role**
 
@@ -333,13 +333,13 @@ The four GDD orientations remain available. The general explanation appears firs
 
 **Opening contact/context:** Enlil-kisu, the existing Carrier Foreman, is the most defensible contact because delivery and movement can create concrete custody and route-security concerns. The character's connection is through a specific delivery or sealed-load responsibility. It is not a military posting and does not imply Enlil-kisu is a soldier.
 
-**Starting result:** Military orientation with the local gloss “Security and Mobilization”; an authored personal experience involving the custody or safe movement of goods; an existing transport contact.
+**Starting result:** Martial orientation with the local gloss “Security and Mobilization”; an authored personal experience involving the custody or safe movement of goods; an existing transport contact.
 
 **Exclusions:** No standing army, quartermaster corps, conscription, military rank, combat skill, weapons package, standard military ration system, or military appointment.
 
 **Confidence:** Low-confidence historical framing for the broader security/mobilization connection; Reconstruction for the individual event and professional aspiration. Keep the low-confidence note in the content ledger, not as a scholarly disclaimer in the main player-facing copy.
 
-**Design rationale:** The GDD requires the Military orientation. Its Era I expression should be asymmetrical rather than falsely made equivalent to better-attested administrative contexts. A specific custody/transport connection gives the player a playable identity while preserving historical restraint.
+**Design rationale:** The GDD requires the Martial orientation. Its Era I expression should be asymmetrical rather than falsely made equivalent to better-attested administrative contexts. A specific custody/transport connection gives the player a playable identity while preserving historical restraint.
 
 ## 5. Deterministic NPC connection map
 
@@ -349,7 +349,7 @@ The current production world already contains a small fictional Uruk cast. The f
 |---|---|---|---|
 | Shuruppak-ilu | Senior Scribe; reviews scribal work and determines institutional follow-up | Common trainer and tutorial supervisor | Priesthood, universal head of all scribes, or authority beyond his appointment |
 | Ur-Nanna | Storehouse Steward; custody, access, maintenance records | Recommender/contact for provisioning and institutional work | Authority outside the Storehouse appointment |
-| Enlil-kisu | Carrier Foreman; dispatch records and delivery context | Recommender/contact for movement, custody, and Military-orientation context | Soldier, military officer, or proof of an army |
+| Enlil-kisu | Carrier Foreman; dispatch records and delivery context | Recommender/contact for movement, custody, and Martial-orientation context | Soldier, military officer, or proof of an army |
 | Utu-mansum | Receiving Official; records incoming delivery quantity and condition | Optional contact for intake/counting experience | Authority to determine what happened before arrival |
 | Nin-kasi | Brewing-House Representative; confirms receipt of issued goods | Optional counterparty/contact for production and delivery experience | Priest, temple official, or owner of the goods |
 | Ur-gir | Established scribal colleague with a household and professional obligations | Existing scribal introducer where appropriate | Formal instructor or senior authority |
@@ -384,7 +384,7 @@ These profiles are the minimum authoring and QA set. They demonstrate the choice
 - Formative experience: FE-01 A quantity did not match.
 - Entry: EN-02 Your work earned a recommendation; Ur-Nanna recommends the character.
 - First instruction: TR-01 Quantities and commodity notation.
-- Orientation: Government.
+- Orientation: Civic.
 
 **People and connections**
 
@@ -442,7 +442,7 @@ These profiles are the minimum authoring and QA set. They demonstrate the choice
 - Formative experience: FE-03 You helped settle a disagreement.
 - Entry: EN-01 Someone introduced you; Enlil-kisu introduces the character through delivery work.
 - First instruction: TR-04 Checking and organizing records.
-- Orientation: Merchant.
+- Orientation: Commercial.
 
 **People and connections**
 
@@ -462,7 +462,7 @@ These profiles are the minimum authoring and QA set. They demonstrate the choice
 
 **Starting context:** Delivery and counterparty familiarity. No ownership, private commercial authority, or guaranteed market access.
 
-### Profile D — The custody-conscious Military orientation
+### Profile D — The custody-conscious Martial orientation
 
 **Choices**
 
@@ -471,7 +471,7 @@ These profiles are the minimum authoring and QA set. They demonstrate the choice
 - Formative experience: FE-01 A quantity did not match, personalized as a delayed or uncertain handover.
 - Entry: EN-02 Your work earned a recommendation; Enlil-kisu recommends the character.
 - First instruction: TR-04 Checking and organizing records.
-- Orientation: Military (Era I gloss: Security and Mobilization).
+- Orientation: Martial (Era I gloss: Security and Mobilization).
 
 **People and connections**
 
@@ -489,7 +489,7 @@ These profiles are the minimum authoring and QA set. They demonstrate the choice
 >
 > You are drawn toward the work of security and organized movement. In this period, that does not mean joining a documented standing army. Your starting connection is to the practical problem of protecting people and goods and keeping responsibility clear when circumstances are uncertain.
 
-**Starting context:** A credible transport/custody connection and Military orientation. No combat capability, military office, or claim that a military scribal career existed.
+**Starting context:** A credible transport/custody connection and Martial orientation. No combat capability, military office, or claim that a military scribal career existed.
 
 **Historical note:** The specific remembered incident is a fictional reconstruction. It is not a claim about a known Uruk event or an attested military organization.
 
@@ -502,7 +502,7 @@ Do not author every possible permutation as a separate biography. Use a small se
 3. If a selected entry route names a Person, that Person must already exist in the opening world roster or be created by an explicit authored world-initialization package. Prefer the current existing roster.
 4. The entry route must be coherent with the formative experience and responsibility. If it is not, use the route's alternate contact mapping or present a different explanatory sentence—not an impossible causal link.
 5. The orientation sets initial professional context only. It must not overwrite the life history or force a contradictory biography.
-6. Military remains selectable. If a particular combination cannot credibly support the Military wording, adapt the local context to custody/transport/security rather than inventing an army or denying the choice.
+6. Martial remains selectable. If a particular combination cannot credibly support the Martial wording, adapt the local context to custody/transport/security rather than inventing an army or denying the choice.
 7. The biography composer must not state that a person recommended the character unless the selected route actually records that recommendation.
 8. A person who introduces the character and a person who trains the character may be the same only if the authored content explicitly supports both roles. Otherwise keep recommender and trainer distinct.
 9. A choice's historical confidence metadata must not be silently upgraded because it appears in several biographies.
@@ -573,7 +573,7 @@ Run the same tutorial with each of the four orientation profiles. The following 
 - Career XP and Historical Progress XP treatment already defined for the tutorial.
 - Workday/AP rules and all other locked invariants.
 
-Character background may shape the internal monologue only when the specific experience justifies it. It may affect recognition, interpretation, confidence, or possible oversight, but cannot hide, falsify, or change objective evidence. Do not grant a Military character combat options in the tutorial or a Religious character privileged access to evidence.
+Character background may shape the internal monologue only when the specific experience justifies it. It may affect recognition, interpretation, confidence, or possible oversight, but cannot hide, falsify, or change objective evidence. Do not grant a Martial character combat options in the tutorial or a Religious character privileged access to evidence.
 
 ## 10. Content QA matrix
 
@@ -582,20 +582,20 @@ Character background may shape the internal monologue only when the specific exp
 | Four origins crossed with all responsibilities | Coherent wording or authored alternate fragment | Origin acts as a hard class restriction |
 | Each formative experience | A specific but bounded Life Event | Automatically grants a permanent trait or moral label |
 | Four entry routes | Existing recommender/contact and Shuruppak-ilu trainer | Disposable NPC, duplicate Person, or unsupported formal school |
-| Four orientations | All four remain selectable | Military removed or made a formal army career |
+| Four orientations | All four remain selectable | Martial removed or made a formal army career |
 | Religious orientation | Sacred/administrative overlap explained carefully | Invented priesthood or unsupported Anu archive |
-| Military orientation | Custody/security/transport context; low-confidence authoring metadata | Standing army, quartermaster corps, combat skill, or appointment implied |
+| Martial orientation | Custody/security/transport context; low-confidence authoring metadata | Standing army, quartermaster corps, combat skill, or appointment implied |
 | Traits and ambition | Visible placeholder slots only | Fake traits or quest mechanics presented as real |
 | Biography assembly | Clear, consistent person and relationships | Contradictory choices or unsupported recommender claims |
 | Determinism | Same seed and choices reproduce same starting state | Randomly generated NPC identities or biography drift |
-| Tutorial parity | Same evidence and assessment for all four paths | Path-specific objective evidence or authority |
+| Tutorial parity | Same evidence and assessment for all four orientations | Path-specific objective evidence or authority |
 | Progression parity | No free rank, XP, skill, qualification, or appointment | Background becomes an unapproved numerical build |
 
 ## 11. GDD alignment and cross-department impact
 
 ### GDD alignment
 
-- **§3.3–3.4:** Makes the starting apprentice and four initial career paths concrete without inventing numerical benefits.
+- **§3.3–3.4:** Makes the starting apprentice and four initial professional orientations concrete without inventing numerical benefits.
 - **§4:** Provides a reusable cross-era character-creation content contract, with Era I as the first expression.
 - **§7:** Preserves the common Storehouse Reckoning tutorial.
 - **§15:** Uses existing Persons and relationships; does not create four exclusive institutions.
@@ -607,7 +607,7 @@ No locked invariant is changed. The numerical starting-state model remains open 
 ### Cross-department impact
 
 - **Game Design:** Review combination coherence and ensure orientation is context, not class lock.
-- **Historical Research:** Validate the exact wording of training, early lexical practice, religious-administrative overlap, and the low-confidence Military expression.
+- **Historical Research:** Validate the exact wording of training, early lexical practice, religious-administrative overlap, and the low-confidence Martial expression.
 - **Engineering & Architecture:** Add a deterministic new-game initialization boundary to the existing Person model; resolve life-history/familiarity persistence and save compatibility before coding.
 - **Art/UI:** Include the approved trait and ambition placeholder areas; keep them visually present but clearly inactive.
 - **Audio:** No required new system; optional low-key material cues.
@@ -615,14 +615,14 @@ No locked invariant is changed. The numerical starting-state model remains open 
 
 ## 12. Recommendation and next gate
 
-**Recommendation:** Adopt the four curated profiles in §6 as the first content and QA baselines. Retain all four orientations, including Military, with the specific Era I limitations documented here. Keep trait and ambition areas visible as placeholders, not fake content.
+**Recommendation:** Adopt the four curated profiles in §6 as the first content and QA baselines. Retain all four orientations, including Martial, with the specific Era I limitations documented here. Keep trait and ambition areas visible as placeholders, not fake content.
 
 The next design gate is to approve the content/relationship mapping and settle the minimum persistent representation for Life Events and familiarity. The numerical starting-state balance should remain a separate decision after the player-facing content and opening experience are validated.
 
 **Game Director review requested**
 1. Approve the four authored profile baselines or request changes.
 2. Approve reuse of the existing opening NPC roster for recommender/trainer connections, with Shuruppak-ilu as the common trainer.
-3. Approve the Military expression as a custody/transport/security orientation rather than a formal military posting.
+3. Approve the Martial expression as a custody/transport/security orientation rather than a formal military posting.
 4. Confirm the traits and ambition placeholders are visible but inactive pending their catalogs.
 5. Decide whether the next work should define the minimum Life Event/familiarity data contract or proceed to an interactive UI prototype after content approval.
 

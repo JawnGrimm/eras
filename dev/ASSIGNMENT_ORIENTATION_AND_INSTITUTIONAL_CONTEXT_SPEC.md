@@ -10,7 +10,7 @@
 
 **Professional orientation influences both the Assignments a character encounters and the circumstances under which they perform them. Shared administrative responsibilities create common ground; institutional specialization creates meaningful differences.**
 
-The four orientations—Government, Religious, Merchant, and Military—are professional emphases, not classes, exclusive institutions, or separate Assignment queues. The world has one shared pool of authored opportunities. A character encounters opportunities through their actual place in the world: institutional position, relationships, current work, knowledge, access, and circumstances.
+The four orientations—Civic, Religious, Commercial, and Martial—are professional emphases, not classes, exclusive institutions, or separate Assignment queues. The world has one shared pool of authored opportunities. A character encounters opportunities through their actual place in the world: institutional position, relationships, current work, knowledge, access, and circumstances.
 
 The same broad administrative craft can appear in different institutional settings without becoming the same Assignment with a cosmetic label. Purpose, people, evidence, procedures, authority, and consequences should fit the actual situation.
 
@@ -108,7 +108,7 @@ Historical plausibility governs the institution and procedure, not just the name
 - Do not present a fictional scenario or workflow as a documented historical event.
 - Do not import modern departments, standardized offices, job titles, procedures, or military structures without period-specific support.
 - The four orientations should be expressed through the institutions and relationships supportable in the current era.
-- For Era I Uruk, Government and Religious overlap substantially; Merchant concerns exchange, procurement, delivery, and networks without assuming later private merchant houses; Military remains a restrained orientation expressed through specific security, movement, mobilization, or accountability matters—not an invented standing army or military scribal corps.
+- For Era I Uruk, Civic and Religious overlap substantially; Commercial concerns exchange, procurement, delivery, and networks without assuming later private merchant houses; Martial remains a restrained orientation expressed through specific security, movement, mobilization, or accountability matters—not an invented standing army or military scribal corps.
 - The Era I institutional responsibility matrix and historical audit constrain the literal settings and content. A modern temple/regimental analogy is a design test, not historical evidence.
 
 ## 9. World-generation and progression boundaries

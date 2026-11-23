@@ -5,7 +5,7 @@
 
 This specification defines character foundations, career progression, character continuity, and equipment. It does not independently approve new starting values, formulas, content, or mechanics.
 
-### 3.4 Character foundations and initial career paths
+### 3.4 Character foundations and professional orientations
 
 The character system is built around the following interaction model:
 
@@ -13,16 +13,16 @@ The character system is built around the following interaction model:
 
 These elements should interact to change what a character can do, perceive, access, withstand, and accomplish. They are not intended as disconnected lists of bonuses. The exact action-resolution formula and numerical scales remain open.
 
-#### Initial career paths
+#### Initial professional orientations
 
-Character creation offers four initial career paths:
+Character creation offers four initial professional orientations:
 
-- **Government**
-- **Military**
+- **Civic**
 - **Religious**
-- **Merchant**
+- **Commercial**
+- **Martial**
 
-A career path establishes the player's initial professional identity and context. It should shape the institutions, people, responsibilities, opportunities, and likely areas of expertise encountered at the beginning of play. These are starting paths, not permanent restrictions on what the character may learn or do. The starting benefits and any later movement between career paths have not yet been defined.
+An orientation establishes the player's initial professional emphasis and context. It should shape the institutions, people, responsibilities, opportunities, and likely areas of expertise encountered at the beginning of play. These are starting orientations, not permanent restrictions on what the character may learn or do. Starting benefits and any later change of orientation have not yet been defined.
 
 #### Attributes
 
@@ -54,7 +54,7 @@ The current six-skill framework is:
 
 These are primary pairings, not exclusive attribute-to-skill dependencies. The attribute relevant to an action may change with its specific demands and circumstances. Endurance, for example, may matter when an otherwise familiar skill must be sustained through prolonged effort.
 
-Skills represent learned competencies and can develop across career paths. Each of the six core skills has its own independent experience track. Activities award experience to the skills they genuinely use; more demanding or complex work may award more, while routine repetition contributes without allowing expertise to arise from repetition alone. Formal study and mentorship can also develop skills without requiring repeated Assignments.
+Skills represent learned competencies and can develop across professional orientations. Each of the six core skills has its own independent experience track. Activities award experience to the skills they genuinely use; more demanding or complex work may award more, while routine repetition contributes without allowing expertise to arise from repetition alone. Formal study and mentorship can also develop skills without requiring repeated Assignments.
 
 Each skill uses a numerical level from **1 to 10**, with the following descriptive bands:
 
@@ -80,7 +80,7 @@ Personality traits are not permanently fixed. Established traits may strengthen,
 
 #### Specializations
 
-Specializations represent focused professional expertise developed within the shared skill framework. They are not additional career classes and do not permanently restrict a character to their initial career path.
+Specializations represent focused professional expertise developed within the shared skill framework. They are not additional career classes and do not permanently restrict a character to their initial professional orientation.
 
 Characters qualify for specializations through relevant experience, skills, relationships, and opportunities. Once eligible, the player chooses which specialization to pursue; eligibility is earned through play, while the choice remains with the player. Repetitive Assignment grinding should not be the only route to qualification: significant Works, Challenges, study, mentorship, and professional opportunities may also contribute where relevant.
 
@@ -170,7 +170,7 @@ A character may attain high professional rank while the player remains in the ea
 
 ### 10.5 Specialization and professional identity
 
-Specializations provide focused expertise within the shared character skills. They are earned through relevant experience and opportunities, then selected by the player from those for which the character qualifies. They are not locked to the character's initial career path.
+Specializations provide focused expertise within the shared character skills. They are earned through relevant experience and opportunities, then selected by the player from those for which the character qualifies. They are not locked to the character's initial professional orientation.
 
 A character may hold multiple specializations, with one designated as Primary. Primary status represents professional identity and may influence recognition, reputation, appointments, and access to opportunities; it is not simply a label for the highest numerical skill. Secondary specializations retain their relevant mechanical benefits.
 

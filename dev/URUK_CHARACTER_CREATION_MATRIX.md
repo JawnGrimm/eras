@@ -46,7 +46,7 @@ These are narrative prompts, not mandatory simulation systems. A later era may e
 
 ### 2.2 Professional orientation is a generalized player choice
 
-The four GDD career paths—**Government, Military, Religious, and Merchant**—are broad professional orientations. They are not four historically universal institutions, castes, guilds, modern departments, or exclusive career classes.
+The four GDD professional orientations—**Civic, Religious, Commercial, and Martial**—are broad professional emphases. They are not four historically universal institutions, castes, guilds, modern departments, or exclusive career classes.
 
 When the player chooses one, explain:
 - What kind of professional work the orientation generally represents across the game.
@@ -54,7 +54,7 @@ When the player chooses one, explain:
 - What kinds of people, responsibilities, and opportunities it is likely to bring the character into contact with.
 - What it does **not** automatically grant: authority, appointment, qualification, rank, exclusive access, or mastery.
 
-The underlying orientation can remain stable across eras while its local expression changes. For example, Government may mean institutional administration in Uruk, a royal or civic administrative service in another period, and a state department or public records office in a later one. The game should explain the local meaning at the moment of choice rather than expect the player to infer it from a historical label.
+The underlying orientation can remain stable across eras while its local expression changes. For example, Civic may mean institutional administration in Uruk, a royal or civic administrative service in another period, and a state department or public records office in a later one. The game should explain the local meaning at the moment of choice rather than expect the player to infer it from a historical label.
 
 ### 2.3 History creates texture and context, not exhaustive simulation
 
@@ -65,7 +65,7 @@ Do not build:
 - A universal social-class ladder.
 - A detailed institutional hierarchy solely to justify a starting path.
 - A formal scribal school or standardized apprenticeship system without evidence.
-- A standing military bureaucracy to make the Military orientation look symmetrical.
+- A standing military bureaucracy to make the Martial orientation look symmetrical.
 - A numerical bonus for every biographical choice.
 
 A few well-authored relationships and responsibilities are more valuable than a large network of weakly justified entities.
@@ -176,12 +176,12 @@ This final step presents the four generalized career orientations. The player se
 
 | GDD orientation | General player-facing meaning | Uruk c. 3200 BCE explanation | Likely initial context |
 |---|---|---|---|
-| **Government** | “You are drawn to the work of institutions: organizing resources, keeping responsibilities clear, and helping collective work function.” | In Uruk, this may bring you into administrative activity associated with storage, distribution, labor, and institutional coordination. These responsibilities overlap with sacred and ceremonial life. | Contacts in an administrative setting; familiarity with coordination, records, goods, or labor, depending on the life history. |
-| **Military** | “You are drawn to the work that supports security, organized movement, and the coordination of people and resources in dangerous circumstances.” | In this period, the evidence for a distinct military scribal career is weak. The game may represent specific security, transport, or mobilization matters, but does not assume a standing army, military bureaucracy, or combat training. | A specific contact or circumstance tied to a security or mobilization matter. This orientation remains historically provisional in Era I. |
+| **Civic** | “You are drawn to the work of institutions: organizing resources, keeping responsibilities clear, and helping collective work function.” | In Uruk, this may bring you into administrative activity associated with storage, distribution, labor, and institutional coordination. These responsibilities overlap with sacred and ceremonial life. | Contacts in an administrative setting; familiarity with coordination, records, goods, or labor, depending on the life history. |
+| **Martial** | “You are drawn to the work that supports security, organized movement, and the coordination of people and resources in dangerous circumstances.” | In this period, the evidence for a distinct military scribal career is weak. The game may represent specific security, transport, or mobilization matters, but does not assume a standing army, military bureaucracy, or combat training. | A specific contact or circumstance tied to a security or mobilization matter. This orientation remains historically provisional in Era I. |
 | **Religious** | “You are drawn to institutions and people whose work is connected with sacred practice, ritual, and the responsibilities that support them.” | In Uruk, sacred activity and economic administration may overlap. Eanna provides the strongest administrative evidence; Anu/Kullaba is a distinct monumental/sacred context with a thinner excavated administrative record. | Contacts connected with cultic, ceremonial, or institutional activity where the authored scenario supports them. |
-| **Merchant** | “You are drawn to exchange: moving goods, maintaining relationships between counterparties, and making sure what is promised reaches the people expecting it.” | In Uruk, this is best understood through procurement, exchange, delivery, and movement networks—not as a modern merchant house or a fully documented commercial profession. | Contacts among producers, carriers, recipients, and people involved in procurement or exchange. |
+| **Commercial** | “You are drawn to exchange: moving goods, maintaining relationships between counterparties, and making sure what is promised reaches the people expecting it.” | In Uruk, this is best understood through procurement, exchange, delivery, and movement networks—not as a modern merchant house or a fully documented commercial profession. | Contacts among producers, carriers, recipients, and people involved in procurement or exchange. |
 
-**Shared access rule:** orientations influence the character's initial professional context, contacts, responsibilities, and likely opportunities. They do not create exclusive access to institutions or content. A Government-oriented character may encounter religious or exchange matters; a Merchant-oriented character may work with institutional records. The player's actual skills, relationships, appointments, circumstances, and opportunities determine what they can do.
+**Shared access rule:** orientations influence the character's initial professional context, contacts, responsibilities, and likely opportunities. They do not create exclusive access to institutions or content. A Civic-oriented character may encounter religious or exchange matters; a Commercial-oriented character may work with institutional records. The player's actual skills, relationships, appointments, circumstances, and opportunities determine what they can do.
 
 **Presentation rule:** explain the orientation in plain language first, then explain what it means in the current era. Do not expect the player to know what an ancient title or institutional category means. Avoid presenting a speculative historical title as the name of a universal career class.
 
@@ -280,7 +280,7 @@ These profiles are test fixtures, not canonical characters or prescribed builds.
 - Formative experience: a quantity did not match.
 - Entry route: work earned a recommendation.
 - Training emphasis: quantities and commodity notation.
-- Orientation: Government.
+- Orientation: Civic.
 - Likely context: provisions, quantities, storage/distribution, discrepancy comparison, limited commodity notation.
 - Likely contacts: one household/work contact, recommender, trainer, and an administrative contact if distinct.
 - Does not receive: authority over stores, accounting mastery, automatic trust from a steward, or an appointment.
@@ -301,7 +301,7 @@ These profiles are test fixtures, not canonical characters or prescribed builds.
 - Formative experience: helped settle a disagreement.
 - Entry route: someone introduced them.
 - Training emphasis: comparing sources.
-- Orientation: Merchant.
+- Orientation: Commercial.
 - Likely context: handovers, routes, counterparties, delivery expectations, and comparison of accounts or testimony.
 - Does not receive: commercial authority, ownership of transported goods, or automatic access to every exchange contact.
 
@@ -315,7 +315,7 @@ The profiles pass only if:
 5. Their interpretation may differ through familiarity and actual practice, but the objective tutorial evidence remains identical and complete.
 6. The same seed and same choices produce the same person, relationships, history, and opening world.
 7. Orientations alter initial context and likely opportunities without blocking cross-orientation play.
-8. The Military orientation is presented honestly as a generalized professional path whose Era I expression is provisional and narrowly authored.
+8. The Martial orientation is presented honestly as a generalized professional path whose Era I expression is provisional and narrowly authored.
 
 ## 9. Tutorial compatibility
 
@@ -334,7 +334,7 @@ A character familiar with provisioning or quantities may recognize the context m
 
 ### GDD alignment
 
-- **§3.3–3.4:** Develops the Uruk origin, four initial career paths, attributes, skills, and personality traits.
+- **§3.3–3.4:** Develops the Uruk origin, four initial professional orientations, attributes, skills, and personality traits.
 - **§4.2:** Establishes a reusable character-creation framework whose local expression changes by era.
 - **§15.2–15.5:** Uses the shared Person model, social network, era-specific institutions, and bounded deterministic world.
 - **§23 items 8, 10, 13, 22, and 25:** Informs relationships, character transitions, Era I institutions, the character system, and situated interpretation.
@@ -344,8 +344,8 @@ No locked GDD invariant is contradicted. This proposal does not change the six-A
 
 ### Cross-department impact
 
-- **Game Design:** Establishes one reusable life-history framework; keeps career paths as understandable professional orientations rather than era-specific classes; avoids turning biography into a bonus-selection exercise.
-- **Historical Research:** Validates the Era I vignettes and local path descriptions. Prioritize household/social-context wording, training plausibility, and the weak evidence for a distinct Military scribal career.
+- **Game Design:** Establishes one reusable life-history framework; keeps the four orientations understandable as broad professional emphases rather than era-specific classes; avoids turning biography into a bonus-selection exercise.
+- **Historical Research:** Validates the Era I vignettes and local path descriptions. Prioritize household/social-context wording, training plausibility, and the weak evidence for a distinct military scribal career.
 - **Engineering & Architecture:** Future design may need compact Life Event and familiarity representations and era-localized orientation descriptions. Reuse the shared Person and careerPath foundations; do not create a parallel character model or simulate childhood day by day.
 - **Art & UI/UX:** Present the sequence as concise narrative chapters or vignettes. The professional orientation screen must explain the general role and its Era I meaning. No physical avatar editor is required. Use period-appropriate materials and settings; avoid later writing forms or modern school imagery in Uruk.
 - **Audio:** Optional restrained material and environmental cues. No separate audio system or cinematic dependency is required.
@@ -355,12 +355,12 @@ No locked GDD invariant is contradicted. This proposal does not change the six-A
 
 **Recommendation:** adopt the reusable life-history framework as the working direction for character creation. Keep the five life-history chapters and final identity/orientation step, with the Era I content above serving as the first authored expression rather than a permanent template for all eras.
 
-The revision deliberately treats the four career paths as generalized professional orientations. Their descriptions should explain the broad fantasy first and the historical meaning second. The institutional matrix supplies credible context and content possibilities; it does not require four separate institutional career systems.
+The revision deliberately treats the four professional orientations as generalized emphases. Their descriptions should explain the broad fantasy first and the historical meaning second. The institutional matrix supplies credible context and content possibilities; it does not require four separate institutional career systems.
 
 The following remain open and are not approved by this document:
 1. The final wording and availability of individual Era I origin and vignette choices.
 2. Whether the institutional-service origin belongs in the first playable set or should remain a conditional authored option.
-3. The precise Era I presentation of the Military orientation and whether its first playable scenario is included in the vertical slice.
+3. The precise Era I presentation of the Martial orientation and whether its first playable scenario is included in the vertical slice.
 4. The exact character-state representation for household/social context, Life Events, familiarity, and habits.
 5. Starting attributes, skill levels, skill experience, Career XP, equipment, resources, and any mechanical benefits.
 6. The final trait catalog, ambition presentation, and whether ambition is included in the first release.

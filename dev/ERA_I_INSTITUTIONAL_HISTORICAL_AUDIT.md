@@ -7,7 +7,7 @@
 
 ## Executive finding
 
-The supplied material identifies the right design center: Era I should feel like an administrative world in which institutions organize goods, labor, storage, production, exchange, and access. Government and cultic activity should not be divided using modern secular-state versus organized-religion assumptions. Military-oriented play, if retained, should focus on mobilization, security, logistics, and institutional accountability rather than a later professional army.
+The supplied material identifies the right design center: Era I should feel like an administrative world in which institutions organize goods, labor, storage, production, exchange, and access. Civic and cultic activity should not be divided using modern secular-state versus organized-religion assumptions. Martial-oriented play, if retained, should focus on mobilization, security, logistics, and institutional accountability rather than a later professional army.
 
 However, the supplied account is too certain about several disputed or unsupported reconstructions. It should not be adopted verbatim. In particular:
 - Late Uruk political authority cannot safely be reduced to one unified “temple-state.”
@@ -58,20 +58,20 @@ EN is a prominent sign/term in the Uruk IV–III corpus. The Warka Vase depicts 
 
 ## 3. Institutional gameplay model for Era I
 
-Retain the GDD's four career paths as starting professional orientations. Do not convert them into four exclusive institutions or modern departments.
+Retain the GDD's four professional orientations as starting choices. Do not convert them into four exclusive institutions or modern departments.
 
 | GDD path | Era I framing | Strongest support | Guardrail |
 |---|---|---|---|
-| Government | Institutional administration: land, labor, production, storage, redistribution, and public/collective works | Administrative texts and monumental institutional settings | Do not imply a modern secular civil service or one fully centralized state. |
+| Civic | Institutional administration: land, labor, production, storage, redistribution, and public/collective works | Administrative texts and monumental institutional settings | Do not imply a modern secular civil service or one fully centralized state. |
 | Religious | Cultic administration: offerings, ritual goods, ceremonial provisioning, sacred property, and the people responsible for maintaining cultic activity | Monumental cultic precincts, offering imagery, and the close relationship between institutions and divine service | This is not a separate “church” outside economic life. Cultic and economic responsibilities overlap. |
-| Merchant | Exchange, transport, resource procurement, deliveries, and relationships across local and long-distance networks | Uruk-period exchange networks and evidence for movement of raw materials and commodities | Do not assume later private merchant houses, modern markets, or a fully documented merchant profession in the later sense. |
-| Military | Security, mobilization, organized labor, transport, provisioning, and accountability connected to armed activity or defensive works | Conflict imagery, interregional competition, and broader evidence for organized labor and resource movement | Do not assert a standing army, standard conscription system, military scribal corps, or detailed muster structure without new evidence. |
+| Commercial | Exchange, transport, resource procurement, deliveries, and relationships across local and long-distance networks | Uruk-period exchange networks and evidence for movement of raw materials and commodities | Do not assume later private merchant houses, modern markets, or a fully documented merchant profession in the later sense. |
+| Martial | Security, mobilization, organized labor, transport, provisioning, and accountability connected to armed activity or defensive works | Conflict imagery, interregional competition, and broader evidence for organized labor and resource movement | Do not assert a standing army, standard conscription system, military scribal corps, or detailed muster structure without new evidence. |
 
-**Important:** Government and Religious should be overlapping orientations. A player choosing either may encounter the same precinct, administrators, labor systems, stores, and records from a different responsibility or relationship. They are not “state employee” versus “priest” in a modern sense.
+**Important:** Civic and Religious should be overlapping orientations. A player choosing either may encounter the same precinct, administrators, labor systems, stores, and records from a different responsibility or relationship. They are not “state employee” versus “priest” in a modern sense.
 
 **Civic infrastructure and corvée-like labor** should be cross-institutional content, not a fifth path. Workforces, resource allocation, construction, maintenance, and seasonal labor can appear in multiple institutional contexts.
 
-## 4. Military path: logistics without invented army bureaucracy
+## 4. Martial orientation: logistics without invented army bureaucracy
 
 The supplied proposal is right to avoid combat-RPG framing and later professional armies. It goes too far when it specifies citizen conscription by city ward, muster rolls, fitness screening, evasion tracking, a 500-person expedition to Susa, standardized armory accounts, and a fixed pipeline from captives to textile workshops.
 
@@ -79,7 +79,7 @@ The reviewed evidence does not establish those as Uruk IV–III practices. The a
 
 ### Recommended Era I interpretation
 
-Keep **Military** as the GDD's initial path for now, but frame its first playable expression as **security and mobilization administration**:
+Keep **Martial** as the GDD's initial orientation, but frame its first playable expression as **security and mobilization administration**:
 - tracking people assigned to a specific collective task, where the scenario provides an authored basis;
 - organizing transport animals, loads, routes, and delivery responsibilities;
 - accounting for food and other provisions for a work party or traveling group;
@@ -97,7 +97,7 @@ Do not use:
 - a guaranteed captive-to-workshop pipeline;
 - Bronze Age or later military equipment presented as standard c. 3200 BCE kit.
 
-A Military-oriented apprentice can begin with a relationship to a person involved in security, transport, labor coordination, or institutional provisioning. The character does not need to be a soldier, and the path should not grant combat skills.
+A Martial-oriented apprentice can begin with a relationship to a person involved in security, transport, labor coordination, or institutional provisioning. The character does not need to be a soldier, and the path should not grant combat skills.
 
 ### Defensive walls
 
@@ -180,7 +180,7 @@ Do not reduce every seal to a personal signature or assume that every official h
 
 1. **Institutions overlap.** Cultic, economic, political, and administrative functions are intertwined; do not create a modern church/state split.
 2. **Authority is situated.** Identify the people, institutions, precincts, and specific responsibilities behind each record; do not assume a single all-powerful central bureaucracy.
-3. **The Military path is administrative.** Focus on security, mobilization, transport, provisioning, and accountability; do not invent a professional standing army or fixed conscription system.
+3. **The Martial orientation is administrative.** Focus on security, mobilization, transport, provisioning, and accountability; do not invent a professional standing army or fixed conscription system.
 4. **Do not backdate titles.** Use descriptive UI labels unless the ancient term is attested for the specific period and context.
 5. **Writing is structured and constrained.** Early tablets record administrative information and lexical categories, not ordinary prose; oral conversation remains available to the player.
 6. **Metrology is contextual.** Correct numerical notation depends on the category and system, not merely arithmetic.
@@ -192,12 +192,12 @@ Do not reduce every seal to a personal signature or assume that every official h
 
 ### GDD alignment
 
-- **§3.4 Initial career paths:** preserves Government, Military, Religious, Merchant as initial orientations, while making their Uruk expression overlap and historically situated.
+- **§3.4 Professional orientations:** preserves Civic, Religious, Commercial, Martial as initial orientations, while making their Uruk expression overlap and historically situated.
 - **§4.1–4.2 Era identity:** strengthens Era I as early administrative recordkeeping and emergence of writing.
 - **§7 Storehouse Reckoning:** supports commodity accounting, contextual numerical systems, seal/custody evidence, and administrative judgment without changing the tutorial's locked structure.
 - **§15 People and Institutions:** requires institutions to be modeled as overlapping organizations with specific authority and responsibility, not mutually exclusive modern departments.
 - **§19 Content and Scenario Quality:** calls for source confidence labels and period-specific limits on records and terminology.
-- **§23 Open Design Work:** informs Era I institution roster, career-path content, historical references, character creation, and situated knowledge.
+- **§23 Open Design Work:** informs Era I institution roster, professional-orientation content, historical references, character creation, and situated knowledge.
 
 No locked invariant is changed. No new resource balance is proposed. No change is made to the six-AP day, activity layers, progression tracks, or zero-runtime-generative-AI boundary.
 
@@ -205,7 +205,7 @@ No locked invariant is changed. No new resource balance is proposed. No change i
 
 - **Game Design:** institutional jurisdiction and responsibility should drive opportunity and scenario differences; paths remain non-exclusive.
 - **Historical Research:** targeted work remains on EN, Eanna/Anu functions, military organization, labor terms, titles, ration systems, and dating.
-- **Engineering:** represent institutional affiliation, authority, custody, records, and commitments separately; do not use career path as a substitute for any of them.
+- **Engineering:** represent institutional affiliation, authority, custody, records, and commitments separately; do not use professional orientation as a substitute for any of them.
 - **Art/UI:** emphasize clay tablets, numerical impressions, sealings, containers, storerooms, workshops, and precinct spaces; avoid later ziggurat/army iconography without period evidence.
 - **Audio:** material sounds of clay, stylus, seals, vessels, workshops, and movement reinforce the era; avoid cinematic battlefield assumptions.
 - **Production/QA:** maintain a claim ledger with source, period, confidence, and affected content; test that paths do not create unsupported exclusive institutions.
@@ -221,7 +221,7 @@ Before revising the character-creation matrix, build an **Era I Institution and 
 - what is known, inferred, or reconstructed;
 - which playable administrative problems can be supported.
 
-This should determine how Government and Religious overlap, what a defensible Military opening looks like, and how Merchant contacts fit the same world. Then revise the character-creation choices and tutorial context against that matrix.
+This should determine how Civic and Religious overlap, what a defensible Martial opening looks like, and how Commercial contacts fit the same world. Then revise the character-creation choices and tutorial context against that matrix.
 
 ## 12. Sources reviewed
 

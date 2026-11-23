@@ -221,7 +221,7 @@ This is a possible alternative to *The Long Delivery*, or a later career-scale W
 
 This is a deliberately small portfolio. It gives the first era one substantial shared undertaking and two different forms of career-scale work: reference/knowledge organization and procurement/custody. It avoids creating a separate mandatory Work for each career orientation.
 
-Government, Religious, Merchant, and Military orientations should affect initial context, contacts, responsibilities, and plausible approaches—not exclusive eligibility for a Work. Military participation remains especially conditional and historically restrained. No Work should grant a combat role or imply a standing military bureaucracy.
+Civic, Religious, Commercial, and Martial orientations should affect initial context, contacts, responsibilities, and plausible approaches—not exclusive eligibility for a Work. Martial participation remains especially conditional and historically restrained. No Work should grant a combat role or imply a standing military bureaucracy.
 
 ### Required versus optional
 
@@ -398,7 +398,7 @@ The existing typed transition architecture is a good starting point. Prefer smal
 
 ### Audio
 - Support the undertaking through clay, stylus, seals, vessels, transport, production, and gathering ambience.
-- Avoid treating Military orientation as a battlefield soundscape.
+- Avoid treating Martial orientation as a battlefield soundscape.
 
 ### Production & QA
 - Build a claim ledger for each Work: period, source, confidence, assumptions, and authored reconstruction.

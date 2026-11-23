@@ -1406,3 +1406,12 @@ The current production model already uses a shared `Person` identity, the four `
 The work develops §§3.3–3.4, 4, 7, 15, and 16 and informs Section 23 items 8, 10, 13, 22, and 25. It does not revise the canonical GDD, assign numerical attributes/skills/XP/rank, change the opening tutorial, or alter production code/save schema.
 
 **Next action:** Game Director review of the four biography baselines, NPC reuse map, Military expression, and minimum persistent Life Event/familiarity contract before implementation planning.
+
+## 2026-11-23 — Professional orientation terminology
+
+**Contributor:** ChatGPT  
+**Status:** Game Director approved
+
+The player-facing names of the four initial professional orientations are now **Civic, Religious, Commercial, and Martial**. These are parallel broad professional emphases, not character classes, exclusive institutions, or guarantees of access, qualification, competence, or authority. Era-specific expression remains historically contingent.
+
+The existing persisted career-path identifiers remain unchanged: `government`, `religious`, `merchant`, and `military` map to Civic, Religious, Commercial, and Martial respectively. This terminology decision does not authorize a save-schema migration or a runtime identifier rename.

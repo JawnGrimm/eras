@@ -36,7 +36,7 @@ Do not show skill points, attribute modifiers, XP, rank forecasts, equipment bon
 | 3 | Formative experience | Choose a consequential memory | A Life Event and the people involved |
 | 4 | Entry into scribal work | Choose how the opportunity arose | A credible route, introducer/recommender, and actual trainer |
 | 5 | First instruction | Choose an early practice emphasis | A limited area of supervised familiarity |
-| 6 | Professional orientation | Choose Government, Military, Religious, or Merchant | Initial professional context and likely contacts |
+| 6 | Professional orientation | Choose Civic, Religious, Commercial, or Martial | Initial professional context and likely contacts |
 | 7 | Identity | Name, traits, optional ambition | Personal identity and self-description |
 | 8 | Biography | Review and confirm | Final coherent starting person and opening situation |
 
@@ -210,7 +210,7 @@ The framework is shared across eras. Screen titles and broad questions remain re
 
 Show four cards. Each card must contain the general explanation first and the current-era explanation second. Do not rely on the title alone.
 
-**Government**
+**Civic**
 
 *Across the game:*
 
@@ -222,7 +222,7 @@ Show four cards. Each card must contain the general explanation first and the cu
 
 *Likely starting context:* An administrative contact or responsibility appropriate to the character's history.
 
-**Military**
+**Martial**
 
 *Across the game:*
 
@@ -246,7 +246,7 @@ Show four cards. Each card must contain the general explanation first and the cu
 
 *Likely starting context:* A contact or responsibility connected with cultic, ceremonial, or institutional activity, as supported by the authored opening.
 
-**Merchant**
+**Commercial**
 
 *Across the game:*
 
@@ -386,7 +386,7 @@ For the first authored implementation, use:
 - Four formative experiences: A quantity did not match; You were blamed unfairly; You helped settle a disagreement; You were trusted with an adult responsibility.
 - Four entry routes: Someone introduced you; Your work earned a recommendation; You were needed as an assistant; An encounter opened a door.
 - Four training emphases: Quantities and commodity notation; Clay, stylus, and tablet preparation; Signs and category lists; Checking and organizing records.
-- Four professional orientations, subject to a credible authored opening connection for each. Military is the most historically provisional.
+- Four professional orientations, subject to a credible authored opening connection for each. Martial is the most historically provisional.
 - Name selection. Traits and ambition only if their catalogs and presentation are ready.
 
 This is a proposed content scope, not an approved vertical-slice commitment. The narrower set reduces writing and test burden while retaining visibly different life histories. Listening/explaining and comparing sources can be added after the first pass if they create distinct experiences rather than redundant options.
@@ -394,7 +394,7 @@ This is a proposed content scope, not an approved vertical-slice commitment. The
 ### Conditional or deferred content
 
 - Institutional service origin: retain as an authored conditional option until a specific, credible biography and contact chain are ready.
-- Military orientation: do not remove the GDD path; do not overstate Era I evidence. Include only with a tightly scoped, authored security/mobilization context that can connect to the existing opening.
+- Martial orientation: do not remove the GDD path; do not overstate Era I evidence. Include only with a tightly scoped, authored security/mobilization context that can connect to the existing opening.
 - Personality traits: wait for the approved trait catalog and effect model.
 - Ambition: optional; omit if it would imply a quest or progression system that does not exist.
 - Custom name validation and historical name lists: separate naming/content task.
@@ -403,8 +403,8 @@ This is a proposed content scope, not an approved vertical-slice commitment. The
 
 Test at least these three complete biographies:
 
-**A. Provisioning-connected / Government**
-- Food and provisioning → Count or measure → A quantity did not match → Work earned a recommendation → Quantities and commodity notation → Government.
+**A. Provisioning-connected / Civic**
+- Food and provisioning → Count or measure → A quantity did not match → Work earned a recommendation → Quantities and commodity notation → Civic.
 - Expected result: familiarity with provisions and quantities; a specific discrepancy memory; credible recommendation and trainer; administrative opening context.
 - Must not receive storehouse authority, accounting mastery, or a guaranteed relationship with the Storehouse Steward.
 
@@ -413,8 +413,8 @@ Test at least these three complete biographies:
 - Expected result: familiarity with materials and workmanship; a specific sacred/ceremonial connection authored for this character; narrow tablet-material practice.
 - Must not receive broad literacy, craft qualification, religious office, or a prestige/wealth advantage.
 
-**C. Movement-connected / Merchant**
-- Exchange and movement → Help with deliveries → You helped settle a disagreement → Someone introduced you → Checking and organizing records → Merchant.
+**C. Movement-connected / Commercial**
+- Exchange and movement → Help with deliveries → You helped settle a disagreement → Someone introduced you → Checking and organizing records → Commercial.
 - Expected result: familiarity with delivery, custody, counterparties, and comparing accounts; a plausible professional introduction.
 - Must not receive commercial authority, ownership of transported goods, or automatic access to all exchange contacts.
 
@@ -444,7 +444,7 @@ No locked invariant is changed. The Workday economy, gameplay layers, progressio
 ### Cross-department impact
 
 - **Game Design:** Owns the chapter sequence, choice consequences, and parity between biographies. Must keep history distinct from numerical build optimization.
-- **Historical Research:** Reviews the claims embedded in player-facing copy, especially training, household/social context, and the Military orientation. The player-facing copy should remain readable without scholarly caveat overload.
+- **Historical Research:** Reviews the claims embedded in player-facing copy, especially training, household/social context, and the Martial orientation. The player-facing copy should remain readable without scholarly caveat overload.
 - **Engineering & Architecture:** Later implementation should resolve the choice results into the existing Person/careerPath architecture. Do not implement a parallel character object or persist routine childhood simulation.
 - **Art & UI/UX:** Build a chapter-based narrative flow with readable option cards, a compact progress indicator, review/edit, and a biography preview. Avoid physical avatar customization as a prerequisite.
 - **Audio:** Optional understated material/environmental cues. The flow must work fully without bespoke cinematic audio.
@@ -452,9 +452,9 @@ No locked invariant is changed. The Workday economy, gameplay layers, progressio
 
 ## 10. Recommendation and owner decisions
 
-**Approved by Game Director (2026-11-23):** The nine-screen flow and one primary choice per chapter; the narrower Era I first-playable option set; inclusion of the Military orientation; and visible but inactive placeholders for traits and ambition.
+**Approved by Game Director (2026-11-23):** The nine-screen flow and one primary choice per chapter; the narrower Era I first-playable option set; inclusion of the Martial orientation; and visible but inactive placeholders for traits and ambition.
 
-The Military option must use a historically restrained custody/transport/security connection, not a standing army or formal military posting. Trait and ambition placeholders must not masquerade as implemented mechanics.
+The Martial option must use a historically restrained custody/transport/security connection, not a standing army or formal military posting. Trait and ambition placeholders must not masquerade as implemented mechanics.
 
 The most important implementation gate is not numerical balance. It is whether the authored choice chains can produce a small, coherent cast of existing Persons and a believable opening biography without creating a large branching system.
 
