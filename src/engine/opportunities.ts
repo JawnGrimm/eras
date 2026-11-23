@@ -69,8 +69,8 @@ function applyConsequences(state: GameState, effects: OpportunityConsequences | 
     || !finiteNonNegative(scribal.careerXp + careerXp)) return null;
   let next: GameState = { ...state, world: { ...state.world, people: {
     ...state.world.people, [person.id]: { ...person, scribal: { ...scribal,
-      careerXp: person.scribal.careerXp + careerXp,
-      wallet: { ...scribal.wallet, money: person.scribal.wallet.money + money, provisions: person.scribal.wallet.provisions + provisions },
+      careerXp: scribal.careerXp + careerXp,
+      wallet: { ...scribal.wallet, money: scribal.wallet.money + money, provisions: scribal.wallet.provisions + provisions },
     } },
   } } };
   for (const change of effects.relationships ?? []) {
@@ -89,8 +89,9 @@ function applyConsequences(state: GameState, effects: OpportunityConsequences | 
   }
   for (const change of effects.institutionalStanding ?? []) {
     const target = next.world.people[next.player.currentCharacterId];
-    if (!target?.scribal || !next.world.institutions[change.institutionId] || !Number.isFinite(change.delta)) return null;
-    const current = target.scribal.institutionalStanding[change.institutionId] ?? 50;
+    const targetScribal = getInitializedScribal(target);
+    if (!target || !targetScribal || !next.world.institutions[change.institutionId] || !Number.isFinite(change.delta)) return null;
+    const current = targetScribal.institutionalStanding[change.institutionId] ?? 50;
     const value = Math.max(0, Math.min(100, current + change.delta));
     next = { ...next, world: { ...next.world, people: { ...next.world.people,
       [target.id]: { ...target, scribal: { ...targetScribal, institutionalStanding: { ...targetScribal.institutionalStanding, [change.institutionId]: value } } },

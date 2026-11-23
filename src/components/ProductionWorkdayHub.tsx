@@ -68,7 +68,7 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenActivity, settlement, o
   const urGir = state.world.people[UR_GIR_PERSON_ID as PersonId];
   const urGirScribal = getInitializedScribal(urGir);
   const urGirRelationship = state.world.relationships[UR_GIR_PERSON_ID as PersonId]?.[person.id];
-  const hasUrGirObligation = person.scribal.obligations.some((obligation) =>
+  const hasUrGirObligation = scribal.obligations.some((obligation) =>
     obligation.status === 'outstanding' && obligation.creditorPersonId === UR_GIR_PERSON_ID);
   const canRequestUrGir = wallet.provisions === 0 && !!urGir?.alive && !!urGirScribal
     && urGirScribal.wallet.provisions >= 1 && !!urGirRelationship
