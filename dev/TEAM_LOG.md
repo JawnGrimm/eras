@@ -186,7 +186,7 @@ This order is a discussion aid, not a development milestone or implementation co
 - It does not replace or revise any section of `docs/GDD.md`.
 - It does not approve a general-purpose narrative engine, autonomous NPC simulation, complete information-circulation simulation, universal case system, or universal Work template.
 - It does not assume that every Assignment must produce a Challenge or a permanent narrative consequence.
-- It does not change the six-AP Workday, the three-resource player economy, or the distinction between Assignments, Challenges, and Works.
+- It does not change the six-AP Workday, the approved two-resource personal economy, or the distinction between Assignments, Challenges, and Works.
 - It does not turn the research examples from RimWorld, Wildermyth, Crusader Kings, Dwarf Fortress, or Papers, Please into requirements to reproduce their mechanics.
 
 **Questions for the owner and team**
@@ -626,7 +626,7 @@ Meaningful professional situations should connect human interests to consequenti
 **Contributor:** Chad (AI)  
 **Status:** Approved design decision
 
-The owner approved replacing the former three-resource personal economy (silver, bread, and beer) with two tracked resources: money and provisions. The owner also clarified that era transitions change the displayed currency name only; they do not require currency conversion.
+The owner approved the current two-resource personal economy: money and provisions. The owner also clarified that era transitions change the displayed currency name only; they do not require currency conversion.
 
 ### Money
 
@@ -652,7 +652,7 @@ The owner approved replacing the former three-resource personal economy (silver,
 
 ### Repository changes
 
-- `docs/GDD.md`: revised the Executive Summary, Storehouse Work provision language, Section 12, Remaining Design Work, and Design Summary to use the approved two-resource model and remove the former three-resource model.
+- `docs/GDD.md`: revised the Executive Summary, Storehouse Work provision language, Section 12, Remaining Design Work, and Design Summary to use the approved two-resource model and remove superseded economy language.
 - No runtime code, save schema, numerical balance, or gameplay behavior changed.
 
 
@@ -958,7 +958,7 @@ A cross-document review compared the current canonical GDD, README, and chronolo
 - The current GDD and README agree on the two-resource personal economy: money and provisions. Beer is not a tracked personal resource; grain remains a world or institutional commodity, not a player resource.
 - The six-AP Workday, optional Assignments and Challenges, mandatory Works, and the distinction between Career XP and Historical Progress XP are consistently represented in the current GDD and README.
 - The two-accepted-Assignment limit is a current GDD rule. Its balance remains open for review; this is not an unresolved choice between fixed slots and no limit.
-- Older TEAM_LOG entries that mention four time blocks or the former three-resource economy are historical discussion or superseded decisions. They remain in the chronological log and do not override the current GDD or later decision entries.
+- Older TEAM_LOG entries that mention four time blocks or superseded economy discussions are historical notes, not active design rules. They do not override the current GDD or later decision entries.
 - The current GDD's open-work list appropriately retains detailed economy balance, stress recovery, NPC mechanics, continuity, career pacing, evaluation implementation, content pipeline, and MVP scope as unfinished work.
 
 ### Corrections
