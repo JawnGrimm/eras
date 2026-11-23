@@ -42,6 +42,38 @@ export interface RelationshipHistoryEntry { id: string; dayNumber: number; summa
 /** relationships[fromId][toId] is directional; the reverse perspective is stored separately. */
 export interface PersonRelationship { dimensions: RelationshipDimensions; history: RelationshipHistoryEntry[]; }
 
+
+export type LifeEventKind = 'origin' | 'early_responsibility' | 'formative_experience' | 'professional_entry' | 'first_instruction';
+export type LifeEventStage = 'early_life' | 'youth' | 'transition_to_scribal_work';
+export type HistoricalConfidence = 'attested' | 'inferred' | 'reconstruction';
+export interface PersonLifeEventParticipant { personId: PersonId; role: string; }
+export interface PersonLifeEvent {
+  id: string;
+  kind: LifeEventKind;
+  contentId: string;
+  /** Frozen source-language fallback; authored content is the normal display source. */
+  summary: string;
+  chronology: { stage: LifeEventStage; order: number };
+  participants: PersonLifeEventParticipant[];
+  historicalConfidence: HistoricalConfidence;
+}
+export type FamiliarityExposure = 'observed' | 'assisted' | 'practiced_under_instruction';
+export interface PersonFamiliarity {
+  id: string;
+  domainId: string;
+  scopeId: string;
+  exposure: FamiliarityExposure;
+  basisLifeEventIds: string[];
+}
+export interface CharacterCreationRecord {
+  contentVersion: string;
+  originId: string;
+  responsibilityId: string;
+  formativeExperienceId: string;
+  entryRouteId: string;
+  instructionId: string;
+}
+
 export type LifeStage = 'apprentice' | 'junior_scribe' | 'established_scribe' | 'active_official' | 'senior_scribe' | 'craft_practitioner' | 'elder';
 export interface PersonSocialIdentity { summary: string; occupation?: string; }
 export interface PersonCircumstance {
@@ -91,6 +123,12 @@ export interface Person {
   circumstances?: PersonCircumstance[];
   objectives?: PersonObjective[];
   commitments?: PersonCommitment[];
+  /** Present only for people whose player-character creation choices were persisted. */
+  characterCreation?: CharacterCreationRecord;
+  /** Durable personal history; independent of player character creation. */
+  lifeEvents?: PersonLifeEvent[];
+  /** Qualitative, provenance-backed exposure; not a skill or qualification. */
+  familiarities?: PersonFamiliarity[];
   /** Present for people with an established scribal/professional capability sheet. */
   scribal?: ScribalCharacterState;
 }
