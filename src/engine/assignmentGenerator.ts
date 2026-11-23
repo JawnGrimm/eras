@@ -32,7 +32,7 @@ export function generateDailyAssignments(state: GameState): GameState {
     if (offeredAp >= 8 || openCount() >= 4) break;
     const response = executionEvent.institutionalResponse!;
     const matter = next.world.matters[response.matterId];
-    if (!matter || matter.status === 'resolved' || !response.assigneePersonId
+    if (!matter || matter.kind !== 'roof_repair_verification' || matter.status === 'resolved' || !response.assigneePersonId
       || response.assigneePersonId === next.player.currentCharacterId
       || !next.records.entries[response.recordId]) continue;
     const id = `assignment-auto-post-execution-${executionEvent.id}` as AssignmentId;
