@@ -223,7 +223,7 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
     expect(getInitializedScribal(advance.state.world.people[INITIAL_PERSON_ID])?.obligations).toHaveLength(1);
     expect(getInitializedScribal(advance.state.world.people[INITIAL_PERSON_ID])?.obligations[0].creditorPersonId).toBe('person-uruk-ur-gir');
     const restored = restoreSave(JSON.stringify(createSaveEnvelope(advance.state, 1, '2026-11-21T12:00:00.000Z')));
-    expect(restored?.getInitializedScribal(state.world.people[INITIAL_PERSON_ID])?.obligations[0].description).toContain('one day of scribal assistance');
+    expect(getInitializedScribal(restored?.state.world.people[INITIAL_PERSON_ID])?.obligations[0].description).toContain('one day of scribal assistance');
     expect(transitionGame(advance.state, { type: 'REQUEST_CONTACT_ADVANCE', contactId: 'person-uruk-ur-gir' as typeof INITIAL_PERSON_ID }).feedback?.code).toBe('contact-advance-unavailable');
   });
 
@@ -232,10 +232,10 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
     const legacy = structuredClone(envelope) as unknown as { state: { actionEconomy: Record<string, unknown>; world: { people: Record<string, { scribal?: Record<string, unknown> }> } } };
     delete legacy.state.actionEconomy.recoveryLaborUsedToday;
     for (const person of Object.values(legacy.state.world.people)) {
-      const scribal = getInitializedScribal(person);
-      if (!scribal) continue;
-      delete scribal.cumulativeShortageStress;
-      delete scribal.obligations;
+      const scribal = person.scribal;
+      if (!scribal || scribal.stage === 'identity') continue;
+      delete (scribal as { cumulativeShortageStress?: unknown }).cumulativeShortageStress;
+      delete (scribal as { obligations?: unknown }).obligations;
     }
     const restored = restoreSave(JSON.stringify(legacy));
     expect(restored).not.toBeNull();

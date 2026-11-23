@@ -98,7 +98,7 @@ describe('Storehouse Reckoning introductory tutorial', () => {
   });
 
   it('requires both E-04 and E-07 for the skilled cross-evidence condition inference', () => {
-    const base = createInitialGameState().world.people[INITIAL_PERSON_ID].scribal!;
+    const base = getInitializedScribal(createInitialGameState().world.people[INITIAL_PERSON_ID])!;
     const character = { ...base, skills: { recordkeeping_accounts: { level: 3, skillXp: 0 } } };
     const alone = interpretStorehouseEvidence('ev-04' as never, character, ['ev-04' as never]);
     const together = interpretStorehouseEvidence('ev-04' as never, character, ['ev-04','ev-07'] as never[]);

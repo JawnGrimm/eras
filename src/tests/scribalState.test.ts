@@ -3,13 +3,13 @@ import { transitionGame } from '../engine/actionEconomy';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
 import { createSaveEnvelope, isValidGameState, restoreSave } from '../state/saveEnvelope';
 import { getInitializedScribal, isInitializedScribalState } from '../state/scribalState';
-import type { Person } from '../state/types';
+import type { GameState, Person } from '../state/types';
 import type { PersonId } from '../state/ids';
 
 const identityId = 'person-identity-only' as PersonId;
 const identityScribal = { stage: 'identity' as const, careerPath: 'merchant' as const };
 
-function stateWithIdentityNpc() {
+function stateWithIdentityNpc(): GameState {
   const state = createInitialGameState();
   const person: Person = {
     id: identityId,

@@ -49,6 +49,7 @@ export function ProductionShellContent() {
   const [activeActivityId, setActiveActivityId] = useState<string | null>(null);
   const openActivity = (assignmentId: string) => { setActiveActivityId(assignmentId); setScreen('activity'); };
   const person = game.state.world.people[game.state.player.currentCharacterId];
+  const scribal = getInitializedScribal(person);
 
   const alerts = <>
     {game.loadStatus !== 'ready' && <section role="alert" className="rounded-xl border border-red-300 bg-red-50 p-4">
