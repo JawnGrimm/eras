@@ -66,7 +66,7 @@ The final scenario needs a claim ledger distinguishing **attested**, **inferred*
 
 - Do not imply Eanna is a neat temple-versus-state bureaucracy.
 - Do not assume every producer, workshop, field, herd, carrier, or work group is directly controlled by Eanna.
-- Do not invent a standing military bureaucracy or make the Military orientation a combat path.
+- Do not invent a standing military bureaucracy or make the Martial orientation a combat path.
 - Do not treat seals as modern personal signatures. Use them as contextual evidence of closure, custody, identity, or authority where supported by the scenario.
 - Do not imply every record reveals origin, final recipient, individual responsibility, or cause of discrepancy.
 - Preserve commodity-specific numerical/metrological systems; do not collapse them into a universal unit.
@@ -116,7 +116,7 @@ Author only the people required to make the undertaking legible. Candidate funct
 
 A person may hold more than one role. Every role must have an explicit basis in the scenario. Do not infer authority from seniority, career orientation, familiarity, relationship, or participation alone.
 
-The four starting career orientations (Government, Religious, Merchant, Military) should shape the protagonist's initial context, contacts, responsibilities, and plausible approaches. They should not create four separate Works or make any orientation the sole eligible route. Military involvement, if present, remains limited to historically restrained security, custody, protection, or organized movement contexts.
+The four starting professional orientations (Civic, Religious, Commercial, Martial) should shape the protagonist's initial context, contacts, responsibilities, and plausible approaches. They should not create four separate Works or make any orientation the sole eligible route. Martial involvement, if present, remains limited to historically restrained security, custody, protection, or organized movement contexts.
 
 ## 7. Work structure: candidate stages
 
