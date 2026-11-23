@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { getInitializedScribal } from '../state/scribalState';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
 import { transitionGame } from '../engine/actionEconomy';
-import { createSaveEnvelope, isValidSaveEnvelope } from '../state/saveEnvelope';
+import { createSaveEnvelope, isValidSaveEnvelope, restoreSave } from '../state/saveEnvelope';
 import type { EvidenceId, WorkId } from '../state/ids';
 import type { ScribalCharacterState } from '../state/types';
 import { evaluateEvidenceInterpretation } from '../works/evidenceInterpretation';
@@ -81,6 +81,18 @@ describe('evidence interpretation', () => {
 });
 
 describe('typed Work definitions and validation', () => {
+  it('requires explicit classification and a progress compatibility key', () => {
+    const missingKind = { ...definition, kind: undefined } as any;
+    const unsupportedKind = { ...definition, kind: 'commission' } as any;
+    const missingCompatibility = { ...definition, progressCompatibilityKey: '' } as any;
+    expect(validateWorkDefinition(missingKind).map((issue) => issue.code)).toContain('invalid-work-kind');
+    expect(validateWorkDefinition(unsupportedKind).map((issue) => issue.code)).toContain('invalid-work-kind');
+    expect(validateWorkDefinition(missingCompatibility).map((issue) => issue.code)).toContain('missing-progress-compatibility-key');
+    const rejected = transitionGame(createInitialGameState(), { type: 'START_WORK', workId: WORK }, undefined, { [WORK]: missingKind });
+    expect(rejected.feedback?.code).toBe('invalid-work-definition');
+    expect(rejected.state.works.progress[WORK]).toBeUndefined();
+  });
+
   it('accepts reachable evidence and rejects equal-priority conflict ties', () => {
     expect(validateWorkDefinition(definition)).toEqual([]);
     const invalid = defineWork<ScenarioProgress>({
@@ -177,6 +189,44 @@ describe('Work lifecycle and save validation', () => {
     expect(state.works.progress[WORK].rewardGranted).toBe(true);
     expect(state.works.activeWorkId).toBeNull();
     expect(isValidSaveEnvelope(createSaveEnvelope(state, 2), catalog)).toBe(true);
+  });
+
+  it('suspends unknown progress on load, preserves it, and resumes only on a matching compatibility key', () => {
+    const active = transitionGame(createInitialGameState(), { type: 'START_WORK', workId: WORK }, undefined, catalog).state;
+    const raw = JSON.stringify(createSaveEnvelope(active, 1, '2026-11-23T12:00:00.000Z'));
+    const unavailable = restoreSave(raw, {});
+    expect(unavailable).not.toBeNull();
+    expect(unavailable?.state.works.activeWorkId).toBeNull();
+    expect(unavailable?.state.works.progress[WORK].status).toBe('suspended');
+    expect(unavailable?.state.works.progress[WORK].suspendedFromStatus).toBe('active');
+    expect(unavailable?.state.works.progress[WORK].scenarioData).toEqual(active.works.progress[WORK].scenarioData);
+    expect(isValidSaveEnvelope(unavailable, {})).toBe(true);
+
+    const matching = restoreSave(JSON.stringify(unavailable), catalog);
+    expect(matching?.state.works.activeWorkId).toBe(WORK);
+    expect(matching?.state.works.progress[WORK].status).toBe('active');
+
+    const changed = { ...definition, progressCompatibilityKey: 'test-work-v2' };
+    const incompatible = restoreSave(raw, { [WORK]: changed });
+    expect(incompatible?.state.works.activeWorkId).toBeNull();
+    expect(incompatible?.state.works.progress[WORK].status).toBe('suspended');
+  });
+
+  it('preserves completed history even when its progress and definition are unavailable', () => {
+    const state = { ...createInitialGameState(), historicalProgression: { historicalXp: 90, completedWorks: ['retired-work'] as WorkId[] } };
+    const envelope = createSaveEnvelope(state, 1, '2026-11-23T12:00:00.000Z');
+    expect(isValidSaveEnvelope(envelope, {})).toBe(true);
+    const restored = restoreSave(JSON.stringify(envelope), {});
+    expect(restored?.state.historicalProgression.completedWorks).toEqual(['retired-work']);
+    expect(restored?.state.historicalProgression.historicalXp).toBe(90);
+  });
+
+  it('does not let a persisted provision snapshot qualify after the current definition removes its contract', () => {
+    let state = transitionGame(createInitialGameState(), { type: 'START_WORK', workId: WORK }, undefined, catalog).state;
+    state = transitionGame(state, { type: 'SPEND_AP', amount: 1, reason: 'Work action', workId: WORK }, undefined, catalog).state;
+    const noContract = { ...definition, provisionsContract: undefined };
+    state = transitionGame(state, { type: 'END_DAY', expectedDayNumber: 1 }, undefined, { [WORK]: noContract }).state;
+    expect(getInitializedScribal(state.world.people[INITIAL_PERSON_ID])?.wallet.provisions).toBe(4);
   });
 
   it('counts only Work-identified AP toward the daily Work contract and resets it at settlement', () => {
