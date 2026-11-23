@@ -689,9 +689,9 @@ function normalizeUnavailableWorkProgress(
 ): unknown {
   if (!isObject(parsed) || !isObject(parsed.state) || !isObject(parsed.state.works)
     || !isObject(parsed.state.works.progress)) return parsed;
-  const state = parsed.state;
-  const works = state.works;
-  const progress = { ...works.progress };
+  const state = parsed.state as Record<string, unknown>;
+  const works = state.works as Record<string, unknown>;
+  const progress = { ...(works.progress as Record<string, unknown>) };
   const isCompatible = (id: string, raw: Record<string, unknown>): boolean => {
     const definition = workCatalog[id];
     return !!definition && definition.id === id
