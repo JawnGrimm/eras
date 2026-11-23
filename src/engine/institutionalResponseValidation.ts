@@ -110,10 +110,12 @@ export function validateInstitutionalResponseEvent(state: GameState, event: Worl
     }
     const duplicate = Object.values(state.world.events).some((existing) => !!existing && existing.id !== event.id
       && existing.institutionalResponse?.stage === 'commitment'
-      && existing.institutionalResponse.commitmentId === response.commitmentId);
+      && (existing.institutionalResponse.commitmentId === response.commitmentId
+        || (existing.institutionalResponse.matterId === matter.id && existing.institutionalResponse.assigneePersonId === assignee.id)));
     const commitmentIdUsed = Object.values(state.world.people).some((person) =>
-      (person.commitments ?? []).some((commitment) => commitment.id === response.commitmentId));
-    if (duplicate || commitmentIdUsed) return 'This maintenance commitment identifier is already in use.';
+      (person.commitments ?? []).some((commitment) => commitment.id === response.commitmentId
+        && !(person.id === assignee.id && commitment.basis.kind === 'event' && commitment.basis.id === event.id)));
+    if (duplicate || commitmentIdUsed) return 'This maintenance commitment identifier or worker assignment is already in use.';
     // Once persisted, the assignment event and the worker's typed commitment must exist together.
     if (state.world.events[event.id]) {
       const persisted = assignee.commitments?.find((item) => item.id === response.commitmentId);
