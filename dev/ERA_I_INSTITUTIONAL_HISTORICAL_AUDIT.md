@@ -58,7 +58,7 @@ EN is a prominent sign/term in the Uruk IV–III corpus. The Warka Vase depicts 
 
 ## 3. Institutional gameplay model for Era I
 
-Retain the GDD's four career paths as starting professional orientations. Do not convert them into four exclusive institutions or modern departments.
+Retain the GDD's four professional orientations as starting choices. Do not convert them into four exclusive institutions or modern departments.
 
 | GDD path | Era I framing | Strongest support | Guardrail |
 |---|---|---|---|
@@ -192,7 +192,7 @@ Do not reduce every seal to a personal signature or assume that every official h
 
 ### GDD alignment
 
-- **§3.4 Initial career paths:** preserves Civic, Religious, Commercial, Martial as initial orientations, while making their Uruk expression overlap and historically situated.
+- **§3.4 Professional orientations:** preserves Civic, Religious, Commercial, Martial as initial orientations, while making their Uruk expression overlap and historically situated.
 - **§4.1–4.2 Era identity:** strengthens Era I as early administrative recordkeeping and emergence of writing.
 - **§7 Storehouse Reckoning:** supports commodity accounting, contextual numerical systems, seal/custody evidence, and administrative judgment without changing the tutorial's locked structure.
 - **§15 People and Institutions:** requires institutions to be modeled as overlapping organizations with specific authority and responsibility, not mutually exclusive modern departments.
@@ -205,7 +205,7 @@ No locked invariant is changed. No new resource balance is proposed. No change i
 
 - **Game Design:** institutional jurisdiction and responsibility should drive opportunity and scenario differences; paths remain non-exclusive.
 - **Historical Research:** targeted work remains on EN, Eanna/Anu functions, military organization, labor terms, titles, ration systems, and dating.
-- **Engineering:** represent institutional affiliation, authority, custody, records, and commitments separately; do not use career path as a substitute for any of them.
+- **Engineering:** represent institutional affiliation, authority, custody, records, and commitments separately; do not use professional orientation as a substitute for any of them.
 - **Art/UI:** emphasize clay tablets, numerical impressions, sealings, containers, storerooms, workshops, and precinct spaces; avoid later ziggurat/army iconography without period evidence.
 - **Audio:** material sounds of clay, stylus, seals, vessels, workshops, and movement reinforce the era; avoid cinematic battlefield assumptions.
 - **Production/QA:** maintain a claim ledger with source, period, confidence, and affected content; test that paths do not create unsupported exclusive institutions.
