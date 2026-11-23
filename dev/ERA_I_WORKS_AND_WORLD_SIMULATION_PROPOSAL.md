@@ -132,7 +132,7 @@ Its scope is a coordinated undertaking, not a single stock discrepancy. It invol
 - Reconstruction: this particular gathering, its named actors, its exact supply chain, its stages, and its final record set.
 - Unsupported and excluded: a universal Eanna bureaucracy, fixed annual festival calendar, modern procurement department, standardized universal measures, or an invented historical office hierarchy.
 
-### 4.2 Optional career-scale Work: The Ordered List
+### 4.2 Career-scale Work candidate: The Ordered List
 
 **Historical basis**
 - Archaic lexical lists are part of the early written corpus, including lists of professions, titles, cities, animals, and other categories.
@@ -165,7 +165,7 @@ The task must extend beyond copying a short tablet. It needs comparison, editori
 - Reconstruction: the specific exemplar, group, editorial problem, and intended use.
 - Unsupported and excluded: a documented formal school, a named schoolmaster hierarchy, or a claim that the player creates the first lexical list.
 
-### 4.3 Optional career-scale Work: The Long Delivery
+### 4.3 Career-scale Work candidate: The Long Delivery
 
 **Historical basis**
 - Uruk's material economy depended on regional and interregional movement of resources not locally available in sufficient quantity.
@@ -362,7 +362,7 @@ Repository inspection of \`src/works/workDefinition.ts\`, \`src/engine/actionEco
 1. **Work catalog/content:** author and register the first actual \`kind: 'work'\` definition. Do not repurpose the tutorial.
 2. **Stage effects:** define a typed, validated way for a Work stage to emit Events, Records, Knowledge, commitments, matter updates, and appropriate notices. Keep transitions pure and deterministic.
 3. **Work-to-matter linkage:** persist stable references from Work progress to its originating matters and relevant institutional context.
-4. **Invitation model:** define how a mandatory or optional Work becomes available, how date windows are represented, and how catch-up routes are selected.
+4. **Invitation model:** define how required Works—and any explicitly approved non-required Works—become available, how date windows are represented, and how catch-up routes are selected.
 5. **Active-Work behavior:** current implementation permits one active Work at a time and has no general pause/resume action. Decide whether this is an acceptable initial rule or whether the player must be able to suspend one Work and begin another. Do not silently treat the current implementation limit as approved design.
 6. **Multi-day behavior:** preserve progress across Workdays; show remaining stages, known dependencies, and estimated AP commitments. Do not require a player to spend all six AP on the Work in one day.
 7. **Authority:** validate assessments, authorizations, execution, and verification against actual appointments and capabilities. Rank and relationship values do not grant institutional authority.
@@ -426,7 +426,7 @@ The existing typed transition architecture is a good starting point. Prefer smal
 
 ### Decision B — Work invitation dates
 
-**Recommended:** Date-anchored invitations with visible timing; mandatory Works receive an authored catch-up route if the original window is missed. Optional Works may lapse only when their underlying circumstances genuinely pass and the risk is visible.
+**Recommended:** Date-anchored invitations with visible timing; required Works receive an authored catch-up route if the original window is missed. A non-required Work, if that category is approved, may lapse only when its underlying circumstances genuinely pass and the risk is visible.
 
 Alternative: keep all Works continuously available. This is easier to manage but weakens the relationship between historical events and the calendar.
 
