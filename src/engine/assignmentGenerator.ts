@@ -59,7 +59,8 @@ export function generateDailyAssignments(state: GameState): GameState {
       category: 'institutional_verification_support',
       context: {
         what: 'Inspect the completed North-Bay maintenance and file an independent physical inspection record.',
-        who: ['The current scribe', 'Ur-Nanna, Storehouse Steward', 'Shuruppak-ilu, Senior Scribe', 'The maintenance worker whose execution is recorded'],
+        who: ['The current scribe', 'Ur-Nanna, Storehouse Steward', 'Shuruppak-ilu, Senior Scribe', 'Aru, maintenance worker'],
+        quantity: 'One recorded maintenance execution, one runoff channel, and one shaded beam socket.',
         when: 'After the recorded North-Bay maintenance execution.',
         where: 'North storage bay, Temple Storehouse, Uruk.',
         from: 'The authorized maintenance execution and its recorded result.',
