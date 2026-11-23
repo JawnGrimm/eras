@@ -59,7 +59,7 @@ Origin familiarity is **observed**, not assisted: “grew up around” does not 
 |---|---|---|---|
 | RS-01 Count or measure | `era1.character_history.responsibility.count_measure` | Was asked to count, compare, or measure things others needed to account for. | `quantities_measurement / {origin_scope}_quantities / assisted` |
 | RS-02 Help with deliveries | `era1.character_history.responsibility.help_deliveries` | Helped with deliveries and learned the people, sequence, and risks between handover and arrival. | `delivery_custody / delivery_sequence_and_handover / assisted` |
-| RS-03 Judge materials or quality | `era1.character_history.responsibility.judge_quality` | Learned to notice when material, workmanship, or condition did not match expectations. | `material_quality / condition_and_workmanship / assisted` |
+| RS-03 Judge materials or quality | `era1.character_history.responsibility.judge_quality` | Learned to notice when material, workmanship, or condition did not match expectations. | `material_quality / {origin_condition_scope} / assisted` |
 | RS-04 Observe a record or seal in use | `era1.character_history.responsibility.observe_record_seal` | Watched a mark, seal, token, or tablet make a transaction or responsibility recognizable. | `records_custody / mark_seal_or_record_in_use / observed` |
 
 For RS-01, resolve `{origin_scope}` deterministically:
@@ -68,7 +68,7 @@ For RS-01, resolve `{origin_scope}` deterministically:
 - OR-03: `materials_and_products`
 - OR-04: `goods_in_movement`
 
-For RS-03, use the corresponding narrow scope:
+For RS-03, resolve `{origin_condition_scope}` to the corresponding narrow scope: 
 - OR-01: `food_or_produce_condition`
 - OR-02: `agricultural_produce_condition`
 - OR-03: `craft_material_or_workmanship_condition`
@@ -98,7 +98,7 @@ Contextual summary rules:
 - FE-03 describes the character helping establish what two people had actually seen, counted, received, or promised. It is not a court, formal legal office, or modern contract.
 - FE-04 ties the responsibility to the selected RS option without inventing the identity of the person who entrusted it.
 
-The familiarity from FE-01 is only **observed**; the event does not say the character reconciled the discrepancy. FE-03 is **assisted** because the selected choice explicitly says the character helped establish the competing accounts.
+For FE-01 + RS-01, `discrepancy_in_selected_context` is a **literal scopeId**, shared across the selected provisioning/quantity context; it does not expand by origin. The familiarity from FE-01 is only **observed**; the event does not say the character reconciled the discrepancy. FE-03 is **assisted** because the selected choice explicitly says the character helped establish the competing accounts.
 
 ## 6. Professional-entry routes and existing Person mapping
 
@@ -165,7 +165,7 @@ All instruction events use stage `transition_to_scribal_work`, order 4, confiden
 | TR-03 Signs and category lists | `era1.character_history.instruction.signs_categories` | Under Shuruppak-ilu's supervision, practiced recognizing and reproducing a limited set of signs and categories. | `early_signs_categories / limited_practiced_sign_set / practiced_under_instruction` |
 | TR-04 Checking and organizing records | `era1.character_history.instruction.check_organize_records` | Under Shuruppak-ilu's supervision, practiced comparing and organizing a narrow set of related entries. | `account_comparison / {responsibility_scope} / practiced_under_instruction` |
 
-Resolve TR-04 `{responsibility_scope}` using the same scopes as FE-03. If FE-03 and TR-04 share the same `(domainId, scopeId)`, merge them into one familiarity record, retain `practiced_under_instruction`, and preserve both Life Event IDs in `basisLifeEventIds`.
+Resolve TR-04 `{responsibility_scope}` as follows:\n- RS-01: `quantity_accounts`\n- RS-02: `delivery_handover_accounts`\n- RS-03: `material_condition_accounts`\n- RS-04: `marked_and_sealed_records`\n\nFE-03 remains restricted to RS-01, RS-02, and RS-03. RS-04's TR-04 scope is specific to comparing and organizing marked/sealed records; it does not imply that the character could read proto-cuneiform or apply an official seal. If FE-03 and TR-04 share the same `(domainId, scopeId)`, merge them into one familiarity record, retain `practiced_under_instruction`, and preserve both Life Event IDs in `basisLifeEventIds`.
 
 TR-01 deliberately uses grain and beer as two commodity contexts because Era I administrative research supports both as recorded commodities and stresses that numerical/metrological systems depend on what is being counted or measured. The character learns only the narrow notation/measurement contexts authored for those commodities—not universal numeracy. Beer is an in-world commodity only, never a third player balance. Do not teach unsupported numerical values or claim one universal system.
 
