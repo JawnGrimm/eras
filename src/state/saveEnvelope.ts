@@ -615,6 +615,16 @@ function normalizeInstitutionalMatters(parsed: unknown): unknown {
  const state = parsed.state, world = state.world as Record<string, unknown>, day = isObject(state.calendar) && Number.isInteger(state.calendar.dayNumber) ? state.calendar.dayNumber as number : 1;
  const existingMatters = world.matters;
  const matters: Record<string, unknown> = isObject(existingMatters) ? { ...existingMatters } : {};
+ const legacyHeldBarleySummaryCorrections: Record<string, string> = {
+  'Seven held barley sacks remain segregated; grain condition has not yet been assessed.': 'Seven sealed pottery storage jars containing held barley remain segregated; grain condition has not yet been assessed.',
+  'Seven held capacity measures are contained in seven segregated sacks. A finding and recommendation have been filed; internal grain condition and formal release remain unresolved.': 'Seven held capacity measures are contained in seven sealed pottery storage jars segregated on reed matting. A finding and recommendation have been filed; internal grain condition and formal release remain unresolved.',
+  'Held-Barley Inspection recommended; seven sacks remain segregated, grain condition not yet assessed': 'Held-Barley Inspection recommended; seven sealed pottery storage jars containing held barley remain segregated, grain condition not yet assessed',
+ };
+ const existingHeldBarley = matters[MATTER_IDS.heldBarley];
+ if (isObject(existingHeldBarley) && typeof existingHeldBarley.summary === 'string') {
+  const correctedSummary = legacyHeldBarleySummaryCorrections[existingHeldBarley.summary];
+  if (correctedSummary) matters[MATTER_IDS.heldBarley] = { ...existingHeldBarley, summary: correctedSummary };
+ }
  const existingInstitutions = world.institutions;
  if (!isObject(existingInstitutions)) return parsed;
  const institutions: Record<string, unknown> = { ...existingInstitutions };
@@ -626,7 +636,8 @@ function normalizeInstitutionalMatters(parsed: unknown): unknown {
    else if (entry.startsWith('Held-Barley Inspection recommended')) { id = MATTER_IDS.heldBarley; kind = 'held_barley_inspection'; }
    else if (entry === 'Verify north-bay roof repair' || entry.startsWith('Verify north-bay roof repair (') || entry.startsWith('Roof repair certified without sufficient supporting inspection') || entry.startsWith('Clear north-bay parapet runoff channel') || entry.startsWith('North-bay roof repair inspected')) { id = MATTER_IDS.roofRepair; kind = 'roof_repair_verification'; }
    else { id = `matter-legacy-${institutionId}-${entry.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}`; kind = 'general'; }
-   const matter: any = { id, institutionId, kind, summary: entry, status: 'active', createdDay: day };
+   const summary = kind === 'held_barley_inspection' ? legacyHeldBarleySummaryCorrections[entry] ?? entry : entry;
+  const matter: any = { id, institutionId, kind, summary, status: 'active', createdDay: day };
    if (kind === 'roof_repair_verification') { matter.locationId = NORTH_BAY_LOCATION_ID; if (roofRecord?.id) matter.sourceRecordId = roofRecord.id; matter.scheduledDevelopment = { kind: 'rain', dayNumber: day + 3 }; }
    if (kind === 'held_barley_inspection') { matter.locationId = NORTH_BAY_LOCATION_ID; if (roofRecord?.id) matter.sourceRecordId = roofRecord.id; }
    matters[id] = matters[id] ?? matter; if (!active.includes(id)) active.push(id);
