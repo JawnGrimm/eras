@@ -176,7 +176,8 @@ describe('Era I deterministic character-history resolver', () => {
     for (const originId of origins) for (const responsibilityId of responsibilities)
       for (const formativeExperienceId of formativeByResponsibility[responsibilityId])
         for (const entryRouteId of routes) for (const instructionId of instructions)
-          for (const _orientation of orientations) {
+          for (const orientation of orientations) {
+            expect(orientation).toBeTruthy();
             const result = resolve({ originId, responsibilityId, formativeExperienceId, entryRouteId, instructionId });
             expect(result.lifeEvents).toHaveLength(5);
             expect(result.lifeEvents.map((item) => item.chronology.order)).toEqual([0, 1, 2, 3, 4]);
