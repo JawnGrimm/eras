@@ -1,12 +1,12 @@
 # Work Contribution Architecture Decision
 
-**Status:** Recommended architecture; owner review pending.  
+**Status:** APPROVED PRINCIPLE; implementation details remain open.  
 **Depends on:** [Work Contribution Behavior Specification](WORK_CONTRIBUTION_BEHAVIOR_SPEC.md).  
 **Repository baseline reviewed:** `main`, 23 November 2026.  
 **Scope:** Conceptual ownership, persistence boundaries, compatibility strategy, and implementation sequence.  
 **Non-goals:** This document does not define final TypeScript interfaces, a serialized schema, exact IDs, migrations, reward formulas, or individual Work content. It does not authorize implementation of the full system.
 
-## 1. Decision to be made
+## 1. Approved architecture principle
 
 The accepted Work Contribution Contract requires a durable professional history that the current engine does not represent. The key architecture decision is where that history belongs.
 
@@ -17,9 +17,9 @@ Two viable approaches are evaluated:
 
 Both approaches retain Work-authored contribution definitions in the Work catalog. Neither makes records, events, institutional matters, or character XP balances the owner of contribution history.
 
-**Recommendation: Approach B**, with a deliberately narrow first increment. The contribution ledger should be conceptually owned by the persistent Work undertaking, not by the current character, a submission, a record, or the mutable action-progress cursor. Under today's one-instance-per-Work-ID constraint, the existing Work ID can provisionally scope that ledger. A distinct runtime undertaking ID should be introduced only when repeated instances, concurrent instances, or multiple active Works become a real requirement; this document does not pre-empt that decision.
+**Approved principle: Approach B — a separate contribution ledger owned by the persistent Work undertaking.** The contribution ledger is conceptually distinct from the mutable Work interaction-progress cursor. Under today's one-instance-per-Work-ID constraint, the existing Work ID may provisionally scope that ledger. A distinct runtime undertaking ID should be introduced only when repeated instances, concurrent instances, or multiple active Works become a demonstrated requirement. The contribution ledger should be conceptually owned by the persistent Work undertaking, not by the current character, a submission, a record, or the mutable action-progress cursor. Under today's one-instance-per-Work-ID constraint, the existing Work ID can provisionally scope that ledger. A distinct runtime undertaking ID should be introduced only when repeated instances, concurrent instances, or multiple active Works become a real requirement; this document does not pre-empt that decision.
 
-This is a recommended architecture direction, not yet an approved schema or a locked design decision.
+This approval establishes the ownership and persistence boundary only. It does not approve final TypeScript interfaces, serialized field names, collection shape, ID generation, schema versioning, migration behavior, reward formulas, lifecycle states, or individual Work content. Those remain subject to separate review.
 
 ## 2. Current architecture facts
 
@@ -268,10 +268,10 @@ This document does not settle:
 
 If an implementation step requires one of these decisions, present the concrete options and consequences before committing to a behavior that would effectively settle it.
 
-## 10. Recommendation for owner review
+## 10. Approved principle and implementation boundary
 
-Approve or revise the following proposed architecture direction:
+The owner has approved the following architecture principle:
 
 > Professional contribution history belongs to the persistent Work undertaking and should be stored separately from the mutable Work interaction-progress cursor. Work definitions author contribution contracts; the undertaking ledger records actor-attributed contribution instances and their professional history; character state holds earned Career XP balances; world/institutional state holds events, records, knowledge, responses, and execution. The first implementation can scope the ledger by the existing Work ID while the single-instance constraint remains, without defining a new undertaking-ID scheme or final save schema.
 
-Approval of this architecture direction would authorize engineering to prepare a detailed type/transition/migration proposal for the first implementation increment. It would not, by itself, authorize the entire sequence or approve individual Work content.
+This approval authorizes preparation of a bounded Step 1 type/transition/migration proposal. It does not authorize runtime implementation, the entire implementation sequence, or individual Work content. The Step 1 proposal is a separate review artifact.
