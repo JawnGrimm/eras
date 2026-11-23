@@ -88,7 +88,7 @@ export const northBayRoofInspection: AssignmentActivityDefinition = {
   },
   submissionNote: 'Submission closes the Assignment. Held barley remains a separate inspection.',
   createInitialProgress: () => ({ completedActionIds: [], discoveryIds: [], consultedPersonIds: [], draft: {
-    finding: 'channel_clear_beam_followup', responsibilityClaim: 'none', citedDiscoveryIds: [], limitations: [], recommendations: [],
+    finding: 'insufficient_evidence', responsibilityClaim: 'none', citedDiscoveryIds: [], limitations: [], recommendations: [],
   } }),
 };
 
@@ -140,7 +140,7 @@ export const northBayPostExecutionInspection: AssignmentActivityDefinition = {
   },
   submissionNote: 'This report supplies independent evidence to an appointed verifier. It is not itself a verification decision, authorization, or final institutional disposition.',
   createInitialProgress: () => ({ completedActionIds: [], discoveryIds: [], consultedPersonIds: [], draft: {
-    finding: 'insufficient_evidence', responsibilityClaim: 'none', citedDiscoveryIds: [], limitations: [], recommendations: [],
+    finding: 'channel_clear_beam_followup', responsibilityClaim: 'none', citedDiscoveryIds: [], limitations: [], recommendations: [],
   } }),
 };
 function validatePredicate(predicate: Predicate, issues: string[], discoveryIds: Set<string>): void {
