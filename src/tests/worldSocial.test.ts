@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { getInitializedScribal } from '../state/scribalState';
 import { transitionGame } from '../engine/actionEconomy';
 import { validateInstitutionalResponseEvent } from '../engine/institutionalResponseValidation';
 import { deriveProfessionalRank } from '../engine/professionalRank';
@@ -30,8 +31,8 @@ describe('world, relationships, institutions and records', () => {
     expect(result.feedback?.code).toBe('relationship-updated');
     expect(result.state.world.relationships[INITIAL_PERSON_ID]?.[otherId]?.dimensions.trust).toBe(75);
     expect(result.state.world.relationships[otherId]?.[INITIAL_PERSON_ID]).toBeUndefined();
-    expect(result.state.world.people[INITIAL_PERSON_ID].scribal?.professionalReputation).toEqual(state.world.people[INITIAL_PERSON_ID].scribal?.professionalReputation);
-    expect(result.state.world.people[INITIAL_PERSON_ID].scribal?.institutionalStanding).toEqual({});
+    expect(getInitializedScribal(result.state.world.people[INITIAL_PERSON_ID])?.professionalReputation).toEqual(getInitializedScribal(state.world.people[INITIAL_PERSON_ID])?.professionalReputation);
+    expect(getInitializedScribal(result.state.world.people[INITIAL_PERSON_ID])?.institutionalStanding).toEqual({});
     const reverse = transitionGame(result.state, { type: 'SET_RELATIONSHIP', fromId: otherId, toId: INITIAL_PERSON_ID,
       relationship: { dimensions: { trust: 15, respect: 25, affection: 0, resentment: 70, rivalry: 55, familiarity: 10 }, history: [] } });
     expect(reverse.state.world.relationships[otherId]?.[INITIAL_PERSON_ID]?.dimensions.trust).toBe(15);
@@ -45,15 +46,15 @@ describe('world, relationships, institutions and records', () => {
     expect(created.feedback?.code).toBe('institution-created');
     const standing = transitionGame(created.state, { type: 'SET_INSTITUTIONAL_STANDING', personId: otherId, institutionId, value: 72 });
     expect(standing.feedback?.code).toBe('institutional-standing-updated');
-    expect(standing.state.world.people[otherId].scribal?.institutionalStanding[institutionId]).toBe(72);
+    expect(getInitializedScribal(standing.state.world.people[otherId])?.institutionalStanding[institutionId]).toBe(72);
     expect(standing.state.world.relationships).toEqual(created.state.world.relationships);
-    expect(standing.state.world.people[otherId].scribal?.professionalReputation).toEqual(created.state.world.people[otherId].scribal?.professionalReputation);
+    expect(getInitializedScribal(standing.state.world.people[otherId])?.professionalReputation).toEqual(getInitializedScribal(created.state.world.people[otherId])?.professionalReputation);
     const appointment = { id: 'appointment-steward' as AppointmentId, personId: otherId, institutionId, title: 'Storehouse Steward',
       authorityScope: ['Approve receipt of grain', 'Authorize issue under decree'], responsibilities: ['Maintain custody of stock'], startDay: 1 };
     const appointed = transitionGame(standing.state, { type: 'CREATE_APPOINTMENT', appointment });
     expect(appointed.feedback?.code).toBe('appointment-created');
     expect(appointed.state.world.appointments[appointment.id].authorityScope).toContain('Approve receipt of grain');
-    expect(deriveProfessionalRank(appointed.state.world.people[otherId].scribal!.skills)).toBe(1);
+    expect(deriveProfessionalRank(getInitializedScribal(appointed.state.world.people[otherId])!.skills)).toBe(1);
     expect(isValidGameState(appointed.state)).toBe(true);
   });
 

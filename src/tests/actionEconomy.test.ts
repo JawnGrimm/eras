@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { getInitializedScribal } from '../state/scribalState';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
 import { transitionGame } from '../engine/actionEconomy';
 import { createSaveEnvelope, isValidSaveEnvelope, restoreSave } from '../state/saveEnvelope';
@@ -25,7 +26,7 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
     let day = transitionGame(initial, { type: 'SPEND_AP', amount: 6, reason: 'Use the day' }).state;
     day = transitionGame(day, { type: 'ACTIVATE_OVERTIME' }).state;
     expect(day.actionEconomy.apRemaining).toBe(1);
-    expect(day.world.people[INITIAL_PERSON_ID].scribal?.stress).toBe(20);
+    expect(getInitializedScribal(day.world.people[INITIAL_PERSON_ID])?.stress).toBe(20);
     const stacked = transitionGame(day, { type: 'ACTIVATE_OVERTIME' });
     expect(stacked.state).toBe(day);
     day = transitionGame(day, { type: 'SPEND_AP', amount: 1, reason: 'Overtime task' }).state;
@@ -56,8 +57,8 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
       tomorrowAp: 6,
     });
     const settled = result.state;
-    expect(settled.world.people[INITIAL_PERSON_ID].scribal?.wallet.provisions).toBe(4);
-    expect(settled.world.people[INITIAL_PERSON_ID].scribal?.wallet.shortageWorkdays).toBe(0);
+    expect(getInitializedScribal(settled.world.people[INITIAL_PERSON_ID])?.wallet.provisions).toBe(4);
+    expect(getInitializedScribal(settled.world.people[INITIAL_PERSON_ID])?.wallet.shortageWorkdays).toBe(0);
     expect(settled.journal.notices.filter((notice) => notice.category === 'settlement')).toHaveLength(0);
     expect(settled.calendar.displayDate).toBe('Day 2 · Uruk (c. 3200 BCE)');
     const duplicate = transitionGame(settled, { type: 'END_DAY', expectedDayNumber: initial.calendar.dayNumber });
@@ -117,7 +118,7 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
     const result = transitionGame(legacyState, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber }, undefined, INITIAL_WORK_CATALOG);
     expect(result.settlement?.workContractProvisionReason).toBe('no_active_work_contract');
     expect(result.settlement?.workContractProvisionEarned).toBe(0);
-    expect(result.state.world.people[INITIAL_PERSON_ID].scribal?.wallet.provisions).toBe(4);
+    expect(getInitializedScribal(result.state.world.people[INITIAL_PERSON_ID])?.wallet.provisions).toBe(4);
   });
 
   it('emits shortage notices only on grace and shortage-entry transitions', () => {
@@ -126,23 +127,23 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
     state = {
       ...state,
       world: { ...state.world, people: { ...state.world.people, [INITIAL_PERSON_ID]: {
-        ...person, scribal: { ...person.scribal!, wallet: { money: 0, provisions: 0, shortageWorkdays: 0 } },
+        ...person, scribal: { ...getInitializedScribal(person)!, wallet: { money: 0, provisions: 0, shortageWorkdays: 0 } },
       } } },
     };
 
     state = endDay(state).state;
-    expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet.shortageWorkdays).toBe(1);
+    expect(getInitializedScribal(state.world.people[INITIAL_PERSON_ID])?.wallet.shortageWorkdays).toBe(1);
     expect(state.journal.notices.filter((notice) => notice.category === 'settlement')).toHaveLength(1);
     state = endDay(state).state;
-    expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet.shortageWorkdays).toBe(2);
+    expect(getInitializedScribal(state.world.people[INITIAL_PERSON_ID])?.wallet.shortageWorkdays).toBe(2);
     expect(state.journal.notices.filter((notice) => notice.category === 'settlement')).toHaveLength(2);
     state = endDay(state).state;
-    expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet.shortageWorkdays).toBe(3);
+    expect(getInitializedScribal(state.world.people[INITIAL_PERSON_ID])?.wallet.shortageWorkdays).toBe(3);
     expect(state.journal.notices.filter((notice) => notice.category === 'settlement')).toHaveLength(3);
     expect(state.journal.notices.filter((notice) => notice.category === 'settlement').at(-1)?.message).toContain('Underfed condition active');
 
     for (let day = 4; day <= 8; day++) state = endDay(state).state;
-    expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet.shortageWorkdays).toBe(8);
+    expect(getInitializedScribal(state.world.people[INITIAL_PERSON_ID])?.wallet.shortageWorkdays).toBe(8);
     expect(state.journal.notices.filter((notice) => notice.category === 'settlement')).toHaveLength(3);
 
     const current = state.world.people[INITIAL_PERSON_ID];
@@ -150,12 +151,12 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
       ...state,
       world: { ...state.world, people: { ...state.world.people, [INITIAL_PERSON_ID]: {
         ...current,
-        scribal: { ...current.scribal!, wallet: { ...current.scribal!.wallet, provisions: 1 } },
+        scribal: { ...getInitializedScribal(current)!, wallet: { ...getInitializedScribal(current)!.wallet, provisions: 1 } },
       } } },
     };
     state = endDay(state).state;
-    expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet.provisions).toBe(0);
-    expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet.shortageWorkdays).toBe(0);
+    expect(getInitializedScribal(state.world.people[INITIAL_PERSON_ID])?.wallet.provisions).toBe(0);
+    expect(getInitializedScribal(state.world.people[INITIAL_PERSON_ID])?.wallet.shortageWorkdays).toBe(0);
     expect(state.journal.notices.filter((notice) => notice.category === 'settlement')).toHaveLength(3);
   });
 
@@ -163,44 +164,44 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
     let state = createInitialGameState();
     const initial = state.world.people[INITIAL_PERSON_ID];
     state = { ...state, world: { ...state.world, people: { ...state.world.people, [INITIAL_PERSON_ID]: {
-      ...initial, scribal: { ...initial.scribal!, wallet: { ...initial.scribal!.wallet, provisions: 0 } },
+      ...initial, scribal: { ...getInitializedScribal(initial)!, wallet: { ...getInitializedScribal(initial)!.wallet, provisions: 0 } },
     } } } };
     state = endDay(state).state;
-    expect(state.world.people[INITIAL_PERSON_ID].scribal?.stress).toBe(15);
+    expect(getInitializedScribal(state.world.people[INITIAL_PERSON_ID])?.stress).toBe(15);
     state = endDay(state).state;
-    expect(state.world.people[INITIAL_PERSON_ID].scribal?.conditions).toHaveLength(0);
+    expect(getInitializedScribal(state.world.people[INITIAL_PERSON_ID])?.conditions).toHaveLength(0);
     const third = endDay(state);
     expect(third.settlement?.shortageStressDelta).toBe(2);
     expect(third.settlement?.cumulativeShortageStress).toBe(2);
-    expect(third.state.world.people[INITIAL_PERSON_ID].scribal?.stress).toBe(17);
-    expect(third.state.world.people[INITIAL_PERSON_ID].scribal?.conditions).toContainEqual({
+    expect(getInitializedScribal(third.state.world.people[INITIAL_PERSON_ID])?.stress).toBe(17);
+    expect(getInitializedScribal(third.state.world.people[INITIAL_PERSON_ID])?.conditions).toContainEqual({
       id: 'condition-underfed', severity: 2, modifiers: [],
     });
     state = third.state;
     for (let day = 4; day <= 7; day++) state = endDay(state).state;
-    expect(state.world.people[INITIAL_PERSON_ID].scribal?.cumulativeShortageStress).toBe(10);
+    expect(getInitializedScribal(state.world.people[INITIAL_PERSON_ID])?.cumulativeShortageStress).toBe(10);
     const capped = endDay(state);
     expect(capped.settlement?.shortageStressDelta).toBe(0);
-    expect(capped.state.world.people[INITIAL_PERSON_ID].scribal?.stress).toBe(25);
+    expect(getInitializedScribal(capped.state.world.people[INITIAL_PERSON_ID])?.stress).toBe(25);
     const current = capped.state.world.people[INITIAL_PERSON_ID];
     state = { ...capped.state, world: { ...capped.state.world, people: { ...capped.state.world.people, [INITIAL_PERSON_ID]: {
-      ...current, scribal: { ...current.scribal!, wallet: { ...current.scribal!.wallet, provisions: 1 } },
+      ...current, scribal: { ...getInitializedScribal(current)!, wallet: { ...getInitializedScribal(current)!.wallet, provisions: 1 } },
     } } } };
     state = endDay(state).state;
-    expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet.shortageWorkdays).toBe(0);
-    expect(state.world.people[INITIAL_PERSON_ID].scribal?.conditions).not.toContainEqual(expect.objectContaining({ id: 'condition-underfed' }));
-    expect(state.world.people[INITIAL_PERSON_ID].scribal?.cumulativeShortageStress).toBe(10);
+    expect(getInitializedScribal(state.world.people[INITIAL_PERSON_ID])?.wallet.shortageWorkdays).toBe(0);
+    expect(getInitializedScribal(state.world.people[INITIAL_PERSON_ID])?.conditions).not.toContainEqual(expect.objectContaining({ id: 'condition-underfed' }));
+    expect(getInitializedScribal(state.world.people[INITIAL_PERSON_ID])?.cumulativeShortageStress).toBe(10);
   });
 
   it('performs auxiliary labor once per Workday and resets its daily limit at settlement', () => {
     let state = createInitialGameState();
     const initial = state.world.people[INITIAL_PERSON_ID];
     state = { ...state, world: { ...state.world, people: { ...state.world.people, [INITIAL_PERSON_ID]: {
-      ...initial, scribal: { ...initial.scribal!, wallet: { ...initial.scribal!.wallet, provisions: 0 } },
+      ...initial, scribal: { ...getInitializedScribal(initial)!, wallet: { ...getInitializedScribal(initial)!.wallet, provisions: 0 } },
     } } } };
     const labor = transitionGame(state, { type: 'PERFORM_RECOVERY_LABOR' });
     expect(labor.feedback?.code).toBe('recovery-labor-completed');
-    expect(labor.state.world.people[INITIAL_PERSON_ID].scribal?.wallet.provisions).toBe(1);
+    expect(getInitializedScribal(labor.state.world.people[INITIAL_PERSON_ID])?.wallet.provisions).toBe(1);
     expect(labor.state.actionEconomy.apRemaining).toBe(4);
     expect(labor.state.actionEconomy.recoveryLaborUsedToday).toBe(true);
     expect(transitionGame(labor.state, { type: 'PERFORM_RECOVERY_LABOR' }).feedback?.code).toBe('recovery-labor-already-used');
@@ -213,16 +214,16 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
     let state = createInitialGameState();
     const initial = state.world.people[INITIAL_PERSON_ID];
     state = { ...state, world: { ...state.world, people: { ...state.world.people, [INITIAL_PERSON_ID]: {
-      ...initial, scribal: { ...initial.scribal!, wallet: { ...initial.scribal!.wallet, provisions: 0 } },
+      ...initial, scribal: { ...getInitializedScribal(initial)!, wallet: { ...getInitializedScribal(initial)!.wallet, provisions: 0 } },
     } } } };
     const advance = transitionGame(state, { type: 'REQUEST_CONTACT_ADVANCE', contactId: 'person-uruk-ur-gir' as typeof INITIAL_PERSON_ID });
     expect(advance.feedback?.code).toBe('contact-advance-received');
-    expect(advance.state.world.people[INITIAL_PERSON_ID].scribal?.wallet.provisions).toBe(1);
-    expect(advance.state.world.people['person-uruk-ur-gir' as typeof INITIAL_PERSON_ID].scribal?.wallet.provisions).toBe(5);
-    expect(advance.state.world.people[INITIAL_PERSON_ID].scribal?.obligations).toHaveLength(1);
-    expect(advance.state.world.people[INITIAL_PERSON_ID].scribal?.obligations[0].creditorPersonId).toBe('person-uruk-ur-gir');
+    expect(getInitializedScribal(advance.state.world.people[INITIAL_PERSON_ID])?.wallet.provisions).toBe(1);
+    expect(getInitializedScribal(advance.state.world.people['person-uruk-ur-gir' as typeof INITIAL_PERSON_ID])?.wallet.provisions).toBe(5);
+    expect(getInitializedScribal(advance.state.world.people[INITIAL_PERSON_ID])?.obligations).toHaveLength(1);
+    expect(getInitializedScribal(advance.state.world.people[INITIAL_PERSON_ID])?.obligations[0].creditorPersonId).toBe('person-uruk-ur-gir');
     const restored = restoreSave(JSON.stringify(createSaveEnvelope(advance.state, 1, '2026-11-21T12:00:00.000Z')));
-    expect(restored?.state.world.people[INITIAL_PERSON_ID].scribal?.obligations[0].description).toContain('one day of scribal assistance');
+    expect(restored?.getInitializedScribal(state.world.people[INITIAL_PERSON_ID])?.obligations[0].description).toContain('one day of scribal assistance');
     expect(transitionGame(advance.state, { type: 'REQUEST_CONTACT_ADVANCE', contactId: 'person-uruk-ur-gir' as typeof INITIAL_PERSON_ID }).feedback?.code).toBe('contact-advance-unavailable');
   });
 
@@ -231,15 +232,16 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
     const legacy = structuredClone(envelope) as unknown as { state: { actionEconomy: Record<string, unknown>; world: { people: Record<string, { scribal?: Record<string, unknown> }> } } };
     delete legacy.state.actionEconomy.recoveryLaborUsedToday;
     for (const person of Object.values(legacy.state.world.people)) {
-      if (!person.scribal) continue;
-      delete person.scribal.cumulativeShortageStress;
-      delete person.scribal.obligations;
+      const scribal = getInitializedScribal(person);
+      if (!scribal) continue;
+      delete scribal.cumulativeShortageStress;
+      delete scribal.obligations;
     }
     const restored = restoreSave(JSON.stringify(legacy));
     expect(restored).not.toBeNull();
     expect(restored?.state.actionEconomy.recoveryLaborUsedToday).toBe(false);
-    expect(restored?.state.world.people[INITIAL_PERSON_ID].scribal?.cumulativeShortageStress).toBe(0);
-    expect(restored?.state.world.people[INITIAL_PERSON_ID].scribal?.obligations).toEqual([]);
+    expect(restored?.getInitializedScribal(state.world.people[INITIAL_PERSON_ID])?.cumulativeShortageStress).toBe(0);
+    expect(restored?.getInitializedScribal(state.world.people[INITIAL_PERSON_ID])?.obligations).toEqual([]);
   });
 
   it('restores only structurally valid v2 envelopes and rejects partial or corrupt saves', () => {
@@ -253,13 +255,13 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
     corrupt.state.actionEconomy.apRemaining = Number.NaN;
     expect(isValidSaveEnvelope(corrupt)).toBe(false);
     const negativeMoney = structuredClone(envelope);
-    negativeMoney.state.world.people[INITIAL_PERSON_ID].scribal!.wallet.money = -1;
+    getInitializedScribal(negativeMoney.state.world.people[INITIAL_PERSON_ID])!.wallet.money = -1;
     expect(isValidSaveEnvelope(negativeMoney)).toBe(false);
     const invalidProvisions = structuredClone(envelope);
-    invalidProvisions.state.world.people[INITIAL_PERSON_ID].scribal!.wallet.provisions = Number.POSITIVE_INFINITY;
+    getInitializedScribal(invalidProvisions.state.world.people[INITIAL_PERSON_ID])!.wallet.provisions = Number.POSITIVE_INFINITY;
     expect(isValidSaveEnvelope(invalidProvisions)).toBe(false);
     const invalidShortageDays = structuredClone(envelope);
-    invalidShortageDays.state.world.people[INITIAL_PERSON_ID].scribal!.wallet.shortageWorkdays = -1;
+    getInitializedScribal(invalidShortageDays.state.world.people[INITIAL_PERSON_ID])!.wallet.shortageWorkdays = -1;
     expect(isValidSaveEnvelope(invalidShortageDays)).toBe(false);
     const missingActive = structuredClone(envelope);
     missingActive.state.player.currentCharacterId = 'missing' as typeof INITIAL_PERSON_ID;

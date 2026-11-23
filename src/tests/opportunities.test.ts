@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { getInitializedScribal } from '../state/scribalState';
 import { transitionGame } from '../engine/actionEconomy';
 import { evaluateChallengeTriggers } from '../engine/opportunities';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
@@ -91,7 +92,7 @@ describe('Assignment and Challenge foundations', () => {
     expect(resolved.feedback?.code).toBe('challenge-resolved');
     expect(resolved.state.opportunities.challenges['challenge-1' as ChallengeId]).toBeUndefined();
     expect(resolved.state.opportunities.challengeOutcomes).toHaveLength(1);
-    expect(resolved.state.world.people[INITIAL_PERSON_ID].scribal?.wallet.provisions).toBe(7);
+    expect(getInitializedScribal(resolved.state.world.people[INITIAL_PERSON_ID])?.wallet.provisions).toBe(7);
     expect(resolved.state.historicalProgression.historicalXp).toBe(base.historicalProgression.historicalXp);
   });
 
@@ -123,11 +124,11 @@ describe('Assignment and Challenge foundations', () => {
     let state = present(createInitialGameState(), 'complete-me');
     state = transitionGame(state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: 'complete-me' as AssignmentId }).state;
     const beforeAp = state.actionEconomy.apRemaining;
-    const beforeMoney = state.world.people[INITIAL_PERSON_ID].scribal!.wallet.money;
+    const beforeMoney = getInitializedScribal(state.world.people[INITIAL_PERSON_ID])!.wallet.money;
     const completed = transitionGame(state, { type: 'COMPLETE_ASSIGNMENT', assignmentId: 'complete-me' as AssignmentId });
     expect(completed.feedback?.code).toBe('assignment-completed');
     expect(completed.state.actionEconomy.apRemaining).toBe(beforeAp - 2);
-    expect(completed.state.world.people[INITIAL_PERSON_ID].scribal!.wallet.money).toBe(beforeMoney + 3);
+    expect(getInitializedScribal(completed.state.world.people[INITIAL_PERSON_ID])!.wallet.money).toBe(beforeMoney + 3);
     expect(completed.state.opportunities.assignments['complete-me' as AssignmentId].status).toBe('completed');
     expect(transitionGame(completed.state, { type: 'COMPLETE_ASSIGNMENT', assignmentId: 'complete-me' as AssignmentId }).feedback?.code).toBe('assignment-not-active');
   });
@@ -136,12 +137,12 @@ describe('Assignment and Challenge foundations', () => {
     const authored = { ...offer('rollback'), completionConsequences: { moneyDelta: -999, provisionsDelta: -999 } };
     let state = transitionGame(createInitialGameState(), { type: 'PRESENT_ASSIGNMENT', offer: authored }).state;
     state = transitionGame(state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: 'rollback' as AssignmentId }).state;
-    const beforeWallet = state.world.people[INITIAL_PERSON_ID].scribal!.wallet;
+    const beforeWallet = getInitializedScribal(state.world.people[INITIAL_PERSON_ID])!.wallet;
     const beforeAp = state.actionEconomy.apRemaining;
     const failed = transitionGame(state, { type: 'COMPLETE_ASSIGNMENT', assignmentId: 'rollback' as AssignmentId });
     expect(failed.feedback?.code).toBe('assignment-outcome-invalid');
     expect(failed.state.actionEconomy.apRemaining).toBe(beforeAp);
-    expect(failed.state.world.people[INITIAL_PERSON_ID].scribal!.wallet).toEqual(beforeWallet);
+    expect(getInitializedScribal(failed.state.world.people[INITIAL_PERSON_ID])!.wallet).toEqual(beforeWallet);
     expect(failed.state.opportunities.assignments['rollback' as AssignmentId].status).toBe('accepted');
   });
 
@@ -210,21 +211,21 @@ describe('Assignment and Challenge foundations', () => {
     const base = createInitialGameState();
     const shown = transitionGame(base, { type: 'PRESENT_CHALLENGE', challenge: invalid });
     expect(shown.feedback?.code).toBe('challenge-presented');
-    const beforeWallet = shown.state.world.people[INITIAL_PERSON_ID].scribal!.wallet;
+    const beforeWallet = getInitializedScribal(shown.state.world.people[INITIAL_PERSON_ID])!.wallet;
     const acceptedForLowAp = transitionGame(shown.state, { type: 'ACCEPT_CHALLENGE', challengeId: 'atomic-challenge' as ChallengeId });
     const lowAp = { ...acceptedForLowAp.state, actionEconomy: { ...acceptedForLowAp.state.actionEconomy, apRemaining: 1 } };
     const failed = transitionGame(lowAp, { type: 'RESOLVE_CHALLENGE', challengeId: 'atomic-challenge' as ChallengeId, choiceId: invalid.choices[0].id });
     expect(failed.feedback?.code).toBe('insufficient-ap');
     expect(failed.state.actionEconomy.apRemaining).toBe(1);
     expect(failed.state.opportunities.challenges['atomic-challenge' as ChallengeId]).toBeDefined();
-    expect(failed.state.world.people[INITIAL_PERSON_ID].scribal!.wallet).toEqual(beforeWallet);
+    expect(getInitializedScribal(failed.state.world.people[INITIAL_PERSON_ID])!.wallet).toEqual(beforeWallet);
     expect(failed.state.opportunities.challengeOutcomes).toHaveLength(0);
     const accepted = transitionGame(shown.state, { type: 'ACCEPT_CHALLENGE', challengeId: 'atomic-challenge' as ChallengeId });
     const consequenceFailure = transitionGame(accepted.state, { type: 'RESOLVE_CHALLENGE', challengeId: 'atomic-challenge' as ChallengeId, choiceId: invalid.choices[0].id });
     expect(consequenceFailure.feedback?.code).toBe('challenge-outcome-invalid');
     expect(consequenceFailure.state.actionEconomy.apRemaining).toBe(shown.state.actionEconomy.apRemaining);
     expect(consequenceFailure.state.opportunities.challenges['atomic-challenge' as ChallengeId]).toBeDefined();
-    expect(consequenceFailure.state.world.people[INITIAL_PERSON_ID].scribal!.wallet).toEqual(beforeWallet);
+    expect(getInitializedScribal(consequenceFailure.state.world.people[INITIAL_PERSON_ID])!.wallet).toEqual(beforeWallet);
     expect(consequenceFailure.state.opportunities.challengeOutcomes).toHaveLength(0);
   });
 

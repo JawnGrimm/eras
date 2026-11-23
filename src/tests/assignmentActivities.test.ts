@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { getInitializedScribal } from '../state/scribalState';
 import { transitionGame } from '../engine/actionEconomy';
 import { createInitialGameState } from '../state/initialState';
 import { createSaveEnvelope, isValidSaveEnvelope, restoreSave } from '../state/saveEnvelope';
@@ -155,7 +156,7 @@ describe('North-Bay Roof Inspection activity definition and engine', () => {
     expect(record.assertions.some((assertion) => assertion.classification === 'disputed' && assertion.id === 'assertion-unsupported-certification')).toBe(true);
     expect(result.state.world.relationships['person-enlil-barni' as never]?.['person-dudu' as never]?.dimensions.trust).toBe(46);
     expect(result.state.world.relationships['person-enlil-barni' as never]?.['person-ur-nanna' as never]?.dimensions.trust).toBe(45);
-    expect(result.state.world.people['person-enlil-barni' as never].scribal?.professionalReputation.judgment).toBe(44);
+    expect(getInitializedScribal(result.state.world.people['person-enlil-barni' as never])?.professionalReputation.judgment).toBe(44);
     expect(result.state.world.knowledge['knowledge-assignment-north-bay-roof-inspection-day-1-person-person-dudu' as never]).toBeDefined();
     expect(result.state.world.institutions['institution-uruk-temple-storehouse' as never].activeMatters.some((matterId) => result.state.world.matters[matterId]?.summary.includes('certified without sufficient supporting inspection'))).toBe(true);
   });

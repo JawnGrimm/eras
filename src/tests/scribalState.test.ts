@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { transitionGame } from '../engine/actionEconomy';
-import { createInitialGameState, INITIAL_PERSON_ID } from './initialState';
-import { createSaveEnvelope, isValidGameState, restoreSave } from './saveEnvelope';
-import { getInitializedScribal, isInitializedScribalState } from './scribalState';
-import type { Person } from './types';
-import type { PersonId } from './ids';
+import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
+import { createSaveEnvelope, isValidGameState, restoreSave } from '../state/saveEnvelope';
+import { getInitializedScribal, isInitializedScribalState } from '../state/scribalState';
+import type { Person } from '../state/types';
+import type { PersonId } from '../state/ids';
 
 const identityId = 'person-identity-only' as PersonId;
 const identityScribal = { stage: 'identity' as const, careerPath: 'merchant' as const };

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { getInitializedScribal } from '../state/scribalState';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
 import { transitionGame } from '../engine/actionEconomy';
 import { createSaveEnvelope, isValidSaveEnvelope } from '../state/saveEnvelope';
@@ -45,7 +46,7 @@ const definition = defineWork<ScenarioProgress>({
 const catalog = { [WORK]: definition };
 
 function character(): ScribalCharacterState {
-  return createInitialGameState().world.people[INITIAL_PERSON_ID].scribal!;
+  return getInitializedScribal(createInitialGameState().world.people[INITIAL_PERSON_ID])!;
 }
 
 describe('evidence interpretation', () => {
@@ -184,7 +185,7 @@ describe('Work lifecycle and save validation', () => {
     expect(state.works.progress[WORK].workApSpentToday).toBe(1);
     state = transitionGame(state, { type: 'END_DAY', expectedDayNumber: 1 }).state;
     expect(state.works.progress[WORK].workApSpentToday).toBe(0);
-    expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet.provisions).toBe(5);
+    expect(getInitializedScribal(state.world.people[INITIAL_PERSON_ID])?.wallet.provisions).toBe(5);
   });
 
   it('validates structured Work progress while accepting legacy v2 saves with an empty progress map', () => {

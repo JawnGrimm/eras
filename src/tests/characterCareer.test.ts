@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { getInitializedScribal } from '../state/scribalState';
 import { transitionGame } from '../engine/actionEconomy';
 import { deriveProfessionalRank } from '../engine/professionalRank';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
@@ -27,14 +28,14 @@ describe('character and career foundation', () => {
     const award = transitionGame(initial, {
       type: 'AWARD_SKILL_XP', skillId: 'recordkeeping_accounts', amount: 100, reason: 'Reconcile accounts',
     }, policy);
-    const scribal = award.state.world.people[INITIAL_PERSON_ID].scribal!;
+    const scribal = getInitializedScribal(award.state.world.people[INITIAL_PERSON_ID])!;
     expect(scribal.skills.recordkeeping_accounts).toEqual({ level: 1, skillXp: 100 });
     expect(scribal.skills.analysis_research).toBeUndefined();
     expect(scribal.careerXp).toBe(150);
     expect(isSkillEligibleForAdvancement(scribal.skills.recordkeeping_accounts, policy)).toBe(true);
 
     const purchase = transitionGame(award.state, { type: 'PURCHASE_SKILL_LEVEL', skillId: 'recordkeeping_accounts' }, policy);
-    const advanced = purchase.state.world.people[INITIAL_PERSON_ID].scribal!;
+    const advanced = getInitializedScribal(purchase.state.world.people[INITIAL_PERSON_ID])!;
     expect(advanced.skills.recordkeeping_accounts).toEqual({ level: 2, skillXp: 100 });
     expect(advanced.careerXp).toBe(110);
   });
@@ -55,8 +56,8 @@ describe('character and career foundation', () => {
       expect(result.feedback?.code).toBe('invalid-career-xp');
     }
     const awarded = transitionGame(initial, { type: 'AWARD_CAREER_XP', amount: 25, reason: 'Completed commission' }, policy);
-    expect(awarded.state.world.people[INITIAL_PERSON_ID].scribal!.careerXp).toBe(175);
-    expect(awarded.state.world.people[INITIAL_PERSON_ID].scribal!.skills).toEqual({});
+    expect(getInitializedScribal(awarded.state.world.people[INITIAL_PERSON_ID])!.careerXp).toBe(175);
+    expect(getInitializedScribal(awarded.state.world.people[INITIAL_PERSON_ID])!.skills).toEqual({});
   });
 
   it('rejects advancement without skill eligibility, investment currency, or room below the level-10 cap', () => {
@@ -69,7 +70,7 @@ describe('character and career foundation', () => {
       ...initial,
       world: { ...initial.world, people: { ...initial.world.people, [INITIAL_PERSON_ID]: {
         ...initial.world.people[INITIAL_PERSON_ID],
-        scribal: { ...initial.world.people[INITIAL_PERSON_ID].scribal!, careerXp: 0,
+        scribal: { ...getInitializedScribal(initial.world.people[INITIAL_PERSON_ID])!, careerXp: 0,
           skills: { reading_scripts: { level: 1, skillXp: 100 } } },
       } } },
     };
@@ -83,7 +84,7 @@ describe('character and career foundation', () => {
       ...initial,
       world: { ...initial.world, people: { ...initial.world.people, [INITIAL_PERSON_ID]: {
         ...initial.world.people[INITIAL_PERSON_ID], scribal: {
-          ...initial.world.people[INITIAL_PERSON_ID].scribal!, skills: { reading_scripts: capped },
+          ...getInitializedScribal(initial.world.people[INITIAL_PERSON_ID])!, skills: { reading_scripts: capped },
         },
       } } },
     };
@@ -119,14 +120,14 @@ describe('character and career foundation', () => {
     const state = {
       ...initial,
       world: { ...initial.world, people: { ...initial.world.people, [INITIAL_PERSON_ID]: {
-        ...person, scribal: { ...person.scribal!, specializations: [
+        ...person, scribal: { ...getInitializedScribal(person)!, specializations: [
           { id: firstId, level: 'practitioner' as const, specializationXp: 25, isPrimary: true },
           { id: secondId, level: 'specialist' as const, specializationXp: 100, isPrimary: false },
         ] },
       } } },
     };
     const result = transitionGame(state, { type: 'SET_PRIMARY_SPECIALIZATION', specializationId: secondId }, policy);
-    const specializations = result.state.world.people[INITIAL_PERSON_ID].scribal!.specializations;
+    const specializations = getInitializedScribal(result.state.world.people[INITIAL_PERSON_ID])!.specializations;
     expect(specializations.find((item) => item.id === firstId)?.isPrimary).toBe(false);
     expect(specializations.find((item) => item.id === secondId)?.isPrimary).toBe(true);
     expect(specializations.find((item) => item.id === secondId)?.level).toBe('specialist');
@@ -138,7 +139,7 @@ describe('character and career foundation', () => {
     const state: GameState = {
       ...initial,
       world: { ...initial.world, people: { ...initial.world.people, [INITIAL_PERSON_ID]: {
-        ...person, scribal: { ...person.scribal!, conditions: [{
+        ...person, scribal: { ...getInitializedScribal(person)!, conditions: [{
           id: 'fatigue',
           severity: 1 as const,
           modifiers: [{
@@ -150,10 +151,10 @@ describe('character and career foundation', () => {
         }] },
       } } },
     };
-    expect(state.world.people[INITIAL_PERSON_ID].scribal!.conditions[0].modifiers[0].actionTags).toEqual(['prolonged-audit']);
+    expect(getInitializedScribal(state.world.people[INITIAL_PERSON_ID])!.conditions[0].modifiers[0].actionTags).toEqual(['prolonged-audit']);
     expect(isValidGameState(state)).toBe(true);
     const invalid = structuredClone(state);
-    invalid.world.people[INITIAL_PERSON_ID].scribal!.conditions[0].modifiers[0].actionTags = [];
+    getInitializedScribal(invalid.world.people[INITIAL_PERSON_ID])!.conditions[0].modifiers[0].actionTags = [];
     expect(isValidGameState(invalid)).toBe(false);
   });
 });
