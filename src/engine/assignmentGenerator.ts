@@ -35,8 +35,8 @@ export function generateDailyAssignments(state: GameState): GameState {
     if (!matter || matter.status === 'resolved' || !response.assigneePersonId
       || response.assigneePersonId === next.player.currentCharacterId
       || !next.records.entries[response.recordId]) continue;
-    if (Object.values(next.opportunities.assignments).some((offer) =>
-      offer.originMatterId === matter.id && offer.activityId === NORTH_BAY_POST_EXECUTION_ACTIVITY_ID)) continue;
+    const id = `assignment-auto-post-execution-${executionEvent.id}` as AssignmentId;
+    if (next.opportunities.assignments[id]) continue;
     const hasVerifier = Object.values(next.world.appointments).some((appointment) =>
       appointment.institutionId === matter.institutionId
       && appointment.authorityCapabilities?.includes('verify_institutional_execution')
@@ -46,7 +46,6 @@ export function generateDailyAssignments(state: GameState): GameState {
       && !!next.world.people[appointment.personId]?.alive);
     if (!hasVerifier || !ASSIGNMENT_ACTIVITY_CATALOG[NORTH_BAY_POST_EXECUTION_ACTIVITY_ID]) continue;
 
-    const id = `assignment-auto-post-execution-${executionEvent.id}` as AssignmentId;
     const offer: Omit<AssignmentOffer, 'offeredDay' | 'expiresDay' | 'status' | 'lapsedDuringMandatoryWork'> = {
       id,
       activityId: NORTH_BAY_POST_EXECUTION_ACTIVITY_ID,
