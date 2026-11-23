@@ -83,10 +83,11 @@ The resolver and People history panel use Person IDs and participant names from 
 - The current production factory is zero-argument: `createNewGameState()`. `GameProvider` and the explicit “Start Fresh” action call it without identity input.
 - There is no current UI input boundary for player name, five choices, orientation, or seed.
 - The data contract requires a validated non-empty name; the content contract leaves the naming catalogue/custom-name validation policy to Design.
-- Production can implement a deterministic identity function from a supplied seed, exact validated name, five choice IDs, orientation, and content package version, with collision detection against existing NPC IDs. The seed source and UI handoff still need a caller.
-- Do not invent a name catalogue, transliteration rules, length limit, punctuation rule, or other naming policy. A technical non-empty check is the only currently documented minimum validation.
+- Production has added `src/state/characterIdentity.ts`, which deterministically derives a Person ID from the supplied seed, exact name, five choice IDs, orientation, and content package version. It rejects an ID already occupied by an NPC/Person rather than silently suffixing or reusing it. The seed is caller-supplied; this helper does not invent a seed source or persist a second seed field.
+- The helper enforces only the documented non-empty name minimum. It does not impose a name catalogue, transliteration rules, length limit, punctuation rule, or other naming policy.
+- Tests cover stable repeatability, sensitivity to every identity input, invalid orientation/choice rejection, minimal name/seed validation, and collision failure. These tests await the next CI result.
 
-**Conclusion:** Naming policy remains a separate Design dependency. Deterministic seed handling and stable Person ID construction are Production responsibilities once the input contract is supplied. The absence of a current UI input boundary means the zero-argument fresh-game flow cannot yet be replaced end-to-end without a character-creation handoff.
+**Conclusion:** Naming policy remains a separate Design dependency. The deterministic ID primitive is implemented; the seed source and UI handoff still need a caller. The absence of a current UI input boundary means the zero-argument fresh-game flow cannot yet be replaced end-to-end without a character-creation handoff.
 
 ## 8. Outstanding decisions / next steps
 
