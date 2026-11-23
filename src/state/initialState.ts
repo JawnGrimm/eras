@@ -1,4 +1,4 @@
-import type { GameState, Person } from './types';
+import type { Appointment, GameState, Person } from './types';
 import type { InstitutionId, PersonId, AppointmentId } from './ids';
 import { UR_GIR_PERSON_ID } from './ids';
 import { NORTH_BAY_LOCATION_ID, NORTH_BAY_PEOPLE } from '../content/assignments/northBayRoofInspection';
@@ -60,9 +60,9 @@ export function createInitialGameState(): GameState {
     lifeStage: 'craft_practitioner' as const,
     socialIdentity: { occupation: 'Repairer', summary: 'A repairer engaged for specific storehouse maintenance commissions.' },
   };
-  const appointments = [
-    { id: 'appointment-shuruppak-ilu-senior-scribe' as AppointmentId, personId: shuruppakId, institutionId: templeStorehouseId, title: 'Senior Scribe', authorityScope: ['Assign and review scribal work', 'Determine institutional follow-up from submitted records'], responsibilities: ['Review submitted accounts and reports', 'Determine whether further institutional action is warranted'], startDay: 1 },
-    { id: 'appointment-ur-nanna-storehouse-steward' as AppointmentId, personId: urNannaId, institutionId: templeStorehouseId, title: 'Storehouse Steward', authorityScope: ['Control ordinary storehouse access', 'Maintain custody and maintenance records'], responsibilities: ['Safeguard institutional stocks', 'Maintain custody and maintenance records'], startDay: 1 },
+  const appointments: Appointment[] = [
+    { id: 'appointment-shuruppak-ilu-senior-scribe' as AppointmentId, personId: shuruppakId, institutionId: templeStorehouseId, title: 'Senior Scribe', authorityScope: ['Assign and review scribal work', 'Determine institutional follow-up from submitted records'], responsibilities: ['Review submitted accounts and reports', 'Determine whether further institutional action is warranted'], authorityCapabilities: ['assess_institutional_reports'], startDay: 1 },
+    { id: 'appointment-ur-nanna-storehouse-steward' as AppointmentId, personId: urNannaId, institutionId: templeStorehouseId, title: 'Storehouse Steward', authorityScope: ['Control ordinary storehouse access', 'Maintain custody and maintenance records', 'Authorize routine storehouse maintenance within the existing maintenance allocation'], responsibilities: ['Safeguard institutional stocks', 'Maintain custody and maintenance records', 'Commission ordinary maintenance using already allocated storehouse labor and materials'], authorityCapabilities: ['authorize_routine_storehouse_maintenance'], startDay: 1 },
     { id: 'appointment-utu-mansum-receiving-official' as AppointmentId, personId: utuMansumId, institutionId: templeStorehouseId, title: 'Receiving Official', authorityScope: ['Inspect and record incoming deliveries'], responsibilities: ['Record intake quantities and condition'], startDay: 1 },
   ];
   const deliveryMatterId = MATTER_IDS.southCourtDelivery;

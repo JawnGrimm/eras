@@ -94,6 +94,19 @@ export interface Person {
   /** Present for people with an established scribal/professional capability sheet. */
   scribal?: ScribalCharacterState;
 }
+export type InstitutionalAuthorityCapability = 'assess_institutional_reports' | 'authorize_routine_storehouse_maintenance';
+export type InstitutionalResponseStage = 'assessment' | 'authorization';
+export interface InstitutionalResponse {
+  matterId: MatterId;
+  stage: InstitutionalResponseStage;
+  actorPersonId: PersonId;
+  appointmentId: AppointmentId;
+  recordId: RecordId;
+  decision: 'accepted_for_action' | 'request_more_evidence' | 'referred' | 'declined' | 'authorized' | 'authorization_declined';
+  precedingEventId?: EventId;
+  authorizedAction?: 'routine_storehouse_maintenance';
+  scope?: string;
+}
 export interface Appointment {
   id: AppointmentId; personId: PersonId; institutionId: InstitutionId;
   /** Historically situated office or designation, not a universal rank title. */
@@ -101,6 +114,8 @@ export interface Appointment {
   /** The decisions or actions this office-holder is authorized to make. */
   authorityScope: string[];
   responsibilities: string[];
+  /** Machine-checkable permissions; descriptive authorityScope remains the human-readable office record. */
+  authorityCapabilities?: InstitutionalAuthorityCapability[];
   startDay: number; endDay?: number;
 }
 export type InstitutionalMatterKind = 'tutorial' | 'roof_repair_verification' | 'held_barley_inspection' | 'north_bay_water_ingress'
@@ -124,7 +139,7 @@ export interface Institution {
   standing: number; activeMatters: MatterId[];
 }
 export interface Location { id: LocationId; name: string; }
-export interface WorldEvent { readonly id: EventId; readonly dayNumber: number; readonly summary: string; readonly personIds: readonly PersonId[]; readonly institutionIds: readonly InstitutionId[]; readonly locationId?: LocationId; }
+export interface WorldEvent { readonly id: EventId; readonly dayNumber: number; readonly summary: string; readonly personIds: readonly PersonId[]; readonly institutionIds: readonly InstitutionId[]; readonly locationId?: LocationId; readonly institutionalResponse?: InstitutionalResponse; }
 
 export interface RecordSource { readonly id: string; readonly kind: 'person' | 'institution' | 'event' | 'material' | 'other'; readonly sourceId?: string; readonly description: string; }
 export interface RecordAssertion { readonly id: string; readonly text: string; readonly classification: 'observed' | 'reported' | 'inferred' | 'disputed'; readonly sourceIds: readonly string[]; }

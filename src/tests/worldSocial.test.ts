@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { transitionGame } from '../engine/actionEconomy';
 import { deriveProfessionalRank } from '../engine/professionalRank';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
-import { isValidGameState } from '../state/saveEnvelope';
+import { createSaveEnvelope, isValidGameState, restoreSave } from '../state/saveEnvelope';
+import { createRoofRepairMatter, MATTER_IDS, STOREHOUSE_INSTITUTION_ID, NORTH_BAY_LOCATION_ID } from '../engine/institutionalMatters';
 import type { PersonId, InstitutionId, AppointmentId, EventId, RecordId, KnowledgeEntryId } from '../state/ids';
 import type { GameState, Person } from '../state/types';
 
@@ -99,4 +100,126 @@ describe('world, relationships, institutions and records', () => {
     malformed.world.relationships[INITIAL_PERSON_ID] = { [otherId]: { dimensions: { trust: 101, respect: 0, affection: 0, resentment: 0, rivalry: 0, familiarity: 0 }, history: [] } };
     expect(isValidGameState(malformed)).toBe(false);
   });
+
+  it('records institutional assessment and maintenance authorization against evidence and active office authority', () => {
+    const baseState = createInitialGameState();
+    const storehouseId = STOREHOUSE_INSTITUTION_ID;
+    const shuruppakId = 'person-shuruppak-ilu' as PersonId;
+    const stewardId = 'person-ur-nanna' as PersonId;
+    const report = {
+      id: 'record-north-bay-response-test' as RecordId, createdDay: 1, authorPersonId: INITIAL_PERSON_ID,
+      institutionId: storehouseId, title: 'North-Bay Roof Inspection Report',
+      sources: [], assertions: [], uncertaintyLimits: ['The report is limited to the inspected roof areas.'], amendments: [],
+    };
+    const createdRecord = transitionGame(baseState, { type: 'CREATE_RECORD', record: report });
+    expect(createdRecord.feedback?.code).toBe('record-created');
+    const roofMatter = createRoofRepairMatter(1, report.id);
+    let state: GameState = {
+      ...createdRecord.state,
+      world: {
+        ...createdRecord.state.world,
+        matters: { ...createdRecord.state.world.matters, [MATTER_IDS.roofRepair]: roofMatter },
+        institutions: {
+          ...createdRecord.state.world.institutions,
+          [storehouseId]: {
+            ...createdRecord.state.world.institutions[storehouseId],
+            activeMatters: [...createdRecord.state.world.institutions[storehouseId].activeMatters, MATTER_IDS.roofRepair],
+          },
+        },
+      },
+    };
+    for (const [holderId, id] of [[shuruppakId, 'knowledge-roof-report-shuruppak'], [stewardId, 'knowledge-roof-report-steward']] as const) {
+      const granted = transitionGame(state, { type: 'GRANT_KNOWLEDGE', knowledge: {
+        id: id as KnowledgeEntryId, holder: { kind: 'person', id: holderId },
+        subject: { kind: 'record', id: report.id }, basis: 'received-copy', learnedDay: 1,
+        sourcePersonId: INITIAL_PERSON_ID,
+      } });
+      expect(granted.feedback?.code).toBe('knowledge-granted');
+      state = granted.state;
+    }
+    const assessment = {
+      id: 'event-north-bay-assessment' as EventId, dayNumber: 1,
+      summary: 'Shuruppak-ilu accepts the qualified roof report for routine maintenance consideration.',
+      personIds: [shuruppakId], institutionIds: [storehouseId], locationId: NORTH_BAY_LOCATION_ID,
+      institutionalResponse: {
+        matterId: MATTER_IDS.roofRepair, stage: 'assessment' as const, actorPersonId: shuruppakId,
+        appointmentId: 'appointment-shuruppak-ilu-senior-scribe' as AppointmentId,
+        recordId: report.id, decision: 'accepted_for_action' as const,
+      },
+    };
+    const assessed = transitionGame(state, { type: 'CREATE_EVENT', event: assessment });
+    expect(assessed.feedback?.code).toBe('event-created');
+    state = assessed.state;
+    const authorization = {
+      id: 'event-north-bay-maintenance-order' as EventId, dayNumber: 1,
+      summary: 'Ur-Nanna authorizes routine maintenance within the existing storehouse allocation.',
+      personIds: [stewardId], institutionIds: [storehouseId], locationId: NORTH_BAY_LOCATION_ID,
+      institutionalResponse: {
+        matterId: MATTER_IDS.roofRepair, stage: 'authorization' as const, actorPersonId: stewardId,
+        appointmentId: 'appointment-ur-nanna-storehouse-steward' as AppointmentId,
+        recordId: report.id, precedingEventId: assessment.id, decision: 'authorized' as const,
+        authorizedAction: 'routine_storehouse_maintenance' as const,
+        scope: 'Clear the north-bay parapet runoff channel and assess the damp north-east beam socket using already allocated maintenance labor and materials.',
+      },
+    };
+    const authorized = transitionGame(state, { type: 'CREATE_EVENT', event: authorization });
+    expect(authorized.feedback?.code).toBe('event-created');
+    expect(authorized.state.world.events[authorization.id].institutionalResponse?.stage).toBe('authorization');
+    expect(authorized.state.world.matters[MATTER_IDS.roofRepair].status).toBe('active');
+    expect(isValidGameState(authorized.state)).toBe(true);
+    const restored = restoreSave(JSON.stringify(createSaveEnvelope(authorized.state, 1, '2026-11-22T12:00:00.000Z')));
+    expect(restored?.state.world.events[authorization.id].institutionalResponse?.precedingEventId).toBe(assessment.id);
+  });
+
+  it('rejects an assessment by an appointed official without the required authority capability', () => {
+    const baseState = createInitialGameState();
+    const report = {
+      id: 'record-delivery-response-test' as RecordId, createdDay: 1, authorPersonId: INITIAL_PERSON_ID,
+      institutionId: STOREHOUSE_INSTITUTION_ID, title: 'Delivery Reconciliation Report',
+      sources: [], assertions: [], uncertaintyLimits: ['The records do not establish where the measure was lost.'], amendments: [],
+    };
+    const created = transitionGame(baseState, { type: 'CREATE_RECORD', record: report });
+    const matter = {
+      ...created.state.world.matters[MATTER_IDS.southCourtDelivery],
+      sourceRecordId: report.id,
+    };
+    let state: GameState = {
+      ...created.state,
+      world: { ...created.state.world, matters: { ...created.state.world.matters, [MATTER_IDS.southCourtDelivery]: matter } },
+    };
+    const actorId = 'person-utu-mansum' as PersonId;
+    const knowledge = transitionGame(state, { type: 'GRANT_KNOWLEDGE', knowledge: {
+      id: 'knowledge-delivery-report-utu' as KnowledgeEntryId,
+      holder: { kind: 'person', id: actorId }, subject: { kind: 'record', id: report.id },
+      basis: 'received-copy', learnedDay: 1, sourcePersonId: INITIAL_PERSON_ID,
+    } });
+    expect(knowledge.feedback?.code).toBe('knowledge-granted');
+    state = knowledge.state;
+    const attempted = transitionGame(state, { type: 'CREATE_EVENT', event: {
+      id: 'event-unauthorized-assessment' as EventId, dayNumber: 1,
+      summary: 'The receiving official attempts to assess the report outside his office authority.',
+      personIds: [actorId], institutionIds: [STOREHOUSE_INSTITUTION_ID],
+      institutionalResponse: {
+        matterId: MATTER_IDS.southCourtDelivery, stage: 'assessment' as const, actorPersonId: actorId,
+        appointmentId: 'appointment-utu-mansum-receiving-official' as AppointmentId,
+        recordId: report.id, decision: 'accepted_for_action' as const,
+      },
+    } });
+    expect(attempted.state).toBe(state);
+    expect(attempted.feedback?.code).toBe('institutional-response-invalid');
+    expect(attempted.feedback?.message).toContain('does not authorize assessment');
+  });
+
+  it('migrates the two known initial office capabilities into earlier schema-v2 saves', () => {
+    const legacy = structuredClone(createInitialGameState());
+    delete (legacy.world.appointments['appointment-shuruppak-ilu-senior-scribe' as AppointmentId] as { authorityCapabilities?: unknown }).authorityCapabilities;
+    delete (legacy.world.appointments['appointment-ur-nanna-storehouse-steward' as AppointmentId] as { authorityCapabilities?: unknown }).authorityCapabilities;
+    const restored = restoreSave(JSON.stringify(createSaveEnvelope(legacy, 1, '2026-11-22T12:00:00.000Z')));
+    expect(restored).not.toBeNull();
+    expect(restored!.state.world.appointments['appointment-shuruppak-ilu-senior-scribe' as AppointmentId].authorityCapabilities)
+      .toContain('assess_institutional_reports');
+    expect(restored!.state.world.appointments['appointment-ur-nanna-storehouse-steward' as AppointmentId].authorityCapabilities)
+      .toContain('authorize_routine_storehouse_maintenance');
+  });
+
 });
