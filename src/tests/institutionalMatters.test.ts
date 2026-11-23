@@ -41,6 +41,15 @@ describe('typed institutional matters and bounded world tick', () => {
     const restored = restoreSave(JSON.stringify(createSaveEnvelope(state, 1)));
     expect(restored?.state.world.matters[MATTER_IDS.heldBarley].summary).toBe('Seven sealed pottery storage jars containing held barley remain segregated; grain condition has not yet been assessed.');
     expect(restored?.state.world.matters[customMatterId].summary).toBe(customSummary);
+
+    const submittedSummary = 'Seven held capacity measures are contained in seven segregated sacks. A finding and recommendation have been filed; internal grain condition and formal release remain unresolved.';
+    const submittedMatter = { ...matter, summary: submittedSummary };
+    const submittedState = { ...base, world: { ...base.world,
+      matters: { ...base.world.matters, [MATTER_IDS.heldBarley]: submittedMatter },
+      institutions: { ...base.world.institutions, [STOREHOUSE_INSTITUTION_ID]: { ...base.world.institutions[STOREHOUSE_INSTITUTION_ID], activeMatters: [...base.world.institutions[STOREHOUSE_INSTITUTION_ID].activeMatters, MATTER_IDS.heldBarley] } },
+    } } as GameState;
+    const submittedRestored = restoreSave(JSON.stringify(createSaveEnvelope(submittedState, 1)));
+    expect(submittedRestored?.state.world.matters[MATTER_IDS.heldBarley].summary).toBe('Seven held capacity measures are contained in seven sealed pottery storage jars segregated on reed matting. A finding and recommendation have been filed; internal grain condition and formal release remain unresolved.');
   });
 
   it('advances an unresolved roof matter once when its scheduled rain arrives', () => {
