@@ -144,6 +144,10 @@ describe('institutional response lifecycle', () => {
         institutionIds: [STOREHOUSE_INSTITUTION_ID], locationId: NORTH_BAY_LOCATION_ID, institutionalResponse: response };
     };
     expect(validateInstitutionalResponseEvent(base, makeVerification())).toBeNull();
+    const noExecutionLinkRecord = { ...base.records.entries[recordId],
+      sources: base.records.entries[recordId].sources.filter((source) => source.id !== 'source-linked-execution') };
+    const noExecutionLink = { ...base, records: { ...base.records, entries: { ...base.records.entries, [recordId]: noExecutionLinkRecord } } };
+    expect(validateInstitutionalResponseEvent(noExecutionLink, makeVerification())?.toLowerCase()).toContain('independent observed assertion');
 
     const noCapability = { ...base, world: { ...base.world, appointments: {
       ...base.world.appointments, [seniorAppointment]: { ...base.world.appointments[seniorAppointment],
@@ -290,5 +294,65 @@ describe('institutional response lifecycle', () => {
       assignments: { ...base.opportunities.assignments, [unrelated.id]: unrelated } } };
     const settled = transitionGame(state, { type: 'END_DAY', expectedDayNumber: 1 });
     expect(Object.values(settled.state.world.events).some((event) => event.institutionalResponse?.stage === 'resolution')).toBe(true);
+  });
+  it('verifies a remediation execution independently of an earlier rejected execution', () => {
+    const base = stateWithExecution(true);
+    const firstExecutionId = 'event-lifecycle-execution' as EventId;
+    const secondExecutionId = 'event-lifecycle-remediation-execution' as EventId;
+    const rejected = {
+      id: 'event-first-execution-rejected' as EventId, dayNumber: 1,
+      summary: 'The first execution could not be accepted.', personIds: [verifierId],
+      institutionIds: [STOREHOUSE_INSTITUTION_ID], locationId: NORTH_BAY_LOCATION_ID,
+      institutionalResponse: { matterId: MATTER_IDS.roofRepair, stage: 'verification' as const,
+        actorPersonId: verifierId, appointmentId: 'appointment-shuruppak-ilu-senior-scribe' as never,
+        recordId: 'record-lifecycle-inspection' as RecordId, precedingEventId: firstExecutionId,
+        decision: 'verification_rejected' as const, verification: { executionEventId: firstExecutionId,
+          outcome: 'rejected' as const, rationale: 'The first inspection did not establish the required condition.' } },
+    } satisfies WorldEvent;
+    const secondExecution = {
+      ...base.world.events[firstExecutionId], id: secondExecutionId, dayNumber: 2,
+      summary: 'Aru completed the remediated North-Bay maintenance.',
+      institutionalResponse: { ...base.world.events[firstExecutionId].institutionalResponse!,
+        precedingEventId: 'event-remediation-assignment' as EventId,
+        execution: { workPerformed: 'Remediate the runoff channel and reassess the beam socket.',
+          laborBasis: 'Existing maintenance labor.', materialsBasis: 'Existing maintenance materials.',
+          result: 'The runoff channel is clear after remediation.' } },
+    } satisfies WorldEvent;
+    const secondRecordId = 'record-lifecycle-remediation-inspection' as RecordId;
+    const secondRecord: RecordEntry = {
+      id: secondRecordId, createdDay: 2, authorPersonId: INITIAL_PERSON_ID, institutionId: STOREHOUSE_INSTITUTION_ID,
+      title: 'Independent inspection after remediation',
+      sources: [{ id: 'source-remediation-observer', kind: 'person', sourceId: INITIAL_PERSON_ID,
+        description: 'Direct inspection by a person other than the execution worker.' },
+        { id: 'source-remediation-execution', kind: 'other', sourceId: secondExecutionId,
+          description: 'The specific remediation execution being inspected.' }],
+      assertions: [{ id: 'assertion-remediation-observed', text: 'The runoff channel is clear after remediation.',
+        classification: 'observed', sourceIds: ['source-remediation-observer'] }],
+      uncertaintyLimits: ['The observation is limited to the runoff channel.'], amendments: [],
+    };
+    const matter = base.world.matters[MATTER_IDS.roofRepair];
+    const state: GameState = {
+      ...base, calendar: { ...base.calendar, dayNumber: 2 },
+      world: { ...base.world, events: { ...base.world.events, [rejected.id]: rejected, [secondExecution.id]: secondExecution },
+        matters: { ...base.world.matters, [matter.id]: { ...matter, provenance: [...(matter.provenance ?? []),
+          { id: 'remediation-inspection-provenance', kind: 'observation', sourceId: secondRecordId,
+            description: 'Independent inspection after the remediation execution.' }] } },
+        knowledge: { ...base.world.knowledge, ['knowledge-remediation-inspection' as KnowledgeEntryId]: {
+          id: 'knowledge-remediation-inspection' as KnowledgeEntryId, holder: { kind: 'person', id: verifierId },
+          subject: { kind: 'record', id: secondRecordId }, basis: 'received-copy', learnedDay: 2,
+          sourcePersonId: INITIAL_PERSON_ID,
+        } },
+      },
+      records: { ...base.records, entries: { ...base.records.entries, [secondRecord.id]: secondRecord } },
+    };
+    const settled = transitionGame(state, { type: 'END_DAY', expectedDayNumber: 2 });
+    const secondVerification = Object.values(settled.state.world.events).find((event) =>
+      event.institutionalResponse?.stage === 'verification' && event.institutionalResponse.verification?.executionEventId === secondExecutionId);
+    const secondResolution = Object.values(settled.state.world.events).find((event) =>
+      event.institutionalResponse?.stage === 'resolution' && event.institutionalResponse.resolution?.verificationEventId === secondVerification?.id);
+    expect(secondVerification?.institutionalResponse?.verification?.outcome).toBe('accepted');
+    expect(secondResolution).toBeDefined();
+    expect(settled.state.world.events[rejected.id]).toBeDefined();
+    expect(settled.state.world.matters[MATTER_IDS.roofRepair].status).toBe('resolved');
   });
 });
