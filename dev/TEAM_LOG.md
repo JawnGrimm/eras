@@ -1287,3 +1287,35 @@ No P3 hardship mechanics were implemented in this milestone. The +2 shortage Str
 ## 22 November 2026 — Personal economy clarification
 
 The personal economy has two resources: money and provisions. Their presentation changes with the historical era; their balances carry forward unchanged. The GDD and README state this directly. No runtime economy changes are included.
+
+
+## 2026-11-23 — Era I institution and responsibility matrix
+
+**Contributor:** ChatGPT  
+**Status:** Proposal
+
+Added [Era I Institution and Responsibility Matrix](ERA_I_INSTITUTION_RESPONSIBILITY_MATRIX.md) following the historical audit and the Game Director's approval to proceed with the investigation.
+
+The matrix organizes Era I around overlapping institutional and organizational contexts rather than four exclusive modern departments:
+
+- Eanna precinct and associated institutional administration
+- Anu/Kullaba monumental precinct
+- Institutional households, personnel, and work groups
+- Agricultural and pastoral provisioning networks
+- Craft, processing, and production contexts
+- Exchange, transport, and interregional procurement networks
+- Collective labor, construction, and public works
+- Security, coercion, and armed activity
+
+It preserves the four GDD career paths as non-exclusive starting orientations. Government and Religious overlap substantially; Merchant is grounded in procurement and movement; Military remains provisional and low-confidence, without an assumed standing army or military scribal corps.
+
+The note includes evidence/confidence distinctions, institutional responsibilities and authority, resources and records, career-path contact, scenario seeds, character-creation implications, and cross-track impact. It is a proposal, not a GDD change. No production code or runtime content was modified.
+
+**Questions for Game Director**
+- Approve the overlapping institutional model as the working Era I structure?
+- Retain the player-facing “Military” label with an Era I gloss such as “Security and Mobilization,” or reconsider how that path is presented?
+- Approve Eanna as the principal administrative setting and Anu/Kullaba as a distinct monumental/sacred context with thinner direct administrative evidence?
+
+**Next action**
+- Review the matrix and decide the Era I institutional framing.
+- If accepted, revise the Uruk character-creation matrix and map the existing Storehouse Reckoning/tutorial and opening world against these contexts without changing its evidence or assessment.
