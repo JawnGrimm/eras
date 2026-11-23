@@ -20,7 +20,7 @@ Implementation facts do not amend the GDD. A code change that alters approved be
 
 ## Production update — 23 November 2026
 
-**Verified repository baseline:** `main` at `3785889d4e1f8972fe8f47d948edf0ecb2db533c` (PR #72 merged). This update supplements the dated 22 November snapshot above; it does not rewrite that historical note or amend design authority.
+**Verified repository baseline before this housekeeping update:** `main` at `36bae22547d8622e5a121b3c0c1f53e26fe4108b` (PR #72 merged). This update supplements the dated 22 November snapshot above; it does not rewrite that historical note or amend design authority.
 
 - **Character history:** PR #68 approved and merged the Era I history content map. PR #70 remains a draft/open implementation branch containing the five-event resolver, familiarity/provenance merging, biography read model, deterministic Person ID primitive, tests, and a bootstrap-consumer audit. Its current head passed GitHub Actions run #344 (TypeScript, 27 test files / 201 tests, production build) and CodeQL run #193. The branch is not rebased to current main; its base predates PR #72 and this production-status update. Validation must be repeated after rebasing.
 - **Character-creation direction:** The Game Director's 23 November direction supersedes the earlier blanket prohibition on starting benefits. Design HQ is preparing a replacement specification for traceable life-history- and orientation-derived starting consequences. No starting-benefit or new-game bootstrap runtime integration has yet been implemented. Approved opening balances remain Career XP 0, Historical Progress XP 0, Money 0, Provisions 5.
@@ -31,3 +31,15 @@ Implementation facts do not amend the GDD. A code change that alters approved be
 - **Issue tracking:** Issue #69 remains open. Its former no-starting-benefits acceptance clause is superseded by the revised direction and must be reconciled with the replacement specification before full bootstrap completion.
 
 No save-schema change, migration, new-game replacement, merge, or deployment is recorded by this status update.
+
+## Repository housekeeping audit — 23 November 2026
+
+**Baseline:** `main` at `36bae22547d8622e5a121b3c0c1f53e26fe4108b`.
+
+- **Open PRs:** #70 (Era I character-history resolver; draft, active, awaiting replacement starting-state specification and rebase); #74 (HC-003 sealed pottery jars; implementation and CI validation complete, awaiting historical/content review); #75 (professional-orientation vocabulary; documentation-only, CI validation complete, awaiting confirmation of the terminology approval recorded in its branch).
+- **Closed / merged PRs:** #72 merged; #68 and #67 merged; earlier implementation and documentation PRs #1–66 are closed. #71 is closed unmerged as superseded by the revised character-creation direction. #73 is closed unmerged as a zero-commit duplicate of the then-current main; #74 is the subsequent active correction PR. #53 is closed unmerged; its commit is also the merged head of #54.
+- **Open Issues:** #69 only. It remains open and has been revised to distinguish the still-valid resolver/history requirements from the superseded no-starting-benefits clause and the pending replacement starting-state specification.
+- **Branches:** 64 total, including `main`. Three branches are associated with open PRs (#70, #74, #75). Three branches should be retained pending design/spec reconciliation (`design/era1-life-history-starting-state-proposal`, `docs/work-contribution-architecture-decision`, and `docs/work-contribution-step-1-review`). Fifty-seven other non-main branches compare as fully contained in main or as the exact head of merged PR work and are deletion candidates after final owner/branch-owner confirmation.
+- **Deletion limitation:** The connected GitHub operations available to Production in this session expose branch reads and ref updates, but no branch-delete operation. No branch refs were deleted or force-moved. The deletion candidates are recommendations, not completed cleanup.
+
+No PR was merged, no unresolved issue was closed, and no deployment occurred during this audit.
