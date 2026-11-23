@@ -139,7 +139,19 @@ The three definitions are linked to active institutional matter kinds. The broad
 
 After the behavioral contract is approved, Production should audit all consumers of orientation, delivery channels, institutional access, matter eligibility, skill qualification, authority, NPC knowledge/willingness, and commitments. Do not add hard-coded orientation gates or infer access from relationship scores.
 
-## 9. Department impact
+## 9. Cross-system handoff finding: relationship delivery channels
+
+The South-Court definition uses a `relationship` delivery channel referencing Enlil-kisu. Cross-reference the approved `dev/ERA_I_CHARACTER_HISTORY_RESOLVER_CONTENT_MAP.md` (`era1-character-history-v1`): EN-01 through EN-04 may record Enlil-kisu as an existing Person participant on a factual LifeEvent, but participant roles explicitly do not create trust, affection, familiarity, or other numeric relationship dimensions.
+
+The live code inspected on `main` provides this current baseline:
+
+- `validChannels()` in `src/engine/opportunities.ts` validates a `relationship` channel by checking that `state.world.people[c.personId]` exists. It does not require or inspect `world.relationships` dimensions.
+- `generateDailyAssignments()` in `src/engine/assignmentGenerator.ts` currently discovers authored definitions from matching active institutional matters. It does not filter opportunity discovery by relationship delivery-channel dimensions.
+- Therefore the specific silent-failure scenario is **not demonstrated in the current generator**. However, the intended meaning of the channel is not yet a sufficient behavioral contract for future access filtering. Production must trace every consumer and decide whether the channel is explanatory/provenance metadata or an eligibility predicate.
+
+**Production audit requirement:** Test a newly created Merchant-oriented character whose EN route records Enlil-kisu as a factual LifeEvent participant and who has no numeric PersonRelationship entry for him. If relationship-channel eligibility is intended, it must recognize the supported factual connection or another explicitly authored access route; it must not fabricate relationship scores to make the offer appear. Keep factual participation, personal relationship dimensions, and opportunity access distinct.
+
+## 10. Department impact
 
 - **Game Design:** The three activities are a storehouse cluster; Merchant and Military need distinct authored settings before orientation playtesting can establish differentiated experience.
 - **Historical Research:** Merchant exchange/procurement and Military security/mobilization content need targeted period-specific review before scenario commitment.
@@ -148,7 +160,7 @@ After the behavioral contract is approved, Production should audit all consumers
 - **Audio:** No material impact.
 - **Production/QA:** Preserve the current generator while auditing its access consumers after approval; later playtest for distinct set-and-setting rather than equal offer counts.
 
-## 10. GDD alignment and status
+## 11. GDD alignment and status
 
 This audit supports the approved principle that orientation affects both opportunity encounter and circumstances of performance. It does not alter the four orientations, establish new exclusive access rules, or approve specific new Era I Assignments.
 
