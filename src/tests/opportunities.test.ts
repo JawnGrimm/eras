@@ -6,6 +6,8 @@ import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState
 import { createSaveEnvelope, isValidSaveEnvelope } from '../state/saveEnvelope';
 import type { AssignmentId, ChallengeId, EventId, KnowledgeEntryId, RecordId, WorkId } from '../state/ids';
 import type { AssignmentOffer, ChallengeInstance, GameState, OpportunityDeliveryChannel } from '../state/types';
+import { storehouseReckoning } from '../works/storehouseReckoning';
+import { STOREHOUSE_WORK_ID } from '../works/storehouseReckoning';
 
 const channel: OpportunityDeliveryChannel = { kind: 'baseline_reach', explanation: 'Within the character’s ordinary professional reach.' };
 function offer(id: string): Omit<AssignmentOffer, 'offeredDay' | 'expiresDay' | 'status' | 'lapsedDuringMandatoryWork'> {
@@ -64,12 +66,20 @@ describe('Assignment and Challenge foundations', () => {
     expect(state.opportunities.assignmentAggregates['person|person-enlil-barni|accounts|barley'].nonWorkLapsed).toBe(1);
     expect(evaluateChallengeTriggers(state, [{ id: 'neglect', category: 'accounts', minNonWorkLapsed: 1 }])).toContain('neglect');
 
+    const genuineWork = { ...storehouseReckoning, kind: 'work' as const, progressCompatibilityKey: 'assignment-lapse-test-v1' };
+    const workCatalog = { [STOREHOUSE_WORK_ID]: genuineWork };
     let workState = present(createInitialGameState(), 'work-offer');
-    workState = { ...workState, works: { ...workState.works, activeWorkId: 'work-storehouse' as WorkId } };
-    for (let day = 1; day <= 4; day++) workState = transitionGame(workState, { type: 'END_DAY', expectedDayNumber: day }).state;
+    workState = transitionGame(workState, { type: 'START_WORK', workId: STOREHOUSE_WORK_ID }, undefined, workCatalog).state;
+    for (let day = 1; day <= 4; day++) workState = transitionGame(workState, { type: 'END_DAY', expectedDayNumber: day }, undefined, workCatalog).state;
     expect(workState.opportunities.assignments['work-offer' as AssignmentId].lapsedDuringMandatoryWork).toBe(true);
     expect(workState.opportunities.assignmentAggregates['person|person-enlil-barni|accounts|barley'].nonWorkLapsed).toBe(0);
     expect(evaluateChallengeTriggers(workState, [{ id: 'neglect', category: 'accounts', minNonWorkLapsed: 1 }])).not.toContain('neglect');
+
+    let unavailableState = present(createInitialGameState(), 'unavailable-work-offer');
+    unavailableState = { ...unavailableState, works: { ...unavailableState.works, activeWorkId: 'missing-work' as WorkId } };
+    for (let day = 1; day <= 4; day++) unavailableState = transitionGame(unavailableState, { type: 'END_DAY', expectedDayNumber: day }).state;
+    expect(unavailableState.opportunities.assignments['unavailable-work-offer' as AssignmentId].lapsedDuringMandatoryWork).toBe(false);
+    expect(unavailableState.opportunities.assignmentAggregates['person|person-enlil-barni|accounts|barley'].nonWorkLapsed).toBe(1);
   });
 
   it('cancels atomically for one AP and applies no automatic relationship penalty', () => {
@@ -236,10 +246,12 @@ describe('Assignment and Challenge foundations', () => {
     expect(evaluateChallengeTriggers(state, [{ id: 'presented-seven', minPresented: 7 }])).toContain('presented-seven');
   });
   it('does not count offers expiring during the introductory tutorial as mandatory-Work lapses', () => {
-    const tutorialId = 'work-storehouse-reckoning' as WorkId;
+    const tutorialId = STOREHOUSE_WORK_ID;
     let state = present(createInitialGameState(), 'tutorial-lapse');
-    state = { ...state, calendar: { ...state.calendar, dayNumber: 4 }, works: { ...state.works, activeWorkId: tutorialId } };
-    const result = transitionGame(state, { type: 'END_DAY', expectedDayNumber: 4 }, undefined, { [tutorialId]: { kind: 'tutorial' } as any });
+    const tutorialCatalog = { [tutorialId]: storehouseReckoning };
+    state = transitionGame(state, { type: 'START_WORK', workId: tutorialId }, undefined, tutorialCatalog).state;
+    state = { ...state, calendar: { ...state.calendar, dayNumber: 4 } };
+    const result = transitionGame(state, { type: 'END_DAY', expectedDayNumber: 4 }, undefined, tutorialCatalog);
     expect(result.state.opportunities.assignments['tutorial-lapse' as AssignmentId].lapsedDuringMandatoryWork).toBe(false);
     expect(Object.values(result.state.opportunities.assignmentAggregates)[0].nonWorkLapsed).toBe(1);
   });
