@@ -33,18 +33,17 @@ export function submitNorthBayPostExecutionInspection(
     || !execution.assigneePersonId || execution.assigneePersonId === state.player.currentCharacterId) {
     return fail(state, 'post-execution-inspection-unavailable', 'Independent inspection requires an unresolved matter and a recorded execution by another person.');
   }
-  if (!progress.completedActionIds.length) {
-    return fail(state, 'post-execution-inspection-required', 'Perform at least one inspection or record-review action before submitting.');
-  }
-
   const observed = progress.discoveryIds.includes('post-execution-observation')
     && progress.draft.citedDiscoveryIds.includes('post-execution-observation');
   const reviewedExecution = progress.discoveryIds.includes('post-execution-record')
     && progress.draft.citedDiscoveryIds.includes('post-execution-record');
+  if (!observed || !reviewedExecution) {
+    return fail(state, 'post-execution-evidence-required', 'Inspect the completed work, review the execution record, and cite both sources before submitting.');
+  }
   const finding = progress.draft.finding;
   const unsupportedFinding = finding === 'execution_not_confirmed';
   const unsupportedResponsibility = progress.draft.responsibilityClaim === 'aru';
-  const unsupportedNormalFinding = finding === 'channel_clear_beam_followup' && !observed;
+  const unsupportedNormalFinding = false;
   const playerId = state.player.currentCharacterId;
   const recordId = `record-${offer.id}-day-${state.calendar.dayNumber}` as RecordId;
   if (state.records.entries[recordId]) {
