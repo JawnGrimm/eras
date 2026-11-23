@@ -1,10 +1,20 @@
-import type { GameState, WorldEvent } from '../state/types';
+import type { GameState, InstitutionalResponse, WorldEvent } from '../state/types';
 
-/**
- * Validates the institutional authority and evidence chain attached to a response event.
- * Generic world events remain unaffected; only events carrying institutionalResponse
- * are subject to this stricter contract.
- */
+function nonEmpty(value: unknown): value is string {
+  return typeof value === 'string' && !!value.trim();
+}
+
+function authorizedMaintenance(state: GameState, eventId: string | undefined, matterId: string, recordId: string) {
+  if (!eventId) return null;
+  const event = state.world.events[eventId];
+  const response = event?.institutionalResponse;
+  if (!event || response?.stage !== 'authorization' || response.decision !== 'authorized'
+    || response.matterId !== matterId || response.recordId !== recordId
+    || response.authorizedAction !== 'routine_storehouse_maintenance' || !nonEmpty(response.scope)) return null;
+  return { event, response };
+}
+
+/** Validates the authority, commitment, and evidence chain for institutional responses. */
 export function validateInstitutionalResponseEvent(state: GameState, event: WorldEvent): string | null {
   const response = event.institutionalResponse;
   if (response === undefined) return null;
@@ -41,8 +51,9 @@ export function validateInstitutionalResponseEvent(state: GameState, event: Worl
       return 'This appointment does not authorize assessment of institutional reports.';
     }
     if (!['accepted_for_action','request_more_evidence','referred','declined'].includes(response.decision)
-      || response.precedingEventId !== undefined || response.authorizedAction !== undefined || response.scope !== undefined) {
-      return 'An assessment needs a valid assessment decision and cannot contain authorization fields.';
+      || response.precedingEventId !== undefined || response.authorizedAction !== undefined || response.scope !== undefined
+      || response.assigneePersonId !== undefined || response.commitmentId !== undefined || response.execution !== undefined) {
+      return 'An assessment needs a valid assessment decision and cannot contain authorization or execution fields.';
     }
     return null;
   }
@@ -59,11 +70,12 @@ export function validateInstitutionalResponseEvent(state: GameState, event: Worl
       || prior.decision !== 'accepted_for_action' || prior.matterId !== matter.id || prior.recordId !== record.id) {
       return 'An authorization requires a prior accepted assessment of the same matter and report.';
     }
-    if (!['authorized','authorization_declined'].includes(response.decision)) {
-      return 'An authorization event needs an authorization decision.';
+    if (!['authorized','authorization_declined'].includes(response.decision)
+      || response.assigneePersonId !== undefined || response.commitmentId !== undefined || response.execution !== undefined) {
+      return 'An authorization event needs an authorization decision and cannot contain assignment or execution fields.';
     }
     if (response.decision === 'authorized'
-      && (response.authorizedAction !== 'routine_storehouse_maintenance' || typeof response.scope !== 'string' || !response.scope.trim())) {
+      && (response.authorizedAction !== 'routine_storehouse_maintenance' || !nonEmpty(response.scope))) {
       return 'A maintenance authorization must identify its authorized action and specific scope.';
     }
     if (response.decision === 'authorization_declined'
@@ -79,5 +91,126 @@ export function validateInstitutionalResponseEvent(state: GameState, event: Worl
     return null;
   }
 
+  if (response.stage === 'commitment') {
+    if (matter.kind !== 'roof_repair_verification'
+      || !appointment.authorityCapabilities?.includes('authorize_routine_storehouse_maintenance')) {
+      return 'This appointment cannot assign routine North-Bay maintenance.';
+    }
+    const authorization = authorizedMaintenance(state, response.precedingEventId, matter.id, record.id);
+    if (!authorization || authorization.event.dayNumber > event.dayNumber
+      || authorization.response.scope !== response.scope
+      || response.authorizedAction !== 'routine_storehouse_maintenance') {
+      return 'A maintenance assignment must cite the matching prior authorization and preserve its exact scope.';
+    }
+    const assignee = response.assigneePersonId ? state.world.people[response.assigneePersonId] : undefined;
+    if (!assignee?.alive || !assignee.affiliations.includes(matter.institutionId)
+      || !event.personIds.includes(assignee.id) || !nonEmpty(response.commitmentId)
+      || response.decision !== 'assigned' || response.execution !== undefined) {
+      return 'A maintenance assignment must identify a living, affiliated worker and a unique commitment.';
+    }
+    const duplicate = Object.values(state.world.events).some((existing) => !!existing && existing.id !== event.id
+      && existing.institutionalResponse?.stage === 'commitment'
+      && existing.institutionalResponse.commitmentId === response.commitmentId);
+    const commitmentIdUsed = Object.values(state.world.people).some((person) =>
+      (person.commitments ?? []).some((commitment) => commitment.id === response.commitmentId));
+    if (duplicate || commitmentIdUsed) return 'This maintenance commitment identifier is already in use.';
+    return null;
+  }
+
+  if (response.stage === 'execution') {
+    if (!appointment.authorityCapabilities?.includes('authorize_routine_storehouse_maintenance')) {
+      return 'This appointment does not authorize recording routine storehouse maintenance execution.';
+    }
+    if (!response.precedingEventId || !response.commitmentId || !response.assigneePersonId) {
+      return 'An execution record must identify its assignment event, commitment, and worker.';
+    }
+    const assignment = state.world.events[response.precedingEventId];
+    const assigned = assignment?.institutionalResponse;
+    const authorization = authorizedMaintenance(state, assigned?.precedingEventId, matter.id, record.id);
+    if (!assignment || assignment.dayNumber > event.dayNumber || assigned?.stage !== 'commitment'
+      || assigned.decision !== 'assigned' || assigned.matterId !== matter.id || assigned.recordId !== record.id
+      || assigned.assigneePersonId !== response.assigneePersonId || assigned.commitmentId !== response.commitmentId
+      || assigned.scope !== response.scope || assigned.authorizedAction !== response.authorizedAction
+      || !authorization || authorization.response.scope !== response.scope) {
+      return 'Execution must follow the matching assignment and remain within the exact authorized scope.';
+    }
+    const worker = state.world.people[response.assigneePersonId];
+    const commitment = worker?.commitments?.find((item) => item.id === response.commitmentId);
+    if (!worker?.alive || !commitment || commitment.status !== 'active'
+      || commitment.basis.kind !== 'event' || commitment.basis.id !== assignment.id
+      || !commitment.relatedMatterIds?.includes(matter.id) || commitment.institutionId !== matter.institutionId) {
+      return 'Execution requires the worker’s active commitment created by the cited assignment.';
+    }
+    if (response.decision !== 'executed' || !response.execution
+      || !nonEmpty(response.execution.workPerformed) || !nonEmpty(response.execution.laborBasis)
+      || !nonEmpty(response.execution.materialsBasis) || !nonEmpty(response.execution.result)
+      || response.assigneePersonId === response.actorPersonId) {
+      return 'Execution must record work performed, allocated labor, allocated materials, and the result.';
+    }
+    const alreadyExecuted = Object.values(state.world.events).some((existing) => !!existing && existing.id !== event.id
+      && existing.institutionalResponse?.stage === 'execution'
+      && existing.institutionalResponse.commitmentId === response.commitmentId);
+    if (alreadyExecuted) return 'This maintenance commitment already has an execution record.';
+    return null;
+  }
+
   return 'The institutional response stage is not supported.';
+}
+
+/** Apply the commitment lifecycle effect after a validated event is appended. */
+export function applyInstitutionalResponseEvent(state: GameState, event: WorldEvent): GameState {
+  const response = event.institutionalResponse;
+  if (!response) return state;
+  const workerId = response.assigneePersonId;
+  if (response.stage === 'commitment' && workerId && response.commitmentId) {
+    const worker = state.world.people[workerId];
+    if (!worker) return state;
+    const commitment = {
+      id: response.commitmentId,
+      kind: 'allocation' as const,
+      summary: `Carry out the authorized North-Bay maintenance: ${response.scope ?? 'routine maintenance'}`,
+      basis: { kind: 'event' as const, id: event.id },
+      createdDay: event.dayNumber,
+      status: 'active' as const,
+      visibility: 'public' as const,
+      institutionId: response.matterId ? state.world.matters[response.matterId]?.institutionId : undefined,
+      relatedMatterIds: [response.matterId],
+    };
+    const knowledgeId = `knowledge-${response.commitmentId}-report`;
+    return {
+      ...state,
+      world: {
+        ...state.world,
+        people: { ...state.world.people, [workerId]: { ...worker, commitments: [...(worker.commitments ?? []), commitment] } },
+        knowledge: {
+          ...state.world.knowledge,
+          [knowledgeId]: {
+            id: knowledgeId as import('../state/ids').KnowledgeEntryId,
+            holder: { kind: 'person', id: workerId },
+            subject: { kind: 'record', id: response.recordId },
+            basis: 'received-copy',
+            learnedDay: event.dayNumber,
+            sourcePersonId: response.actorPersonId,
+          },
+        },
+      },
+    };
+  }
+  if (response.stage === 'execution' && workerId && response.commitmentId) {
+    const worker = state.world.people[workerId];
+    if (!worker?.commitments) return state;
+    return {
+      ...state,
+      world: {
+        ...state.world,
+        people: { ...state.world.people, [workerId]: {
+          ...worker,
+          commitments: worker.commitments.map((commitment) => commitment.id === response.commitmentId
+            ? { ...commitment, status: 'fulfilled' as const }
+            : commitment),
+        } },
+      },
+    };
+  }
+  return state;
 }
