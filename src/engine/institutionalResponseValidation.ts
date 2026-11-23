@@ -30,7 +30,7 @@ function recordSources(record: RecordEntry) {
 }
 
 /** A verification record must contain an observed assertion supported by a source independent of the worker and execution event. */
-function hasIndependentObservation(record: RecordEntry, workerPersonId: string, executionEventId: EventId): boolean {
+export function hasIndependentObservation(record: RecordEntry, workerPersonId: string, executionEventId: EventId): boolean {
   const sources = new Map(recordSources(record).map((source) => [source.id, source]));
   return recordAssertions(record).some((assertion) => assertion.classification === 'observed'
     && assertion.sourceIds.some((sourceId) => {
@@ -249,9 +249,9 @@ export function validateInstitutionalResponseEvent(state: GameState, event: Worl
     if (execution.assigneePersonId === response.actorPersonId) {
       return 'The worker who executed the task cannot independently verify that execution.';
     }
-    if (record.authorPersonId !== response.actorPersonId || record.createdDay < executionEvent.dayNumber
+    if (record.createdDay < executionEvent.dayNumber
       || !hasIndependentObservation(record, execution.assigneePersonId, executionEvent.id)) {
-      return 'Verification requires a same-day-or-later inspection record authored by the verifier with an independent observed assertion.';
+      return 'Verification requires a same-day-or-later inspection record with an independent observed assertion.';
     }
     const expectedDecision = verification.outcome === 'accepted' ? 'verified'
       : verification.outcome === 'rejected' ? 'verification_rejected' : 'verification_inconclusive';

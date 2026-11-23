@@ -249,6 +249,42 @@ describe('world, relationships, institutions and records', () => {
     expect(restored?.state.world.events[authorization.id].institutionalResponse?.precedingEventId).toBe(assessment.id);
     expect(restored?.state.world.events[execution.id].institutionalResponse?.stage).toBe('execution');
     expect(restored?.state.world.matters[MATTER_IDS.roofRepair].status).toBe('active');
+    // A separately authored, post-execution inspection can be received by an
+    // authorized verifier and then resolved through the same END_DAY lifecycle.
+    const postExecutionRecord = {
+      id: 'record-north-bay-post-execution' as RecordId, createdDay: 1, authorPersonId: INITIAL_PERSON_ID,
+      institutionId: storehouseId, title: 'Post-execution physical inspection',
+      sources: [{ id: 'source-post-execution-observer', kind: 'person' as const, sourceId: INITIAL_PERSON_ID,
+        description: 'Direct physical inspection by the current scribe after Aru’s work.' }],
+      assertions: [{ id: 'assertion-channel-clear', text: 'The inspected runoff channel is clear after the maintenance execution.',
+        classification: 'observed' as const, sourceIds: ['source-post-execution-observer'] }],
+      uncertaintyLimits: ['The observation is limited to the inspected runoff channel.'], amendments: [],
+    };
+    const inspectionCreated = transitionGame(executed.state, { type: 'CREATE_RECORD', record: postExecutionRecord });
+    expect(inspectionCreated.feedback?.code).toBe('record-created');
+    const matterWithInspection = { ...inspectionCreated.state.world.matters[MATTER_IDS.roofRepair],
+      provenance: [...(inspectionCreated.state.world.matters[MATTER_IDS.roofRepair].provenance ?? []),
+        { id: 'post-execution-inspection', kind: 'observation' as const, sourceId: postExecutionRecord.id,
+          description: 'Independent post-execution inspection record.' }] };
+    const linkedInspection = { ...inspectionCreated.state, world: { ...inspectionCreated.state.world, matters:
+      { ...inspectionCreated.state.world.matters, [MATTER_IDS.roofRepair]: matterWithInspection } } };
+    const informedVerifier = transitionGame(linkedInspection, { type: 'GRANT_KNOWLEDGE', knowledge: {
+      id: 'knowledge-post-execution-shuruppak' as KnowledgeEntryId, holder: { kind: 'person' as const, id: shuruppakId },
+      subject: { kind: 'record' as const, id: postExecutionRecord.id }, basis: 'received-copy' as const,
+      learnedDay: 1, sourcePersonId: INITIAL_PERSON_ID,
+    } });
+    expect(informedVerifier.feedback?.code).toBe('knowledge-granted');
+    const lifecycle = transitionGame(informedVerifier.state, { type: 'END_DAY', expectedDayNumber: 1 });
+    const verification = Object.values(lifecycle.state.world.events).find((item) => item.institutionalResponse?.stage === 'verification');
+    const resolution = Object.values(lifecycle.state.world.events).find((item) => item.institutionalResponse?.stage === 'resolution');
+    expect(verification?.institutionalResponse?.verification?.outcome).toBe('accepted');
+    expect(resolution?.institutionalResponse?.resolution?.verificationEventId).toBe(verification?.id);
+    expect(lifecycle.state.world.matters[MATTER_IDS.roofRepair].status).toBe('resolved');
+    expect(isValidGameState(lifecycle.state)).toBe(true);
+    const restoredLifecycle = restoreSave(JSON.stringify(createSaveEnvelope(lifecycle.state, 2, '2026-11-23T00:00:00.000Z')));
+    expect(restoredLifecycle?.state.world.matters[MATTER_IDS.roofRepair].status).toBe('resolved');
+    expect(restoredLifecycle?.state.world.events[verification!.id].institutionalResponse?.stage).toBe('verification');
+    expect(restoredLifecycle?.state.world.events[resolution!.id].institutionalResponse?.stage).toBe('resolution');
   });
 
   it('migrates older North-Bay saves with the authored maintenance worker', () => {
