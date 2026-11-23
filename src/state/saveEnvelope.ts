@@ -16,6 +16,9 @@ export const SAVE_SCHEMA_VERSION = 2 as const;
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
+function nonEmptyString(value: unknown): value is string {
+  return typeof value === 'string' && value.trim().length > 0;
+}
 function finiteNonNegative(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value) && value >= 0;
 }
@@ -96,31 +99,32 @@ const HISTORICAL_CONFIDENCE = ['attested','inferred','reconstruction'] as const;
 const FAMILIARITY_EXPOSURES = ['observed','assisted','practiced_under_instruction'] as const;
 
 function isCharacterCreationRecord(value: unknown): boolean {
-  return isObject(value) && typeof value.contentVersion === 'string' && !!value.contentVersion.trim()
+  return isObject(value) && nonEmptyString(value.contentVersion)
     && ['originId','responsibilityId','formativeExperienceId','entryRouteId','instructionId']
-      .every((field) => typeof value[field] === 'string' && !!(value[field] as string).trim());
+      .every((field) => nonEmptyString(value[field]));
 }
 function isPersonLifeEvent(value: unknown): boolean {
-  return isObject(value) && typeof value.id === 'string' && !!value.id
+  return isObject(value) && nonEmptyString(value.id)
     && LIFE_EVENT_KINDS.includes(value.kind as typeof LIFE_EVENT_KINDS[number])
-    && typeof value.contentId === 'string' && !!value.contentId
-    && typeof value.summary === 'string' && !!value.summary
+    && nonEmptyString(value.contentId)
+    && nonEmptyString(value.summary)
     && isObject(value.chronology)
     && LIFE_EVENT_STAGES.includes(value.chronology.stage as typeof LIFE_EVENT_STAGES[number])
     && Number.isInteger(value.chronology.order) && (value.chronology.order as number) >= 0
     && Array.isArray(value.participants)
     && value.participants.every((participant) => isObject(participant)
-      && typeof participant.personId === 'string' && !!participant.personId
-      && typeof participant.role === 'string' && !!participant.role.trim())
+      && nonEmptyString(participant.personId)
+      && nonEmptyString(participant.role))
     && new Set(value.participants.map((participant) => (participant as Record<string, unknown>).personId)).size === value.participants.length
     && HISTORICAL_CONFIDENCE.includes(value.historicalConfidence as typeof HISTORICAL_CONFIDENCE[number]);
 }
 function isPersonFamiliarity(value: unknown): boolean {
-  return isObject(value) && typeof value.id === 'string' && !!value.id
-    && typeof value.domainId === 'string' && !!value.domainId
-    && typeof value.scopeId === 'string' && !!value.scopeId
+  return isObject(value) && nonEmptyString(value.id)
+    && nonEmptyString(value.domainId)
+    && nonEmptyString(value.scopeId)
     && FAMILIARITY_EXPOSURES.includes(value.exposure as typeof FAMILIARITY_EXPOSURES[number])
-    && stringArray(value.basisLifeEventIds) && value.basisLifeEventIds.length > 0
+    && Array.isArray(value.basisLifeEventIds) && value.basisLifeEventIds.length > 0
+    && value.basisLifeEventIds.every(nonEmptyString)
     && new Set(value.basisLifeEventIds).size === value.basisLifeEventIds.length;
 }
 
@@ -165,7 +169,7 @@ function isPersonProfile(value: Record<string, unknown>): boolean {
     if (!Array.isArray(value.familiarities) || !value.familiarities.every(isPersonFamiliarity)) return false;
     const familiarity = value.familiarities as Array<Record<string, unknown>>;
     if (new Set(familiarity.map((item) => item.id)).size !== familiarity.length
-      || new Set(familiarity.map((item) => `${String(item.domainId)}|${String(item.scopeId)}`)).size !== familiarity.length) return false;
+      || new Set(familiarity.map((item) => JSON.stringify([item.domainId, item.scopeId]))).size !== familiarity.length) return false;
   }
   return true;
 }
