@@ -204,13 +204,20 @@ describe('Era I deterministic character-history resolver', () => {
     for (const originId of origins) for (const responsibilityId of responsibilities)
       for (const formativeExperienceId of formativeByResponsibility[responsibilityId])
         for (const entryRouteId of routes) for (const instructionId of instructions)
-          for (const orientation of orientations) {
-            expect(orientation).toBeTruthy();
-            const result = resolve({ originId, responsibilityId, formativeExperienceId, entryRouteId, instructionId });
-            expect(result.lifeEvents).toHaveLength(5);
-            expect(result.lifeEvents.map((item) => item.chronology.order)).toEqual([0, 1, 2, 3, 4]);
-            expect(result.lifeEvents.every((item) => item.participants.every((participant) => !!people[participant.personId]))).toBe(true);
-            resolved++;
+          {
+            const byOrientation = Object.fromEntries(orientations.map((orientation) => [
+              orientation,
+              resolve({ originId, responsibilityId, formativeExperienceId, entryRouteId, instructionId }),
+            ]));
+            const results = Object.values(byOrientation);
+            expect(results).toHaveLength(4);
+            expect(results.every((result) => JSON.stringify(result) === JSON.stringify(results[0]))).toBe(true);
+            for (const result of results) {
+              expect(result.lifeEvents).toHaveLength(5);
+              expect(result.lifeEvents.map((item) => item.chronology.order)).toEqual([0, 1, 2, 3, 4]);
+              expect(result.lifeEvents.every((item) => item.participants.every((participant) => !!people[participant.personId]))).toBe(true);
+              resolved++;
+            }
           }
     expect(resolved).toBe(3328);
   });
