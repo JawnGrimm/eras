@@ -1,4 +1,4 @@
-import type { KnowledgeEntryId, RecordId } from '../state/ids';
+import type { EventId, KnowledgeEntryId, RecordId } from '../state/ids';
 import type { AssignmentActivityDefinition } from '../content/assignments/northBayRoofInspection';
 import { NORTH_BAY_POST_EXECUTION_ACTIVITY_ID, NORTH_BAY_PEOPLE } from '../content/assignments/northBayRoofInspection';
 import type { AssignmentActivityProgress, AssignmentOffer, GameState, RecordAssertion, RecordEntry, TransitionResult } from '../state/types';
@@ -22,10 +22,12 @@ export function submitNorthBayPostExecutionInspection(
     return fail(state, 'post-execution-matter-mismatch', 'This inspection Assignment is not linked to the North-Bay maintenance matter.');
   }
   const matter = state.world.matters[MATTER_IDS.roofRepair];
-  const executionEvent = Object.values(state.world.events)
-    .filter((event) => event.institutionalResponse?.stage === 'execution'
-      && event.institutionalResponse.matterId === MATTER_IDS.roofRepair)
-    .sort((a, b) => b.dayNumber - a.dayNumber || b.id.localeCompare(a.id))[0];
+  const assignmentPrefix = 'assignment-auto-post-execution-';
+  if (!offer.id.startsWith(assignmentPrefix)) {
+    return fail(state, 'post-execution-assignment-id-invalid', 'This inspection Assignment is not linked to a specific execution.');
+  }
+  const executionEventId = offer.id.slice(assignmentPrefix.length) as EventId;
+  const executionEvent = state.world.events[executionEventId];
   const execution = executionEvent?.institutionalResponse;
   if (!matter || matter.status === 'resolved' || !executionEvent || execution?.stage !== 'execution'
     || !execution.assigneePersonId || execution.assigneePersonId === state.player.currentCharacterId) {
