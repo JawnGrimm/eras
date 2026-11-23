@@ -1,11 +1,12 @@
 import { CORE_SKILL_IDS } from './ids';
 import { MATTER_IDS, SOUTH_COURT_LOCATION_ID, SOUTH_LOADING_LOCATION_ID } from '../engine/institutionalMatters';
 import type { AttributeId, SkillId } from './ids';
-import type { GameState, Institution, OpportunityConsequences, SaveEnvelope, ScribalCharacterState, WorkProgress } from './types';
+import type { GameState, Institution, OpportunityConsequences, SaveEnvelope, PersonScribalState, WorkProgress } from './types';
 import { validateOpportunityConsequences } from './opportunityValidation';
 import type { WorkDefinition } from '../works/workDefinition';
 import { rankSuccessorCandidates } from '../engine/characterContinuity';
 import { validateInstitutionalResponseEvent } from '../engine/institutionalResponseValidation';
+import { isInitializedScribalState } from './scribalState';
 import { NORTH_BAY_PEOPLE, NORTH_BAY_LOCATION_ID, ASSIGNMENT_ACTIVITY_CATALOG, validateAssignmentActivityProgress } from '../content/assignments/northBayRoofInspection';
 
 export const SAVE_KEY = 'scribe_game_v2';
@@ -44,8 +45,14 @@ function isConditionModifier(value: unknown): boolean {
   if (value.target.kind === 'attribute') return ATTRIBUTE_IDS.includes(value.target.id as AttributeId);
   return false;
 }
-function isScribal(value: unknown, institutionIds: Set<string>): value is ScribalCharacterState {
-  if (!isObject(value) || (value.careerPath !== undefined
+function isScribal(value: unknown, institutionIds: Set<string>): value is PersonScribalState {
+  if (!isObject(value)) return false;
+  if (value.stage === 'identity') {
+    return ['government','military','religious','merchant'].includes(value.careerPath as string)
+      && Object.keys(value).every((key) => key === 'stage' || key === 'careerPath');
+  }
+  if (value.stage !== undefined && value.stage !== 'initialized') return false;
+  if ((value.careerPath !== undefined
     && !['government','military','religious','merchant'].includes(value.careerPath as string))
     || !finiteNonNegative(value.careerXp) || !finiteNonNegative(value.stress) || value.stress > 100
     || !isObject(value.wallet) || !isObject(value.skills) || !isObject(value.attributes)
@@ -286,7 +293,8 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
         || !Number.isInteger(item.createdDay) || (item.createdDay as number) > (calendar.dayNumber as number))) return false;
   }
   const active = people[player.currentCharacterId];
-  if (!isObject(active) || !isScribal(active.scribal, new Set(Object.keys(institutions)))) return false;
+  if (!isObject(active) || !isScribal(active.scribal, new Set(Object.keys(institutions)))
+    || !isInitializedScribalState(active.scribal)) return false;
   const pendingSuccession = value.pendingSuccession;
   if (pendingSuccession === undefined || pendingSuccession === null) {
     if (active.alive !== true) return false;
@@ -695,6 +703,7 @@ function normalizeHardshipState(parsed: unknown): unknown {
   const people = Object.fromEntries(Object.entries(state.world.people).map(([id, rawPerson]) => {
     if (!isObject(rawPerson) || !isObject(rawPerson.scribal)) return [id, rawPerson];
     const scribal = rawPerson.scribal;
+    if (scribal.stage === 'identity') return [id, rawPerson];
     return [id, { ...rawPerson, scribal: {
       ...scribal,
       cumulativeShortageStress: scribal.cumulativeShortageStress ?? 0,

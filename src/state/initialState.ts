@@ -13,6 +13,7 @@ export function createInitialGameState(): GameState {
     lifeStage: 'junior_scribe' as const,
     socialIdentity: { occupation: 'Scribe', summary: 'A junior scribe attached to the Temple Storehouse work.' },
     scribal: {
+      stage: 'initialized',
       careerXp: 150, cumulativeShortageStress: 0, obligations: [], wallet: { money: 12, provisions: 5, shortageWorkdays: 0 },
       skills: {}, attributes: {}, specializations: [], traits: [], conditions: [], equipment: [], stress: 15,
       professionalReputation: { competence: 50, reliability: 50, discretion: 50, judgment: 50 },
