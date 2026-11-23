@@ -38,6 +38,7 @@ describe('staged scribal capability boundary', () => {
     expect(isInitializedScribalState(legacyScribal)).toBe(true);
     expect(getInitializedScribal(state.world.people[INITIAL_PERSON_ID])).toBeDefined();
     expect(isInitializedScribalState(identityScribal)).toBe(false);
+    expect(isInitializedScribalState({ stage: 'pending' } as never)).toBe(false);
     expect(getInitializedScribal({ id: identityId, name: 'Identity', alive: true, affiliations: [], scribal: identityScribal })).toBeUndefined();
   });
 

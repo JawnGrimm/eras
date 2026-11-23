@@ -7,7 +7,7 @@ import type { Person, PersonScribalState, InitializedScribalCharacterState } fro
 export function isInitializedScribalState(
   scribal: PersonScribalState | undefined,
 ): scribal is InitializedScribalCharacterState {
-  return !!scribal && scribal.stage !== 'identity';
+  return !!scribal && (scribal.stage === undefined || scribal.stage === 'initialized');
 }
 
 /** Returns the career-capable state, never an identity-only record. */
