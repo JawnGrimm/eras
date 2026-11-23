@@ -14,7 +14,8 @@ It is separate from the game itself. Nothing in this folder is gameplay content,
 - **[Design Documentation Guide](../docs/design/README.md):** Explains the authority hierarchy and supporting specifications.
 - **[Decision Register](../docs/design/DECISION_REGISTER.md):** Records owner-approved decisions and maturity.
 - **[Open Design Register](../docs/design/OPEN_DESIGN_REGISTER.md):** Tracks unresolved questions and milestone priority.
-- **[Era I Works Portfolio and World Simulation Proposal](ERA_I_WORKS_AND_WORLD_SIMULATION_PROPOSAL.md):** proposed Works portfolio, invitation policy, and minimum supporting world simulation; not approved canon.
+- **[Era I Works Portfolio and World Simulation Proposal](ERA_I_WORKS_AND_WORLD_SIMULATION_PROPOSAL.md):** portfolio and minimum supporting world simulation proposal; see PR #59 for the Game Director's approved portfolio direction.
+- **[Era I Eanna Provisioning Milestone Work Brief](ERA_I_EANNA_PROVISIONING_MILESTONE_BRIEF.md):** detailed milestone design brief, including succession and date-window/concurrency lifecycle requirements; design proposal, not production content or implementation authority.
 - **[Implementation Status](../docs/production/IMPLEMENTATION_STATUS.md):** Holds dated implementation facts, not design authority.
 
 A discussion note here does not change an approved decision. Update the relevant supporting specification and Decision Register when a decision is approved; update the GDD when its core authority or a locked boundary changes.
