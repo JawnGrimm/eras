@@ -864,6 +864,18 @@ The physical truth is fixed: the mid-bay reed-mat and mud-plaster patch is intac
 Ur-Nanna controls ordinary bay access and knows the custody and repair arrangements, but cannot authorize major building expenditure alone. Dudu knows the scope and materials of his contracted mid-bay patch, but has no stock authority. Utu-mansum can attest only to the original intake inspection (56 usable / 4 held), not the storm or later roof condition. Shuruppak-ilu reviews the filed report and determines institutional follow-up from the record; he does not gain firsthand roof knowledge by reviewing it. The player may submit a qualified incomplete report. Unsupported certification or attribution of work outside Dudu's contract is a consequential overclaim, not merely a lower score.
 
 
+### 8.7 Post-execution inspection and institutional verification
+
+The post-execution North-Bay Inspection is a separate optional Assignment generated only after a maintenance execution has been recorded. It does not replace or reuse the earlier North-Bay Roof Inspection in 8.6: that Assignment investigates the initial condition and informs authorization; this Assignment gathers independent evidence after the worker's execution.
+
+The player must perform a physical inspection, review the execution record, and cite both sources before submitting. The resulting RecordEntry distinguishes the player's direct observation from the worker's reported result and preserves the limits of the inspection. For the current vertical slice, the post-execution observation is that the runoff channel is clear, the shaded north-east beam socket remains damp, and no collapse is visible. It does not establish that the joint has dried or certify the entire roof. Unsupported claims that the execution is unconfirmed, or unsupported attribution of responsibility to the worker, remain disputed assertions.
+
+This Assignment gathers evidence only. It grants no Appointment, verification authority, power to authorize additional expenditure, or power to resolve the matter. The submitted record is delivered to the Storehouse institution, Ur-Nanna, and Shuruppak-ilu. Verification requires an active Appointment at the owning institution with `verify_institutional_execution`; the execution worker may never verify their own work. Resolution is a separate action requiring `resolve_institutional_matters` and a specific accepted verification. Rejected or inconclusive verification leaves the matter unresolved.
+
+An accepted player Assignment owns only the execution event for which it was offered. END_DAY must not complete that commitment, invent observations, or substitute NPC verification while it remains accepted. Declined, unaccepted, expired, or released offers do not freeze the lifecycle; NPC fallback is permitted only when independent post-execution evidence, explicit knowledge, and an eligible Appointment already exist. A later remediation execution is evaluated independently from earlier verification decisions.
+
+
+
 ---
 
 ## 9. Document Construction and Evaluation
