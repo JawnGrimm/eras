@@ -1,4 +1,4 @@
-import type { CareerPathId, PersonId } from '../../state/ids';
+import type { PersonId } from '../../state/ids';
 import type {
   CharacterCreationRecord,
   FamiliarityExposure,
@@ -26,7 +26,6 @@ export interface EraICharacterHistoryChoices {
 export interface ResolveEraICharacterHistoryInput {
   personId: PersonId;
   choices: EraICharacterHistoryChoices;
-  careerPath: CareerPathId;
   people: Readonly<Record<string, Person>>;
 }
 
@@ -179,9 +178,9 @@ function participantForEntry(
   if (responsibility === 'RS-01') return 'person-ur-nanna' as PersonId;
   if (responsibility === 'RS-02') return 'person-enlil-kisu' as PersonId;
   if (responsibility === 'RS-03') return (route === 'EN-01' ? 'person-uruk-ur-gir' : 'person-utu-mansum') as PersonId;
-  if (origin === 'OR-01' || origin === 'OR-02') return 'person-ur-nanna' as PersonId;
-  if (origin === 'OR-03') return (route === 'EN-01' ? 'person-uruk-ur-gir' : 'person-ur-nanna') as PersonId;
-  return 'person-enlil-kisu' as PersonId;
+  if (origin === 'OR-03') return 'person-uruk-ur-gir' as PersonId;
+  if (origin === 'OR-04') return 'person-enlil-kisu' as PersonId;
+  return 'person-ur-nanna' as PersonId;
 }
 
 function formativeSummary(id: EraIFormativeExperienceId, responsibility: EraIResponsibilityId): string {
