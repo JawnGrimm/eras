@@ -37,8 +37,10 @@ export function submitNorthBayPostExecutionInspection(
     return fail(state, 'post-execution-inspection-required', 'Perform at least one inspection or record-review action before submitting.');
   }
 
-  const observed = progress.discoveryIds.includes('post-execution-observation');
-  const reviewedExecution = progress.discoveryIds.includes('post-execution-record');
+  const observed = progress.discoveryIds.includes('post-execution-observation')
+    && progress.draft.citedDiscoveryIds.includes('post-execution-observation');
+  const reviewedExecution = progress.discoveryIds.includes('post-execution-record')
+    && progress.draft.citedDiscoveryIds.includes('post-execution-record');
   const finding = progress.draft.finding;
   const unsupportedFinding = finding === 'execution_not_confirmed';
   const unsupportedResponsibility = progress.draft.responsibilityClaim === 'aru';
