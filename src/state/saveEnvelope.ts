@@ -16,6 +16,9 @@ export const SAVE_SCHEMA_VERSION = 2 as const;
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
+function nonEmptyString(value: unknown): value is string {
+  return typeof value === 'string' && value.trim().length > 0;
+}
 function finiteNonNegative(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value) && value >= 0;
 }
@@ -89,6 +92,42 @@ function isInstitution(value: unknown, locationIds: Set<string>): value is Insti
     && stringArray(value.responsibilities) && stringArray(value.authority) && score(value.standing)
     && stringArray(value.activeMatters);
 }
+
+const LIFE_EVENT_KINDS = ['origin','early_responsibility','formative_experience','professional_entry','first_instruction'] as const;
+const LIFE_EVENT_STAGES = ['early_life','youth','transition_to_scribal_work'] as const;
+const HISTORICAL_CONFIDENCE = ['attested','inferred','reconstruction'] as const;
+const FAMILIARITY_EXPOSURES = ['observed','assisted','practiced_under_instruction'] as const;
+
+function isCharacterCreationRecord(value: unknown): boolean {
+  return isObject(value) && nonEmptyString(value.contentVersion)
+    && ['originId','responsibilityId','formativeExperienceId','entryRouteId','instructionId']
+      .every((field) => nonEmptyString(value[field]));
+}
+function isPersonLifeEvent(value: unknown): boolean {
+  return isObject(value) && nonEmptyString(value.id)
+    && LIFE_EVENT_KINDS.includes(value.kind as typeof LIFE_EVENT_KINDS[number])
+    && nonEmptyString(value.contentId)
+    && nonEmptyString(value.summary)
+    && isObject(value.chronology)
+    && LIFE_EVENT_STAGES.includes(value.chronology.stage as typeof LIFE_EVENT_STAGES[number])
+    && Number.isInteger(value.chronology.order) && (value.chronology.order as number) >= 0
+    && Array.isArray(value.participants)
+    && value.participants.every((participant) => isObject(participant)
+      && nonEmptyString(participant.personId)
+      && nonEmptyString(participant.role))
+    && new Set(value.participants.map((participant) => (participant as Record<string, unknown>).personId)).size === value.participants.length
+    && HISTORICAL_CONFIDENCE.includes(value.historicalConfidence as typeof HISTORICAL_CONFIDENCE[number]);
+}
+function isPersonFamiliarity(value: unknown): boolean {
+  return isObject(value) && nonEmptyString(value.id)
+    && nonEmptyString(value.domainId)
+    && nonEmptyString(value.scopeId)
+    && FAMILIARITY_EXPOSURES.includes(value.exposure as typeof FAMILIARITY_EXPOSURES[number])
+    && Array.isArray(value.basisLifeEventIds) && value.basisLifeEventIds.length > 0
+    && value.basisLifeEventIds.every(nonEmptyString)
+    && new Set(value.basisLifeEventIds).size === value.basisLifeEventIds.length;
+}
+
 function isPersonProfile(value: Record<string, unknown>): boolean {
   const lifeStages = ['apprentice','junior_scribe','established_scribe','active_official','senior_scribe','craft_practitioner','elder'];
   if (value.lifeStage !== undefined && !lifeStages.includes(value.lifeStage as string)) return false;
@@ -119,6 +158,19 @@ function isPersonProfile(value: Record<string, unknown>): boolean {
     || (item.dueDay !== undefined && (!Number.isInteger(item.dueDay) || (item.dueDay as number) < (item.createdDay as number)))
     || (item.institutionId !== undefined && typeof item.institutionId !== 'string')
     || (item.relatedMatterIds !== undefined && !stringArray(item.relatedMatterIds))))) return false;
+  if (value.characterCreation !== undefined && !isCharacterCreationRecord(value.characterCreation)) return false;
+  if (value.lifeEvents !== undefined) {
+    if (!Array.isArray(value.lifeEvents) || !value.lifeEvents.every(isPersonLifeEvent)) return false;
+    const events = value.lifeEvents as Array<Record<string, unknown>>;
+    if (new Set(events.map((event) => event.id)).size !== events.length
+      || new Set(events.map((event) => (event.chronology as Record<string, unknown>).order)).size !== events.length) return false;
+  }
+  if (value.familiarities !== undefined) {
+    if (!Array.isArray(value.familiarities) || !value.familiarities.every(isPersonFamiliarity)) return false;
+    const familiarity = value.familiarities as Array<Record<string, unknown>>;
+    if (new Set(familiarity.map((item) => item.id)).size !== familiarity.length
+      || new Set(familiarity.map((item) => JSON.stringify([item.domainId, item.scopeId]))).size !== familiarity.length) return false;
+  }
   return true;
 }
 
@@ -213,6 +265,20 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
       || (p.currentLocationId !== undefined && (typeof p.currentLocationId !== 'string' || !isObject(locations[p.currentLocationId])))
       || !isPersonProfile(p)
       || (p.scribal !== undefined && !isScribal(p.scribal, new Set(Object.keys(institutions))))) return false;
+  }
+  for (const person of Object.values(people)) {
+    if (!isObject(person)) return false;
+    const lifeEvents = Array.isArray(person.lifeEvents) ? person.lifeEvents : [];
+    const eventIds = new Set(lifeEvents.filter(isObject).map((event) => String(event.id)));
+    for (const event of lifeEvents) {
+      if (!isObject(event) || !Array.isArray(event.participants)
+        || event.participants.some((participant) => !isObject(participant) || !isObject(people[String(participant.personId)]))) return false;
+    }
+    const familiarities = Array.isArray(person.familiarities) ? person.familiarities : [];
+    for (const familiarity of familiarities) {
+      if (!isObject(familiarity) || !Array.isArray(familiarity.basisLifeEventIds)
+        || familiarity.basisLifeEventIds.some((eventId) => !eventIds.has(String(eventId)))) return false;
+    }
   }
   for (const p of Object.values(people)) {
     if (isObject(p) && isObject(p.scribal) && Array.isArray(p.scribal.obligations)
