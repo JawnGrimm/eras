@@ -240,7 +240,7 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
     const restored = restoreSave(JSON.stringify(legacy));
     expect(restored).not.toBeNull();
     expect(restored?.state.actionEconomy.recoveryLaborUsedToday).toBe(false);
-    expect(restored?.getInitializedScribal(state.world.people[INITIAL_PERSON_ID])?.cumulativeShortageStress).toBe(0);
+    expect(getInitializedScribal(restored?.state.world.people[INITIAL_PERSON_ID])?.cumulativeShortageStress).toBe(0);
     expect(restored?.getInitializedScribal(state.world.people[INITIAL_PERSON_ID])?.obligations).toEqual([]);
   });
 
