@@ -66,7 +66,7 @@ The design should not make an exact date carry more certainty than the archaeolo
 - Clay sealings on doors, bales, and vessels; seal impressions and other accounting devices.
 - Lexical lists of professions, titles, and categories.
 
-**Career-path relevance**
+**Orientation relevance**
 - **Civic:** very high. Institutional coordination, records, storage, resource movement, and workforce matters.
 - **Religious:** very high. Cultic/public activity, offerings and ceremonial goods where scenario evidence supports them, and the administration of an institution whose sacred and economic functions overlap.
 - **Commercial:** medium-high. Procurement, delivery, imported materials, and external counterparties.
@@ -107,7 +107,7 @@ The design should not make an exact date carry more certainty than the archaeolo
 - Use material evidence, oral instructions, delivery tags, sealings, and records held by connected institutions only when the scenario establishes them.
 - Do not fabricate a surviving Anu administrative archive for the tutorial or ordinary Era I gameplay.
 
-**Career-path relevance**
+**Orientation relevance**
 - **Religious:** high as a sacred/monumental context, but the administrative mechanics and documentation are less directly evidenced than at Eanna.
 - **Civic:** conditional, where shared construction, resources, or civic/institutional relationships are involved.
 - **Commercial:** conditional, where materials or goods are procured or delivered.
@@ -147,7 +147,7 @@ These are reconstructed scenarios. The player must not be told that a specific U
 - Food allotments, inventories, and task-related accounts.
 - Oral instructions and situated knowledge remain important because early records are context-dependent and do not narrate full procedures.
 
-**Career-path relevance**
+**Orientation relevance**
 - **Civic:** high, where institutional coordination and accountability are involved.
 - **Religious:** high, where personnel serve a sacred or ceremonial institution.
 - **Commercial:** medium, where people, goods, or obligations move between counterparties.
@@ -185,7 +185,7 @@ These are reconstructed scenarios. The player must not be told that a specific U
 - Field and yield accounts; animal accounts; commodity entries and exits; delivery tags; sealed containers; numerical/metrological notation.
 - Distinguish the recorded quantity from the unrecorded route, source, and final destination.
 
-**Career-path relevance**
+**Orientation relevance**
 - **Civic:** high, for institutional provisioning and allocation.
 - **Religious:** high where the goods are directed to a cultic or ceremonial use.
 - **Commercial:** high, for movement and exchange between producers, carriers, and recipients.
@@ -224,7 +224,7 @@ These are reconstructed scenarios. The player must not be told that a specific U
 - Commodity lists, issue/receipt records, inventories, sealings, tags, and material inspection.
 - Production stages may be represented through scenario-authored documents where a historical basis is established.
 
-**Career-path relevance**
+**Orientation relevance**
 - **Civic:** medium-high, where output is commissioned, allocated, or accounted for.
 - **Religious:** medium-high, where goods are made for sacred or ceremonial use.
 - **Commercial:** high, where materials or finished products are exchanged or transported.
@@ -262,7 +262,7 @@ These are reconstructed scenarios. The player must not be told that a specific U
 - Commodity records, tags, sealings, delivery accounts, inventories, and records of goods entering/leaving institutional stores.
 - Oral agreements and contextual knowledge can fill gaps, but they must remain distinguishable from written evidence.
 
-**Career-path relevance**
+**Orientation relevance**
 - **Commercial:** very high.
 - **Civic:** high where procurement or institutional resources are involved.
 - **Religious:** medium where materials serve a precinct or ceremonial purpose.
@@ -300,7 +300,7 @@ These are reconstructed scenarios. The player must not be told that a specific U
 - Material inventories, allocations, delivery accounts, workforce categories, and records of provisions.
 - A project plan or schedule is a gameplay reconstruction unless tied to a specific attested source.
 
-**Career-path relevance**
+**Orientation relevance**
 - **Civic:** high.
 - **Religious:** high where the project is within a sacred/monumental precinct.
 - **Commercial:** medium, through materials procurement and transport.
@@ -340,7 +340,7 @@ These are reconstructed scenarios. The player must not be told that a specific U
 - Commodity and transport records may be relevant to a security event, but are not automatically military records.
 - Iconographic evidence should be presented as imagery, not as a complete description of actual force organization.
 
-**Career-path relevance**
+**Orientation relevance**
 - **Martial:** provisional and low-confidence. A player can be oriented toward security, protection, transport, and mobilization matters where authored, but should not begin as a quartermaster in a documented standing army.
 - **Civic:** medium, through institutional authority and protection of resources.
 - **Religious:** conditional, where sacred property or precinct security is involved.
@@ -454,7 +454,7 @@ No locked invariant is changed. No new progression track, resource balance, AP r
 
 ## 9. Cross-department impact
 
-- **Game Design:** Build opportunities from specific institutional matters and responsibilities. Career path changes starting context, not exclusive action access. Use administrative discrepancies and custody problems as the core conflict.
+- **Game Design:** Build opportunities from specific institutional matters and responsibilities. Professional orientation shapes starting context, not exclusive action access. Use administrative discrepancies and custody problems as the core conflict.
 - **Historical Research:** Highest-priority follow-up is the philology of archaic titles and personnel categories; Anu/Kullaba dedication and function; the range of Eanna activities; degree of control over craft production; and evidence for organized violence/security.
 - **Engineering & Architecture:** Model institutions as shared entities with responsibilities, authority, resources, personnel, relationships, and active matters. Keep orientation, affiliation, appointment, qualification, and relationship separate. Do not create a new institutional subsystem for each orientation.
 - **Art & UI/UX:** Eanna should be a complex multi-use precinct, not simply a temple façade or factory. Anu/Kullaba should feel monumental and sacred, but should not be dressed as a later ziggurat complex without date-specific support. Visualize tablets, tags, sealings, containers, stores, workshops, and material flows.
