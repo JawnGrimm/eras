@@ -55,3 +55,11 @@ No PR was merged, no unresolved issue was closed, and no deployment occurred dur
 - **HC-003:** The main Historical Correction Register offers sealed pottery jars or covered reed baskets. PR #74 selects sealed pottery jars and adds exact-string legacy matter-summary normalization during restore. This is schema-version-neutral but is still a persistent-load normalization change; historical/content review should confirm the jar choice and the three exact legacy replacements before merge.
 
 These findings are implementation/documentation reconciliation items. Production has not edited the GDD, Decision Register, or Open Design Register in this audit.
+
+## Game Director review follow-through — PRs #74 and #75 — 23 November 2026
+
+- **PR #75 — MERGED** as `e036afc91250b9d7a09dd0494e564b56b89da80f`. Applied the approved player-facing orientation labels Civic, Martial, Religious, and Commercial across the GDD, Decision Register, Open Design Register, and supporting specifications. Persisted internal career-path IDs remain `government`, `military`, `religious`, and `merchant`. The PR changed documentation/specification files only; no `src/` files or runtime IDs changed. Rebased onto current main before merge. Pull Request Validation run #346 and CodeQL run #199 passed.
+- **PR #74 — MERGED** as `302e64b610c924c8408826aab255f17138e53347`. Applied the Game Director-approved sealed pottery jar correction to the Held-Barley / North-Bay content. Rebased onto current main before merge. Production tightened the exact-string legacy summary normalization so replacements require the canonical Held-Barley matter in the Temple Storehouse; unrelated matter IDs and unknown/custom summaries are preserved. Added regression coverage for identical legacy wording on an unrelated matter ID. Pull Request Validation run #350 passed TypeScript, all 24 test files / 184 tests, and production build; CodeQL run #204 passed.
+- Both PRs were squash-merged after the final rebased-head checks. No deployment is recorded by these merges.
+
+**Current main after both merges:** `302e64b610c924c8408826aab255f17138e53347`.
