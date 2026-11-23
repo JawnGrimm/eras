@@ -117,7 +117,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
       institutions[matter.institutionId] = {
         ...institution,
         activeMatters: [
-          ...institution.activeMatters,
+          ...institution.activeMatters.filter((id) => id !== matter.id),
           ...(institution.activeMatters.includes(MATTER_IDS.waterIngress) ? [] : [MATTER_IDS.waterIngress]),
         ],
       };
