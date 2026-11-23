@@ -71,6 +71,34 @@ describe('Era I deterministic character-history resolver', () => {
     ]);
   });
 
+  it('matches every authored entry-route participant mapping', () => {
+    const origins = ['OR-01', 'OR-02', 'OR-03', 'OR-04'] as const;
+    const responsibilities = ['RS-01', 'RS-02', 'RS-03', 'RS-04'] as const;
+    const routes = ['EN-01', 'EN-02', 'EN-03', 'EN-04'] as const;
+    for (const originId of origins) for (const responsibilityId of responsibilities)
+      for (const entryRouteId of routes) {
+        const formativeExperienceId = responsibilityId === 'RS-01' || responsibilityId === 'RS-02'
+          ? 'FE-01' : 'FE-02';
+        const participant = resolve({
+          originId, responsibilityId, formativeExperienceId, entryRouteId,
+        }).lifeEvents[3].participants[0];
+        const expected = responsibilityId === 'RS-01' ? 'person-ur-nanna'
+          : responsibilityId === 'RS-02' ? 'person-enlil-kisu'
+            : responsibilityId === 'RS-03' ? (entryRouteId === 'EN-01' ? 'person-uruk-ur-gir' : 'person-utu-mansum')
+              : originId === 'OR-03' ? 'person-uruk-ur-gir'
+                : originId === 'OR-04' ? 'person-enlil-kisu' : 'person-ur-nanna';
+        expect(participant.personId).toBe(expected);
+      }
+  });
+
+  it('keeps FE-01 + RS-02 as an observed delivery mismatch rather than a finding of fraud', () => {
+    const result = resolve({ responsibilityId: 'RS-02', formativeExperienceId: 'FE-01' });
+    expect(result.familiarities).toContainEqual(expect.objectContaining({
+      domainId: 'delivery_custody', scopeId: 'delivery_mismatch_or_delay', exposure: 'observed',
+    }));
+    expect(result.lifeEvents[2].summary).not.toMatch(/fraud|culprit/i);
+  });
+
   it('uses the origin-specific RS-03 familiarity scope and the literal FE-01 + RS-01 scope', () => {
     const expected: Record<EraICharacterHistoryChoices['originId'], string> = {
       'OR-01': 'food_or_produce_condition',
