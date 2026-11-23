@@ -595,7 +595,7 @@ Character background may shape the internal monologue only when the specific exp
 
 ### GDD alignment
 
-- **§3.3–3.4:** Makes the starting apprentice and four initial career paths concrete without inventing numerical benefits.
+- **§3.3–3.4:** Makes the starting apprentice and four initial professional orientations concrete without inventing numerical benefits.
 - **§4:** Provides a reusable cross-era character-creation content contract, with Era I as the first expression.
 - **§7:** Preserves the common Storehouse Reckoning tutorial.
 - **§15:** Uses existing Persons and relationships; does not create four exclusive institutions.
