@@ -79,7 +79,7 @@ const RESPONSIBILITIES: Record<EraIResponsibilityId, {
     contentId: 'era1.character_history.responsibility.help_deliveries',
     summary: 'Helped with deliveries and learned the people, sequence, and risks between handover and arrival.',
     domainId: 'delivery_custody',
-    scopeId: 'delivery_sequence_and_handover',
+    scopeId: () => 'delivery_sequence_and_handover',
     exposure: 'assisted',
   },
   'RS-03': {
