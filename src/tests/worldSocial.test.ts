@@ -190,6 +190,7 @@ describe('world, relationships, institutions and records', () => {
     expect(commitment?.basis).toEqual({ kind: 'event', id: assignment.id });
     expect(Object.values(state.world.knowledge).some((entry) => entry.holder.kind === 'person'
       && entry.holder.id === workerId && entry.subject.kind === 'record' && entry.subject.id === report.id)).toBe(true);
+    expect(validateInstitutionalResponseEvent(state, state.world.events[assignment.id])).toBeNull();
     expect(isValidGameState(state)).toBe(true);
 
     const outOfScope = {
