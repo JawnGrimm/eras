@@ -1,5 +1,6 @@
 import type { EventId, PersonId } from '../state/ids';
 import type { GameState, InstitutionalAuthorityCapability, InstitutionalMatter, InstitutionalResponse, RecordEntry, WorldEvent } from '../state/types';
+import { NORTH_BAY_POST_EXECUTION_ACTIVITY_ID } from '../content/assignments/northBayRoofInspection';
 import { applyInstitutionalResponseEvent, hasIndependentObservation, validateInstitutionalResponseEvent } from './institutionalResponseValidation';
 
 function knowsRecord(state: GameState, personId: PersonId, recordId: RecordEntry['id']): boolean {
@@ -29,7 +30,8 @@ function eligibleAppointment(
 
 function hasAcceptedPlayerCommitment(state: GameState, matterId: InstitutionalMatter['id']): boolean {
   return Object.values(state.opportunities.assignments).some((offer) =>
-    offer.status === 'accepted' && offer.originMatterId === matterId);
+    offer.status === 'accepted' && offer.originMatterId === matterId
+      && offer.activityId === NORTH_BAY_POST_EXECUTION_ACTIVITY_ID);
 }
 
 function hasDisputedAssertion(record: RecordEntry): boolean {
