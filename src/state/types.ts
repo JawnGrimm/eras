@@ -18,7 +18,9 @@ export interface CharacterObligation {
   status: 'outstanding';
 }
 
-export interface ScribalCharacterState {
+export interface InitializedScribalCharacterState {
+  /** Explicit on newly initialized records; absent only on legacy schema-v2 records. */
+  stage?: 'initialized';
   /** Lifetime shortage-attributed Stress; never resets when provisions are consumed. */
   cumulativeShortageStress: number;
   obligations: CharacterObligation[];
@@ -36,6 +38,15 @@ export interface ScribalCharacterState {
   /** Standing within particular institutions; independent of personal relationships and professional reputation. */
   institutionalStanding: Partial<Record<InstitutionId, number>>;
 }
+
+/** Identity and career capability are separate stages; identity-only records are not playable. */
+export interface ScribalIdentityState {
+  stage: 'identity';
+  careerPath: CareerPathId;
+}
+export type PersonScribalState = InitializedScribalCharacterState | ScribalIdentityState;
+/** Backward-compatible name for APIs that specifically require initialized career capability. */
+export type ScribalCharacterState = InitializedScribalCharacterState;
 
 export interface RelationshipDimensions { trust: number; respect: number; affection: number; resentment: number; rivalry: number; familiarity: number; }
 export interface RelationshipHistoryEntry { id: string; dayNumber: number; summary: string; eventId?: EventId; }
@@ -130,7 +141,7 @@ export interface Person {
   /** Qualitative, provenance-backed exposure; not a skill or qualification. */
   familiarities?: PersonFamiliarity[];
   /** Present for people with an established scribal/professional capability sheet. */
-  scribal?: ScribalCharacterState;
+  scribal?: PersonScribalState;
 }
 export type InstitutionalAuthorityCapability = 'assess_institutional_reports' | 'authorize_routine_storehouse_maintenance' | 'verify_institutional_execution' | 'resolve_institutional_matters';
 export type InstitutionalResponseStage = 'assessment' | 'authorization' | 'commitment' | 'execution' | 'verification' | 'resolution';

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { getInitializedScribal } from '../state/scribalState';
 import { transitionGame } from '../engine/actionEconomy';
 import { rankSuccessorCandidates } from '../engine/characterContinuity';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
@@ -110,12 +111,12 @@ describe('character departure and succession lifecycle', () => {
       formerCharacterId: INITIAL_PERSON_ID, nextCharacterId: apprenticeId, departureKind: 'death', dayNumber: 8,
     }]);
 
-    const successor = state.world.people[apprenticeId].scribal!;
+    const successor = getInitializedScribal(state.world.people[apprenticeId])!;
     expect(successor.skills.reading_scripts).toEqual({ level: 2, skillXp: 15 });
     expect(successor.wallet).toEqual({ money: 7, provisions: 3, shortageWorkdays: 0 });
     expect(successor.careerXp).toBe(35);
     expect(successor.stress).toBe(8);
-    expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet).toEqual({ money: 12, provisions: 5, shortageWorkdays: 0 });
+    expect(getInitializedScribal(state.world.people[INITIAL_PERSON_ID])?.wallet).toEqual({ money: 12, provisions: 5, shortageWorkdays: 0 });
 
     const restored = restoreSave(JSON.stringify(createSaveEnvelope(state, 4)), priorWorkCatalog);
     expect(restored?.state.player.currentCharacterId).toBe(apprenticeId);
@@ -186,5 +187,29 @@ describe('character departure and succession lifecycle', () => {
     for (const id of [INITIAL_PERSON_ID, deadId, nonScribeId, 'not-connected' as PersonId]) {
       expect(transitionGame(begun.state, { type: 'SELECT_SUCCESSOR', nextCharacterId: id }).feedback?.code).toBe('successor-ineligible');
     }
+  });
+
+  it('does not consider identity-only scribal people eligible successors', () => {
+    const state = createInitialGameState();
+    const identityId = 'person-identity-successor' as PersonId;
+    const identityPerson: Person = {
+      id: identityId, name: 'Identity-only candidate', alive: true, affiliations: [],
+      scribal: { stage: 'identity', careerPath: 'government' },
+    };
+    const connected = {
+      ...state,
+      world: {
+        ...state.world,
+        people: { ...state.world.people, [identityId]: identityPerson },
+        relationships: {
+          ...state.world.relationships,
+          [INITIAL_PERSON_ID]: {
+            ...state.world.relationships[INITIAL_PERSON_ID],
+            [identityId]: { dimensions: { trust: 60, respect: 50, affection: 20, resentment: 0, rivalry: 0, familiarity: 20 }, history: [] },
+          },
+        },
+      },
+    };
+    expect(rankSuccessorCandidates(connected).some((candidate) => candidate.personId === identityId)).toBe(false);
   });
 });

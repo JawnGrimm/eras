@@ -1,4 +1,5 @@
 import type { GameAction, GameState, TransitionResult, AssignmentOffer, RecordAssertion, RecordEntry } from '../state/types';
+import { getInitializedScribal } from '../state/scribalState';
 import { addActivity } from './opportunities';
 import type { AssignmentId, KnowledgeEntryId, RecordId, InstitutionId } from '../state/ids';
 import { NORTH_BAY_ACTIVITY_ID, NORTH_BAY_POST_EXECUTION_ACTIVITY_ID, NORTH_BAY_PEOPLE, ASSIGNMENT_ACTIVITY_CATALOG, validateAssignmentActivityProgress, normalizeActivityDraft } from '../content/assignments/northBayRoofInspection';
@@ -126,7 +127,8 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
   }));
   const institution = state.world.institutions[STOREHOUSE];
   const person = state.world.people[state.player.currentCharacterId];
-  if (!institution || !person?.scribal) return fail(state, 'assignment-activity-world-invalid', 'The report recipient or current character is unavailable.');
+  const scribal = getInitializedScribal(person);
+  if (!institution || !person || !scribal) return fail(state, 'assignment-activity-world-invalid', 'The report recipient or current character is unavailable.');
   const roofMatter = state.world.matters[MATTER_IDS.roofRepair] ?? createRoofRepairMatter(state.calendar.dayNumber, recordId);
   const roofSummary = incompleteReport || !roofObserved ? 'North-bay roof inspection incomplete; full roof condition remains unverified.' : unsupportedCertification ? 'Roof repair certified without sufficient supporting inspection; physical condition remains unverified.' : draft.finding === 'repair_incomplete' ? 'Clear north-bay parapet runoff channel and assess the damp north-east beam socket.' : 'North-bay roof repair inspected; continue monitoring after heavy rain.';
   const updatedRoofMatter = { ...roofMatter, summary: roofSummary, sourceRecordId: recordId, status: 'active' as const };
@@ -150,7 +152,6 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
     relationships = { ...relationships, [state.player.currentCharacterId]: { ...relationships[state.player.currentCharacterId],
       [change.target]: { dimensions, history } } };
   }
-  const scribal = person.scribal;
   const updatedScribal = { ...scribal, careerXp: scribal.careerXp + offer.careerXpReward,
     wallet: { ...scribal.wallet, money: scribal.wallet.money + offer.compensation.money, provisions: scribal.wallet.provisions + offer.compensation.provisions },
     professionalReputation: { ...scribal.professionalReputation, judgment: Math.max(0, Math.min(100, scribal.professionalReputation.judgment + reputationDelta)) } };

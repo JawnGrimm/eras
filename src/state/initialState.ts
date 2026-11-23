@@ -13,6 +13,7 @@ export function createInitialGameState(): GameState {
     lifeStage: 'junior_scribe' as const,
     socialIdentity: { occupation: 'Scribe', summary: 'A junior scribe attached to the Temple Storehouse work.' },
     scribal: {
+      stage: 'initialized',
       careerXp: 150, cumulativeShortageStress: 0, obligations: [], wallet: { money: 12, provisions: 5, shortageWorkdays: 0 },
       skills: {}, attributes: {}, specializations: [], traits: [], conditions: [], equipment: [], stress: 15,
       professionalReputation: { competence: 50, reliability: 50, discretion: 50, judgment: 50 },
@@ -29,6 +30,7 @@ export function createInitialGameState(): GameState {
     circumstances: [{ id: 'circumstance-nin-aya-instruction', kind: 'instruction', summary: 'Practicing copied lines under the Senior Scribe’s instruction.', sinceDay: 1, status: 'active', visibility: 'public' }],
     objectives: [{ id: 'objective-nin-aya-scribal-learning', horizon: 'long_term', summary: 'Become a capable independent scribe.', motivation: 'She wants to progress beyond practice copies and take responsibility for real records.', createdDay: 1, status: 'active', visibility: 'private' }],
     scribal: {
+      stage: 'initialized',
       careerXp: 35, cumulativeShortageStress: 0, obligations: [], wallet: { money: 7, provisions: 3, shortageWorkdays: 0 },
       skills: { reading_scripts: { level: 2, skillXp: 15 } }, attributes: {},
       specializations: [], traits: [], conditions: [], equipment: [], stress: 8,
@@ -41,6 +43,7 @@ export function createInitialGameState(): GameState {
     lifeStage: 'established_scribe' as const,
     socialIdentity: { occupation: 'Scribe', summary: 'An established scribal colleague with his own household resources and professional obligations.' },
     scribal: {
+      stage: 'initialized',
       careerXp: 90, cumulativeShortageStress: 0, obligations: [], wallet: { money: 16, provisions: 6, shortageWorkdays: 0 },
       skills: { recordkeeping_accounts: { level: 3, skillXp: 30 } }, attributes: {},
       specializations: [], traits: [], conditions: [], equipment: [], stress: 12,

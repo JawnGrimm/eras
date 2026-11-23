@@ -1,4 +1,5 @@
 import type { EventId, AssignmentId, ChallengeId, InstitutionId, PersonId, SkillId } from '../state/ids';
+import { getInitializedScribal } from '../state/scribalState';
 import { ASSIGNMENT_ACTIVITY_CATALOG, NORTH_BAY_POST_EXECUTION_ACTIVITY_ID, validateAssignmentActivityDefinition } from '../content/assignments/northBayRoofInspection';
 import { resolveOpportunityDatePolicies, validateOpportunityConsequences } from '../state/opportunityValidation';
 import type {
@@ -42,14 +43,14 @@ function incrementNonWorkLapsed(state: GameState, offer: AssignmentOffer): GameS
   } } };
 }
 export function characterQualifiesForAssignment(state: GameState, offer: Pick<AssignmentOffer, 'requiredSkills'>): boolean {
-  const skills = state.world.people[state.player.currentCharacterId]?.scribal?.skills ?? {};
+  const skills = getInitializedScribal(state.world.people[state.player.currentCharacterId])?.skills ?? {};
   return Object.entries(offer.requiredSkills).every(([id, level]) => (skills[id as SkillId]?.level ?? 1) >= (level ?? 1));
 }
 function validChannels(channels: OpportunityDeliveryChannel[], state: GameState): boolean {
   return Array.isArray(channels) && channels.length > 0 && channels.every((c) => {
     if (!c.explanation) return false;
     if (c.kind === 'relationship') return !!state.world.people[c.personId];
-    if (c.kind === 'specialization') return !!state.world.people[state.player.currentCharacterId]?.scribal?.specializations.some((s) => s.id === c.specializationId);
+    if (c.kind === 'specialization') return !!getInitializedScribal(state.world.people[state.player.currentCharacterId])?.specializations.some((s) => s.id === c.specializationId);
     if (c.kind === 'appointment') return !!state.world.appointments[c.appointmentId];
     if (c.kind === 'reputation') return ['competence','reliability','discretion','judgment'].includes(c.dimension);
     return c.kind === 'baseline_reach';
@@ -60,15 +61,16 @@ function applyConsequences(state: GameState, effects: OpportunityConsequences | 
   if (validateOpportunityConsequences(effects, state, 'runtime')) return null;
   effects = resolveOpportunityDatePolicies(effects, state.calendar.dayNumber);
   const person = state.world.people[state.player.currentCharacterId];
-  if (!person?.scribal) return null;
+  const scribal = getInitializedScribal(person);
+  if (!person || !scribal) return null;
   const money = effects.moneyDelta ?? 0, provisions = effects.provisionsDelta ?? 0, careerXp = effects.careerXp ?? 0;
-  if (![money, provisions].every(Number.isFinite) || !finiteNonNegative(person.scribal.wallet.money + money)
-    || !finiteNonNegative(person.scribal.wallet.provisions + provisions) || !finiteNonNegative(careerXp)
-    || !finiteNonNegative(person.scribal.careerXp + careerXp)) return null;
+  if (![money, provisions].every(Number.isFinite) || !finiteNonNegative(scribal.wallet.money + money)
+    || !finiteNonNegative(scribal.wallet.provisions + provisions) || !finiteNonNegative(careerXp)
+    || !finiteNonNegative(scribal.careerXp + careerXp)) return null;
   let next: GameState = { ...state, world: { ...state.world, people: {
-    ...state.world.people, [person.id]: { ...person, scribal: { ...person.scribal,
-      careerXp: person.scribal.careerXp + careerXp,
-      wallet: { ...person.scribal.wallet, money: person.scribal.wallet.money + money, provisions: person.scribal.wallet.provisions + provisions },
+    ...state.world.people, [person.id]: { ...person, scribal: { ...scribal,
+      careerXp: scribal.careerXp + careerXp,
+      wallet: { ...scribal.wallet, money: scribal.wallet.money + money, provisions: scribal.wallet.provisions + provisions },
     } },
   } } };
   for (const change of effects.relationships ?? []) {
@@ -87,11 +89,12 @@ function applyConsequences(state: GameState, effects: OpportunityConsequences | 
   }
   for (const change of effects.institutionalStanding ?? []) {
     const target = next.world.people[next.player.currentCharacterId];
-    if (!target?.scribal || !next.world.institutions[change.institutionId] || !Number.isFinite(change.delta)) return null;
-    const current = target.scribal.institutionalStanding[change.institutionId] ?? 50;
+    const targetScribal = getInitializedScribal(target);
+    if (!target || !targetScribal || !next.world.institutions[change.institutionId] || !Number.isFinite(change.delta)) return null;
+    const current = targetScribal.institutionalStanding[change.institutionId] ?? 50;
     const value = Math.max(0, Math.min(100, current + change.delta));
     next = { ...next, world: { ...next.world, people: { ...next.world.people,
-      [target.id]: { ...target, scribal: { ...target.scribal, institutionalStanding: { ...target.scribal.institutionalStanding, [change.institutionId]: value } } },
+      [target.id]: { ...target, scribal: { ...targetScribal, institutionalStanding: { ...targetScribal.institutionalStanding, [change.institutionId]: value } } },
     } } };
   }
   if (effects.event) {

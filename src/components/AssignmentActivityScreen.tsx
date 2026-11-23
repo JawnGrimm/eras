@@ -1,4 +1,5 @@
 import React from 'react';
+import { getInitializedScribal } from '../state/scribalState';
 import { playSealStamp } from '../engine/audio';
 import { useGame } from '../state/GameProvider';
 import type { AssignmentId, InstitutionId, PersonId } from '../state/ids';
@@ -10,7 +11,7 @@ export function AssignmentActivityScreen({ assignmentId, onBack }: { assignmentI
   const offer = game.state.opportunities.assignments[assignmentId];
   const definition = offer?.activityId ? ASSIGNMENT_ACTIVITY_CATALOG[offer.activityId as keyof typeof ASSIGNMENT_ACTIVITY_CATALOG] : undefined;
   const progress = offer?.activityProgress;
-  const character = game.state.world.people[game.state.player.currentCharacterId]?.scribal;
+  const character = getInitializedScribal(game.state.world.people[game.state.player.currentCharacterId]);
   if (offer && definition && offer.status === 'completed') {
     return <section className="rounded-xl border border-stone-300 bg-white p-5">
       <p className="text-xs font-semibold uppercase tracking-wider text-amber-800">Assignment completed</p>

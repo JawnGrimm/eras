@@ -1,4 +1,5 @@
 import React from 'react';
+import { getInitializedScribal } from '../state/scribalState';
 import { rankSuccessorCandidates } from '../engine/characterContinuity';
 import { deriveProfessionalRank } from '../engine/professionalRank';
 import { CORE_SKILL_IDS } from '../state/ids';
@@ -73,8 +74,8 @@ function ConnectionReasons({ state, candidateId }: { state: GameState; candidate
 function CandidateCard({ candidateId, state }: { candidateId: string; state: GameState }) {
   const game = useGame();
   const candidate = state.world.people[candidateId as keyof typeof state.world.people];
-  if (!candidate?.scribal) return null;
-  const scribal = candidate.scribal;
+  const scribal = getInitializedScribal(candidate);
+  if (!candidate || !scribal) return null;
   const rank = deriveProfessionalRank(scribal.skills);
   const appointments = Object.values(state.world.appointments).filter((appointment) =>
     appointment.personId === candidate.id && appointment.startDay <= state.calendar.dayNumber

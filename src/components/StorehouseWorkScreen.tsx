@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { getInitializedScribal } from '../state/scribalState';
 import { playSealStamp, playStylusTap } from '../engine/audio';
 import type { EvidenceId } from '../state/ids';
 import { useGame } from '../state/GameProvider';
@@ -93,7 +94,8 @@ export function StorehouseWorkScreen({ onBack }: { onBack: () => void }) {
   const definition = storehouseReckoning;
   const progress = game.state.works.progress[workId];
   const person = game.state.world.people[game.state.player.currentCharacterId];
-  if (!progress || !person?.scribal) return <section className="rounded-xl border border-stone-300 bg-white p-6"><p>The tutorial progress or active character is unavailable.</p><button onClick={onBack} className="mt-4 underline">Return to Workday</button></section>;
+  const scribal = getInitializedScribal(person);
+  if (!progress || !person || !scribal) return <section className="rounded-xl border border-stone-300 bg-white p-6"><p>The tutorial progress or active character is unavailable.</p><button onClick={onBack} className="mt-4 underline">Return to Workday</button></section>;
 
   const scenario = progress.scenarioData as StorehouseScenarioData;
   const acquired = progress.acquiredEvidence;
@@ -157,7 +159,7 @@ export function StorehouseWorkScreen({ onBack }: { onBack: () => void }) {
           {STOREHOUSE_EVIDENCE.filter((item) => acquired.includes(item.id)).map((item) => {
             const isExamined = examined.includes(item.id);
             const thoughts = isExamined
-              ? interpretStorehouseEvidence(item.id, person.scribal!, examined)
+              ? interpretStorehouseEvidence(item.id, scribal, examined)
               : [];
             return (
               <article key={item.id} className="rounded-lg border border-stone-200 bg-stone-50 p-4">

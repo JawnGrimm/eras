@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { getInitializedScribal } from '../state/scribalState';
 import { transitionGame } from '../engine/actionEconomy';
 import { createNewGameState, INITIAL_WORK_CATALOG } from '../state/newGameState';
 import { INITIAL_PERSON_ID } from '../state/initialState';
@@ -15,7 +16,7 @@ describe('Day 1 Uruk production bootstrap', () => {
     expect(state.works.activeWorkId).toBe('work-storehouse-reckoning');
     expect(state.works.progress[STOREHOUSE_WORK_ID]).toBeDefined();
     expect(state.works.progress[STOREHOUSE_WORK_ID].provisionContract).toBeUndefined();
-    expect(state.world.people[INITIAL_PERSON_ID].scribal?.wallet.provisions).toBe(5);
+    expect(getInitializedScribal(state.world.people[INITIAL_PERSON_ID])?.wallet.provisions).toBe(5);
     expect(state.calendar.displayDate).toBe('Day 1 · Uruk (c. 3200 BCE)');
     const dayOneOffers = Object.values(state.opportunities.assignments);
     expect(dayOneOffers.map((offer) => offer.title)).toEqual([

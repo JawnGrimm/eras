@@ -1,4 +1,5 @@
 import React from 'react';
+import { getInitializedScribal } from '../state/scribalState';
 import { playSettlementChime } from '../engine/audio';
 import { useGame } from '../state/GameProvider';
 import type { DaySettlement } from '../state/types';
@@ -51,24 +52,26 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenActivity, settlement, o
   const game = useGame();
   const state = game.state;
   const person = state.world.people[state.player.currentCharacterId];
-  if (state.pendingSuccession || !person?.alive || !person.scribal) {
+  const scribal = getInitializedScribal(person);
+  if (state.pendingSuccession || !person?.alive || !scribal) {
     return <section role="status" className="mx-auto max-w-3xl rounded-xl border border-amber-300 bg-amber-50 p-6">
       <h1 className="font-serif text-2xl font-semibold">Workday paused</h1>
-      <p className="mt-2 text-sm text-stone-700">Ordinary workday actions are unavailable while the character transition is unresolved.</p>
+      <p className="mt-2 text-sm text-stone-700">Ordinary workday actions require an initialized career state and remain paused until a playable character is available.</p>
     </section>;
   }
-  const wallet = person.scribal.wallet;
+  const wallet = scribal.wallet;
   const activeWork = state.works.progress[STOREHOUSE_WORK_ID];
   const shortageActive = wallet.shortageWorkdays >= 3;
   const hardshipVisible = wallet.provisions === 0 || wallet.shortageWorkdays >= 1;
   const storehouse = state.world.institutions['institution-uruk-temple-storehouse' as InstitutionId];
   const laborAvailable = !!storehouse?.locationId && !!state.world.locations[storehouse.locationId];
   const urGir = state.world.people[UR_GIR_PERSON_ID as PersonId];
+  const urGirScribal = getInitializedScribal(urGir);
   const urGirRelationship = state.world.relationships[UR_GIR_PERSON_ID as PersonId]?.[person.id];
-  const hasUrGirObligation = person.scribal.obligations.some((obligation) =>
+  const hasUrGirObligation = scribal.obligations.some((obligation) =>
     obligation.status === 'outstanding' && obligation.creditorPersonId === UR_GIR_PERSON_ID);
-  const canRequestUrGir = wallet.provisions === 0 && !!urGir?.alive && !!urGir.scribal
-    && urGir.scribal.wallet.provisions >= 1 && !!urGirRelationship
+  const canRequestUrGir = wallet.provisions === 0 && !!urGir?.alive && !!urGirScribal
+    && urGirScribal.wallet.provisions >= 1 && !!urGirRelationship
     && urGirRelationship.dimensions.trust >= 50 && urGirRelationship.dimensions.resentment === 0
     && !hasUrGirObligation;
   const opportunities = selectCharacterOpportunities(state);
@@ -102,7 +105,7 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenActivity, settlement, o
             ? `Shortage day ${wallet.shortageWorkdays}. Underfed is active; the condition clears when provisions are consumed.`
             : `Grace period: ${Math.max(0, 2 - wallet.shortageWorkdays)} unprovisioned Workday(s) remain before shortage consequences begin.`}
       </p>
-      <p className="mt-1 text-xs text-stone-600">Shortage-attributed Stress: {person.scribal.cumulativeShortageStress}/10 lifetime cap · Current AP: {state.actionEconomy.apRemaining}</p>
+      <p className="mt-1 text-xs text-stone-600">Shortage-attributed Stress: {scribal.cumulativeShortageStress}/10 lifetime cap · Current AP: {state.actionEconomy.apRemaining}</p>
       <div className="mt-4 grid gap-3 md:grid-cols-2">
         {laborAvailable && <article className="rounded-lg border border-amber-200 bg-white p-3">
           <h3 className="font-semibold text-stone-900">Temple Storehouse Auxiliary Labor</h3>
@@ -127,10 +130,10 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenActivity, settlement, o
         </article>
       </div>
     </section>}
-    {person.scribal.obligations.some((obligation) => obligation.status === 'outstanding') && <section aria-labelledby="obligations-heading" className="rounded-xl border border-stone-300 bg-white p-4">
+    {scribal.obligations.some((obligation) => obligation.status === 'outstanding') && <section aria-labelledby="obligations-heading" className="rounded-xl border border-stone-300 bg-white p-4">
       <h2 id="obligations-heading" className="font-semibold text-stone-900">Outstanding obligations</h2>
       <ul className="mt-2 space-y-2 text-sm text-stone-700">
-        {person.scribal.obligations.filter((obligation) => obligation.status === 'outstanding').map((obligation) =>
+        {scribal.obligations.filter((obligation) => obligation.status === 'outstanding').map((obligation) =>
           <li key={obligation.id}><strong>{state.world.people[obligation.creditorPersonId]?.name ?? 'Creditor'}:</strong> {obligation.description}</li>)}
       </ul>
     </section>}

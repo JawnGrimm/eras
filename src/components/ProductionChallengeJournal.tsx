@@ -1,4 +1,5 @@
 import React from 'react';
+import { getInitializedScribal } from '../state/scribalState';
 import { useGame } from '../state/GameProvider';
 import { selectCharacterOpportunities } from '../state/opportunitySelectors';
 import type { AssignmentOffer, GameState } from '../state/types';
@@ -35,7 +36,7 @@ export function ProductionChallengeJournal() {
   const { state, dispatch } = useGame();
   const data = selectCharacterOpportunities(state);
   const person = state.world.people[state.player.currentCharacterId];
-  const reputation = person?.scribal?.professionalReputation;
+  const reputation = getInitializedScribal(person)?.professionalReputation;
 
   return <div className="mx-auto max-w-6xl space-y-6">
     <header>

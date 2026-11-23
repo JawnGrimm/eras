@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { getInitializedScribal } from '../state/scribalState';
 import { transitionGame } from '../engine/actionEconomy';
 import { MATTER_IDS } from '../engine/institutionalMatters';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
@@ -64,7 +65,7 @@ describe('Storehouse Reckoning introductory tutorial', () => {
     expect(state.works.progress[STOREHOUSE_WORK_ID].status).toBe('active');
     expect(state.works.progress[STOREHOUSE_WORK_ID].provisionContract).toBeUndefined();
     expect(state.historicalProgression.historicalXp).toBe(0);
-    expect(state.world.people[INITIAL_PERSON_ID].scribal!.careerXp).toBe(150);
+    expect(getInitializedScribal(state.world.people[INITIAL_PERSON_ID])!.careerXp).toBe(150);
     expect(state.actionEconomy.apRemaining).toBe(0);
   });
 
@@ -77,7 +78,7 @@ describe('Storehouse Reckoning introductory tutorial', () => {
 
   it('separates objective evidence from character-situated interpretation', () => {
     const initial = createInitialGameState();
-    const novice = initial.world.people[INITIAL_PERSON_ID].scribal!;
+    const novice = getInitializedScribal(initial.world.people[INITIAL_PERSON_ID])!;
     const noviceCharacter = { ...novice, skills: { recordkeeping_accounts: { level: 1, skillXp: 0 } } };
     const expertCharacter = { ...novice, skills: { recordkeeping_accounts: { level: 4, skillXp: 0 } } };
     const before = STOREHOUSE_EVIDENCE.find((item) => item.id === 'ev-07')!.objectiveText;
@@ -89,7 +90,7 @@ describe('Storehouse Reckoning introductory tutorial', () => {
   });
 
   it('gives a novice a bounded uncertainty reading without changing the evidence', () => {
-    const base = createInitialGameState().world.people[INITIAL_PERSON_ID].scribal!;
+    const base = getInitializedScribal(createInitialGameState().world.people[INITIAL_PERSON_ID])!;
     const novice = { ...base, skills: { recordkeeping_accounts: { level: 1, skillXp: 0 } } };
     const notes = interpretStorehouseEvidence('ev-07' as never, novice, ['ev-04','ev-07'] as never[]);
     expect(notes.some((item) => item.text.includes('do not tell you when'))).toBe(true);
@@ -97,7 +98,7 @@ describe('Storehouse Reckoning introductory tutorial', () => {
   });
 
   it('requires both E-04 and E-07 for the skilled cross-evidence condition inference', () => {
-    const base = createInitialGameState().world.people[INITIAL_PERSON_ID].scribal!;
+    const base = getInitializedScribal(createInitialGameState().world.people[INITIAL_PERSON_ID])!;
     const character = { ...base, skills: { recordkeeping_accounts: { level: 3, skillXp: 0 } } };
     const alone = interpretStorehouseEvidence('ev-04' as never, character, ['ev-04' as never]);
     const together = interpretStorehouseEvidence('ev-04' as never, character, ['ev-04','ev-07'] as never[]);
@@ -207,7 +208,7 @@ describe('Storehouse Reckoning introductory tutorial', () => {
     const failed = transitionGame(state, { type: 'DISPOSE_WORK', workId: STOREHOUSE_WORK_ID, disposition: 'authorized' }, undefined, brokenCatalog);
     expect(failed.state).toBe(before);
     expect(failed.state.actionEconomy.apRemaining).toBe(before.actionEconomy.apRemaining);
-    expect(failed.state.world.people[INITIAL_PERSON_ID].scribal!.careerXp).toBe(before.world.people[INITIAL_PERSON_ID].scribal!.careerXp);
+    expect(getInitializedScribal(failed.state.world.people[INITIAL_PERSON_ID])!.careerXp).toBe(getInitializedScribal(before.world.people[INITIAL_PERSON_ID])!.careerXp);
     expect(failed.state.historicalProgression.historicalXp).toBe(0);
     expect(failed.state.records.entries).toEqual({});
     expect(failed.state.world.knowledge).toEqual({});
@@ -229,7 +230,7 @@ describe('Storehouse Reckoning introductory tutorial', () => {
   it.each(['account_accepted','authorized'] as const)('finalizes %s with distinct recorded disposition and provisional rewards', (disposition) => {
     let state = submitValid(acquireMinimum(start()));
     state = nextDay(state);
-    const beforeCareer = state.world.people[INITIAL_PERSON_ID].scribal!.careerXp;
+    const beforeCareer = getInitializedScribal(state.world.people[INITIAL_PERSON_ID])!.careerXp;
     state = transitionGame(state, { type: 'DISPOSE_WORK', workId: STOREHOUSE_WORK_ID, disposition }, undefined, catalog).state;
     expect(state.works.activeWorkId).toBeNull();
     expect(state.works.progress[STOREHOUSE_WORK_ID].status).toBe('completed');
@@ -241,7 +242,7 @@ describe('Storehouse Reckoning introductory tutorial', () => {
       expect.arrayContaining([MATTER_IDS.southCourtDelivery, MATTER_IDS.southLoadingAwning]),
     );
     expect(state.world.institutions[STOREHOUSE_INSTITUTION_ID].activeMatters).not.toContain(MATTER_IDS.tutorial);
-    expect(state.world.people[INITIAL_PERSON_ID].scribal!.careerXp - beforeCareer).toBe(STOREHOUSE_PROVISIONAL_CAREER_XP);
+    expect(getInitializedScribal(state.world.people[INITIAL_PERSON_ID])!.careerXp - beforeCareer).toBe(STOREHOUSE_PROVISIONAL_CAREER_XP);
     const record = Object.values(state.records.entries)[0];
     expect(record.assertions.some((item) => item.text.includes(disposition))).toBe(true);
     expect(record.sources.some((item) => item.id === 'ev-06')).toBe(false);
@@ -270,7 +271,7 @@ describe('Storehouse Reckoning introductory tutorial', () => {
     state = nextDay(state);
     state = transitionGame(state, { type: 'DISPOSE_WORK', workId: STOREHOUSE_WORK_ID, disposition: 'authorized' }, undefined, catalog).state;
     state = nextDay(state);
-    expect(state.world.people[INITIAL_PERSON_ID].scribal!.wallet.provisions).toBe(3);
+    expect(getInitializedScribal(state.world.people[INITIAL_PERSON_ID])!.wallet.provisions).toBe(3);
   });
 
   it('normalizes completed tutorial progression in existing v2 saves without invalidating the save', () => {
