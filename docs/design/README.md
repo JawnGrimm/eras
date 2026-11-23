@@ -21,6 +21,14 @@ This directory contains supporting design specifications subordinate to the [can
 - [Interface, Audio, and Accessibility Specification](INTERFACE_AUDIO_ACCESSIBILITY_SPEC.md) — presentation, feedback, audio, and accessibility.
 - [Content and Scenario Quality Standards](../content/CONTENT_AND_SCENARIO_STANDARDS.md) — authored content quality requirements.
 
+## Historical and content documentation
+
+- [Historical and Content Documentation](../content/README.md) — Era I research, content-authoring proposals, and promotion rules.
+
+## Engineering and production
+
+- [Engineering and Production Documentation](../production/README.md) — technical boundaries, implementation contracts, QA, and production records.
+
 ## Governance
 
 - [Decision Register](DECISION_REGISTER.md) — approved decisions and maturity.
