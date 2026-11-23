@@ -230,9 +230,9 @@ Show four cards. Each card must contain the general explanation first and the cu
 
 *In Uruk:*
 
-> Evidence for a distinct military scribal career is weak in this period. Your work may touch a specific security, transport, or mobilization matter; the game does not assume a standing army or military bureaucracy.
+> Evidence for a distinct military scribal career is weak in this period. Your connection is to a specific matter of custody, protection, or movement under risk—not to a documented standing army or military bureaucracy.
 
-*Likely starting context:* A specific, authored contact or circumstance. This option should appear only if the Era I content package can support a credible opening connection.
+*Likely starting context:* Enlil-kisu, the existing Carrier Foreman, through a specific delivery or sealed-load responsibility. This is a transport/custody connection, not a military posting.
 
 **Religious**
 
@@ -272,17 +272,17 @@ Show four cards. Each card must contain the general explanation first and the cu
 
 **Name:** Offer an era-appropriate authored name list and a custom-name field if the naming system supports it. Do not present a reconstructed name as a documented historical individual.
 
-**Traits:**
+**Traits — approved placeholders:**
 
 > Which qualities do you recognize in yourself?
 
-Allow the player to select one or two traits from the approved trait catalog. The catalog and trait effects are not defined by this proposal. If the catalog is not ready, this step must be omitted or explicitly marked as a later design dependency; do not invent placeholder traits.
+Show two reserved starting-trait slots with explanatory placeholder copy. They are visible but inactive until the trait catalog and effects are authored and approved. Do not present invented trait names as selectable content or populate trait IDs with placeholders.
 
-**Optional ambition:**
+**Ambition — approved placeholder:**
 
 > What do you hope your work might one day make possible?
 
-Ambition is optional narrative context only. It is not a progression track, guaranteed quest, hidden objective, or mechanical bonus. If ambition content is not authored and supported, omit the control from the first playable version.
+Show the ambition prompt and a reserved response area with placeholder copy. It is visible but inactive until ambition content is authored. It is not a progression track, guaranteed quest, hidden objective, or mechanical bonus.
 
 ### Screen 8 — Biography and confirmation
 
@@ -452,15 +452,14 @@ No locked invariant is changed. The Workday economy, gameplay layers, progressio
 
 ## 10. Recommendation and owner decisions
 
-**Recommendation:** Use the nine-screen flow (opening, five life-history/orientation chapters, identity, biography review) as the working player-facing structure. For the first playable content pass, author the narrower four-option set listed in §7. Keep the four GDD orientations and explain them in plain language with era-local meaning.
+**Approved by Game Director (2026-11-23):** The nine-screen flow and one primary choice per chapter; the narrower Era I first-playable option set; inclusion of the Military orientation; and visible but inactive placeholders for traits and ambition.
+
+The Military option must use a historically restrained custody/transport/security connection, not a standing army or formal military posting. Trait and ambition placeholders must not masquerade as implemented mechanics.
 
 The most important implementation gate is not numerical balance. It is whether the authored choice chains can produce a small, coherent cast of existing Persons and a believable opening biography without creating a large branching system.
 
-**Game Director decisions still required:**
-1. Approve or revise the proposed screen sequence and one-primary-choice-per-chapter interaction.
-2. Approve the recommended narrower Era I option set for the first playable pass.
-3. Decide whether Military receives an Era I playable opening connection in the vertical slice; the GDD path itself remains unchanged.
-4. Decide whether traits and ambition appear in the first playable character creator or are omitted until their content is ready.
-5. Approve the eventual numerical starting-state model separately; this document intentionally does not propose values.
+**Remaining Game Director decisions:**
+1. Review the detailed authored profiles, NPC connection map, and deterministic starting-state contract in `dev/CHARACTER_CREATION_ERA_I_CONTENT_SPEC.md`.
+2. Approve the eventual numerical starting-state model separately; this flow intentionally does not propose values.
 
-Until those decisions are made, this document remains a player-facing design proposal. It does not authorize GDD edits, schema changes, or production implementation.
+The approved flow remains a design proposal for implementation planning. It does not authorize GDD edits, schema changes, or production implementation.
