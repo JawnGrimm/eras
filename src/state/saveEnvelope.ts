@@ -637,7 +637,7 @@ function normalizeInstitutionalMatters(parsed: unknown): unknown {
    else if (entry === 'Verify north-bay roof repair' || entry.startsWith('Verify north-bay roof repair (') || entry.startsWith('Roof repair certified without sufficient supporting inspection') || entry.startsWith('Clear north-bay parapet runoff channel') || entry.startsWith('North-bay roof repair inspected')) { id = MATTER_IDS.roofRepair; kind = 'roof_repair_verification'; }
    else { id = `matter-legacy-${institutionId}-${entry.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}`; kind = 'general'; }
    const summary = kind === 'held_barley_inspection' ? legacyHeldBarleySummaryCorrections[entry] ?? entry : entry;
-  const matter: any = { id, institutionId, kind, summary, status: 'active', createdDay: day };
+   const matter: any = { id, institutionId, kind, summary, status: 'active', createdDay: day };
    if (kind === 'roof_repair_verification') { matter.locationId = NORTH_BAY_LOCATION_ID; if (roofRecord?.id) matter.sourceRecordId = roofRecord.id; matter.scheduledDevelopment = { kind: 'rain', dayNumber: day + 3 }; }
    if (kind === 'held_barley_inspection') { matter.locationId = NORTH_BAY_LOCATION_ID; if (roofRecord?.id) matter.sourceRecordId = roofRecord.id; }
    matters[id] = matters[id] ?? matter; if (!active.includes(id)) active.push(id);
