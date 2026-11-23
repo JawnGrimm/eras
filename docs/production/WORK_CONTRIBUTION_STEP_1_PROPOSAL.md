@@ -4,7 +4,7 @@
 **Architecture authority:** Separate undertaking-owned contribution ledger is an **APPROVED PRINCIPLE**.  
 **Implementation maturity:** Concrete types and transitions below are proposed, not a final serialized schema.  
 **Depends on:** [Behavior Specification](WORK_CONTRIBUTION_BEHAVIOR_SPEC.md), [Architecture Decision](WORK_CONTRIBUTION_ARCHITECTURE_DECISION.md).  
-**Baseline inspected:** `main`, 23 November 2026.
+**Baseline inspected:** `main`, 23 November 2026. `createInitialGameState()` initializes `calendar.dayNumber` to `1`.
 
 ## 1. Purpose and exclusions
 
@@ -90,18 +90,32 @@ Illustrative API:
 registerWorkContribution(
   state: GameState,
   input: { workId: WorkId; contributionTypeId: ContributionTypeId },
-): GameState
+ ): WorkContributionRegistrationResult
+```
+
+```ts
+export type WorkContributionRegistrationFailureReason =
+  | 'work-not-registered'
+  | 'work-not-active'
+  | 'tutorial-not-eligible'
+  | 'missing-active-character'
+  | 'invalid-contribution-type-id'
+  | 'invalid-existing-ledger';
+
+export type WorkContributionRegistrationResult =
+  | { ok: true; state: GameState; contributionId: ContributionInstanceId }
+  | { ok: false; state: GameState; reason: WorkContributionRegistrationFailureReason };
 ```
 
 Transition contract:
 
-1. Require a registered Work definition and an existing active `WorkProgress` for `workId`. Reject unknown, completed, or abandoned Works.
+1. Require a registered Work definition. Reject `kind: 'tutorial'`; omitted `kind` retains the existing ordinary-Work default. Require `state.works.activeWorkId === workId` **and** an existing `WorkProgress` with `status === 'active'`. A merely present progress entry is insufficient; completed, abandoned, or pre-start/available progress is ineligible.
 2. Resolve `state.player.currentCharacterId` to an existing Person with initialized scribal capability. The active character is the only actor source; callers cannot pass an actor ID.
 3. Require a non-empty contribution type key. Step 1 checks only syntax; Step 2 checks that the key is authored for this Work.
 4. Create the ledger if absent: `nextSequence = 1`, empty contribution map.
 5. Allocate `contribution-${nextSequence}`, store Work ID, type ID, active character ID, and current calendar day.
 6. Increment the sequence and insert the instance in one immutable state transition.
-7. Fail without partial mutation when any precondition fails. Do not repair malformed existing ledger state.
+7. Return a discriminated `WorkContributionRegistrationResult`, not a bare `GameState`. On success return `{ ok: true, state: nextState, contributionId }`, exposing the exact allocated ID. On an expected domain/precondition failure return `{ ok: false, state, reason }`, where `state` is the exact original state reference and `reason` is one of the declared failure codes. Expected invalid-state outcomes do not throw. A malformed existing ledger returns `invalid-existing-ledger` without repair or partial mutation.
 8. Do not spend AP, mutate WorkProgress, complete an action, create an event/record, change institutional state, or award XP. Registration establishes identity and attribution only.
 
 This service is intentionally dormant until Step 2. There is no UI/action wiring in Step 1.
@@ -122,7 +136,7 @@ Add a focused ledger validator and call it from `isValidGameState`. Keep it sepa
 For each ledger and contribution:
 
 1. Ledger map key is non-empty and equals `ledger.workId`.
-2. Work ID exists in the registered Work catalog and has a WorkProgress entry. The WorkProgress may be active, completed, or abandoned; historical identity must not be deleted when a Work ends.
+2. Work ID exists in the registered Work catalog, is not `kind: 'tutorial'`, and has a WorkProgress entry. The WorkProgress may be active, completed, or abandoned; historical identity must not be deleted when a Work ends.
 3. `nextSequence` is a positive integer.
 4. `contributions` is an object/map, not an array.
 5. Each contribution map key is non-empty and equals `instance.id`.
@@ -130,7 +144,7 @@ For each ledger and contribution:
 7. `contributionTypeId` is a non-empty string; catalog membership is deferred to Step 2.
 8. `actorPersonId` resolves to an existing Person in `world.people`. Do not require alive/current status.
 9. `createdDay` is a positive integer no later than the current calendar day.
-10. ID matches the local sequence format; each sequence is positive, unique within the ledger, and lower than `nextSequence`.
+10. ID matches the canonical regex `/^contribution-[1-9]\\d*$/` (no leading zeros, sign, whitespace, or zero); each parsed sequence is a positive safe integer, unique within the ledger, and lower than `nextSequence`.
 11. No rule infers an actor from current player, WorkProgress, last assessment, or submission context.
 
 ## 6. Save, restore, and legacy compatibility
@@ -140,7 +154,7 @@ For each ledger and contribution:
 - Keep `SAVE_KEY = 'scribe_game_v2'` and `SAVE_SCHEMA_VERSION = 2` for this non-breaking addition.
 - Make `works.contributionLedgers` optional in the TypeScript state shape.
 - A legacy schema-v2 save with no field remains valid. Absence means contribution-level history was not recorded; it is not evidence that there were no contributions.
-- New games may initialize an empty map, or first registration may create it. Implementation should choose one consistently.
+- **Lazy initialization is selected:** omit `works.contributionLedgers` from new-game state and legacy state until the first successful registration. First registration creates the map and its Work ledger. An explicitly present empty object `{}` is valid and remains valid; restore does not add one.
 - If the field is present, validate it strictly. Malformed present data is not treated as legacy absence.
 - Save/restore preserves IDs, actors, Work scope, days, and sequence exactly.
 - Do not derive contribution instances from `completedActionIds`, evidence arrays, submission count, last assessment, Work reward guard, or current character.
@@ -175,23 +189,28 @@ These are Step 1 tests, not a claim that the wider Work Contribution contract is
 | S1-01 | Register first contribution for active Work. | Ledger created; ID `contribution-1`; active initialized character attributed; next sequence 2. |
 | S1-02 | Register second contribution in same ledger. | ID `contribution-2`; first instance unchanged; next sequence 3. |
 | S1-03 | Register in two different Work ledgers. | Each ledger sequences independently; same local ID may exist in each. |
-| S1-04 | No active WorkProgress for requested Work. | Transition fails without partial mutation. |
-| S1-05 | Work completed or abandoned. | Registration fails; existing historical ledger remains unchanged. |
-| S1-06 | Active character missing, identity-only, or uninitialized. | Registration fails; no instance is created. |
-| S1-07 | Caller attempts to choose another actor. | API has no actor input; actor derives from active state. |
-| S1-08 | Successor becomes active after predecessor contributed. | Existing actor remains predecessor; any later instance is separately attributed. |
-| S1-09 | Ledger key differs from embedded Work ID. | Save validation rejects. |
-| S1-10 | Contribution map key differs from embedded instance ID. | Save validation rejects. |
-| S1-11 | Duplicate/malformed/reused sequence or invalid next counter. | Save validation rejects. |
-| S1-12 | Actor Person reference is missing. | Save validation rejects; no fallback actor is inferred. |
-| S1-13 | Actor exists but is dead or no longer current. | Save remains valid; attribution persists. |
-| S1-14 | Created day is zero, non-integer, or in the future. | Save validation rejects. |
-| S1-15 | Legacy v2 save omits contributionLedgers. | Restore succeeds; no empty ledger or contribution is synthesized. |
-| S1-16 | Save has a present malformed ledger. | Restore rejects; malformed data is not treated as legacy absence. |
-| S1-17 | New save with ledger round-trips. | IDs, actors, scope, days, and next sequence are identical. |
-| S1-18 | Repeated restore/save cycles. | No IDs are allocated; authorship and sequence remain unchanged. |
-| S1-19 | Legacy WorkProgress has actions/evidence/assessment but no ledger. | No contribution or actor is inferred from progress fields. |
-| S1-20 | Ledger belongs to a completed Work. | Ledger remains valid and persisted; it is not tied to active status. |
+| S1-04 | `activeWorkId` does not equal the requested Work ID, or progress is missing/not `active` (including completed, abandoned, or pre-start). | Returns `{ ok: false, state: originalState, reason: 'work-not-active' }`; no partial mutation. |
+| S1-05 | Registered Work definition has `kind: 'tutorial'` (including Storehouse Reckoning). | Returns `tutorial-not-eligible`; no ledger is created or changed. |
+| S1-06 | Work completed or abandoned. | Registration fails; existing historical ledger remains unchanged. |
+| S1-07 | Active character missing, identity-only, or uninitialized. | Returns `missing-active-character`; original state reference is unchanged. |
+| S1-08 | Caller attempts to choose another actor. | API has no actor input; actor derives from active state. |
+| S1-09 | Successor becomes active after predecessor contributed. | Existing actor remains predecessor; any later instance is separately attributed. |
+| S1-10 | Ledger key differs from embedded Work ID. | Save validation rejects. |
+| S1-11 | Contribution map key differs from embedded instance ID. | Save validation rejects. |
+| S1-12 | Duplicate/malformed/reused sequence, leading-zero ID, or invalid next counter. | Save validation rejects. |
+| S1-13 | Actor Person reference is missing. | Save validation rejects; no fallback actor is inferred. |
+| S1-14 | Actor exists but is dead or no longer current. | Save remains valid; attribution persists. |
+| S1-15 | Created day is zero, non-integer, or in the future. | Save validation rejects. New-game baseline is Day 1, so initial-day registration records `createdDay: 1`. |
+| S1-16 | Legacy v2 save omits contributionLedgers. | Restore succeeds; no empty ledger or contribution is synthesized. |
+| S1-17 | Save has a present malformed ledger. | Restore rejects; malformed data is not treated as legacy absence. |
+| S1-18 | New save with ledger round-trips. | IDs, actors, scope, days, and next sequence are identical. |
+| S1-19 | Repeated restore/save cycles. | No IDs are allocated; authorship and sequence remain unchanged. |
+| S1-20 | Legacy WorkProgress has actions/evidence/assessment but no ledger. | No contribution or actor is inferred from progress fields. |
+
+| S1-21 | Ledger belongs to a completed Work. | Ledger remains valid and persisted; it is not tied to active status. |
+| S1-22 | `createInitialGameState()` calendar starts at Day 1. | Initial-day registration records `createdDay: 1`. |
+| S1-23 | Existing ledger is malformed when registration is attempted. | Returns `invalid-existing-ledger` with the exact original state; no partial mutation. |
+| S1-24 | Successful registration result is consumed by caller. | Result exposes exact `ContributionInstanceId` and next state. |
 
 ### Regression requirements
 
