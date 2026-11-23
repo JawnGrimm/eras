@@ -23,8 +23,10 @@ function stateWithExecution(includeEvidence = true): GameState {
   const inspection: RecordEntry = {
     id: inspectionRecordId, createdDay: 1, authorPersonId: INITIAL_PERSON_ID,
     institutionId: STOREHOUSE_INSTITUTION_ID, title: 'Post-execution inspection',
-    sources: [{ id: 'source-independent-observer', kind: 'person', sourceId: INITIAL_PERSON_ID,
-      description: 'Direct physical inspection by a person other than the execution worker.' }],
+     sources: [{ id: 'source-independent-observer', kind: 'person', sourceId: INITIAL_PERSON_ID,
+      description: 'Direct physical inspection by a person other than the execution worker.' },
+    { id: 'source-linked-execution', kind: 'other', sourceId: 'event-lifecycle-execution',
+      description: 'The specific execution event being inspected.' }],
     assertions: [{ id: 'assertion-independent-observation',
       text: 'The inspected north-bay runoff channel is clear after the maintenance execution.',
       classification: 'observed', sourceIds: ['source-independent-observer'] }],
@@ -166,7 +168,8 @@ describe('institutional response lifecycle', () => {
     const workerRecordId = 'record-worker-only' as RecordId;
     const workerRecord: RecordEntry = {
       ...base.records.entries[recordId], id: workerRecordId,
-      sources: [{ id: 'source-worker-claim', kind: 'person', sourceId: workerId, description: 'The execution worker’s own statement.' }],
+       sources: [{ id: 'source-worker-claim', kind: 'person', sourceId: workerId, description: 'The execution worker’s own statement.' },
+        { id: 'source-linked-execution', kind: 'other', sourceId: 'event-lifecycle-execution', description: 'The specific execution event being inspected.' }],
       assertions: [{ id: 'assertion-worker-claim', text: 'The work was completed.', classification: 'observed', sourceIds: ['source-worker-claim'] }],
     };
     const workerOnly = { ...base, records: { ...base.records, entries: { ...base.records.entries, [workerRecordId]: workerRecord } },
