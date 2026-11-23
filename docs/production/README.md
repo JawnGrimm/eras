@@ -7,7 +7,8 @@ These records explain how the approved game is built and verified. They do not i
 ## Current records
 
 - [Work Contribution Behavior Specification](WORK_CONTRIBUTION_BEHAVIOR_SPEC.md) — observable engineering requirements and acceptance scenarios for the owner-accepted contribution framework. This is not a schema or implementation decision.
-- [Work Contribution Architecture Decision](WORK_CONTRIBUTION_ARCHITECTURE_DECISION.md) — compares two persistence/ownership approaches against the behavior contract and recommends conceptual boundaries; owner review pending, no final schema selected.
+- [Work Contribution Architecture Decision](WORK_CONTRIBUTION_ARCHITECTURE_DECISION.md) — records the approved separate undertaking-owned ledger principle and compares it against the alternative; final schema and implementation details remain open.
+- [Work Contribution Step 1 Proposal](WORK_CONTRIBUTION_STEP_1_PROPOSAL.md) — proposed concrete identity/ledger types, registration transition, validation, save/restore behavior, migration alternatives, and acceptance tests; owner review pending, no runtime code.
 - [Implementation Status Snapshot](IMPLEMENTATION_STATUS.md) — dated implementation facts as of 22 November 2026. Verify against current code, tests, and deployment before relying on it.
 
 ## Technical boundaries
