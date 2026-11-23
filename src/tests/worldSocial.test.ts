@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { transitionGame } from '../engine/actionEconomy';
+import { validateInstitutionalResponseEvent } from '../engine/institutionalResponseValidation';
 import { deriveProfessionalRank } from '../engine/professionalRank';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
 import { createSaveEnvelope, isValidGameState, restoreSave } from '../state/saveEnvelope';
@@ -189,6 +190,7 @@ describe('world, relationships, institutions and records', () => {
     expect(commitment?.basis).toEqual({ kind: 'event', id: assignment.id });
     expect(Object.values(state.world.knowledge).some((entry) => entry.holder.kind === 'person'
       && entry.holder.id === workerId && entry.subject.kind === 'record' && entry.subject.id === report.id)).toBe(true);
+    expect(isValidGameState(state)).toBe(true);
 
     const outOfScope = {
       id: 'event-north-bay-maintenance-out-of-scope' as EventId, dayNumber: 1,
@@ -229,6 +231,11 @@ describe('world, relationships, institutions and records', () => {
     expect(executed.feedback?.code).toBe('event-created');
     expect(executed.state.world.people[workerId].commitments?.find((item) => item.id === 'commitment-aru-north-bay-maintenance')?.status).toBe('fulfilled');
     expect(executed.state.world.matters[MATTER_IDS.roofRepair].status).toBe('active');
+    const responseErrors = Object.values(executed.state.world.events).flatMap((event) => {
+      const error = validateInstitutionalResponseEvent(executed.state, event);
+      return error ? [[event.id, error]] : [];
+    });
+    expect(responseErrors).toEqual([]);
     expect(isValidGameState(executed.state)).toBe(true);
 
     const duplicateExecution = transitionGame(executed.state, { type: 'CREATE_EVENT', event: {
