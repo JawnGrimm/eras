@@ -4,9 +4,9 @@ A historical career RPG and administrative simulation about the people who recor
 
 ## Design reference
 
-**[Read the Game Design Document](docs/GDD.md)**
+**[Read the canonical Game Design Document](docs/GDD.md)**
 
-The GDD is the canonical design reference for this repository. The current application is a proof of concept; existing UI or code behavior should not be treated as approved design when it conflicts with the GDD. Deliberate design changes should be reflected in the GDD.
+The GDD defines game identity, pillars, approved principles, and locked gameplay boundaries. Detailed system rules live in [supporting design specifications](docs/design/README.md); historical/content standards live in docs/content/; implementation status and technical contracts live in docs/production/ and dev/. The [Decision Register](docs/design/DECISION_REGISTER.md) distinguishes approved decisions from provisional values and implementation facts. The [Open Design Register](docs/design/OPEN_DESIGN_REGISTER.md) tracks unresolved work and its priority against the current milestone. Supporting documents may clarify the GDD but may not silently override it.
 
 ## Core design
 
@@ -21,6 +21,7 @@ The GDD is the canonical design reference for this repository. The current appli
 
 ## Historical and architectural references
 
+- [Historical and Content Documentation](docs/content/README.md) — Era I research, authoring proposals, and content standards.
 - [Historical Correction Register](docs/HISTORICAL_CORRECTION_REGISTER.md) — prioritized historical findings and deferred correction work; it does not interrupt active implementation.
 - [Comparative Design Reference](docs/COMPARATIVE_DESIGN_REFERENCE.md) — standing architectural lessons and scope guardrails drawn from the comparative RPG study; it is not an implementation backlog.
 

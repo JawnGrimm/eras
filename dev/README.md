@@ -10,7 +10,13 @@ It is separate from the game itself. Nothing in this folder is gameplay content,
 - **[Performance Risks and Engineering Watchlist](PERFORMANCE_NOTES.md):** Track unverified scalability risks, measurement priorities, and data-preservation guardrails.
 - **GitHub Issues:** Use issues for bugs, concrete tasks, and work that needs tracking or assignment.
 - **Pull request discussions:** Keep code-specific review comments with the pull request they concern.
-- **[Game Design Document](../docs/GDD.md):** This remains the canonical source for approved game design. A discussion note here does not change the GDD. Once a design decision is agreed, update the GDD as appropriate.
+- **[Canonical Game Design Document](../docs/GDD.md):** Defines game identity, pillars, approved principles, and locked boundaries.
+- **[Design Documentation Guide](../docs/design/README.md):** Explains the authority hierarchy and supporting specifications.
+- **[Decision Register](../docs/design/DECISION_REGISTER.md):** Records owner-approved decisions and maturity.
+- **[Open Design Register](../docs/design/OPEN_DESIGN_REGISTER.md):** Tracks unresolved questions and milestone priority.
+- **[Implementation Status](../docs/production/IMPLEMENTATION_STATUS.md):** Holds dated implementation facts, not design authority.
+
+A discussion note here does not change an approved decision. Update the relevant supporting specification and Decision Register when a decision is approved; update the GDD when its core authority or a locked boundary changes.
 
 ## Writing a team-log entry
 
