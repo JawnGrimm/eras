@@ -70,7 +70,7 @@ export function validateInstitutionalResponseEvent(state: GameState, event: Worl
       && (response.authorizedAction !== undefined || response.scope !== undefined)) {
       return 'A declined authorization cannot carry an authorized action or scope.';
     }
-    const alreadyAuthorized = Object.values(state.world.events).some((existing) => existing.id !== event.id
+    const alreadyAuthorized = Object.values(state.world.events).some((existing) => !!existing && existing.id !== event.id
       && existing.institutionalResponse?.stage === 'authorization'
       && existing.institutionalResponse.decision === 'authorized'
       && existing.institutionalResponse.matterId === matter.id
