@@ -18,21 +18,21 @@ This pack supplies three distinct recurring Assignment activities and two option
 **Location:** Temple Storehouse, north storage bay  
 **Source / origin:** The North-Bay Roof Inspection Report and the earlier intake record  
 **Destination:** A qualified inspection report entered into the Temple Storehouse record  
-**Quantity:** Seven segregated barley sacks  
-**Timing:** After the North-Bay Roof Inspection has been submitted and its recommendation to inspect the held sacks has been accepted by the Steward  
-**Purpose:** Establish the sacks' observable condition and custody limits before any decision about their use  
+**Quantity:** Seven sealed pottery storage jars containing held barley  
+**Timing:** After the North-Bay Roof Inspection has been submitted and its recommendation to inspect the held jars has been accepted by the Steward  
+**Purpose:** Establish the jars' observable condition and custody limits before any decision about their use  
 **Responsibility:** The player inspects and reports. The Steward controls ordinary storehouse custody; the Receiving Official can explain the original intake record. The player cannot release stock or authorize its issue.
 
 ### Delivery reason
 
-The North-Bay report recorded that seven sacks remained segregated on dry reed matting and explicitly stated that their contents had not been tested. Its recommendation for a separate inspection reached Ur-Nanna, who now asks for a condition report before the next stock allocation.
+The North-Bay report recorded that seven sealed pottery storage jars remained segregated on dry reed matting and explicitly stated that their contents had not been tested. Its recommendation for a separate inspection reached Ur-Nanna, who now asks for a condition report before the next stock allocation.
 
 ### Authored evidence and action sequence
 
-1. **Review the prior record (1 AP).** The earlier intake record lists 56 usable measures and 4 held measures at the time of the original receipt. It does not describe the later seven-sack segregation and does not establish the present contents of those sacks.
-2. **Consult Utu-mansum (1 AP).** He confirms that he made the original intake entry. He was not present for the storm, the roof repair, or the later segregation. His testimony establishes the boundary of his knowledge, not the sacks' present condition.
-3. **Consult Ur-Nanna (1 AP).** He confirms that the seven sacks were kept apart after the roof incident. He can attest to the segregation decision and custody, but cannot certify the grain inside.
-4. **Inspect the seven sacks (2 AP).** The outer surfaces of two sacks show damp staining; five appear dry. The sack seams remain tied. No contents are sampled, weighed, or opened. The staining is an observation, not proof that the barley is spoiled.
+1. **Review the prior record (1 AP).** The earlier intake record lists 56 usable measures and 4 held measures at the time of the original receipt. It does not describe the later seven-jar segregation and does not establish the present contents of those jars.
+2. **Consult Utu-mansum (1 AP).** He confirms that he made the original intake entry. He was not present for the storm, the roof repair, or the later segregation. His testimony establishes the boundary of his knowledge, not the jars' present condition.
+3. **Consult Ur-Nanna (1 AP).** He confirms that the seven sealed pottery storage jars were kept apart after the roof incident. He can attest to the segregation decision and custody, but cannot certify the grain inside.
+4. **Inspect the seven sealed pottery storage jars (2 AP).** The outer surfaces of two jars show damp staining; five appear dry. The jar closures remain sealed. No contents are sampled, weighed, or opened. The staining is an observation, not proof that the barley is spoiled.
 
 The order permits a qualified early report after the records and one or both consultations. Physical inspection is not mandatory for submission, but a report that claims present physical condition without it is unsupported.
 
@@ -40,7 +40,7 @@ The order permits a qualified early report after the records and one or both con
 
 - **Finding:** `condition_unverified`, `external_dampness_observed`, or `ready_for_release`.
 - **Responsibility claim:** `none`, `steward_custody`, or `receiving_official`.
-- **Recommendations:** `maintain_segregation`, `request_authorized_sampling`, `rehouse_outer_sacks`, or `release_for_issue`.
+- **Recommendations:** `maintain_segregation`, `request_authorized_sampling`, `rehouse_outer_containers`, or `release_for_issue`.
 - **Limitations:** Free text, retained verbatim in the report.
 
 ### Assessment and consequences
@@ -49,10 +49,10 @@ The order permits a qualified early report after the records and one or both con
 - A report that records damp staining but distinguishes it from spoilage is accurate.
 - A report that declares the barley spoiled, sound, or fit for issue without sampling overstates the evidence.
 - A report assigning responsibility to Utu-mansum for the later segregation or present condition exceeds his documented involvement.
-- A report recommending release does not itself release the sacks. Only the Steward's separate authority can change their custody status.
+- A report recommending release does not itself release the jars. Only the Steward's separate authority can change their custody status.
 - Submission creates a permanent report with source references, cited assertions, and explicit uncertainty limits. It grants Career XP and the Assignment's stated compensation only. It creates no Historical Progress XP.
 
-**Provenance boundary:** The earlier intake quantities (56 usable and 4 held measures) and the later seven-sack segregation are separate observations at different times. Do not add, subtract, or equate them without an authored reconciliation record.
+**Provenance boundary:** The earlier intake quantities (56 usable and 4 held measures) and the later seven-jar segregation are separate observations at different times. Do not add, subtract, or equate them without an authored reconciliation record.
 
 ---
 
@@ -146,27 +146,27 @@ Ur-Nanna reports that rainwater has collected near the south loading threshold a
 
 ---
 
-## 4. Optional Challenge: The Seven Sacks
+## 4. Optional Challenge: The Seven Sealed Jars
 
 **Challenge ID:** `challenge-seven-sacks`  
 **Runtime trigger:** The held-barley institutional matter has remained active for at least two days, or a completed Held-Barley report has the `qualified_incomplete` finding. The Challenge is presented once and is not reoffered after decline or resolution.  
 **Category:** `institutional_judgment`  
 **Delivery:** Ur-Nanna asks the current scribe for a recommendation after receiving the inspection report.  
 **AP cost:** 2 AP to resolve after accepting.  
-**Context:** The seven sacks remain segregated. Two outer sacks show damp staining, but no contents have been sampled. The next allocation is approaching and the Steward wants a decision he can act on.
+**Context:** The seven sealed pottery storage jars remain segregated. Two jar exteriors show damp staining, but no contents have been sampled. The next allocation is approaching and the Steward wants a decision he can act on.
 
 ### Choices and outcomes
 
 1. **Maintain segregation and request authorized sampling.**  
-   Preserve the seven sacks under hold, record the two stained exteriors, and ask the Steward to authorize a separate sampling procedure.  
+   Preserve the seven sealed pottery storage jars under hold, record the two stained exteriors, and ask the Steward to authorize a separate sampling procedure.  
    **Consequences:** +3 Career XP; +2 directional trust from the current character toward Ur-Nanna; preserve the existing held-barley matter as active; no stock is released. The authored outcome record notes that sampling remains unauthorized and outstanding.
 
-2. **Release the five apparently dry sacks, retain the two stained sacks.**  
+2. **Release the five apparently dry jars, retain the two stained jars.**  
    Recommend a partial release based only on exterior appearance. The Steward must explicitly accept the risk; the scribe's report records that the contents were not sampled.  
    **Consequences:** +1 Career XP; -1 Temple Storehouse institutional standing; preserve the recommendation and its explicit uncertainty warning in the outcome record. The Challenge does not itself release stock.
 
-3. **Certify all seven sacks as fit for issue.**  
-   Treat the dry appearance of five sacks and the absence of visible leakage as sufficient proof for all seven.  
+3. **Certify all seven sealed pottery storage jars as fit for issue.**  
+   Treat the dry appearance of five jars and the absence of visible leakage as sufficient proof for all seven.  
    **Consequences:** -2 directional trust from the current character toward Ur-Nanna; -2 Temple Storehouse institutional standing; preserve a disputed assertion that the report certified contents never sampled. No automatic stock release occurs.
 
 **Resolution rule:** A Challenge choice records the player's recommendation and its social/professional consequences. It does not grant the player institutional authority. No choice awards Historical Progress XP.

@@ -14,9 +14,9 @@ export const NORTH_BAY_PEOPLE = {
 };
 export const NORTH_BAY_LOCATION_ID = 'location-uruk-temple-storehouse' as import('../../state/ids').LocationId;
 export const NORTH_BAY_DISCOVERIES = [
-  { id: 'steward-briefing', title: 'Steward’s account', text: 'Ur-Nanna says storm wind tore the outer reed matting and mud-plaster coat and washed debris toward the north parapet. He says the leak continued for two days before the repair, describes the bay as repaired, names Dudu as the repairer, and confirms that seven held sacks remain segregated below. He wants the bay returned to use before the incoming harvest.' },
+  { id: 'steward-briefing', title: 'Steward’s account', text: 'Ur-Nanna says storm wind tore the outer reed matting and mud-plaster coat and washed debris toward the north parapet. He says the leak continued for two days before the repair, describes the bay as repaired, names Dudu as the repairer, and confirms that seven sealed pottery storage jars containing held barley remain segregated below. He wants the bay returned to use before the incoming harvest.' },
   { id: 'repairer-scope', title: 'Repairer’s account', text: 'Dudu states that he patched the mid-bay break with reed matting and mud plaster. Clearing the parapet runoff channel and replacing damp beam-ends were not included in the Steward’s fee.' },
-  { id: 'roof-inspection', title: 'Physical inspection', text: 'From the courtyard the center appears repaired. Close inspection finds the mid-bay patch intact, but the north parapet runoff channel remains clogged with storm-washed reeds and cracked plaster. The exposed face of the north-east beam socket appears dry, but the shaded wall joint remains damp; it is not collapsed, but fresh grain should not be stacked against that wall until it is assessed. Seven sacks remain segregated on dry reed matting; their contents have not been tested.' },
+  { id: 'roof-inspection', title: 'Physical inspection', text: 'From the courtyard the center appears repaired. Close inspection finds the mid-bay patch intact, but the north parapet runoff channel remains clogged with storm-washed reeds and cracked plaster. The exposed face of the north-east beam socket appears dry, but the shaded wall joint remains damp; it is not collapsed, but fresh grain should not be stacked against that wall until it is assessed. Seven sealed pottery storage jars remain segregated on dry reed matting; their contents have not been tested.' },
   { id: 'intake-boundary', title: 'Original intake boundary', text: 'Utu-mansum can attest that the original intake inspection recorded 56 usable and 4 held measures. He was not present for the storm or subsequent repair.' },
   { id: 'scope-comparison', title: 'Repair scope comparison', text: 'The Steward’s maintenance note calls the bay repaired; Dudu’s account limits the paid work to the mid-bay patch. The accounts differ in scope, not necessarily in whether Dudu completed his contracted work.' },
 ] as const;
@@ -60,7 +60,7 @@ export const northBayRoofInspection: AssignmentActivityDefinition = {
   discoveries: [...NORTH_BAY_DISCOVERIES],
   actions: [
     { id: 'brief-steward', family: 'consult', label: 'Consult Ur-Nanna', description: 'Establish the request, access, and repairer identity.', apCost: 1, discoveryIds: ['steward-briefing'], consultedPersonId: NORTH_BAY_PEOPLE.steward },
-    { id: 'inspect-roof', family: 'observe', label: 'Inspect roof and beam socket', description: 'Examine the repaired mid-bay section, north runoff channel, shaded beam joint, and segregated sacks.', apCost: 2, prerequisites: ['brief-steward'], discoveryIds: ['roof-inspection'] },
+    { id: 'inspect-roof', family: 'observe', label: 'Inspect roof and beam socket', description: 'Examine the repaired mid-bay section, north runoff channel, shaded beam joint, and the segregated storage jars.', apCost: 2, prerequisites: ['brief-steward'], discoveryIds: ['roof-inspection'] },
     { id: 'consult-repairer', family: 'consult', label: 'Consult Dudu', description: 'Ask what work was actually included in the repair contract.', apCost: 1, prerequisites: ['brief-steward'], discoveryIds: ['repairer-scope'], consultedPersonId: NORTH_BAY_PEOPLE.repairer },
     { id: 'consult-receiver', family: 'consult', label: 'Consult Utu-mansum', description: 'Check the limits of the original receiving inspection.', apCost: 1, discoveryIds: ['intake-boundary'], consultedPersonId: NORTH_BAY_PEOPLE.receivingOfficial },
     { id: 'compare-scope', family: 'compare', label: 'Compare repair accounts', description: 'Compare Dudu’s account with the Steward’s maintenance note.', apCost: 1, prerequisites: ['brief-steward','consult-repairer'], discoveryIds: ['scope-comparison'] },
@@ -81,7 +81,7 @@ export const northBayRoofInspection: AssignmentActivityDefinition = {
     recommendations: [
       { id: 'clear_parapet', label: 'Clear the north parapet runoff channel' },
       { id: 'assess_beam', label: 'Assess the damp north-east beam socket' },
-      { id: 'inspect_held_barley', label: 'Arrange a separate inspection of the seven held sacks' },
+      { id: 'inspect_held_barley', label: 'Arrange a separate inspection of the seven held jars' },
       { id: 'monitor_repair', label: 'Monitor the repaired section after heavy rain' },
     ],
     limitationsLabel: 'Limitations and unverified matters',

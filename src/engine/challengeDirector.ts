@@ -44,14 +44,14 @@ function sevenSacks(state: GameState): GameState {
   const player = state.player.currentCharacterId;
   const challenge = {
     id: id as ChallengeId,
-    title: 'The Seven Sacks',
-    description: 'Harvest pressure is increasing. Ur-Nanna asks what should be recommended for the seven held sacks. The physical inspection distinguishes two stained exteriors from five surface-dry sacks; none of the grain has been sampled. Your answer is a professional recommendation, not a release order.',
+    title: 'The Seven Sealed Jars',
+    description: 'Harvest pressure is increasing. Ur-Nanna asks what should be recommended for the seven sealed pottery storage jars. The physical inspection distinguishes two stained exteriors from five surface-dry jars; none of the grain has been sampled. Your answer is a professional recommendation, not a release order.',
     category: 'held_barley_disposition',
     employer: { kind: 'person' as const, id: STEWARD as never },
     context: {
-      what: 'Advise the Steward on the next responsible step for the seven held sacks.',
+      what: 'Advise the Steward on the next responsible step for the seven sealed pottery storage jars.',
       who: ['Ur-Nanna, Storehouse Steward', 'Shuruppak-ilu, Senior Scribe'],
-      quantity: 'Seven capacity measures in seven physical sacks; two exteriors stained/crusted and five surface-dry.',
+      quantity: 'Seven capacity measures in seven sealed pottery storage jars; two jar exteriors stained/crusted and five are surface-dry.',
       when: 'During harvest preparation, while the held-stock matter remains open.',
       where: 'Temple Storehouse, north storage bay.',
       from: 'The held-stock inspection report and direct container observation.',
@@ -59,15 +59,15 @@ function sevenSacks(state: GameState): GameState {
       purpose: 'Balance harvest pressure against the unresolved internal condition of the grain.',
       responsibility: ['The scribe recommends; the Steward or Senior Scribe decides whether stock may be released.'],
       authority: 'The Challenge does not grant stock-release authority and cannot itself release, clean, or destroy stock.',
-      provenance: ['Seven-sack physical observation', 'Capacity records ev-04 and ev-07 remain separate and unchanged'],
+      provenance: ['Seven sealed-jar physical observation', 'Capacity records ev-04 and ev-07 remain separate and unchanged'],
     },
     deliveryChannels: [{ kind: 'baseline_reach' as const, explanation: 'Ur-Nanna has received the report and asks the reporting scribe for a recommendation.' }],
     presentedDay: state.calendar.dayNumber,
     apCost: 2,
     choices: [
-      { id: 'recommend-five-two', label: 'Recommend five for consideration; retain two', description: 'Recommend that Ur-Nanna consider releasing the five surface-dry sacks while retaining the two stained sacks for authorized sampling or cleaning. No release occurs until the Steward issues an order.', consequences: challengeEffects(12, [{ fromId: player as never, toId: STEWARD as never, changes: { trust: 2, respect: 2 }, summary: 'The scribe offered a bounded recommendation and left stock authority with the Steward.' }], 1) },
+      { id: 'recommend-five-two', label: 'Recommend five for consideration; retain two', description: 'Recommend that Ur-Nanna consider releasing the five surface-dry jars while retaining the two stained jars for authorized sampling or cleaning. No release occurs until the Steward issues an order.', consequences: challengeEffects(12, [{ fromId: player as never, toId: STEWARD as never, changes: { trust: 2, respect: 2 }, summary: 'The scribe offered a bounded recommendation and left stock authority with the Steward.' }], 1) },
       { id: 'retain-all-sample', label: 'Retain all seven pending sampling', description: 'Recommend continued segregation until an authorized sample establishes internal grain condition.', consequences: challengeEffects(10, [{ fromId: player as never, toId: STEWARD as never, changes: { trust: 1, respect: 2 }, summary: 'The scribe prioritized a verified grain condition before disposition.' }], 1) },
-      { id: 'certify-all-sound', label: 'Certify all seven as sound', description: 'Claim that the five surface-dry sacks and two stained sacks are all fit for use despite the absence of internal sampling.', consequences: challengeEffects(0, [{ fromId: player as never, toId: STEWARD as never, changes: { trust: -5, respect: -5 }, summary: 'The scribe certified internal grain condition without sampling evidence.' }], -4) },
+      { id: 'certify-all-sound', label: 'Certify all seven as sound', description: 'Claim that the five surface-dry jars and two stained jars are all fit for use despite the absence of internal sampling.', consequences: challengeEffects(0, [{ fromId: player as never, toId: STEWARD as never, changes: { trust: -5, respect: -5 }, summary: 'The scribe certified internal grain condition without sampling evidence.' }], -4) },
     ],
   };
   return present(state, challenge);

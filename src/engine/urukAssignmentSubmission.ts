@@ -25,7 +25,7 @@ function sourceFor(activityId: ScenarioId, discoveryId: string): RecordSource {
     'awning-steward-request': STEWARD, 'awning-repair-scope': REPAIRER,
   };
   const description: Record<string, string> = {
-    'held-container-observation': 'Direct visual observation of seven physical sacks segregated on reed matting',
+    'held-container-observation': 'Direct visual observation of seven sealed pottery storage jars segregated on reed matting',
     'held-intake-record': 'Immutable administrative capacity record ev-04 (four measures held at intake)',
     'held-recount-record': 'Immutable administrative capacity record ev-07 (seven measures held at recount)',
     'delivery-route-inspection': 'Direct inspection of available route and handling points',
@@ -109,21 +109,21 @@ export function submitUrukAssignmentActivity(
   if (id === 'activity-held-barley-inspection') {
     title = 'Held-Barley Finding and Recommendation';
     matterId = MATTER_IDS.heldBarley;
-    matterSummary = 'Seven held capacity measures are contained in seven segregated sacks. A finding and recommendation have been filed; internal grain condition and formal release remain unresolved.';
+    matterSummary = 'Seven held capacity measures are contained in seven sealed pottery storage jars segregated on reed matting. A finding and recommendation have been filed; internal grain condition and formal release remain unresolved.';
     const visual = progress.discoveryIds.includes('held-container-observation');
     const visualCited = cited.has('held-container-observation');
     const internalCertification = draft.finding === 'grain_certified_sound' || draft.recommendations.includes('release_all');
     overclaim = internalCertification || (draft.finding === 'surface_condition_only' && (!visual || !visualCited));
-    if (!visual) limitations.push('The seven physical sacks were not visually inspected.');
-    limitations.push('The seven held measures in ev-07 are a capacity tally; the seven physical sacks are a separate container observation.');
-    limitations.push('Exterior surface dryness or staining does not establish internal grain soundness. Sampling, coring, or opening a sack is required.');
+    if (!visual) limitations.push('The seven sealed pottery storage jars were not visually inspected.');
+    limitations.push('The seven held measures in ev-07 are a capacity tally; the seven sealed pottery storage jars are a separate container observation.');
+    limitations.push('Exterior surface dryness or staining does not establish internal grain soundness. Sampling, coring, or opening a jar is required.');
     limitations.push('This scribal finding is a recommendation only. It does not authorize release, cleaning, destruction, or issue of stock.');
     if (draft.recommendations.includes('release_five_retain_two')) assertions.push({
-      id: 'assertion-recommended-five-sacks', text: 'The scribe recommends that the Steward consider releasing five surface-dry sacks while retaining two externally stained sacks for authorized sampling or cleaning; this is not a release order.',
+      id: 'assertion-recommended-five-sacks', text: 'The scribe recommends that the Steward consider releasing five surface-dry jars while retaining two externally stained jars for authorized sampling or cleaning; this is not a release order.',
       classification: 'inferred', sourceIds: [playerSource],
     });
     if (overclaim) assertions.push({
-      id: 'assertion-unsupported-grain-certification', text: 'The report certifies internal grain condition or recommends release without evidence from sampling, coring, or opening the sacks.',
+      id: 'assertion-unsupported-grain-certification', text: 'The report certifies internal grain condition or recommends release without evidence from sampling, coring, or opening the jars.',
       classification: 'disputed', sourceIds: [playerSource],
     });
     if (progress.consultedPersonIds.includes(STEWARD)) relationshipChanges.push({ from: state.player.currentCharacterId, to: STEWARD, trust: overclaim ? -4 : 2, respect: overclaim ? -3 : 1, summary: overclaim ? 'The Steward received a stock recommendation that exceeded the physical examination.' : 'The Steward received a qualified, source-aware finding that preserves release authority.' });

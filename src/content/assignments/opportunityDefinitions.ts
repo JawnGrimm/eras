@@ -29,13 +29,13 @@ export const URUK_ASSIGNMENT_OPPORTUNITY_DEFINITIONS: readonly AssignmentOpportu
     offer: {
       activityId: 'activity-held-barley-inspection',
       title: 'Held-Barley Inspection',
-      description: 'Inspect the seven physical sacks containing the seven held capacity measures. Report exterior condition separately from the untested grain within; submit a finding and recommendation, not a release order.',
+      description: 'Inspect the seven sealed pottery storage jars containing the seven held capacity measures. Report exterior condition separately from the untested grain within; submit a finding and recommendation, not a release order.',
       employer: { kind: 'person', id: steward },
       category: 'held_barley_inspection',
       context: {
         what: 'Inspect segregated held barley containers and prepare a finding and recommendation.',
         who: ['Ur-Nanna, Storehouse Steward', 'Utu-mansum, Receiving Official', 'Shuruppak-ilu, Senior Scribe'],
-        quantity: 'Seven held capacity measures contained in seven physical sacks; two sacks show exterior damp-staining/crusting and five are surface-dry.',
+        quantity: 'Seven held capacity measures contained in seven sealed pottery storage jars; two jar exteriors show damp-staining/crusting and five are surface-dry.',
         when: 'Following the north-bay leak and the current held-stock recount, during harvest preparation.',
         where: 'Temple Storehouse, north storage bay, on reed matting.',
         from: 'The segregated stock and its prior administrative intake/recount records.',
