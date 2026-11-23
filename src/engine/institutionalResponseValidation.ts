@@ -32,9 +32,11 @@ function recordSources(record: RecordEntry) {
 /** A verification record must contain an observed assertion supported by a source independent of the worker and execution event. */
 export function hasIndependentObservation(record: RecordEntry, workerPersonId: string, executionEventId: EventId): boolean {
   const allSources = recordSources(record);
-  if (!allSources.some((source) => source.kind === 'other' && source.sourceId === executionEventId)) return false;
+  const executionSource = allSources.find((source) => source.kind === 'other' && source.sourceId === executionEventId);
+  const assertions = recordAssertions(record);
+  if (!executionSource || !assertions.some((assertion) => assertion.sourceIds.includes(executionSource.id))) return false;
   const sources = new Map(allSources.map((source) => [source.id, source]));
-  return recordAssertions(record).some((assertion) => assertion.classification === 'observed'
+  return assertions.some((assertion) => assertion.classification === 'observed'
     && assertion.sourceIds.some((sourceId) => {
       const source = sources.get(sourceId);
       if (!source) return false;
