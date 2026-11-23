@@ -94,21 +94,25 @@ export interface Person {
   /** Present for people with an established scribal/professional capability sheet. */
   scribal?: ScribalCharacterState;
 }
-export type InstitutionalAuthorityCapability = 'assess_institutional_reports' | 'authorize_routine_storehouse_maintenance';
-export type InstitutionalResponseStage = 'assessment' | 'authorization' | 'commitment' | 'execution';
+export type InstitutionalAuthorityCapability = 'assess_institutional_reports' | 'authorize_routine_storehouse_maintenance' | 'verify_institutional_execution' | 'resolve_institutional_matters';
+export type InstitutionalResponseStage = 'assessment' | 'authorization' | 'commitment' | 'execution' | 'verification' | 'resolution';
+export type InstitutionalVerificationOutcome = 'accepted' | 'rejected' | 'inconclusive';
+export type InstitutionalResolutionDisposition = 'accepted_verification' | 'escalated_override';
 export interface InstitutionalResponse {
   matterId: MatterId;
   stage: InstitutionalResponseStage;
   actorPersonId: PersonId;
   appointmentId: AppointmentId;
   recordId: RecordId;
-  decision: 'accepted_for_action' | 'request_more_evidence' | 'referred' | 'declined' | 'authorized' | 'authorization_declined' | 'assigned' | 'executed';
+  decision: 'accepted_for_action' | 'request_more_evidence' | 'referred' | 'declined' | 'authorized' | 'authorization_declined' | 'assigned' | 'executed' | 'verified' | 'verification_rejected' | 'verification_inconclusive' | 'resolved' | 'escalated_override';
   precedingEventId?: EventId;
   authorizedAction?: 'routine_storehouse_maintenance';
   scope?: string;
   assigneePersonId?: PersonId;
   commitmentId?: string;
   execution?: { workPerformed: string; laborBasis: string; materialsBasis: string; result: string };
+  verification?: { executionEventId: EventId; outcome: InstitutionalVerificationOutcome; rationale: string };
+  resolution?: { verificationEventId: EventId; disposition: InstitutionalResolutionDisposition; rationale: string };
 }
 export interface Appointment {
   id: AppointmentId; personId: PersonId; institutionId: InstitutionId;

@@ -309,7 +309,7 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
     if (!isObject(x) || !id || x.id !== id || typeof x.personId !== 'string' || !isObject(people[x.personId])
       || typeof x.institutionId !== 'string' || !isObject(institutions[x.institutionId])
       || typeof x.title !== 'string' || !x.title || !stringArray(x.authorityScope) || x.authorityScope.length === 0
-      || (x.authorityCapabilities !== undefined && (!stringArray(x.authorityCapabilities) || x.authorityCapabilities.some((capability) => !['assess_institutional_reports','authorize_routine_storehouse_maintenance'].includes(capability))))
+      || (x.authorityCapabilities !== undefined && (!stringArray(x.authorityCapabilities) || x.authorityCapabilities.some((capability) => !['assess_institutional_reports','authorize_routine_storehouse_maintenance','verify_institutional_execution','resolve_institutional_matters'].includes(capability))))
       || !stringArray(x.responsibilities) || !finiteNonNegative(x.startDay) || !Number.isInteger(x.startDay) || x.startDay < 1
       || (x.endDay !== undefined && (!finiteNonNegative(x.endDay) || !Number.isInteger(x.endDay) || x.endDay < x.startDay))) return false;
   }
@@ -483,14 +483,14 @@ function normalizeNorthBayWorldBaseline(parsed: unknown): unknown {
     institutions[institutionId] = { ...existingInstitution, locationId: NORTH_BAY_LOCATION_ID };
   }
   const offices = [
-    { id: 'appointment-shuruppak-ilu-senior-scribe', personId: NORTH_BAY_PEOPLE.seniorScribe, title: 'Senior Scribe', authorityScope: ['Assign and review scribal work', 'Determine institutional follow-up from submitted records'], responsibilities: ['Review submitted accounts and reports', 'Determine whether further institutional action is warranted'], authorityCapabilities: ['assess_institutional_reports'] },
-    { id: 'appointment-ur-nanna-storehouse-steward', personId: NORTH_BAY_PEOPLE.steward, title: 'Storehouse Steward', authorityScope: ['Control ordinary storehouse access', 'Maintain custody and maintenance records', 'Authorize routine storehouse maintenance within the existing maintenance allocation'], responsibilities: ['Safeguard institutional stocks', 'Maintain custody and maintenance records', 'Commission ordinary maintenance using already allocated storehouse labor and materials'], authorityCapabilities: ['authorize_routine_storehouse_maintenance'] },
+    { id: 'appointment-shuruppak-ilu-senior-scribe', personId: NORTH_BAY_PEOPLE.seniorScribe, title: 'Senior Scribe', authorityScope: ['Assign and review scribal work', 'Determine institutional follow-up from submitted records'], responsibilities: ['Review submitted accounts and reports', 'Determine whether further institutional action is warranted'], authorityCapabilities: ['assess_institutional_reports', 'verify_institutional_execution', 'resolve_institutional_matters'] },
+    { id: 'appointment-ur-nanna-storehouse-steward', personId: NORTH_BAY_PEOPLE.steward, title: 'Storehouse Steward', authorityScope: ['Control ordinary storehouse access', 'Maintain custody and maintenance records', 'Authorize routine storehouse maintenance within the existing maintenance allocation'], responsibilities: ['Safeguard institutional stocks', 'Maintain custody and maintenance records', 'Commission ordinary maintenance using already allocated storehouse labor and materials'], authorityCapabilities: ['authorize_routine_storehouse_maintenance', 'verify_institutional_execution'] },
     { id: 'appointment-utu-mansum-receiving-official', personId: NORTH_BAY_PEOPLE.receivingOfficial, title: 'Receiving Official', authorityScope: ['Inspect and record incoming deliveries'], responsibilities: ['Record intake quantities and condition'] },
   ];
   for (const office of offices) if (isObject(people[office.personId]) && isObject(institutions[institutionId])) {
     const existing = appointments[office.id];
     if (!isObject(existing)) appointments[office.id] = { ...office, personId: office.personId, institutionId, startDay: 1 };
-    else if (existing.authorityCapabilities === undefined && office.authorityCapabilities) {
+    else {
       appointments[office.id] = {
         ...existing,
         authorityScope: Array.isArray(existing.authorityScope)
@@ -499,7 +499,10 @@ function normalizeNorthBayWorldBaseline(parsed: unknown): unknown {
         responsibilities: Array.isArray(existing.responsibilities)
           ? [...new Set([...existing.responsibilities, ...office.responsibilities])]
           : office.responsibilities,
-        authorityCapabilities: office.authorityCapabilities,
+        authorityCapabilities: [...new Set([
+          ...(Array.isArray(existing.authorityCapabilities) ? existing.authorityCapabilities : []),
+          ...(office.authorityCapabilities ?? []),
+        ])],
       };
     }
   }
