@@ -11,7 +11,7 @@ import {
 
 const base = createInitialGameState();
 const playerId = 'person-created-test' as PersonId;
-const people = {
+const people: Record<string, Person> = {
   ...base.world.people,
   [playerId]: { id: playerId, name: 'Test Scribe', alive: true, affiliations: [] } satisfies Person,
 };
