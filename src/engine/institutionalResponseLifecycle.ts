@@ -59,18 +59,24 @@ function appendResponse(state: GameState, event: WorldEvent): GameState {
  */
 export function advanceInstitutionalResponses(state: GameState, dayNumber: number): GameState {
   let next = state;
-  const executions = Object.values(state.world.events)
-    .filter((event) => event.institutionalResponse?.stage === 'execution')
+  const latestExecutionByMatter = new Map<string, WorldEvent>();
+  for (const event of Object.values(state.world.events)
+    .filter((item) => item.institutionalResponse?.stage === 'execution')
+    .sort((a, b) => a.dayNumber - b.dayNumber || a.id.localeCompare(b.id))) {
+    latestExecutionByMatter.set(event.institutionalResponse!.matterId, event);
+  }
+  const executions = [...latestExecutionByMatter.values()]
     .sort((a, b) => a.dayNumber - b.dayNumber || a.id.localeCompare(b.id));
 
   for (const executionEvent of executions) {
     const execution = executionEvent.institutionalResponse!;
     const matter = next.world.matters[execution.matterId];
-    if (!matter || matter.status === 'resolved' || hasAcceptedPlayerCommitment(next, matter.id, executionEvent.id)) continue;
+    if (!matter || matter.status === 'resolved') continue;
 
     const priorVerifications = Object.values(next.world.events).filter((event) =>
       event.institutionalResponse?.stage === 'verification'
       && event.institutionalResponse.verification?.executionEventId === executionEvent.id);
+    if (priorVerifications.length === 0 && hasAcceptedPlayerCommitment(next, matter.id, executionEvent.id)) continue;
     let acceptedVerification = priorVerifications.find((event) =>
       event.institutionalResponse?.verification?.outcome === 'accepted');
 
