@@ -170,7 +170,7 @@ The player experiences history through successive scribal characters. An individ
 
 The player begins as an apprentice scribe in Uruk. The player's precise name, family background, and early personal circumstances can be established during the opening of the game.
 
-### 3.4 Character foundations and initial career paths
+### 3.4 Character foundations and professional orientations
 
 The character is a situated person, not a fixed class. The four initial professional orientations are **Civic**, **Religious**, **Commercial**, and **Martial**. They are broad professional emphases, not character classes or exclusive institutions. They shape starting context, institutions, contacts, responsibilities, and opportunities without permanently restricting future work. Detailed attributes, skills, specializations, traits, conditions, creation, and career progression are defined in the [Character and Career Specification](design/CHARACTER_AND_CAREER_SPEC.md).
 
