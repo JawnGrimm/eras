@@ -464,6 +464,11 @@ function normalizeNorthBayWorldBaseline(parsed: unknown): unknown {
   if (!isObject(people[NORTH_BAY_PEOPLE.repairer])) people[NORTH_BAY_PEOPLE.repairer] = {
     id: NORTH_BAY_PEOPLE.repairer, name: 'Dudu', alive: true, affiliations: [institutionId], currentLocationId: NORTH_BAY_LOCATION_ID,
   };
+  if (!isObject(people['person-aru'])) people['person-aru'] = {
+    id: 'person-aru', name: 'Aru', alive: true, affiliations: [institutionId], currentLocationId: NORTH_BAY_LOCATION_ID,
+    lifeStage: 'craft_practitioner',
+    socialIdentity: { occupation: 'Storehouse maintenance worker', summary: 'A storehouse laborer available for routine maintenance assigned from the existing maintenance allocation.' },
+  };
   if (!isObject(locations[NORTH_BAY_LOCATION_ID])) locations[NORTH_BAY_LOCATION_ID] = {
     id: NORTH_BAY_LOCATION_ID, name: 'Temple Storehouse, north storage bay',
   };
