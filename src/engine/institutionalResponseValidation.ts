@@ -164,7 +164,8 @@ export function validateInstitutionalResponseEvent(state: GameState, event: Worl
       && existing.institutionalResponse?.stage === 'commitment'
       && existing.institutionalResponse.commitmentId === response.commitmentId);
     const activeMatterAssignment = (assignee.commitments ?? []).some((commitment) =>
-      commitment.status === 'active' && commitment.relatedMatterIds?.includes(matter.id));
+      commitment.status === 'active' && commitment.relatedMatterIds?.includes(matter.id)
+      && !(commitment.id === response.commitmentId && commitment.basis.kind === 'event' && commitment.basis.id === event.id));
     const commitmentIdUsed = Object.values(state.world.people).some((person) =>
       (person.commitments ?? []).some((commitment) => commitment.id === response.commitmentId
         && !(person.id === assignee.id && commitment.basis.kind === 'event' && commitment.basis.id === event.id)));
