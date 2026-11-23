@@ -224,4 +224,47 @@ describe('institutional response lifecycle', () => {
     } } };
     expect(validateInstitutionalResponseEvent(duplicateResolution, { ...acceptedResolution, id: 'event-duplicate-resolution' as EventId })?.toLowerCase()).toContain('already has a final disposition');
   });
+  it('generates the post-execution Assignment and files independent evidence before NPC verification', () => {
+    const firstDay = transitionGame(stateWithExecution(false), { type: 'END_DAY', expectedDayNumber: 1 });
+    const offer = Object.values(firstDay.state.opportunities.assignments).find((item) =>
+      item.activityId === NORTH_BAY_POST_EXECUTION_ACTIVITY_ID && item.originMatterId === MATTER_IDS.roofRepair);
+    expect(offer).toBeDefined();
+    expect(offer?.title).toBe('Post-Execution North-Bay Inspection');
+    expect(offer?.status).toBe('offered');
+    const accepted = transitionGame(firstDay.state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: offer!.id });
+    expect(accepted.feedback?.code).toBe('assignment-accepted');
+    let state = accepted.state;
+    for (const actionId of ['inspect-completed-work', 'review-execution-record']) {
+      const performed = transitionGame(state, { type: 'PERFORM_ASSIGNMENT_ACTIVITY_ACTION', assignmentId: offer!.id, actionId });
+      expect(performed.feedback?.code).toBe('assignment-activity-action-completed');
+      state = performed.state;
+    }
+    const activeOffer = state.opportunities.assignments[offer!.id];
+    const draft = {
+      ...activeOffer.activityProgress!.draft,
+      finding: 'channel_clear_beam_followup',
+      responsibilityClaim: 'none',
+      citedDiscoveryIds: ['post-execution-observation', 'post-execution-record'],
+      limitations: ['The beam joint remains damp and must be assessed again after drying.'],
+      recommendations: ['accept_execution_with_followup', 'inspect_beam_after_drying'],
+    };
+    const drafted = transitionGame(state, { type: 'UPDATE_ASSIGNMENT_ACTIVITY_DRAFT', assignmentId: offer!.id, draft });
+    expect(drafted.feedback?.code).toBe('assignment-activity-draft-updated');
+    const submitted = transitionGame(drafted.state, { type: 'SUBMIT_ASSIGNMENT_ACTIVITY', assignmentId: offer!.id });
+    expect(submitted.feedback?.code).toBe('assignment-activity-submitted');
+    const filedRecord = Object.values(submitted.state.records.entries).find((record) =>
+      record.title === 'North-Bay Post-Execution Inspection Record');
+    expect(filedRecord?.assertions.some((assertion) => assertion.classification === 'observed')).toBe(true);
+    expect(Object.values(submitted.state.world.knowledge).some((entry) => entry.holder.kind === 'person'
+      && entry.holder.id === verifierId && entry.subject.kind === 'record' && entry.subject.id === filedRecord?.id)).toBe(true);
+    expect(submitted.state.opportunities.assignments[offer!.id].status).toBe('completed');
+
+    const settled = transitionGame(submitted.state, { type: 'END_DAY', expectedDayNumber: 2 });
+    const verification = Object.values(settled.state.world.events).find((event) => event.institutionalResponse?.stage === 'verification');
+    const resolution = Object.values(settled.state.world.events).find((event) => event.institutionalResponse?.stage === 'resolution');
+    expect(verification?.institutionalResponse?.verification?.outcome).toBe('accepted');
+    expect(verification?.institutionalResponse?.recordId).toBe(filedRecord?.id);
+    expect(resolution?.institutionalResponse?.resolution?.verificationEventId).toBe(verification?.id);
+    expect(settled.state.world.matters[MATTER_IDS.roofRepair].status).toBe('resolved');
+  });
 });
