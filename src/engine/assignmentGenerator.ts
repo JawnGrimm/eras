@@ -25,8 +25,13 @@ export function generateDailyAssignments(state: GameState): GameState {
   // A completed institutional execution may create a separate evidence-gathering
   // Assignment. The player files an inspection record; appointed officials retain
   // verification and resolution authority.
-  const executions = Object.values(next.world.events)
-    .filter((event) => event.institutionalResponse?.stage === 'execution')
+  const latestExecutionByMatter = new Map<string, WorldEvent>();
+  for (const event of Object.values(next.world.events)
+    .filter((item) => item.institutionalResponse?.stage === 'execution')
+    .sort((a, b) => a.dayNumber - b.dayNumber || a.id.localeCompare(b.id))) {
+    latestExecutionByMatter.set(event.institutionalResponse!.matterId, event);
+  }
+  const executions = [...latestExecutionByMatter.values()]
     .sort((a, b) => a.dayNumber - b.dayNumber || a.id.localeCompare(b.id));
   for (const executionEvent of executions) {
     if (offeredAp >= 8 || openCount() >= 4) break;
