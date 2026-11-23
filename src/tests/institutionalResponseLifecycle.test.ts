@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { transitionGame } from '../engine/actionEconomy';
+import { validateInstitutionalResponseEvent } from '../engine/institutionalResponseValidation';
 import { createRoofRepairMatter, MATTER_IDS, NORTH_BAY_LOCATION_ID, STOREHOUSE_INSTITUTION_ID } from '../engine/institutionalMatters';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
-import type { AssignmentOffer, GameState, RecordEntry, WorldEvent } from '../state/types';
-import type { AssignmentId, EventId, KnowledgeEntryId, PersonId, RecordId } from '../state/ids';
+import type { AssignmentOffer, GameState, InstitutionalResponse, RecordEntry, WorldEvent } from '../state/types';
+import type { AppointmentId, AssignmentId, EventId, InstitutionId, KnowledgeEntryId, PersonId, RecordId } from '../state/ids';
 
 const verifierId = 'person-shuruppak-ilu' as PersonId;
 const stewardId = 'person-ur-nanna' as PersonId;
@@ -121,5 +122,104 @@ describe('institutional response lifecycle', () => {
     expect(verification?.institutionalResponse?.verification?.outcome).toBe('inconclusive');
     expect(Object.values(settled.state.world.events).some((event) => event.institutionalResponse?.stage === 'resolution')).toBe(false);
     expect(settled.state.world.matters[MATTER_IDS.roofRepair].status).toBe('active');
+  });
+  it('enforces independent evidence, verifier authority, and explicit resolution disposition', () => {
+    const base = stateWithExecution(true);
+    const recordId = 'record-lifecycle-inspection' as RecordId;
+    const executionId = 'event-lifecycle-execution' as EventId;
+    const seniorAppointment = 'appointment-shuruppak-ilu-senior-scribe' as AppointmentId;
+    const makeVerification = (changes: Partial<InstitutionalResponse> = {}): WorldEvent => {
+      const response: InstitutionalResponse = {
+        matterId: MATTER_IDS.roofRepair, stage: 'verification', actorPersonId: verifierId,
+        appointmentId: seniorAppointment, recordId, precedingEventId: executionId, decision: 'verified',
+        verification: { executionEventId: executionId, outcome: 'accepted', rationale: 'Independent post-execution inspection supports verification.' },
+        ...changes,
+      };
+      return { id: 'event-validation-verification' as EventId, dayNumber: 1,
+        summary: 'An authorized official verifies the recorded execution.', personIds: [response.actorPersonId],
+        institutionIds: [STOREHOUSE_INSTITUTION_ID], locationId: NORTH_BAY_LOCATION_ID, institutionalResponse: response };
+    };
+    expect(validateInstitutionalResponseEvent(base, makeVerification())).toBeNull();
+
+    const noCapability = { ...base, world: { ...base.world, appointments: {
+      ...base.world.appointments, [seniorAppointment]: { ...base.world.appointments[seniorAppointment],
+        authorityCapabilities: ['assess_institutional_reports' as const] },
+    } } };
+    expect(validateInstitutionalResponseEvent(noCapability, makeVerification())?.toLowerCase()).toContain('does not authorize');
+
+    const inactive = { ...base, world: { ...base.world, appointments: {
+      ...base.world.appointments, [seniorAppointment]: { ...base.world.appointments[seniorAppointment], endDay: 0 },
+    } } };
+    expect(validateInstitutionalResponseEvent(inactive, makeVerification())?.toLowerCase()).toContain('active appointment');
+
+    const wrongInstitution = { ...base, world: { ...base.world, appointments: {
+      ...base.world.appointments, [seniorAppointment]: { ...base.world.appointments[seniorAppointment],
+        institutionId: 'institution-other' as InstitutionId },
+    } } };
+    expect(validateInstitutionalResponseEvent(wrongInstitution, makeVerification())?.toLowerCase()).toContain('active appointment');
+
+    const noKnowledge = { ...base, world: { ...base.world, knowledge: {} } };
+    expect(validateInstitutionalResponseEvent(noKnowledge, makeVerification())?.toLowerCase()).toContain('explicit knowledge');
+
+    const workerRecordId = 'record-worker-only' as RecordId;
+    const workerRecord: RecordEntry = {
+      ...base.records.entries[recordId], id: workerRecordId,
+      sources: [{ id: 'source-worker-claim', kind: 'person', sourceId: workerId, description: 'The execution worker’s own statement.' }],
+      assertions: [{ id: 'assertion-worker-claim', text: 'The work was completed.', classification: 'observed', sourceIds: ['source-worker-claim'] }],
+    };
+    const workerOnly = { ...base, records: { ...base.records, entries: { ...base.records.entries, [workerRecordId]: workerRecord } },
+      world: { ...base.world, matters: { ...base.world.matters, [MATTER_IDS.roofRepair]: {
+        ...base.world.matters[MATTER_IDS.roofRepair], provenance: [...(base.world.matters[MATTER_IDS.roofRepair].provenance ?? []),
+          { id: 'worker-only-provenance', kind: 'observation' as const, sourceId: workerRecordId, description: 'Worker-only statement.' }],
+      } }, knowledge: { ...base.world.knowledge, ['knowledge-worker-only' as KnowledgeEntryId]: {
+        id: 'knowledge-worker-only' as KnowledgeEntryId, holder: { kind: 'person' as const, id: verifierId },
+        subject: { kind: 'record' as const, id: workerRecordId }, basis: 'received-copy' as const, learnedDay: 1,
+        sourcePersonId: INITIAL_PERSON_ID,
+      } } } };
+    expect(validateInstitutionalResponseEvent(workerOnly, makeVerification({ recordId: workerRecordId }))?.toLowerCase()).toContain('independent observed assertion');
+
+    const workerAppointmentId = 'appointment-worker-verifier' as AppointmentId;
+    const selfVerifying = { ...base, world: { ...base.world,
+      appointments: { ...base.world.appointments, [workerAppointmentId]: {
+        id: workerAppointmentId, personId: workerId, institutionId: STOREHOUSE_INSTITUTION_ID, title: 'Worker Verifier',
+        authorityScope: ['Verify execution'], responsibilities: ['Inspect completed work'],
+        authorityCapabilities: ['verify_institutional_execution' as const], startDay: 1,
+      } },
+      knowledge: { ...base.world.knowledge, ['knowledge-worker-inspection' as KnowledgeEntryId]: {
+        id: 'knowledge-worker-inspection' as KnowledgeEntryId, holder: { kind: 'person' as const, id: workerId },
+        subject: { kind: 'record' as const, id: recordId }, basis: 'received-copy' as const, learnedDay: 1,
+        sourcePersonId: INITIAL_PERSON_ID,
+      } },
+    } };
+    expect(validateInstitutionalResponseEvent(selfVerifying, makeVerification({ actorPersonId: workerId,
+      appointmentId: workerAppointmentId }))?.toLowerCase()).toContain('cannot independently verify');
+
+    const rejectedVerification = makeVerification({ id: undefined, decision: 'verification_rejected',
+      verification: { executionEventId: executionId, outcome: 'rejected', rationale: 'The observed condition contradicts the reported result.' } });
+    const withRejected = { ...base, world: { ...base.world, events: { ...base.world.events, [rejectedVerification.id]: rejectedVerification } } };
+    const makeResolution = (disposition: 'accepted_verification' | 'escalated_override', rationale: string, decision: 'resolved' | 'escalated_override' = disposition === 'accepted_verification' ? 'resolved' : 'escalated_override'): WorldEvent => ({
+      id: 'event-validation-resolution' as EventId, dayNumber: 1, summary: 'An authorized official records final disposition.',
+      personIds: [verifierId], institutionIds: [STOREHOUSE_INSTITUTION_ID], locationId: NORTH_BAY_LOCATION_ID,
+      institutionalResponse: { matterId: MATTER_IDS.roofRepair, stage: 'resolution', actorPersonId: verifierId,
+        appointmentId: seniorAppointment, recordId, precedingEventId: rejectedVerification.id, decision,
+        resolution: { verificationEventId: rejectedVerification.id, disposition, rationale } },
+    });
+    expect(validateInstitutionalResponseEvent(withRejected, makeResolution('accepted_verification', 'Routine disposition.'))?.toLowerCase()).toContain('requires the specific accepted');
+    expect(validateInstitutionalResponseEvent(withRejected, makeResolution('escalated_override', 'Override.'))?.toLowerCase()).toContain('substantive recorded escalation');
+    expect(validateInstitutionalResponseEvent(withRejected, makeResolution('escalated_override', 'Senior review authorizes an explicit escalation override.'))).toBeNull();
+
+    const acceptedVerification = makeVerification({ id: undefined });
+    const withAccepted = { ...base, world: { ...base.world, events: { ...base.world.events, [acceptedVerification.id]: acceptedVerification } } };
+    const acceptedResolution: WorldEvent = { ...makeResolution('accepted_verification', 'Accepted verification is entered as final disposition.'),
+      institutionalResponse: { ...makeResolution('accepted_verification', 'Accepted verification is entered as final disposition.').institutionalResponse!,
+        precedingEventId: acceptedVerification.id,
+        resolution: { verificationEventId: acceptedVerification.id, disposition: 'accepted_verification',
+          rationale: 'Accepted verification is entered as final disposition.' } },
+    };
+    expect(validateInstitutionalResponseEvent(withAccepted, acceptedResolution)).toBeNull();
+    const duplicateResolution = { ...withAccepted, world: { ...withAccepted.world, events: {
+      ...withAccepted.world.events, ['event-prior-resolution' as EventId]: acceptedResolution,
+    } } };
+    expect(validateInstitutionalResponseEvent(duplicateResolution, { ...acceptedResolution, id: 'event-duplicate-resolution' as EventId })?.toLowerCase()).toContain('already has a final disposition');
   });
 });
