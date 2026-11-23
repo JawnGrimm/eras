@@ -420,12 +420,14 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
         return { state, feedback: feedback('error', 'overtime-ap-unspent', 'Spend the overtime AP before settling the day.') };
       }
       const startingProvisions = scribal.wallet.provisions;
-      // Ignore tutorial snapshots as well as current definitions: older v2 saves may
-      // still contain the tutorial's former provision contract on WorkProgress.
+      // Eligibility and the contract values come from the current validated definition,
+      // never from a persisted WorkProgress provision snapshot.
       const genuineWorkProgress = Object.entries(state.works.progress).flatMap(([workId, progress]) => {
         const definition = workCatalog[workId];
         if (!isValidWorkDefinition(definition) || definition.kind !== 'work'
-          || !progressMatchesDefinition(definition, progress) || !definition.provisionsContract) return [];
+          || !progressMatchesDefinition(definition, progress)
+          || (progress.status === 'active' && state.works.activeWorkId !== workId)
+          || !definition.provisionsContract) return [];
         return [{ progress, contract: definition.provisionsContract }];
       });
       const contractProgress = genuineWorkProgress.find(({ progress, contract }) =>
