@@ -43,7 +43,7 @@ export function submitNorthBayPostExecutionInspection(
     return fail(state, 'post-execution-evidence-required', 'Inspect the completed work, review the execution record, and cite both sources before submitting.');
   }
   const finding = progress.draft.finding;
-  const unsupportedFinding = finding === 'execution_not_confirmed';
+  const unsupportedFinding = finding === 'execution_not_confirmed' || finding === 'channel_obstructed';
   const unsupportedResponsibility = progress.draft.responsibilityClaim === 'aru';
   const playerId = state.player.currentCharacterId;
   const recordId = `record-${offer.id}-day-${state.calendar.dayNumber}` as RecordId;
@@ -64,7 +64,13 @@ export function submitNorthBayPostExecutionInspection(
   const assertions: RecordAssertion[] = [];
   if (observed) assertions.push({
     id: 'assertion-independent-post-execution-observation',
-    text: 'The inspected north-bay runoff channel is clear. The shaded north-east beam socket remains damp, with no visible collapse. The inspection does not establish that the joint has dried or certify the entire roof.',
+    text: finding === 'channel_clear_beam_dry'
+      ? 'The inspected north-bay runoff channel is clear. The shaded north-east beam socket appears dry at the time of inspection.'
+      : finding === 'channel_obstructed'
+        ? 'The inspected north-bay runoff channel remains obstructed after the recorded execution.'
+        : finding === 'execution_not_confirmed'
+          ? 'The inspection does not confirm the recorded execution.'
+          : 'The inspected north-bay runoff channel is clear. The shaded north-east beam socket remains damp and requires a separate inspection after drying.',
     classification: 'observed',
     sourceIds: ['source-independent-observation'],
   });
