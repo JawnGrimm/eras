@@ -102,14 +102,21 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
     const state = createNewGameState();
     const activeProgress = state.works.progress[STOREHOUSE_WORK_ID];
     const priorWorkId = 'work-qualified-earlier-today' as typeof STOREHOUSE_WORK_ID;
+    const priorDefinition = {
+      ...storehouseReckoning,
+      kind: 'work' as const,
+      id: priorWorkId,
+      progressCompatibilityKey: 'prior-work-v1',
+      provisionsContract: { provisionsPerQualifiedWorkday: 1, minimumWorkApPerDay: 1 },
+    };
     const withPriorCompletion = {
       ...state,
       works: { ...state.works, progress: {
-        [priorWorkId]: { ...activeProgress, status: 'completed' as const, workApSpentToday: 1, provisionContract: { provisionsPerQualifiedWorkday: 1, minimumWorkApPerDay: 1 } },
+        [priorWorkId]: { ...activeProgress, status: 'completed' as const, definitionCompatibilityKey: 'prior-work-v1', workApSpentToday: 1, provisionContract: { provisionsPerQualifiedWorkday: 1, minimumWorkApPerDay: 1 } },
         [STOREHOUSE_WORK_ID]: { ...activeProgress, workApSpentToday: 0 },
       } },
     };
-    const result = transitionGame(withPriorCompletion, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber }, undefined, genuineWorkCatalog);
+    const result = transitionGame(withPriorCompletion, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber }, undefined, { ...genuineWorkCatalog, [priorWorkId]: priorDefinition });
     expect(result.settlement?.workContractProvisionReason).toBe('qualified_workday');
     expect(result.settlement?.workContractProvisionEarned).toBe(1);
   });
