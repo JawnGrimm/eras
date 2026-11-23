@@ -241,7 +241,7 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
     expect(restored).not.toBeNull();
     expect(restored?.state.actionEconomy.recoveryLaborUsedToday).toBe(false);
     expect(getInitializedScribal(restored?.state.world.people[INITIAL_PERSON_ID])?.cumulativeShortageStress).toBe(0);
-    expect(restored?.getInitializedScribal(state.world.people[INITIAL_PERSON_ID])?.obligations).toEqual([]);
+    expect(getInitializedScribal(restored?.state.world.people[INITIAL_PERSON_ID])?.obligations).toEqual([]);
   });
 
   it('restores only structurally valid v2 envelopes and rejects partial or corrupt saves', () => {
