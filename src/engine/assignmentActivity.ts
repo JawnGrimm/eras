@@ -110,7 +110,7 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
     id: recordId, createdDay: state.calendar.dayNumber, authorPersonId: state.player.currentCharacterId,
     institutionId: STOREHOUSE, title: 'North-Bay Roof Inspection Report', sources, assertions,
     uncertaintyLimits: [...draft.limitations, ...(!roofObserved ? ['The roof and shaded beam socket were not physically inspected.'] : []),
-      'The seven held sacks were observed in segregation only; the grain inside was not tested.',
+      'The seven sealed pottery storage jars were observed in segregation only; the grain inside was not tested.',
       'This report does not authorize building expenditure, stock release, or assignment of individual responsibility.'],
     amendments: [],
   };
@@ -133,7 +133,7 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
   const roofSummary = incompleteReport || !roofObserved ? 'North-bay roof inspection incomplete; full roof condition remains unverified.' : unsupportedCertification ? 'Roof repair certified without sufficient supporting inspection; physical condition remains unverified.' : draft.finding === 'repair_incomplete' ? 'Clear north-bay parapet runoff channel and assess the damp north-east beam socket.' : 'North-bay roof repair inspected; continue monitoring after heavy rain.';
   const updatedRoofMatter = { ...roofMatter, summary: roofSummary, sourceRecordId: recordId, status: 'active' as const };
   const addHeldBarleyMatter = draft.recommendations.includes('inspect_held_barley') && progress.discoveryIds.includes('roof-inspection');
-  const heldBarleyMatter = { id: MATTER_IDS.heldBarley, institutionId: STOREHOUSE, kind: 'held_barley_inspection' as const, summary: 'Seven held barley sacks remain segregated; grain condition has not yet been assessed.', status: 'active' as const, createdDay: state.calendar.dayNumber, sourceRecordId: recordId, locationId: roofMatter.locationId };
+  const heldBarleyMatter = { id: MATTER_IDS.heldBarley, institutionId: STOREHOUSE, kind: 'held_barley_inspection' as const, summary: 'Seven sealed pottery storage jars containing held barley remain segregated; grain condition has not yet been assessed.', status: 'active' as const, createdDay: state.calendar.dayNumber, sourceRecordId: recordId, locationId: roofMatter.locationId };
   const activeMatters = [...new Set([...institution.activeMatters, MATTER_IDS.roofRepair, ...(addHeldBarleyMatter ? [MATTER_IDS.heldBarley] : [])])];
   const reputationDelta = overclaims ? -6 : qualified ? 1 : incompleteReport ? -1 : 3;
   const relationshipChanges = [
