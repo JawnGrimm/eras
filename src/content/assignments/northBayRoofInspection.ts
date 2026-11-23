@@ -4,6 +4,7 @@ import type { InterpretationRule, Predicate } from '../../works/evidenceInterpre
 import { URUK_ASSIGNMENT_ACTIVITY_CATALOG } from './urukAssignments';
 
 export const NORTH_BAY_ACTIVITY_ID = 'activity-north-bay-roof-inspection';
+export const NORTH_BAY_POST_EXECUTION_ACTIVITY_ID = 'activity-north-bay-post-execution-inspection';
 export const NORTH_BAY_ASSIGNMENT_ID = 'assignment-north-bay-roof-inspection' as import('../../state/ids').AssignmentId;
 export const NORTH_BAY_PEOPLE = {
   steward: 'person-ur-nanna' as PersonId,
@@ -91,6 +92,59 @@ export const northBayRoofInspection: AssignmentActivityDefinition = {
   } }),
 };
 
+
+/** Evidence-gathering follow-up. The player inspects and files a record; appointed
+ * institutional officials retain the separate verification and resolution authority. */
+export const northBayPostExecutionInspection: AssignmentActivityDefinition = {
+  id: NORTH_BAY_POST_EXECUTION_ACTIVITY_ID,
+  title: 'Post-Execution North-Bay Inspection',
+  submissionApCost: 1,
+  participants: [NORTH_BAY_PEOPLE.steward, NORTH_BAY_PEOPLE.seniorScribe],
+  discoveries: [
+    { id: 'post-execution-observation', title: 'Physical inspection after maintenance',
+      text: 'Inspect the runoff channel and shaded beam socket after this specific execution. Record the physical condition visible at the time of inspection; do not assume that a prior execution’s result still holds. This inspection does not certify the entire roof or establish future performance.' },
+    { id: 'post-execution-record', title: 'Recorded maintenance execution',
+      text: 'The Steward’s execution record states that the runoff channel was cleared and the damp beam socket assessed. The recorded result says the socket remained damp and required a separate inspection after drying. This is the worker’s recorded result, not independent physical confirmation.' },
+    { id: 'post-execution-steward-request', title: 'Steward’s verification request',
+      text: 'Ur-Nanna requests an independent inspection record after the assigned maintenance. The scribe may inspect and report, but may not authorize additional building expenditure or expand the completed work.' },
+  ],
+  actions: [
+    { id: 'inspect-completed-work', family: 'observe', label: 'Inspect the completed maintenance',
+      description: 'Physically inspect the cleared runoff channel and the shaded beam socket after the recorded execution.',
+      apCost: 2, discoveryIds: ['post-execution-observation'] },
+    { id: 'review-execution-record', family: 'compare', label: 'Review the execution record',
+      description: 'Compare the worker’s recorded result with the scope of the authorized maintenance.',
+      apCost: 1, discoveryIds: ['post-execution-record'] },
+    { id: 'consult-steward-after-work', family: 'consult', label: 'Consult Ur-Nanna',
+      description: 'Confirm the request and the boundary between inspection and further authorization.',
+      apCost: 1, discoveryIds: ['post-execution-steward-request'], consultedPersonId: NORTH_BAY_PEOPLE.steward },
+  ],
+  interpretationRules: [],
+  reportSchema: {
+    title: 'Post-execution inspection record',
+    responsibilityLabel: 'Responsibility claim',
+    findings: [
+      { id: 'channel_clear_beam_followup', label: 'Channel clear; damp beam joint requires follow-up after drying' },
+      { id: 'channel_clear_beam_dry', label: 'Channel clear; beam joint appears dry at inspection' },
+      { id: 'channel_obstructed', label: 'Runoff channel remains obstructed after execution' },
+
+    ],
+    responsibilityClaims: [
+      { id: 'none', label: 'No individual responsibility assigned' },
+      { id: 'aru', label: 'Assign responsibility to the maintenance worker' },
+    ],
+    recommendations: [
+      { id: 'accept_execution_with_followup', label: 'Record the cleared channel and arrange a separate beam-joint follow-up after drying' },
+      { id: 'inspect_beam_after_drying', label: 'Reinspect the shaded beam joint after it has had time to dry' },
+      { id: 'reopen_channel_work', label: 'Request further channel maintenance' },
+    ],
+    limitationsLabel: 'Inspection scope and unresolved condition',
+  },
+  submissionNote: 'This report supplies independent evidence to an appointed verifier. It is not itself a verification decision, authorization, or final institutional disposition.',
+  createInitialProgress: () => ({ completedActionIds: [], discoveryIds: [], consultedPersonIds: [], draft: {
+    finding: 'channel_clear_beam_followup', responsibilityClaim: 'none', citedDiscoveryIds: [], limitations: [], recommendations: [],
+  } }),
+};
 function validatePredicate(predicate: Predicate, issues: string[], discoveryIds: Set<string>): void {
   const skills: SkillId[] = ['reading_scripts','recordkeeping_accounts','analysis_research','writing_composition','administration_procedure','communication_instruction'];
   const attributes: AttributeId[] = ['precision','perception','reasoning','expression','endurance','composure'];
@@ -151,7 +205,7 @@ export function validateAssignmentActivityDefinition(definition: AssignmentActiv
   }
   return issues;
 }
-export const ASSIGNMENT_ACTIVITY_CATALOG = { [NORTH_BAY_ACTIVITY_ID]: northBayRoofInspection, ...URUK_ASSIGNMENT_ACTIVITY_CATALOG } as const;
+export const ASSIGNMENT_ACTIVITY_CATALOG = { [NORTH_BAY_ACTIVITY_ID]: northBayRoofInspection, [NORTH_BAY_POST_EXECUTION_ACTIVITY_ID]: northBayPostExecutionInspection, ...URUK_ASSIGNMENT_ACTIVITY_CATALOG } as const;
 
 export function validateAssignmentActivityProgress(definition: AssignmentActivityDefinition, value: unknown): value is AssignmentActivityProgress {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
