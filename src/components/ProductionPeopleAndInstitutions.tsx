@@ -3,6 +3,7 @@ import { getInitializedScribal } from '../state/scribalState';
 import { useGame } from '../state/GameProvider';
 import type { PersonRelationship } from '../state/types';
 import type { InstitutionId, PersonId } from '../state/ids';
+import { PersonHistoryPanel } from './PersonHistoryPanel';
 
 function RelationshipCard({ fromName, toName, relationship }: {
   fromName: string; toName: string; relationship: PersonRelationship;
@@ -70,6 +71,7 @@ export function ProductionPeopleAndInstitutions() {
               <div key={id} className="rounded bg-stone-50 p-3"><dt className="text-xs text-stone-500">{state.world.institutions[id as InstitutionId]?.name ?? id}</dt><dd className="font-mono">{value}/100</dd></div>)}</dl>
               : <p className="mt-1 text-xs text-stone-500">No institution-specific standing is recorded.</p>}
           </section>}
+          <PersonHistoryPanel person={person} people={state.world.people} />
           {(() => {
             const circumstances = (person.circumstances ?? []).filter((item) => item.status === 'active' && item.visibility === 'public');
             const commitments = (person.commitments ?? []).filter((item) => item.status === 'active' && item.visibility === 'public');
