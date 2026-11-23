@@ -1338,3 +1338,36 @@ The revision:
 - Leaves numerical starting attributes, skills, Career XP, rank benefits, equipment, resources, and detailed data architecture open.
 
 This is a design-document revision only. The canonical GDD, production code, save schema, and runtime content were not changed. The institutional matrix's proposed Era I framing and the detailed first-release availability of individual choices remain subject to Game Director review.
+
+
+## 2026-11-23 — Player-facing character creation flow
+
+**Contributor:** ChatGPT  
+**Status:** Proposal; awaiting Game Director review
+
+Added [Character Creation — Player-Facing Flow Proposal](CHARACTER_CREATION_PLAYER_FLOW.md), building on the revised Design Investigation 02A.
+
+The proposal translates the life-history framework into a concrete sequence:
+
+1. Opening premise
+2. Origins
+3. Early responsibilities
+4. Formative experience
+5. Entry into scribal work
+6. First instruction
+7. Professional orientation
+8. Identity
+9. Biography review and confirmation
+
+It includes proposed player-facing copy for the Era I options, an explanation pattern for the four generalized professional orientations (broad role first, local Uruk meaning second), conditional links between choices, and a compact consequence contract for authored content.
+
+The recommended first playable content set narrows most chapters to four options to control authoring and QA scope. Institutional service remains conditional; Military retains its GDD identity but requires a narrowly authored and honestly described Era I connection. Traits and ambition are omitted unless their content and effects are ready.
+
+The document proposes one primary choice per chapter, revisitable before confirmation. It does not propose numerical starting benefits, change the GDD, alter production code or save schema, or authorize implementation. The Storehouse Reckoning remains identical in objective evidence and assessment across all starting orientations.
+
+**Game Director decisions requested**
+- Approve or revise the screen sequence and one-choice-per-chapter interaction.
+- Approve or revise the narrower Era I first-playable option set.
+- Decide whether the Military orientation has a playable Era I opening connection in the vertical slice.
+- Decide whether traits and ambition appear in the first playable character creator.
+
