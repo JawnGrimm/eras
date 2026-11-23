@@ -233,9 +233,9 @@ describe('Work lifecycle and save validation', () => {
     let state = transitionGame(createInitialGameState(), { type: 'START_WORK', workId: WORK }, undefined, catalog).state;
     state = transitionGame(state, { type: 'SPEND_AP', amount: 1, reason: 'Work action' }).state;
     expect(state.works.progress[WORK].workApSpentToday).toBe(0);
-    state = transitionGame(state, { type: 'SPEND_AP', amount: 1, reason: 'Work action', workId: WORK }).state;
+    state = transitionGame(state, { type: 'SPEND_AP', amount: 1, reason: 'Work action', workId: WORK }, undefined, catalog).state;
     expect(state.works.progress[WORK].workApSpentToday).toBe(1);
-    state = transitionGame(state, { type: 'END_DAY', expectedDayNumber: 1 }).state;
+    state = transitionGame(state, { type: 'END_DAY', expectedDayNumber: 1 }, undefined, catalog).state;
     expect(state.works.progress[WORK].workApSpentToday).toBe(0);
     expect(getInitializedScribal(state.world.people[INITIAL_PERSON_ID])?.wallet.provisions).toBe(5);
   });
