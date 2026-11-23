@@ -5,7 +5,7 @@
 
 This specification defines character foundations, career progression, character continuity, and equipment. It does not independently approve new starting values, formulas, content, or mechanics.
 
-### 3.4 Character foundations and initial career paths
+### 3.4 Character foundations and professional orientations
 
 The character system is built around the following interaction model:
 
@@ -15,7 +15,7 @@ These elements should interact to change what a character can do, perceive, acce
 
 #### Initial career paths
 
-Character creation offers four initial career paths:
+Character creation offers four initial professional orientations:
 
 - **Civic**
 - **Religious**
@@ -80,7 +80,7 @@ Personality traits are not permanently fixed. Established traits may strengthen,
 
 #### Specializations
 
-Specializations represent focused professional expertise developed within the shared skill framework. They are not additional career classes and do not permanently restrict a character to their initial career path.
+Specializations represent focused professional expertise developed within the shared skill framework. They are not additional career classes and do not permanently restrict a character to their initial professional orientation.
 
 Characters qualify for specializations through relevant experience, skills, relationships, and opportunities. Once eligible, the player chooses which specialization to pursue; eligibility is earned through play, while the choice remains with the player. Repetitive Assignment grinding should not be the only route to qualification: significant Works, Challenges, study, mentorship, and professional opportunities may also contribute where relevant.
 
@@ -170,7 +170,7 @@ A character may attain high professional rank while the player remains in the ea
 
 ### 10.5 Specialization and professional identity
 
-Specializations provide focused expertise within the shared character skills. They are earned through relevant experience and opportunities, then selected by the player from those for which the character qualifies. They are not locked to the character's initial career path.
+Specializations provide focused expertise within the shared character skills. They are earned through relevant experience and opportunities, then selected by the player from those for which the character qualifies. They are not locked to the character's initial professional orientation.
 
 A character may hold multiple specializations, with one designated as Primary. Primary status represents professional identity and may influence recognition, reputation, appointments, and access to opportunities; it is not simply a label for the highest numerical skill. Secondary specializations retain their relevant mechanical benefits.
 
