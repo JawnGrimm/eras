@@ -4,6 +4,7 @@ import type { AttributeId, SkillId } from './ids';
 import type { GameState, Institution, OpportunityConsequences, SaveEnvelope, PersonScribalState, WorkProgress } from './types';
 import { validateOpportunityConsequences } from './opportunityValidation';
 import type { WorkDefinition } from '../works/workDefinition';
+import { validateWorkDefinition } from '../works/workDefinition';
 import { rankSuccessorCandidates } from '../engine/characterContinuity';
 import { validateInstitutionalResponseEvent } from '../engine/institutionalResponseValidation';
 import { isInitializedScribalState } from './scribalState';
@@ -212,7 +213,13 @@ function isWorkAssessmentDimensions(value: unknown): boolean {
 }
 
 function isWorkProgress(value: unknown): value is WorkProgress {
-  if (!isObject(value) || !['active','completed','abandoned'].includes(value.status as string)) return false;
+  if (!isObject(value) || !['active','completed','abandoned','suspended'].includes(value.status as string)) return false;
+  const effectiveStatus = value.status === 'suspended' ? value.suspendedFromStatus : value.status;
+  if (value.status === 'suspended'
+    ? !['active','completed','abandoned'].includes(value.suspendedFromStatus as string)
+    : value.suspendedFromStatus !== undefined) return false;
+  if (value.definitionCompatibilityKey !== undefined
+    && (typeof value.definitionCompatibilityKey !== 'string' || !value.definitionCompatibilityKey.trim())) return false;
   const acquiredEvidence = value.acquiredEvidence;
   const examinedEvidence = value.examinedEvidence;
   const completedActionIds = value.completedActionIds;
@@ -221,7 +228,7 @@ function isWorkProgress(value: unknown): value is WorkProgress {
     || new Set(examinedEvidence).size !== examinedEvidence.length
     || examinedEvidence.some((id) => !acquiredEvidence.includes(id))
     || !Number.isInteger(value.workApSpentToday) || (value.workApSpentToday as number) < 0 || (value.workApSpentToday as number) > 7
-    || typeof value.rewardGranted !== 'boolean' || (value.status === 'completed') !== value.rewardGranted
+    || typeof value.rewardGranted !== 'boolean' || (effectiveStatus === 'completed') !== value.rewardGranted
     || new Set(completedActionIds).size !== completedActionIds.length
     || !isObject(value.scenarioData) || !Number.isInteger(value.submissionCount) || (value.submissionCount as number) < 0) return false;
   if (value.provisionContract !== undefined && (!isObject(value.provisionContract)
@@ -232,9 +239,9 @@ function isWorkProgress(value: unknown): value is WorkProgress {
     || (value.provisionContract.minimumWorkApPerDay as number) > 6)) return false;
   if (value.pendingDisposition !== undefined && typeof value.pendingDisposition !== 'boolean') return false;
   if (value.finalDisposition !== undefined && (typeof value.finalDisposition !== 'string' || !value.finalDisposition)) return false;
-  if (value.pendingDisposition === true && (value.lastAssessment === undefined || value.status !== 'active' || value.rewardGranted)) return false;
-  if (value.finalDisposition !== undefined && (value.status !== 'completed' || value.pendingDisposition === true)) return false;
-  if (value.status === 'active' && isObject(value.lastAssessment) && value.lastAssessment.outcome === 'accepted'
+  if (value.pendingDisposition === true && (value.lastAssessment === undefined || effectiveStatus !== 'active' || value.rewardGranted)) return false;
+  if (value.finalDisposition !== undefined && (effectiveStatus !== 'completed' || value.pendingDisposition === true)) return false;
+  if (effectiveStatus === 'active' && isObject(value.lastAssessment) && value.lastAssessment.outcome === 'accepted'
     && value.pendingDisposition !== true) return false;
   if (value.lastAssessment !== undefined && (!isObject(value.lastAssessment)
     || !['accepted','revise','rejected'].includes(value.lastAssessment.outcome as string)
@@ -242,6 +249,26 @@ function isWorkProgress(value: unknown): value is WorkProgress {
     || !Number.isInteger(value.lastAssessment.assessedDay) || (value.lastAssessment.assessedDay as number) < 1
     || !isWorkAssessmentDimensions(value.lastAssessment.dimensions))) return false;
   return true;
+}
+
+
+function isCompatibleWorkProgress(id: string, value: unknown, workCatalog: Readonly<Record<string, WorkDefinition<any>>>): boolean {
+  if (!isWorkProgress(value)) return false;
+  if (value.status === 'suspended') return true;
+  const definition = workCatalog[id];
+  return !!definition && definition.id === id
+    && (definition.kind === 'work' || definition.kind === 'tutorial')
+    && validateWorkDefinition(definition).length === 0
+    && value.definitionCompatibilityKey === definition.progressCompatibilityKey
+    && definition.validateScenarioData(value.scenarioData)
+    && value.acquiredEvidence.every((evidenceId) => definition.evidence.some((item) => item.id === evidenceId))
+    && value.completedActionIds.every((actionId) => definition.actions.some((item) => item.id === actionId))
+    && (definition.finalizeDisposition
+      ? (value.status === 'completed'
+        ? definition.dispositions?.includes(value.finalDisposition ?? '') === true
+          && value.submissionCount >= 1 && value.lastAssessment?.outcome === 'accepted'
+        : value.finalDisposition === undefined)
+      : value.finalDisposition === undefined);
 }
 
 export function isValidGameState(value: unknown, workCatalog: Readonly<Record<string, WorkDefinition<any>>> = {}): value is GameState {
@@ -496,23 +523,10 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
   }
   return finiteNonNegative(value.historicalProgression.historicalXp) && stringArray(value.historicalProgression.completedWorks)
     && new Set(value.historicalProgression.completedWorks).size === value.historicalProgression.completedWorks.length
-    && value.historicalProgression.completedWorks.every((id) => isWorkProgress(workProgressMap[id])
-      && workProgressMap[id].status === 'completed'
-      && workCatalog[id]?.kind !== 'tutorial')
     && isObject(value.opportunities.assignments) && isObject(value.opportunities.challenges)
     && (activeWorkId === null || typeof activeWorkId === 'string')
-    && Object.entries(workProgressMap).every(([id, progress]) => !!id && isWorkProgress(progress)
-      && !!workCatalog[id] && workCatalog[id].id === id
-      && workCatalog[id].validateScenarioData((progress as WorkProgress).scenarioData)
-      && (progress as WorkProgress).acquiredEvidence.every((evidenceId) => workCatalog[id].evidence.some((item) => item.id === evidenceId))
-      && (progress as WorkProgress).completedActionIds.every((actionId) => workCatalog[id].actions.some((item) => item.id === actionId))
-      && (workCatalog[id].finalizeDisposition
-        ? ((progress as WorkProgress).status === 'completed'
-          ? workCatalog[id].dispositions?.includes((progress as WorkProgress).finalDisposition ?? '') === true
-            && (progress as WorkProgress).submissionCount >= 1
-            && (progress as WorkProgress).lastAssessment?.outcome === 'accepted'
-          : (progress as WorkProgress).finalDisposition === undefined)
-        : (progress as WorkProgress).finalDisposition === undefined))
+    && Object.entries(workProgressMap).every(([id, progress]) => !!id && isCompatibleWorkProgress(id, progress, workCatalog))
+    && (activeWorkId === null || isCompatibleWorkProgress(activeWorkId, workProgressMap[activeWorkId], workCatalog))
     && Array.isArray(value.records.permanentOutcomes)
     && Array.isArray(value.journal.notices);
 }
@@ -668,6 +682,59 @@ function normalizeLegacyTutorialProgression(
   };
 }
 
+
+function normalizeUnavailableWorkProgress(
+  parsed: unknown,
+  workCatalog: Readonly<Record<string, WorkDefinition<any>>>,
+): unknown {
+  if (!isObject(parsed) || !isObject(parsed.state) || !isObject(parsed.state.works)
+    || !isObject(parsed.state.works.progress)) return parsed;
+  const state = parsed.state;
+  const works = state.works;
+  const progress = { ...works.progress };
+  let activeWorkId = typeof works.activeWorkId === 'string' ? works.activeWorkId : null;
+
+  for (const [id, raw] of Object.entries(progress)) {
+    if (!isObject(raw)) continue;
+    const definition = workCatalog[id];
+    const definitionValid = !!definition && definition.id === id
+      && (definition.kind === 'work' || definition.kind === 'tutorial')
+      && validateWorkDefinition(definition).length === 0;
+    const compatible = definitionValid
+      && typeof raw.definitionCompatibilityKey === 'string'
+      && raw.definitionCompatibilityKey === definition!.progressCompatibilityKey
+      && definition!.validateScenarioData(raw.scenarioData)
+      && Array.isArray(raw.acquiredEvidence)
+      && raw.acquiredEvidence.every((evidenceId) => definition!.evidence.some((item) => item.id === evidenceId))
+      && Array.isArray(raw.completedActionIds)
+      && raw.completedActionIds.every((actionId) => definition!.actions.some((item) => item.id === actionId));
+
+    if (raw.status === 'suspended') {
+      const priorStatus = raw.suspendedFromStatus;
+      const canResume = compatible && ['active','completed','abandoned'].includes(String(priorStatus));
+      if (canResume && (priorStatus !== 'active' || activeWorkId === null || activeWorkId === id)) {
+        const { suspendedFromStatus: _suspendedFromStatus, ...rest } = raw;
+        progress[id] = { ...rest, status: priorStatus };
+        if (priorStatus === 'active' && activeWorkId === null) activeWorkId = id;
+      } else if (activeWorkId === id) {
+        activeWorkId = null;
+      }
+      continue;
+    }
+
+    if (!compatible) {
+      progress[id] = { ...raw, status: 'suspended', suspendedFromStatus: raw.status };
+      if (activeWorkId === id) activeWorkId = null;
+    }
+  }
+
+  if (activeWorkId !== null) {
+    const active = progress[activeWorkId];
+    if (!isObject(active) || active.status !== 'active') activeWorkId = null;
+  }
+  return { ...parsed, state: { ...state, works: { ...works, activeWorkId, progress } } };
+}
+
 function normalizeLegacyStarterAssignments(parsed: unknown): unknown {
   if (!isObject(parsed) || !isObject(parsed.state)) return parsed;
   const state = parsed.state;
@@ -716,7 +783,7 @@ function normalizeHardshipState(parsed: unknown): unknown {
 export function restoreSave(raw: string | null, workCatalog: Readonly<Record<string, WorkDefinition<any>>> = {}): SaveEnvelope | null {
   if (!raw) return null;
   try {
-    const parsed: unknown = normalizeHardshipState(normalizeLegacyStarterAssignments(normalizeLegacyTutorialProgression(normalizeInstitutionalMatters(normalizeNorthBayWorldBaseline(JSON.parse(raw))), workCatalog)));
+    const parsed: unknown = normalizeHardshipState(normalizeLegacyStarterAssignments(normalizeUnavailableWorkProgress(normalizeLegacyTutorialProgression(normalizeInstitutionalMatters(normalizeNorthBayWorldBaseline(JSON.parse(raw))), workCatalog), workCatalog)));
     return isValidSaveEnvelope(parsed, workCatalog) ? parsed : null;
   } catch { return null; }
 }
