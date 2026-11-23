@@ -3,15 +3,16 @@ import { createInitialGameState } from './initialState';
 import { resolveEraICharacterHistory } from '../content/characterCreation/eraICharacterHistory';
 import { selectPersonHistory } from './personHistory';
 import type { PersonId } from './ids';
+import type { Person } from './types';
 
 const base = createInitialGameState();
 const playerId = 'person-history-test' as PersonId;
-const people = {
+const people: Record<string, Person> = {
   ...base.world.people,
   [playerId]: { id: playerId, name: 'Aru', alive: true, affiliations: [] },
 };
 
-function playerWithResolvedHistory() {
+function playerWithResolvedHistory(): Person {
   const resolved = resolveEraICharacterHistory({
     personId: playerId,
     people,
