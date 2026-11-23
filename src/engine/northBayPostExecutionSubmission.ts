@@ -29,7 +29,9 @@ export function submitNorthBayPostExecutionInspection(
   const executionEventId = offer.id.slice(assignmentPrefix.length) as EventId;
   const executionEvent = state.world.events[executionEventId];
   const execution = executionEvent?.institutionalResponse;
-  if (!matter || matter.status === 'resolved' || !executionEvent || execution?.stage !== 'execution'
+  if (!matter || matter.kind !== 'roof_repair_verification' || matter.institutionId !== STOREHOUSE
+    || matter.status === 'resolved' || !executionEvent || execution?.stage !== 'execution'
+    || execution.matterId !== matter.id || executionEvent.dayNumber > state.calendar.dayNumber
     || !execution.assigneePersonId || execution.assigneePersonId === state.player.currentCharacterId) {
     return fail(state, 'post-execution-inspection-unavailable', 'Independent inspection requires an unresolved matter and a recorded execution by another person.');
   }
