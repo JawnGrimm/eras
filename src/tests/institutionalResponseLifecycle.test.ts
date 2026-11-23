@@ -267,4 +267,25 @@ describe('institutional response lifecycle', () => {
     expect(resolution?.institutionalResponse?.resolution?.verificationEventId).toBe(verification?.id);
     expect(settled.state.world.matters[MATTER_IDS.roofRepair].status).toBe('resolved');
   });
+  it('does not let unrelated, declined, or unaccepted Assignments freeze NPC fallback', () => {
+    for (const status of ['offered', 'declined', 'lapsed'] as const) {
+      const base = stateWithExecution(true);
+      const assignmentId = 'assignment-auto-post-execution-event-lifecycle-execution' as AssignmentId;
+      const offer = { id: assignmentId, activityId: NORTH_BAY_POST_EXECUTION_ACTIVITY_ID,
+        originMatterId: MATTER_IDS.roofRepair, status, expiresDay: 5 } as unknown as AssignmentOffer;
+      const state = { ...base, opportunities: { ...base.opportunities,
+        assignments: { ...base.opportunities.assignments, [assignmentId]: offer } } };
+      const settled = transitionGame(state, { type: 'END_DAY', expectedDayNumber: 1 });
+      expect(Object.values(settled.state.world.events).some((event) => event.institutionalResponse?.stage === 'resolution')).toBe(true);
+    }
+
+    const base = stateWithExecution(true);
+    const unrelated = { id: 'assignment-north-bay-roof-inspection' as AssignmentId,
+      activityId: 'activity-north-bay-roof-inspection', originMatterId: MATTER_IDS.roofRepair,
+      status: 'accepted' } as unknown as AssignmentOffer;
+    const state = { ...base, opportunities: { ...base.opportunities,
+      assignments: { ...base.opportunities.assignments, [unrelated.id]: unrelated } } };
+    const settled = transitionGame(state, { type: 'END_DAY', expectedDayNumber: 1 });
+    expect(Object.values(settled.state.world.events).some((event) => event.institutionalResponse?.stage === 'resolution')).toBe(true);
+  });
 });
