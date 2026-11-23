@@ -24,7 +24,23 @@ describe('typed institutional matters and bounded world tick', () => {
     expect(institution.activeMatters).toEqual([MATTER_IDS.tutorial, MATTER_IDS.roofRepair, MATTER_IDS.heldBarley]);
     expect(restored!.state.world.matters[MATTER_IDS.roofRepair].scheduledDevelopment?.kind).toBe('rain');
     expect(restored!.state.world.matters[MATTER_IDS.heldBarley].sourceRecordId).toBeUndefined();
+    expect(restored!.state.world.matters[MATTER_IDS.heldBarley].summary).toBe('Held-Barley Inspection recommended; seven sealed pottery storage jars containing held barley remain segregated, grain condition not yet assessed');
   });
+  it('normalizes only known legacy held-barley matter summaries and preserves unknown copy', () => {
+    const base = createInitialGameState();
+    const oldSummary = 'Seven held barley sacks remain segregated; grain condition has not yet been assessed.';
+    const customSummary = 'A custom note about sacks remains as originally authored.';
+    const matter = { id: MATTER_IDS.heldBarley, institutionId: STOREHOUSE_INSTITUTION_ID, kind: 'held_barley_inspection' as const, summary: oldSummary, status: 'active' as const, createdDay: 1 };
+    const customMatter = { ...matter, id: 'matter-custom-held-note' as never, summary: customSummary };
+    const state = { ...base, world: { ...base.world,
+      matters: { ...base.world.matters, [MATTER_IDS.heldBarley]: matter, [customMatter.id]: customMatter },
+      institutions: { ...base.world.institutions, [STOREHOUSE_INSTITUTION_ID]: { ...base.world.institutions[STOREHOUSE_INSTITUTION_ID], activeMatters: [...base.world.institutions[STOREHOUSE_INSTITUTION_ID].activeMatters, MATTER_IDS.heldBarley, customMatter.id] } },
+    } } as GameState;
+    const restored = restoreSave(JSON.stringify(createSaveEnvelope(state, 1)));
+    expect(restored?.state.world.matters[MATTER_IDS.heldBarley].summary).toBe('Seven sealed pottery storage jars containing held barley remain segregated; grain condition has not yet been assessed.');
+    expect(restored?.state.world.matters[customMatter.id].summary).toBe(customSummary);
+  });
+
   it('advances an unresolved roof matter once when its scheduled rain arrives', () => {
     const base = createInitialGameState();
     const matter = { ...createRoofRepairMatter(1), scheduledDevelopment: { kind: 'rain' as const, dayNumber: 4 } };
