@@ -1,4 +1,4 @@
-import type { CareerProgressionPolicy, GameAction, GameState, TransitionResult } from '../state/types';
+import type { CareerProgressionPolicy, GameAction, GameState, TransitionResult, WorkProgress } from '../state/types';
 import { getInitializedScribal } from '../state/scribalState';
 import type { ConditionId, InstitutionId } from '../state/ids';
 import { UR_GIR_PERSON_ID } from '../state/ids';
@@ -35,7 +35,7 @@ function isValidWorkDefinition(definition: WorkDefinition<any> | undefined): def
     && validateWorkDefinition(definition).length === 0;
 }
 
-function progressMatchesDefinition(definition: WorkDefinition<any>, progress: GameState['works']['progress'][string]): boolean {
+function progressMatchesDefinition(definition: WorkDefinition<any>, progress: WorkProgress | undefined): boolean {
   return !!progress && progress.status !== 'suspended'
     && progress.definitionCompatibilityKey === definition.progressCompatibilityKey
     && definition.validateScenarioData(progress.scenarioData)
