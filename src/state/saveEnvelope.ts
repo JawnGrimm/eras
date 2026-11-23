@@ -692,39 +692,56 @@ function normalizeUnavailableWorkProgress(
   const state = parsed.state;
   const works = state.works;
   const progress = { ...works.progress };
+  const isCompatible = (id: string, raw: Record<string, unknown>): boolean => {
+    const definition = workCatalog[id];
+    return !!definition && definition.id === id
+      && (definition.kind === 'work' || definition.kind === 'tutorial')
+      && validateWorkDefinition(definition).length === 0
+      && typeof raw.definitionCompatibilityKey === 'string'
+      && raw.definitionCompatibilityKey === definition.progressCompatibilityKey
+      && definition.validateScenarioData(raw.scenarioData)
+      && Array.isArray(raw.acquiredEvidence)
+      && raw.acquiredEvidence.every((evidenceId) => definition.evidence.some((item) => item.id === evidenceId))
+      && Array.isArray(raw.completedActionIds)
+      && raw.completedActionIds.every((actionId) => definition.actions.some((item) => item.id === actionId));
+  };
+
   let activeWorkId = typeof works.activeWorkId === 'string' ? works.activeWorkId : null;
+  if (activeWorkId !== null) {
+    const current = progress[activeWorkId];
+    if (!isObject(current) || current.status !== 'active' || !isCompatible(activeWorkId, current)) activeWorkId = null;
+  }
+  let activeClaimed = activeWorkId !== null;
 
   for (const [id, raw] of Object.entries(progress)) {
     if (!isObject(raw)) continue;
-    const definition = workCatalog[id];
-    const definitionValid = !!definition && definition.id === id
-      && (definition.kind === 'work' || definition.kind === 'tutorial')
-      && validateWorkDefinition(definition).length === 0;
-    const compatible = definitionValid
-      && typeof raw.definitionCompatibilityKey === 'string'
-      && raw.definitionCompatibilityKey === definition!.progressCompatibilityKey
-      && definition!.validateScenarioData(raw.scenarioData)
-      && Array.isArray(raw.acquiredEvidence)
-      && raw.acquiredEvidence.every((evidenceId) => definition!.evidence.some((item) => item.id === evidenceId))
-      && Array.isArray(raw.completedActionIds)
-      && raw.completedActionIds.every((actionId) => definition!.actions.some((item) => item.id === actionId));
-
+    const compatible = isCompatible(id, raw);
     if (raw.status === 'suspended') {
       const priorStatus = raw.suspendedFromStatus;
       const canResume = compatible && ['active','completed','abandoned'].includes(String(priorStatus));
-      if (canResume && (priorStatus !== 'active' || activeWorkId === null || activeWorkId === id)) {
-        const { suspendedFromStatus: _suspendedFromStatus, ...rest } = raw;
-        progress[id] = { ...rest, status: priorStatus };
-        if (priorStatus === 'active' && activeWorkId === null) activeWorkId = id;
+      if (canResume && priorStatus !== 'active') {
+        const restored = { ...raw, status: priorStatus } as Record<string, unknown>;
+        delete restored.suspendedFromStatus;
+        progress[id] = restored;
+      } else if (canResume && priorStatus === 'active' && !activeClaimed) {
+        const restored = { ...raw, status: 'active' } as Record<string, unknown>;
+        delete restored.suspendedFromStatus;
+        progress[id] = restored;
+        activeWorkId = id;
+        activeClaimed = true;
       } else if (activeWorkId === id) {
         activeWorkId = null;
+        activeClaimed = false;
       }
       continue;
     }
 
-    if (!compatible) {
+    if (!compatible || (raw.status === 'active' && activeWorkId !== id)) {
       progress[id] = { ...raw, status: 'suspended', suspendedFromStatus: raw.status };
-      if (activeWorkId === id) activeWorkId = null;
+      if (activeWorkId === id) {
+        activeWorkId = null;
+        activeClaimed = false;
+      }
     }
   }
 
