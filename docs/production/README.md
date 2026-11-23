@@ -6,6 +6,7 @@ These records explain how the approved game is built and verified. They do not i
 
 ## Current records
 
+- [Work Contribution Behavior Specification](WORK_CONTRIBUTION_BEHAVIOR_SPEC.md) — observable engineering requirements and acceptance scenarios for the owner-accepted contribution framework. This is not a schema or implementation decision.
 - [Implementation Status Snapshot](IMPLEMENTATION_STATUS.md) — dated implementation facts as of 22 November 2026. Verify against current code, tests, and deployment before relying on it.
 
 ## Technical boundaries
@@ -15,4 +16,4 @@ These records explain how the approved game is built and verified. They do not i
 - The production save key is scribe_game_v2.
 - Runtime generative AI must not create Assignments, validate records, or determine outcomes.
 
-Detailed architecture, persistence, validation, test, and deployment contracts should be added here as their own focused documents when they become stable enough to serve as shared engineering references. Pull requests, issues, test output, and deployment workflows remain the authoritative evidence for the status of a particular implementation.
+Pull requests, issues, test output, and deployment workflows remain the authoritative evidence for the status of a particular implementation.
