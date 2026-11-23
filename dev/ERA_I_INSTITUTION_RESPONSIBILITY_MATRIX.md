@@ -472,7 +472,7 @@ The design work supports the following recommendations but does not approve them
 5. **Commercial:** Focus on procurement, exchange, transport, and counterparties rather than a modern merchant institution.
 6. **Martial:** Retain as the player-facing orientation, with lower historical confidence in Era I and no invented standing army or military scribal corps. Use “Security and Mobilization” as the local Era I gloss.
 7. **Labor:** Treat collective labor as a task-specific relationship among institutions and people; do not assume universal corvée rules or city-ward quotas.
-8. **Character creation:** Revise the prior matrix only after the institutional model and Military framing are accepted.
+8. **Character creation:** Revise the prior matrix against the approved institutional model and Martial framing.
 
 ## 11. Research basis
 
