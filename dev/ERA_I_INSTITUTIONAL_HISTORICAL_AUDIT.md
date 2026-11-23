@@ -197,7 +197,7 @@ Do not reduce every seal to a personal signature or assume that every official h
 - **§7 Storehouse Reckoning:** supports commodity accounting, contextual numerical systems, seal/custody evidence, and administrative judgment without changing the tutorial's locked structure.
 - **§15 People and Institutions:** requires institutions to be modeled as overlapping organizations with specific authority and responsibility, not mutually exclusive modern departments.
 - **§19 Content and Scenario Quality:** calls for source confidence labels and period-specific limits on records and terminology.
-- **§23 Open Design Work:** informs Era I institution roster, career-path content, historical references, character creation, and situated knowledge.
+- **§23 Open Design Work:** informs Era I institution roster, professional-orientation content, historical references, character creation, and situated knowledge.
 
 No locked invariant is changed. No new resource balance is proposed. No change is made to the six-AP day, activity layers, progression tracks, or zero-runtime-generative-AI boundary.
 
