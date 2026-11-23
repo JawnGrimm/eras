@@ -504,7 +504,8 @@ function normalizeNorthBayWorldBaseline(parsed: unknown): unknown {
           ...(office.authorityCapabilities ?? []),
         ])],
       };
-    }  }
+    }
+  }
   return { ...parsed, state: { ...state, world: { ...world, people, locations, appointments, institutions } } };
 }
 
