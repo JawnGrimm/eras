@@ -53,16 +53,35 @@ describe('persistent character creation data validation', () => {
     expect(isValidGameState(stateWithHistory())).toBe(true);
   });
 
+  it('preserves character history through the complete save serialization and restoration boundary', () => {
+    const state = stateWithHistory();
+    const originalPerson = state.world.people[INITIAL_PERSON_ID];
+    const envelope = createSaveEnvelope(state, 1, '2026-11-23T12:00:00.000Z');
+    const restored = restoreSave(JSON.stringify(envelope));
+
+    expect(restored).not.toBeNull();
+    const restoredPerson = restored!.state.world.people[INITIAL_PERSON_ID];
+    expect(restoredPerson.characterCreation).toEqual(originalPerson.characterCreation);
+    expect(restoredPerson.lifeEvents).toEqual(originalPerson.lifeEvents);
+    expect(restoredPerson.familiarities).toEqual(originalPerson.familiarities);
+  });
+
   it('restores legacy v2 saves without fabricating character history', () => {
-    const legacyEnvelope = createSaveEnvelope(createInitialGameState(), 0, '2026-11-23T12:00:00.000Z');
+    const legacyState = createInitialGameState();
+    const legacyPerson = legacyState.world.people[INITIAL_PERSON_ID];
+    delete legacyPerson.characterCreation;
+    delete legacyPerson.lifeEvents;
+    delete legacyPerson.familiarities;
+
+    const legacyEnvelope = createSaveEnvelope(legacyState, 0, '2026-11-23T12:00:00.000Z');
     const restored = restoreSave(JSON.stringify(legacyEnvelope));
 
     expect(restored).not.toBeNull();
     expect(restored?.schemaVersion).toBe(2);
-    const legacyPerson = restored!.state.world.people[INITIAL_PERSON_ID];
-    expect(legacyPerson.characterCreation).toBeUndefined();
-    expect(legacyPerson.lifeEvents).toBeUndefined();
-    expect(legacyPerson.familiarities).toBeUndefined();
+    const restoredLegacyPerson = restored!.state.world.people[INITIAL_PERSON_ID];
+    expect(restoredLegacyPerson.characterCreation).toBeUndefined();
+    expect(restoredLegacyPerson.lifeEvents).toBeUndefined();
+    expect(restoredLegacyPerson.familiarities).toBeUndefined();
   });
 
   it('rejects malformed character history through the save restoration boundary', () => {
