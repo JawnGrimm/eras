@@ -156,8 +156,9 @@ export function validateInstitutionalResponseEvent(state: GameState, event: Worl
       return 'Execution requires the worker’s active commitment created by the cited assignment.';
     }
     if (response.decision !== 'executed' || !response.execution
-      || !nonEmpty(response.execution.workPerformed) || !nonEmpty(response.execution.laborBasis)
-      || !nonEmpty(response.execution.materialsBasis) || !nonEmpty(response.execution.result)
+      || !nonEmpty(response.execution.workPerformed) || response.execution.workPerformed !== response.scope
+      || !nonEmpty(response.execution.laborBasis) || !nonEmpty(response.execution.materialsBasis)
+      || !nonEmpty(response.execution.result)
       || response.assigneePersonId === response.actorPersonId) {
       return 'Execution must record work performed, allocated labor, allocated materials, and the result.';
     }
