@@ -334,7 +334,7 @@ A character familiar with provisioning or quantities may recognize the context m
 
 ### GDD alignment
 
-- **§3.3–3.4:** Develops the Uruk origin, four initial career paths, attributes, skills, and personality traits.
+- **§3.3–3.4:** Develops the Uruk origin, four initial professional orientations, attributes, skills, and personality traits.
 - **§4.2:** Establishes a reusable character-creation framework whose local expression changes by era.
 - **§15.2–15.5:** Uses the shared Person model, social network, era-specific institutions, and bounded deterministic world.
 - **§23 items 8, 10, 13, 22, and 25:** Informs relationships, character transitions, Era I institutions, the character system, and situated interpretation.
@@ -344,7 +344,7 @@ No locked GDD invariant is contradicted. This proposal does not change the six-A
 
 ### Cross-department impact
 
-- **Game Design:** Establishes one reusable life-history framework; keeps career paths as understandable professional orientations rather than era-specific classes; avoids turning biography into a bonus-selection exercise.
+- **Game Design:** Establishes one reusable life-history framework; keeps the four orientations understandable as broad professional emphases rather than era-specific classes; avoids turning biography into a bonus-selection exercise.
 - **Historical Research:** Validates the Era I vignettes and local path descriptions. Prioritize household/social-context wording, training plausibility, and the weak evidence for a distinct military scribal career.
 - **Engineering & Architecture:** Future design may need compact Life Event and familiarity representations and era-localized orientation descriptions. Reuse the shared Person and careerPath foundations; do not create a parallel character model or simulate childhood day by day.
 - **Art & UI/UX:** Present the sequence as concise narrative chapters or vignettes. The professional orientation screen must explain the general role and its Era I meaning. No physical avatar editor is required. Use period-appropriate materials and settings; avoid later writing forms or modern school imagery in Uruk.
@@ -355,7 +355,7 @@ No locked GDD invariant is contradicted. This proposal does not change the six-A
 
 **Recommendation:** adopt the reusable life-history framework as the working direction for character creation. Keep the five life-history chapters and final identity/orientation step, with the Era I content above serving as the first authored expression rather than a permanent template for all eras.
 
-The revision deliberately treats the four career paths as generalized professional orientations. Their descriptions should explain the broad fantasy first and the historical meaning second. The institutional matrix supplies credible context and content possibilities; it does not require four separate institutional career systems.
+The revision deliberately treats the four professional orientations as generalized emphases. Their descriptions should explain the broad fantasy first and the historical meaning second. The institutional matrix supplies credible context and content possibilities; it does not require four separate institutional career systems.
 
 The following remain open and are not approved by this document:
 1. The final wording and availability of individual Era I origin and vignette choices.
