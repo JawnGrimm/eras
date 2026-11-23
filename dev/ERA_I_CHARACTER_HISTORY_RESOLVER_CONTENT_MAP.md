@@ -183,12 +183,12 @@ The selected orientation is stored only in `scribal.careerPath`. It adds no Life
 
 | Orientation | Era I framing | Opening constraint |
 |---|---|---|
-| Government | Interest in institutional administration, storage, distribution, labor, and coordination. | No office, storehouse authority, command, or exclusive access. |
+| Civic | Interest in institutional administration, storage, distribution, labor, and coordination. | No office, storehouse authority, command, or exclusive access. |
 | Religious | Interest in sacred practice and the responsibilities that support it; sacred and economic administration may overlap. | No priestly title, ritual authority, or invented Anu/Kullaba archive. |
-| Merchant | Interest in exchange, procurement, delivery, and counterparties. | No private merchant house, ownership of goods, or commercial authority. |
-| Military | Local gloss: Security and Mobilization; interest in custody, protection, organized movement, and coordination under risk. | Low-confidence Era I framing; no standing army, military bureaucracy, soldier identity, combat skill, military rank, or appointment. |
+| Commercial | Interest in exchange, procurement, delivery, and counterparties. | No private merchant house, ownership of goods, or commercial authority. |
+| Martial | Local gloss: Security and Mobilization; interest in custody, protection, organized movement, and coordination under risk. | Low-confidence Era I framing; no standing army, military bureaucracy, soldier identity, combat skill, military rank, or appointment. |
 
-Orientation may change the final biography's closing paragraph and likely professional context. It must not rewrite the five earlier events or make the character's past contradict the selected choices. Government and Religious remain overlapping contexts; Merchant and Military are not exclusive institutions.
+Orientation may change the final biography's closing paragraph and likely professional context. It must not rewrite the five earlier events or make the character's past contradict the selected choices. Civic and Religious remain overlapping contexts; Commercial and Martial are not exclusive institutions.
 
 ## 9. Compatibility and deterministic resolution
 
