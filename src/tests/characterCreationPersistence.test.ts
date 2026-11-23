@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
-import { isValidGameState } from '../state/saveEnvelope';
+import { createSaveEnvelope, isValidGameState, restoreSave } from '../state/saveEnvelope';
 import type { GameState, PersonLifeEvent } from '../state/types';
 import type { PersonId } from '../state/ids';
 
@@ -51,6 +51,28 @@ function stateWithHistory(): GameState {
 describe('persistent character creation data validation', () => {
   it('accepts a complete creation record, Life Event, and provenance-backed familiarity', () => {
     expect(isValidGameState(stateWithHistory())).toBe(true);
+  });
+
+  it('restores legacy v2 saves without fabricating character history', () => {
+    const legacyEnvelope = createSaveEnvelope(createInitialGameState(), 0, '2026-11-23T12:00:00.000Z');
+    const restored = restoreSave(JSON.stringify(legacyEnvelope));
+
+    expect(restored).not.toBeNull();
+    expect(restored?.schemaVersion).toBe(2);
+    const legacyPerson = restored!.state.world.people[INITIAL_PERSON_ID];
+    expect(legacyPerson.characterCreation).toBeUndefined();
+    expect(legacyPerson.lifeEvents).toBeUndefined();
+    expect(legacyPerson.familiarities).toBeUndefined();
+  });
+
+  it('rejects malformed character history through the save restoration boundary', () => {
+    const envelope = createSaveEnvelope(stateWithHistory(), 1, '2026-11-23T12:00:00.000Z');
+    const malformed = structuredClone(envelope);
+    malformed.state.world.people[INITIAL_PERSON_ID].familiarities![0].basisLifeEventIds = [
+      'life-event-not-present',
+    ];
+
+    expect(restoreSave(JSON.stringify(malformed))).toBeNull();
   });
 
   it('keeps legacy Persons without any character-creation fields valid', () => {
