@@ -1,5 +1,5 @@
-import type { EventId, InstitutionalMatter, PersonId } from '../state/ids';
-import type { GameState, InstitutionalAuthorityCapability, InstitutionalResponse, RecordEntry, WorldEvent } from '../state/types';
+import type { EventId, PersonId } from '../state/ids';
+import type { GameState, InstitutionalAuthorityCapability, InstitutionalMatter, InstitutionalResponse, RecordEntry, WorldEvent } from '../state/types';
 import { applyInstitutionalResponseEvent, hasIndependentObservation, validateInstitutionalResponseEvent } from './institutionalResponseValidation';
 
 function knowsRecord(state: GameState, personId: PersonId, recordId: RecordEntry['id']): boolean {
