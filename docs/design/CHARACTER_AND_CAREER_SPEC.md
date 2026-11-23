@@ -17,10 +17,10 @@ These elements should interact to change what a character can do, perceive, acce
 
 Character creation offers four initial career paths:
 
-- **Government**
-- **Military**
+- **Civic**
 - **Religious**
-- **Merchant**
+- **Commercial**
+- **Martial**
 
 A career path establishes the player's initial professional identity and context. It should shape the institutions, people, responsibilities, opportunities, and likely areas of expertise encountered at the beginning of play. These are starting paths, not permanent restrictions on what the character may learn or do. The starting benefits and any later movement between career paths have not yet been defined.
 
