@@ -54,14 +54,16 @@ describe('typed institutional matters and bounded world tick', () => {
 
   it('does not rewrite matching legacy copy outside the Temple Storehouse', () => {
     const base = createInitialGameState();
-    const unrelatedInstitutionId = Object.keys(base.world.institutions).find((id) => id !== STOREHOUSE_INSTITUTION_ID)!;
+    const unrelatedInstitutionId = 'institution-unrelated-test' as keyof typeof base.world.institutions;
     const legacySummary = 'Held-Barley Inspection recommended; seven sacks remain segregated, grain condition not yet assessed';
+    const unrelatedInstitution = { ...base.world.institutions[STOREHOUSE_INSTITUTION_ID],
+      id: unrelatedInstitutionId,
+      name: 'Unrelated Institution',
+      activeMatters: [legacySummary] as unknown as typeof base.world.institutions[typeof STOREHOUSE_INSTITUTION_ID]['activeMatters'],
+    };
     const state = { ...base, world: { ...base.world,
       matters: {},
-      institutions: { ...base.world.institutions,
-        [unrelatedInstitutionId]: { ...base.world.institutions[unrelatedInstitutionId as keyof typeof base.world.institutions],
-          activeMatters: [legacySummary] as unknown as typeof base.world.institutions[typeof STOREHOUSE_INSTITUTION_ID]['activeMatters'] },
-      },
+      institutions: { ...base.world.institutions, [unrelatedInstitutionId]: unrelatedInstitution },
     } } as GameState;
     const restored = restoreSave(JSON.stringify(createSaveEnvelope(state, 1)));
     expect(restored?.state.world.matters[MATTER_IDS.heldBarley].summary).toBe(legacySummary);
