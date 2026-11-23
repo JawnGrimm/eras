@@ -165,7 +165,13 @@ All instruction events use stage `transition_to_scribal_work`, order 4, confiden
 | TR-03 Signs and category lists | `era1.character_history.instruction.signs_categories` | Under Shuruppak-ilu's supervision, practiced recognizing and reproducing a limited set of signs and categories. | `early_signs_categories / limited_practiced_sign_set / practiced_under_instruction` |
 | TR-04 Checking and organizing records | `era1.character_history.instruction.check_organize_records` | Under Shuruppak-ilu's supervision, practiced comparing and organizing a narrow set of related entries. | `account_comparison / {responsibility_scope} / practiced_under_instruction` |
 
-Resolve TR-04 `{responsibility_scope}` as follows:\n- RS-01: `quantity_accounts`\n- RS-02: `delivery_handover_accounts`\n- RS-03: `material_condition_accounts`\n- RS-04: `marked_and_sealed_records`\n\nFE-03 remains restricted to RS-01, RS-02, and RS-03. RS-04's TR-04 scope is specific to comparing and organizing marked/sealed records; it does not imply that the character could read proto-cuneiform or apply an official seal. If FE-03 and TR-04 share the same `(domainId, scopeId)`, merge them into one familiarity record, retain `practiced_under_instruction`, and preserve both Life Event IDs in `basisLifeEventIds`.
+Resolve TR-04 `{responsibility_scope}` as follows:
+- RS-01: `quantity_accounts`
+- RS-02: `delivery_handover_accounts`
+- RS-03: `material_condition_accounts`
+- RS-04: `marked_and_sealed_records`
+
+FE-03 remains restricted to RS-01, RS-02, and RS-03. RS-04's TR-04 scope is specific to comparing and organizing marked/sealed records; it does not imply that the character could read proto-cuneiform or apply an official seal. If FE-03 and TR-04 share the same `(domainId, scopeId)`, merge them into one familiarity record, retain `practiced_under_instruction`, and preserve both Life Event IDs in `basisLifeEventIds`.
 
 TR-01 deliberately uses grain and beer as two commodity contexts because Era I administrative research supports both as recorded commodities and stresses that numerical/metrological systems depend on what is being counted or measured. The character learns only the narrow notation/measurement contexts authored for those commodities—not universal numeracy. Beer is an in-world commodity only, never a third player balance. Do not teach unsupported numerical values or claim one universal system.
 
