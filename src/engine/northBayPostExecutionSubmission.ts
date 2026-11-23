@@ -43,7 +43,7 @@ export function submitNorthBayPostExecutionInspection(
     return fail(state, 'post-execution-evidence-required', 'Inspect the completed work, review the execution record, and cite both sources before submitting.');
   }
   const finding = progress.draft.finding;
-  const unsupportedFinding = finding === 'execution_not_confirmed' || finding === 'channel_obstructed';
+  const unsupportedFinding = finding === 'channel_obstructed';
   const unsupportedResponsibility = progress.draft.responsibilityClaim === 'aru';
   const playerId = state.player.currentCharacterId;
   const recordId = `record-${offer.id}-day-${state.calendar.dayNumber}` as RecordId;
@@ -68,9 +68,7 @@ export function submitNorthBayPostExecutionInspection(
       ? 'The inspected north-bay runoff channel is clear. The shaded north-east beam socket appears dry at the time of inspection.'
       : finding === 'channel_obstructed'
         ? 'The inspected north-bay runoff channel remains obstructed after the recorded execution.'
-        : finding === 'execution_not_confirmed'
-          ? 'The inspection does not confirm the recorded execution.'
-          : 'The inspected north-bay runoff channel is clear. The shaded north-east beam socket remains damp and requires a separate inspection after drying.',
+        : 'The inspected north-bay runoff channel is clear. The shaded north-east beam socket remains damp and requires a separate inspection after drying.',
     classification: 'observed',
     sourceIds: ['source-independent-observation'],
   });
@@ -84,7 +82,7 @@ export function submitNorthBayPostExecutionInspection(
     id: 'assertion-unsupported-post-execution-claim',
     text: unsupportedResponsibility
       ? 'The report assigns responsibility to the maintenance worker without evidence establishing fault.'
-      : 'The report makes a claim about the completed execution that is not supported by the inspection actions recorded.',
+      : 'The observed channel condition conflicts with the recorded execution result and requires official review.',
     classification: 'disputed',
     sourceIds: ['source-player-report'],
   });
