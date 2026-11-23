@@ -87,7 +87,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
 
   for (const matter of Object.values(matters)) {
     const schedule = matter.scheduledDevelopment;
-    if (matter.status !== 'active' || schedule?.kind !== 'rain' || schedule.dayNumber > nextDay) continue;
+    if (matter.status === 'resolved' || matter.status === 'developed' || schedule?.kind !== 'rain' || schedule.dayNumber > nextDay) continue;
 
     const eventId = `event-north-bay-rain-day-${nextDay}` as EventId;
     events[eventId] = events[eventId] ?? {
@@ -117,7 +117,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
       institutions[matter.institutionId] = {
         ...institution,
         activeMatters: [
-          ...institution.activeMatters.filter((id) => id !== matter.id),
+          ...institution.activeMatters,
           ...(institution.activeMatters.includes(MATTER_IDS.waterIngress) ? [] : [MATTER_IDS.waterIngress]),
         ],
       };
