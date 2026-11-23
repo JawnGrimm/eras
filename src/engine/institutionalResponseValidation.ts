@@ -1,4 +1,4 @@
-import type { GameState, InstitutionalResponse, WorldEvent } from '../state/types';
+import type { GameState, WorldEvent } from '../state/types';
 
 function nonEmpty(value: unknown): value is string {
   return typeof value === 'string' && !!value.trim();
@@ -114,6 +114,15 @@ export function validateInstitutionalResponseEvent(state: GameState, event: Worl
     const commitmentIdUsed = Object.values(state.world.people).some((person) =>
       (person.commitments ?? []).some((commitment) => commitment.id === response.commitmentId));
     if (duplicate || commitmentIdUsed) return 'This maintenance commitment identifier is already in use.';
+    // Once persisted, the assignment event and the worker's typed commitment must exist together.
+    if (state.world.events[event.id]) {
+      const persisted = assignee.commitments?.find((item) => item.id === response.commitmentId);
+      if (!persisted || persisted.kind !== 'allocation' || persisted.status !== 'active'
+        || persisted.basis.kind !== 'event' || persisted.basis.id !== event.id
+        || !persisted.relatedMatterIds?.includes(matter.id) || persisted.institutionId !== matter.institutionId) {
+        return 'A recorded assignment must have its matching active worker commitment.';
+      }
+    }
     return null;
   }
 
