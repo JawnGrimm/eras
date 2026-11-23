@@ -52,21 +52,27 @@ describe('typed institutional matters and bounded world tick', () => {
     expect(submittedRestored?.state.world.matters[MATTER_IDS.heldBarley].summary).toBe('Seven held capacity measures are contained in seven sealed pottery storage jars segregated on reed matting. A finding and recommendation have been filed; internal grain condition and formal release remain unresolved.');
   });
 
-  it('does not rewrite matching legacy copy outside the Temple Storehouse', () => {
+  it('does not rewrite an unrelated matter that happens to contain the same legacy wording', () => {
     const base = createInitialGameState();
-    const unrelatedInstitutionId = 'institution-unrelated-test' as keyof typeof base.world.institutions;
     const legacySummary = 'Held-Barley Inspection recommended; seven sacks remain segregated, grain condition not yet assessed';
-    const unrelatedInstitution = { ...base.world.institutions[STOREHOUSE_INSTITUTION_ID],
-      id: unrelatedInstitutionId,
-      name: 'Unrelated Institution',
-      activeMatters: [legacySummary] as unknown as typeof base.world.institutions[typeof STOREHOUSE_INSTITUTION_ID]['activeMatters'],
+    const unrelatedMatterId = 'matter-custom-held-note' as MatterId;
+    const unrelatedMatter = {
+      id: unrelatedMatterId,
+      institutionId: STOREHOUSE_INSTITUTION_ID,
+      kind: 'general' as const,
+      summary: legacySummary,
+      status: 'active' as const,
+      createdDay: 1,
     };
     const state = { ...base, world: { ...base.world,
-      matters: {},
-      institutions: { ...base.world.institutions, [unrelatedInstitutionId]: unrelatedInstitution },
+      matters: { ...base.world.matters, [unrelatedMatterId]: unrelatedMatter },
+      institutions: { ...base.world.institutions,
+        [STOREHOUSE_INSTITUTION_ID]: { ...base.world.institutions[STOREHOUSE_INSTITUTION_ID],
+          activeMatters: [...base.world.institutions[STOREHOUSE_INSTITUTION_ID].activeMatters, unrelatedMatterId] },
+      },
     } } as GameState;
     const restored = restoreSave(JSON.stringify(createSaveEnvelope(state, 1)));
-    expect(restored?.state.world.matters[MATTER_IDS.heldBarley].summary).toBe(legacySummary);
+    expect(restored?.state.world.matters[unrelatedMatterId].summary).toBe(legacySummary);
   });
 
   it('advances an unresolved roof matter once when its scheduled rain arrives', () => {
