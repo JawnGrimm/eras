@@ -95,17 +95,20 @@ export interface Person {
   scribal?: ScribalCharacterState;
 }
 export type InstitutionalAuthorityCapability = 'assess_institutional_reports' | 'authorize_routine_storehouse_maintenance';
-export type InstitutionalResponseStage = 'assessment' | 'authorization';
+export type InstitutionalResponseStage = 'assessment' | 'authorization' | 'commitment' | 'execution';
 export interface InstitutionalResponse {
   matterId: MatterId;
   stage: InstitutionalResponseStage;
   actorPersonId: PersonId;
   appointmentId: AppointmentId;
   recordId: RecordId;
-  decision: 'accepted_for_action' | 'request_more_evidence' | 'referred' | 'declined' | 'authorized' | 'authorization_declined';
+  decision: 'accepted_for_action' | 'request_more_evidence' | 'referred' | 'declined' | 'authorized' | 'authorization_declined' | 'assigned' | 'executed';
   precedingEventId?: EventId;
   authorizedAction?: 'routine_storehouse_maintenance';
   scope?: string;
+  assigneePersonId?: PersonId;
+  commitmentId?: string;
+  execution?: { workPerformed: string; laborBasis: string; materialsBasis: string; result: string };
 }
 export interface Appointment {
   id: AppointmentId; personId: PersonId; institutionId: InstitutionId;
