@@ -1319,3 +1319,22 @@ The note includes evidence/confidence distinctions, institutional responsibiliti
 **Next action**
 - Review the matrix and decide the Era I institutional framing.
 - If accepted, revise the Uruk character-creation matrix and map the existing Storehouse Reckoning/tutorial and opening world against these contexts without changing its evidence or assessment.
+
+
+## 2026-11-23 — Design Investigation 02A revision
+
+**Contributor:** ChatGPT  
+**Status:** Revised proposal; awaiting Game Director review
+
+Revised [Uruk Character-Creation Content Matrix](URUK_CHARACTER_CREATION_MATRIX.md) following the Game Director's approval to revise 02A and clarification that *Scribe of Eras* is a historical RPG, not a comprehensive historical simulation.
+
+The revision:
+- Reframes the matrix as one reusable life-history framework for all seven eras, with Era I Uruk as its first authored expression.
+- Keeps the life-history sequence but avoids treating its chapters as universal historical institutions or mandatory simulation systems.
+- Defines Government, Military, Religious, and Merchant as generalized professional orientations. Each choice should explain the broad professional role first, then its local meaning in the current era.
+- Uses the Era I institutional research as a source of credible people, responsibilities, and settings without requiring four separate institutional career systems or a complete social simulation.
+- Keeps the common Storehouse Reckoning tutorial unchanged across starting orientations; background may shape situated interpretation but not objective evidence, required fields, assessment criteria, or authority.
+- Limits persistent character history to a small number of meaningful Life Events, relationships, and familiarity grounded in experience. It does not propose day-by-day childhood simulation.
+- Leaves numerical starting attributes, skills, Career XP, rank benefits, equipment, resources, and detailed data architecture open.
+
+This is a design-document revision only. The canonical GDD, production code, save schema, and runtime content were not changed. The institutional matrix's proposed Era I framing and the detailed first-release availability of individual choices remain subject to Game Director review.
