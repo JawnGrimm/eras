@@ -1,6 +1,6 @@
-import type { AssignmentId, EventId, KnowledgeEntryId, PersonId, RecordId } from '../state/ids';
+import type { KnowledgeEntryId, RecordId } from '../state/ids';
 import type { AssignmentActivityDefinition } from '../content/assignments/northBayRoofInspection';
-import { NORTH_BAY_POST_EXECUTION_ACTIVITY_ID, NORTH_BAY_PEOPLE, NORTH_BAY_LOCATION_ID } from '../content/assignments/northBayRoofInspection';
+import { NORTH_BAY_POST_EXECUTION_ACTIVITY_ID, NORTH_BAY_PEOPLE } from '../content/assignments/northBayRoofInspection';
 import type { AssignmentActivityProgress, AssignmentOffer, GameState, RecordAssertion, RecordEntry, TransitionResult } from '../state/types';
 import { addActivity } from './opportunities';
 import { MATTER_IDS } from './institutionalMatters';
@@ -38,7 +38,7 @@ export function submitNorthBayPostExecutionInspection(
   const observed = progress.discoveryIds.includes('post-execution-observation');
   const reviewedExecution = progress.discoveryIds.includes('post-execution-record');
   const finding = progress.draft.finding;
-  const unsupportedFinding = finding === 'execution_not_confirmed' && !observed;
+  const unsupportedFinding = finding === 'execution_not_confirmed';
   const unsupportedResponsibility = progress.draft.responsibilityClaim === 'aru';
   const unsupportedNormalFinding = finding === 'channel_clear_beam_followup' && !observed;
   const playerId = state.player.currentCharacterId;
@@ -139,7 +139,7 @@ export function submitNorthBayPostExecutionInspection(
       },
     },
   };
-  const cost = (offer.activityId ? 1 : 0) + 0;
+  const cost = _definition.submissionApCost;
   if (state.actionEconomy.apRemaining < cost) {
     return fail(state, 'insufficient-ap', 'The inspection report submission does not have enough AP.');
   }
