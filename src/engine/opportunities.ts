@@ -1,5 +1,5 @@
 import type { EventId, AssignmentId, ChallengeId, InstitutionId, PersonId, SkillId } from '../state/ids';
-import { ASSIGNMENT_ACTIVITY_CATALOG, validateAssignmentActivityDefinition } from '../content/assignments/northBayRoofInspection';
+import { ASSIGNMENT_ACTIVITY_CATALOG, NORTH_BAY_POST_EXECUTION_ACTIVITY_ID, validateAssignmentActivityDefinition } from '../content/assignments/northBayRoofInspection';
 import { resolveOpportunityDatePolicies, validateOpportunityConsequences } from '../state/opportunityValidation';
 import type {
   AssignmentActivityAggregate, AssignmentOffer, ChallengeInstance, ChallengeOutcome, ChallengeTriggerRule,
@@ -184,6 +184,17 @@ export function transitionOpportunityAction(state: GameState, action: Opportunit
     case 'ACCEPT_ASSIGNMENT': {
       const offer = opportunities.assignments[action.assignmentId];
       if (!offer || offer.status !== 'offered') return fail(state, 'assignment-not-offered', 'Only an offered Assignment can be accepted.');
+      if (offer.activityId === NORTH_BAY_POST_EXECUTION_ACTIVITY_ID) {
+        const prefix = 'assignment-auto-post-execution-';
+        const executionId = offer.id.startsWith(prefix) ? offer.id.slice(prefix.length) : '';
+        const latestExecution = Object.values(state.world.events)
+          .filter((event) => event.institutionalResponse?.stage === 'execution'
+            && event.institutionalResponse.matterId === offer.originMatterId)
+          .sort((a, b) => b.dayNumber - a.dayNumber || b.id.localeCompare(a.id))[0];
+        if (!executionId || latestExecution?.id !== executionId) {
+          return fail(state, 'assignment-superseded', 'A later maintenance execution superseded this offer. Decline it and accept the latest execution’s inspection Assignment.');
+        }
+      }
       if (state.calendar.dayNumber >= offer.expiresDay) return fail(state, 'assignment-expired', 'This Assignment has reached its expiry day.');
       if (Object.values(opportunities.assignments).filter((x) => x.status === 'accepted' && (x.assigneePersonId ?? state.player.currentCharacterId) === state.player.currentCharacterId).length >= 2) return fail(state, 'assignment-cap-reached', 'No more than two Assignments may be active at once.');
       if (!characterQualifiesForAssignment(state, offer)) return fail(state, 'assignment-unqualified', 'The character does not meet the Assignment skill requirements. Professional rank does not substitute for those skills.');
