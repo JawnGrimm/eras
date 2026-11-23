@@ -7,6 +7,7 @@ These records explain how the approved game is built and verified. They do not i
 ## Current records
 
 - [Work Contribution Behavior Specification](WORK_CONTRIBUTION_BEHAVIOR_SPEC.md) — observable engineering requirements and acceptance scenarios for the owner-accepted contribution framework. This is not a schema or implementation decision.
+- [Work Contribution Architecture Decision](WORK_CONTRIBUTION_ARCHITECTURE_DECISION.md) — compares two persistence/ownership approaches against the behavior contract and recommends conceptual boundaries; owner review pending, no final schema selected.
 - [Implementation Status Snapshot](IMPLEMENTATION_STATUS.md) — dated implementation facts as of 22 November 2026. Verify against current code, tests, and deployment before relying on it.
 
 ## Technical boundaries
