@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { advanceInstitutionalMatters } from '../engine/institutionalMatters';
+import { advanceInstitutionalMatters, EANNA_INSTITUTION_ID, EANNA_TABLET_ROOM_LOCATION_ID } from '../engine/institutionalMatters';
 import { generateDailyAssignments } from '../engine/assignmentGenerator';
 import { createInitialGameState } from '../state/initialState';
 import { createSaveEnvelope, restoreSave } from '../state/saveEnvelope';
@@ -48,6 +48,27 @@ describe('Era I institutional anchor matter producers', () => {
     expect(state.opportunities.occurrenceLedger.filter((entry) =>
       ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS.some((definition) => definition.offer.activityId === entry.scenarioId),
     )).toHaveLength(5);
+  });
+
+  it('creates the anchor institution lazily when advancing a save from before the anchor portfolio', () => {
+    const initial = createInitialGameState();
+    const { [EANNA_INSTITUTION_ID]: _eanna, ...institutions } = initial.world.institutions;
+    const { [EANNA_TABLET_ROOM_LOCATION_ID]: _tabletRoom, ...locations } = initial.world.locations;
+    const prePortfolioState = {
+      ...initial,
+      world: { ...initial.world, institutions, locations },
+    };
+    const restored = restoreSave(JSON.stringify(createSaveEnvelope(prePortfolioState, 1)))?.state;
+    expect(restored).toBeDefined();
+    expect(restored!.world.institutions[EANNA_INSTITUTION_ID]).toBeUndefined();
+
+    const advanced = advanceInstitutionalMatters(restored!, 2);
+    expect(advanced.world.institutions[EANNA_INSTITUTION_ID]).toMatchObject({
+      id: EANNA_INSTITUTION_ID,
+      locationId: EANNA_TABLET_ROOM_LOCATION_ID,
+    });
+    expect(advanced.world.locations[EANNA_TABLET_ROOM_LOCATION_ID]).toBeDefined();
+    expect(Object.values(advanced.world.matters).some((matter) => matter.kind === 'era1_com_01_consignment')).toBe(true);
   });
 
   it('preserves anchor matters, source events, registration, and occurrence identity through save restoration', () => {
