@@ -35,7 +35,7 @@ function sevenSacks(state: GameState): GameState {
     && offer.activityProgress?.draft.finding === 'qualified_incomplete');
   if (!activeAndAged && !incompleteReport) return state;
 
-  const challenge = {
+  const challenge: Omit<ChallengeInstance, 'assigneePersonId' | 'status'> = {
     id: id as ChallengeId,
     title: 'The Seven Sealed Jars',
     description: 'Harvest pressure is increasing. Ur-Nanna asks what should be recommended for the seven sealed pottery storage jars. The physical inspection distinguishes two stained exteriors from five surface-dry jars; none of the grain has been sampled. Your answer is a professional recommendation, not a release order.',
