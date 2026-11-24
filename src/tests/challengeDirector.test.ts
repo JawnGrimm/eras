@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import type { ChallengeId, EventId } from '../state/ids';
+import type { ChallengeId, EventId, MatterId, PersonId } from '../state/ids';
 import type { ChallengeInstance, GameState } from '../state/types';
 import { createInitialGameState } from '../state/initialState';
 import { isValidSaveEnvelope, createSaveEnvelope } from '../state/saveEnvelope';
-import { selectWeightedChallengeCandidate } from '../engine/challengeDirector';
+import { resolveChallengeTrigger, selectWeightedChallengeCandidate } from '../engine/challengeDirector';
 import { transitionOpportunityAction } from '../engine/opportunities';
+import { generateDailyAssignments } from '../engine/assignmentGenerator';
+import { MATTER_IDS } from '../engine/institutionalMatters';
 
 function challenge(id: string): Omit<ChallengeInstance, 'status' | 'assigneePersonId'> {
   return {
@@ -43,6 +45,80 @@ describe('Challenge candidate selection and occurrence lifecycle', () => {
     expect(selected).toEqual(reversed);
     expect(selectWeightedChallengeCandidate(candidates, 'creator-seed-123', 'era-1:4')).toEqual(selected);
     expect(selectWeightedChallengeCandidate(candidates, 'creator-seed-123', 'era-1:5')).not.toBeUndefined();
+  });
+
+  it('resolves direct institutional-matter, event, and event-linked relationship triggers', () => {
+    const base = createInitialGameState();
+    const channels = [{ kind: 'baseline_reach' as const, explanation: 'The recorded source reached the current scribe through the stated work.' }];
+    const generated = generateDailyAssignments(base);
+    const matterOccurrence = resolveChallengeTrigger(generated, {
+      domain: 'institutional_matter_update',
+      matterId: MATTER_IDS.southCourtDelivery,
+      statuses: ['active'],
+      minimumAgeDays: 0,
+      deliveryActivityId: 'activity-south-court-delivery-reconciliation',
+      deliveryKinds: ['presented'],
+    });
+    expect(matterOccurrence?.matterId).toBe(MATTER_IDS.southCourtDelivery);
+    expect(matterOccurrence?.primarySourceFact.kind).toBe('event');
+
+    const eventId = Object.keys(base.world.events)[0] as EventId;
+    const eventOccurrence = resolveChallengeTrigger(base, {
+      domain: 'authored_world_event',
+      eventId,
+      deliveryChannels: channels,
+    });
+    expect(eventOccurrence?.primarySourceFact).toEqual({ kind: 'event', id: eventId });
+
+    const people = Object.keys(base.world.people);
+    const fromId = people[0] as PersonId;
+    const toId = people[1] as PersonId;
+    const linked = {
+      ...base,
+      world: {
+        ...base.world,
+        relationships: {
+          ...base.world.relationships,
+          [fromId]: {
+            ...base.world.relationships[fromId],
+            [toId]: {
+              dimensions: { trust: 50, respect: 50, affection: 50, resentment: 0, rivalry: 0, familiarity: 0 },
+              history: [{ id: 'relationship-trigger-test', dayNumber: 1, summary: 'A recorded directional relationship change.', eventId }],
+            },
+          },
+        },
+      },
+    };
+    const relationshipOccurrence = resolveChallengeTrigger(linked, {
+      domain: 'relationship_update',
+      fromId,
+      toId,
+      deliveryChannels: channels,
+    });
+    expect(relationshipOccurrence?.primarySourceFact).toEqual({ kind: 'event', id: eventId });
+
+    const unlinked = {
+      ...linked,
+      world: {
+        ...linked.world,
+        relationships: {
+          ...linked.world.relationships,
+          [fromId]: {
+            ...linked.world.relationships[fromId],
+            [toId]: {
+              ...linked.world.relationships[fromId][toId],
+              history: [{ id: 'relationship-unlinked-test', dayNumber: 1, summary: 'No linked event.' }],
+            },
+          },
+        },
+      },
+    };
+    expect(resolveChallengeTrigger(unlinked, {
+      domain: 'relationship_update',
+      fromId,
+      toId,
+      deliveryChannels: channels,
+    })).toBeNull();
   });
 
   it('rejects invalid candidate weights rather than falling back to nondeterministic choice', () => {
