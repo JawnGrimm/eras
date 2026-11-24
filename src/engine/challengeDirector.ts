@@ -1,6 +1,6 @@
 import type { ChallengeId, EventId, InstitutionId, MatterId, PersonId, RecordId } from '../state/ids';
 import type {
-  AssignmentOffer, ChallengeInstance, ChallengeTriggerRule, GameState, OpportunityDeliveryChannel,
+  AssignmentOffer, ChallengeInstance, ChallengeTriggerRule, GameState, OpportunityActivity, OpportunityDeliveryChannel,
   OpportunityOccurrenceLifecycle,
 } from '../state/types';
 import { evaluateChallengeTriggers, transitionOpportunityAction } from './opportunities';
@@ -85,29 +85,20 @@ export const CHALLENGE_TRIGGER_RULES: ChallengeTriggerRule[] = [
 
 function challengeEffects(careerXp: number) { return { careerXp }; }
 
+interface RecentOffer { offer: AssignmentOffer; activity: OpportunityActivity; }
+
 function recentOffer(
   state: GameState,
   activityId: string,
-  kinds: Array<'presented' | 'accepted' | 'declined' | 'lapsed' | 'completed' | 'cancelled'>,
-): AssignmentOffer | undefined {
+  kinds: ChallengeActivityKind[],
+): RecentOffer | undefined {
   const allowed = new Set(kinds);
   for (let index = state.opportunities.recentActivity.length - 1; index >= 0; index--) {
     const activity = state.opportunities.recentActivity[index];
     if (!allowed.has(activity.kind)) continue;
     const offer = state.opportunities.assignments[activity.assignmentId];
     if (offer?.activityId === activityId
-      && ['offered', 'accepted', 'completed'].includes(offer.status)) return offer;
-  }
-  return undefined;
-}
-
-function reportRecordForMatter(state: GameState, matterId: MatterId, title: string) {
-  const matter = state.world.matters[matterId];
-  if (!matter) return undefined;
-  for (const source of matter.provenance ?? []) {
-    if (source.kind !== 'record_copy' || !source.sourceId) continue;
-    const record = state.records.entries[source.sourceId as RecordId];
-    if (record?.title === title) return record;
+      && ['offered', 'accepted', 'completed'].includes(offer.status)) return { offer, activity };
   }
   return undefined;
 }
@@ -122,13 +113,16 @@ function resolveAssignmentOccurrence(
     reportTitle?: string;
   },
 ): ChallengeOccurrence | null {
-  const offer = recentOffer(state, trigger.activityId, trigger.activityKinds);
-  if (!offer) return null;
+  const recent = recentOffer(state, trigger.activityId, trigger.activityKinds);
+  if (!recent) return null;
+  const offer = recent.offer;
   const finding = offer.activityProgress?.draft.finding;
   if (trigger.findingIds && !trigger.findingIds.includes(finding ?? '')) return null;
   const matter = state.world.matters[trigger.matterId];
   if (!matter?.sourceEventId || !state.world.events[matter.sourceEventId]) return null;
-  const report = trigger.reportTitle ? reportRecordForMatter(state, matter.id, trigger.reportTitle) : undefined;
+  const reportId = ('record-' + offer.id + '-day-' + recent.activity.dayNumber) as RecordId;
+  const reportCandidate = state.records.entries[reportId];
+  const report = trigger.reportTitle && reportCandidate?.title === trigger.reportTitle ? reportCandidate : undefined;
   if (trigger.reportTitle && !report) return null;
   return {
     matterId: matter.id,
@@ -169,15 +163,15 @@ export function resolveChallengeTrigger(state: GameState, trigger: ChallengeTrig
       if (!matter || !trigger.statuses.includes(matter.status)
         || (trigger.minimumAgeDays !== undefined && state.calendar.dayNumber - matter.createdDay < trigger.minimumAgeDays)
         || !matter.sourceEventId || !state.world.events[matter.sourceEventId]) return null;
-      const offer = recentOffer(state, trigger.deliveryActivityId, trigger.deliveryKinds);
-      if (!offer) return null;
+      const recent = recentOffer(state, trigger.deliveryActivityId, trigger.deliveryKinds);
+      if (!recent) return null;
       const sourceRecordId = matter.sourceRecordId && state.records.entries[matter.sourceRecordId]
         ? matter.sourceRecordId : undefined;
       return {
         matterId: matter.id,
         primarySourceFact: { kind: 'event', id: matter.sourceEventId },
         requiredSourceFactIds: sourceIds(matter.sourceEventId, sourceRecordId),
-        deliveryChannels: offer.deliveryChannels,
+        deliveryChannels: recent.offer.deliveryChannels,
       };
     }
     case 'authored_world_event': {
