@@ -24,7 +24,7 @@ export const NORTH_BAY_DISCOVERIES = [
 
 export interface AssignmentActivityActionDefinition {
   id: string; family: 'consult' | 'observe' | 'compare'; label: string; description: string;
-  apCost: number; prerequisites?: string[]; discoveryIds: string[]; consultedPersonId?: PersonId;
+  apCost: number; prerequisites?: string[]; discoveryIds: string[]; consultedPersonId?: PersonId; successMessage?: string;
 }
 export interface AssignmentActivityDiscoveryDefinition { id: string; title: string; text: string; sourcePersonId?: PersonId; sourceRecordId?: import('../../state/ids').RecordId; sourceEventId?: import('../../state/ids').EventId; sourceProvenanceId?: string; }
 export interface AssignmentActivityReportSchema {

@@ -42,7 +42,7 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
     if (!validateAssignmentActivityProgress(definition, nextProgress)) return fail(state, 'assignment-activity-progress-invalid', 'The action produced invalid activity progress.');
     return succeed({ ...state, actionEconomy: { ...state.actionEconomy, apRemaining: state.actionEconomy.apRemaining - activityAction.apCost },
       opportunities: { ...state.opportunities, assignments: { ...state.opportunities.assignments,
-        [offer.id]: { ...offer, activityProgress: nextProgress } } } }, 'assignment-activity-action-completed', activityAction.label + ' completed.');
+        [offer.id]: { ...offer, activityProgress: nextProgress } } } }, 'assignment-activity-action-completed', activityAction.successMessage ?? activityAction.label + ' completed.');
   }
   if (action.type === 'UPDATE_ASSIGNMENT_ACTIVITY_DRAFT') {
     const draft = normalizeActivityDraft(action.draft);
