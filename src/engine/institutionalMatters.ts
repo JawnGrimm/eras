@@ -188,8 +188,8 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
       createdDay: nextDay,
       sourceEventId: seed.eventId,
       locationId: seed.locationId,
-      involvedPersonIds: seed.personIds,
-      provenance: seed.provenance,
+      involvedPersonIds: [...seed.personIds],
+      provenance: seed.provenance.map((source) => ({ ...source })),
     };
     institutions[EANNA_INSTITUTION_ID] = {
       ...institution,
