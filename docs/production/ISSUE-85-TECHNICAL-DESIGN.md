@@ -151,39 +151,42 @@ When the player confirms Begin Workday, one atomic transition:
 
 A repeated or stale Begin Workday action must be rejected without applying any entry twice. Settlement ledger entries and phase transition must be committed together in the same saved envelope revision.
 
-### 6.3 Schema compatibility proposal
+### 6.3 Schema compatibility — approved contract and implementation status
 
-Before shipping any intermediate phase:
-- introduce a new explicit save schema version (provisionally v3);
-- teach the new reader to validate and migrate existing v2 saves into the new model without inventing missing settlement history;
-- keep the older v2 reader's exact behavior documented: it rejects the v3 envelope because its schema check requires version 2, rather than silently ignoring the phase field;
-- test v2 open-Workday saves, v2 saves after existing END_DAY settlement, v3 interlude reload, repeated preliminary close, repeated Begin Workday, stale day IDs, and rollback/older-client rejection.
+Game Director approval authorizes an explicit schema-v3 envelope and v2→v3 migration. The approved implementation contract is:
+- Keep the physical storage key `scribe_game_v2` so a v2-only client encounters the v3 envelope and rejects it through its exact-version check. Do not create a parallel v3 primary slot.
+- Before replacing a validated v2 envelope, preserve its exact bytes in `scribe_game_v2_rollback`; write the complete validated v3 envelope to the primary slot before exposing the session as playable.
+- Initialize migrated saves as `workday_open`, with no pending settlement or credits. Do not replay v2 settlement or infer unfinished Interlude state.
+- Derive a stable migration-only selection seed from the exact UTF-8 bytes of the validated v2 envelope. New games use the explicit Character Creator seed.
+- Preserve existing Assignment and Challenge state, including legacy Challenge instances/outcomes, without manufacturing missing causal facts or lifecycle history.
+- A Day-Close boundary is committed to in-memory state only after its complete save envelope is durably written; on write failure, return the prior state and an error.
 
-The save key and local persistence behavior must be inspected before choosing the final versioning implementation. A schema bump is a proposal requiring review, not authorization to change the save contract in this PR.
+The first persistence implementation slice is in PR #90. It adds the v3 envelope/state model, v2 validation/migration, rollback-copy write ordering, and Day-Close provider write rollback. The two-step Interlude transitions, compensation crediting, and UI remain subsequent implementation work. Test coverage must include v2 open-Workday and post-v2-END_DAY saves, v3 Interlude reload, duplicate/stale transitions, write failures, and older-client rejection.
 
 ## 7. Sequencing and gates
 
 - This PR is limited to this technical-design note. The authored semantic source remains `dev/GD-ERA1-ANCHORS-001.md` on `main`; no mirrored TypeScript content catalog or inert catalog tests are included.
-- Do not modify `assignmentGenerator.ts`, `challengeDirector.ts`, opportunity state, save normalization/validation, `actionEconomy.ts`, or production UI until Issue #82 has been deployed and verified. PR #88 is now merged, but the sequencing gate remains open pending those steps.
-- After #82 is deployed and verified, implement runtime integration in separately reviewable slices with acceptance tests for source identity, no duplicate occurrence, all lifecycle states, determinism, succession, and save reload.
-- The economy correction must include the early-visible baseline labor route and verify the already-present conditional personal advance category. Currency wording and any Playtest 1 conversion table must be coordinated with the #82 Currency correction and returned for Game Director review.
-- No Day-Close persistence implementation ships until the schema/older-reader proposal is reviewed and approved.
+- Issue #82 is CLOSED — VERIFIED by the Game Director's recorded smoke test. Its sequencing gate is satisfied.
+- Runtime implementation is authorized under the approved Issue #85 contracts and is proceeding in separately reviewable slices. PR #90 is the first persistence foundation slice; it does not yet implement the full Interlude transition or compensation timing.
+- Keep Assignment Supply, Challenge Director, occurrence ledger, deterministic selection, and Day-Close work within the approved `GD-OPPORTUNITY-001` / `PRODUCTION-HANDOFF-001` contracts. No generic trigger backlog, ambient randomness, invented source facts, or unbounded history scan.
+- The provisional Playtest 1 economy package is ratified: 2 Currency → 1 Provision remains provisional for Playtest 1; recovery labor is 2 AP → 1 Provision, once per Workday; Ur-gir remains conditional; provisions-in-kind amounts remain authored per Assignment.
+- Non-blocking content/UI polish recorded on Issue #85: (1) South-Court offer cards must disclose its authored +1 Provision compensation before acceptance; (2) South-Court must offer a second plausible scenario-specific Responsibility claim alongside “No individual responsibility assigned,” without restoring the unrelated Dudu option.
 
 ## 8. Validation status
 
-This note is an engineering proposal based on current `main` source inspection and the approved Issue #85 behavioral contract. It is not a runtime implementation or an approved technical contract. PR #87 remains documentation-only; the inert TypeScript semantic catalog and its structural tests were removed so the future `src/content/` layer can contain executable Assignment definitions rather than duplicated editorial prose.
+This note is the documentation-only foundation for Issue #85. The five authored Era I anchors remain canonical in `dev/GD-ERA1-ANCHORS-001.md`; the inert TypeScript mirror and structural tests were removed so future executable content definitions are authored in `src/content/` during runtime implementation.
 
-The combined review was added on branch `production/issue-85-era1-anchor-content` in commit `ca9a9f12e005d83c323ace790019c6ebcd327fdd`, then its sequencing and validation snapshot was aligned in commit `4f3090203f970458f22f65906bfbbd16e6906993`. Pull Request Validation #423 and CodeQL #294 were in progress at the time of the latest check; validation is **pending** until both complete successfully on the exact branch head. The branch is two commits behind current `main` after PR #88 merged and must be synchronized before final PR review. No local test execution is claimed. PR #88 is merged, but Issue #82 remains open pending deployment and player-facing verification; no overlapping Issue #85 runtime work has begun.
+PR #87's branch was synchronized with `main` in merge commit `001d77cdc7a39d8f8f553a6239e95a16e49c2f6d`. PR #88 is merged and Issue #82 is CLOSED — VERIFIED. Runtime work is authorized; PR #90 contains the first schema-v3 persistence foundation slice. PR #87 still requires fresh CI on the synchronized, documentation-updated head before merge. No local test execution is claimed.
 
-## 9. Combined pre-implementation review — Game Director decisions
+## 9. Combined review — approved contracts and production implementation
 
-**Review scope:** the two remaining approval items specified in the Game Director's consolidated Issue #85 direction (24 Nov 2026). This is a Production proposal, not approval to change persistence or economy. It supersedes the broader pre-implementation paperwork list: no separate test-vector, interface, PRNG-code, or coverage-design documents are required.
+**Review scope:** the Game Director's consolidated Issue #85 direction (24 Nov 2026), subsequently approved in the Issue #85 sequencing/authorization update. This section records the approved technical and economy boundaries and the current Production implementation references. No separate test-vector, interface, PRNG-code, or coverage-design documents are required.
 
 ### 9.1 Schema v3 and v2→v3 migration safety
 
-**Recommendation: use an explicit schema-v3 envelope. Do not represent a saved intermediate Evening Interlude as an optional schema-v2 field.** The current reader requires `schemaVersion === 2`; an additive v2 phase field could be ignored by an older reader and loaded as an ordinary open Workday.
+**Approved:** use an explicit schema-v3 envelope. Do not represent a saved intermediate Evening Interlude as an optional schema-v2 field. The v2 reader requires `schemaVersion === 2`; a v2-only client therefore rejects the v3 envelope rather than silently loading an ordinary open Workday.
 
-**Field-level contract proposed for review**
+**Approved field-level contract**
 
 | Area | v3 addition / treatment |
 |---|---|
@@ -213,13 +216,13 @@ The combined review was added on branch `production/issue-85-era1-anchor-content
 - Begin Workday requires the exact pending settlement ID and rejects stale, repeated, or already-finalized IDs. In one state transition it applies sustenance and any due shortage/Underfed/Stress consequence, records the finalized settlement ID, advances the calendar, initializes the correct AP allocation, and returns to `workday_open`. Morning Report preparation and the approved Challenge evaluation follow that transition.
 - The settlement ledger, wallet changes, phase change, calendar/AP transition, and finalized ID must be serialized in one complete save envelope. Never split the financial credit and phase marker across independent writes.
 
-**Persistence risk found in current implementation:** `GameProvider.dispatch` currently updates in-memory state before calling `storage.setItem`; on write failure it leaves the new state active, marks it unsaved, and permits later actions. That behavior is not sufficient for a durable Day-Close checkpoint: a player could interact with an Interlude that was never persisted. Before shipping this flow, either roll back the phase-changing transition on write failure or block all further phase-dependent actions until the exact envelope is durably written. Production recommends rollback-and-error for the Day-Close boundary. The existing v2-only reader's strict version check plus corrupt-save preservation provides explicit older-client rejection; do not add a silent v3 downgrade path.
+**Persistence risk and implementation disposition:** the former `GameProvider.dispatch` write-failure behavior allowed an unsaved state to remain active. PR #90 changes the Day-Close boundary to persist before committing the in-memory state; a failed write returns the previous state and an error. This change is implemented on PR #90 and remains subject to its CI/review/merge gate. The older-reader rejection and rollback-copy policy are implemented in the same slice.
 
-**Remaining data-integrity risks / approval requested:** approve the v3 envelope and migration policy above, including the legacy-seed fallback and the Day-Close write-failure rule. The physical storage-key decision should remain coupled to the older-reader rejection guarantee. No schema change is approved by this review note.
+**Remaining implementation work:** complete preliminary settlement crediting, the persisted Interlude, Begin Workday finalization, transaction eligibility, and reload/duplicate/stale-action tests in subsequent Issue #85 slices. Schema v3 and its migration policy are approved; PR #90 is the first implementation slice, not the completion of the Day-Close feature.
 
 ### 9.2 Playtest 1 economy numbers and practical consequences
 
-**Design status:** abstract Currency purchasing at **2 Currency → 1 Provision** is already **PROVISIONALLY APPROVED** for Playtest 1. It is not a claim that a universal Uruk market or historically attested retail price existed. Player-facing text must call it an abstract, provisional replenishment option. The 3- and 4-Currency columns below are sensitivity comparisons, not approved alternatives.
+**Design status:** the Game Director ratified the provisional Playtest 1 economy package. Abstract Currency purchasing at **2 Currency → 1 Provision** remains a provisional game parameter for Playtest 1, not a claim that a universal Uruk market or historically attested retail price existed. Player-facing text must call it an abstract, provisional replenishment option. The 3- and 4-Currency columns remain sensitivity comparisons, not approved alternatives.
 
 | Route | Playtest 1 terms | Practical effect / boundary |
 |---|---|---|
