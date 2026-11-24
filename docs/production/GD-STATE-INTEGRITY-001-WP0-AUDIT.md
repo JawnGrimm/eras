@@ -8,7 +8,7 @@
 **Audit date:** 24 November 2026  
 **Runtime changes in this audit:** None
 
-This is an evidence report, not a design amendment. The approved specification and GDD remain authoritative. PR #106 was merged after the audit baseline was established; Issue #107 independently authorizes execution. This report preserves the source baseline used for the audit and does not imply PR #106 remains open. This document records the source audit performed against that baseline.
+This is an evidence report, not a design amendment. The approved specification and GDD remain authoritative. PR #106 was merged as `53ddc2b07d1a9fbf1d05aad81231c9318845cc73` after the audit baseline was established; Issue #107 independently authorizes execution. This report preserves the source baseline used for the audit and does not imply PR #106 remains open. This document records the source audit performed against that baseline.
 
 ## 1. Executive findings
 
