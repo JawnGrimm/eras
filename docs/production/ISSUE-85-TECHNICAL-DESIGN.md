@@ -164,7 +164,7 @@ The save key and local persistence behavior must be inspected before choosing th
 ## 7. Sequencing and gates
 
 - This PR is limited to this technical-design note. The authored semantic source remains `dev/GD-ERA1-ANCHORS-001.md` on `main`; no mirrored TypeScript content catalog or inert catalog tests are included.
-- Do not modify `assignmentGenerator.ts`, `challengeDirector.ts`, opportunity state, save normalization/validation, `actionEconomy.ts`, or production UI until Issue #82's QA-82-1 through QA-82-5 corrections are merged.
+- Do not modify `assignmentGenerator.ts`, `challengeDirector.ts`, opportunity state, save normalization/validation, `actionEconomy.ts`, or production UI until Issue #82 has been deployed and verified. PR #88 is now merged, but the sequencing gate remains open pending those steps.
 - After #82 lands, implement runtime integration in separately reviewable slices with acceptance tests for source identity, no duplicate occurrence, all lifecycle states, determinism, succession, and save reload.
 - The economy correction must include the early-visible baseline labor route and verify the already-present conditional personal advance category. Currency wording and any Playtest 1 conversion table must be coordinated with the #82 Currency correction and returned for Game Director review.
 - No Day-Close persistence implementation ships until the schema/older-reader proposal is reviewed and approved.
@@ -190,7 +190,7 @@ This note is an engineering proposal based on `main` source inspection at the ti
 | `GameState.dayClose` | Add `phase: workday_open | interlude_open`, the pending `settlementId` (null outside the Interlude), and `lastFinalizedSettlementId` (nullable). A fresh game starts `workday_open`. |
 | `GameState.opportunities.selectionSeed` | Persist the world-level deterministic selection seed. New games take it from the explicit Creator seed; it belongs to the world and survives succession. |
 | `GameState.opportunities.occurrenceLedger` | Add world-level occurrence/lifecycle history for new authored occurrences. New entries retain scenario ID, canonical occurrence key, actual primary causal fact kind/ID, required source-fact IDs, optional matter ID, delivery/presentation data, lifecycle, and assignee where a commitment exists. |
-| Pending earned credits | Add a durable, uniquely keyed pending-credit ledger for Money/Provisions earned during a Workday but not yet credited. Each entry retains its real source kind/ID, earned day, amounts, and the settlement ID that credited it. Do not infer a credit from a completed status alone. |
+| `dayClose.pendingCredits` | Add a durable, uniquely keyed pending-credit ledger for Money/Provisions earned during a Workday but not yet credited. Each entry retains its real source kind/ID, earned day, amounts, and the settlement ID that credited it. Do not infer a credit from a completed status alone. |
 | Existing opportunity state | Preserve `assignments`, `challenges`, `challengeOutcomes`, aggregates, recent activity, and the optional Assignment generator ledger. Do not replace or re-key their existing IDs during migration. |
 
 **Migration rules**
