@@ -132,7 +132,7 @@ export function ProductionShellContent() {
                         <section className="rounded-lg border border-red-200 bg-red-50 p-4">
                           <h2 className="font-semibold text-red-950">Start a new character</h2>
                           <p className="mt-1 text-sm leading-6 text-red-900">This opens the Character Creator. The current production save is replaced only when you confirm the new character. Legacy <code>scribe_*</code> keys are not read, migrated, or deleted.</p>
-                          <button onClick={() => { if (window.confirm('Replace the current production save with a new Day 1 save? This changes only scribe_game_v2. Legacy scribe_* saves will be left untouched.')) { if (game.startFreshProductionSave()) { setSettlement(null); setScreen('workday'); } } }} className="mt-3 rounded-lg bg-red-900 px-4 py-2 text-sm font-semibold text-white">Start New Character</button>
+                          <button onClick={() => { if (window.confirm('Open the Character Creator? The current production save will not be replaced until you confirm a new character.')) { if (game.startFreshProductionSave()) { setSettlement(null); setScreen('workday'); } } }} className="mt-3 rounded-lg bg-red-900 px-4 py-2 text-sm font-semibold text-white">Start New Character</button>
                         </section>
                       </section>}
       </main>
