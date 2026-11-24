@@ -279,7 +279,7 @@ describe('Era I Commercial F02-F04 causal matter pipeline', () => {
       const history = submitted!.state.world.relationships[recipientId][playerId]?.history;
       const latest = history?.at(-1);
       expect(latest?.summary).not.toContain('Utu-mansum reads the sequence twice');
-      expect(latest?.summary).toContain(`After Enlil-barni submitted "Custody-chain report" on Day 10, ${recipientName}'s trust toward Enlil-barni increased and respect increased.`);
+      expect(latest?.summary).toContain(`After Enlil-barni submitted "Custody-chain report" on Day 10, ${recipientName}'s trust toward Enlil-barni increased and respect toward Enlil-barni increased.`);
     }
   });
 
