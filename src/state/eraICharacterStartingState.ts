@@ -14,7 +14,7 @@ export const ERA_I_CURATED_SAMPLE_NAMES = [
   { name: 'En-Unug-du10', note: 'Uruk-period attested name-form; reading remains cautious.' },
   { name: 'Ena-an-ru', note: 'Uruk-period attested name-form; reading remains cautious.' },
   { name: 'Šubur-e₂a×1N57', note: 'Uruk-period attested sign sequence; reading remains cautious.' },
-  { name: 'BUₐ GI', note: 'Late Uruk name sequence; not a confidently reconstructed pronunciation.' },
+  { name: 'BUₐ GI', note: 'Late Uruk name sequence reported by Englund; not a confidently reconstructed pronunciation.' },
   { name: 'DIMₐ', note: 'Late Uruk name sequence; not a confidently reconstructed pronunciation.' },
   { name: 'ENₐ U₂ᵦ DU', note: 'Late Uruk name sequence; not a confidently reconstructed pronunciation.' },
   { name: 'EZENᵦ ENₐ', note: 'Late Uruk name sequence; not a confidently reconstructed pronunciation.' },
