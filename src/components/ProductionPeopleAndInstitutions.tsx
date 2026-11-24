@@ -76,7 +76,7 @@ function PersonDetail({ person, people, institutions, relationships, appointment
     <header>
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <h3 id="selected-person-heading" className="font-serif text-2xl font-semibold">{person.name}</h3>
+          <h3 id="selected-person-heading" aria-live="polite" className="font-serif text-2xl font-semibold">{person.name}</h3>
           <p className="mt-1 text-xs text-stone-500">
             {person.alive ? 'Living' : 'Deceased'} · {person.ageYears === undefined ? 'Age not recorded' : `${person.ageYears} years`}
             {person.lifeStage ? ` · ${person.lifeStage.replace(/_/g, ' ')}` : ''}
@@ -199,7 +199,7 @@ function InstitutionDetail({ institution, people, matters, records, events, appo
   const historicalMatters = matters.filter((matter) => matter.status !== 'active');
   return <article aria-labelledby="selected-institution-heading" className="rounded-xl border border-stone-300 bg-white p-4 sm:p-5">
     <header className="flex flex-wrap items-start justify-between gap-2">
-      <div><h3 id="selected-institution-heading" className="font-serif text-2xl font-semibold">{institution.name}</h3>
+      <div><h3 id="selected-institution-heading" aria-live="polite" className="font-serif text-2xl font-semibold">{institution.name}</h3>
         <p className="mt-1 text-xs text-stone-500">General standing <span className="font-mono">{institution.standing}/100</span></p></div>
     </header>
 
@@ -389,7 +389,7 @@ export function ProductionPeopleAndInstitutions({ initialSection = 'people', ini
             {matchingPeople.length === 0 && <li><p className="rounded-lg border border-stone-300 bg-white p-3 text-sm text-stone-500">No people match this search.</p></li>}
           </ul>
         </aside>
-        <div id="people-detail" aria-live="polite" className="min-w-0">
+        <div id="people-detail" className="min-w-0">
           {selectedPerson
             ? <PersonDetail person={selectedPerson} people={state.world.people} institutions={state.world.institutions}
               relationships={relationshipRows} appointments={selectedPersonAppointments}
@@ -415,7 +415,7 @@ export function ProductionPeopleAndInstitutions({ initialSection = 'people', ini
             {matchingInstitutions.length === 0 && <p className="rounded-lg border border-stone-300 bg-white p-3 text-sm text-stone-500">No institutions match this search.</p>}
           </div>
         </aside>
-        <div id="institution-detail" aria-live="polite" className="min-w-0">
+        <div id="institution-detail" className="min-w-0">
           {selectedInstitution
             ? <InstitutionDetail institution={selectedInstitution} people={state.world.people}
               matters={selectedInstitutionMatters} records={Object.fromEntries(selectedInstitutionRecords.map((record) => [record.id, record]))}
