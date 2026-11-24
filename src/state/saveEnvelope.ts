@@ -374,7 +374,7 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
   const matterIds = new Set(Object.keys(matters));
   for (const [id, matter] of Object.entries(matters)) {
     if (!isObject(matter) || matter.id !== id || typeof matter.institutionId !== 'string' || !isObject(institutions[matter.institutionId])
-      || !['tutorial','roof_repair_verification','held_barley_inspection','north_bay_water_ingress','south_court_delivery_reconciliation','south_loading_awning_inspection','era1_com_01_consignment','era1_com_02_brewing_account','era1_civ_01_field_measurement','era1_civ_02_labor_disbursement','era1_rel_01_inana_offering','general'].includes(matter.kind as string)
+      || !['tutorial','roof_repair_verification','held_barley_inspection','north_bay_water_ingress','south_court_delivery_reconciliation','south_loading_awning_inspection','era1_com_01_consignment','era1_com_02_brewing_account','era1_civ_01_field_measurement','era1_civ_02_labor_disbursement','era1_rel_01_inana_offering','era1_com_f01_material_description','general'].includes(matter.kind as string)
       || typeof matter.summary !== 'string' || !matter.summary || !['active','resolved','developed'].includes(matter.status as string)
       || !Number.isInteger(matter.createdDay) || (matter.createdDay as number) < 1 || (matter.createdDay as number) > (calendar.dayNumber as number)
       || (matter.sourceRecordId !== undefined && !isObject(records[matter.sourceRecordId as string])) || (matter.locationId !== undefined && !isObject(locations[matter.locationId as string]))
