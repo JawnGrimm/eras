@@ -56,7 +56,7 @@ export function EveningInterlude({ onBeginWorkday }: { onBeginWorkday: () => voi
       </dl>
     </section>
 
-    <section className="rounded-xl border border-stone-300 bg-white p-5">
+    {state.calendar.eraId === 'era-1' && <section className="rounded-xl border border-stone-300 bg-white p-5">
       <h2 className="font-serif text-xl font-semibold text-stone-900">Currency exchange</h2>
       <p className="mt-2 text-sm leading-6 text-stone-600">For Playtest 1, you may exchange 2 Currency for 1 Provision. This is a provisional game conversion, not a claim about a universal market price or coinage in Late Uruk. The exchange spends Currency immediately and updates the sustenance preview.</p>
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
@@ -67,7 +67,7 @@ export function EveningInterlude({ onBeginWorkday }: { onBeginWorkday: () => voi
         </button>
       </div>
       {!canExchange && <p className="mt-2 text-xs text-stone-500">At least 2 Currency is required for this exchange.</p>}
-    </section>
+    </section>}
 
     <section className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-stone-300 bg-white p-5">
       <div><h2 className="font-serif text-xl font-semibold text-stone-900">Ready for tomorrow?</h2><p className="mt-1 text-sm text-stone-600">Begin Workday finalizes sustenance and any due shortage consequence, advances the calendar, and initializes tomorrow’s AP. No evening AP or labor is available.</p></div>

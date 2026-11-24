@@ -84,7 +84,7 @@ export function ProductionShellContent() {
       <ProductionHeader />
       <div className="mx-auto max-w-[1600px] px-4 py-6 lg:px-6">
         {alerts}
-        <EveningInterlude onBeginWorkday={() => setScreen('workday')} />
+        <EveningInterlude onBeginWorkday={() => { setSettlement(null); setScreen('workday'); }} />
       </div>
     </div>;
   }

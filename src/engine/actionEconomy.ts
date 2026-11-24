@@ -63,7 +63,7 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
   if (state.dayClose.phase === 'interlude_open' && !interludeAction) {
     return { state, feedback: feedback('error', 'evening-interlude-open', 'The Workday is closed. Only an eligible provisions exchange or Begin Workday is available.') };
   }
-  if (state.dayClose.phase === 'workday_open' && interludeAction) {
+  if (state.dayClose.phase === 'workday_open' && action.type === 'BUY_PROVISIONS') {
     return { state, feedback: feedback('error', 'evening-interlude-not-open', 'The Evening Interlude is not open.') };
   }
 
