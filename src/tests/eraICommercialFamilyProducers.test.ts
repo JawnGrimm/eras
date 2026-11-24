@@ -4,7 +4,7 @@ import { NORTH_BAY_LOCATION_ID } from '../content/assignments/northBayRoofInspec
 import { generateDailyAssignments } from '../engine/assignmentGenerator';
 import { createInitialGameState } from '../state/initialState';
 import { createSaveEnvelope, restoreSave } from '../state/saveEnvelope';
-import { era1ComF02TwoClaims, era1ComF03PartialReturn, ERA1_COM_F02_F04_PEOPLE } from '../content/assignments/eraICommercialFamilies';
+import { era1ComF02TwoClaims, era1ComF03PartialReturn, era1ComF04CustodyChain, ERA1_COM_F02_F04_PEOPLE } from '../content/assignments/eraICommercialFamilies';
 import { submitRubricAssignmentActivity } from '../engine/eraIAnchorSubmission';
 import type { InstitutionalMatter } from '../state/types';
 import type { EventId, InstitutionId, MatterId, RecordId } from '../state/ids';
@@ -225,6 +225,17 @@ describe('Era I Commercial F02-F04 causal matter pipeline', () => {
     expect(urNannaRelationship?.dimensions).toMatchObject({ trust: 52, respect: 51 });
     expect(gemeRelationship?.dimensions).toMatchObject({ trust: 52, respect: 51 });
 
+    const receiverRelationship = submitted!.state.world.relationships[ERA1_COM_F02_F04_PEOPLE.luNanshe][playerId];
+    expect(receiverRelationship?.history[0].summary).toContain('Lu-Nanshe reads the two claims side by side');
+    for (const [recipientId, relationship] of [
+      [ERA1_COM_F02_F04_PEOPLE.urNanna, urNannaRelationship],
+      [ERA1_COM_F02_F04_PEOPLE.gemeInana, gemeRelationship],
+    ] as const) {
+      const recipientName = submitted!.state.world.people[recipientId].name;
+      expect(relationship?.history[0].summary).not.toContain('Lu-Nanshe reads the two claims side by side');
+      expect(relationship?.history[0].summary).toContain(`After Enlil-barni submitted "Competing claims summary" on Day 8, ${recipientName}'s trust toward Enlil-barni increased and respect increased.`);
+    }
+
     const report = Object.values(submitted!.state.records.entries).find((entry) => entry.title === 'Competing claims summary')!;
     expect(report.sources.find((source) => source.id === 'source-f02-household-request')).toMatchObject({
       kind: 'other', sourceId: 'record-era1-com-f02-household-request',
@@ -232,6 +243,45 @@ describe('Era I Commercial F02-F04 causal matter pipeline', () => {
     expect(report.sources.find((source) => source.id === 'source-f02-storehouse-request')).toMatchObject({
       kind: 'other', sourceId: 'record-era1-com-f02-storehouse-request',
     });
+  });
+
+  it('keeps the F04 receiving official reaction on Utu-mansum’s edge, not the other recipients’ edges', () => {
+    const state = advance(createInitialGameState(), 10);
+    const offer = Object.values(state.opportunities.assignments).find((item) =>
+      item.activityId === era1ComF04CustodyChain.id,
+    )!;
+    const initialProgress = era1ComF04CustodyChain.createInitialProgress();
+    const progress = {
+      ...initialProgress,
+      completedActionIds: era1ComF04CustodyChain.actions.map((action) => action.id),
+      discoveryIds: era1ComF04CustodyChain.discoveries.map((item) => item.id),
+      consultedPersonIds: [...new Set(era1ComF04CustodyChain.actions.flatMap((action) =>
+        action.consultedPersonId ? [action.consultedPersonId] : [],
+      ))],
+      draft: {
+        ...initialProgress.draft,
+        finding: 'first_difference_after_landing',
+        responsibilityClaim: 'none',
+        citedDiscoveryIds: era1ComF04CustodyChain.evaluation!.requiredEvidenceIds
+          .concat(era1ComF04CustodyChain.evaluation!.relevantEvidenceIds),
+        selectedLimitationIds: era1ComF04CustodyChain.evaluation!.requiredLimitationIds,
+        recommendations: ['record_tallies_in_order'],
+      },
+    };
+
+    const submitted = submitRubricAssignmentActivity(state, offer, era1ComF04CustodyChain, progress);
+    expect(submitted?.feedback?.code).toBe('assignment-activity-submitted');
+    const playerId = state.player.currentCharacterId;
+    const receiverHistory = submitted!.state.world.relationships[ERA1_COM_F02_F04_PEOPLE.utuMansum][playerId]?.history;
+    expect(receiverHistory?.[0].summary).toContain('Utu-mansum reads the sequence twice');
+
+    for (const recipientId of [ERA1_COM_F02_F04_PEOPLE.enlilKisu, ERA1_COM_F02_F04_PEOPLE.amaGi]) {
+      const recipientName = submitted!.state.world.people[recipientId].name;
+      const history = submitted!.state.world.relationships[recipientId][playerId]?.history;
+      expect(history).toHaveLength(1);
+      expect(history![0].summary).not.toContain('Utu-mansum reads the sequence twice');
+      expect(history![0].summary).toContain(`After Enlil-barni submitted "Custody-chain report" on Day 10, ${recipientName}'s trust toward Enlil-barni increased and respect increased.`);
+    }
   });
 
   it('preserves all three family occurrences and their source records through save restoration without duplicate generation', () => {
