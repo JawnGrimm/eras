@@ -89,7 +89,7 @@ The test also checks that implementation-language “No initialized scribal capa
 - Matter status names remain `active`, `developed`, and `resolved`.
 - Current matters are selected from canonical matter status; no state repair is performed.
 - Institutional record details are a read-only view of existing Records and matter provenance.
-- The `initialSection` component prop exists only to support explicit directory entry/default selection and deterministic render tests; ProductionShell continues to use the People default.
+- The optional `initialSection` and `initialPersonId` props support explicit directory entry/default selection and deterministic render tests; ProductionShell continues to use the People/current-character defaults.
 
 ## 7. Validation status
 
