@@ -5,10 +5,12 @@ import { createInitialGameState } from '../state/initialState';
 import { createSaveEnvelope, restoreSave } from '../state/saveEnvelope';
 import { ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS } from '../content/assignments/eraIAnchorOpportunities';
 
+const ANCHOR_KINDS = new Set(['era1_com_01_consignment','era1_com_02_brewing_account','era1_civ_01_field_measurement','era1_civ_02_labor_disbursement','era1_rel_01_inana_offering']);
+
 describe('Era I institutional anchor matter producers', () => {
   it('introduces each approved anchor through its own dated source event and active institutional matter', () => {
     let state = createInitialGameState();
-    expect(Object.values(state.world.matters).filter((matter) => expectedDays.has(matter.kind))).toHaveLength(0);
+    expect(Object.values(state.world.matters).filter((matter) => ANCHOR_KINDS.has(matter.kind))).toHaveLength(0);
 
     const expectedDays = new Map([
       ['era1_com_01_consignment', 2],
@@ -50,7 +52,7 @@ describe('Era I institutional anchor matter producers', () => {
 
   it('preserves anchor matters, source events, registration, and occurrence identity through save restoration', () => {
     let state = createInitialGameState();
-    for (let day = 2; day <= 6; day++) {
+    for (let day = 2; day <= 7; day++) {
       state = advanceInstitutionalMatters(state, day);
       state = { ...state, calendar: { ...state.calendar, dayNumber: day } };
       state = generateDailyAssignments(state);
@@ -59,7 +61,7 @@ describe('Era I institutional anchor matter producers', () => {
     const envelope = createSaveEnvelope(state, 1);
     const restored = restoreSave(JSON.stringify(envelope))?.state;
     expect(restored).toBeDefined();
-    for (const matter of Object.values(state.world.matters).filter((item) => ['era1_com_01_consignment','era1_com_02_brewing_account','era1_civ_01_field_measurement','era1_civ_02_labor_disbursement','era1_rel_01_inana_offering'].includes(item.kind))) {
+    for (const matter of Object.values(state.world.matters).filter((item) => ANCHOR_KINDS.has(item.kind))) {
       expect(restored!.world.matters[matter.id]).toEqual(matter);
       expect(restored!.world.events[matter.sourceEventId!]).toEqual(state.world.events[matter.sourceEventId!]);
       expect(restored!.world.institutions[matter.institutionId].activeMatters).toContain(matter.id);
@@ -74,14 +76,14 @@ describe('Era I institutional anchor matter producers', () => {
       state = { ...state, calendar: { ...state.calendar, dayNumber: day } };
       state = generateDailyAssignments(state);
     }
-    const matterIds = Object.values(state.world.matters).filter((matter) => ['era1_com_01_consignment','era1_com_02_brewing_account','era1_civ_01_field_measurement','era1_civ_02_labor_disbursement','era1_rel_01_inana_offering'].includes(matter.kind))
+    const matterIds = Object.values(state.world.matters).filter((matter) => ANCHOR_KINDS.has(matter.kind))
       .map((matter) => matter.id).sort();
     const occurrenceKeys = state.opportunities.occurrenceLedger
       .filter((entry) => ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS.some((definition) => definition.offer.activityId === entry.scenarioId))
       .map((entry) => entry.occurrenceKey).sort();
 
     for (let repeat = 0; repeat < 3; repeat++) {
-      state = advanceInstitutionalMatters(state, 6);
+      state = advanceInstitutionalMatters(state, 7);
       state = generateDailyAssignments(state);
     }
 
