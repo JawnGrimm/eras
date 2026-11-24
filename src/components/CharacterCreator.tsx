@@ -90,8 +90,9 @@ export function CharacterCreator() {
   const nameResult = validateEraICharacterName(name);
   const choicesReady = Boolean(originId && responsibilityId && formativeExperienceId && entryRouteId && instructionId);
   const ready = nameResult.valid && choicesReady;
+  const previewPersonId = 'person-character-creator-preview' as PersonId;
   const history = resolveEraICharacterHistory({
-    personId: 'person-character-creator-preview' as PersonId,
+    personId: previewPersonId,
     people: game.state.world.people,
     choices: previewChoices,
   });
@@ -101,7 +102,9 @@ export function CharacterCreator() {
     ...event,
     participants: event.participants.map((participant) => ({
       role: participant.role,
-      name: game.state.world.people[participant.personId]?.name ?? participant.personId,
+      name: participant.personId === previewPersonId
+        ? (nameResult.valid ? nameResult.name : 'You')
+        : game.state.world.people[participant.personId]?.name ?? participant.personId,
     })),
   }));
   const attributeLabels: Record<string, string> = {
