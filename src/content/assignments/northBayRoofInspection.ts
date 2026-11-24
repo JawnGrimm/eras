@@ -43,6 +43,8 @@ export interface AssignmentActivityEvaluation {
   relevantLimitationIds: string[];
   unsupportedFindingIds: string[];
   unsupportedResponsibilityClaimIds: string[];
+  unsupportedRecommendationIds?: string[];
+  unsupportedFindingConditions?: Array<{ findingId: string; requiredEvidenceIds: string[] }>;
   receiverPersonId?: PersonId;
   rationales: Record<import('../../state/types').AssignmentAssessmentCategory, string>;
   reactions: Record<import('../../state/types').AssignmentAssessmentCategory, string>;
