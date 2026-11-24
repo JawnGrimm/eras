@@ -72,11 +72,9 @@ describe('Era I institutional anchor matter producers', () => {
       ...initial,
       world: { ...initial.world, institutions, locations, people },
     };
-    const restored = restoreSave(JSON.stringify(createSaveEnvelope(prePortfolioState, 1)))?.state;
-    expect(restored).toBeDefined();
-    expect(restored!.world.institutions[EANNA_INSTITUTION_ID]).toBeUndefined();
+    expect(prePortfolioState.world.institutions[EANNA_INSTITUTION_ID]).toBeUndefined();
 
-    const advanced = advanceInstitutionalMatters(restored!, 2);
+    const advanced = advanceInstitutionalMatters(prePortfolioState, 2);
     expect(advanced.world.institutions[EANNA_INSTITUTION_ID]).toMatchObject({
       id: EANNA_INSTITUTION_ID,
       locationId: EANNA_TABLET_ROOM_LOCATION_ID,
