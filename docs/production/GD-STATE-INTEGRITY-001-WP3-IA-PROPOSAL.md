@@ -30,7 +30,7 @@ The initial People selection is the current character. The initial Institution s
 - Personal history behind a single disclosure section. Domain familiarity is explicitly labelled **Recorded domain familiarity** and described as prior exposure, not a relationship score.
 - Active public circumstances and commitments only when present.
 - Appointments and office scopes behind disclosure.
-- Only relationship edges incident to the selected person. Each arrow remains directional; dimensions and the history for that perspective are progressively disclosed.
+- Only relationship edges incident to the selected person. Each arrow remains directional; dimensions and the history for that perspective are progressively disclosed. The relationship dimension is labelled **Personal familiarity**, distinct from **Recorded domain familiarity** in Personal history.
 
 ### Institution detail
 
