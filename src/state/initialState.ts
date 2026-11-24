@@ -4,10 +4,12 @@ import { UR_GIR_PERSON_ID } from './ids';
 import { NORTH_BAY_LOCATION_ID, NORTH_BAY_PEOPLE } from '../content/assignments/northBayRoofInspection';
 import { ERA1_COM_F01_PEOPLE } from '../content/assignments/eraICommercialMartial';
 import { ERA1_COM_F02_F04_PEOPLE } from '../content/assignments/eraICommercialFamilies';
+import { ERA1_MAR_PEOPLE } from '../content/assignments/eraIMartialFamilies';
 import {
   MATTER_IDS, STOREHOUSE_INSTITUTION_ID, SOUTH_COURT_LOCATION_ID, SOUTH_LOADING_LOCATION_ID, ERA1_COM_F01_LOCATION_ID,
   EANNA_INSTITUTION_ID, EANNA_TABLET_ROOM_LOCATION_ID,
   TEXTILE_HOUSEHOLD_INSTITUTION_ID, TEXTILE_HOUSEHOLD_LOCATION_ID, RIVER_LANDING_LOCATION_ID,
+  HOUSEHOLD_STRONGROOM_INSTITUTION_ID, HOUSEHOLD_STRONGROOM_LOCATION_ID,
   createSouthCourtDeliveryMatter, createSouthLoadingAwningMatter,
 } from '../engine/institutionalMatters';
 export const INITIAL_PERSON_ID = 'person-enlil-barni' as PersonId;
@@ -167,6 +169,34 @@ export function createInitialGameState(player?: Person, opportunitySeed = 'era1-
       currentLocationId: RIVER_LANDING_LOCATION_ID, lifeStage: 'craft_practitioner' as const,
       socialIdentity: { occupation: 'Witness (provisional)', summary: 'A provisional authored participant who observed part of a consignment handover.' },
     },
+    // Martial-family participants are authored reconstructions; none implies an attested military office.
+    {
+      id: ERA1_MAR_PEOPLE.ninDara, name: 'Nin-dara', alive: true,
+      affiliations: [HOUSEHOLD_STRONGROOM_INSTITUTION_ID], currentLocationId: HOUSEHOLD_STRONGROOM_LOCATION_ID,
+      lifeStage: 'craft_practitioner' as const,
+      socialIdentity: { occupation: 'Household member entrusted with access (provisional)', summary: 'A provisional household participant entrusted with access in one authored strongroom incident; not a formally attested office-holder.' },
+    },
+    {
+      id: ERA1_MAR_PEOPLE.sealingOwner, name: 'Household sealing owner', alive: true,
+      affiliations: [HOUSEHOLD_STRONGROOM_INSTITUTION_ID], currentLocationId: HOUSEHOLD_STRONGROOM_LOCATION_ID,
+      lifeStage: 'craft_practitioner' as const,
+      socialIdentity: { occupation: 'Household member', summary: 'An unnamed participant associated with the household sealing in this authored incident; no formal office is implied.' },
+    },
+    {
+      id: ERA1_MAR_PEOPLE.luKala, name: 'Lu-kala', alive: true, affiliations: [],
+      currentLocationId: NORTH_BAY_LOCATION_ID, lifeStage: 'craft_practitioner' as const,
+      socialIdentity: { occupation: 'Task-party leader (provisional)', summary: 'Leads one sponsor-gathered party for a specific repair task; not a military officer or member of a standing unit.' },
+    },
+    {
+      id: ERA1_MAR_PEOPLE.partyMember, name: 'Task-party member', alive: true, affiliations: [],
+      currentLocationId: NORTH_BAY_LOCATION_ID, lifeStage: 'craft_practitioner' as const,
+      socialIdentity: { occupation: 'Task-party participant', summary: 'An unnamed participant in one sponsor-gathered task party; no formal military status is implied.' },
+    },
+    {
+      id: ERA1_MAR_PEOPLE.urAb, name: 'Ur-ab', alive: true, affiliations: [],
+      currentLocationId: RIVER_LANDING_LOCATION_ID, lifeStage: 'craft_practitioner' as const,
+      socialIdentity: { occupation: 'Yard watcher (provisional)', summary: 'A provisional participant who observed part of a movement near a yard; not a formal guard or security office.' },
+    },
   ];
   const people: Record<PersonId, Person> = {
     [activePlayer.id]: activePlayer,
@@ -214,6 +244,12 @@ export function createInitialGameState(player?: Person, opportunitySeed = 'era1-
           authority: ['Decide whether to wait for an exchange return, send word, or withhold a later dispatch'],
           standing: 50, activeMatters: [],
         },
+        [HOUSEHOLD_STRONGROOM_INSTITUTION_ID]: {
+          id: HOUSEHOLD_STRONGROOM_INSTITUTION_ID, name: 'Household Strongroom (provisional)', locationId: HOUSEHOLD_STRONGROOM_LOCATION_ID,
+          responsibilities: ['Maintain household access and inventory records for the specific authored incident'],
+          authority: ['Household members and the responsible authority determine any further inquiry'],
+          standing: 50, activeMatters: [],
+        },
       }, locations: {
         [storehouseLocationId]: { id: storehouseLocationId, name: 'Temple Storehouse, north storage bay' },
         [SOUTH_COURT_LOCATION_ID]: { id: SOUTH_COURT_LOCATION_ID, name: 'Temple Storehouse, south receiving court' },
@@ -222,6 +258,7 @@ export function createInitialGameState(player?: Person, opportunitySeed = 'era1-
         [EANNA_TABLET_ROOM_LOCATION_ID]: { id: EANNA_TABLET_ROOM_LOCATION_ID, name: 'Eanna precinct tablet room, Uruk' },
         [TEXTILE_HOUSEHOLD_LOCATION_ID]: { id: TEXTILE_HOUSEHOLD_LOCATION_ID, name: 'Textile household work space, Uruk' },
         [RIVER_LANDING_LOCATION_ID]: { id: RIVER_LANDING_LOCATION_ID, name: 'River landing, Uruk' },
+        [HOUSEHOLD_STRONGROOM_LOCATION_ID]: { id: HOUSEHOLD_STRONGROOM_LOCATION_ID, name: 'Household strongroom (provisional), Uruk' },
       },
       appointments: Object.fromEntries(appointments.map((appointment) => [appointment.id, appointment])), events: { [deliveryEventId]: deliveryEvent, [awningEventId]: awningEvent }, knowledge: {},
       matters: {
