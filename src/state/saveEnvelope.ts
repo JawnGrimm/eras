@@ -672,7 +672,6 @@ function migrateV2Envelope(value: Record<string, unknown>, raw: string): SaveEnv
       pendingSettlementId: null,
       lastFinalizedSettlementId: null,
       pendingCredits: [],
-      preview: null,
     },
     opportunities: {
       ...opportunities,
