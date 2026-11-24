@@ -171,4 +171,36 @@ describe('matter-driven Assignment discovery', () => {
       && entry.primarySourceFact?.id === eventId && entry.requiredSourceFactIds.includes(eventId))).toBe(true);
   });
 
+  it('reoffers the same active matter only when a new provenance-backed event appears', () => {
+    const base = createInitialGameState();
+    const first = generateDailyAssignments(base);
+    const activityId = 'activity-south-court-delivery-reconciliation';
+    const firstOffer = Object.values(first.opportunities.assignments).find((offer) => offer.activityId === activityId)!;
+    const matterId = firstOffer.originMatterId!;
+    const matter = first.world.matters[matterId];
+    const eventId = 'event-south-court-delivery-second-occurrence' as EventId;
+    const templateEvent = Object.values(first.world.events)[0];
+    const event = { ...templateEvent, id: eventId, dayNumber: first.calendar.dayNumber,
+      summary: 'A new, separately recorded receiving occurrence for the same active delivery matter.' };
+    const updatedMatter = { ...matter, sourceEventId: eventId,
+      provenance: [...(matter.provenance ?? []), { id: 'delivery-second-occurrence', kind: 'event' as const,
+        sourceId: eventId, description: 'A materially new receiving occurrence.' }] };
+    const withNewOccurrence: GameState = { ...first, world: {
+      ...first.world, events: { ...first.world.events, [eventId]: event },
+      matters: { ...first.world.matters, [matterId]: updatedMatter },
+    } };
+    const second = generateDailyAssignments(withNewOccurrence);
+    const offers = Object.values(second.opportunities.assignments).filter((offer) =>
+      offer.activityId === activityId && offer.originMatterId === matterId);
+    expect(offers).toHaveLength(2);
+    expect(new Set(offers.map((offer) => offer.occurrenceKey)).size).toBe(2);
+    expect(new Set(offers.map((offer) => offer.id)).size).toBe(2);
+    const secondOffer = offers.find((offer) => offer.id !== firstOffer.id)!;
+    const accepted = transitionOpportunityAction(second, { type: 'ACCEPT_ASSIGNMENT', assignmentId: secondOffer.id });
+    expect(accepted.feedback?.code).toBe('assignment-accepted');
+    const ledger = accepted.state.opportunities.occurrenceLedger.filter((entry) => entry.scenarioId === activityId && entry.matterId === matterId);
+    expect(ledger.find((entry) => entry.occurrenceKey === firstOffer.occurrenceKey)?.lifecycle).toBe('offered');
+    expect(ledger.find((entry) => entry.occurrenceKey === secondOffer.occurrenceKey)?.lifecycle).toBe('accepted');
+  });
+
 });

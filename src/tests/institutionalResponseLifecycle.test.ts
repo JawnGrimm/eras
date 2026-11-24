@@ -101,23 +101,20 @@ describe('institutional response lifecycle', () => {
     const noEvidence = nextWorkday(state, 1);
     expect(Object.values(noEvidence.state.world.events).some((event) => event.institutionalResponse?.stage === 'verification')).toBe(false);
     state = stateWithExecution(true);
-    const acceptedOffer = {
-      id: 'assignment-auto-post-execution-event-lifecycle-execution' as AssignmentId,
-      activityId: NORTH_BAY_POST_EXECUTION_ACTIVITY_ID,
-      originMatterId: MATTER_IDS.roofRepair,
-      status: 'accepted',
-    } as unknown as AssignmentOffer;
-    state = { ...state, opportunities: { ...state.opportunities,
-      assignments: { ...state.opportunities.assignments, [acceptedOffer.id]: acceptedOffer } } };
+    const firstDay = nextWorkday(state, 1);
+    const acceptedOffer = Object.values(firstDay.state.opportunities.assignments).find((offer) =>
+      offer.activityId === NORTH_BAY_POST_EXECUTION_ACTIVITY_ID && offer.originMatterId === MATTER_IDS.roofRepair)!;
+    expect(acceptedOffer).toBeDefined();
+    const accepted = transitionGame(firstDay.state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: acceptedOffer.id });
+    expect(accepted.feedback?.code).toBe('assignment-accepted');
 
-    const held = nextWorkday(state, 1);
+    const held = nextWorkday(accepted.state, 2);
     expect(held.feedback?.code).toBe('workday-begun');
     expect(Object.values(held.state.world.events).some((event) => event.institutionalResponse?.stage === 'verification')).toBe(false);
 
-    const released = { ...held.state, opportunities: { ...held.state.opportunities,
-      assignments: { ...held.state.opportunities.assignments,
-        [acceptedOffer.id]: { ...acceptedOffer, status: 'cancelled' as const } } } };
-    const settled = nextWorkday(released, 2);
+    const released = transitionGame(held.state, { type: 'CANCEL_ASSIGNMENT', assignmentId: acceptedOffer.id });
+    expect(released.feedback?.code).toBe('assignment-cancelled');
+    const settled = nextWorkday(released.state, 3);
     const verification = Object.values(settled.state.world.events).find((event) => event.institutionalResponse?.stage === 'verification');
     const resolution = Object.values(settled.state.world.events).find((event) => event.institutionalResponse?.stage === 'resolution');
 
