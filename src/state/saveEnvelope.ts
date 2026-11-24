@@ -570,9 +570,7 @@ function isValidV3GameState(value: unknown, workCatalog: Readonly<Record<string,
       || !['pending','credited'].includes(String(raw.status))
       || (raw.status === 'pending' && raw.creditedBySettlementId !== undefined)
       || (raw.status === 'credited' && !nonEmptyString(raw.creditedBySettlementId))
-      || (dayClose.phase === 'interlude_open' && raw.status !== 'credited')
-      || (raw.status === 'credited' && raw.creditedBySettlementId !== dayClose.pendingSettlementId
-        && raw.creditedBySettlementId !== dayClose.lastFinalizedSettlementId)) return false;
+      || (dayClose.phase === 'interlude_open' && raw.status !== 'credited')) return false;
     creditIds.add(raw.id);
     if (raw.source.kind === 'assignment' && !isObject(assignments[raw.source.id])) return false;
     if (raw.source.kind === 'work' && !isObject(workProgress[raw.source.id])) return false;
