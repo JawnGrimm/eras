@@ -36,7 +36,10 @@ export function submitRubricAssignmentActivity(
   const person = state.world.people[state.player.currentCharacterId];
   const scribal = getInitializedScribal(person);
   const matter = offer.originMatterId ? state.world.matters[offer.originMatterId] : undefined;
-  const institutionId = matter?.institutionId ?? (offer.employer.kind === 'institution' ? offer.employer.id : undefined);
+  const matterInstitutionId = matter?.institutionId;
+  const institutionId: InstitutionId | undefined = matterInstitutionId && state.world.institutions[matterInstitutionId as InstitutionId]
+    ? matterInstitutionId as InstitutionId
+    : offer.employer.kind === 'institution' ? offer.employer.id : undefined;
   const institution = institutionId ? state.world.institutions[institutionId] : undefined;
   if (!rubric || !person || !scribal || !institution) return fail(state, 'assignment-activity-world-invalid', 'The anchor report lacks its authored evaluation or receiving institution.');
   const assessment = evaluateAssignmentAssessment(definition, progress);

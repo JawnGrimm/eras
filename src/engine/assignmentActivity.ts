@@ -5,7 +5,9 @@ import type { AssignmentId, KnowledgeEntryId, RecordId, InstitutionId } from '..
 import { NORTH_BAY_ACTIVITY_ID, NORTH_BAY_POST_EXECUTION_ACTIVITY_ID, NORTH_BAY_PEOPLE, ASSIGNMENT_ACTIVITY_CATALOG, validateAssignmentActivityProgress, normalizeActivityDraft } from '../content/assignments/northBayRoofInspection';
 import { submitNorthBayPostExecutionInspection } from './northBayPostExecutionSubmission';
 import { submitUrukAssignmentActivity } from './urukAssignmentSubmission';
-import { submitRubricAssignmentActivity } from './eraIAnchorSubmission';
+import { submitRubricAssignmentActivity, evaluateAssignmentAssessment } from './eraIAnchorSubmission';
+import { applyClosingAssessment } from './closingReceipt';
+import { queueSettlementCredit } from './dayClose';
 import { MATTER_IDS, createRoofRepairMatter } from './institutionalMatters';
 
 type ActivityAction = Extract<GameAction, { type: 'PERFORM_ASSIGNMENT_ACTIVITY_ACTION' | 'UPDATE_ASSIGNMENT_ACTIVITY_DRAFT' | 'SUBMIT_ASSIGNMENT_ACTIVITY' }>;

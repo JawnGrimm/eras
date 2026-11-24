@@ -6,7 +6,8 @@ import { createSaveEnvelope, isValidSaveEnvelope, restoreSave } from '../state/s
 import { INITIAL_WORK_CATALOG } from '../state/newGameState';
 import type { AssignmentOffer, GameState } from '../state/types';
 import type { AssignmentId } from '../state/ids';
-import { NORTH_BAY_ACTIVITY_ID, NORTH_BAY_ASSIGNMENT_ID, NORTH_BAY_DISCOVERIES, northBayRoofInspection, validateAssignmentActivityDefinition, ERA_I_ANCHOR_ACTIVITY_CATALOG } from '../content/assignments/northBayRoofInspection';
+import { NORTH_BAY_ACTIVITY_ID, NORTH_BAY_ASSIGNMENT_ID, NORTH_BAY_DISCOVERIES, northBayRoofInspection, validateAssignmentActivityDefinition } from '../content/assignments/northBayRoofInspection';
+import { ERA_I_ANCHOR_ACTIVITY_CATALOG } from '../content/assignments/eraIAnchors';
 import { ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS } from '../content/assignments/eraIAnchorOpportunities';
 
 const baseline = { kind: 'baseline_reach' as const, explanation: 'The Senior Scribe directed the inspection after reviewing the prior record.' };

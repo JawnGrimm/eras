@@ -1,7 +1,7 @@
 import { CORE_SKILL_IDS } from './ids';
 import { MATTER_IDS, SOUTH_COURT_LOCATION_ID, SOUTH_LOADING_LOCATION_ID, STOREHOUSE_INSTITUTION_ID } from '../engine/institutionalMatters';
 import type { AttributeId, SkillId } from './ids';
-import type { GameState, Institution, OpportunityConsequences, SaveEnvelope, PersonScribalState, WorkProgress } from './types';
+import type { ClosingReceiptPayload, GameState, Institution, OpportunityConsequences, SaveEnvelope, PersonScribalState, WorkProgress } from './types';
 import { validateOpportunityConsequences } from './opportunityValidation';
 import type { WorkDefinition } from '../works/workDefinition';
 import { validateWorkDefinition } from '../works/workDefinition';
@@ -27,17 +27,18 @@ function finiteNonNegative(value: unknown): value is number {
 function finiteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
 }
-function isClosingReceipt(value: unknown): boolean {
-  return isObject(value)
-    && Number.isInteger(value.dayNumber) && (value.dayNumber as number) >= 1
+function isClosingReceipt(value: unknown): value is ClosingReceiptPayload {
+  if (!isObject(value) || !isObject(value.deltas)) return false;
+  const deltas = value.deltas;
+  return Number.isInteger(value.dayNumber) && (value.dayNumber as number) >= 1
     && nonEmptyString(value.title) && nonEmptyString(value.disposition)
     && ['Thorough','Defensible','Incomplete','Overreached'].includes(String(value.assessment))
     && nonEmptyString(value.rationale) && nonEmptyString(value.reaction)
     && (value.receiverName === undefined || nonEmptyString(value.receiverName))
     && (value.institutionName === undefined || nonEmptyString(value.institutionName))
     && (value.compensationTiming === undefined || nonEmptyString(value.compensationTiming))
-    && isObject(value.deltas) && finiteNumber(value.deltas.judgment)
-    && ['currency','provisions','careerXp','institutionalStanding','trust','respect'].every((key) => value.deltas[key] === undefined || finiteNumber(value.deltas[key]));
+    && finiteNumber(deltas.judgment)
+    && ['currency','provisions','careerXp','institutionalStanding','trust','respect'].every((key) => deltas[key] === undefined || finiteNumber(deltas[key]));
 }
 function score(value: unknown): value is number { return finiteNonNegative(value) && value <= 100; }
 function stringArray(value: unknown): value is string[] {

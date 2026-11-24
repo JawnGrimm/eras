@@ -170,7 +170,7 @@ export function submitNorthBayPostExecutionInspection(
       description: 'Independent post-execution inspection record submitted by the player.',
     }],
   };
-  const cost = _definition.submissionApCost;
+  const cost = definition.submissionApCost;
   if (state.actionEconomy.apRemaining < cost) {
     return fail(state, 'insufficient-ap', 'The inspection report submission does not have enough AP.');
   }
