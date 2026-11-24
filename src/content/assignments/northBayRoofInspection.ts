@@ -240,6 +240,7 @@ export function validateAssignmentActivityDefinition(definition: AssignmentActiv
   if (actionIds.size !== definition.actions.length) issues.push('Action IDs must be unique.');
   if (discoveryIds.size !== definition.discoveries.length) issues.push('Discovery IDs must be unique.');
   if (definition.discoveries.some((item) => item.sourcePersonId && !definition.participants.includes(item.sourcePersonId))) issues.push('Discovery source PersonId must be an activity participant.');
+  if (definition.discoveries.some((item) => item.sourceProvenanceId !== undefined && !item.sourceProvenanceId.trim())) issues.push('Discovery source provenance ID must be non-empty.');
   if (!definition.id || !definition.title || !Number.isInteger(definition.submissionApCost) || definition.submissionApCost < 1 || definition.submissionApCost > 6) issues.push('Activity identity and submission AP (1..6) are required.');
   for (const [field, options] of Object.entries({ findings: definition.reportSchema.findings, responsibilityClaims: definition.reportSchema.responsibilityClaims, recommendations: definition.reportSchema.recommendations })) {
     if (!Array.isArray(options) || options.length === 0 || new Set(options.map((option) => option.id)).size !== options.length || options.some((option) => !option.id.trim() || !option.label.trim())) issues.push(`Report schema ${field} must contain unique, labeled options.`);
