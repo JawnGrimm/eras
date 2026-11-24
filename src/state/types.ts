@@ -235,6 +235,8 @@ export interface DayCloseState {
   pendingSettlementId: string | null;
   lastFinalizedSettlementId: string | null;
   pendingCredits: PendingSettlementCredit[];
+  /** Present only while an Interlude is open; optional for existing schema-v3 saves. */
+  preview?: DaySettlement | null;
 }
 export type OpportunityOccurrenceLifecycle = 'offered' | 'accepted' | 'declined' | 'lapsed' | 'cancelled' | 'completed';
 export interface OpportunityOccurrenceLedgerEntry {
@@ -425,6 +427,7 @@ export type GameAction =
   | { type: 'ACTIVATE_OVERTIME' }
   | { type: 'END_DAY'; expectedDayNumber: number }
   | { type: 'BEGIN_WORKDAY'; expectedSettlementId: string }
+  | { type: 'BUY_PROVISIONS'; amount: number }
   | { type: 'PERFORM_RECOVERY_LABOR' }
   | { type: 'REQUEST_CONTACT_ADVANCE'; contactId: PersonId }
   | { type: 'MARK_NOTICE_READ'; noticeId: string }
@@ -456,6 +459,8 @@ export type GameAction =
 export interface ActionFeedback { kind: 'success' | 'error' | 'info'; code: string; message: string; }
 export interface DaySettlement {
   startingProvisions: number;
+  assignmentMoneyEarned: number;
+  assignmentProvisionsEarned: number;
   workContractProvisionEarned: number;
   workContractProvisionReason: 'qualified_workday' | 'no_active_work_contract' | 'insufficient_work_ap';
   sustenanceDeducted: number;

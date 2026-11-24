@@ -59,6 +59,13 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
   const person = state.world.people[state.player.currentCharacterId];
   const scribal = getInitializedScribal(person);
   if (!person || !scribal) return { state, feedback: feedback('error', 'missing-active-character', 'The current character is unavailable.') };
+  const interludeAction = action.type === 'BUY_PROVISIONS' || action.type === 'BEGIN_WORKDAY';
+  if (state.dayClose.phase === 'interlude_open' && !interludeAction) {
+    return { state, feedback: feedback('error', 'evening-interlude-open', 'The Workday is closed. Only an eligible provisions exchange or Begin Workday is available.') };
+  }
+  if (state.dayClose.phase === 'workday_open' && action.type === 'BUY_PROVISIONS') {
+    return { state, feedback: feedback('error', 'evening-interlude-not-open', 'The Evening Interlude is not open.') };
+  }
 
   switch (action.type) {
     case 'AWARD_SKILL_XP':
@@ -365,7 +372,7 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
     case 'PERFORM_RECOVERY_LABOR': {
       const storehouse = state.world.institutions['institution-uruk-temple-storehouse' as InstitutionId];
       if (economy.recoveryLaborUsedToday) return { state, feedback: feedback('error', 'recovery-labor-already-used', 'Auxiliary labor has already been performed today.') };
-      if (scribal.wallet.provisions > 0) return { state, feedback: feedback('error', 'recovery-not-needed', 'This recovery task is available when no provisions remain.') };
+      // This is preventative ordinary-workday labor, not an emergency-only action.
       if (!storehouse || !storehouse.locationId || !state.world.locations[storehouse.locationId]) return { state, feedback: feedback('error', 'recovery-labor-unavailable', 'No suitable storehouse labor is available in the current circumstances.') };
       if (economy.apRemaining < 2) return { state, feedback: feedback('error', 'insufficient-ap', 'Auxiliary storehouse labor requires 2 AP.') };
       return {
@@ -413,41 +420,136 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
       };
     }
     case 'END_DAY': {
-      if (action.expectedDayNumber !== state.calendar.dayNumber) {
-        return { state, feedback: feedback('error', 'stale-day-settlement', 'This Workday has already been settled or the calendar has changed.') };
+      if (state.dayClose.phase !== 'workday_open' || action.expectedDayNumber !== state.calendar.dayNumber) {
+        return { state, feedback: feedback('error', 'stale-day-settlement', 'This Workday has already been closed or the calendar has changed.') };
       }
       if (economy.overtimeUsedToday && economy.apRemaining > 0) {
         return { state, feedback: feedback('error', 'overtime-ap-unspent', 'Spend the overtime AP before settling the day.') };
       }
       const startingProvisions = scribal.wallet.provisions;
-      // Eligibility and the contract values come from the current validated definition,
-      // never from a persisted WorkProgress provision snapshot.
       const genuineWorkProgress = Object.entries(state.works.progress).flatMap(([workId, progress]) => {
         const definition = workCatalog[workId];
         if (!isValidWorkDefinition(definition) || definition.kind !== 'work'
           || !progressMatchesDefinition(definition, progress)
           || (progress.status === 'active' && state.works.activeWorkId !== workId)
           || !definition.provisionsContract) return [];
-        return [{ progress, contract: definition.provisionsContract }];
+        return [{ workId, progress, contract: definition.provisionsContract }];
       });
       const contractProgress = genuineWorkProgress.find(({ progress, contract }) =>
         (progress.status === 'active' || progress.status === 'completed')
         && progress.workApSpentToday >= contract.minimumWorkApPerDay);
       const activeContractExists = genuineWorkProgress.some(({ progress }) => progress.status === 'active');
-      const contractQualified = !!contractProgress;
-      const contractProvision = contractQualified ? contractProgress.contract.provisionsPerQualifiedWorkday : 0;
-      const workContractProvisionReason = contractQualified
+      const contractProvision = contractProgress ? contractProgress.contract.provisionsPerQualifiedWorkday : 0;
+      const workContractProvisionReason = contractProgress
         ? 'qualified_workday' as const
         : activeContractExists
           ? 'insufficient_work_ap' as const
           : 'no_active_work_contract' as const;
-      const availableProvisions = startingProvisions + contractProvision;
+      const settlementId = String(state.calendar.eraId) + ':' + state.calendar.dayNumber;
+      let credits = [...state.dayClose.pendingCredits];
+      if (contractProgress && contractProvision > 0) {
+        const id = 'work-provisions:' + state.calendar.eraId + ':' + state.calendar.dayNumber;
+        if (!credits.some((credit) => credit.id === id)) {
+          credits.push({
+            id, source: { kind: 'work', id: contractProgress.workId },
+            earnedDay: state.calendar.dayNumber, money: 0, provisions: contractProvision, status: 'pending',
+          });
+        }
+      }
+      const dueCredits = credits.filter((credit) => credit.status === 'pending' && credit.earnedDay <= state.calendar.dayNumber);
+      const assignmentMoneyEarned = dueCredits.filter((credit) => credit.source.kind === 'assignment').reduce((sum, credit) => sum + credit.money, 0);
+      const assignmentProvisionsEarned = dueCredits.filter((credit) => credit.source.kind === 'assignment').reduce((sum, credit) => sum + credit.provisions, 0);
+      const creditedMoney = dueCredits.reduce((sum, credit) => sum + credit.money, 0);
+      const creditedProvisions = dueCredits.reduce((sum, credit) => sum + credit.provisions, 0);
+      credits = credits.map((credit) => credit.status === 'pending' && credit.earnedDay <= state.calendar.dayNumber
+        ? { ...credit, status: 'credited' as const, creditedBySettlementId: settlementId }
+        : credit);
+      const availableProvisions = startingProvisions + creditedProvisions;
       const hadProvision = availableProvisions > 0;
       const sustenanceDeducted = hadProvision ? 1 : 0;
-      const endingProvisions = hadProvision ? availableProvisions - sustenanceDeducted : 0;
+      const endingProvisions = hadProvision ? availableProvisions - 1 : 0;
       const shortageWorkdays = hadProvision ? 0 : scribal.wallet.shortageWorkdays + 1;
       const cumulativeBefore = scribal.cumulativeShortageStress ?? 0;
-      const shortageStressDelta = endingProvisions === 0 && shortageWorkdays >= 3
+      const shortageStressDelta = !hadProvision && shortageWorkdays >= 3
+        ? Math.min(2, 10 - cumulativeBefore)
+        : 0;
+      const preview = {
+        startingProvisions, assignmentMoneyEarned, assignmentProvisionsEarned,
+        workContractProvisionEarned: contractProvision, workContractProvisionReason,
+        sustenanceDeducted, endingProvisions, shortageWorkdays, shortageStressDelta,
+        cumulativeShortageStress: cumulativeBefore + shortageStressDelta,
+        overtimeStress: economy.overtimeUsedToday ? 5 : 0,
+        tomorrowAp: economy.nextDayApPenalty ? 5 as const : 6 as const,
+      };
+      const nextScribal = {
+        ...scribal,
+        wallet: { ...scribal.wallet, money: scribal.wallet.money + creditedMoney, provisions: availableProvisions },
+      };
+      return {
+        state: {
+          ...state,
+          dayClose: { ...state.dayClose, phase: 'interlude_open', pendingSettlementId: settlementId, pendingCredits: credits, preview },
+          world: { ...state.world, people: { ...state.world.people, [person.id]: { ...person, scribal: nextScribal } } },
+        },
+        feedback: feedback('success', 'evening-interlude-opened', 'The preliminary settlement is recorded. Sustenance and shortage consequences remain pending until Begin Workday.'),
+        settlement: preview,
+      };
+    }
+    case 'BUY_PROVISIONS': {
+      const preview = state.dayClose.preview;
+      if (state.calendar.eraId !== 'era-1') {
+        return { state, feedback: feedback('error', 'provisions-exchange-era-unavailable', 'This provisional Playtest 1 exchange is authored for Era I only.') };
+      }
+      if (state.dayClose.phase !== 'interlude_open' || !preview) {
+        return { state, feedback: feedback('error', 'evening-interlude-not-open', 'A provisions exchange is available only during the Evening Interlude.') };
+      }
+      if (!Number.isInteger(action.amount) || action.amount < 1) {
+        return { state, feedback: feedback('error', 'invalid-provisions-purchase', 'Choose at least one whole Provision.') };
+      }
+      const cost = action.amount * 2;
+      if (scribal.wallet.money < cost) {
+        return { state, feedback: feedback('error', 'insufficient-currency', 'This exchange requires ' + cost + ' Currency.') };
+      }
+      const provisions = scribal.wallet.provisions + action.amount;
+      const shortageWorkdays = provisions > 0 ? 0 : scribal.wallet.shortageWorkdays + 1;
+      const shortageStressDelta = provisions === 0 && shortageWorkdays >= 3
+        ? Math.min(2, 10 - (scribal.cumulativeShortageStress ?? 0))
+        : 0;
+      const updatedPreview = {
+        ...preview,
+        sustenanceDeducted: provisions > 0 ? 1 : 0,
+        endingProvisions: provisions > 0 ? provisions - 1 : 0,
+        shortageWorkdays,
+        shortageStressDelta,
+        cumulativeShortageStress: (scribal.cumulativeShortageStress ?? 0) + shortageStressDelta,
+      };
+      return {
+        state: {
+          ...state,
+          dayClose: { ...state.dayClose, preview: updatedPreview },
+          world: { ...state.world, people: { ...state.world.people, [person.id]: {
+            ...person, scribal: { ...scribal, wallet: { ...scribal.wallet, money: scribal.wallet.money - cost, provisions } },
+          } } },
+        },
+        feedback: feedback('success', 'provisions-purchased', 'Exchanged ' + cost + ' Currency for ' + action.amount + ' Provision(s). The exchange rate is provisional for Playtest 1.'),
+        settlement: updatedPreview,
+      };
+    }
+    case 'BEGIN_WORKDAY': {
+      const settlementId = state.dayClose.pendingSettlementId;
+      if (state.dayClose.phase !== 'interlude_open' || !settlementId
+        || action.expectedSettlementId !== settlementId
+        || settlementId === state.dayClose.lastFinalizedSettlementId
+        || !state.dayClose.preview) {
+        return { state, feedback: feedback('error', 'stale-workday-start', 'This Evening Interlude has already been finalized or the settlement identity is stale.') };
+      }
+      const preview = state.dayClose.preview;
+      const hadProvision = scribal.wallet.provisions > 0;
+      const sustenanceDeducted = hadProvision ? 1 : 0;
+      const endingProvisions = hadProvision ? scribal.wallet.provisions - 1 : 0;
+      const shortageWorkdays = hadProvision ? 0 : scribal.wallet.shortageWorkdays + 1;
+      const cumulativeBefore = scribal.cumulativeShortageStress ?? 0;
+      const shortageStressDelta = !hadProvision && shortageWorkdays >= 3
         ? Math.min(2, 10 - cumulativeBefore)
         : 0;
       const cumulativeShortageStress = cumulativeBefore + shortageStressDelta;
@@ -465,48 +567,32 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
         wallet: { ...scribal.wallet, provisions: endingProvisions, shortageWorkdays },
       };
       const withExpiredOffers = settleAssignmentOffers(state, workCatalog);
-      let next = {
+      let next: GameState = {
         ...withExpiredOffers,
         calendar: { ...state.calendar, dayNumber: state.calendar.dayNumber + 1, displayDate: displayDate(state.calendar.dayNumber + 1) },
+        dayClose: { ...state.dayClose, phase: 'workday_open', pendingSettlementId: null,
+          lastFinalizedSettlementId: settlementId, preview: null },
         works: { ...withExpiredOffers.works, progress: Object.fromEntries(Object.entries(withExpiredOffers.works.progress).map(([id, progress]) => [id, { ...progress, workApSpentToday: 0 }])) },
         actionEconomy: {
           dailyApAllocation: economy.nextDayApPenalty ? 5 as const : 6 as const,
           apRemaining: economy.nextDayApPenalty ? 5 : 6,
-          overtimeUsedToday: false,
-          nextDayApPenalty: false,
-          recoveryLaborUsedToday: false,
+          overtimeUsedToday: false, nextDayApPenalty: false, recoveryLaborUsedToday: false,
         },
-        world: {
-          ...withExpiredOffers.world,
-          people: { ...withExpiredOffers.world.people, [person.id]: { ...person, scribal: updatedScribal } },
-        },
+        world: { ...withExpiredOffers.world, people: { ...withExpiredOffers.world.people, [person.id]: { ...person, scribal: updatedScribal } } },
       };
       next = advanceInstitutionalMatters(next, state.calendar.dayNumber + 1);
       next = advanceInstitutionalResponses(next, state.calendar.dayNumber + 1);
       next = generateDailyAssignments(next);
-      next = runChallengeDirector(next);
       next = buildSituatedMorningReport(state, next);
+      next = runChallengeDirector(next);
       if (!hadProvision && (shortageWorkdays <= 2 || shortageWorkdays === 3)) {
         next = withNotice(next, 'settlement', shortageWorkdays <= 2
-          ? `No provisions were available. Shortage day ${shortageWorkdays} of 2 grace days.`
-          : `No provisions were available (Shortage day ${shortageWorkdays}). +${shortageStressDelta} Stress (${cumulativeShortageStress}/10 cap); Underfed condition active.`);
+          ? 'No provisions were available. Shortage day ' + shortageWorkdays + ' of 2 grace days.'
+          : 'No provisions were available (Shortage day ' + shortageWorkdays + '). +' + shortageStressDelta + ' Stress (' + cumulativeShortageStress + '/10 cap); Underfed condition active.');
       }
-      return {
-        state: next,
-        feedback: feedback('success', 'day-settled', 'The Workday has been settled.'),
-        settlement: {
-          startingProvisions,
-          workContractProvisionEarned: contractProvision,
-          workContractProvisionReason,
-          sustenanceDeducted,
-          endingProvisions,
-          shortageWorkdays,
-          shortageStressDelta,
-          cumulativeShortageStress,
-          overtimeStress: economy.overtimeUsedToday ? 5 : 0,
-          tomorrowAp: economy.nextDayApPenalty ? 5 : 6,
-        },
-      };
+      const settlement = { ...preview, sustenanceDeducted, endingProvisions, shortageWorkdays,
+        shortageStressDelta, cumulativeShortageStress };
+      return { state: next, feedback: feedback('success', 'workday-begun', 'Sustenance is finalized and the new Workday has begun.'), settlement };
     }
     case 'MARK_NOTICE_READ': {
       return {

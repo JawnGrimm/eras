@@ -3,6 +3,7 @@ import { getInitializedScribal } from '../state/scribalState';
 import { ASSIGNMENT_ACTIVITY_CATALOG, NORTH_BAY_POST_EXECUTION_ACTIVITY_ID, validateAssignmentActivityDefinition } from '../content/assignments/northBayRoofInspection';
 import { resolveOpportunityDatePolicies, validateOpportunityConsequences } from '../state/opportunityValidation';
 import { validateWorkDefinition } from '../works/workDefinition';
+import { queueSettlementCredit } from './dayClose';
 import type { WorkDefinition } from '../works/workDefinition';
 import type {
   AssignmentActivityAggregate, AssignmentOffer, ChallengeInstance, ChallengeOutcome, ChallengeTriggerRule,
@@ -239,14 +240,20 @@ export function transitionOpportunityAction(state: GameState, action: Opportunit
       if (offer.activityId) return fail(state, 'interactive-assignment-required', 'This Assignment must be completed through its interactive activity.');
       if (state.actionEconomy.apRemaining < (offer.apCost ?? 0)) return fail(state, 'insufficient-ap', `Completing this Assignment costs ${offer.apCost ?? 0} AP.`);
       const authored = offer.completionConsequences ?? {};
-      const effects: OpportunityConsequences = { ...authored, moneyDelta: (authored.moneyDelta ?? 0) + offer.compensation.money,
-        provisionsDelta: (authored.provisionsDelta ?? 0) + offer.compensation.provisions,
+      const effects: OpportunityConsequences = { ...authored,
         careerXp: (authored.careerXp ?? 0) + offer.careerXpReward };
       const effected = applyConsequences(state, effects);
       if (!effected) return fail(state, 'assignment-outcome-invalid', 'The Assignment outcome contains invalid resource, relationship, institution, event, record, or knowledge effects.');
       const next = { ...effected, actionEconomy: { ...effected.actionEconomy, apRemaining: effected.actionEconomy.apRemaining - (offer.apCost ?? 0) },
         opportunities: { ...effected.opportunities, assignments: { ...effected.opportunities.assignments, [offer.id]: { ...offer, status: 'completed' } } } };
-      return succeed(addActivity(next, offer, 'completed'), 'assignment-completed', 'The Assignment was completed and its authored compensation and consequences were applied.');
+      const queued = queueSettlementCredit(next, {
+        id: 'assignment:' + offer.id + ':' + state.calendar.dayNumber,
+        source: { kind: 'assignment', id: offer.id },
+        earnedDay: state.calendar.dayNumber,
+        money: offer.compensation.money,
+        provisions: offer.compensation.provisions,
+      });
+      return succeed(addActivity(queued, offer, 'completed'), 'assignment-completed', 'The Assignment was completed. Its contracted compensation will be credited at preliminary Day-Close.');
     }
     case 'PRESENT_CHALLENGE': {
       const c = action.challenge;

@@ -63,7 +63,8 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenActivity, settlement, o
   const activeWork = state.works.progress[STOREHOUSE_WORK_ID];
   const unavailableWorks = Object.entries(state.works.progress).filter(([, progress]) => progress.status === 'suspended');
   const shortageActive = wallet.shortageWorkdays >= 3;
-  const hardshipVisible = wallet.provisions === 0 || wallet.shortageWorkdays >= 1;
+  const tutorialComplete = state.works.progress[STOREHOUSE_WORK_ID]?.status === 'completed';
+  const hardshipVisible = tutorialComplete || wallet.provisions <= 1 || wallet.shortageWorkdays >= 1;
   const storehouse = state.world.institutions['institution-uruk-temple-storehouse' as InstitutionId];
   const laborAvailable = !!storehouse?.locationId && !!state.world.locations[storehouse.locationId];
   const urGir = state.world.people[UR_GIR_PERSON_ID as PersonId];
@@ -115,9 +116,9 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenActivity, settlement, o
       <div className="mt-4 grid gap-3 md:grid-cols-2">
         {laborAvailable && <article className="rounded-lg border border-amber-200 bg-white p-3">
           <h3 className="font-semibold text-stone-900">Temple Storehouse Auxiliary Labor</h3>
-          <p className="mt-1 text-sm text-stone-600">Bag and prepare grain at the Temple Storehouse in exchange for one provision.</p>
+          <p className="mt-1 text-sm text-stone-600">Bag and prepare grain at the Temple Storehouse in exchange for one provision. This can be done before your stores are empty.</p>
           <p className="mt-2 text-xs text-stone-500">2 AP · +1 provision · Once per Workday</p>
-          <button disabled={wallet.provisions > 0 || state.actionEconomy.recoveryLaborUsedToday || state.actionEconomy.apRemaining < 2}
+          <button disabled={state.actionEconomy.recoveryLaborUsedToday || state.actionEconomy.apRemaining < 2}
             onClick={() => game.dispatch({ type: 'PERFORM_RECOVERY_LABOR' })}
             className="mt-3 rounded-md bg-stone-900 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">
             {state.actionEconomy.recoveryLaborUsedToday ? 'Used today' : 'Perform labor · 2 AP'}

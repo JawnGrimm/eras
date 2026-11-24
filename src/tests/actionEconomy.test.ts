@@ -7,7 +7,13 @@ import { createSaveEnvelope, isValidSaveEnvelope, restoreSave } from '../state/s
 import { createNewGameState, INITIAL_WORK_CATALOG } from '../state/newGameState';
 import { STOREHOUSE_WORK_ID, storehouseReckoning } from '../works/storehouseReckoning';
 
-const endDay = (state: ReturnType<typeof createInitialGameState>) => transitionGame(state, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber });
+const endDay = (state: ReturnType<typeof createInitialGameState>) => {
+  const opened = transitionGame(state, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber });
+  if (opened.state === state) return opened;
+  const settlementId = opened.state.dayClose.pendingSettlementId;
+  if (!settlementId) return opened;
+  return transitionGame(opened.state, { type: 'BEGIN_WORKDAY', expectedSettlementId: settlementId });
+};
 
 describe('production foundation: AP, overtime, settlement and saves', () => {
   const genuineWorkCatalog = {
@@ -17,6 +23,40 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
       provisionsContract: { provisionsPerQualifiedWorkday: 1, minimumWorkApPerDay: 1 },
     },
   };
+
+  it('keeps preliminary close reversible until Begin Workday and supports the provisional Currency exchange', () => {
+    const initial = createInitialGameState();
+    const opened = transitionGame(initial, { type: 'END_DAY', expectedDayNumber: 1 });
+    expect(opened.state.dayClose.phase).toBe('interlude_open');
+    expect(opened.state.calendar.dayNumber).toBe(1);
+    expect(getInitializedScribal(opened.state.world.people[INITIAL_PERSON_ID])?.wallet.provisions).toBe(5);
+    expect(opened.state.actionEconomy.apRemaining).toBe(6);
+
+    const purchased = transitionGame(opened.state, { type: 'BUY_PROVISIONS', amount: 1 });
+    expect(getInitializedScribal(purchased.state.world.people[INITIAL_PERSON_ID])?.wallet).toMatchObject({ money: 10, provisions: 6 });
+    expect(purchased.state.dayClose.preview?.endingProvisions).toBe(5);
+
+    const settlementId = purchased.state.dayClose.pendingSettlementId!;
+    const begun = transitionGame(purchased.state, { type: 'BEGIN_WORKDAY', expectedSettlementId: settlementId });
+    expect(begun.state.calendar.dayNumber).toBe(2);
+    expect(begun.state.dayClose.phase).toBe('workday_open');
+    expect(begun.state.dayClose.lastFinalizedSettlementId).toBe(settlementId);
+    expect(getInitializedScribal(begun.state.world.people[INITIAL_PERSON_ID])?.wallet.provisions).toBe(5);
+    const duplicate = transitionGame(begun.state, { type: 'BEGIN_WORKDAY', expectedSettlementId: settlementId });
+    expect(duplicate.state).toBe(begun.state);
+    expect(duplicate.feedback?.code).toBe('stale-workday-start');
+  });
+
+  it('allows the once-per-Workday 2 AP recovery labor before provisions reach zero', () => {
+    const initial = createInitialGameState();
+    const result = transitionGame(initial, { type: 'PERFORM_RECOVERY_LABOR' });
+    expect(result.feedback?.code).toBe('recovery-labor-completed');
+    expect(result.state.actionEconomy.apRemaining).toBe(4);
+    expect(getInitializedScribal(result.state.world.people[INITIAL_PERSON_ID])?.wallet.provisions).toBe(6);
+    const repeated = transitionGame(result.state, { type: 'PERFORM_RECOVERY_LABOR' });
+    expect(repeated.state).toBe(result.state);
+    expect(repeated.feedback?.code).toBe('recovery-labor-already-used');
+  });
 
   it('starts each ordinary Workday with six shared AP and prevents overspending', () => {
     const initial = createInitialGameState();
@@ -55,6 +95,8 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
     const result = endDay(initial);
     expect(result.settlement).toEqual({
       startingProvisions: 5,
+      assignmentMoneyEarned: 0,
+      assignmentProvisionsEarned: 0,
       workContractProvisionEarned: 0,
       workContractProvisionReason: 'no_active_work_contract',
       sustenanceDeducted: 1,
@@ -131,7 +173,10 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
         [STOREHOUSE_WORK_ID]: { ...progress, provisionContract: { provisionsPerQualifiedWorkday: 1, minimumWorkApPerDay: 1 } },
       } },
     };
-    const result = transitionGame(legacyState, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber }, undefined, INITIAL_WORK_CATALOG);
+    const opened = transitionGame(legacyState, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber }, undefined, INITIAL_WORK_CATALOG);
+    const result = transitionGame(opened.state, {
+      type: 'BEGIN_WORKDAY', expectedSettlementId: opened.state.dayClose.pendingSettlementId!,
+    }, undefined, INITIAL_WORK_CATALOG);
     expect(result.settlement?.workContractProvisionReason).toBe('no_active_work_contract');
     expect(result.settlement?.workContractProvisionEarned).toBe(0);
     expect(getInitializedScribal(result.state.world.people[state.player.currentCharacterId])?.wallet.provisions).toBe(4);

@@ -10,6 +10,14 @@ import { NORTH_BAY_POST_EXECUTION_ACTIVITY_ID } from '../content/assignments/nor
 import type { PersonId, InstitutionId, AppointmentId, EventId, RecordId, KnowledgeEntryId } from '../state/ids';
 import type { GameState, Person } from '../state/types';
 
+function nextWorkday(state: GameState, dayNumber = state.calendar.dayNumber): ReturnType<typeof transitionGame> {
+  const closed = transitionGame(state, { type: 'END_DAY', expectedDayNumber: dayNumber });
+  const settlementId = closed.state.dayClose.pendingSettlementId;
+  return settlementId
+    ? transitionGame(closed.state, { type: 'BEGIN_WORKDAY', expectedSettlementId: settlementId })
+    : closed;
+}
+
 const otherId = 'person-shuruppak-ilu' as PersonId;
 const institutionId = 'institution-temple-storehouse' as InstitutionId;
 const base = (): GameState => {
@@ -253,8 +261,8 @@ describe('world, relationships, institutions and records', () => {
     expect(restored?.state.world.matters[MATTER_IDS.roofRepair].status).toBe('active');
     // The post-execution Assignment is the ordinary player path for supplying
     // independent evidence. The player does not perform the official verification.
-    const assignmentDay = transitionGame(executed.state, { type: 'END_DAY', expectedDayNumber: 1 });
-    expect(assignmentDay.feedback?.code).toBe('day-settled');
+    const assignmentDay = nextWorkday(executed.state, 1);
+    expect(assignmentDay.feedback?.code).toBe('workday-begun');
     expect(Object.values(assignmentDay.state.world.events).some((item) => item.institutionalResponse?.stage === 'verification')).toBe(false);
     const postExecutionOffer = Object.values(assignmentDay.state.opportunities.assignments).find((item) =>
       item.activityId === NORTH_BAY_POST_EXECUTION_ACTIVITY_ID && item.originMatterId === MATTER_IDS.roofRepair);
@@ -283,7 +291,7 @@ describe('world, relationships, institutions and records', () => {
     expect(Object.values(submittedInspection.state.world.knowledge).some((entry) => entry.holder.kind === 'person'
       && entry.holder.id === shuruppakId && entry.subject.kind === 'record' && entry.subject.id === postExecutionRecord?.id)).toBe(true);
     expect(submittedInspection.state.opportunities.assignments[postExecutionOffer!.id].status).toBe('completed');
-    const lifecycle = transitionGame(submittedInspection.state, { type: 'END_DAY', expectedDayNumber: 2 });
+    const lifecycle = nextWorkday(submittedInspection.state, 2);
     const verification = Object.values(lifecycle.state.world.events).find((item) => item.institutionalResponse?.stage === 'verification');
     const resolution = Object.values(lifecycle.state.world.events).find((item) => item.institutionalResponse?.stage === 'resolution');
     expect(verification?.institutionalResponse?.verification?.outcome).toBe('accepted');

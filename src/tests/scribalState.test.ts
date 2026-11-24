@@ -6,6 +6,14 @@ import { getInitializedScribal, isInitializedScribalState } from '../state/scrib
 import type { GameState, Person } from '../state/types';
 import type { PersonId } from '../state/ids';
 
+function nextWorkday(state: GameState): ReturnType<typeof transitionGame> {
+  const closed = transitionGame(state, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber });
+  const settlementId = closed.state.dayClose.pendingSettlementId;
+  return settlementId
+    ? transitionGame(closed.state, { type: 'BEGIN_WORKDAY', expectedSettlementId: settlementId })
+    : closed;
+}
+
 const identityId = 'person-identity-only' as PersonId;
 const identityScribal = { stage: 'identity' as const, careerPath: 'merchant' as const };
 
@@ -86,7 +94,7 @@ describe('staged scribal capability boundary', () => {
   it('leaves identity-stage NPC data unchanged during mixed-world day settlement', () => {
     const state = stateWithIdentityNpc();
     const before = structuredClone(state.world.people[identityId].scribal);
-    const settled = transitionGame(state, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber });
+    const settled = nextWorkday(state);
     expect(settled.state.calendar.dayNumber).toBe(state.calendar.dayNumber + 1);
     expect(settled.state.world.people[identityId].scribal).toEqual(before);
   });

@@ -158,7 +158,7 @@ export function GameProvider({
     const previousState = stateRef.current;
     const result = transitionGame(previousState, action, careerPolicy, resolvedCatalog);
     if (result.state !== previousState) {
-      const dayCloseBoundary = action.type === 'END_DAY' || action.type === 'BEGIN_WORKDAY';
+      const dayCloseBoundary = action.type === 'END_DAY' || action.type === 'BUY_PROVISIONS' || action.type === 'BEGIN_WORKDAY';
       if (dayCloseBoundary) {
         try {
           const nextRevision = revisionRef.current + 1;

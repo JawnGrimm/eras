@@ -7,6 +7,14 @@ import { NORTH_BAY_POST_EXECUTION_ACTIVITY_ID } from '../content/assignments/nor
 import type { AssignmentOffer, GameState, InstitutionalResponse, RecordEntry, WorldEvent } from '../state/types';
 import type { AppointmentId, AssignmentId, EventId, InstitutionId, KnowledgeEntryId, PersonId, RecordId } from '../state/ids';
 
+function nextWorkday(state: GameState, dayNumber = state.calendar.dayNumber): ReturnType<typeof transitionGame> {
+  const closed = transitionGame(state, { type: 'END_DAY', expectedDayNumber: dayNumber });
+  const settlementId = closed.state.dayClose.pendingSettlementId;
+  return settlementId
+    ? transitionGame(closed.state, { type: 'BEGIN_WORKDAY', expectedSettlementId: settlementId })
+    : closed;
+}
+
 const verifierId = 'person-shuruppak-ilu' as PersonId;
 const stewardId = 'person-ur-nanna' as PersonId;
 const workerId = 'person-aru' as PersonId;
@@ -84,7 +92,7 @@ function stateWithExecution(includeEvidence = true): GameState {
 describe('institutional response lifecycle', () => {
   it('does not invent evidence, respects accepted player commitments, then verifies and resolves developed matters', () => {
     let state = stateWithExecution(false);
-    const noEvidence = transitionGame(state, { type: 'END_DAY', expectedDayNumber: 1 });
+    const noEvidence = nextWorkday(state, 1);
     expect(Object.values(noEvidence.state.world.events).some((event) => event.institutionalResponse?.stage === 'verification')).toBe(false);
     state = stateWithExecution(true);
     const acceptedOffer = {
@@ -96,14 +104,14 @@ describe('institutional response lifecycle', () => {
     state = { ...state, opportunities: { ...state.opportunities,
       assignments: { ...state.opportunities.assignments, [acceptedOffer.id]: acceptedOffer } } };
 
-    const held = transitionGame(state, { type: 'END_DAY', expectedDayNumber: 1 });
-    expect(held.feedback?.code).toBe('day-settled');
+    const held = nextWorkday(state, 1);
+    expect(held.feedback?.code).toBe('workday-begun');
     expect(Object.values(held.state.world.events).some((event) => event.institutionalResponse?.stage === 'verification')).toBe(false);
 
     const released = { ...held.state, opportunities: { ...held.state.opportunities,
       assignments: { ...held.state.opportunities.assignments,
         [acceptedOffer.id]: { ...acceptedOffer, status: 'cancelled' as const } } } };
-    const settled = transitionGame(released, { type: 'END_DAY', expectedDayNumber: 2 });
+    const settled = nextWorkday(released, 2);
     const verification = Object.values(settled.state.world.events).find((event) => event.institutionalResponse?.stage === 'verification');
     const resolution = Object.values(settled.state.world.events).find((event) => event.institutionalResponse?.stage === 'resolution');
 
@@ -123,7 +131,7 @@ describe('institutional response lifecycle', () => {
         classification: 'disputed', sourceIds: ['source-independent-observer'] }],
     };
     const state = { ...base, records: { ...base.records, entries: { ...base.records.entries, [recordId]: disputed } } };
-    const settled = transitionGame(state, { type: 'END_DAY', expectedDayNumber: 1 });
+    const settled = nextWorkday(state, 1);
     const verification = Object.values(settled.state.world.events).find((event) => event.institutionalResponse?.stage === 'verification');
     expect(verification?.institutionalResponse?.verification?.outcome).toBe('inconclusive');
     expect(Object.values(settled.state.world.events).some((event) => event.institutionalResponse?.stage === 'resolution')).toBe(false);
@@ -235,7 +243,7 @@ describe('institutional response lifecycle', () => {
     expect(validateInstitutionalResponseEvent(duplicateResolution, { ...acceptedResolution, id: 'event-duplicate-resolution' as EventId })?.toLowerCase()).toContain('already has a final disposition');
   });
   it('generates the post-execution Assignment and files independent evidence before NPC verification', () => {
-    const firstDay = transitionGame(stateWithExecution(false), { type: 'END_DAY', expectedDayNumber: 1 });
+    const firstDay = nextWorkday(stateWithExecution(false), 1);
     const offer = Object.values(firstDay.state.opportunities.assignments).find((item) =>
       item.activityId === NORTH_BAY_POST_EXECUTION_ACTIVITY_ID && item.originMatterId === MATTER_IDS.roofRepair);
     expect(offer).toBeDefined();
@@ -269,7 +277,7 @@ describe('institutional response lifecycle', () => {
       && entry.holder.id === verifierId && entry.subject.kind === 'record' && entry.subject.id === filedRecord?.id)).toBe(true);
     expect(submitted.state.opportunities.assignments[offer!.id].status).toBe('completed');
 
-    const settled = transitionGame(submitted.state, { type: 'END_DAY', expectedDayNumber: 2 });
+    const settled = nextWorkday(submitted.state, 2);
     const verification = Object.values(settled.state.world.events).find((event) => event.institutionalResponse?.stage === 'verification');
     const resolution = Object.values(settled.state.world.events).find((event) => event.institutionalResponse?.stage === 'resolution');
     expect(verification?.institutionalResponse?.verification?.outcome).toBe('accepted');
@@ -285,7 +293,7 @@ describe('institutional response lifecycle', () => {
         originMatterId: MATTER_IDS.roofRepair, status, expiresDay: 5 } as unknown as AssignmentOffer;
       const state = { ...base, opportunities: { ...base.opportunities,
         assignments: { ...base.opportunities.assignments, [assignmentId]: offer } } };
-      const settled = transitionGame(state, { type: 'END_DAY', expectedDayNumber: 1 });
+      const settled = nextWorkday(state, 1);
       expect(Object.values(settled.state.world.events).some((event) => event.institutionalResponse?.stage === 'resolution')).toBe(true);
     }
 
@@ -295,7 +303,7 @@ describe('institutional response lifecycle', () => {
       status: 'accepted' } as unknown as AssignmentOffer;
     const state = { ...base, opportunities: { ...base.opportunities,
       assignments: { ...base.opportunities.assignments, [unrelated.id]: unrelated } } };
-    const settled = transitionGame(state, { type: 'END_DAY', expectedDayNumber: 1 });
+    const settled = nextWorkday(state, 1);
     expect(Object.values(settled.state.world.events).some((event) => event.institutionalResponse?.stage === 'resolution')).toBe(true);
   });
   it('verifies a remediation execution independently of an earlier rejected execution', () => {
@@ -350,7 +358,7 @@ describe('institutional response lifecycle', () => {
       },
       records: { ...base.records, entries: { ...base.records.entries, [secondRecord.id]: secondRecord } },
     };
-    const settled = transitionGame(state, { type: 'END_DAY', expectedDayNumber: 2 });
+    const settled = nextWorkday(state, 2);
     const secondVerification = Object.values(settled.state.world.events).find((event) =>
       event.institutionalResponse?.stage === 'verification' && event.institutionalResponse.verification?.executionEventId === secondExecutionId);
     const secondResolution = Object.values(settled.state.world.events).find((event) =>
@@ -361,7 +369,7 @@ describe('institutional response lifecycle', () => {
     expect(settled.state.world.matters[MATTER_IDS.roofRepair].status).toBe('resolved');
   });
   it('supersedes an unaccepted inspection offer when a later execution is recorded', () => {
-    const firstDay = transitionGame(stateWithExecution(false), { type: 'END_DAY', expectedDayNumber: 1 });
+    const firstDay = nextWorkday(stateWithExecution(false), 1);
     const oldOffer = Object.values(firstDay.state.opportunities.assignments).find((offer) =>
       offer.activityId === NORTH_BAY_POST_EXECUTION_ACTIVITY_ID && offer.originMatterId === MATTER_IDS.roofRepair);
     expect(oldOffer).toBeDefined();
@@ -379,7 +387,7 @@ describe('institutional response lifecycle', () => {
       world: { ...firstDay.state.world, events: { ...firstDay.state.world.events, [secondExecution.id]: secondExecution } } };
     const staleAcceptance = transitionGame(state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: oldOffer!.id });
     expect(staleAcceptance.feedback?.code).toBe('assignment-superseded');
-    const nextDay = transitionGame(state, { type: 'END_DAY', expectedDayNumber: 2 });
+    const nextDay = nextWorkday(state, 2);
     const latestOffer = Object.values(nextDay.state.opportunities.assignments).find((offer) =>
       offer.activityId === NORTH_BAY_POST_EXECUTION_ACTIVITY_ID && offer.originMatterId === MATTER_IDS.roofRepair
         && offer.id.endsWith(secondExecutionId));
