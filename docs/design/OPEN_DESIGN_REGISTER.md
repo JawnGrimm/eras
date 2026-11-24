@@ -26,7 +26,7 @@ Priority is a working triage, not a design decision. Reassess when the milestone
 
 **Game Director authoring direction — 24 November 2026:** Era I authored content (Assignments, Challenges, and UI copy) must deliver GDD §3.5's grounded humor, pettiness, human warmth, and messy bureaucracy. Keep records/evidence objective and reliable; let people around the desk be impatient, defensive, territorial, wry, exhausted, generous, and recognizably human. Express authority and evidentiary boundaries through lived situations and enforce them in actions/outcomes, not repetitive rulebook-prose prompts. Apply this to the five anchor scripts and subsequent playable content, as well as existing starter-prose cleanup. Historical discipline remains unchanged. See `dev/GD-ERA1-ANCHORS-001.md`.
 
-**Documentation reconciliation required:** The current Decision Register still contains superseded pre-approval wording for the Issue #85 technical design/schema migration. The Game Director's later Issue #85 approvals control; the stale Decision Register entry must be reconciled in a separate authorized documentation pass. The GDD also still lacks the implemented Evening Interlude clarification and still describes the v2 save boundary. These are queued under item 27; this update does not silently revise either authority document.
+**Documentation reconciliation required:** The current Decision Register still contains superseded pre-approval wording for the Issue #85 technical design/schema migration. The Game Director's later Issue #85 approvals control; the stale Decision Register entry must be reconciled in a separate authorized documentation pass. The GDD still lacks the implemented Evening Interlude clarification and describes the physical `scribe_game_v2` save key without distinguishing it from the now-v3 serialized envelope and rollback copy. These are queued under item 27; this update does not silently revise either authority document.
 
 | Priority | Open item / dependency | Why it sits here |
 |---|---|---|
@@ -104,7 +104,7 @@ These are open design tasks, not invitations to fill gaps with arbitrary placeho
    - Reconcile §22's persistence description with the approved schema-v3 envelope and v2→v3 migration/rollback contract. The physical `scribe_game_v2` storage slot is retained for compatibility; distinguish that key from the serialized schema version and the `scribe_game_v2_rollback` backup.
    - Replace or formally retire §4.3's legacy cumulative Historical Progress XP targets (73,000 / 1,887,050) only after the Era I Works and required portfolio are balanced. Do not change thresholds as documentation housekeeping alone.
 
-These are coordinated GDD maintenance tasks, not new design approvals. Preserve existing authority and cross-reference integrity; reconcile the Decision Register's superseded pre-approval wording for schema v3 / Issue #85 in the same authorized documentation pass. Update the GDD only after the integrated Issue #85 milestone and required approvals.
+These are coordinated documentation tasks, not new design approvals. Preserve existing authority and cross-reference integrity. Prepare a proposed Decision Register reconciliation for explicit review; do not treat its superseded pre-approval wording as controlling over the Game Director's later Issue #85 approvals. Do not modify the Decision Register or GDD in this register-only update. Update the GDD only after the integrated Issue #85 milestone and required approvals.
 
 ## Triage rules
 
