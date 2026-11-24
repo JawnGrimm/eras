@@ -24,6 +24,20 @@ function nonEmptyString(value: unknown): value is string {
 function finiteNonNegative(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value) && value >= 0;
 }
+function finiteNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value);
+}
+function isClosingReceipt(value: unknown): boolean {
+  return isObject(value)
+    && Number.isInteger(value.dayNumber) && (value.dayNumber as number) >= 1
+    && nonEmptyString(value.title) && nonEmptyString(value.disposition)
+    && ['Thorough','Defensible','Incomplete','Overreached'].includes(String(value.assessment))
+    && nonEmptyString(value.rationale) && nonEmptyString(value.reaction)
+    && (value.receiverName === undefined || nonEmptyString(value.receiverName))
+    && (value.compensationTiming === undefined || nonEmptyString(value.compensationTiming))
+    && isObject(value.deltas)
+    && ['currency','provisions','careerXp','judgment','institutionalStanding','trust','respect'].every((key) => finiteNumber(value.deltas[key]));
+}
 function score(value: unknown): value is number { return finiteNonNegative(value) && value <= 100; }
 function stringArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.every((item) => typeof item === 'string' && item.length > 0);
@@ -499,7 +513,10 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
       || offer.deliveryChannels.some((channel) => !isObject(channel) || typeof channel.explanation !== 'string' || !channel.explanation
         || !['baseline_reach','relationship','specialization','appointment','reputation'].includes(channel.kind as string))
       || (offer.lapsedDuringMandatoryWork !== undefined && typeof offer.lapsedDuringMandatoryWork !== 'boolean')
-      || (offer.assigneePersonId !== undefined && (typeof offer.assigneePersonId !== 'string' || !isObject(people[offer.assigneePersonId])))) return false;
+      || (offer.assigneePersonId !== undefined && (typeof offer.assigneePersonId !== 'string' || !isObject(people[offer.assigneePersonId])))
+      || (offer.compensationDisclosure !== undefined && !nonEmptyString(offer.compensationDisclosure))
+      || (offer.closingReceipt !== undefined && (!isClosingReceipt(offer.closingReceipt) || offer.status !== 'completed' || offer.closingReceipt.dayNumber > (calendar.dayNumber as number)))
+      || (offer.receiptAcknowledged !== undefined && (typeof offer.receiptAcknowledged !== 'boolean' || (offer.receiptAcknowledged && offer.closingReceipt === undefined)))) return false;
   }
   for (const [key, aggregate] of Object.entries(value.opportunities.assignmentAggregates)) {
     if (!isObject(aggregate) || aggregate.key !== key || !isObject(aggregate.employer)
@@ -521,7 +538,9 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
     || typeof outcome.challengeId !== 'string' || typeof outcome.title !== 'string' || typeof outcome.category !== 'string'
     || !Number.isInteger(outcome.resolvedDay) || (outcome.resolvedDay as number) < 1 || (outcome.resolvedDay as number) > (calendar.dayNumber as number)
     || typeof outcome.choiceId !== 'string' || typeof outcome.choiceLabel !== 'string' || typeof outcome.summary !== 'string'
-    || (outcome.assigneePersonId !== undefined && (typeof outcome.assigneePersonId !== 'string' || !isObject(people[outcome.assigneePersonId]))))) return false;
+    || (outcome.assigneePersonId !== undefined && (typeof outcome.assigneePersonId !== 'string' || !isObject(people[outcome.assigneePersonId])))
+    || (outcome.closingReceipt !== undefined && (!isClosingReceipt(outcome.closingReceipt) || outcome.closingReceipt.dayNumber > (calendar.dayNumber as number)))
+    || (outcome.receiptAcknowledged !== undefined && (typeof outcome.receiptAcknowledged !== 'boolean' || (outcome.receiptAcknowledged && outcome.closingReceipt === undefined)))) return false;
   for (const [id, challenge] of Object.entries(value.opportunities.challenges)) {
     if (!isObject(challenge) || challenge.id !== id || !['offered','accepted','declined'].includes(challenge.status as string)
       || (challenge.status === 'accepted' && (typeof challenge.assigneePersonId !== 'string' || !isObject(people[challenge.assigneePersonId])))
@@ -532,7 +551,12 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
       || new Set(challenge.choices.filter(isObject).map((choice) => choice.id)).size !== challenge.choices.length
       || challenge.choices.some((choice) => !isObject(choice) || typeof choice.id !== 'string' || !choice.id
         || typeof choice.label !== 'string' || !choice.label || typeof choice.description !== 'string' || !choice.description
-        || !isObject(choice.consequences) || !!validateOpportunityConsequences(choice.consequences as OpportunityConsequences | undefined, opportunityContext, 'authoring'))) return false;
+        || !isObject(choice.consequences) || !!validateOpportunityConsequences(choice.consequences as OpportunityConsequences | undefined, opportunityContext, 'authoring')
+        || (choice.evaluation !== undefined && (!isObject(choice.evaluation)
+          || !['Thorough','Defensible','Incomplete','Overreached'].includes(String(choice.evaluation.assessment))
+          || !nonEmptyString(choice.evaluation.rationale) || !nonEmptyString(choice.evaluation.reaction)
+          || (choice.evaluation.receiverPersonId !== undefined && (typeof choice.evaluation.receiverPersonId !== 'string' || !isObject(people[choice.evaluation.receiverPersonId])))
+          || (choice.evaluation.institutionId !== undefined && (typeof choice.evaluation.institutionId !== 'string' || !isObject(institutions[choice.evaluation.institutionId])))))) return false;
   }
   return finiteNonNegative(value.historicalProgression.historicalXp) && stringArray(value.historicalProgression.completedWorks)
     && new Set(value.historicalProgression.completedWorks).size === value.historicalProgression.completedWorks.length

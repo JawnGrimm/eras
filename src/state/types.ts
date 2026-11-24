@@ -298,6 +298,7 @@ export interface ClosingReceiptDeltas {
   institutionalStanding: number; trust: number; respect: number;
 }
 export interface ClosingReceiptPayload {
+  dayNumber: number;
   title: string;
   disposition: string;
   assessment: AssignmentAssessmentCategory;
@@ -347,6 +348,7 @@ export interface ChallengeChoice {
     assessment: AssignmentAssessmentCategory;
     rationale: string;
     receiverPersonId?: PersonId;
+    institutionId?: InstitutionId;
     reaction: string;
   };
 }
