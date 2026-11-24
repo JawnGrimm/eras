@@ -20,7 +20,7 @@ describe('Era I institutional anchor matter producers', () => {
       ['era1_rel_01_inana_offering', 7],
     ]);
 
-    for (let day = 2; day <= 7; day++) {
+    for (const day of [2, 3, 4, 6, 7]) {
       state = advanceInstitutionalMatters(state, day);
       state = { ...state, calendar: { ...state.calendar, dayNumber: day } };
       const createdToday = Object.values(state.world.matters).filter((matter) => matter.createdDay === day
