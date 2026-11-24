@@ -1,6 +1,7 @@
 import type { EventId, InstitutionId, LocationId, MatterId, PersonId, RecordId } from '../state/ids';
 import type { GameState, InstitutionalMatter, Person, RecordEntry } from '../state/types';
 import { ERA1_COM_F02_F04_PEOPLE, ERA1_COM_F02_RECORD_IDS, ERA1_COM_F03_RECORD_IDS, ERA1_COM_F04_RECORD_IDS } from '../content/assignments/eraICommercialFamilies';
+import { ERA1_MAR_PEOPLE, ERA1_MAR_F01_RECORD_IDS, ERA1_MAR_F02_RECORD_IDS, ERA1_MAR_F03_RECORD_IDS, ERA1_MAR_F04_RECORD_IDS } from '../content/assignments/eraIMartialFamilies';
 
 export const STOREHOUSE_INSTITUTION_ID = 'institution-uruk-temple-storehouse' as InstitutionId;
 export const NORTH_BAY_LOCATION_ID = 'location-uruk-temple-storehouse' as LocationId;
@@ -15,6 +16,9 @@ export const EANNA_TABLET_ROOM_LOCATION_ID = 'location-uruk-eanna-tablet-room' a
 export const TEXTILE_HOUSEHOLD_INSTITUTION_ID = 'institution-uruk-textile-household-provisional' as InstitutionId;
 export const TEXTILE_HOUSEHOLD_LOCATION_ID = 'location-uruk-textile-household-provisional' as LocationId;
 export const RIVER_LANDING_LOCATION_ID = 'location-uruk-river-landing-provisional' as LocationId;
+/** Provisional household context for the finite strongroom access incident. */
+export const HOUSEHOLD_STRONGROOM_INSTITUTION_ID = 'institution-uruk-household-strongroom-provisional' as InstitutionId;
+export const HOUSEHOLD_STRONGROOM_LOCATION_ID = 'location-uruk-household-strongroom-provisional' as LocationId;
 
 
 
@@ -550,6 +554,346 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
         activeMatters: [...institution.activeMatters, created.id],
       };
     }
+    changed = true;
+  }
+
+
+  // Martial family identities and institutional context are introduced lazily,
+  // so existing schema-v2 saves receive only the provisional participants needed
+  // when the corresponding finite source events become eligible.
+  const martialPeople = [
+    [ERA1_MAR_PEOPLE.ninDara, 'Nin-dara', HOUSEHOLD_STRONGROOM_INSTITUTION_ID, HOUSEHOLD_STRONGROOM_LOCATION_ID],
+    [ERA1_MAR_PEOPLE.sealingOwner, 'The sealing owner', HOUSEHOLD_STRONGROOM_INSTITUTION_ID, HOUSEHOLD_STRONGROOM_LOCATION_ID],
+    [ERA1_MAR_PEOPLE.luKala, 'Lu-kala', STOREHOUSE_INSTITUTION_ID, NORTH_BAY_LOCATION_ID],
+    [ERA1_MAR_PEOPLE.partyMember, 'A task-party member', STOREHOUSE_INSTITUTION_ID, NORTH_BAY_LOCATION_ID],
+    [ERA1_MAR_PEOPLE.urAb, 'Ur-ab', EANNA_INSTITUTION_ID, EANNA_TABLET_ROOM_LOCATION_ID],
+  ] as const;
+  if (nextDay >= 11) {
+    for (const [id, name, affiliation, locationId] of martialPeople) {
+      if (people[id]) continue;
+      people[id] = { id, name, alive: true, affiliations: [affiliation], currentLocationId: locationId, lifeStage: 'craft_practitioner' };
+      changed = true;
+    }
+    if (!institutions[HOUSEHOLD_STRONGROOM_INSTITUTION_ID]) {
+      institutions[HOUSEHOLD_STRONGROOM_INSTITUTION_ID] = {
+        id: HOUSEHOLD_STRONGROOM_INSTITUTION_ID,
+        name: 'Household strongroom (provisional authored context)',
+        locationId: HOUSEHOLD_STRONGROOM_LOCATION_ID,
+        responsibilities: ['Maintain household custody of a sealed storage space'],
+        authority: ['Household members determine access and authorize any inquiry'],
+        standing: 50,
+        activeMatters: [],
+      };
+      changed = true;
+    }
+    if (!locations[HOUSEHOLD_STRONGROOM_LOCATION_ID]) {
+      locations[HOUSEHOLD_STRONGROOM_LOCATION_ID] = { id: HOUSEHOLD_STRONGROOM_LOCATION_ID, name: 'Household strongroom, Uruk (provisional authored context)' };
+      changed = true;
+    }
+  }
+
+  // Martial F01: a finite household access incident. The differing closure
+  // impression, intact inventory, and attributed accounts remain separate
+  // sources; neither the seal nor the missing authorization link proves fault.
+  const mar01MatterId = 'matter-era1-mar-f01-door-opened' as MatterId;
+  if (nextDay >= 11 && !matters[mar01MatterId] && institutions[HOUSEHOLD_STRONGROOM_INSTITUTION_ID]) {
+    const eventId = 'event-era1-mar-f01-door-opened' as EventId;
+    const author = ERA1_MAR_PEOPLE.shuruppak;
+    records[ERA1_MAR_F01_RECORD_IDS.closureImpression] = createAuthoredSourceRecord({
+      id: ERA1_MAR_F01_RECORD_IDS.closureImpression, createdDay: nextDay, authorPersonId: author,
+      institutionId: HOUSEHOLD_STRONGROOM_INSTITUTION_ID, title: 'Present strongroom closure impression',
+      assertion: 'The present closure bears an impression different from the household sealing available for comparison.',
+      uncertaintyLimit: 'The impression identifies the seal used; it does not establish who was authorized to open the strongroom.',
+    });
+    records[ERA1_MAR_F01_RECORD_IDS.inventory] = createAuthoredSourceRecord({
+      id: ERA1_MAR_F01_RECORD_IDS.inventory, createdDay: nextDay, authorPersonId: author,
+      institutionId: HOUSEHOLD_STRONGROOM_INSTITUTION_ID, title: 'Strongroom contents inventory',
+      assertion: 'The contents checked are present and match the listed inventory.',
+      uncertaintyLimit: 'The inventory does not identify who entered the room or when the opening occurred.',
+    });
+    records[ERA1_MAR_F01_RECORD_IDS.ninDaraAccount] = createAuthoredSourceRecord({
+      id: ERA1_MAR_F01_RECORD_IDS.ninDaraAccount, createdDay: nextDay, authorPersonId: author,
+      reportedByPersonId: ERA1_MAR_PEOPLE.ninDara, institutionId: HOUSEHOLD_STRONGROOM_INSTITUTION_ID,
+      title: 'Nin-dara account of the opening',
+      assertion: 'Nin-dara says she opened the door for a man who showed a sealing.',
+      uncertaintyLimit: 'This is an attributed account; it does not establish the identity or authority of the person who showed the sealing.',
+    });
+    records[ERA1_MAR_F01_RECORD_IDS.ownerAccount] = createAuthoredSourceRecord({
+      id: ERA1_MAR_F01_RECORD_IDS.ownerAccount, createdDay: nextDay, authorPersonId: author,
+      reportedByPersonId: ERA1_MAR_PEOPLE.sealingOwner, institutionId: HOUSEHOLD_STRONGROOM_INSTITUTION_ID,
+      title: 'Sealing owner account',
+      assertion: 'The sealing owner says no one was sent to open the strongroom.',
+      uncertaintyLimit: 'The owner’s statement is attributed testimony and does not by itself establish who entered.',
+    });
+    records[ERA1_MAR_F01_RECORD_IDS.authorizationSearch] = createAuthoredSourceRecord({
+      id: ERA1_MAR_F01_RECORD_IDS.authorizationSearch, createdDay: nextDay, authorPersonId: author,
+      institutionId: HOUSEHOLD_STRONGROOM_INSTITUTION_ID, title: 'Search for an earlier authorization record',
+      assertion: 'No earlier authorization record is linked to this opening in the records examined.',
+      uncertaintyLimit: 'The absence of a linked record does not prove that no authorization was given.',
+    });
+    events[eventId] = {
+      id: eventId, dayNumber: nextDay,
+      summary: 'A household strongroom is found re-sealed with an impression different from the household sealing. Its checked contents match the inventory; two attributed accounts differ and no earlier authorization record is linked in the records examined.',
+      personIds: [ERA1_MAR_PEOPLE.luNanshe, ERA1_MAR_PEOPLE.ninDara, ERA1_MAR_PEOPLE.sealingOwner, ERA1_MAR_PEOPLE.urNanna, author],
+      institutionIds: [HOUSEHOLD_STRONGROOM_INSTITUTION_ID],
+      locationId: HOUSEHOLD_STRONGROOM_LOCATION_ID,
+    };
+    const matter: InstitutionalMatter = {
+      id: mar01MatterId, institutionId: HOUSEHOLD_STRONGROOM_INSTITUTION_ID,
+      kind: 'era1_mar_f01_door_opened',
+      summary: 'A household strongroom has been re-sealed with a different impression; the contents checked match the inventory, while the opening and its authorization remain unresolved.',
+      status: 'active', createdDay: nextDay, sourceEventId: eventId,
+      sourceRecordId: ERA1_MAR_F01_RECORD_IDS.closureImpression, locationId: HOUSEHOLD_STRONGROOM_LOCATION_ID,
+      involvedPersonIds: [ERA1_MAR_PEOPLE.luNanshe, ERA1_MAR_PEOPLE.ninDara, ERA1_MAR_PEOPLE.sealingOwner, ERA1_MAR_PEOPLE.urNanna, author],
+      provenance: [
+        { id: 'mar01-closure-impression', kind: 'record_copy', sourceId: ERA1_MAR_F01_RECORD_IDS.closureImpression, description: 'The present closure impression and its comparison.' },
+        { id: 'mar01-inventory', kind: 'record_copy', sourceId: ERA1_MAR_F01_RECORD_IDS.inventory, description: 'The checked contents and listed inventory.' },
+        { id: 'mar01-nin-dara-account', kind: 'record_copy', sourceId: ERA1_MAR_F01_RECORD_IDS.ninDaraAccount, description: 'Nin-dara’s separately attributed account.' },
+        { id: 'mar01-owner-account', kind: 'record_copy', sourceId: ERA1_MAR_F01_RECORD_IDS.ownerAccount, description: 'The sealing owner’s separately attributed account.' },
+        { id: 'mar01-authorization-search', kind: 'record_copy', sourceId: ERA1_MAR_F01_RECORD_IDS.authorizationSearch, description: 'The bounded search for a linked authorization record.' },
+        { id: 'mar01-source-event', kind: 'event', sourceId: eventId, description: 'The distinct household access incident.' },
+      ],
+    };
+    matters[matter.id] = matter;
+    institutions[HOUSEHOLD_STRONGROOM_INSTITUTION_ID] = {
+      ...institutions[HOUSEHOLD_STRONGROOM_INSTITUTION_ID],
+      activeMatters: [...institutions[HOUSEHOLD_STRONGROOM_INSTITUTION_ID].activeMatters, matter.id],
+    };
+    changed = true;
+  }
+
+  // Martial F02: the issue event is caused only by an active repair need.
+  // The return shortfall is a separate next-day event, not an automatic
+  // consequence of issuing tools or evidence of a formal muster.
+  const mar02MatterId = 'matter-era1-mar-f02-party-returns-short' as MatterId;
+  const mar02IssueEventId = 'event-era1-mar-f02-party-issue' as EventId;
+  if (nextDay >= 11 && !events[mar02IssueEventId]) {
+    const repairNeedOpen = Object.values(matters).some((matter) =>
+      matter.status === 'active' && (matter.kind === 'roof_repair_verification' || matter.kind === 'north_bay_water_ingress'));
+    if (repairNeedOpen && institutions[STOREHOUSE_INSTITUTION_ID]) {
+      records[ERA1_MAR_F02_RECORD_IDS.issueList] = createAuthoredSourceRecord({
+        id: ERA1_MAR_F02_RECORD_IDS.issueList, createdDay: nextDay, authorPersonId: ERA1_MAR_PEOPLE.shuruppak,
+        institutionId: STOREHOUSE_INSTITUTION_ID, title: 'Task-party tool and provision issue list',
+        assertion: 'Tools and provisions are recorded as issued to a sponsor-gathered party for the north-bay repair task.',
+        uncertaintyLimit: 'The issue list records this task-specific handover; it does not create a universal same-day return obligation or a formal muster.',
+      });
+      events[mar02IssueEventId] = {
+        id: mar02IssueEventId, dayNumber: nextDay,
+        summary: 'A sponsor-gathered task party receives tools and provisions for the active north-bay repair need. The issue list records the handover; no standing unit or formal muster is implied.',
+        personIds: [ERA1_MAR_PEOPLE.luNanshe, ERA1_MAR_PEOPLE.luKala, ERA1_MAR_PEOPLE.partyMember, ERA1_MAR_PEOPLE.dudu, ERA1_MAR_PEOPLE.urAb],
+        institutionIds: [STOREHOUSE_INSTITUTION_ID], locationId: NORTH_BAY_LOCATION_ID,
+      };
+      changed = true;
+    }
+  }
+  if (nextDay >= 12 && !matters[mar02MatterId] && events[mar02IssueEventId]
+    && events[mar02IssueEventId].dayNumber < nextDay) {
+    const eventId = 'event-era1-mar-f02-party-return' as EventId;
+    records[ERA1_MAR_F02_RECORD_IDS.returnCount] = createAuthoredSourceRecord({
+      id: ERA1_MAR_F02_RECORD_IDS.returnCount, createdDay: nextDay, authorPersonId: ERA1_MAR_PEOPLE.shuruppak,
+      institutionId: STOREHOUSE_INSTITUTION_ID, title: 'Task-party return count',
+      assertion: 'The return count lists tools returned and tools not yet accounted for.',
+      uncertaintyLimit: 'The count records a gap but does not establish whether tools were lost, left at the site, or retained for another workday.',
+    });
+    records[ERA1_MAR_F02_RECORD_IDS.luKalaAccount] = createAuthoredSourceRecord({
+      id: ERA1_MAR_F02_RECORD_IDS.luKalaAccount, createdDay: nextDay, authorPersonId: ERA1_MAR_PEOPLE.shuruppak,
+      reportedByPersonId: ERA1_MAR_PEOPLE.luKala, institutionId: STOREHOUSE_INSTITUTION_ID,
+      title: 'Lu-kala account of the task-party return',
+      assertion: 'Lu-kala says some tools were left at the work site for the next day and one person has not yet returned.',
+      uncertaintyLimit: 'This is an attributed account and does not prove deliberate retention or neglect.',
+    });
+    records[ERA1_MAR_F02_RECORD_IDS.partyMemberAccount] = createAuthoredSourceRecord({
+      id: ERA1_MAR_F02_RECORD_IDS.partyMemberAccount, createdDay: nextDay, authorPersonId: ERA1_MAR_PEOPLE.shuruppak,
+      reportedByPersonId: ERA1_MAR_PEOPLE.partyMember, institutionId: STOREHOUSE_INSTITUTION_ID,
+      title: 'Task-party member account',
+      assertion: 'A returning party member gives a different account of one missing tool and the person still away.',
+      uncertaintyLimit: 'This is attributed testimony, not a disciplinary finding or independently verified count.',
+    });
+    records[ERA1_MAR_F02_RECORD_IDS.siteObservation] = createAuthoredSourceRecord({
+      id: ERA1_MAR_F02_RECORD_IDS.siteObservation, createdDay: nextDay, authorPersonId: ERA1_MAR_PEOPLE.shuruppak,
+      reportedByPersonId: ERA1_MAR_PEOPLE.urAb, institutionId: STOREHOUSE_INSTITUTION_ID,
+      title: 'Work-site observation',
+      assertion: 'A watcher reports that tools may have been left at the repair site.',
+      uncertaintyLimit: 'The observation is a lead for a site visit, not proof of the final count or anyone’s conduct.',
+    });
+    events[eventId] = {
+      id: eventId, dayNumber: nextDay,
+      summary: 'The sponsor-gathered party returns from the repair task with tools not yet accounted for and one person still away. The issue list, return count, and attributed accounts remain distinct.',
+      personIds: [ERA1_MAR_PEOPLE.luNanshe, ERA1_MAR_PEOPLE.luKala, ERA1_MAR_PEOPLE.partyMember, ERA1_MAR_PEOPLE.dudu, ERA1_MAR_PEOPLE.urAb],
+      institutionIds: [STOREHOUSE_INSTITUTION_ID], locationId: NORTH_BAY_LOCATION_ID,
+    };
+    const matter: InstitutionalMatter = {
+      id: mar02MatterId, institutionId: STOREHOUSE_INSTITUTION_ID, kind: 'era1_mar_f02_party_returns_short',
+      summary: 'A sponsor-gathered task party has returned with tools not yet accounted for and one person still away; the reason remains unresolved.',
+      status: 'active', createdDay: nextDay, sourceEventId: eventId,
+      sourceRecordId: ERA1_MAR_F02_RECORD_IDS.returnCount, locationId: NORTH_BAY_LOCATION_ID,
+      involvedPersonIds: [ERA1_MAR_PEOPLE.luNanshe, ERA1_MAR_PEOPLE.luKala, ERA1_MAR_PEOPLE.partyMember, ERA1_MAR_PEOPLE.dudu, ERA1_MAR_PEOPLE.urAb],
+      provenance: [
+        { id: 'mar02-issue-list', kind: 'record_copy', sourceId: ERA1_MAR_F02_RECORD_IDS.issueList, description: 'The earlier task-specific issue list.' },
+        { id: 'mar02-return-count', kind: 'record_copy', sourceId: ERA1_MAR_F02_RECORD_IDS.returnCount, description: 'The separate return count.' },
+        { id: 'mar02-lu-kala-account', kind: 'record_copy', sourceId: ERA1_MAR_F02_RECORD_IDS.luKalaAccount, description: 'Lu-kala’s attributed account.' },
+        { id: 'mar02-party-member-account', kind: 'record_copy', sourceId: ERA1_MAR_F02_RECORD_IDS.partyMemberAccount, description: 'The party member’s attributed account.' },
+        { id: 'mar02-site-observation', kind: 'record_copy', sourceId: ERA1_MAR_F02_RECORD_IDS.siteObservation, description: 'The watcher’s site observation.' },
+        { id: 'mar02-issue-event', kind: 'event', sourceId: mar02IssueEventId, description: 'The earlier issue event.' },
+        { id: 'mar02-return-event', kind: 'event', sourceId: eventId, description: 'The distinct later return event.' },
+      ],
+    };
+    matters[matter.id] = matter;
+    institutions[STOREHOUSE_INSTITUTION_ID] = {
+      ...institutions[STOREHOUSE_INSTITUTION_ID],
+      activeMatters: [...institutions[STOREHOUSE_INSTITUTION_ID].activeMatters, matter.id],
+    };
+    changed = true;
+  }
+
+  // Martial F03: preserve a distinct dispatch and later overdue-arrival event.
+  const mar03MatterId = 'matter-era1-mar-f03-late-turned-aside' as MatterId;
+  const mar03DispatchEventId = 'event-era1-mar-f03-dispatch' as EventId;
+  if (nextDay >= 11 && !events[mar03DispatchEventId] && institutions[TEXTILE_HOUSEHOLD_INSTITUTION_ID]) {
+    records[ERA1_MAR_F03_RECORD_IDS.dispatch] = createAuthoredSourceRecord({
+      id: ERA1_MAR_F03_RECORD_IDS.dispatch, createdDay: nextDay, authorPersonId: ERA1_MAR_PEOPLE.shuruppak,
+      reportedByPersonId: ERA1_MAR_PEOPLE.gemeInana, institutionId: TEXTILE_HOUSEHOLD_INSTITUTION_ID,
+      title: 'Household outbound dispatch and expected arrival',
+      assertion: 'A valued load is dispatched with an expected arrival recorded.',
+      uncertaintyLimit: 'The dispatch establishes the plan, not arrival at the destination or the cause of any later delay.',
+    });
+    events[mar03DispatchEventId] = {
+      id: mar03DispatchEventId, dayNumber: nextDay,
+      summary: 'A valued load leaves the textile household with an expected arrival. The dispatch records the plan but does not establish arrival.',
+      personIds: [ERA1_MAR_PEOPLE.gemeInana, ERA1_MAR_PEOPLE.enlilKisu, ERA1_MAR_PEOPLE.kuli],
+      institutionIds: [TEXTILE_HOUSEHOLD_INSTITUTION_ID], locationId: TEXTILE_HOUSEHOLD_LOCATION_ID,
+    };
+    changed = true;
+  }
+  if (nextDay >= 12 && !matters[mar03MatterId] && events[mar03DispatchEventId]
+    && events[mar03DispatchEventId].dayNumber < nextDay) {
+    const eventId = 'event-era1-mar-f03-late-turned-aside' as EventId;
+    records[ERA1_MAR_F03_RECORD_IDS.enlilAccount] = createAuthoredSourceRecord({
+      id: ERA1_MAR_F03_RECORD_IDS.enlilAccount, createdDay: nextDay, authorPersonId: ERA1_MAR_PEOPLE.shuruppak,
+      reportedByPersonId: ERA1_MAR_PEOPLE.enlilKisu, institutionId: TEXTILE_HOUSEHOLD_INSTITUTION_ID,
+      title: 'Carrier account of the halt',
+      assertion: 'Enlil-kisu says the carrying party halted at a landing because the approach route was unsafe.',
+      uncertaintyLimit: 'The carrier’s account does not independently establish danger on the route or the cause of the delay.',
+    });
+    records[ERA1_MAR_F03_RECORD_IDS.landingObservation] = createAuthoredSourceRecord({
+      id: ERA1_MAR_F03_RECORD_IDS.landingObservation, createdDay: nextDay, authorPersonId: ERA1_MAR_PEOPLE.shuruppak,
+      reportedByPersonId: ERA1_MAR_PEOPLE.amaGi, institutionId: TEXTILE_HOUSEHOLD_INSTITUTION_ID,
+      title: 'Landing observation',
+      assertion: 'Ama-gi reports that the carrying party was at the landing later than expected.',
+      uncertaintyLimit: 'The observation establishes reported presence and delay, not the reason for the halt or the load’s final destination.',
+    });
+    records[ERA1_MAR_F03_RECORD_IDS.messageClaim] = createAuthoredSourceRecord({
+      id: ERA1_MAR_F03_RECORD_IDS.messageClaim, createdDay: nextDay, authorPersonId: ERA1_MAR_PEOPLE.shuruppak,
+      reportedByPersonId: ERA1_MAR_PEOPLE.sigAna, institutionId: TEXTILE_HOUSEHOLD_INSTITUTION_ID,
+      title: 'Claimed change-of-plan message',
+      assertion: 'Sig-ana says word of a change was sent.',
+      uncertaintyLimit: 'No record confirms who carried the message or whether Geme-Inana received it.',
+    });
+    events[eventId] = {
+      id: eventId, dayNumber: nextDay,
+      summary: 'The expected arrival passes without a receipt. The carrier reports a halt, a landing observation places the party there later than expected, and a change-of-plan message is claimed but unconfirmed.',
+      personIds: [ERA1_MAR_PEOPLE.gemeInana, ERA1_MAR_PEOPLE.enlilKisu, ERA1_MAR_PEOPLE.amaGi, ERA1_MAR_PEOPLE.sigAna, ERA1_MAR_PEOPLE.kuli],
+      institutionIds: [TEXTILE_HOUSEHOLD_INSTITUTION_ID], locationId: RIVER_LANDING_LOCATION_ID,
+    };
+    const matter: InstitutionalMatter = {
+      id: mar03MatterId, institutionId: TEXTILE_HOUSEHOLD_INSTITUTION_ID, kind: 'era1_mar_f03_late_turned_aside',
+      summary: 'A valued load has not arrived by its expected day; the carrier account, landing observation, and claimed message do not establish the cause of delay.',
+      status: 'active', createdDay: nextDay, sourceEventId: eventId,
+      sourceRecordId: ERA1_MAR_F03_RECORD_IDS.dispatch, locationId: RIVER_LANDING_LOCATION_ID,
+      involvedPersonIds: [ERA1_MAR_PEOPLE.gemeInana, ERA1_MAR_PEOPLE.enlilKisu, ERA1_MAR_PEOPLE.amaGi, ERA1_MAR_PEOPLE.sigAna, ERA1_MAR_PEOPLE.kuli],
+      provenance: [
+        { id: 'mar03-dispatch', kind: 'record_copy', sourceId: ERA1_MAR_F03_RECORD_IDS.dispatch, description: 'The earlier dispatch and expected arrival.' },
+        { id: 'mar03-enlil-account', kind: 'record_copy', sourceId: ERA1_MAR_F03_RECORD_IDS.enlilAccount, description: 'The carrier’s attributed account of the halt.' },
+        { id: 'mar03-landing-observation', kind: 'record_copy', sourceId: ERA1_MAR_F03_RECORD_IDS.landingObservation, description: 'The landing observation.' },
+        { id: 'mar03-message-claim', kind: 'record_copy', sourceId: ERA1_MAR_F03_RECORD_IDS.messageClaim, description: 'The claimed but unconfirmed message.' },
+        { id: 'mar03-dispatch-event', kind: 'event', sourceId: mar03DispatchEventId, description: 'The distinct earlier dispatch event.' },
+        { id: 'mar03-late-event', kind: 'event', sourceId: eventId, description: 'The later event after expected arrival passes.' },
+      ],
+    };
+    matters[matter.id] = matter;
+    institutions[TEXTILE_HOUSEHOLD_INSTITUTION_ID] = {
+      ...institutions[TEXTILE_HOUSEHOLD_INSTITUTION_ID],
+      activeMatters: [...institutions[TEXTILE_HOUSEHOLD_INSTITUTION_ID].activeMatters, matter.id],
+    };
+    changed = true;
+  }
+
+  // Martial F04: removal and workshop receipt precede a separate overdue-return
+  // event. The missing entry is not treated as proof that no handover occurred.
+  const mar04MatterId = 'matter-era1-mar-f04-valued-object-trail' as MatterId;
+  const mar04RemovalEventId = 'event-era1-mar-f04-object-removed' as EventId;
+  if (nextDay >= 12 && !events[mar04RemovalEventId] && institutions[EANNA_INSTITUTION_ID]) {
+    records[ERA1_MAR_F04_RECORD_IDS.removalNote] = createAuthoredSourceRecord({
+      id: ERA1_MAR_F04_RECORD_IDS.removalNote, createdDay: nextDay, authorPersonId: ERA1_MAR_PEOPLE.shuruppak,
+      institutionId: EANNA_INSTITUTION_ID, title: 'Valued-object removal note',
+      assertion: 'A valued object is recorded leaving permanent storage for repair or cleaning.',
+      uncertaintyLimit: 'The removal note establishes the recorded departure, not the object’s later custody or present location.',
+    });
+    records[ERA1_MAR_F04_RECORD_IDS.workshopReceipt] = createAuthoredSourceRecord({
+      id: ERA1_MAR_F04_RECORD_IDS.workshopReceipt, createdDay: nextDay, authorPersonId: ERA1_MAR_PEOPLE.shuruppak,
+      reportedByPersonId: ERA1_MAR_PEOPLE.urLamma, institutionId: EANNA_INSTITUTION_ID,
+      title: 'Workshop receipt for valued object',
+      assertion: 'The workshop receipt records the object arriving with Ur-Lamma for repair or cleaning.',
+      uncertaintyLimit: 'The receipt establishes workshop arrival, not a later return handover.',
+    });
+    events[mar04RemovalEventId] = {
+      id: mar04RemovalEventId, dayNumber: nextDay,
+      summary: 'A valued object is recorded leaving permanent storage for repair or cleaning, and a separate workshop receipt records its arrival.',
+      personIds: [ERA1_MAR_PEOPLE.luNanshe, ERA1_MAR_PEOPLE.urNanna, ERA1_MAR_PEOPLE.urLamma, ERA1_MAR_PEOPLE.enlilKisu, ERA1_MAR_PEOPLE.urAb],
+      institutionIds: [EANNA_INSTITUTION_ID, STOREHOUSE_INSTITUTION_ID], locationId: EANNA_TABLET_ROOM_LOCATION_ID,
+    };
+    changed = true;
+  }
+  if (nextDay >= 13 && !matters[mar04MatterId] && events[mar04RemovalEventId]
+    && events[mar04RemovalEventId].dayNumber < nextDay) {
+    const eventId = 'event-era1-mar-f04-object-return-overdue' as EventId;
+    records[ERA1_MAR_F04_RECORD_IDS.storehouseSearch] = createAuthoredSourceRecord({
+      id: ERA1_MAR_F04_RECORD_IDS.storehouseSearch, createdDay: nextDay, authorPersonId: ERA1_MAR_PEOPLE.shuruppak,
+      institutionId: STOREHOUSE_INSTITUTION_ID, title: 'Storehouse return-entry search',
+      assertion: 'No return handover entry is located in the Storehouse record examined.',
+      uncertaintyLimit: 'The absence of a located entry does not prove that a spoken handover did not occur.',
+    });
+    records[ERA1_MAR_F04_RECORD_IDS.enlilAccount] = createAuthoredSourceRecord({
+      id: ERA1_MAR_F04_RECORD_IDS.enlilAccount, createdDay: nextDay, authorPersonId: ERA1_MAR_PEOPLE.shuruppak,
+      reportedByPersonId: ERA1_MAR_PEOPLE.enlilKisu, institutionId: EANNA_INSTITUTION_ID,
+      title: 'Enlil-kisu account of the object movement',
+      assertion: 'Enlil-kisu gives an account of carrying the object between locations.',
+      uncertaintyLimit: 'The account may identify an interval to check but does not establish where the object is now.',
+    });
+    records[ERA1_MAR_F04_RECORD_IDS.urAbAccount] = createAuthoredSourceRecord({
+      id: ERA1_MAR_F04_RECORD_IDS.urAbAccount, createdDay: nextDay, authorPersonId: ERA1_MAR_PEOPLE.shuruppak,
+      reportedByPersonId: ERA1_MAR_PEOPLE.urAb, institutionId: EANNA_INSTITUTION_ID,
+      title: 'Ur-ab observation near the yard',
+      assertion: 'Ur-ab reports seeing part of the movement near the yard.',
+      uncertaintyLimit: 'This attributed observation does not establish the complete custody chain or individual fault.',
+    });
+    events[eventId] = {
+      id: eventId, dayNumber: nextDay,
+      summary: 'The expected return handover has not been located in the Storehouse record examined. The removal note and workshop receipt remain distinct from the later search and attributed accounts.',
+      personIds: [ERA1_MAR_PEOPLE.luNanshe, ERA1_MAR_PEOPLE.urNanna, ERA1_MAR_PEOPLE.urLamma, ERA1_MAR_PEOPLE.enlilKisu, ERA1_MAR_PEOPLE.urAb],
+      institutionIds: [EANNA_INSTITUTION_ID, STOREHOUSE_INSTITUTION_ID], locationId: EANNA_TABLET_ROOM_LOCATION_ID,
+    };
+    const matter: InstitutionalMatter = {
+      id: mar04MatterId, institutionId: EANNA_INSTITUTION_ID, kind: 'era1_mar_f04_valued_object_trail',
+      summary: 'A valued object was recorded leaving permanent storage and arriving at a workshop, but no return handover is located in the Storehouse record examined.',
+      status: 'active', createdDay: nextDay, sourceEventId: eventId,
+      sourceRecordId: ERA1_MAR_F04_RECORD_IDS.storehouseSearch, locationId: EANNA_TABLET_ROOM_LOCATION_ID,
+      involvedPersonIds: [ERA1_MAR_PEOPLE.luNanshe, ERA1_MAR_PEOPLE.urNanna, ERA1_MAR_PEOPLE.urLamma, ERA1_MAR_PEOPLE.enlilKisu, ERA1_MAR_PEOPLE.urAb],
+      provenance: [
+        { id: 'mar04-removal-note', kind: 'record_copy', sourceId: ERA1_MAR_F04_RECORD_IDS.removalNote, description: 'The removal note.' },
+        { id: 'mar04-workshop-receipt', kind: 'record_copy', sourceId: ERA1_MAR_F04_RECORD_IDS.workshopReceipt, description: 'The workshop receipt.' },
+        { id: 'mar04-storehouse-search', kind: 'record_copy', sourceId: ERA1_MAR_F04_RECORD_IDS.storehouseSearch, description: 'The Storehouse return-entry search.' },
+        { id: 'mar04-enlil-account', kind: 'record_copy', sourceId: ERA1_MAR_F04_RECORD_IDS.enlilAccount, description: 'Enlil-kisu’s attributed account.' },
+        { id: 'mar04-ur-ab-account', kind: 'record_copy', sourceId: ERA1_MAR_F04_RECORD_IDS.urAbAccount, description: 'Ur-ab’s attributed observation.' },
+        { id: 'mar04-removal-event', kind: 'event', sourceId: mar04RemovalEventId, description: 'The earlier removal and workshop-receipt event.' },
+        { id: 'mar04-overdue-event', kind: 'event', sourceId: eventId, description: 'The separate later overdue-return event.' },
+      ],
+    };
+    matters[matter.id] = matter;
+    institutions[EANNA_INSTITUTION_ID] = {
+      ...institutions[EANNA_INSTITUTION_ID],
+      activeMatters: [...institutions[EANNA_INSTITUTION_ID].activeMatters, matter.id],
+    };
     changed = true;
   }
 
