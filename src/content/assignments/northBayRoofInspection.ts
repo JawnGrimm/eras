@@ -25,7 +25,7 @@ export interface AssignmentActivityActionDefinition {
   id: string; family: 'consult' | 'observe' | 'compare'; label: string; description: string;
   apCost: number; prerequisites?: string[]; discoveryIds: string[]; consultedPersonId?: PersonId;
 }
-export interface AssignmentActivityDiscoveryDefinition { id: string; title: string; text: string; }
+export interface AssignmentActivityDiscoveryDefinition { id: string; title: string; text: string; sourcePersonId?: PersonId; sourceRecordId?: import('../../state/ids').RecordId; sourceEventId?: import('../../state/ids').EventId; }
 export interface AssignmentActivityReportSchema {
   title: string;
   responsibilityLabel: string;
@@ -46,6 +46,8 @@ export interface AssignmentActivityEvaluation {
   unsupportedRecommendationIds?: string[];
   unsupportedFindingConditions?: Array<{ findingId: string; requiredEvidenceIds: string[] }>;
   receiverPersonId?: PersonId;
+  /** Additional people whose trust/respect respond to the fairness of the submitted report. */
+  relationshipPersonIds?: PersonId[];
   rationales: Record<import('../../state/types').AssignmentAssessmentCategory, string>;
   reactions: Record<import('../../state/types').AssignmentAssessmentCategory, string>;
 }
@@ -237,6 +239,7 @@ export function validateAssignmentActivityDefinition(definition: AssignmentActiv
   const discoveryIds = new Set<string>(definition.discoveries.map((item) => item.id));
   if (actionIds.size !== definition.actions.length) issues.push('Action IDs must be unique.');
   if (discoveryIds.size !== definition.discoveries.length) issues.push('Discovery IDs must be unique.');
+  if (definition.discoveries.some((item) => item.sourcePersonId && !definition.participants.includes(item.sourcePersonId))) issues.push('Discovery source PersonId must be an activity participant.');
   if (!definition.id || !definition.title || !Number.isInteger(definition.submissionApCost) || definition.submissionApCost < 1 || definition.submissionApCost > 6) issues.push('Activity identity and submission AP (1..6) are required.');
   for (const [field, options] of Object.entries({ findings: definition.reportSchema.findings, responsibilityClaims: definition.reportSchema.responsibilityClaims, recommendations: definition.reportSchema.recommendations })) {
     if (!Array.isArray(options) || options.length === 0 || new Set(options.map((option) => option.id)).size !== options.length || options.some((option) => !option.id.trim() || !option.label.trim())) issues.push(`Report schema ${field} must contain unique, labeled options.`);
@@ -260,6 +263,7 @@ export function validateAssignmentActivityDefinition(definition: AssignmentActiv
       }
     }
     if (evaluation.receiverPersonId && !definition.participants.includes(evaluation.receiverPersonId)) issues.push('Evaluation receiver must be an activity participant.');
+    if ((evaluation.relationshipPersonIds ?? []).some((id) => !definition.participants.includes(id))) issues.push('Additional relationship recipients must be activity participants.');
     for (const category of ['Thorough','Defensible','Incomplete','Overreached'] as const) {
       if (!evaluation.rationales[category]?.trim() || !evaluation.reactions[category]?.trim()) issues.push(`Evaluation needs authored ${category} rationale and reaction.`);
     }
