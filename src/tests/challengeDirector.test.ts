@@ -147,7 +147,7 @@ describe('Challenge candidate selection and occurrence lifecycle', () => {
   it('updates an occurrence ledger through accepted and completed Challenge states', () => {
     const base = createInitialGameState();
     const sourceEventId = Object.keys(base.world.events)[0] as EventId;
-    const id = 'scenario-a|matter:matter-a|primary:event:' + sourceEventId;
+    const id = ('scenario-a|matter:matter-a|primary:event:' + sourceEventId) as ChallengeId;
     const item = challenge(id);
     const state: GameState = {
       ...base,
@@ -171,12 +171,12 @@ describe('Challenge candidate selection and occurrence lifecycle', () => {
     }, { type: 'PRESENT_CHALLENGE', challenge: item });
     expect(duplicate.feedback?.code).toBe('challenge-occurrence-duplicate');
 
-    const accepted = transitionOpportunityAction(state, { type: 'ACCEPT_CHALLENGE', challengeId: id as ChallengeId });
+    const accepted = transitionOpportunityAction(state, { type: 'ACCEPT_CHALLENGE', challengeId: id });
     expect(accepted.state.opportunities.occurrenceLedger[0].lifecycle).toBe('accepted');
     expect(accepted.state.opportunities.occurrenceLedger[0].assigneePersonId).toBe(state.player.currentCharacterId);
 
     const resolved = transitionOpportunityAction(accepted.state, {
-      type: 'RESOLVE_CHALLENGE', challengeId: id as ChallengeId, choiceId: 'preserve',
+      type: 'RESOLVE_CHALLENGE', challengeId: id, choiceId: 'preserve',
     });
     expect(resolved.feedback?.code).toBe('challenge-resolved');
     expect(resolved.state.opportunities.occurrenceLedger[0].lifecycle).toBe('completed');
@@ -186,7 +186,7 @@ describe('Challenge candidate selection and occurrence lifecycle', () => {
   it('persists Challenge occurrence provenance in the existing schema-v3 ledger', () => {
     const base = createInitialGameState();
     const sourceEventId = Object.keys(base.world.events)[0] as EventId;
-    const id = 'scenario-save|matter:matter-a|primary:event:' + sourceEventId;
+    const id = ('scenario-save|matter:matter-a|primary:event:' + sourceEventId) as ChallengeId;
     const item = challenge(id);
     const state: GameState = {
       ...base,
