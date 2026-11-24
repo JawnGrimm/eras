@@ -37,9 +37,10 @@ export function submitRubricAssignmentActivity(
   const scribal = getInitializedScribal(person);
   const matter = offer.originMatterId ? state.world.matters[offer.originMatterId] : undefined;
   const matterInstitutionId = matter?.institutionId;
+  const employerInstitutionId = offer.employer.kind === 'institution' ? offer.employer.id as InstitutionId : undefined;
   const institutionId: InstitutionId | undefined = matterInstitutionId && state.world.institutions[matterInstitutionId as InstitutionId]
     ? matterInstitutionId as InstitutionId
-    : offer.employer.kind === 'institution' ? offer.employer.id : undefined;
+    : employerInstitutionId;
   const institution = institutionId ? state.world.institutions[institutionId] : undefined;
   if (!rubric || !person || !scribal || !institution) return fail(state, 'assignment-activity-world-invalid', 'The anchor report lacks its authored evaluation or receiving institution.');
   const assessment = evaluateAssignmentAssessment(definition, progress);

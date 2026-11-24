@@ -1,12 +1,12 @@
-import type { ChallengeId, InstitutionId } from '../state/ids';
+import type { ChallengeId, InstitutionId, PersonId } from '../state/ids';
 import type { ChallengeInstance, ChallengeTriggerRule, GameState, OpportunityConsequences } from '../state/types';
 import { evaluateChallengeTriggers, transitionOpportunityAction } from './opportunities';
 import { MATTER_IDS } from './institutionalMatters';
 import { STOREHOUSE_WORK_ID } from '../works/storehouseReckoning';
 
 const STOREHOUSE = 'institution-uruk-temple-storehouse';
-const STEWARD = 'person-ur-nanna' as const;
-const SENIOR = 'person-shuruppak-ilu' as const;
+const STEWARD = 'person-ur-nanna' as PersonId;
+const SENIOR = 'person-shuruppak-ilu' as PersonId;
 
 /** Aggregate-based rule is evaluated against the compact counters and five-entry activity window. */
 export const CHALLENGE_TRIGGER_RULES: ChallengeTriggerRule[] = [
