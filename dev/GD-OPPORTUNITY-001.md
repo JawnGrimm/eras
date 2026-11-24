@@ -125,8 +125,6 @@ Preserve the GDD and Economy, Stress, and Ethical Consequences Specification:
 
 Track 1 acceptance must exercise Assignment compensation and END_DAY settlement together, including a character who finishes a Workday with one Provisions, receives provisions-in-kind or completes a visible replenishment action, and avoids depletion through the actual settlement order. Test that the replenishment route appears before the final unit is consumed; test a zero-Money case with a viable provisions-paid route; and test the no-work/no-contract path so no free ration is introduced.
 
-## 4. Track 2 — General Challenge Director
-
 
 ### 3.7 Between-days loop — Day-Close / Evening Interlude (APPROVED DIRECTION; SEQUENCE REVISED)
 
@@ -157,6 +155,8 @@ Track 1 acceptance must exercise Assignment compensation and END_DAY settlement 
 - Any barter/purchase/ration option appears only when historically, institutionally, and personally eligible; no universal free ration or negative balance.
 - Begin Workday finalizes sustenance/shortage exactly once, advances the calendar, initializes the correct AP budget, and only then presents the Morning Report and eligible Challenges.
 - No AP is added, no Work advances, and no repeatable labor/income can occur in the interlude.
+
+## 4. Track 2 — General Challenge Director
 
 ### 4.1 Authored scenario pool
 
