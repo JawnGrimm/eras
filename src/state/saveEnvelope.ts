@@ -541,7 +541,7 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
     || typeof outcome.choiceId !== 'string' || typeof outcome.choiceLabel !== 'string' || typeof outcome.summary !== 'string'
     || (outcome.assigneePersonId !== undefined && (typeof outcome.assigneePersonId !== 'string' || !isObject(people[outcome.assigneePersonId])))
     || (outcome.closingReceipt !== undefined && (!isClosingReceipt(outcome.closingReceipt) || outcome.closingReceipt.dayNumber > (calendar.dayNumber as number)))
-    || (outcome.receiptAcknowledged !== undefined && (typeof outcome.receiptAcknowledged !== 'boolean' || (outcome.receiptAcknowledged && outcome.closingReceipt === undefined)))) return false;
+    || (outcome.receiptAcknowledged !== undefined && (typeof outcome.receiptAcknowledged !== 'boolean' || (outcome.receiptAcknowledged && outcome.closingReceipt === undefined))))) return false;
   for (const [id, challenge] of Object.entries(value.opportunities.challenges)) {
     if (!isObject(challenge) || challenge.id !== id || !['offered','accepted','declined'].includes(challenge.status as string)
       || (challenge.status === 'accepted' && (typeof challenge.assigneePersonId !== 'string' || !isObject(people[challenge.assigneePersonId])))
@@ -557,7 +557,7 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
           || !['Thorough','Defensible','Incomplete','Overreached'].includes(String(choice.evaluation.assessment))
           || !nonEmptyString(choice.evaluation.rationale) || !nonEmptyString(choice.evaluation.reaction)
           || (choice.evaluation.receiverPersonId !== undefined && (typeof choice.evaluation.receiverPersonId !== 'string' || !isObject(people[choice.evaluation.receiverPersonId])))
-          || (choice.evaluation.institutionId !== undefined && (typeof choice.evaluation.institutionId !== 'string' || !isObject(institutions[choice.evaluation.institutionId])))))) return false;
+          || (choice.evaluation.institutionId !== undefined && (typeof choice.evaluation.institutionId !== 'string' || !isObject(institutions[choice.evaluation.institutionId]))))))) return false;
   }
   return finiteNonNegative(value.historicalProgression.historicalXp) && stringArray(value.historicalProgression.completedWorks)
     && new Set(value.historicalProgression.completedWorks).size === value.historicalProgression.completedWorks.length
