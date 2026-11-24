@@ -1,5 +1,5 @@
 import type { AssignmentOffer, AssignmentActivityProgress, GameState, TransitionResult, RecordEntry, RecordSource, RecordAssertion, KnowledgeEntry } from '../state/types';
-import type { AssignmentId, InstitutionId, KnowledgeEntryId, PersonId, RecordId } from '../state/ids';
+import type { InstitutionId, KnowledgeEntryId, PersonId, RecordId } from '../state/ids';
 import type { AssignmentActivityDefinition } from '../content/assignments/northBayRoofInspection';
 import { getInitializedScribal } from '../state/scribalState';
 import { applyClosingAssessment } from './closingReceipt';
@@ -89,6 +89,7 @@ export function submitEraIAnchorAssignmentActivity(
     title: definition.reportSchema.title, sources, assertions,
     uncertaintyLimits: systemCaveats, amendments: [],
   };
+  const receiverId = rubric.receiverPersonId;
   const reportProvenanceId = `assignment-report-${recordId}`;
   const updatedMatter = matter ? {
     ...matter,
@@ -116,8 +117,6 @@ export function submitEraIAnchorAssignmentActivity(
       basis: 'received-copy' as const, learnedDay: state.calendar.dayNumber, sourcePersonId: person.id,
     },
   ];
-  const receiverId = rubric.receiverPersonId;
-  const receiverName = receiverId ? state.world.people[receiverId]?.name : undefined;
   const reaction = rubric.reactions[assessment]
     .replaceAll('{finding}', finding?.label ?? progress.draft.finding)
     .replaceAll('{responsibility}', responsibility?.label ?? progress.draft.responsibilityClaim);
