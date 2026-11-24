@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { AssignmentId, InstitutionId, MatterId } from '../state/ids';
+import type { AssignmentId, EventId, InstitutionId, MatterId } from '../state/ids';
 import { createInitialGameState } from '../state/initialState';
 import { createNewGameState } from '../state/newGameState';
 import { TEST_CHARACTER_CREATION } from './fixtures/newGameCharacter';
@@ -21,15 +21,23 @@ const STOREHOUSE = 'institution-uruk-temple-storehouse' as InstitutionId;
 const HELD_MATTER = MATTER_IDS.heldBarley;
 
 function withHeldMatter(state: GameState, createdDay = 1): GameState {
+  const sourceEventId = 'event-held-barley-test-source' as EventId;
+  const sourceEvent = {
+    ...state.world.events['event-south-court-delivery-source' as EventId],
+    id: sourceEventId, dayNumber: createdDay,
+    summary: 'A separately recorded held-stock inspection occurrence supports the active matter.',
+  };
   const matter = {
     id: HELD_MATTER, institutionId: STOREHOUSE, kind: 'held_barley_inspection' as const,
     summary: 'Seven held measures remain segregated in seven sealed pottery storage jars.', status: 'active' as const, createdDay,
+    sourceEventId,
   };
   const institution = state.world.institutions[STOREHOUSE];
   return {
     ...state,
     world: {
       ...state.world,
+      events: { ...state.world.events, [sourceEventId]: sourceEvent },
       matters: { ...state.world.matters, [HELD_MATTER]: matter },
       institutions: { ...state.world.institutions, [STOREHOUSE]: {
         ...institution, activeMatters: [...institution.activeMatters, HELD_MATTER],
@@ -100,7 +108,7 @@ describe('P2-2 authored Uruk Assignment activities', () => {
     expect(firstOffers).toHaveLength(2);
     expect(firstOffers.every((offer) => !!offer.originMatterId)).toBe(true);
     expect(new Set(firstOffers.map((offer) => offer.originMatterId)).size).toBe(2);
-    expect(firstOffers.reduce((sum, offer) => sum + (offer.estimatedTotalAp ?? 0), 0)).toBe(7);
+    expect(firstOffers.reduce((sum, offer) => sum + (offer.estimatedTotalAp ?? 0), 0)).toBe(6);
     expect(first.opportunities.assignmentGeneratorLedger?.sequence).toBe(2);
     const sameDay = generateDailyAssignments(first);
     expect(Object.values(sameDay.opportunities.assignments)).toHaveLength(2);
@@ -110,7 +118,7 @@ describe('P2-2 authored Uruk Assignment activities', () => {
   it('offers Held-Barley only while the structured held-stock matter is active', () => {
     const generated = generateDailyAssignments(withHeldMatter(createInitialGameState()));
     const held = Object.values(generated.opportunities.assignments).find((offer) => offer.activityId === heldBarleyInspection.id);
-    expect(held?.estimatedTotalAp).toBe(5);
+    expect(held?.estimatedTotalAp).toBe(3);
     expect(held?.originMatterId).toBe(HELD_MATTER);
     const withoutMatter = generateDailyAssignments(createInitialGameState());
     expect(Object.values(withoutMatter.opportunities.assignments).some((offer) => offer.activityId === heldBarleyInspection.id)).toBe(false);

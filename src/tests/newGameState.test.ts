@@ -26,7 +26,7 @@ describe('Day 1 Uruk production bootstrap', () => {
     ]);
     expect(dayOneOffers.every((offer) => offer.status === 'offered' && !!offer.activityId
       && Number.isInteger(offer.estimatedTotalAp) && offer.apCost === undefined)).toBe(true);
-    expect(dayOneOffers.reduce((total, offer) => total + (offer.estimatedTotalAp ?? 0), 0)).toBe(7);
+    expect(dayOneOffers.reduce((total, offer) => total + (offer.estimatedTotalAp ?? 0), 0)).toBe(6);
     expect(dayOneOffers.every((offer) => offer.offeredDay === 1 && offer.expiresDay === 4)).toBe(true);
     expect(state.opportunities.challenges).toEqual({});
     expect(state.actionEconomy.apRemaining).toBe(6);

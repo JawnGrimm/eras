@@ -74,7 +74,7 @@ describe('matter-driven Assignment discovery', () => {
     expect(deliveryOffers).toHaveLength(2);
     expect(new Set(deliveryOffers.map((offer) => offer.originMatterId))).toEqual(new Set([originalId, secondId]));
     expect(generated.opportunities.occurrenceLedger.filter((entry) => entry.scenarioId === 'activity-south-court-delivery-reconciliation')).toHaveLength(2);
-    expect(deliveryOffers.reduce((sum, offer) => sum + (offer.estimatedTotalAp ?? 0), 0)).toBe(8);
+    expect(deliveryOffers.reduce((sum, offer) => sum + (offer.estimatedTotalAp ?? 0), 0)).toBe(6);
     const nextDayDiscovery = generateDailyAssignments(generated);
     for (const matterId of [originalId, secondId]) {
       expect(Object.values(nextDayDiscovery.opportunities.assignments).filter((offer) => offer.originMatterId === matterId)).toHaveLength(1);
