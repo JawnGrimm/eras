@@ -371,10 +371,16 @@ export function ProductionPeopleAndInstitutions({ initialSection = 'people', ini
   const selectedInstitutionAppointments = selectedInstitution
     ? Object.values(state.world.appointments).filter((item) => item.institutionId === selectedInstitution.id)
     : [];
-  const linkedRecordIds = new Set(selectedInstitutionMatters.flatMap((matter) => [
-    ...(matter.sourceRecordId ? [matter.sourceRecordId] : []),
-    ...(matter.provenance ?? []).filter((source) => source.kind === 'record_copy' && source.sourceId).map((source) => source.sourceId as RecordId),
-  ]));
+  const selectedInstitutionMatterIds = new Set(selectedInstitutionMatters.map((matter) => matter.id));
+  const linkedRecordIds = new Set([
+    ...selectedInstitutionMatters.flatMap((matter) => [
+      ...(matter.sourceRecordId ? [matter.sourceRecordId] : []),
+      ...(matter.provenance ?? []).filter((source) => source.kind === 'record_copy' && source.sourceId).map((source) => source.sourceId as RecordId),
+    ]),
+    ...Object.values(state.world.events)
+      .filter((event) => event.institutionalResponse && selectedInstitutionMatterIds.has(event.institutionalResponse.matterId))
+      .map((event) => event.institutionalResponse!.recordId),
+  ]);
   const selectedInstitutionRecords = selectedInstitution
     ? Object.values(state.records.entries).filter((record) => record.institutionId === selectedInstitution.id || linkedRecordIds.has(record.id))
     : [];
