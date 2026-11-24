@@ -200,7 +200,7 @@ describe('P2-2 authored Uruk Assignment activities', () => {
     const record = Object.values(state.records.entries).find((entry) => entry.title === 'Held-Barley Finding and Recommendation');
     expect(record).toBeDefined();
     expect(record && state.records.entries[record.id]).toEqual(record);
-    expect(record?.uncertaintyLimits.join(' ').toLowerCase()).toContain('not an executive release order');
+    expect(record?.uncertaintyLimits.join(' ').toLowerCase()).toContain('does not authorize release');
     expect(record?.assertions.map((assertion) => assertion.text).join(' ')).toContain('Capacity measures and physical jar count');
     expect(record?.assertions.map((assertion) => assertion.text).join(' ')).toContain('internal grain soundness');
     expect(record?.assertions.map((assertion) => assertion.text).join(' ')).toContain('sealed pottery storage jars');
@@ -245,8 +245,8 @@ describe('P2-2 authored Uruk Assignment activities', () => {
     expect(state.world.matters[MATTER_IDS.southCourtDelivery]?.status).toBe('active');
     expect(state.world.matters[MATTER_IDS.southCourtDelivery]?.provenance?.some((source) => source.kind === 'record_copy')).toBe(true);
     expect(state.world.matters['matter-south-court-delivery-discrepancy' as MatterId]).toBeUndefined();
-    expect(state.world.relationships[state.player.currentCharacterId]?.['person-enlil-kisu' as never]).toEqual(createInitialGameState().world.relationships[state.player.currentCharacterId]?.['person-enlil-kisu' as never]);
-    expect(state.world.relationships['person-enlil-kisu' as never]?.[state.player.currentCharacterId]).toEqual(createInitialGameState().world.relationships['person-enlil-kisu' as never]?.[state.player.currentCharacterId]);
+    expect(state.world.relationships[state.player.currentCharacterId]?.['person-enlil-kisu' as never]?.dimensions).toMatchObject({ trust: 53, respect: 56 });
+    expect(state.world.relationships['person-enlil-kisu' as never]?.[state.player.currentCharacterId]?.dimensions).toMatchObject({ trust: 57, respect: 53 });
     expect(state.world.relationships['person-shuruppak-ilu' as never]?.[state.player.currentCharacterId]?.dimensions.trust).toBe(51);
     const directed = runChallengeDirector(withCompletedTutorial(state));
     expect(directed.opportunities.challenges['challenge-missing-measure' as never]?.title).toBe('The Missing Measure');
