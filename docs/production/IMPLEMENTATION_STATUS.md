@@ -219,3 +219,43 @@ This is an implementation authorization and presentation rule, not a revision to
 - South-Court Responsibility choices add a second plausible scenario-specific claim beside “No individual responsibility assigned”; do not restore the unrelated Dudu option.
 
 **Current production state:** Issue #82 — CLOSED / VERIFIED. PR #87 — MERGED. Issue #85 — IN PROGRESS / AUTHORIZED. PR #90 — OPEN / CI PENDING. The next implementation slices remain gated on review and merge of the persistence foundation, then will proceed through Day-Close transitions and compensation timing before broader Assignment Supply / Challenge Director integration.
+
+
+## GD-CHALLENGE-DIRECTOR-002 — Challenge Director runtime progress — 24 November 2026
+
+**Verified main baseline:** `main` at `34dfbd2cd09e151cc2c19ddcaa03d8bbd8b32fe7`. A direct comparison confirms `main` is identical to this merge commit.
+
+### Authorization and merged slices
+
+- **GD-CHALLENGE-DIRECTOR-002:** APPROVED — READY FOR IMPLEMENTATION by PR #101. Documentation handoff merged as `59ed493de6d520c2839d9361fb69fc7ebf5c8358`. It authorizes the Challenge Director runtime work under Issue #85; it does not complete Issue #85.
+- **PR #102 — MERGED:** `c5f06ad2fdf96b7527a28bd8a3c00061fe5bad51`. Challenge evaluation now precedes Morning Report assembly in `BEGIN_WORKDAY`; an integration regression verifies that a newly selected Challenge appears in that same Workday's report exactly once. TypeScript, unit tests, production build, and CodeQL passed on its PR head.
+- **PR #103 — MERGED:** `34dfbd2cd09e151cc2c19ddcaa03d8bbd8b32fe7`. Adds an authored candidate pool retaining The Seven Sealed Jars and The Missing Measure; typed trigger resolution for player-action outcomes, professional-behavior patterns, event-linked relationship updates, institutional-matter updates, and directly referenced authored world events; deterministic weighted selection using the existing schema-v3 seed; canonical occurrence identity and source provenance; occurrence lifecycle updates; duplicate suppression; the tutorial gate; at-most-one arrival per evaluation; and the two-unresolved cap, excluding declined Challenges.
+
+### Technical and persistence decisions
+
+- Existing schema-v3 `selectionSeed` and `occurrenceLedger` are reused. No save field, schema version, or migration was added.
+- The canonical occurrence key is also the new Challenge instance ID, allowing the existing ledger entry to be found for lifecycle updates without changing `ChallengeInstance`.
+- New ledger entries retain the scenario ID, matter ID when applicable, primary Event/Record, required source IDs, actual delivery channels, presentation day, and lifecycle.
+- Legacy suppression uses existing fixed Challenge IDs, archived outcomes, and migrated legacy ledger entries. No missing historical cause or source identity is synthesized.
+- The two existing one-shot Era I candidates currently use equal authored weight 1. Their existing one-time semantics are retained.
+- The director selects at most one candidate per evaluation and does not create a queued backlog. A full unresolved cap skips evaluation; candidates are reconsidered only at a later normal evaluation if their causal facts remain eligible.
+
+### Validation actually executed
+
+On PR #103 head `5b0e9c7cdd2d920ac5e16ba6e7d9547ce2c89c6d`:
+- TypeScript check: **passed**.
+- Unit tests: **37 test files / 275 tests passed**.
+- Production build: **passed**.
+- CodeQL JavaScript/TypeScript analysis: **passed**.
+
+Local test/build execution was not performed in this environment. These results are the actual GitHub Actions results for the PR head. The merged main commit was verified by comparison; no deployment workflow run or deployment result was returned for that merge commit. Deployment is therefore **NOT VERIFIED / NOT RECORDED** here.
+
+### Remaining Issue #85 work
+
+- The typed resolver accepts a directional relationship update only when the latest history entry for the specifically referenced pair links to an existing Event. Several current relationship producers append history without an event link; those changes cannot be used as durable occurrence provenance under the existing Event/Record-only ledger contract. No synthetic event or schema change was introduced.
+- The current two Era I candidates do not use relationship-update or standalone authored-world-event triggers. The resolver supports both domains, but no additional scenario prose was invented.
+- Complete integrated Issue #85 acceptance remains outstanding: multi-day gameplay, all four orientations, unresolved-cap/decline/recurrence behavior in the playable flow, succession continuity, and relevant save/load compatibility must be verified together.
+- The non-blocking South-Court follow-ups remain outstanding on the verified main baseline: the Assignment offer card displays Money and Career XP but omits the authored +1 Provision compensation; the Responsibility list offers “No individual responsibility assigned” and an unsupported Enlil-kisu blame claim, but no second plausible scenario-specific claim. Do not restore the unrelated Dudu option.
+- Issue #85 remains **OPEN / IN PROGRESS**. The Challenge Director runtime slices are **IMPLEMENTED / TESTED / MERGED**; integrated acceptance is **NOT VERIFIED**; deployment is **NOT VERIFIED / NOT RECORDED**.
+
+This addendum supplements the earlier dated snapshots. It does not close Issue #85, amend the GDD, or claim deployment or manual acceptance.
