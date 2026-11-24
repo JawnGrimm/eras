@@ -239,6 +239,10 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
     };
     changed = true;
   }
+  if (nextDay >= 8 && !locations[ERA1_COM_F01_LOCATION_ID]) {
+    locations[ERA1_COM_F01_LOCATION_ID] = { id: ERA1_COM_F01_LOCATION_ID, name: 'Eanna receiving court, Uruk' };
+    changed = true;
+  }
   if (nextDay >= 8 && !locations[EANNA_TABLET_ROOM_LOCATION_ID]) {
     locations[EANNA_TABLET_ROOM_LOCATION_ID] = { id: EANNA_TABLET_ROOM_LOCATION_ID, name: 'Eanna precinct tablet room, Uruk' };
     changed = true;
