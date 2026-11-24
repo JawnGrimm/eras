@@ -560,6 +560,9 @@ export function validateEraIAssignmentAnchorPortfolio(
 ): string[] {
   const issues: string[] = [];
   const ids = scripts.map((script) => script.id);
+  if (scripts.length !== REQUIRED_ANCHOR_IDS.length) {
+    issues.push(`Era I anchor portfolio must contain exactly ${REQUIRED_ANCHOR_IDS.length} anchors.`);
+  }
   if (new Set(ids).size !== ids.length) issues.push('Anchor IDs must be unique.');
   for (const requiredId of REQUIRED_ANCHOR_IDS) {
     if (!ids.includes(requiredId)) issues.push(`Missing required Era I anchor: ${requiredId}.`);
