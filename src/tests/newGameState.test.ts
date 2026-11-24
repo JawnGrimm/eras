@@ -134,13 +134,17 @@ describe('Challenge character ownership', () => {
   });
 
   it('preserves accepted Challenge ownership through succession after a relationship is established in play', () => {
-    let state = presentFixtureChallenge(createNewGameState(TEST_CHARACTER_CREATION), 'challenge-succession-intro');
-    const introductoryChallengeId = 'challenge-succession-intro' as ChallengeId;
-    state = transitionGame(state, { type: 'ACCEPT_CHALLENGE', challengeId: introductoryChallengeId }).state;
-    state = transitionGame(state, {
-      type: 'RESOLVE_CHALLENGE', challengeId: introductoryChallengeId, choiceId: 'preserve-uncertain-reading',
-    }).state;
+    let state = createNewGameState(TEST_CHARACTER_CREATION);
     const originalPlayerId = state.player.currentCharacterId;
+    state = transitionGame(state, {
+      type: 'SET_RELATIONSHIP',
+      fromId: originalPlayerId,
+      toId: 'person-uruk-nin-aya' as PersonId,
+      relationship: {
+        dimensions: { trust: 60, respect: 55, affection: 20, resentment: 0, rivalry: 0, familiarity: 50 },
+        history: [{ id: 'relationship-apprentice-help', dayNumber: 1, summary: 'The apprentice and scribe completed a meaningful task together.' }],
+      },
+    }).state;
     const id = 'challenge-handoff-ownership' as ChallengeId;
     const acceptedChallenge = {
       ...challenge(id), status: 'accepted' as const, assigneePersonId: originalPlayerId,
