@@ -227,7 +227,7 @@ export function CharacterCreator() {
           </ol>
           <h3 className="mt-6 font-semibold">Familiarities</h3>
           <ul className="mt-2 space-y-1 text-sm">
-            {history.familiarities.map((item) => <li key={item.id}>{{humanize(item.domainId)} · {humanize(item.scopeId)} · {humanize(item.exposure)}} · Supporting Life Event(s): {item.basisLifeEventIds.map((id) => {
+            {history.familiarities.map((item) => <li key={item.id}>{humanize(item.domainId)} · {humanize(item.scopeId)} · {humanize(item.exposure)} · Supporting Life Event(s): {item.basisLifeEventIds.map((id) => {
               const event = history.lifeEvents.find((candidate) => candidate.id === id);
               return event ? event.chronology.order + 1 : 'recorded';
             }).join(', ')}</li>)}
