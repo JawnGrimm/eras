@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { getInitializedScribal } from '../state/scribalState';
 import { useGame } from '../state/GameProvider';
 import type { InstitutionId, PersonId, RecordId } from '../state/ids';
-import type { Appointment, Institution, InstitutionalMatter, Person, PersonRelationship, RecordEntry } from '../state/types';
+import type { Appointment, Institution, InstitutionalMatter, Person, PersonRelationship, RecordEntry, WorldEvent } from '../state/types';
 import { PersonHistoryPanel } from './PersonHistoryPanel';
 
 export type PeopleInstitutionSection = 'people' | 'institutions';
@@ -168,15 +168,21 @@ function MatterSources({ matter, records, people, events }: {
   matter: InstitutionalMatter;
   records: Readonly<Record<string, RecordEntry>>;
   people: Readonly<Record<string, Person>>;
-  events: Readonly<Record<string, { summary: string }>>;
+  events: Readonly<Record<string, WorldEvent>>;
+  appointments: Appointment[];
 }) {
-  if (!matter.provenance?.length && matter.sourceRecordId) return <p className="mt-2 text-xs text-stone-600">Source record: {records[matter.sourceRecordId]?.title ?? matter.sourceRecordId}</p>;
-  if (!matter.provenance?.length) return <p className="mt-2 text-xs text-stone-500">No linked provenance is recorded for this matter.</p>;
-  return <details className="mt-3 border-t border-stone-200 pt-2">
+  const responseEvents = Object.values(events)
+    .filter((event) => event.institutionalResponse?.matterId === matter.id)
+    .sort((a, b) => a.dayNumber - b.dayNumber || a.id.localeCompare(b.id));
+  const provenance = matter.provenance ?? [];
+  return <>
+    {!provenance.length && matter.sourceRecordId && <p className="mt-2 text-xs text-stone-600">Source record: {records[matter.sourceRecordId]?.title ?? matter.sourceRecordId}</p>}
+    {!provenance.length && !matter.sourceRecordId && <p className="mt-2 text-xs text-stone-500">No linked provenance is recorded for this matter.</p>}
+    {provenance.length > 0 && <details className="mt-3 border-t border-stone-200 pt-2">
     <summary className="cursor-pointer text-xs font-semibold text-stone-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-700">
       Source trail ({matter.provenance.length})
     </summary>
-    <ul className="mt-2 space-y-1 text-xs text-stone-700">{matter.provenance.map((source) => {
+    <ul className="mt-2 space-y-1 text-xs text-stone-700">{provenance.map((source) => {
       const sourceId = source.sourceId;
       const label = source.kind === 'record_copy' ? (sourceId ? records[sourceId]?.title ?? sourceId : 'Record not identified')
         : source.kind === 'event' ? (sourceId ? events[sourceId]?.summary ?? sourceId : 'Event not identified')
@@ -184,7 +190,27 @@ function MatterSources({ matter, records, people, events }: {
             : `${source.kind.replace(/_/g, ' ')}${sourceId ? ` · ${sourceId}` : ''}`;
       return <li key={source.id}><span className="font-medium">{label}</span> · {source.description}</li>;
     })}</ul>
-  </details>;
+  </details>}
+    {responseEvents.length > 0 && <details className="mt-3 border-t border-stone-200 pt-2">
+      <summary className="cursor-pointer text-xs font-semibold text-stone-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-700">Institutional response stages ({responseEvents.length})</summary>
+      <ol className="mt-2 space-y-2">{responseEvents.map((event) => {
+        const response = event.institutionalResponse!;
+        const actor = people[response.actorPersonId]?.name ?? response.actorPersonId;
+        const appointment = appointments.find((item) => item.id === response.appointmentId);
+        const recordTitle = records[response.recordId]?.title ?? response.recordId;
+        return <li key={event.id} className="rounded bg-stone-50 p-2 text-xs text-stone-700">
+          <p className="font-semibold">Day {event.dayNumber} · {response.stage.replace(/_/g, ' ')} · {actor}{appointment ? ` · ${appointment.title}` : ''}</p>
+          <p className="mt-1">{event.summary}</p>
+          <p className="mt-1">Decision: {response.decision.replace(/_/g, ' ')} · Record: {recordTitle}</p>
+          {response.scope && <p className="mt-1">Scope: {response.scope}</p>}
+          {response.assigneePersonId && <p className="mt-1">Assignee: {people[response.assigneePersonId]?.name ?? response.assigneePersonId}</p>}
+          {response.execution && <p className="mt-1">Execution: {response.execution.workPerformed} · Labor: {response.execution.laborBasis} · Materials: {response.execution.materialsBasis} · Result: {response.execution.result}</p>}
+          {response.verification && <p className="mt-1">Verification: {response.verification.outcome} · {response.verification.rationale}</p>}
+          {response.resolution && <p className="mt-1">Resolution: {response.resolution.disposition} · {response.resolution.rationale}</p>}
+        </li>;
+      })}</ol>
+    </details>}
+  </>;
 }
 
 function InstitutionDetail({ institution, people, matters, records, events, appointments }: {
@@ -192,7 +218,7 @@ function InstitutionDetail({ institution, people, matters, records, events, appo
   people: Readonly<Record<string, Person>>;
   matters: InstitutionalMatter[];
   records: Readonly<Record<string, RecordEntry>>;
-  events: Readonly<Record<string, { summary: string }>>;
+  events: Readonly<Record<string, WorldEvent>>;
   appointments: Appointment[];
 }) {
   const currentMatters = matters.filter((matter) => matter.status === 'active');
@@ -218,7 +244,7 @@ function InstitutionDetail({ institution, people, matters, records, events, appo
         ? <div className="mt-2 space-y-2">{currentMatters.map((matter) => <article key={matter.id} className="rounded-lg border border-amber-200 bg-amber-50/40 p-3">
           <p className="text-sm font-medium text-stone-800">{matter.summary}</p>
           <p className="mt-1 text-xs text-stone-500">Active · opened Day {matter.createdDay}{matter.involvedPersonIds?.length ? ` · ${matter.involvedPersonIds.map((id) => people[id]?.name ?? id).join(', ')}` : ''}</p>
-          <MatterSources matter={matter} records={records} people={people} events={events} />
+          <MatterSources matter={matter} records={records} people={people} events={events} appointments={appointments} />
         </article>)}</div>
         : <p className="mt-2 text-xs text-stone-500">No active matters are recorded for this institution.</p>}
     </section>
