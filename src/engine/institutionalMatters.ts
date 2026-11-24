@@ -92,7 +92,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
 
   // The first Commercial procurement occurrence enters the world on Day 2,
   // after the Day 1 board has presented its existing six-AP supply.
-  if (nextDay >= 2 && !matters[MATTER_IDS.era1ComF01]) {
+  if (nextDay === 2 && !matters[MATTER_IDS.era1ComF01]) {
     const eventId = 'event-era1-com-f01-seeded-delivery' as EventId;
     events[eventId] = {
       id: eventId,

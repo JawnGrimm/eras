@@ -2,7 +2,6 @@ import type { AssignmentOffer, InstitutionalMatterKind } from '../../state/types
 import type { AssignmentOpportunityDefinition } from './opportunityDefinitions';
 import type { PersonId } from '../../state/ids';
 import { ERA_I_ASSIGNMENT_PARAMETERS } from './eraIParameters';
-import { ERA1_COM_F01_OPPORTUNITY_DEFINITION } from './eraICommercialMartial';
 
 const people = {
   receiver: 'person-utu-mansum' as PersonId,
@@ -19,7 +18,6 @@ function offer(matterKind: InstitutionalMatterKind, slug: string, content: Offer
 const tierA = ERA_I_ASSIGNMENT_PARAMETERS.tierA;
 
 export const ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS: readonly AssignmentOpportunityDefinition[] = [
-  ERA1_COM_F01_OPPORTUNITY_DEFINITION,
   offer('era1_com_01_consignment','era1-com-01',{
     activityId:'activity-era1-com-01-sealed-consignment',
     title:'Sealed Vessel and Textile Consignment',

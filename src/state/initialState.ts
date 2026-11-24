@@ -136,12 +136,9 @@ export function createInitialGameState(player?: Person, opportunitySeed = 'era1-
       circumstances: [{ id: 'circumstance-enlil-kisu-dispatch', kind: 'dispute' as const, summary: 'His dispatch copy records 24 measures leaving the holding yard; the receiving tally records 23 at intake.', sinceDay: 1, status: 'active' as const, visibility: 'public' as const, relatedMatterIds: [deliveryMatterId] }],
     },
     { id: ninKasiId, name: 'Nin-kasi', alive: true, affiliations: [templeStorehouseId] },
-    { id: ERA1_COM_F01_PEOPLE.workshopOverseer, name: 'Ur-Lamma', alive: true, affiliations: [], currentLocationId: ERA1_COM_F01_LOCATION_ID,
-      lifeStage: 'craft_practitioner' as const, socialIdentity: { occupation: 'Precinct workshop overseer', summary: 'A workshop overseer who judges whether delivered material is suitable for the work in hand.' } },
-    { id: ERA1_COM_F01_PEOPLE.responsibleAuthority, name: 'Lu-Nanshe', alive: true, affiliations: [templeStorehouseId], currentLocationId: ERA1_COM_F01_LOCATION_ID,
-      lifeStage: 'active_official' as const, socialIdentity: { occupation: 'Household overseer', summary: 'A responsible overseer who decides whether a disputed delivery is accepted or referred for replacement.' } },
-    { id: ERA1_COM_F01_PEOPLE.carrier, name: 'Kuli', alive: true, affiliations: [], currentLocationId: ERA1_COM_F01_LOCATION_ID,
-      lifeStage: 'craft_practitioner' as const, socialIdentity: { occupation: 'Carrier', summary: 'A carrier who brought the covered load to the receiving court and can give an account of his part in its movement.' } },
+    { id: ERA1_COM_F01_PEOPLE.workshopOverseer, name: 'Ur-Lamma', alive: true, affiliations: [], lifeStage: 'craft_practitioner' as const, socialIdentity: { occupation: 'Precinct workshop overseer', summary: 'A workshop overseer who judges whether delivered material is suitable for the work in hand.' } },
+    { id: ERA1_COM_F01_PEOPLE.responsibleAuthority, name: 'Lu-Nanshe', alive: true, affiliations: [templeStorehouseId], lifeStage: 'active_official' as const, socialIdentity: { occupation: 'Household overseer', summary: 'A responsible overseer who decides whether a disputed delivery is accepted or referred for replacement.' } },
+    { id: ERA1_COM_F01_PEOPLE.carrier, name: 'Kuli', alive: true, affiliations: [], lifeStage: 'craft_practitioner' as const, socialIdentity: { occupation: 'Carrier', summary: 'A carrier who brought the covered load to the receiving court and can give an account of his part in its movement.' } },
   ];
   const people: Record<PersonId, Person> = {
     [activePlayer.id]: activePlayer,

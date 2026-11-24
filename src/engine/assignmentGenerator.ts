@@ -3,6 +3,7 @@ import type { AssignmentOffer, GameState, TransitionResult, WorldEvent, Institut
 import { ASSIGNMENT_ACTIVITY_CATALOG, NORTH_BAY_POST_EXECUTION_ACTIVITY_ID } from '../content/assignments/northBayRoofInspection';
 import { URUK_ASSIGNMENT_OPPORTUNITY_DEFINITIONS } from '../content/assignments/opportunityDefinitions';
 import { ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS } from '../content/assignments/eraIAnchorOpportunities';
+import { ERA_I_COMMERCIAL_MARTIAL_OPPORTUNITY_DEFINITIONS } from '../content/assignments/eraICommercialMartial';
 import { transitionOpportunityAction } from './opportunities';
 
 function occurrenceSourceFacts(state: GameState, matter: InstitutionalMatter): string[] {
@@ -31,7 +32,7 @@ function occurrenceSourceFacts(state: GameState, matter: InstitutionalMatter): s
 export function generateDailyAssignments(state: GameState): GameState {
   const ledger = state.opportunities.assignmentGeneratorLedger ?? { sequence: 0, lastPresentedDayByActivity: {} };
   let next: GameState = { ...state, opportunities: { ...state.opportunities, assignmentGeneratorLedger: ledger } };
-  const definitions = [...URUK_ASSIGNMENT_OPPORTUNITY_DEFINITIONS, ...ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS];
+  const definitions = [...URUK_ASSIGNMENT_OPPORTUNITY_DEFINITIONS, ...ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS, ...ERA_I_COMMERCIAL_MARTIAL_OPPORTUNITY_DEFINITIONS];
   const offset = ledger.sequence % definitions.length;
   const rotated = [...definitions.slice(offset), ...definitions.slice(0, offset)];
   let sequence = ledger.sequence;

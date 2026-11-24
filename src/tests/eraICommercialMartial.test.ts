@@ -25,7 +25,8 @@ describe('ERA1-COM-F01 Material Not As Described', () => {
     const initial = createInitialGameState();
     const dayOne = generateDailyAssignments(initial);
     expect(Object.values(dayOne.opportunities.assignments).some((offer) => offer.activityId === ERA1_COM_F01_ACTIVITY_ID)).toBe(false);
-    const dayTwoWorld = advanceInstitutionalMatters(dayOne, 2);
+    const advanced = advanceInstitutionalMatters(dayOne, 2);
+    const dayTwoWorld = { ...advanced, calendar: { ...advanced.calendar, dayNumber: 2 } };
     expect(dayTwoWorld.world.matters['matter-era1-com-f01-material-description' as MatterId]?.createdDay).toBe(2);
     const generated = generateDailyAssignments(dayTwoWorld);
     const offers = Object.values(generated.opportunities.assignments).filter((offer) => offer.activityId === ERA1_COM_F01_ACTIVITY_ID);
@@ -43,7 +44,8 @@ describe('ERA1-COM-F01 Material Not As Described', () => {
   });
 
   it('gives separate matters and causal events distinct occurrence identities', () => {
-    const base = advanceInstitutionalMatters(createInitialGameState(), 2);
+    const advanced = advanceInstitutionalMatters(createInitialGameState(), 2);
+    const base = { ...advanced, calendar: { ...advanced.calendar, dayNumber: 2 } };
     const matterId = 'matter-era1-com-f01-second-delivery' as MatterId;
     const eventId = 'event-era1-com-f01-second-delivery' as EventId;
     const originalMatter = base.world.matters['matter-era1-com-f01-material-description' as MatterId];
@@ -70,7 +72,8 @@ describe('ERA1-COM-F01 Material Not As Described', () => {
   });
 
   it('plays through evidence acquisition and submission without granting Historical Progress XP', () => {
-    const initial = advanceInstitutionalMatters(createInitialGameState(), 2);
+    const advanced = advanceInstitutionalMatters(createInitialGameState(), 2);
+    const initial = { ...advanced, calendar: { ...advanced.calendar, dayNumber: 2 } };
     let state = generateDailyAssignments(initial);
     const offer = Object.values(state.opportunities.assignments).find((item) => item.activityId === ERA1_COM_F01_ACTIVITY_ID)!;
     state = transitionGame(state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: offer.id }).state;

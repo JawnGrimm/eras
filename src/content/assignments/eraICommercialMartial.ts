@@ -144,3 +144,7 @@ export const ERA1_COM_F01_OPPORTUNITY_DEFINITION: AssignmentOpportunityDefinitio
     deliveryChannels: [{ kind: 'baseline_reach', explanation: 'Utu-mansum has requested a supervised comparison before the receiving entry is accepted.' }],
   },
 };
+
+export const ERA_I_COMMERCIAL_MARTIAL_OPPORTUNITY_DEFINITIONS = [
+  ERA1_COM_F01_OPPORTUNITY_DEFINITION,
+] as const;
