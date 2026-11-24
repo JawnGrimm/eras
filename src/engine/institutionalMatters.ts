@@ -10,6 +10,11 @@ export const ERA1_COM_F01_LOCATION_ID = 'location-uruk-eanna-receiving-court' as
 export const EANNA_INSTITUTION_ID = 'institution-uruk-eanna-precinct' as InstitutionId;
 export const EANNA_TABLET_ROOM_LOCATION_ID = 'location-uruk-eanna-tablet-room' as LocationId;
 
+/** Provisional social grouping used by the authored textile-household assignments. */
+export const TEXTILE_HOUSEHOLD_INSTITUTION_ID = 'institution-uruk-textile-household-provisional' as InstitutionId;
+export const TEXTILE_HOUSEHOLD_LOCATION_ID = 'location-uruk-textile-household-provisional' as LocationId;
+export const RIVER_LANDING_LOCATION_ID = 'location-uruk-river-landing-provisional' as LocationId;
+
 
 
 export const MATTER_IDS = {
