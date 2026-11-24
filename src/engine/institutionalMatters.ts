@@ -347,7 +347,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
   // Commercial F03 begins with a distinct outbound dispatch. The Assignment
   // is not offered until a later, separate partial-return event exists.
   if (nextDay >= 8 && !events['event-era1-com-f03-outbound-dispatch' as EventId]) {
-    const household = state.world.people[ERA1_COM_F02_F04_PEOPLE.gemeInana];
+    const household = people[ERA1_COM_F02_F04_PEOPLE.gemeInana];
     const exchangeOpen = household?.objectives?.some((objective) =>
       objective.id === 'objective-geme-inana-exchange' && objective.status === 'active');
     if (exchangeOpen && institutions[TEXTILE_HOUSEHOLD_INSTITUTION_ID]) {
