@@ -16,6 +16,7 @@ import { SuccessionScreen } from './SuccessionScreen';
 import { ProductionPeopleAndInstitutions } from './ProductionPeopleAndInstitutions';
 import { ProductionRecordsAndJournal } from './ProductionRecordsAndJournal';
 import { deriveProfessionalRank } from '../engine/professionalRank';
+import { CharacterCreator } from './CharacterCreator';
 
 type Screen = 'workday' | 'storehouse' | 'assignments' | 'activity' | 'challenges' | 'people' | 'records' | 'help';
 
@@ -51,12 +52,14 @@ export function ProductionShellContent() {
   const person = game.state.world.people[game.state.player.currentCharacterId];
   const scribal = getInitializedScribal(person);
 
+  if (game.needsCharacterCreation) return <CharacterCreator />;
+
   const alerts = <>
     {game.loadStatus !== 'ready' && <section role="alert" className="rounded-xl border border-red-300 bg-red-50 p-4">
       <h2 className="font-semibold text-red-950">{game.loadStatus === 'corrupt_save' ? 'Production save needs recovery' : 'Production save could not be read'}</h2>
       <p className="mt-1 text-sm text-red-900">{game.storageError ?? 'The existing save has not been replaced. Ordinary actions are paused.'}</p>
-      <p className="mt-1 text-sm text-red-900">Starting fresh will replace only the production save key. Legacy prototype saves are left untouched.</p>
-      <button onClick={() => { if (window.confirm('Replace the current production save with a new Day 1 save? This changes only scribe_game_v2. Legacy scribe_* saves will be left untouched.')) { if (game.startFreshProductionSave()) { setSettlement(null); setScreen('workday'); } } }} className="mt-3 rounded-lg bg-red-900 px-4 py-2 text-sm font-semibold text-white">Start Fresh Production Save</button>
+      <p className="mt-1 text-sm text-red-900">Starting fresh opens the Character Creator. The production save is replaced only after you confirm the new character. Legacy prototype saves are left untouched.</p>
+      <button onClick={() => { if (window.confirm('Open the Character Creator? The current production save will not be replaced until you confirm a new character.')) { if (game.startFreshProductionSave()) { setSettlement(null); setScreen('workday'); } } }} className="mt-3 rounded-lg bg-red-900 px-4 py-2 text-sm font-semibold text-white">Start Fresh Production Save</button>
     </section>}
     {game.hasUnsavedChanges && <section role="status" className="rounded-xl border border-amber-400 bg-amber-50 px-4 py-3">
       <p className="text-sm font-semibold text-amber-950">This session has unsaved changes</p>
@@ -127,9 +130,9 @@ export function ProductionShellContent() {
                           <article className="rounded-lg border border-stone-200 bg-white p-4"><h2 className="font-semibold text-stone-900">Settlement</h2><p className="mt-2 text-sm leading-6 text-stone-700">End the Workday from the Hub to apply sustenance and any qualifying Work provisions, advance the calendar, and receive tomorrow's AP allocation. The first two consecutive Workdays without provisions are a grace period. At the end of the third, you gain the Underfed condition and +2 Stress; each further Workday without provisions adds +2 Stress, up to 10 shortage-attributed Stress over the character’s lifetime. Underfed clears when you consume provisions, but Stress already gained remains. Recovery options shown in Sustenance & Hardship include Temple Storehouse auxiliary labor (2 AP for one provision, once per Workday) and, when Ur-gir is eligible, a one-provision advance (1 AP) owed as one silver or a day of scribal assistance. Overtime adds one AP now, increases Stress by five, and reduces tomorrow's allocation by one.</p></article>
                         </div>
                         <section className="rounded-lg border border-red-200 bg-red-50 p-4">
-                          <h2 className="font-semibold text-red-950">Reset production save</h2>
-                          <p className="mt-1 text-sm leading-6 text-red-900">This permanently replaces the current production save with a new Day 1 state. Only <code>scribe_game_v2</code> is changed; legacy <code>scribe_*</code> keys are not read, migrated, or deleted.</p>
-                          <button onClick={() => { if (window.confirm('Replace the current production save with a new Day 1 save? This changes only scribe_game_v2. Legacy scribe_* saves will be left untouched.')) { if (game.startFreshProductionSave()) { setSettlement(null); setScreen('workday'); } } }} className="mt-3 rounded-lg bg-red-900 px-4 py-2 text-sm font-semibold text-white">Reset Production Save</button>
+                          <h2 className="font-semibold text-red-950">Start a new character</h2>
+                          <p className="mt-1 text-sm leading-6 text-red-900">This opens the Character Creator. The current production save is replaced only when you confirm the new character. Legacy <code>scribe_*</code> keys are not read, migrated, or deleted.</p>
+                          <button onClick={() => { if (window.confirm('Replace the current production save with a new Day 1 save? This changes only scribe_game_v2. Legacy scribe_* saves will be left untouched.')) { if (game.startFreshProductionSave()) { setSettlement(null); setScreen('workday'); } } }} className="mt-3 rounded-lg bg-red-900 px-4 py-2 text-sm font-semibold text-white">Start New Character</button>
                         </section>
                       </section>}
       </main>
