@@ -17,6 +17,7 @@ import { ProductionPeopleAndInstitutions } from './ProductionPeopleAndInstitutio
 import { ProductionRecordsAndJournal } from './ProductionRecordsAndJournal';
 import { deriveProfessionalRank } from '../engine/professionalRank';
 import { CharacterCreator } from './CharacterCreator';
+import { EveningInterlude } from './EveningInterlude';
 
 type Screen = 'workday' | 'storehouse' | 'assignments' | 'activity' | 'challenges' | 'people' | 'records' | 'help';
 
@@ -75,6 +76,15 @@ export function ProductionShellContent() {
       <ProductionHeader />
       <div className="mx-auto max-w-[1600px] px-4 py-6 lg:px-6">
         <main className="min-w-0 space-y-4">{alerts}<SuccessionScreen /></main>
+      </div>
+    </div>;
+  }
+  if (game.state.dayClose.phase === 'interlude_open') {
+    return <div data-era={game.state.calendar.eraId} className="min-h-screen bg-[var(--surface-ground)] text-[var(--ink-primary)]">
+      <ProductionHeader />
+      <div className="mx-auto max-w-[1600px] px-4 py-6 lg:px-6">
+        {alerts}
+        <EveningInterlude onBeginWorkday={() => setScreen('workday')} />
       </div>
     </div>;
   }
