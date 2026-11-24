@@ -25,6 +25,7 @@ function withOpenNorthBayRepairNeed() {
   };
   return {
     ...base,
+    calendar: { ...base.calendar, dayNumber: 2, displayDate: 'Day 2 · Uruk (c. 3200 BCE)' },
     world: {
       ...base.world,
       matters: { ...base.world.matters, [matter.id]: matter },
