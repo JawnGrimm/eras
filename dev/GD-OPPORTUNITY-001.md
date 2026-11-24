@@ -1,6 +1,6 @@
 # GD-OPPORTUNITY-001 — Assignment Supply and Challenge Director
 
-**Status:** PROPOSED — OWNER-APPROVED DIRECTION; BEHAVIORAL CONTRACT FOR REVIEW  
+**Status:** PROPOSED — OWNER-APPROVED DIRECTION; PLAYTEST 1 PROVISIONALS INCORPORATED; AWAITING HISTORICAL INPUT  
 **Owners:** Game Design; Historical Research  
 **Authority:** GDD §§5.1–5.2, 6.3; approved Assignment Orientation and Institutional Context Specification; Game Director direction, 24 November 2026  
 **Implementation status:** Not ready for implementation. No runtime or save-state change is authorized by this document.
@@ -18,7 +18,7 @@
 
 ### Still open
 
-Exact content count and distribution; which existing activities are retained or revised; recurrence conditions and parameter domains; generator weights and presentation safeguards; Challenge weights, cooldowns, active limits, and arrival pacing; evaluation-boundary details; technical state, persistence, and seed implementation. These require evidence, playtesting, and/or a separate owner decision. None is silently fixed here.
+Exact anchor selection and distribution; which existing activities are retained or revised; recurrence conditions and parameter domains; generator weights and Assignment presentation safeguards; Challenge weights and scenario-specific cooldowns; technical state, persistence, and seed implementation. These require historical evidence, playtesting, and/or a separate owner decision. Challenge evaluation timing and a two-unresolved-Challenge cap are provisional Playtest 1 rules, not permanent balance decisions.
 
 ## 2. GDD alignment and invariants
 
@@ -91,6 +91,25 @@ Requirements:
 - Preserve the GDD's visible expiry, accepted-commitment, cancellation, and AP rules unless separately reviewed and approved. The open-design item for offer caps and commitment balance remains subject to playtesting.
 - Declined, expired, cancelled, and completed offers remain distinguishable. Mandatory-Work lapses must not be interpreted as neglect.
 
+### 3.6 Provisions compensation and END_DAY survival
+
+Assignment compensation must support historically plausible payment in money, provisions, or both. The offer must show the amount, duration, and conditions before acceptance. Provisions may be the primary compensation for an institutionally anchored task; do not assume every institution pays silver/value or that every scribe receives a universal daily ration.
+
+The parameter/reward model must leave room for:
+- explicit provisions-in-kind alongside or instead of money;
+- compensation tied to completion, a defined workday, or another clearly stated contract condition;
+- settlement of earned Assignment compensation before END_DAY sustenance is deducted, so provisions earned through that day's completed work can sustain the character that evening;
+- Work-specific provisions contracts where the institution expects several days of labor.
+
+Preserve the GDD and Economy, Stress, and Ethical Consequences Specification:
+- Money and Provisions remain the only tracked balances. Do not add Beer or another inventory/currency balance.
+- No automatic daily ration, negative provisions balance, or unexplained free resource.
+- Two consecutive Workdays without provisions are the grace period. Shortage consequences begin at the end of the third consecutive Workday without provisions: Underfed and +2 Stress, with +2 on each subsequent affected Workday and a 10-point cumulative shortage-Stress cap per character.
+- The character cannot die or enter an unavoidable game-over state from depleted Provisions.
+- At least two recovery categories must be implemented when shortage consequences ship, with at least one viable route guaranteed in the character's actual circumstances. Existing approved categories are provisions-paid quick labor, conditional personal help/advance carrying a real obligation, and selling/pawning a possession. Assistance may create a repayment/service obligation; it must not create a third balance or an unlimited negative balance.
+
+Track 1 acceptance must exercise Assignment compensation and END_DAY settlement together, including a character who finishes a Workday at zero Provisions, receives provisions-in-kind, and avoids or recovers from shortage according to the actual settlement order. It must also test the no-work/no-contract path so no free ration is introduced.
+
 ## 4. Track 2 — General Challenge Director
 
 ### 4.1 Authored scenario pool
@@ -108,15 +127,22 @@ The director evaluates and selects authored content. It does not invent a disput
 
 ### 4.2 Causal trigger vocabulary
 
-Authored scenarios may become eligible through one or more of these supported causal domains:
+**Phase 1 — supported runtime signals only.** The first implementation contract is limited to signals the current runtime already produces or maintains:
 
-1. **Player decisions and outcomes:** Assignment and Challenge rulings, Work actions/dispositions where relevant, submitted records, institutional responses, commitments accepted or released, and other consequential choices.
-2. **Professional behavior patterns:** offers presented, accepted, declined, non-Work-lapsed, and completed, with employer/category/commodity context. A presented offer is not automatically an ignored offer.
-3. **Relationships:** significant directional changes in trust, respect, affection, resentment, rivalry, familiarity, or obligation, with the actual interaction/event as provenance. Do not infer a relationship change from mere contact or factual Life Event participation.
-4. **NPC actions:** an authored action by a person whose motivation, knowledge, capacity, relationships, and authority make the action plausible.
-5. **Institutional developments:** a matter's creation, development, escalation, resolution, changed responsibility, resource pressure, or institutional response.
-6. **Historical/world events:** an authored event that changes relevant local circumstances.
-7. **Encounters:** meaningful contact with a particular person, institution, commodity, location, or network, where the scenario's authored conditions explain why the encounter matters.
+1. **Player actions and outcomes:** Assignment/Challenge presentation, acceptance, decline, lapse, completion, submitted activity, and authored consequences represented in existing opportunity state, compact aggregates, or world events.
+2. **Professional behavior patterns:** the GDD-defined compact aggregates by employer/category/commodity and the five-entry Assignment activity window. Mandatory-Work lapses remain excluded from neglect counts.
+3. **Relationship updates:** directional changes already written by current social actions, Assignment activity/submission, or authored opportunity consequences. Mere contact or factual participation is not a relationship change.
+4. **Institutional matter updates:** creation, development, escalation, resolution, changed responsibility, or response where the current matter/response pipeline records that change.
+5. **World events:** existing authored world events and events created by current institutional/opportunity processes, with their actual provenance.
+
+Phase 1 may check current bounded relationship/matter state where needed, but it must not introduce a new general event bus, autonomous actor scheduler, or unbounded history scan merely to make the trigger list appear complete. Each authored scenario must identify the specific existing signal and source fact it consumes.
+
+**Deferred — not required for this contract or its first implementation:**
+- A general autonomous NPC-action scheduler that independently selects and executes NPC actions.
+- Triggering scenarios directly from NPC objectives, ambitions, or motives before those intentions have produced an existing supported matter, relationship update, or world event.
+- Any new population simulation or broad social-behavior scheduler.
+
+If an NPC action is later represented by an existing authored world event or institutional/relationship update, Phase 1 may respond to that emitted fact. That does not authorize or require a new NPC-action simulation layer.
 
 A trigger must identify what happened or what supported state changed. Passage of time may satisfy an authored date/condition, but time alone is not a cause and must not create arbitrary daily busywork. Offers that lapse during mandatory Work remain excluded from neglect-based interpretation.
 
@@ -139,13 +165,17 @@ Weights influence selection among eligible scenarios; they never make an ineligi
 
 Exact weights, modifiers, seed ownership, and persistence representation remain open for the technical proposal and playtesting. Do not add a new save field or schema migration without a separate compatibility review.
 
-### 4.5 Evaluation and arrival pacing
+### 4.5 Evaluation, onboarding protection, and Playtest 1 pacing
 
-**Recommended initial boundary for owner review:** evaluate once during END_DAY settlement, after authored world/institutional developments and Assignment generation, then surface any selected Challenge in the next Morning Report. This avoids interrupting an AP action and gives one predictable evaluation point while allowing the player to experience an unpredictable arrival schedule.
+**PROVISIONAL — Playtest 1:** evaluate Challenges once during END_DAY settlement, after authored world/institutional developments and Assignment generation. Surface a selected new Challenge in the next Morning Report. This avoids interrupting an AP action and makes the arrival schedule unpredictable to the player while keeping evaluation deterministic.
 
-A candidate may be eligible and not arrive on that pass. If no candidate is eligible, no Challenge arrives. Random selection changes which eligible situation arrives and when; it does not manufacture the cause.
+**Onboarding protection:** do not generate, select, queue, or surface an unprompted Challenge during Workday 1 or supervised Storehouse Reckoning onboarding. The gate remains closed until the player has completed the initial Storehouse Reckoning. Do not accumulate generic onboarding triggers and release a burst of Challenges when the gate opens. After completion, the next normal END_DAY evaluation may consider only situations that remain genuinely eligible and whose causal provenance remains valid. An explicitly authored tutorial prompt is not a Challenge arrival and remains part of the tutorial.
 
-No numeric daily arrival quota, active-Challenge cap, or universal cooldown is approved. For initial playtesting, Game Design recommends testing a zero-or-one arrival per settlement pass, then tuning from observed player load and scenario density. This is a pacing proposal, not a locked rule.
+**PROVISIONAL active cap — Playtest 1:** allow no more than **two unresolved Challenges** at once. For this cap, an unresolved Challenge is an operational Challenge instance with status `offered` or `accepted`; a declined Challenge is not active. If two unresolved instances already exist at evaluation, skip new arrivals for that settlement pass. Do not queue a delayed backlog merely because the cap was full; re-evaluate only if the underlying authored trigger remains eligible at a later pass and its repeat/duplicate rules permit it.
+
+At each evaluation, select zero or one new Challenge. A candidate may be eligible and not arrive on that pass. If no candidate is eligible, the onboarding gate is closed, or the active cap is full, no Challenge arrives. Random selection changes which eligible situation arrives and when; it does not manufacture the cause.
+
+The one-arrival-per-pass rule and two-unresolved cap are provisional playtest safeguards, not permanent balance decisions. Tune only after observing arrival frequency, player load, and scenario density. Scenario-specific cooldowns remain authored; no universal cooldown is introduced.
 
 ### 4.6 Challenge lifecycle
 
@@ -201,30 +231,30 @@ These are source findings, not a claim that the full world simulation is impleme
 
 ### Track 2
 
-1. Each trigger domain has positive, negative, and provenance tests.
+1. Each Phase 1 trigger domain has positive, negative, and provenance tests; Deferred NPC scheduling is not an acceptance requirement.
 2. A scenario is selected only when its authored eligibility conditions and access route are satisfied.
 3. Weighted selection is deterministic for the same saved state, seed, and evaluation point.
 4. Changing a relevant trigger or weight can change the selected eligible candidate; ineligible candidates are never selected.
-5. No candidate means no arrival; passage of a day alone does not create a Challenge.
+5. No candidate means no arrival; passage of a day alone does not create a Challenge. No unprompted arrival occurs before initial Storehouse Reckoning completion.
 6. Mandatory-Work lapses are excluded from neglect interpretation.
 7. Repeatability, cooldown, and duplicate prevention work across save/load and succession.
-8. No Challenge flood, hidden Work prerequisite, AP bypass, or Historical Progress XP award.
+8. At most one new Challenge arrives per settlement pass and no more than two unresolved Challenges are active in Playtest 1; a full cap creates no delayed backlog. No Challenge flood, hidden Work prerequisite, AP bypass, or Historical Progress XP award.
 9. Player-facing delivery identifies the actual cause and source without exposing information the character does not know.
-10. The director remains bounded and does not scan unbounded archives.
+10. The director remains bounded and does not scan unbounded archives. No new autonomous NPC-action scheduler is required for Phase 1.
 
 ## 7. Cross-department dependencies
 
 - **Game Design:** Own the anchor portfolio, recurrence semantics, trigger vocabulary, candidate weighting policy, and pacing playtests.
-- **Historical Research:** Deliver the Era I anchor research brief and validate parameter domains; see dev/ERA_I_ASSIGNMENT_HISTORICAL_RESEARCH_BRIEF.md.
+- **Historical Research:** Deliver concise, playtest-ready anchor seeds and parameter domains with explicit Attested / Inferred / PROVISIONAL confidence; see dev/ERA_I_ASSIGNMENT_HISTORICAL_RESEARCH_BRIEF.md.
 - **Engineering/Architecture:** After behavioral approval, propose deterministic bounded trigger capture, occurrence identity, and persistence compatibility. Production owns exact types, module placement, serialization, and APIs.
 - **Production/QA:** No immediate implementation work. The Character Creation → Storehouse Reckoning milestone is already reported complete under Issue #69; do not divert Production to this proposal. After approval and handoff, test multi-day supply, trigger coverage, determinism, save/load, and succession.
 - **Art/UI/UX:** No immediate change. Distinct settings may later need differentiated scene/context presentation; preserve accessibility and readability.
 - **Audio:** No material impact at this stage.
 
-## 8. Owner review items
+## 8. Remaining owner/research gates
 
-1. Confirm the proposed END_DAY evaluation boundary and next-Morning-Report delivery.
-2. Confirm whether zero-or-one Challenge arrival per settlement pass is the preferred initial playtest default, or leave the first pacing test unconstrained.
-3. Confirm the approximate 8–9 anchor portfolio target as an authoring target, with overlap allowed and no orientation queues.
+1. Incorporate the first concise, source-backed findings from Issue #80, especially Commercial, Martial, and Civic/Religious overlap, into the anchor portfolio and valid parameter domains.
+2. Reconcile the authored anchor list and recurrence examples with those findings; mark each as Attested, Inferred, or PROVISIONAL reconstruction.
+3. Complete final behavioral review of the integrated Track 1/Track 2 contract before any Production handoff.
 
-Until these are resolved, the document remains a proposed behavioral contract, not READY FOR IMPLEMENTATION.
+The Playtest 1 Challenge timing, onboarding gate, zero-or-one arrival rule, and two-unresolved cap are now ratified provisionals. Other unapproved weights, recurrence details, scenario content, and technical persistence remain open. This document is not READY FOR IMPLEMENTATION until the Game Director's final review.
