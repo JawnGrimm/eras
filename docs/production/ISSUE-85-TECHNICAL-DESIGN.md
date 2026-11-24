@@ -23,7 +23,7 @@ The current `actionEconomy.ts` has two recovery actions:
 
 The second action is the approved **conditional personal help/advance** category. It is not universally available: the current implementation requires Ur-gir to be alive and initialized, an existing directional relationship with trust at least 50 and no resentment, at least one Provision in Ur-gir's wallet, no outstanding obligation to him, and zero Provisions for the player. It costs 1 AP. That conditionality is compatible with the category; it must not be represented as a guaranteed universal bailout.
 
-The action currently describes repayment as “one silver” or a day of scribal assistance. The approved Era I presentation is **Currency**, not Silver. The terminology correction belongs with the Issue #82 Currency work; do not make a conflicting edit in this branch.
+At the time of this source audit, the action described repayment as “one silver” or a day of scribal assistance. Draft PR #88 now implements the approved player-facing **Currency** wording for the Ur-gir advance alongside the other Issue #82 surfaces; persisted Money values and internal compatibility identifiers remain unchanged. Keep any remaining Currency-label correction within the Issue #82 workstream while that issue is open; do not create a parallel edit in this branch.
 
 ### 2.2 The baseline labor route currently fails the early-availability requirement
 
@@ -171,4 +171,4 @@ The save key and local persistence behavior must be inspected before choosing th
 
 ## 8. Validation status
 
-This note is an engineering proposal based on current `main` source inspection. It is not a runtime implementation. PR #87 now contains documentation only; the inert TypeScript semantic catalog and its tests were removed so the future `src/content/` layer can be authored as playable Assignment definitions. CI must be re-run against the resulting documentation-only head before PR review/merge. No local test execution is claimed.
+This note is an engineering proposal based on `main` source inspection at the time of the audit, reconciled with the current Issue #82 implementation branch. It is not a runtime implementation or an approved technical contract. PR #87 contains documentation only; the inert TypeScript semantic catalog and its tests were removed so the future `src/content/` layer can be authored as playable Assignment definitions. On PR #87 head `1d283ad3eeeda76e72940d7429528eda249629c9`, Pull Request Validation, TypeScript analysis, and CodeQL all completed successfully. Those checks apply to that exact documentation-only head; any subsequent edit requires fresh validation. No local test execution is claimed.
