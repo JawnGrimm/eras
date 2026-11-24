@@ -240,6 +240,8 @@ export function submitRubricAssignmentActivity(
     const trust = Math.max(0, Math.min(100, dimensions.trust + schedule.trust));
     const respect = Math.max(0, Math.min(100, dimensions.respect + schedule.respect));
     if (trust === dimensions.trust && respect === dimensions.respect) continue;
+    const trustChange = trust > dimensions.trust ? 'increased' : trust < dimensions.trust ? 'decreased' : 'remained unchanged';
+    const respectChange = respect > dimensions.respect ? 'increased' : respect < dimensions.respect ? 'decreased' : 'remained unchanged';
     outcomeRelationships = {
       ...outcomeRelationships,
       [affectedPersonId]: {
@@ -249,7 +251,7 @@ export function submitRubricAssignmentActivity(
           history: [...(current?.history ?? []), {
             id: `assignment-receipt-${offer.id}-day-${state.calendar.dayNumber}:relationship-${affectedPersonId}`,
             dayNumber: state.calendar.dayNumber,
-            summary: reaction,
+            summary: `After ${person.name} submitted "${record.title}" on Day ${record.createdDay}, ${affectedPerson.name}'s trust toward ${person.name} ${trustChange} and respect ${respectChange}.`,
           }],
         },
       },
