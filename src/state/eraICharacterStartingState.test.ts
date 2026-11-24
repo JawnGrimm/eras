@@ -49,7 +49,7 @@ describe('GD-CHARACTER-START-001 starting-state resolver', () => {
     expect(fe04.attributes.composure).toBe(5);
     const doubledReasoning = resolveEraICharacterStartingState({
       ...base, responsibilityId: 'RS-04', formativeExperienceId: 'FE-01',
-    }, 'civic' as never);
+    }, 'military');
     expect(doubledReasoning.attributes.reasoning).toBe(7);
     expect(doubledReasoning.attributeSources.reasoning).toEqual([
       'Chapter 2 · Observe a record or seal in use',
