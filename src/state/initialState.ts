@@ -5,6 +5,7 @@ import { NORTH_BAY_LOCATION_ID, NORTH_BAY_PEOPLE } from '../content/assignments/
 import { ERA1_COM_F01_PEOPLE } from '../content/assignments/eraICommercialMartial';
 import {
   MATTER_IDS, STOREHOUSE_INSTITUTION_ID, SOUTH_COURT_LOCATION_ID, SOUTH_LOADING_LOCATION_ID, ERA1_COM_F01_LOCATION_ID,
+  EANNA_INSTITUTION_ID, EANNA_TABLET_ROOM_LOCATION_ID,
   createSouthCourtDeliveryMatter, createSouthLoadingAwningMatter,
 } from '../engine/institutionalMatters';
 export const INITIAL_PERSON_ID = 'person-enlil-barni' as PersonId;
@@ -169,14 +170,23 @@ export function createInitialGameState(player?: Person, opportunitySeed = 'era1-
           [INITIAL_PERSON_ID]: { dimensions: { trust: 55, respect: 52, affection: 20, resentment: 0, rivalry: 0, familiarity: 18 }, history: [{ id: 'rel-enlil-kisu-enlil-barni-1', dayNumber: 1, summary: 'Enlil-kisu knows Enlil-barni as a junior scribe who handles receiving and dispatch records.' }] },
         },
       },
-      institutions: { [templeStorehouseId]: {
-        id: templeStorehouseId, name: 'Temple Storehouse', locationId: storehouseLocationId, responsibilities: ['Receive, safeguard, and issue institutional barley stocks'],
-        authority: ['Maintain storehouse accounts', 'Authorize stock inspection and segregation'], standing: 50, activeMatters: [MATTER_IDS.tutorial, deliveryMatterId, awningMatterId],
-      } }, locations: {
+      institutions: {
+        [templeStorehouseId]: {
+          id: templeStorehouseId, name: 'Temple Storehouse', locationId: storehouseLocationId, responsibilities: ['Receive, safeguard, and issue institutional barley stocks'],
+          authority: ['Maintain storehouse accounts', 'Authorize stock inspection and segregation'], standing: 50, activeMatters: [MATTER_IDS.tutorial, deliveryMatterId, awningMatterId],
+        },
+        [EANNA_INSTITUTION_ID]: {
+          id: EANNA_INSTITUTION_ID, name: 'Eanna Precinct', locationId: EANNA_TABLET_ROOM_LOCATION_ID,
+          responsibilities: ['Maintain precinct records and supervised administrative work', 'Receive reports concerning precinct goods, labor, and offering preparations'],
+          authority: ['Review submitted administrative records', 'Refer matters to the responsible precinct authority'],
+          standing: 50, activeMatters: [],
+        },
+      }, locations: {
         [storehouseLocationId]: { id: storehouseLocationId, name: 'Temple Storehouse, north storage bay' },
         [SOUTH_COURT_LOCATION_ID]: { id: SOUTH_COURT_LOCATION_ID, name: 'Temple Storehouse, south receiving court' },
         [SOUTH_LOADING_LOCATION_ID]: { id: SOUTH_LOADING_LOCATION_ID, name: 'Temple Storehouse, south loading court' },
         [ERA1_COM_F01_LOCATION_ID]: { id: ERA1_COM_F01_LOCATION_ID, name: 'Eanna receiving court, Uruk' },
+        [EANNA_TABLET_ROOM_LOCATION_ID]: { id: EANNA_TABLET_ROOM_LOCATION_ID, name: 'Eanna precinct tablet room, Uruk' },
       },
       appointments: Object.fromEntries(appointments.map((appointment) => [appointment.id, appointment])), events: { [deliveryEventId]: deliveryEvent, [awningEventId]: awningEvent }, knowledge: {},
       matters: {
