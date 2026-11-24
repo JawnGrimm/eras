@@ -7,7 +7,7 @@ const carrier = 'person-enlil-kisu' as PersonId;
 
 type AuthoredOfferContent = Pick<AssignmentOffer,
   'title' | 'description' | 'employer' | 'category' | 'context' | 'requiredSkills' |
-  'difficulty' | 'estimatedTotalAp' | 'activityId' | 'compensation' | 'careerXpReward' | 'deliveryChannels' | 'compensationDisclosure' | 'compensationDisclosure'
+  'difficulty' | 'estimatedTotalAp' | 'activityId' | 'compensation' | 'careerXpReward' | 'deliveryChannels' | 'compensationDisclosure'
 > & { activityId: string; estimatedTotalAp: number };
 
 export interface AssignmentOpportunityDefinition {

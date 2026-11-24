@@ -70,6 +70,8 @@ export function generateDailyAssignments(state: GameState): GameState {
       sourceRecordId: response.recordId,
       sourceEventId: executionEvent.id,
       occurrenceKey,
+      sourceEventId: executionEvent.id,
+      occurrenceKey,
       title: 'Post-Execution North-Bay Inspection',
       description: 'Independently inspect the completed maintenance and file evidence for an appointed official. This Assignment does not itself verify or authorize the work.',
       employer: { kind: 'institution', id: matter.institutionId },
