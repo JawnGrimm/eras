@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { advanceInstitutionalMatters } from '../engine/institutionalMatters';
 import { generateDailyAssignments } from '../engine/assignmentGenerator';
 import { createInitialGameState } from '../state/initialState';
+import { createSaveEnvelope, restoreSave } from '../state/saveEnvelope';
 import { ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS } from '../content/assignments/eraIAnchorOpportunities';
 
 describe('Era I institutional anchor matter producers', () => {
@@ -45,6 +46,25 @@ describe('Era I institutional anchor matter producers', () => {
     expect(state.opportunities.occurrenceLedger.filter((entry) =>
       ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS.some((definition) => definition.offer.activityId === entry.scenarioId),
     )).toHaveLength(5);
+  });
+
+  it('preserves anchor matters, source events, registration, and occurrence identity through save restoration', () => {
+    let state = createInitialGameState();
+    for (let day = 2; day <= 6; day++) {
+      state = advanceInstitutionalMatters(state, day);
+      state = { ...state, calendar: { ...state.calendar, dayNumber: day } };
+      state = generateDailyAssignments(state);
+    }
+
+    const envelope = createSaveEnvelope(state, 1);
+    const restored = restoreSave(JSON.stringify(envelope))?.state;
+    expect(restored).toBeDefined();
+    for (const matter of Object.values(state.world.matters).filter((item) => item.kind.startsWith('era1_'))) {
+      expect(restored!.world.matters[matter.id]).toEqual(matter);
+      expect(restored!.world.events[matter.sourceEventId!]).toEqual(state.world.events[matter.sourceEventId!]);
+      expect(restored!.world.institutions[matter.institutionId].activeMatters).toContain(matter.id);
+    }
+    expect(restored!.opportunities.occurrenceLedger).toEqual(state.opportunities.occurrenceLedger);
   });
 
   it('does not recreate or re-present an anchor occurrence on repeated advancement', () => {
