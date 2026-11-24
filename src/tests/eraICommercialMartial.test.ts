@@ -93,6 +93,8 @@ describe('ERA1-COM-F01 Material Not As Described', () => {
     expect(submitted.feedback?.code).toBe('assignment-activity-submitted');
     expect(submitted.state.opportunities.assignments[offer.id].status).toBe('completed');
     expect(submitted.state.opportunities.assignments[offer.id].closingReceipt?.assessment).toBe('Thorough');
+    expect(submitted.state.opportunities.assignments[offer.id].closingReceipt?.receiverName)
+      .toBe(submitted.state.world.people[ERA1_COM_F01_PEOPLE.receiver]?.name);
     expect(Object.values(submitted.state.records.entries).some((record) => record.title === 'Material description comparison')).toBe(true);
     expect(submitted.state.historicalProgression.historicalXp).toBe(0);
     const playerId = submitted.state.player.currentCharacterId;
