@@ -107,3 +107,42 @@ No save-schema bump or migration is authorized. Keep schema v2; preserve legacy 
 8. Run full validation on the integrated branch, review the complete diff, and report implementation, tests actually executed, deviations, and limitations.
 
 **Current status:** History/identity foundation **MERGED**. GD-CHARACTER-START-001 **APPROVED — READY FOR IMPLEMENTATION**. Creator and fresh-game bootstrap **NOT IMPLEMENTED**. Integration **NOT VERIFIED**. Deployment **NOT RECORDED**.
+
+
+## GD-CHARACTER-START-001 implementation and deployment — 24 November 2026
+
+**Status:** IMPLEMENTED · TESTED · MERGED · DEPLOYED · VERIFIED
+
+**Merged PR:** [#77 — Implement Era I character creator and fresh-game bootstrap](https://github.com/JawnGrimm/eras/pull/77)  
+**Main commit:** `7641d3ff76f12034a177309d5df76549e0524330`  
+**Verified main branch:** `main` points to the merge commit above.  
+**Deployment:** GitHub Pages workflow run #157 completed successfully; the deployment step reported success for commit `7641d3ff`. Published URL: https://jawngrimm.github.io/eras/
+
+### Implemented scope
+
+- Added the approved deterministic Era I starting-state resolver and all three distinct version identifiers: history dependency `era1-character-history-v1`, starting-state rules `era1-character-start-v1`, and combined creation package `era1-character-creation-v1`.
+- `CharacterCreationRecord.contentVersion` and deterministic Person ID hashing use the combined package version. The history dependency remains explicit. Person IDs use the caller-supplied seed, trimmed validated display name, five history choices, persisted career-path ID, and combined package version; collisions are rejected.
+- Added the eight approved curated sample names with the approved editorial cautions, plus custom-name hygiene (trim, 1–60 Unicode code points, reject invisible controls, preserve ordinary creative names).
+- Materialized the approved PROVISIONAL starting state: six attributes at baseline 5 with the Chapter 2/3 emphases; six explicit level-1 skills with lesson-specific Skill XP; Career XP 0; four reputation dimensions at 50; Money 0; Provisions 5; apprentice life stage; no starting appointment, formal affiliation, authority, relationship edges, obligations, stress, conditions, specializations, traits, or equipment. Grade 1 is displayed without persisting a rank value or changing the open skill-to-rank formula.
+- Added the minimal Creator, responsibility/formative compatibility enforcement, and final review of five chronological Life Events, factual participants/roles, narrow Familiarities and supporting Life Events, attribute/skill provenance, provisional reputation, and opening state.
+- Fresh-game initialization registers the created Person before resolving player-dependent history and opening content. The new-game preview uses a non-persistent placeholder and authored NPC roster; Enlil-barni is not included in the fresh playable state. The legacy default fixture remains available for existing tests/fixture consumers.
+- Removed fixed protagonist assumptions from the starter Challenge, Storehouse tutorial copy, and follow-on Assignment inspection provenance. Challenge consequences use the current player ID; no starting relationship is inferred from Life Event participation.
+- No-save initialization and explicit fresh-save reset now enter the Creator. A new save is written/replaced only after character confirmation. Valid schema-v2 save restoration remains separate; corrupt/read-error protection is preserved.
+
+### Validation actually executed
+
+- **Pull Request Validation run #368:** TypeScript check passed; **29 test files / 215 tests passed**; production build passed.
+- **CodeQL run #230:** JavaScript/TypeScript analysis passed.
+- **Deployment run #157:** build and GitHub Pages deployment passed.
+- The existing history resolver matrix remains covered: the suite includes all **3,328 legal history/orientation combinations** across the four persisted orientations.
+- Local tests/build were not run in this execution environment; the results above are the actual GitHub Actions runs.
+- Manual interactive browser smoke testing after deployment: **NOT TESTED** in this session.
+
+### Compatibility and remaining verification
+
+- No save-schema bump or migration was introduced. Existing schema-v2 values and legacy identities remain authoritative on restore; the new resolver is not rerun for restored characters.
+- Numerical starting values remain PROVISIONAL for playtest calibration. No new GDD formula, rank title, or gameplay rule was introduced.
+- The Storehouse Reckoning remains the introductory tutorial outside Assignments, Challenges, and Works. It is not reclassified as a Work or treated as the Works template.
+- No runtime generative AI was added.
+
+**Production result:** The approved character-creation flow is on `main` and deployed. The live entry path is the Creator for players without a production save; confirmed creation leads to Workday 1 with six AP and the Storehouse Reckoning available.
