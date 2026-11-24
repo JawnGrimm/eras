@@ -164,7 +164,7 @@ function PersonDetail({ person, people, institutions, relationships, appointment
   </article>;
 }
 
-function MatterSources({ matter, records, people, events }: {
+function MatterSources({ matter, records, people, events, appointments }: {
   matter: InstitutionalMatter;
   records: Readonly<Record<string, RecordEntry>>;
   people: Readonly<Record<string, Person>>;
@@ -180,7 +180,7 @@ function MatterSources({ matter, records, people, events }: {
     {!provenance.length && !matter.sourceRecordId && <p className="mt-2 text-xs text-stone-500">No linked provenance is recorded for this matter.</p>}
     {provenance.length > 0 && <details className="mt-3 border-t border-stone-200 pt-2">
     <summary className="cursor-pointer text-xs font-semibold text-stone-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-700">
-      Source trail ({matter.provenance.length})
+      Source trail ({provenance.length})
     </summary>
     <ul className="mt-2 space-y-1 text-xs text-stone-700">{provenance.map((source) => {
       const sourceId = source.sourceId;
@@ -203,6 +203,9 @@ function MatterSources({ matter, records, people, events }: {
           <p className="mt-1">{event.summary}</p>
           <p className="mt-1">Decision: {response.decision.replace(/_/g, ' ')} · Record: {recordTitle}</p>
           {response.scope && <p className="mt-1">Scope: {response.scope}</p>}
+          {response.authorizedAction && <p className="mt-1">Authorized action: {response.authorizedAction.replace(/_/g, ' ')}</p>}
+          {response.commitmentId && <p className="mt-1">Commitment: {response.commitmentId}</p>}
+          {response.precedingEventId && <p className="mt-1">Preceding event: {events[response.precedingEventId]?.summary ?? response.precedingEventId}</p>}
           {response.assigneePersonId && <p className="mt-1">Assignee: {people[response.assigneePersonId]?.name ?? response.assigneePersonId}</p>}
           {response.execution && <p className="mt-1">Execution: {response.execution.workPerformed} · Labor: {response.execution.laborBasis} · Materials: {response.execution.materialsBasis} · Result: {response.execution.result}</p>}
           {response.verification && <p className="mt-1">Verification: {response.verification.outcome} · {response.verification.rationale}</p>}
