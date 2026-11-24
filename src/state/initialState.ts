@@ -126,7 +126,7 @@ export function createInitialGameState(player?: Person, opportunitySeed = 'era1-
   };
   return {
     calendar: { eraId: 'era-1', dayNumber: 1, displayDate: 'Day 1 · Uruk (c. 3200 BCE)' },
-    dayClose: { phase: 'workday_open', pendingSettlementId: null, lastFinalizedSettlementId: null, pendingCredits: [] },
+    dayClose: { phase: 'workday_open', pendingSettlementId: null, lastFinalizedSettlementId: null, pendingCredits: [], preview: null },
     actionEconomy: { dailyApAllocation: 6, apRemaining: 6, overtimeUsedToday: false, nextDayApPenalty: false, recoveryLaborUsedToday: false },
     player: { currentCharacterId: activePlayer.id },
     pendingSuccession: null,

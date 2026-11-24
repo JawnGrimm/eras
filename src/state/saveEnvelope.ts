@@ -551,6 +551,20 @@ function isValidV3GameState(value: unknown, workCatalog: Readonly<Record<string,
     || !(dayClose.pendingSettlementId === null || nonEmptyString(dayClose.pendingSettlementId))
     || !(dayClose.lastFinalizedSettlementId === null || nonEmptyString(dayClose.lastFinalizedSettlementId))
     || !Array.isArray(dayClose.pendingCredits)
+    || (dayClose.phase === 'interlude_open' && (!isObject(dayClose.preview)
+      || !finiteNonNegative(dayClose.preview.startingProvisions)
+      || !finiteNonNegative(dayClose.preview.assignmentMoneyEarned)
+      || !finiteNonNegative(dayClose.preview.assignmentProvisionsEarned)
+      || !finiteNonNegative(dayClose.preview.workContractProvisionEarned)
+      || !['qualified_workday','no_active_work_contract','insufficient_work_ap'].includes(String(dayClose.preview.workContractProvisionReason))
+      || !finiteNonNegative(dayClose.preview.sustenanceDeducted)
+      || !finiteNonNegative(dayClose.preview.endingProvisions)
+      || !Number.isInteger(dayClose.preview.shortageWorkdays) || (dayClose.preview.shortageWorkdays as number) < 0
+      || !finiteNonNegative(dayClose.preview.shortageStressDelta)
+      || !finiteNonNegative(dayClose.preview.cumulativeShortageStress)
+      || !finiteNonNegative(dayClose.preview.overtimeStress)
+      || ![5,6].includes(Number(dayClose.preview.tomorrowAp))))
+    || (dayClose.phase === 'workday_open' && dayClose.preview != null)
     || typeof opportunities.selectionSeed !== 'string' || !opportunities.selectionSeed.trim()
     || !Array.isArray(opportunities.occurrenceLedger)) return false;
   const expectedPendingId = `${String(value.calendar.eraId)}:${String(value.calendar.dayNumber)}`;
@@ -658,6 +672,7 @@ function migrateV2Envelope(value: Record<string, unknown>, raw: string): SaveEnv
       pendingSettlementId: null,
       lastFinalizedSettlementId: null,
       pendingCredits: [],
+      preview: null,
     },
     opportunities: {
       ...opportunities,
