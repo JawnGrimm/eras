@@ -3,7 +3,7 @@ import { advanceInstitutionalMatters, MATTER_IDS, STOREHOUSE_INSTITUTION_ID, EAN
 import { generateDailyAssignments } from '../engine/assignmentGenerator';
 import { createInitialGameState } from '../state/initialState';
 import { createSaveEnvelope, restoreSave } from '../state/saveEnvelope';
-import { era1ComF02TwoClaims, ERA1_COM_F02_F04_PEOPLE } from '../content/assignments/eraICommercialFamilies';
+import { era1ComF02TwoClaims, era1ComF03PartialReturn, ERA1_COM_F02_F04_PEOPLE } from '../content/assignments/eraICommercialFamilies';
 import { submitRubricAssignmentActivity } from '../engine/eraIAnchorSubmission';
 import type { InstitutionalMatter, MatterId } from '../state/types';
 import type { RecordId } from '../state/ids';
@@ -96,7 +96,6 @@ describe('Era I Commercial F02-F04 causal matter pipeline', () => {
   it('resolves F03 oral evidence to its current matter testimony sources when the report is filed', () => {
     let state = advance(createInitialGameState(), 8);
     state = advance(state, 9);
-    const { era1ComF03PartialReturn } = require('../content/assignments/eraICommercialFamilies') as typeof import('../content/assignments/eraICommercialFamilies');
     const offer = Object.values(state.opportunities.assignments).find((item) =>
       item.activityId === era1ComF03PartialReturn.id,
     )!;
