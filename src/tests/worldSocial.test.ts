@@ -11,7 +11,7 @@ import type { PersonId, InstitutionId, AppointmentId, EventId, RecordId, Knowled
 import type { GameState, Person } from '../state/types';
 
 function nextWorkday(state: GameState, dayNumber = state.calendar.dayNumber): ReturnType<typeof transitionGame> {
-  const closed = nextWorkday(state, dayNumber);
+  const closed = transitionGame(state, { type: 'END_DAY', expectedDayNumber: dayNumber });
   const settlementId = closed.state.dayClose.pendingSettlementId;
   return settlementId
     ? transitionGame(closed.state, { type: 'BEGIN_WORKDAY', expectedSettlementId: settlementId })

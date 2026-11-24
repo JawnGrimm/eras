@@ -10,7 +10,7 @@ import { storehouseReckoning } from '../works/storehouseReckoning';
 import { STOREHOUSE_WORK_ID } from '../works/storehouseReckoning';
 
 function nextWorkday(state: GameState, dayNumber = state.calendar.dayNumber, workCatalog: Parameters<typeof transitionGame>[3] = {}): ReturnType<typeof transitionGame> {
-  const closed = nextWorkday(state, dayNumber, workCatalog);
+  const closed = transitionGame(state, { type: 'END_DAY', expectedDayNumber: dayNumber }, undefined, workCatalog);
   const settlementId = closed.state.dayClose.pendingSettlementId;
   return settlementId
     ? transitionGame(closed.state, { type: 'BEGIN_WORKDAY', expectedSettlementId: settlementId }, undefined, workCatalog)
