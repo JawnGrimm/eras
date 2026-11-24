@@ -382,12 +382,12 @@ export function ProductionPeopleAndInstitutions({ initialSection = 'people', ini
             </select>
             <p className="mt-2 text-xs text-stone-500" aria-live="polite">{matchingPeople.length} of {people.length} people</p>
           </div>
-          <div className="space-y-2" aria-label="Matching people">
-            {matchingPeople.map((person) => <PersonIndexRow key={person.id} person={person}
+          <ul aria-label="Matching people" className="space-y-2">
+            {matchingPeople.map((person) => <li key={person.id}><PersonIndexRow person={person}
               context={personContext(person) || undefined}
-              selected={selectedPerson?.id === person.id} onSelect={() => setSelectedPersonId(person.id)} />)}
-            {matchingPeople.length === 0 && <p className="rounded-lg border border-stone-300 bg-white p-3 text-sm text-stone-500">No people match this search.</p>}
-          </div>
+              selected={selectedPerson?.id === person.id} onSelect={() => setSelectedPersonId(person.id)} /></li>)}
+            {matchingPeople.length === 0 && <li><p className="rounded-lg border border-stone-300 bg-white p-3 text-sm text-stone-500">No people match this search.</p></li>}
+          </ul>
         </aside>
         <div id="people-detail" aria-live="polite" className="min-w-0">
           {selectedPerson
