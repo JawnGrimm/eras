@@ -175,4 +175,4 @@ The save key and local persistence behavior must be inspected before choosing th
 
 ## 8. Validation status
 
-This note is an engineering proposal based on current `main` source inspection. It is not a tested implementation. The code PR adds a structural content validator and focused tests; CI is pending at the time of authoring.
+This note is an engineering proposal based on current `main` source inspection. It is not a runtime implementation. The code PR adds a structural content validator and focused tests. GitHub Actions Pull Request Validation completed successfully on the current PR head: TypeScript check, unit tests, and production build all passed. CodeQL remains in progress.
