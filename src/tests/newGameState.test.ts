@@ -133,13 +133,30 @@ describe('Challenge character ownership', () => {
     expect(isValidSaveEnvelope(createSaveEnvelope(invalid, 1), catalog)).toBe(false);
   });
 
-  it('preserves Challenge ownership through a real character handoff', () => {
+  it('preserves accepted Challenge ownership through succession after a relationship is established in play', () => {
     let state = createNewGameState(TEST_CHARACTER_CREATION);
-    const id = Object.keys(state.opportunities.challenges)[0] as ChallengeId;
+    const introductoryChallengeId = Object.keys(state.opportunities.challenges)[0] as ChallengeId;
+    state = transitionGame(state, { type: 'ACCEPT_CHALLENGE', challengeId: introductoryChallengeId }).state;
+    state = transitionGame(state, {
+      type: 'RESOLVE_CHALLENGE', challengeId: introductoryChallengeId, choiceId: 'preserve-uncertain-reading',
+    }).state;
     const originalPlayerId = state.player.currentCharacterId;
-    state = transitionGame(state, { type: 'ACCEPT_CHALLENGE', challengeId: id }).state;
-    state = transitionGame(state, { type: 'BEGIN_CHARACTER_DEPARTURE', departureKind: 'departure' }).state;
-    state = transitionGame(state, { type: 'SELECT_SUCCESSOR', nextCharacterId: 'person-uruk-nin-aya' as PersonId }).state;
+    const id = 'challenge-handoff-ownership' as ChallengeId;
+    const acceptedChallenge = {
+      ...challenge(id), status: 'accepted' as const, assigneePersonId: originalPlayerId,
+    };
+    state = {
+      ...state,
+      opportunities: {
+        ...state.opportunities,
+        challenges: { ...state.opportunities.challenges, [id]: acceptedChallenge },
+      },
+    };
+    const departure = transitionGame(state, { type: 'BEGIN_CHARACTER_DEPARTURE', departureKind: 'departure' });
+    expect(departure.state.pendingSuccession?.candidateIds).toContain('person-uruk-nin-aya');
+    state = transitionGame(departure.state, {
+      type: 'SELECT_SUCCESSOR', nextCharacterId: 'person-uruk-nin-aya' as PersonId,
+    }).state;
     expect(state.player.currentCharacterId).toBe('person-uruk-nin-aya');
     expect(state.opportunities.challenges[id].assigneePersonId).toBe(originalPlayerId);
     const resolution = transitionGame(state, { type: 'RESOLVE_CHALLENGE', challengeId: id, choiceId: 'preserve-uncertain-reading' });
