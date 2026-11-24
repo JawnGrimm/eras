@@ -148,9 +148,16 @@ describe('Assignment and Challenge foundations', () => {
     const completed = transitionGame(state, { type: 'COMPLETE_ASSIGNMENT', assignmentId: 'complete-me' as AssignmentId });
     expect(completed.feedback?.code).toBe('assignment-completed');
     expect(completed.state.actionEconomy.apRemaining).toBe(beforeAp - 2);
-    expect(getInitializedScribal(completed.state.world.people[INITIAL_PERSON_ID])!.wallet.money).toBe(beforeMoney + 3);
+    expect(getInitializedScribal(completed.state.world.people[INITIAL_PERSON_ID])!.wallet.money).toBe(beforeMoney);
+    expect(completed.state.dayClose.pendingCredits).toContainEqual(expect.objectContaining({
+      source: { kind: 'assignment', id: 'complete-me' }, earnedDay: 1, money: 3, provisions: 1, status: 'pending',
+    }));
     expect(completed.state.opportunities.assignments['complete-me' as AssignmentId].status).toBe('completed');
     expect(transitionGame(completed.state, { type: 'COMPLETE_ASSIGNMENT', assignmentId: 'complete-me' as AssignmentId }).feedback?.code).toBe('assignment-not-active');
+    const settled = nextWorkday(completed.state, 1);
+    expect(getInitializedScribal(settled.state.world.people[INITIAL_PERSON_ID])!.wallet.money).toBe(beforeMoney + 3);
+    expect(getInitializedScribal(settled.state.world.people[INITIAL_PERSON_ID])!.wallet.provisions).toBe(5);
+    expect(settled.state.dayClose.pendingCredits[0]).toMatchObject({ status: 'credited', creditedBySettlementId: 'era-1:1' });
   });
 
   it('rolls back Assignment compensation, consequences, AP, and status when the combined wallet result is negative', () => {
