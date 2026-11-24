@@ -222,7 +222,8 @@ describe('P2-2 authored Uruk Assignment activities', () => {
     const afterTutorial = runChallengeDirector(generateDailyAssignments(withCompletedTutorial(state)));
     expect(Object.values(afterTutorial.opportunities.challenges).some((challenge) => challenge.title === 'The Seven Sealed Jars')).toBe(true);
 
-    const noCause = runChallengeDirector(withCompletedTutorial(createInitialGameState()));
+    const noCauseState = createInitialGameState();
+    const noCause = runChallengeDirector(withCompletedTutorial({ ...noCauseState, calendar: { ...noCauseState.calendar, dayNumber: 5 } }));
     expect(noCause.opportunities.challenges).toEqual({});
   });
 
