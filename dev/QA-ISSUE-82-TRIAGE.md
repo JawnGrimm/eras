@@ -4,6 +4,18 @@
 **Source:** Game Director's manual smoke test of the deployed Character Creation → Workday 1 → Storehouse Reckoning build, 24 November 2026; Issue #82 and its source follow-up.  
 **Authority:** Issue #82 records observed defects. The Game Director approved this triage package on 24 November 2026; Production is authorized to begin the five independent QA corrections under `docs/production/PRODUCTION-HANDOFF-001.md`.
 
+## Current execution status — 24 November 2026
+
+This status note tracks the authorized QA handoff; it does not change the acceptance criteria below.
+
+- **QA-82-1:** Implemented in PR #88. Assignment-specific responsibility guidance is authored on the relevant Assignment definitions; the shared screen renders only the active definition's hint.
+- **QA-82-2:** Implemented in PR #88. Storehouse Work actions carry authored success messages, and unknown action labels use a neutral fallback rather than exposing internal IDs.
+- **QA-82-3:** Implemented in PR #88 under the approved temporary-withholding ruling. The source catalog remains unchanged; the Character Creator picker omits the single curated name containing the raw catalog multiplication marker. **Seven** curated choices remain, above the approximately-four-choice fallback threshold. No substitute names or suffix stripping are needed. No speculative pronunciations; saved identities are untouched.
+- **QA-82-4:** Implemented in PR #88. Fresh-game Day 1 no longer seeds “The Apprentice's Copy”; Era I Challenge selection and the Challenge Director are held until Storehouse Reckoning is completed; the invalid legacy starter instance is suppressed from presentation without save mutation; resolution feedback identifies the selected authored outcome.
+- **QA-82-5:** Implemented in PR #88. Player-facing Era I Money presentation uses **Currency**, including Assignment compensation, Workday/settlement guidance, succession, and Ur-gir advance/obligation copy. New obligations use Currency wording; legacy obligation descriptions are presented compatibly without rewriting saved records or balances.
+
+**PR #88:** OPEN / READY FOR REVIEW / UNMERGED at `1c6fd0b28f6ecf4eae32b4a59fc65bee9a236b8d` at the time of this status update. Pull Request Validation #420 passed: TypeScript check, **29 test files / 222 tests**, and production build. CodeQL #289 passed. The workflow checked synthetic merge ref `6d8f13d` against base `a6e00cb`. PR #89 subsequently advanced `main` to `2a0e508` with documentation-only changes; GitHub currently reports PR #88 mergeable with no conflicts. The triage update will trigger fresh PR validation against the current base. No local test execution, merge, deployment, or manual in-browser acceptance verification is claimed. Issue #82 remains open until PR #88 is reviewed, merged, deployed, and verified.
+
 ## 1. Scope and disposition
 
 Issue #82 contains five independent findings. Keep them separately traceable; do not fold them into the Assignment/Challenge generator implementation or treat this triage as permission to reprioritize Production.
@@ -50,16 +62,22 @@ Issue #82 contains five independent findings. Keep them separately traceable; do
 **Observed:** The curated sample `Šubur-e₂a×1N57` is displayed literally in the protagonist header.
 
 **Classification:** Display-name/content editorial defect; provenance/display separation.  
-**Root cause:** Not yet verified. Production must inspect the curated sample source and Creator/header display path.
+**Root cause:** Production must inspect the curated sample source and Creator/header display path; do not assume the header is the only affected surface.
 
-**Expected behavior:** Curated samples are player-readable display forms. Sign-list/catalog notation is not exposed as the character's display name. Historical source notation may be retained separately as provenance/reference metadata. Do not invent or imply a reconstructed pronunciation.
+**Game Director ruling (24 November 2026): APPROVED — TEMPORARY WITHHOLDING.**
+- Temporarily omit any curated sample name containing raw sign-catalog notation (including suffix patterns such as `×1N57`) from the Character Creator picker.
+- This is a picker availability filter, not a rename or deletion of historical source data. Preserve source notation/provenance separately where already represented.
+- Fallback only if withholding leaves fewer than approximately four curated sample choices: Design HQ may supply clean, readable, period-grounded names from the existing verified Uruk pool, or strip catalog suffixes only where the remaining form is already a valid standalone display form supported by the source.
+- Do not invent speculative pronunciations or unsupported names.
+- Existing saved characters and identities remain untouched; no save migration or rewrite.
 
 **Acceptance / regression:**
-- Audit all curated sample names, not only the observed one.
-- Separate any retained source/catalog notation from the display-name field.
-- Verify Creator review, confirmed protagonist header, and relevant biography surfaces use the display form consistently.
-- Add a regression for the reported sample and a catalog-level check preventing source notation from entering player-facing display names.
-- Preserve the approved custom-name rules and existing saved character identities; do not silently rename existing saves.
+- Audit all curated sample names and identify which contain raw catalog notation.
+- Confirm the picker omits every affected option and retains all unaffected valid options.
+- Count the remaining curated choices. Invoke fallback only if fewer than approximately four remain; report the exact count and proposed source-backed forms to Design HQ.
+- Verify Creator review and all player-facing name surfaces cannot expose the raw catalog notation through the curated picker path.
+- Add a regression for the reported sample and a catalog-level test for the withholding rule.
+- Preserve custom-name rules and existing saved character identities. Do not rewrite existing saves.
 
 ### QA-82-4 — “The Apprentice's Copy” onboarding gate and outcome feedback
 
@@ -133,3 +151,8 @@ For each finding, report:
 7. Any deviation from the approved expected behavior.
 
 **Execution boundary:** This approved package authorizes Production to investigate and implement QA-82-1 through QA-82-5 independently and immediately, without waiting for the broader GD-OPPORTUNITY-001 runtime milestone or Evening Interlude UI. QA-82-5 Currency-label replacement may ship across existing surfaces now. This does not silently reprioritize other roadmap work; Production reports sizing/risk and coordinates sequencing. Issue #82 remains open until fixes are verified and accepted. No defect is declared fixed by this document.
+
+
+## Game Director ruling update — 24 November 2026
+
+QA-82-3 is unblocked under the temporary-withholding decision above. Production is authorized to complete QA-82-1 through QA-82-5 together, run the complete regression/acceptance set, and merge Issue #82 once verified. Issue #82 remains ahead of overlapping Issue #85 runtime edits; independent Issue #85 preparation may continue. The ruling is recorded in the Issue #82 GitHub thread.
