@@ -2,6 +2,7 @@ import type { PersonId } from '../../state/ids';
 import type { AssignmentActivityDefinition } from './northBayRoofInspection';
 import type { AssignmentOpportunityDefinition } from './opportunityDefinitions';
 import { ERA_I_ASSIGNMENT_PARAMETERS } from './eraIParameters';
+import { ERA_I_COMMERCIAL_FAMILY_OPPORTUNITY_DEFINITIONS } from './eraICommercialFamilies';
 
 export const ERA1_COM_F01_ACTIVITY_ID = 'activity-era1-com-f01-material-description';
 export const ERA1_COM_F01_PEOPLE = {
@@ -147,4 +148,5 @@ export const ERA1_COM_F01_OPPORTUNITY_DEFINITION: AssignmentOpportunityDefinitio
 
 export const ERA_I_COMMERCIAL_MARTIAL_OPPORTUNITY_DEFINITIONS = [
   ERA1_COM_F01_OPPORTUNITY_DEFINITION,
+  ...ERA_I_COMMERCIAL_FAMILY_OPPORTUNITY_DEFINITIONS,
 ] as const;

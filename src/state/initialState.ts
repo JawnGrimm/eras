@@ -3,9 +3,11 @@ import type { EventId, InstitutionId, PersonId, AppointmentId } from './ids';
 import { UR_GIR_PERSON_ID } from './ids';
 import { NORTH_BAY_LOCATION_ID, NORTH_BAY_PEOPLE } from '../content/assignments/northBayRoofInspection';
 import { ERA1_COM_F01_PEOPLE } from '../content/assignments/eraICommercialMartial';
+import { ERA1_COM_F02_F04_PEOPLE } from '../content/assignments/eraICommercialFamilies';
 import {
   MATTER_IDS, STOREHOUSE_INSTITUTION_ID, SOUTH_COURT_LOCATION_ID, SOUTH_LOADING_LOCATION_ID, ERA1_COM_F01_LOCATION_ID,
   EANNA_INSTITUTION_ID, EANNA_TABLET_ROOM_LOCATION_ID,
+  TEXTILE_HOUSEHOLD_INSTITUTION_ID, TEXTILE_HOUSEHOLD_LOCATION_ID, RIVER_LANDING_LOCATION_ID,
   createSouthCourtDeliveryMatter, createSouthLoadingAwningMatter,
 } from '../engine/institutionalMatters';
 export const INITIAL_PERSON_ID = 'person-enlil-barni' as PersonId;
@@ -138,8 +140,33 @@ export function createInitialGameState(player?: Person, opportunitySeed = 'era1-
     },
     { id: ninKasiId, name: 'Nin-kasi', alive: true, affiliations: [templeStorehouseId] },
     { id: ERA1_COM_F01_PEOPLE.workshopOverseer, name: 'Ur-Lamma', alive: true, affiliations: [], lifeStage: 'craft_practitioner' as const, socialIdentity: { occupation: 'Precinct workshop overseer', summary: 'A workshop overseer who judges whether delivered material is suitable for the work in hand.' } },
-    { id: ERA1_COM_F01_PEOPLE.responsibleAuthority, name: 'Lu-Nanshe', alive: true, affiliations: [templeStorehouseId], lifeStage: 'active_official' as const, socialIdentity: { occupation: 'Household overseer', summary: 'A responsible overseer who decides whether a disputed delivery is accepted or referred for replacement.' } },
+    { id: ERA1_COM_F01_PEOPLE.responsibleAuthority, name: 'Lu-Nanshe', alive: true, affiliations: [templeStorehouseId, EANNA_INSTITUTION_ID], lifeStage: 'active_official' as const, socialIdentity: { occupation: 'Household overseer', summary: 'A responsible overseer who decides whether a disputed delivery is accepted or referred for replacement.' } },
     { id: ERA1_COM_F01_PEOPLE.carrier, name: 'Kuli', alive: true, affiliations: [], lifeStage: 'craft_practitioner' as const, socialIdentity: { occupation: 'Carrier', summary: 'A carrier who brought the covered load to the receiving court and can give an account of his part in its movement.' } },
+    // Provisional authored NPC identities; names and social roles remain replaceable content data.
+    {
+      id: ERA1_COM_F02_F04_PEOPLE.gemeInana, name: 'Geme-Inana', alive: true,
+      affiliations: [TEXTILE_HOUSEHOLD_INSTITUTION_ID], currentLocationId: TEXTILE_HOUSEHOLD_LOCATION_ID,
+      lifeStage: 'craft_practitioner' as const,
+      socialIdentity: { occupation: 'Textile household organizer', summary: 'A provisional authored participant who coordinates textile work and exchange obligations within her household.' },
+      objectives: [
+        { id: 'objective-geme-inana-workframes', horizon: 'immediate' as const, summary: 'Secure timber for household work-frames.', motivation: 'The household has work waiting that depends on the timber request.', createdDay: 1, status: 'active' as const, visibility: 'public' as const },
+        { id: 'objective-geme-inana-exchange', horizon: 'immediate' as const, summary: 'Receive the goods expected from an earlier outbound exchange.', motivation: 'People in the household are waiting on the return before the next dispatch is sent.', createdDay: 1, status: 'active' as const, visibility: 'public' as const },
+      ],
+      circumstances: [
+        { id: 'circumstance-geme-inana-workframes', kind: 'work' as const, summary: 'A household work-frame task is waiting on timber.', sinceDay: 1, status: 'active' as const, visibility: 'public' as const },
+        { id: 'circumstance-geme-inana-exchange', kind: 'dispute' as const, summary: 'An earlier outbound exchange has not yet been fully returned.', sinceDay: 1, status: 'active' as const, visibility: 'public' as const },
+      ],
+    },
+    {
+      id: ERA1_COM_F02_F04_PEOPLE.amaGi, name: 'Ama-gi', alive: true, affiliations: [],
+      currentLocationId: RIVER_LANDING_LOCATION_ID, lifeStage: 'craft_practitioner' as const,
+      socialIdentity: { occupation: 'Landing agent (provisional)', summary: 'A provisional authored participant associated with a consignment handover at the river landing.' },
+    },
+    {
+      id: ERA1_COM_F02_F04_PEOPLE.sigAna, name: 'Sig-ana', alive: true, affiliations: [],
+      currentLocationId: RIVER_LANDING_LOCATION_ID, lifeStage: 'craft_practitioner' as const,
+      socialIdentity: { occupation: 'Witness (provisional)', summary: 'A provisional authored participant who observed part of a consignment handover.' },
+    },
   ];
   const people: Record<PersonId, Person> = {
     [activePlayer.id]: activePlayer,
@@ -181,12 +208,20 @@ export function createInitialGameState(player?: Person, opportunitySeed = 'era1-
           authority: ['Review submitted administrative records', 'Refer matters to the responsible precinct authority'],
           standing: 50, activeMatters: [],
         },
+        [TEXTILE_HOUSEHOLD_INSTITUTION_ID]: {
+          id: TEXTILE_HOUSEHOLD_INSTITUTION_ID, name: 'Geme-Inana’s Textile Household', locationId: TEXTILE_HOUSEHOLD_LOCATION_ID,
+          responsibilities: ['Coordinate household textile work and its associated exchange obligations'],
+          authority: ['Decide whether to wait for an exchange return, send word, or withhold a later dispatch'],
+          standing: 50, activeMatters: [],
+        },
       }, locations: {
         [storehouseLocationId]: { id: storehouseLocationId, name: 'Temple Storehouse, north storage bay' },
         [SOUTH_COURT_LOCATION_ID]: { id: SOUTH_COURT_LOCATION_ID, name: 'Temple Storehouse, south receiving court' },
         [SOUTH_LOADING_LOCATION_ID]: { id: SOUTH_LOADING_LOCATION_ID, name: 'Temple Storehouse, south loading court' },
         [ERA1_COM_F01_LOCATION_ID]: { id: ERA1_COM_F01_LOCATION_ID, name: 'Eanna receiving court, Uruk' },
         [EANNA_TABLET_ROOM_LOCATION_ID]: { id: EANNA_TABLET_ROOM_LOCATION_ID, name: 'Eanna precinct tablet room, Uruk' },
+        [TEXTILE_HOUSEHOLD_LOCATION_ID]: { id: TEXTILE_HOUSEHOLD_LOCATION_ID, name: 'Textile household work space, Uruk' },
+        [RIVER_LANDING_LOCATION_ID]: { id: RIVER_LANDING_LOCATION_ID, name: 'River landing, Uruk' },
       },
       appointments: Object.fromEntries(appointments.map((appointment) => [appointment.id, appointment])), events: { [deliveryEventId]: deliveryEvent, [awningEventId]: awningEvent }, knowledge: {},
       matters: {
