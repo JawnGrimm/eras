@@ -83,7 +83,7 @@ export function resolveEraICharacterStartingState(
   const skillXpSources: Partial<Record<SkillId, string[]>> = {};
   const award = (skillId: SkillId, amount: number) => {
     skills[skillId].skillXp += amount;
-    skillXpSources[skillId] = ['TR-' + choices.instructionId.slice(3)];
+    skillXpSources[skillId] = [choices.instructionId];
   };
   switch (choices.instructionId) {
     case 'TR-01':
