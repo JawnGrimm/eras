@@ -63,3 +63,47 @@ These findings are implementation/documentation reconciliation items. Production
 - Both PRs were squash-merged after the final rebased-head checks. No deployment is recorded by these merges.
 
 **Post-merge integration commit (before this status entry):** `302e64b610c924c8408826aab255f17138e53347`.
+
+
+## GD-CHARACTER-START-001 post-merge integration review — 24 November 2026
+
+**Verified baseline:** PR #70 merged to `main` as `ca3c95466d8bbc7522dc54e2e6b566e28239874c`. The merge commit is the latest commit returned by the repository's commit listing at the time of this review. PR #70 is closed and merged. This entry supersedes earlier statements in this document and Issue #69 that describe PR #70 as open or awaiting rebase.
+
+### Merged scope
+
+PR #70 adds the deterministic Era I five-event history resolver, approved responsibility/formative compatibility and participant mapping, familiarity merging with exposure and Life Event provenance, Person history read model/profile presentation, deterministic Person ID primitive, tests, and the bootstrap-consumer audit. The merge does not implement the complete approved Character Creator or replace the fresh-game protagonist.
+
+### Verified remaining implementation work
+
+Source inspection on the merged `main` confirms:
+
+- `src/content/characterCreation/eraICharacterHistory.ts` still writes `era1-character-history-v1` as `CharacterCreationRecord.contentVersion`.
+- `src/state/characterIdentity.ts` still hashes the history-map version directly and validates only a non-empty trimmed name. The approved contract requires the combined package version `era1-character-creation-v1`, a retained explicit dependency on `era1-character-history-v1`, and the approved 1–60 Unicode-code-point name hygiene.
+- The approved starting-state resolver is absent: explicit six-attribute baseline/emphases, six level-1 skills and lesson Skill XP, four reputation values, opening baseline/exclusions, and orientation context remain to be materialized.
+- The eight approved curated sample names are not yet implemented.
+- `src/state/newGameState.ts` still exports zero-argument `createNewGameState()`, calls `createInitialGameState()`, and authors the starter Challenge with Enlil-barni as the assisting scribe and relationship consequence source.
+- `src/state/initialState.ts` still constructs Enlil-barni as the initial player character with the old profile (Career XP 150, Money 12, Stress 15) and old player relationship state. This is not an approved new-character template.
+- Fixed player-name references remain in starter content, including the follow-on roof Assignment in `src/works/storehouseReckoning.ts` and the physical-inspection provenance in `src/engine/assignmentActivity.ts`.
+- `src/state/GameProvider.tsx` still invokes the zero-argument factory for no-save initialization and explicit fresh-save reset. The Creator must become the fresh-game entry path; existing-save restoration must remain separate and unchanged.
+- The minimal Creator, responsibility/formative compatibility interaction, final review/provenance presentation, and confirmation-to-Workday-1 handoff remain unimplemented.
+
+These are implementation findings, not new design decisions. Follow `dev/GD-CHARACTER-START-001.md` without reopening its approved content mappings or provisional values.
+
+### Validation and compatibility
+
+PR #70's reported CI results apply to its pre-merge head `d9afa275adba4d784ee70e0fa00509c8e4634ac8`: TypeScript, 27 test files / 201 tests, production build, and CodeQL passed there. They are not evidence that the remaining Creator/bootstrap integration has been implemented or validated. The merge commit returned no combined status entries in the post-merge status query. No local build, type-check, or test execution is claimed by this review.
+
+No save-schema bump or migration is authorized. Keep schema v2; preserve legacy save restoration and legacy Persons without synthesized Life Events, Familiarities, or CharacterCreationRecords. Do not create Enlil-barni as a second new-game character or carry his old identity, relationships, or starting values into a player-created character.
+
+### Recommended production sequence
+
+1. Implement the versioned creation-package boundary and approved name validation/catalogue; retain the PR #70 history resolver and its 3,328-combination coverage.
+2. Implement deterministic starting-state resolution from the validated five choices and orientation.
+3. Separate reusable world/NPC construction from the legacy fixed-player fixture; create/register the player Person before player-dependent opening content.
+4. Parameterize starter Challenge, tutorial follow-on content, Assignment provenance, and all other audited protagonist consumers.
+5. Add the minimal Creator and final review, including explicit replacement when a Responsibility change invalidates the selected Formative Experience.
+6. Make no-save initialization and explicit reset enter the Creator; keep valid save restoration and corrupt-save protection unchanged.
+7. Add integration and regression tests for new-game identity, all starting effects, all orientations, tutorial equivalence, name edge cases, reset, and legacy save restoration.
+8. Run full validation on the integrated branch, review the complete diff, and report implementation, tests actually executed, deviations, and limitations.
+
+**Current status:** History/identity foundation **MERGED**. GD-CHARACTER-START-001 **APPROVED — READY FOR IMPLEMENTATION**. Creator and fresh-game bootstrap **NOT IMPLEMENTED**. Integration **NOT VERIFIED**. Deployment **NOT RECORDED**.
