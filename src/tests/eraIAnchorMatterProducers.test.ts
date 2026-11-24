@@ -52,8 +52,10 @@ describe('Era I institutional anchor matter producers', () => {
 
   it('creates the anchor institution lazily when advancing a save from before the anchor portfolio', () => {
     const initial = createInitialGameState();
-    const { [EANNA_INSTITUTION_ID]: _eanna, ...institutions } = initial.world.institutions;
-    const { [EANNA_TABLET_ROOM_LOCATION_ID]: _tabletRoom, ...locations } = initial.world.locations;
+    const institutions = { ...initial.world.institutions };
+    const locations = { ...initial.world.locations };
+    delete institutions[EANNA_INSTITUTION_ID];
+    delete locations[EANNA_TABLET_ROOM_LOCATION_ID];
     const prePortfolioState = {
       ...initial,
       world: { ...initial.world, institutions, locations },
