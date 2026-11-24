@@ -12,7 +12,7 @@ import { ERA_I_CHARACTER_CREATION_CONTENT_VERSION } from '../state/eraICharacter
 const catalog = INITIAL_WORK_CATALOG;
 
 describe('Day 1 Uruk production bootstrap', () => {
-  it('starts Storehouse and seeds interactive Day 1 Assignments and the authored Challenge', () => {
+  it('starts Storehouse and interactive Day 1 Assignments without pre-seeding a Challenge', () => {
     const state = createNewGameState(TEST_CHARACTER_CREATION);
     expect(state.works.activeWorkId).toBe('work-storehouse-reckoning');
     expect(state.works.progress[STOREHOUSE_WORK_ID]).toBeDefined();
@@ -28,14 +28,7 @@ describe('Day 1 Uruk production bootstrap', () => {
       && Number.isInteger(offer.estimatedTotalAp) && offer.apCost === undefined)).toBe(true);
     expect(dayOneOffers.reduce((total, offer) => total + (offer.estimatedTotalAp ?? 0), 0)).toBe(7);
     expect(dayOneOffers.every((offer) => offer.offeredDay === 1 && offer.expiresDay === 4)).toBe(true);
-    expect(Object.values(state.opportunities.challenges)).toHaveLength(1);
-    const challenge = Object.values(state.opportunities.challenges)[0];
-    expect(challenge.status).toBe('offered');
-    expect(challenge.assigneePersonId).toBeUndefined();
-    expect(challenge.choices).toHaveLength(2);
-    expect(challenge.choices[0].consequences).not.toEqual(challenge.choices[1].consequences);
-    expect(challenge.choices.every((choice) => !('historicalXp' in choice.consequences))).toBe(true);
-    expect(JSON.stringify(challenge)).not.toMatch(/ev-0[1-7]/);
+    expect(state.opportunities.challenges).toEqual({});
     expect(state.actionEconomy.apRemaining).toBe(6);
     expect(state.world.people[state.player.currentCharacterId].name).toBe('Test Scribe');
     expect(state.world.people).not.toHaveProperty('person-enlil-barni');
@@ -53,6 +46,12 @@ describe('Day 1 Uruk production bootstrap', () => {
 });
 
 describe('Challenge character ownership', () => {
+  function presentFixtureChallenge(state: ReturnType<typeof createNewGameState>, id: string) {
+    const result = transitionGame(state, { type: 'PRESENT_CHALLENGE', challenge: challenge(id) });
+    expect(result.feedback?.code).toBe('challenge-presented');
+    return result.state;
+  }
+
   function challenge(id: string): Omit<ChallengeInstance, 'status' | 'assigneePersonId'> {
     return {
       id: id as ChallengeId,
@@ -86,13 +85,14 @@ describe('Challenge character ownership', () => {
     const assignmentIds = Object.keys(state.opportunities.assignments) as import('../state/ids').AssignmentId[];
     state = transitionGame(state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: assignmentIds[0] }).state;
     state = transitionGame(state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: assignmentIds[1] }).state;
-    const challengeId = Object.keys(state.opportunities.challenges)[0] as ChallengeId;
+    state = presentFixtureChallenge(state, 'challenge-cap-one');
+    const challengeId = 'challenge-cap-one' as ChallengeId;
     const acceptedChallenge = transitionGame(state, { type: 'ACCEPT_CHALLENGE', challengeId });
     expect(acceptedChallenge.feedback?.code).toBe('challenge-accepted');
     expect(acceptedChallenge.state.opportunities.challenges[challengeId].status).toBe('accepted');
 
-    const second = createNewGameState(TEST_CHARACTER_CREATION);
-    const secondChallengeId = Object.keys(second.opportunities.challenges)[0] as ChallengeId;
+    const second = presentFixtureChallenge(createNewGameState(TEST_CHARACTER_CREATION), 'challenge-cap-two');
+    const secondChallengeId = 'challenge-cap-two' as ChallengeId;
     const withChallenge = transitionGame(second, { type: 'ACCEPT_CHALLENGE', challengeId: secondChallengeId }).state;
     const firstAssignmentId = Object.keys(withChallenge.opportunities.assignments)[0] as import('../state/ids').AssignmentId;
     const acceptedAssignment = transitionGame(withChallenge, { type: 'ACCEPT_ASSIGNMENT', assignmentId: firstAssignmentId });
@@ -100,8 +100,8 @@ describe('Challenge character ownership', () => {
   });
 
   it('requires acceptance and current-character ownership before resolution', () => {
-    let state = createNewGameState(TEST_CHARACTER_CREATION);
-    const challengeId = Object.keys(state.opportunities.challenges)[0] as ChallengeId;
+    let state = presentFixtureChallenge(createNewGameState(TEST_CHARACTER_CREATION), 'challenge-ownership');
+    const challengeId = 'challenge-ownership' as ChallengeId;
     const offeredResolution = transitionGame(state, { type: 'RESOLVE_CHALLENGE', challengeId, choiceId: 'preserve-uncertain-reading' });
     expect(offeredResolution.feedback?.code).toBe('challenge-not-active');
     state = transitionGame(state, { type: 'ACCEPT_CHALLENGE', challengeId }).state;
@@ -121,8 +121,8 @@ describe('Challenge character ownership', () => {
     };
     expect(isValidSaveEnvelope(createSaveEnvelope(emptyLegacy, 1), catalog)).toBe(true);
 
-    const state = createNewGameState(TEST_CHARACTER_CREATION);
-    const id = Object.keys(state.opportunities.challenges)[0] as ChallengeId;
+    const state = presentFixtureChallenge(createNewGameState(TEST_CHARACTER_CREATION), 'challenge-save');
+    const id = 'challenge-save' as ChallengeId;
     const accepted = transitionGame(state, { type: 'ACCEPT_CHALLENGE', challengeId: id }).state;
     expect(isValidSaveEnvelope(createSaveEnvelope(accepted, 1), catalog)).toBe(true);
     const { assigneePersonId: _owner, ...ownerless } = accepted.opportunities.challenges[id];
@@ -134,8 +134,8 @@ describe('Challenge character ownership', () => {
   });
 
   it('preserves accepted Challenge ownership through succession after a relationship is established in play', () => {
-    let state = createNewGameState(TEST_CHARACTER_CREATION);
-    const introductoryChallengeId = Object.keys(state.opportunities.challenges)[0] as ChallengeId;
+    let state = presentFixtureChallenge(createNewGameState(TEST_CHARACTER_CREATION), 'challenge-succession-intro');
+    const introductoryChallengeId = 'challenge-succession-intro' as ChallengeId;
     state = transitionGame(state, { type: 'ACCEPT_CHALLENGE', challengeId: introductoryChallengeId }).state;
     state = transitionGame(state, {
       type: 'RESOLVE_CHALLENGE', challengeId: introductoryChallengeId, choiceId: 'preserve-uncertain-reading',
@@ -164,20 +164,22 @@ describe('Challenge character ownership', () => {
   });
 
   it('keeps declined Challenges archived as declined and unavailable for acceptance', () => {
-    let state = createNewGameState(TEST_CHARACTER_CREATION);
-    const id = Object.keys(state.opportunities.challenges)[0] as ChallengeId;
+    let state = presentFixtureChallenge(createNewGameState(TEST_CHARACTER_CREATION), 'challenge-decline');
+    const id = 'challenge-decline' as ChallengeId;
     state = transitionGame(state, { type: 'DECLINE_CHALLENGE', challengeId: id }).state;
     expect(state.opportunities.challenges[id].status).toBe('declined');
     expect(transitionGame(state, { type: 'ACCEPT_CHALLENGE', challengeId: id }).feedback?.code).toBe('challenge-not-offered');
   });
 
   it('archives the resolving character on the permanent Challenge outcome', () => {
-    let state = createNewGameState(TEST_CHARACTER_CREATION);
-    const id = Object.keys(state.opportunities.challenges)[0] as ChallengeId;
+    let state = presentFixtureChallenge(createNewGameState(TEST_CHARACTER_CREATION), 'challenge-archive');
+    const id = 'challenge-archive' as ChallengeId;
     const originalPlayerId = state.player.currentCharacterId;
     state = transitionGame(state, { type: 'ACCEPT_CHALLENGE', challengeId: id }).state;
     const result = transitionGame(state, { type: 'RESOLVE_CHALLENGE', challengeId: id, choiceId: 'preserve-uncertain-reading' });
     expect(result.feedback?.code).toBe('challenge-resolved');
+    expect(result.feedback?.message).toContain('A disputed practice copy: Preserve uncertainty.');
+    expect(result.feedback?.message).toContain('Mark the line uncertain.');
     expect(result.state.opportunities.challengeOutcomes[0].assigneePersonId).toBe(originalPlayerId);
     expect(result.state.historicalProgression.historicalXp).toBe(0);
   });
