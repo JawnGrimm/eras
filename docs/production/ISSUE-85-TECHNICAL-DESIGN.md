@@ -4,17 +4,13 @@
 **Specification:** `GD-OPPORTUNITY-001` §§3.6–3.7 and 4.1–4.6  
 **Scope:** Non-overlapping technical audit and implementation preparation. This note does not authorize persistent-state changes, economy rebalance, or runtime edits to the opportunity/UI surfaces while Issue #82 remains open.
 
-## 1. Era I anchor content preparation
+## 1. Era I anchor content boundary
 
-The five anchors now have a typed semantic catalog in `src/content/assignments/eraIAnchorScripts.ts`.
+The authored semantic baseline is `dev/GD-ERA1-ANCHORS-001.md`, merged through PR #86. It remains the source of truth for the five anchor situations, historical confidence, evidence/provenance, apprentice authority, playable work, judgment, outcomes/recovery, and recurrence boundaries.
 
-The catalog intentionally preserves authored content rather than defining runtime behavior. It does not assign:
-- eligibility predicates or orientation-specific gates;
-- occurrence IDs or recurrence schedules;
-- AP costs, offer expiry, weights, Currency, Provisions, or Career XP values;
-- save-state fields or transition APIs.
+PR #87 deliberately does **not** mirror that document into `src/content/`. The previous typed catalog contained editorial/provenance prose but did not define executable Assignment behavior or a production-ready runtime contract. It has been removed rather than shipped as dead client-bundle content.
 
-The labor-group / grain-disbursement pairing remains explicitly provisional. The Field Measurement script retains the Uruk III / Jemdet Nasr catalogue qualification. The Inana script keeps dairy and fish categories separate. These are content constraints for the future runtime adapter, not special cases to hard-code into shared engine logic.
+Production will create `src/content/` definitions when implementing the real playable Assignment schema and runtime integration under Issue #85. That implementation must preserve the approved anchor IDs and semantic constraints while adding only the executable fields required by the approved runtime contract. Do not treat this technical note as a substitute for the authored source document.
 
 ## 2. Provisions recovery audit
 
@@ -167,7 +163,7 @@ The save key and local persistence behavior must be inspected before choosing th
 
 ## 7. Sequencing and gates
 
-- This PR is limited to new semantic content and tests.
+- This PR is limited to this technical-design note. The authored semantic source remains `dev/GD-ERA1-ANCHORS-001.md` on `main`; no mirrored TypeScript content catalog or inert catalog tests are included.
 - Do not modify `assignmentGenerator.ts`, `challengeDirector.ts`, opportunity state, save normalization/validation, `actionEconomy.ts`, or production UI until Issue #82's QA-82-1 through QA-82-5 corrections are merged.
 - After #82 lands, implement runtime integration in separately reviewable slices with acceptance tests for source identity, no duplicate occurrence, all lifecycle states, determinism, succession, and save reload.
 - The economy correction must include the early-visible baseline labor route and verify the already-present conditional personal advance category. Currency wording and any Playtest 1 conversion table must be coordinated with the #82 Currency correction and returned for Game Director review.
@@ -175,4 +171,4 @@ The save key and local persistence behavior must be inspected before choosing th
 
 ## 8. Validation status
 
-This note is an engineering proposal based on current `main` source inspection. It is not a runtime implementation. The code PR adds a structural content validator and focused tests. GitHub Actions Pull Request Validation completed successfully on code/test commit `167f816`: TypeScript check, unit tests, and production build all passed. The subsequent change only updates this documentation note; its new PR head has not yet completed validation. CodeQL was still in progress at the last check.
+This note is an engineering proposal based on current `main` source inspection. It is not a runtime implementation. PR #87 now contains documentation only; the inert TypeScript semantic catalog and its tests were removed so the future `src/content/` layer can be authored as playable Assignment definitions. CI must be re-run against the resulting documentation-only head before PR review/merge. No local test execution is claimed.
