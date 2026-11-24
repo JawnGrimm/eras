@@ -31,8 +31,17 @@ export function addActivity(state: GameState, offer: AssignmentOffer, kind: Oppo
     dayNumber: state.calendar.dayNumber, kind, employerKey: key, category: offer.category,
     ...(offer.commodity ? { commodity: offer.commodity } : {}), assignmentId: offer.id, ...extra,
   };
+  const lifecycle = kind === 'presented' ? 'offered' : kind === 'accepted' ? 'accepted'
+    : kind === 'declined' ? 'declined' : kind === 'lapsed' ? 'lapsed'
+      : kind === 'cancelled' ? 'cancelled' : 'completed';
+  const occurrenceLedger = offer.originMatterId && offer.activityId
+    ? state.opportunities.occurrenceLedger.map((entry) => entry.matterId === offer.originMatterId && entry.scenarioId === offer.activityId
+      ? { ...entry, lifecycle, ...(kind === 'accepted' && offer.assigneePersonId ? { assigneePersonId: offer.assigneePersonId } : {}) }
+      : entry)
+    : state.opportunities.occurrenceLedger;
   return { ...state, opportunities: {
     ...state.opportunities,
+    occurrenceLedger,
     assignmentAggregates: { ...state.opportunities.assignmentAggregates, [key]: aggregate },
     recentActivity: [...state.opportunities.recentActivity, activity].slice(-5),
   } };

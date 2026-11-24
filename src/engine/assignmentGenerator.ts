@@ -1,9 +1,19 @@
 import type { AssignmentId } from '../state/ids';
-import type { AssignmentOffer, GameState, TransitionResult, WorldEvent } from '../state/types';
+import type { AssignmentOffer, GameState, TransitionResult, WorldEvent, InstitutionalMatter } from '../state/types';
 import { ASSIGNMENT_ACTIVITY_CATALOG, NORTH_BAY_POST_EXECUTION_ACTIVITY_ID } from '../content/assignments/northBayRoofInspection';
 import { URUK_ASSIGNMENT_OPPORTUNITY_DEFINITIONS } from '../content/assignments/opportunityDefinitions';
 import { ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS } from '../content/assignments/eraIAnchorOpportunities';
 import { transitionOpportunityAction } from './opportunities';
+
+function occurrenceSourceFacts(state: GameState, matter: InstitutionalMatter): string[] {
+  return [...new Set([
+    ...(matter.sourceEventId && state.world.events[matter.sourceEventId] ? [matter.sourceEventId] : []),
+    ...(matter.sourceRecordId && state.records.entries[matter.sourceRecordId] ? [matter.sourceRecordId] : []),
+    ...(matter.provenance ?? []).flatMap((source) => source.sourceId
+      && (state.world.events[source.sourceId as keyof typeof state.world.events] || state.records.entries[source.sourceId as keyof typeof state.records.entries])
+      ? [source.sourceId] : []),
+  ])].sort();
+}
 
 /**
  * Discover playable opportunities from active institutional matters.
@@ -94,6 +104,10 @@ export function generateDailyAssignments(state: GameState): GameState {
     for (const sourceMatter of matchingMatters) {
       const sourceInstitution = next.world.institutions[sourceMatter.institutionId];
       if (sourceMatter.status !== 'active' || !sourceInstitution?.activeMatters.includes(sourceMatter.id)) continue;
+      const requiredSourceFactIds = occurrenceSourceFacts(next, sourceMatter);
+      if (requiredSourceFactIds.length === 0) continue;
+      const occurrenceKey = `${definition.offer.activityId}|${sourceMatter.id}|${requiredSourceFactIds.join('|')}`;
+      if (next.opportunities.occurrenceLedger.some((entry) => entry.occurrenceKey === occurrenceKey)) continue;
       if (Object.values(next.opportunities.assignments).some((offer) => offer.originMatterId === sourceMatter.id
         || (!offer.originMatterId && offer.activityId === definition.offer.activityId))) continue;
       if (!ASSIGNMENT_ACTIVITY_CATALOG[definition.offer.activityId as keyof typeof ASSIGNMENT_ACTIVITY_CATALOG]) continue;
@@ -108,7 +122,23 @@ export function generateDailyAssignments(state: GameState): GameState {
       };
       const result: TransitionResult = transitionOpportunityAction(next, { type: 'PRESENT_ASSIGNMENT', offer });
       if (result.feedback?.kind === 'error') continue;
-      next = result.state;
+      next = {
+        ...result.state,
+        opportunities: {
+          ...result.state.opportunities,
+          occurrenceLedger: [...result.state.opportunities.occurrenceLedger, {
+            scenarioId: definition.offer.activityId,
+            occurrenceKey,
+            lifecycle: 'offered' as const,
+            matterId: sourceMatter.id,
+            ...(sourceMatter.sourceEventId ? { primarySourceFact: { kind: 'event' as const, id: sourceMatter.sourceEventId } }
+              : sourceMatter.sourceRecordId ? { primarySourceFact: { kind: 'record' as const, id: sourceMatter.sourceRecordId } } : {}),
+            requiredSourceFactIds,
+            deliveryChannels: definition.offer.deliveryChannels,
+            presentedDay: next.calendar.dayNumber,
+          }],
+        },
+      };
       sequence++;
       lastPresentedDayByActivity[definition.offer.activityId] = next.calendar.dayNumber;
     }

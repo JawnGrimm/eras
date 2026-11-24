@@ -48,12 +48,16 @@ describe('matter-driven Assignment discovery', () => {
     const originalId = 'matter-south-court-delivery-reconciliation' as MatterId;
     const secondId = 'matter-south-court-delivery-followup' as MatterId;
     const original = base.world.matters[originalId];
-    const second = { ...original, id: secondId, createdDay: 2, summary: 'A second dispatch and receipt discrepancy requires its own reconciliation.' };
+    const secondEventId = 'event-south-court-delivery-followup' as keyof typeof base.world.events;
+    const secondEvent = { ...base.world.events['event-south-court-delivery-source' as keyof typeof base.world.events],
+      id: secondEventId, dayNumber: 1, summary: 'A separate later dispatch and receiving tally require their own reconciliation.' };
+    const second = { ...original, id: secondId, createdDay: 2, sourceEventId: secondEventId,
+      summary: 'A second dispatch and receipt discrepancy requires its own reconciliation.' };
     const state: GameState = {
       ...base,
       world: {
         ...base.world,
-        matters: { ...base.world.matters, [secondId]: second },
+        matters: { ...base.world.matters, [secondId]: second }, events: { ...base.world.events, [secondEventId]: secondEvent },
         institutions: {
           ...base.world.institutions,
           [institutionId]: {
@@ -69,6 +73,7 @@ describe('matter-driven Assignment discovery', () => {
       .filter((offer) => offer.activityId === 'activity-south-court-delivery-reconciliation');
     expect(deliveryOffers).toHaveLength(2);
     expect(new Set(deliveryOffers.map((offer) => offer.originMatterId))).toEqual(new Set([originalId, secondId]));
+    expect(generated.opportunities.occurrenceLedger.filter((entry) => entry.scenarioId === 'activity-south-court-delivery-reconciliation')).toHaveLength(2);
     expect(deliveryOffers.reduce((sum, offer) => sum + (offer.estimatedTotalAp ?? 0), 0)).toBe(8);
     const nextDayDiscovery = generateDailyAssignments(generated);
     for (const matterId of [originalId, secondId]) {
