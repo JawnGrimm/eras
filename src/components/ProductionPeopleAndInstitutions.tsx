@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { getInitializedScribal } from '../state/scribalState';
 import { useGame } from '../state/GameProvider';
 import type { InstitutionId, PersonId, MatterId, RecordId } from '../state/ids';
-import type { InstitutionalMatter, Person, PersonRelationship, RecordEntry } from '../state/types';
+import type { Appointment, Institution, InstitutionalMatter, Person, PersonRelationship, RecordEntry } from '../state/types';
 import { PersonHistoryPanel } from './PersonHistoryPanel';
 
 type DirectorySection = 'people' | 'institutions';
@@ -57,12 +57,13 @@ function PersonIndexRow({ person, context, selected, onSelect }: {
   </button>;
 }
 
-function PersonDetail({ person, people, institutions, relationships, appointments }: {
+function PersonDetail({ person, people, institutions, relationships, appointments, isCurrentCharacter }: {
   person: Person;
   people: Readonly<Record<string, Person>>;
-  institutions: Readonly<Record<string, { name: string }>>;
+  institutions: Readonly<Record<InstitutionId, Institution>>;
   relationships: Array<{ from: Person; to: Person; relationship: PersonRelationship }>;
-  appointments: Array<{ id: string; title: string; institutionId: InstitutionId; startDay: number; endDay?: number; authorityScope: string[]; responsibilities: string[] }>;
+  appointments: Appointment[];
+  isCurrentCharacter: boolean;
 }) {
   const scribal = getInitializedScribal(person);
   const circumstances = (person.circumstances ?? []).filter((item) => item.status === 'active' && item.visibility === 'public');
@@ -81,7 +82,7 @@ function PersonDetail({ person, people, institutions, relationships, appointment
           </p>
           {person.socialIdentity?.summary && <p className="mt-2 max-w-2xl text-sm leading-6 text-stone-700">{person.socialIdentity.summary}</p>}
         </div>
-        {person.id === person.id && <span className="rounded bg-stone-100 px-2 py-1 text-xs text-stone-600">Profile detail</span>}
+        {isCurrentCharacter && <span className="rounded bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-900">Current character</span>}
       </div>
     </header>
 
@@ -174,23 +175,24 @@ function MatterSources({ matter, records, people, events }: {
       Source trail ({matter.provenance.length})
     </summary>
     <ul className="mt-2 space-y-1 text-xs text-stone-700">{matter.provenance.map((source) => {
-      const label = source.kind === 'record_copy' ? records[source.sourceId]?.title ?? source.sourceId
-        : source.kind === 'event' ? events[source.sourceId]?.summary ?? source.sourceId
-          : source.kind === 'testimony' ? people[source.sourceId]?.name ?? source.sourceId
-            : source.sourceId;
+      const sourceId = source.sourceId;
+      const label = source.kind === 'record_copy' ? (sourceId ? records[sourceId]?.title ?? sourceId : 'Record not identified')
+        : source.kind === 'event' ? (sourceId ? events[sourceId]?.summary ?? sourceId : 'Event not identified')
+          : source.kind === 'testimony' ? (sourceId ? people[sourceId]?.name ?? sourceId : 'Person not identified')
+            : sourceId ?? 'Source not identified';
       return <li key={source.id}><span className="font-medium">{label}</span> · {source.description}</li>;
     })}</ul>
   </details>;
 }
 
 function InstitutionDetail({ institution, people, institutions, matters, records, events, appointments }: {
-  institution: { id: InstitutionId; name: string; standing: number; responsibilities: string[]; authority: string[]; activeMatters: MatterId[] };
+  institution: Institution;
   people: Readonly<Record<string, Person>>;
   institutions: Readonly<Record<string, { name: string }>>;
   matters: InstitutionalMatter[];
   records: Readonly<Record<string, RecordEntry>>;
   events: Readonly<Record<string, { summary: string }>>;
-  appointments: Array<{ id: string; personId: PersonId; title: string; authorityScope: string[]; responsibilities: string[]; startDay: number; endDay?: number }>;
+  appointments: Appointment[];
 }) {
   const currentMatters = matters.filter((matter) => matter.status === 'active');
   const historicalMatters = matters.filter((matter) => matter.status !== 'active');
@@ -202,10 +204,10 @@ function InstitutionDetail({ institution, people, institutions, matters, records
 
     <div className="mt-4 grid gap-3 sm:grid-cols-2">
       <section className="rounded-lg bg-stone-50 p-3"><h4 className="text-sm font-semibold">Responsibilities</h4>
-        <ul className="mt-2 list-inside list-disc text-sm text-stone-700">{institution.responsibilities.map((item, index) => <li key={index}>{item}</li>)}</ul>
+        {institution.responsibilities.length ? <ul className="mt-2 list-inside list-disc text-sm text-stone-700">{institution.responsibilities.map((item, index) => <li key={index}>{item}</li>)}</ul> : <p className="mt-2 text-xs text-stone-500">No responsibilities are recorded.</p>}
       </section>
       <section className="rounded-lg bg-stone-50 p-3"><h4 className="text-sm font-semibold">Institutional authority</h4>
-        <ul className="mt-2 list-inside list-disc text-sm text-stone-700">{institution.authority.map((item, index) => <li key={index}>{item}</li>)}</ul>
+        {institution.authority.length ? <ul className="mt-2 list-inside list-disc text-sm text-stone-700">{institution.authority.map((item, index) => <li key={index}>{item}</li>)}</ul> : <p className="mt-2 text-xs text-stone-500">No authority scopes are recorded.</p>}
       </section>
     </div>
 
@@ -277,7 +279,7 @@ export function ProductionPeopleAndInstitutions() {
   const [institutionQuery, setInstitutionQuery] = useState('');
   const [selectedPersonId, setSelectedPersonId] = useState<PersonId>(state.player.currentCharacterId);
   const initialInstitution = institutions.find((item) => item.activeMatters.length > 0) ?? institutions[0];
-  const [selectedInstitutionId, setSelectedInstitutionId] = useState<InstitutionId>(initialInstitution?.id);
+  const [selectedInstitutionId, setSelectedInstitutionId] = useState<InstitutionId | null>(initialInstitution?.id ?? null);
 
   const matchingPeople = people.filter((person) => {
     if (personLifeFilter === 'living' && !person.alive) return false;
@@ -289,7 +291,9 @@ export function ProductionPeopleAndInstitutions() {
       ...affiliationNames, ...appointments.map((item) => item.title),
     ], personQuery);
   });
-  const selectedPerson = matchingPeople.find((person) => person.id === selectedPersonId) ?? matchingPeople[0];
+  const selectedPerson = matchingPeople.find((person) => person.id === selectedPersonId)
+    ?? matchingPeople.find((person) => person.id === state.player.currentCharacterId)
+    ?? matchingPeople[0];
   const relationshipRows = selectedPerson ? Object.entries(state.world.relationships).flatMap(([fromId, targets]) =>
     Object.entries(targets).flatMap(([toId, relationship]) => {
       if (fromId !== selectedPerson.id && toId !== selectedPerson.id) return [];
@@ -323,8 +327,8 @@ export function ProductionPeopleAndInstitutions() {
     : [];
 
   const personContext = (person: Person) => person.socialIdentity?.occupation
-    ?? person.affiliations.map((id) => state.world.institutions[id as InstitutionId]?.name).filter(Boolean).join(', ')
-    ?? 'No additional role recorded';
+    ?? person.socialIdentity?.summary
+    ?? person.affiliations.map((id) => state.world.institutions[id as InstitutionId]?.name).filter(Boolean).join(', ');
 
   return <div className="mx-auto max-w-6xl space-y-5">
     <header>
@@ -364,7 +368,8 @@ export function ProductionPeopleAndInstitutions() {
         <div id="people-detail" aria-live="polite" className="min-w-0">
           {selectedPerson
             ? <PersonDetail person={selectedPerson} people={state.world.people} institutions={state.world.institutions}
-              relationships={relationshipRows} appointments={selectedPersonAppointments} />
+              relationships={relationshipRows} appointments={selectedPersonAppointments}
+              isCurrentCharacter={selectedPerson.id === state.player.currentCharacterId} />
             : <p className="rounded-lg border border-stone-300 bg-white p-4 text-sm text-stone-500">Select a person to view recorded detail.</p>}
         </div>
       </section>
@@ -388,7 +393,7 @@ export function ProductionPeopleAndInstitutions() {
         </aside>
         <div id="institution-detail" aria-live="polite" className="min-w-0">
           {selectedInstitution
-            ? <InstitutionDetail institution={selectedInstitution} people={state.world.people} institutions={state.world.institutions}
+            ? <InstitutionDetail institution={selectedInstitution} people={state.world.people}
               matters={selectedInstitutionMatters} records={Object.fromEntries(selectedInstitutionRecords.map((record) => [record.id, record]))}
               events={state.world.events} appointments={selectedInstitutionAppointments} />
             : <p className="rounded-lg border border-stone-300 bg-white p-4 text-sm text-stone-500">Select an institution to view recorded detail.</p>}
