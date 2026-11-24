@@ -13,8 +13,11 @@ import { createNewGameState } from '../state/newGameState';
 import { transitionGame } from '../engine/actionEconomy';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
 import { GameProvider } from '../state/GameProvider';
-import type { AppointmentId, EventId, KnowledgeEntryId, PersonId, RecordId } from '../state/ids';
+import type { AppointmentId, EventId, KnowledgeEntryId, ObligationId, PersonId, RecordId } from '../state/ids';
 import type { GameState, RecordEntry } from '../state/types';
+import { getInitializedScribal } from '../state/scribalState';
+import { createSaveEnvelope, restoreSave } from '../state/saveEnvelope';
+import { INITIAL_WORK_CATALOG } from '../state/newGameState';
 import { STOREHOUSE_WORK_ID } from '../works/storehouseReckoning';
 
 function renderScreen(state: GameState, screen: React.ReactElement) {
@@ -75,6 +78,37 @@ describe('production continuity and social screens', () => {
     expect(markup).toContain('Currency');
     expect(markup).not.toContain('Silver');
     expect(markup).not.toContain('Active Work · Storehouse');
+  });
+
+  it('restores a legacy schema-v2 obligation and balance unchanged while presenting Currency copy', () => {
+    const fresh = createNewGameState(TEST_CHARACTER_CREATION);
+    const playerId = fresh.player.currentCharacterId;
+    const person = fresh.world.people[playerId];
+    const scribal = getInitializedScribal(person)!;
+    const legacyObligation = {
+      id: 'obligation-legacy-ur-gir' as ObligationId,
+      creditorPersonId: 'person-uruk-ur-gir' as PersonId,
+      createdDay: 1,
+      kind: 'repayment_or_service' as const,
+      description: 'Repay one silver or provide one day of scribal assistance to Ur-gir, by mutual arrangement.',
+      status: 'outstanding' as const,
+    };
+    const legacyState: GameState = {
+      ...fresh,
+      world: { ...fresh.world, people: { ...fresh.world.people, [playerId]: {
+        ...person, scribal: { ...scribal, wallet: { ...scribal.wallet, money: 7, provisions: 3 }, obligations: [legacyObligation] },
+      } } },
+    };
+    const restored = restoreSave(JSON.stringify(createSaveEnvelope(legacyState, 2)), INITIAL_WORK_CATALOG);
+    expect(restored).not.toBeNull();
+    const restoredScribal = getInitializedScribal(restored!.state.world.people[playerId])!;
+    expect(restoredScribal.wallet).toMatchObject({ money: 7, provisions: 3 });
+    expect(restoredScribal.obligations[0].description).toContain('one silver');
+    const markup = renderScreen(restored!.state, createElement(ProductionWorkdayHub, {
+      onOpenWork: () => undefined, onOpenActivity: () => undefined, settlement: null, onSettlement: () => undefined,
+    }));
+    expect(markup).toContain('one unit of Currency');
+    expect(markup).not.toContain('silver');
   });
 
   it('renders authored tutorial action labels without exposing internal action IDs', () => {
