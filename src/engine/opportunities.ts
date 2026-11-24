@@ -36,9 +36,14 @@ export function addActivity(state: GameState, offer: AssignmentOffer, kind: Oppo
     : kind === 'declined' ? 'declined' : kind === 'lapsed' ? 'lapsed'
       : kind === 'cancelled' ? 'cancelled' : 'completed') as import('../state/types').OpportunityOccurrenceLifecycle;
   const occurrenceLedger = offer.originMatterId && offer.activityId
-    ? state.opportunities.occurrenceLedger.map((entry) => entry.matterId === offer.originMatterId && entry.scenarioId === offer.activityId
-      ? { ...entry, lifecycle, ...(kind === 'accepted' && offer.assigneePersonId ? { assigneePersonId: offer.assigneePersonId } : {}) }
-      : entry)
+    ? state.opportunities.occurrenceLedger.map((entry) => {
+      const matches = offer.occurrenceKey
+        ? entry.occurrenceKey === offer.occurrenceKey
+        : entry.matterId === offer.originMatterId && entry.scenarioId === offer.activityId;
+      return matches
+        ? { ...entry, lifecycle, ...(kind === 'accepted' && offer.assigneePersonId ? { assigneePersonId: offer.assigneePersonId } : {}) }
+        : entry;
+    })
     : state.opportunities.occurrenceLedger;
   return { ...state, opportunities: {
     ...state.opportunities,

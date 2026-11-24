@@ -47,6 +47,9 @@ export function generateDailyAssignments(state: GameState): GameState {
     if (!matter || matter.kind !== 'roof_repair_verification' || matter.status === 'resolved' || !response.assigneePersonId
       || response.assigneePersonId === next.player.currentCharacterId
       || !next.records.entries[response.recordId]) continue;
+    const requiredSourceFactIds = [executionEvent.id, response.recordId].sort();
+    const occurrenceKey = `${NORTH_BAY_POST_EXECUTION_ACTIVITY_ID}|${requiredSourceFactIds.join('|')}`;
+    if (next.opportunities.occurrenceLedger.some((entry) => entry.occurrenceKey === occurrenceKey)) continue;
     const id = `assignment-auto-post-execution-${executionEvent.id}` as AssignmentId;
     if (next.opportunities.assignments[id]) continue;
     if (Object.values(next.world.events).some((event) => event.institutionalResponse?.stage === 'verification'
@@ -65,6 +68,8 @@ export function generateDailyAssignments(state: GameState): GameState {
       activityId: NORTH_BAY_POST_EXECUTION_ACTIVITY_ID,
       originMatterId: matter.id,
       sourceRecordId: response.recordId,
+      sourceEventId: executionEvent.id,
+      occurrenceKey,
       title: 'Post-Execution North-Bay Inspection',
       description: 'Independently inspect the completed maintenance and file evidence for an appointed official. This Assignment does not itself verify or authorize the work.',
       employer: { kind: 'institution', id: matter.institutionId },
@@ -91,8 +96,6 @@ export function generateDailyAssignments(state: GameState): GameState {
     };
     const result: TransitionResult = transitionOpportunityAction(next, { type: 'PRESENT_ASSIGNMENT', offer });
     if (result.feedback?.kind === 'error') continue;
-    const requiredSourceFactIds = [executionEvent.id, response.recordId].sort();
-    const occurrenceKey = `${NORTH_BAY_POST_EXECUTION_ACTIVITY_ID}|${requiredSourceFactIds.join('|')}`;
     next = {
       ...result.state,
       opportunities: {
@@ -120,16 +123,22 @@ export function generateDailyAssignments(state: GameState): GameState {
       if (requiredSourceFactIds.length === 0) continue;
       const occurrenceKey = `${definition.offer.activityId}|${requiredSourceFactIds.join('|')}`;
       if (next.opportunities.occurrenceLedger.some((entry) => entry.occurrenceKey === occurrenceKey)) continue;
-      if (Object.values(next.opportunities.assignments).some((offer) => offer.originMatterId === sourceMatter.id
-        || (!offer.originMatterId && offer.activityId === definition.offer.activityId))) continue;
+      const existingOfferForOccurrence = Object.values(next.opportunities.assignments).some((offer) =>
+        offer.activityId === definition.offer.activityId && offer.originMatterId === sourceMatter.id
+        && (offer.occurrenceKey === occurrenceKey || (!offer.occurrenceKey
+          && offer.sourceEventId === sourceMatter.sourceEventId && offer.sourceRecordId === sourceMatter.sourceRecordId)));
+      if (existingOfferForOccurrence) continue;
       if (!ASSIGNMENT_ACTIVITY_CATALOG[definition.offer.activityId as keyof typeof ASSIGNMENT_ACTIVITY_CATALOG]) continue;
 
-      const id = `assignment-auto-${definition.slug}-${sourceMatter.id}` as AssignmentId;
+      const occurrenceSuffix = requiredSourceFactIds.map((factId) => factId.replace(/[^a-zA-Z0-9-]/g, '-')).join('-');
+      const id = `assignment-auto-${definition.slug}-${sourceMatter.id}-${occurrenceSuffix}` as AssignmentId;
       if (next.opportunities.assignments[id]) continue;
       const offer: Omit<AssignmentOffer, 'offeredDay' | 'expiresDay' | 'status' | 'lapsedDuringMandatoryWork'> = {
         ...definition.offer,
         id,
         originMatterId: sourceMatter.id,
+        occurrenceKey,
+        ...(sourceMatter.sourceEventId ? { sourceEventId: sourceMatter.sourceEventId } : {}),
         ...(sourceMatter.sourceRecordId ? { sourceRecordId: sourceMatter.sourceRecordId } : {}),
       };
       const result: TransitionResult = transitionOpportunityAction(next, { type: 'PRESENT_ASSIGNMENT', offer });
@@ -143,10 +152,9 @@ export function generateDailyAssignments(state: GameState): GameState {
             occurrenceKey,
             lifecycle: 'offered' as const,
             matterId: sourceMatter.id,
-            ...(sourceMatter.sourceEventId && next.world.events[sourceMatter.sourceEventId]
-              ? { primarySourceFact: { kind: 'event' as const, id: sourceMatter.sourceEventId } }
-              : sourceMatter.sourceRecordId && next.records.entries[sourceMatter.sourceRecordId]
-                ? { primarySourceFact: { kind: 'record' as const, id: sourceMatter.sourceRecordId } } : {}),
+            ...(requiredSourceFactIds.find((factId) => next.world.events[factId as EventId])
+              ? { primarySourceFact: { kind: 'event' as const, id: requiredSourceFactIds.find((factId) => next.world.events[factId as EventId]) as EventId } }
+              : { primarySourceFact: { kind: 'record' as const, id: requiredSourceFactIds.find((factId) => next.records.entries[factId as RecordId]) as RecordId } }),
             requiredSourceFactIds,
             deliveryChannels: definition.offer.deliveryChannels,
             presentedDay: next.calendar.dayNumber,
