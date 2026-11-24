@@ -3,7 +3,8 @@ import type { PropsWithChildren } from 'react';
 import { transitionGame } from '../engine/actionEconomy';
 import type { ActionFeedback, CareerProgressionPolicy, GameAction, GameState, TransitionResult } from './types';
 import type { WorkDefinition } from '../works/workDefinition';
-import { createNewGameState, INITIAL_WORK_CATALOG } from './newGameState';
+import { createNewGameState, INITIAL_WORK_CATALOG, type EraICharacterCreationInput } from './newGameState';
+import { createInitialGameState } from './initialState';
 import { createSaveEnvelope, restoreSave, SAVE_KEY } from './saveEnvelope';
 
 export type ProductionLoadStatus = 'ready' | 'corrupt_save' | 'read_error';
@@ -20,6 +21,7 @@ interface ProductionSession {
   feedback: ActionFeedback | null;
   hasUnsavedChanges: boolean;
   storageError: string | null;
+  needsCharacterCreation: boolean;
 }
 
 function browserStorage(): ProductionStorage | null {
@@ -35,46 +37,55 @@ function storageFeedback(code: string, message: string): ActionFeedback {
 }
 
 /**
- * Reads only the production v2 key. A malformed existing save is never replaced
- * by the fallback state; starting fresh is an explicit user action.
+ * Reads only the production v2 key. A missing save opens the Creator without
+ * writing a placeholder. A malformed existing save is never overwritten.
  */
 export function initializeProductionSession(
   storage: ProductionStorage | null,
   workCatalog: Readonly<Record<string, WorkDefinition<any>>> = INITIAL_WORK_CATALOG,
 ): ProductionSession {
-  const freshState = () => createNewGameState();
+  const placeholderState = () => createInitialGameState();
   if (!storage) {
-    return { state: freshState(), loadStatus: 'ready', revision: 0,
-      feedback: storageFeedback('save-write-failed', 'Browser storage is unavailable. You can continue in this session, but progress cannot be saved between visits.'),
-      hasUnsavedChanges: true, storageError: 'Browser storage is unavailable; progress exists only in this session.' };
+    return {
+      state: placeholderState(), loadStatus: 'ready', revision: 0,
+      feedback: storageFeedback('save-write-failed', 'Browser storage is unavailable. You can create and play a character in this session, but progress cannot be saved between visits.'),
+      hasUnsavedChanges: true, storageError: 'Browser storage is unavailable; progress exists only in this session.',
+      needsCharacterCreation: true,
+    };
   }
   let raw: string | null;
   try {
     raw = storage.getItem(SAVE_KEY);
   } catch {
-    return { state: freshState(), loadStatus: 'read_error', revision: 0,
+    return {
+      state: placeholderState(), loadStatus: 'read_error', revision: 0,
       feedback: storageFeedback('save-read-failed', 'The production save could not be read. It has not been overwritten.'),
-      hasUnsavedChanges: false, storageError: 'The existing production save could not be read.' };
+      hasUnsavedChanges: false, storageError: 'The existing production save could not be read.',
+      needsCharacterCreation: false,
+    };
   }
   if (raw !== null) {
     const restored = restoreSave(raw, workCatalog);
     if (!restored) {
-      return { state: freshState(), loadStatus: 'corrupt_save', revision: 0,
+      return {
+        state: placeholderState(), loadStatus: 'corrupt_save', revision: 0,
         feedback: storageFeedback('corrupt-save', 'The existing production save is malformed or incompatible. It has been preserved; choose Start Fresh Production Save only if you want to replace it.'),
-        hasUnsavedChanges: false, storageError: 'The existing production save is malformed or incompatible.' };
+        hasUnsavedChanges: false, storageError: 'The existing production save is malformed or incompatible.',
+        needsCharacterCreation: false,
+      };
     }
-    return { state: restored.state, loadStatus: 'ready', revision: restored.revision, feedback: null, hasUnsavedChanges: false, storageError: null };
+    return {
+      state: restored.state, loadStatus: 'ready', revision: restored.revision,
+      feedback: null, hasUnsavedChanges: false, storageError: null,
+      needsCharacterCreation: false,
+    };
   }
 
-  const state = freshState();
-  try {
-    storage.setItem(SAVE_KEY, JSON.stringify(createSaveEnvelope(state, 0)));
-    return { state, loadStatus: 'ready', revision: 0, feedback: null, hasUnsavedChanges: false, storageError: null };
-  } catch {
-    return { state, loadStatus: 'ready', revision: 0,
-      feedback: storageFeedback('save-write-failed', 'The new production state is active in memory, but could not be saved to browser storage.'),
-      hasUnsavedChanges: true, storageError: 'The new production state could not be saved to browser storage.' };
-  }
+  return {
+    state: placeholderState(), loadStatus: 'ready', revision: 0,
+    feedback: null, hasUnsavedChanges: false, storageError: null,
+    needsCharacterCreation: true,
+  };
 }
 
 interface GameContextValue {
@@ -83,16 +94,18 @@ interface GameContextValue {
   loadStatus: ProductionLoadStatus;
   hasUnsavedChanges: boolean;
   storageError: string | null;
+  needsCharacterCreation: boolean;
   dispatch: (action: GameAction) => TransitionResult;
   clearFeedback: () => void;
   startFreshProductionSave: () => boolean;
+  createCharacterAndStartGame: (input: EraICharacterCreationInput) => boolean;
 }
 
 const GameContext = createContext<GameContextValue | null>(null);
 
 /**
  * Production state boundary. Dispatch applies pure transitions synchronously against
- * the latest snapshot. ProductionApp mounts this provider as the live application state boundary.
+ * the latest snapshot. Fresh games are persisted only after Creator confirmation.
  */
 export function GameProvider({
   children,
@@ -109,7 +122,10 @@ export function GameProvider({
   const resolvedCatalog = workCatalog ?? INITIAL_WORK_CATALOG;
   const resolvedStorage = storage === undefined ? browserStorage() : storage;
   const [session, setSession] = useState<ProductionSession>(() => initialState
-    ? { state: initialState, loadStatus: 'ready', revision: 0, feedback: null, hasUnsavedChanges: false, storageError: null }
+    ? {
+      state: initialState, loadStatus: 'ready', revision: 0, feedback: null,
+      hasUnsavedChanges: false, storageError: null, needsCharacterCreation: false,
+    }
     : initializeProductionSession(resolvedStorage, resolvedCatalog));
   const stateRef = useRef(session.state);
   const revisionRef = useRef(session.revision);
@@ -151,23 +167,50 @@ export function GameProvider({
   }, [careerPolicy, resolvedCatalog, resolvedStorage]);
 
   const startFreshProductionSave = useCallback((): boolean => {
-    if (!resolvedStorage) {
-      setFeedback(storageFeedback('save-write-failed', 'Browser storage is unavailable; the existing production save was not changed.'));
+    const placeholder = createInitialGameState();
+    stateRef.current = placeholder;
+    loadStatusRef.current = 'ready';
+    setSession({
+      state: placeholder, loadStatus: 'ready', revision: 0, feedback: null,
+      hasUnsavedChanges: false, storageError: resolvedStorage ? null : 'Browser storage is unavailable; progress exists only in this session.',
+      needsCharacterCreation: true,
+    });
+    setHasUnsavedChanges(!resolvedStorage);
+    setStorageError(resolvedStorage ? null : 'Browser storage is unavailable; progress exists only in this session.');
+    setFeedback(null);
+    revisionRef.current = 0;
+    return true;
+  }, [resolvedStorage]);
+
+  const createCharacterAndStartGame = useCallback((input: EraICharacterCreationInput): boolean => {
+    let fresh: GameState;
+    try {
+      fresh = createNewGameState(input);
+    } catch (error) {
+      setFeedback(storageFeedback('character-creation-invalid',
+        error instanceof Error ? error.message : 'The character could not be created.'));
       return false;
     }
-    const fresh = createNewGameState();
-    try {
-      resolvedStorage.setItem(SAVE_KEY, JSON.stringify(createSaveEnvelope(fresh, 0)));
-    } catch {
-      setFeedback(storageFeedback('save-write-failed', 'The fresh production save could not be written. The current in-memory state and existing stored data were preserved.'));
-      return false;
+    if (resolvedStorage) {
+      try {
+        resolvedStorage.setItem(SAVE_KEY, JSON.stringify(createSaveEnvelope(fresh, 0)));
+      } catch {
+        setFeedback(storageFeedback('save-write-failed',
+          'The new character could not be saved. Your existing save has not been replaced.'));
+        return false;
+      }
     }
     stateRef.current = fresh;
     revisionRef.current = 0;
     loadStatusRef.current = 'ready';
-    setSession({ state: fresh, loadStatus: 'ready', revision: 0, feedback: null, hasUnsavedChanges: false, storageError: null });
-    setHasUnsavedChanges(false);
-    setStorageError(null);
+    setSession({
+      state: fresh, loadStatus: 'ready', revision: 0, feedback: null,
+      hasUnsavedChanges: !resolvedStorage,
+      storageError: resolvedStorage ? null : 'Browser storage is unavailable; progress exists only in this session.',
+      needsCharacterCreation: false,
+    });
+    setHasUnsavedChanges(!resolvedStorage);
+    setStorageError(resolvedStorage ? null : 'Browser storage is unavailable; progress exists only in this session.');
     setFeedback(null);
     return true;
   }, [resolvedStorage]);
@@ -181,9 +224,11 @@ export function GameProvider({
       loadStatus: session.loadStatus,
       hasUnsavedChanges,
       storageError,
+      needsCharacterCreation: session.needsCharacterCreation,
       dispatch,
       clearFeedback,
       startFreshProductionSave,
+      createCharacterAndStartGame,
     }}>
       {children}
     </GameContext.Provider>
