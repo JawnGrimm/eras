@@ -75,4 +75,34 @@ describe('matter-driven Assignment discovery', () => {
       expect(Object.values(nextDayDiscovery.opportunities.assignments).filter((offer) => offer.originMatterId === matterId)).toHaveLength(1);
     }
   });
+  it('does not enforce the soft AP supply target or a hard daily offer-count cap', () => {
+    const base = createInitialGameState();
+    const institutionId = 'institution-uruk-temple-storehouse' as keyof typeof base.world.institutions;
+    const delivery = base.world.matters['matter-south-court-delivery-reconciliation' as MatterId];
+    const awning = base.world.matters['matter-south-loading-awning-inspection' as MatterId];
+    const additional = Array.from({ length: 3 }, (_, index) => [
+      { ...delivery, id: `matter-delivery-additional-${index}` as MatterId, createdDay: index + 2 },
+      { ...awning, id: `matter-awning-additional-${index}` as MatterId, createdDay: index + 2 },
+    ]).flat();
+    const state: GameState = {
+      ...base,
+      world: {
+        ...base.world,
+        matters: { ...base.world.matters, ...Object.fromEntries(additional.map((matter) => [matter.id, matter])) },
+        institutions: {
+          ...base.world.institutions,
+          [institutionId]: {
+            ...base.world.institutions[institutionId],
+            activeMatters: [...base.world.institutions[institutionId].activeMatters, ...additional.map((matter) => matter.id)],
+          },
+        },
+      },
+    };
+    const generated = generateDailyAssignments(state);
+    const offers = Object.values(generated.opportunities.assignments);
+    expect(offers.length).toBeGreaterThan(4);
+    expect(offers.reduce((sum, offer) => sum + (offer.estimatedTotalAp ?? 0), 0)).toBeGreaterThan(8);
+    expect(new Set(offers.map((offer) => offer.originMatterId)).size).toBe(offers.length);
+  });
+
 });

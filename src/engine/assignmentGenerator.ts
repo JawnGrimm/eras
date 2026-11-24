@@ -7,18 +7,15 @@ import { transitionOpportunityAction } from './opportunities';
 /**
  * Discover playable opportunities from active institutional matters.
  * Authored definitions own scenario copy and rewards; this engine owns bounded,
- * deterministic discovery, duplicate prevention, and offer presentation.
+ * deterministic discovery, duplicate prevention, and offer presentation. The
+ * ~8 AP/day target is a multi-Workday pacing measure, never a hard daily cap.
  */
 export function generateDailyAssignments(state: GameState): GameState {
   const ledger = state.opportunities.assignmentGeneratorLedger ?? { sequence: 0, lastPresentedDayByActivity: {} };
   let next: GameState = { ...state, opportunities: { ...state.opportunities, assignmentGeneratorLedger: ledger } };
-  const openCount = () => Object.values(next.opportunities.assignments).filter(
-    (offer) => offer.status === 'offered' || offer.status === 'accepted',
-  ).length;
   const definitions = URUK_ASSIGNMENT_OPPORTUNITY_DEFINITIONS;
   const offset = ledger.sequence % definitions.length;
   const rotated = [...definitions.slice(offset), ...definitions.slice(0, offset)];
-  let offeredAp = 0;
   let sequence = ledger.sequence;
   const lastPresentedDayByActivity = { ...ledger.lastPresentedDayByActivity };
 
@@ -34,7 +31,6 @@ export function generateDailyAssignments(state: GameState): GameState {
   const executions = [...latestExecutionByMatter.values()]
     .sort((a, b) => a.dayNumber - b.dayNumber || a.id.localeCompare(b.id));
   for (const executionEvent of executions) {
-    if (offeredAp >= 8 || openCount() >= 4) break;
     const response = executionEvent.institutionalResponse!;
     const matter = next.world.matters[response.matterId];
     if (!matter || matter.kind !== 'roof_repair_verification' || matter.status === 'resolved' || !response.assigneePersonId
@@ -85,7 +81,6 @@ export function generateDailyAssignments(state: GameState): GameState {
     const result: TransitionResult = transitionOpportunityAction(next, { type: 'PRESENT_ASSIGNMENT', offer });
     if (result.feedback?.kind === 'error') continue;
     next = result.state;
-    offeredAp += offer.estimatedTotalAp ?? 0;
     sequence++;
     lastPresentedDayByActivity[NORTH_BAY_POST_EXECUTION_ACTIVITY_ID] = next.calendar.dayNumber;
   }
@@ -96,7 +91,6 @@ export function generateDailyAssignments(state: GameState): GameState {
       .sort((a, b) => a.createdDay - b.createdDay || a.id.localeCompare(b.id));
 
     for (const sourceMatter of matchingMatters) {
-      if (offeredAp >= 8 || openCount() >= 4) break;
       const sourceInstitution = next.world.institutions[sourceMatter.institutionId];
       if (sourceMatter.status !== 'active' || !sourceInstitution?.activeMatters.includes(sourceMatter.id)) continue;
       if (Object.values(next.opportunities.assignments).some((offer) => offer.originMatterId === sourceMatter.id
@@ -114,7 +108,6 @@ export function generateDailyAssignments(state: GameState): GameState {
       const result: TransitionResult = transitionOpportunityAction(next, { type: 'PRESENT_ASSIGNMENT', offer });
       if (result.feedback?.kind === 'error') continue;
       next = result.state;
-      offeredAp += definition.offer.estimatedTotalAp ?? 0;
       sequence++;
       lastPresentedDayByActivity[definition.offer.activityId] = next.calendar.dayNumber;
     }

@@ -1,5 +1,6 @@
 import type { AssignmentOffer, InstitutionalMatterKind } from '../../state/types';
 import type { PersonId } from '../../state/ids';
+import { ERA_I_ASSIGNMENT_PARAMETERS } from './eraIParameters';
 
 const steward = 'person-ur-nanna' as PersonId;
 const carrier = 'person-enlil-kisu' as PersonId;
@@ -47,9 +48,9 @@ export const URUK_ASSIGNMENT_OPPORTUNITY_DEFINITIONS: readonly AssignmentOpportu
       },
       requiredSkills: {},
       difficulty: 'demanding',
-      estimatedTotalAp: 5,
-      compensation: { money: 15, provisions: 1 },
-      careerXpReward: 25,
+      estimatedTotalAp: ERA_I_ASSIGNMENT_PARAMETERS.tierB.estimatedTotalAp.heldBarley,
+      compensation: { money: ERA_I_ASSIGNMENT_PARAMETERS.tierB.currency, provisions: ERA_I_ASSIGNMENT_PARAMETERS.tierB.defaultProvisions },
+      careerXpReward: ERA_I_ASSIGNMENT_PARAMETERS.tierB.baseCareerXp,
       deliveryChannels: [{ kind: 'baseline_reach', explanation: 'The Storehouse Steward has asked the junior scribe who filed the north-bay report to inspect the segregated stock.' }],
     },
   },
@@ -77,9 +78,9 @@ export const URUK_ASSIGNMENT_OPPORTUNITY_DEFINITIONS: readonly AssignmentOpportu
       },
       requiredSkills: {},
       difficulty: 'demanding',
-      estimatedTotalAp: 4,
-      compensation: { money: 12, provisions: 1 },
-      careerXpReward: 20,
+      estimatedTotalAp: ERA_I_ASSIGNMENT_PARAMETERS.tierB.estimatedTotalAp.southCourtDelivery,
+      compensation: { money: ERA_I_ASSIGNMENT_PARAMETERS.tierB.currency, provisions: ERA_I_ASSIGNMENT_PARAMETERS.tierB.defaultProvisions },
+      careerXpReward: ERA_I_ASSIGNMENT_PARAMETERS.tierB.baseCareerXp,
       deliveryChannels: [{ kind: 'relationship', personId: carrier, explanation: 'Enlil-kisu’s dispatch copy is being compared with the Temple Storehouse receiving tally.' }],
     },
   },
@@ -107,9 +108,9 @@ export const URUK_ASSIGNMENT_OPPORTUNITY_DEFINITIONS: readonly AssignmentOpportu
       },
       requiredSkills: {},
       difficulty: 'routine',
-      estimatedTotalAp: 3,
-      compensation: { money: 10, provisions: 1 },
-      careerXpReward: 15,
+      estimatedTotalAp: ERA_I_ASSIGNMENT_PARAMETERS.tierB.estimatedTotalAp.southLoadingAwning,
+      compensation: { money: ERA_I_ASSIGNMENT_PARAMETERS.tierB.currency, provisions: ERA_I_ASSIGNMENT_PARAMETERS.tierB.defaultProvisions },
+      careerXpReward: ERA_I_ASSIGNMENT_PARAMETERS.tierB.baseCareerXp,
       deliveryChannels: [{ kind: 'baseline_reach', explanation: 'Ur-Nanna has asked a storehouse scribe to document the awning before further loading.' }],
     },
   },
