@@ -547,14 +547,14 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
       id: ERA1_MAR_F01_RECORD_IDS.closureImpression, createdDay: nextDay,
       authorPersonId: ERA1_MAR_PEOPLE.shuruppak, reportedByPersonId: ERA1_MAR_PEOPLE.ninDara,
       institutionId: HOUSEHOLD_STRONGROOM_INSTITUTION_ID,
-      title: 'Strongroom closure impression', assertion: 'The strongroom is found re-sealed; the present impression can be compared with the household sealing.',
+      title: 'Strongroom closure impression', assertion: 'The strongroom is found re-sealed with an impression that differs from the household sealing.',
       uncertaintyLimit: 'The impression establishes which seal was used, not who was authorized to open the room.',
     });
     records[ERA1_MAR_F01_RECORD_IDS.inventory] = createAuthoredSourceRecord({
       id: ERA1_MAR_F01_RECORD_IDS.inventory, createdDay: nextDay,
       authorPersonId: ERA1_MAR_PEOPLE.shuruppak, reportedByPersonId: ERA1_MAR_PEOPLE.urNanna,
       institutionId: HOUSEHOLD_STRONGROOM_INSTITUTION_ID,
-      title: 'Strongroom contents inventory', assertion: 'The inventory lists the contents expected in the strongroom.',
+      title: 'Strongroom contents inventory', assertion: 'The inventory lists the expected contents, and the current check finds the listed contents present.',
       uncertaintyLimit: 'The inventory does not identify who entered or when.',
     });
     records[ERA1_MAR_F01_RECORD_IDS.ninDaraAccount] = createAuthoredSourceRecord({
