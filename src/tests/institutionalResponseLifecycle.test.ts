@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { transitionGame } from '../engine/actionEconomy';
 import { queueSettlementCredit } from '../engine/dayClose';
+import { generateDailyAssignments } from '../engine/assignmentGenerator';
 import { validateInstitutionalResponseEvent } from '../engine/institutionalResponseValidation';
 import { createRoofRepairMatter, MATTER_IDS, NORTH_BAY_LOCATION_ID, STOREHOUSE_INSTITUTION_ID } from '../engine/institutionalMatters';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
@@ -107,21 +108,20 @@ describe('institutional response lifecycle', () => {
     let state = stateWithExecution(false);
     const noEvidence = nextWorkday(state, 1);
     expect(Object.values(noEvidence.state.world.events).some((event) => event.institutionalResponse?.stage === 'verification')).toBe(false);
-    state = stateWithExecution(true);
-    const firstDay = nextWorkday(state, 1);
-    const acceptedOffer = Object.values(firstDay.state.opportunities.assignments).find((offer) =>
+    state = generateDailyAssignments(stateWithExecution(true));
+    const acceptedOffer = Object.values(state.opportunities.assignments).find((offer) =>
       offer.activityId === NORTH_BAY_POST_EXECUTION_ACTIVITY_ID && offer.originMatterId === MATTER_IDS.roofRepair)!;
     expect(acceptedOffer).toBeDefined();
-    const accepted = transitionGame(firstDay.state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: acceptedOffer.id });
+    const accepted = transitionGame(state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: acceptedOffer.id });
     expect(accepted.feedback?.code).toBe('assignment-accepted');
 
-    const held = nextWorkday(accepted.state, 2);
+    const held = nextWorkday(accepted.state, 1);
     expect(held.feedback?.code).toBe('workday-begun');
     expect(Object.values(held.state.world.events).some((event) => event.institutionalResponse?.stage === 'verification')).toBe(false);
 
     const released = transitionGame(held.state, { type: 'CANCEL_ASSIGNMENT', assignmentId: acceptedOffer.id });
     expect(released.feedback?.code).toBe('assignment-cancelled');
-    const settled = nextWorkday(released.state, 3);
+    const settled = nextWorkday(released.state, 2);
     const verification = Object.values(settled.state.world.events).find((event) => event.institutionalResponse?.stage === 'verification');
     const resolution = Object.values(settled.state.world.events).find((event) => event.institutionalResponse?.stage === 'resolution');
 

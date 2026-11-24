@@ -202,7 +202,7 @@ describe('P2-2 authored Uruk Assignment activities', () => {
     expect(record && state.records.entries[record.id]).toEqual(record);
     expect(record?.uncertaintyLimits.join(' ').toLowerCase()).toContain('does not authorize release');
     expect(record?.assertions.map((assertion) => assertion.text).join(' ')).toContain('does not record a physical container count');
-    expect(record?.assertions.map((assertion) => assertion.text).join(' ')).toContain('internal grain soundness');
+    expect(record?.assertions.map((assertion) => assertion.text).join(' ')).toContain('does not establish the condition of grain inside any jar');
     expect(record?.assertions.map((assertion) => assertion.text).join(' ')).toContain('sealed pottery storage jars');
     expect(record?.uncertaintyLimits.join(' ')).not.toMatch(/\bsacks?\b/i);
     expect(record?.assertions.map((assertion) => assertion.text).join(' ')).not.toMatch(/\bsacks?\b/i);
