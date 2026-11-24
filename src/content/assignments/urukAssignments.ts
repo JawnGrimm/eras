@@ -48,7 +48,7 @@ export const heldBarleyInspection = activity({
   ],
   actions: [
     { id: 'held-consult-steward', family: 'consult', label: 'Consult Ur-Nanna', description: 'Establish custody, urgency, and the requested report.', apCost: 1, discoveryIds: ['held-steward-briefing'], consultedPersonId: people.steward },
-    { id: 'held-inspect-sacks', family: 'observe', label: 'Inspect the seven sealed jars', description: 'Observe the container exteriors and their segregation on reed matting.', apCost: 2, prerequisites: ['held-consult-steward'], discoveryIds: ['held-container-observation'] },
+    { id: 'held-inspect-sacks', family: 'observe', label: 'Inspect the seven sealed jars', description: 'Observe the container exteriors and their segregation on reed matting.', apCost: 1, prerequisites: ['held-consult-steward'], discoveryIds: ['held-container-observation'] },
     { id: 'held-compare-measures', family: 'compare', label: 'Compare intake and recount', description: 'Keep the capacity-measure records distinct from the physical container observation.', apCost: 1, discoveryIds: ['held-intake-record','held-recount-record'] },
     { id: 'held-consult-authority', family: 'consult', label: 'Consult Shuruppak-ilu', description: 'Clarify the boundary between a scribal recommendation and an authorized release.', apCost: 1, discoveryIds: ['held-senior-authority'], consultedPersonId: people.senior },
   ],
