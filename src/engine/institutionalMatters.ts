@@ -230,6 +230,19 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
     } satisfies Person;
     changed = true;
   }
+  if (nextDay >= 8 && !institutions[EANNA_INSTITUTION_ID]) {
+    institutions[EANNA_INSTITUTION_ID] = {
+      id: EANNA_INSTITUTION_ID, name: 'Eanna Precinct', locationId: EANNA_TABLET_ROOM_LOCATION_ID,
+      responsibilities: ['Maintain precinct records and supervised administrative work', 'Receive reports concerning precinct goods, labor, and offering preparations'],
+      authority: ['Review submitted administrative records', 'Refer matters to the responsible precinct authority'],
+      standing: 50, activeMatters: [],
+    };
+    changed = true;
+  }
+  if (nextDay >= 8 && !locations[EANNA_TABLET_ROOM_LOCATION_ID]) {
+    locations[EANNA_TABLET_ROOM_LOCATION_ID] = { id: EANNA_TABLET_ROOM_LOCATION_ID, name: 'Eanna precinct tablet room, Uruk' };
+    changed = true;
+  }
   if (nextDay >= 8 && !institutions[TEXTILE_HOUSEHOLD_INSTITUTION_ID]) {
     institutions[TEXTILE_HOUSEHOLD_INSTITUTION_ID] = {
       id: TEXTILE_HOUSEHOLD_INSTITUTION_ID, name: 'Geme-Inana’s Textile Household',
@@ -256,7 +269,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
   if (nextDay >= 8 && !matters['matter-era1-com-f02-two-claims' as MatterId]) {
     const storehouseNeedOpen = Object.values(matters).some((matter) =>
       matter.status === 'active' && (matter.kind === 'roof_repair_verification' || matter.kind === 'north_bay_water_ingress'));
-    const household = state.world.people[ERA1_COM_F02_F04_PEOPLE.gemeInana];
+    const household = people[ERA1_COM_F02_F04_PEOPLE.gemeInana];
     const householdNeedOpen = household?.objectives?.some((objective) =>
       objective.id === 'objective-geme-inana-workframes' && objective.status === 'active');
     if (storehouseNeedOpen && householdNeedOpen && institutions[EANNA_INSTITUTION_ID]
