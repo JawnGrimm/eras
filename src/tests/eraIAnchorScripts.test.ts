@@ -64,7 +64,7 @@ describe('Era I Assignment anchor semantic catalog', () => {
     expect(validateEraIAssignmentAnchorPortfolio(duplicate)).toContain('Anchor IDs must be unique.');
 
     const incomplete = ERA_I_ASSIGNMENT_ANCHOR_SCRIPTS.map((script, index) => index === 0
-      ? { ...script, pool: 'orientation_locked' as EraIAnchorScript['pool'] }
+      ? { ...script, pool: 'orientation_locked' as unknown as EraIAnchorScript['pool'] }
       : script);
     expect(validateEraIAssignmentAnchorPortfolio(incomplete)).toContain(
       'ERA1-COM-01: anchor must use the shared world pool.',
