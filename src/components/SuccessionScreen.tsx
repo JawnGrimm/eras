@@ -97,7 +97,7 @@ function CandidateCard({ candidateId, state }: { candidateId: string; state: Gam
       </section>
       <section><h3 className="text-sm font-semibold">Personal circumstances</h3>
         <dl className="mt-2 grid grid-cols-2 gap-2">
-          <div className="rounded bg-stone-50 p-2"><dt className="text-xs text-stone-500">Silver</dt><dd className="font-mono text-sm">{scribal.wallet.money}</dd></div>
+          <div className="rounded bg-stone-50 p-2"><dt className="text-xs text-stone-500">Currency</dt><dd className="font-mono text-sm">{scribal.wallet.money}</dd></div>
           <div className="rounded bg-stone-50 p-2"><dt className="text-xs text-stone-500">Provisions</dt><dd className="font-mono text-sm">{scribal.wallet.provisions}</dd></div>
           <div className="rounded bg-stone-50 p-2"><dt className="text-xs text-stone-500">Career XP</dt><dd className="font-mono text-sm">{scribal.careerXp.toLocaleString()}</dd></div>
           <div className="rounded bg-stone-50 p-2"><dt className="text-xs text-stone-500">Stress</dt><dd className="font-mono text-sm">{scribal.stress}</dd></div>
