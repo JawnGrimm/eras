@@ -63,7 +63,7 @@ No missing actor, role, affiliation, office, historical event, age, or capabilit
 - [x] Native labelled search inputs.
 - [x] Native labelled life-status select.
 - [x] Buttons use `aria-pressed` for selected state.
-- [x] Result counts and selected detail regions use `aria-live="polite"`.
+- [x] Result counts and selected detail headings use `aria-live="polite"` without announcing the full detail panel.
 - [x] Native `details/summary` controls are keyboard-operable.
 - [x] Visible `focus-visible` outlines on selection and disclosure controls.
 - [x] Mobile single-column flow and desktop two-column index/detail layout.
