@@ -29,7 +29,7 @@ export type EraICharacterNameValidation =
 
 /** Minimal approved hygiene; preserves all other characters and internal whitespace. */
 export function validateEraICharacterName(value: unknown): EraICharacterNameValidation {
-  if (typeof value !== 'string') return { valid: false, error: 'Enter a character name.' };
+  if (typeof value !== 'string') return { valid: false, error: 'A non-empty character name is required.' };
   const name = value.trim();
   if (name.length === 0) return { valid: false, error: 'Enter a character name.' };
   if (Array.from(name).length > 60) {
