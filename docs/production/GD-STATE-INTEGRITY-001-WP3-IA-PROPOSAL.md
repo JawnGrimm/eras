@@ -51,7 +51,7 @@ The UI derives the current-matter list from each matter's status and institution
 | No affiliations | Counted/collapsed “Affiliations (0)” with “None recorded” inside. |
 | No scribal capability sheet | “Professional reputation (no record)” in a collapsed section; no fictional capability values. |
 | No institutional standing entries | “Institutional standing (0)” with an explicit empty message. |
-| No Life Events | “No Life Events are recorded.” |
+| No Life Events | Preserve the neutral legacy fallback “No personal history has been recorded.”; the disclosure summary separately counts Life Events. |
 | No PersonFamiliarity entries | No empty placeholder. |
 | No appointments | “Appointments and office scopes (0)” with an empty message. |
 | No public circumstances/commitments | Sections are omitted; private entries remain undisclosed. |
@@ -79,7 +79,7 @@ The existing static render regression in `src/tests/productionContinuityScreens.
 - People view: search/filter controls, one full selected profile, its directional relationships, and collapsed personal-history/reputation/standing sections.
 - Institutions view: search, current matters, historical matters, appointments, and institutional records.
 
-The test also checks that implementation-language “No initialized scribal capability sheet” copy is absent and that the full People page no longer repeats a full Personal History block for every Person. These render assertions are the current non-browser before/after capture; they do not substitute for the outstanding interactive browser checks.
+The test also checks that implementation-language “No initialized scribal capability sheet” copy is absent and that the full People page no longer repeats a full Personal History block for every Person. A separate WP6 snapshot-display fixture uses the approved Day-13 final values to test state-to-UI projection; it is not a reconstructed gameplay save. These render assertions are the current non-browser before/after capture; they do not substitute for the outstanding interactive browser checks.
 
 ## 6. Technical decisions and boundaries
 
