@@ -14,7 +14,7 @@ This is an evidence report, not a design amendment. The approved specification a
 
 1. **People & Institutions is an eager-rendering/presentation problem, not a demonstrated data-loading problem.** The component reads the already-loaded `GameState` maps and renders every person, relationship edge, and institution with full detail. There is no search/filter or selected-person/detail interaction.
 2. **A real relationship-history attribution defect exists in the rubric Assignment submission path.** `eraIAnchorSubmission.ts` writes the receiving person's authored reaction text to every additional `relationshipPersonIds` edge. The authored F02 and F04 definitions name Lu-Nanshe and Utu-mansum respectively as receivers while also listing other people as additional relationship recipients. Their spoken reaction is therefore presented as though it belongs to those other people's relationship perspectives. This is a producer defect, not a rendering transformation.
-3. **That source-level defect is not yet proven to be present in the captured Day-13 save.** The retrieved Day-13 playtest summary identifies the recent assignments as North-Bay Roof Inspection (Day 4), South Loading-Awning Inspection (Day 3), and South-Court Delivery Reconciliation (Day 3). It does not show F02/F04 activity or include the cited Lu-Nanshe/Utu-mansum relationship-history text. The defect is reproducible from authored F02/F04 definitions in code, but must not be reported as the proven cause of those particular snapshot examples.
+3. **The source-level defect matches the two relationship-attribution examples identified as directly observed in the approved Day-13 specification.** F02's Lu-Nanshe receiver reaction is written to Ur-Nanna and Geme-Inana edges; F04's Utu-mansum receiver reaction is written to Enlil-kisu and Ama-gi edges, while the receiver's own edge is also written by Closing Receipt processing. The source path therefore explains the reported cross-attribution.
 4. **Numeric relationship familiarity has no current gameplay accrual path.** New-character bootstrap stores authored `PersonFamiliarity` entries, but those are domain/exposure knowledge and are not `RelationshipDimensions.familiarity`. New player worlds begin with no numeric relationship edges; current relationship consequence writers default missing familiarity to 0 and update trust/respect, not familiarity. This explains why new edges can remain at 0, but conflicts with the World Simulation Specification's principle that repeated meaningful contact can gradually shape familiarity. No formula or threshold is specified here; Production must not invent one.
 5. **Assignment completion and institutional matter resolution are deliberately separate.** Report submission adds documentary evidence/provenance and may record a receiving disposition, but does not itself close a broader matter. The captured Day-13 North-Bay receipt was Overreached and received by Ur-Nanna; that is not evidence that the physical repair was executed and independently verified. The matter remaining open is consistent with the current lifecycle contract.
 6. **The People/Institution UI repeats sparse-data placeholders and does not progressively disclose detail.** Age unknown, no affiliations, no initialized scribal capability sheet, no personal history, no standing, and no appointments are rendered inline for every affected profile. They are not fabricated, but their repeated presentation creates substantial visual noise.
@@ -50,7 +50,7 @@ The UI in `src/components/ProductionPeopleAndInstitutions.tsx` renders each edge
 
 Existing `src/tests/eraICommercialMartial.test.ts` verifies F01 receiver/secondary relationship dimensions and some history counts, but does not assert the speaker/summary attribution on F02/F04 secondary edges. Add targeted tests before changing the writer.
 
-**Snapshot qualification:** The Day-13 playtest summary retrieved for this audit records three older recurring Uruk Assignments and an Overreached North-Bay receipt received by Ur-Nanna. It does not contain the F02/F04 edge summaries. The F02/F04 defect is confirmed in source and content, but the exact Lu-Nanshe/Utu-mansum examples in the specification are not independently verified against that particular Day-13 capture.
+**Snapshot qualification:** The approved specification identifies the Lu-Nanshe and Utu-mansum cross-attribution examples as direct Day-13 observations. The source/content match is exact at the producer level. The actual serialized Day-13 save was not available, so the full edge histories and IDs cannot yet be reconciled one-by-one.
 
 ### 2.4 Provenance and persistence limitation
 
@@ -102,7 +102,7 @@ The current source contract separates:
 - any later execution;
 - independent verification and final resolution.
 
-Accordingly, a completion toast alongside an active matter is **not a defect by itself**. For the captured Overreached North-Bay report, retaining the matter is the expected behavior. The retrieved Day-13 summary does not include the exact toast text or exact active matter IDs, so the precise screenshot/UI pairing still needs the repeatable fixture in WP6.
+Accordingly, a completion toast alongside an active matter is **not a defect by itself**. The source code contains explicit examples where a submitted comparison/report updates the matter's provenance but intentionally leaves it active pending a separate authority decision. The exact Day-13 task ID, matter IDs, and displayed toast text still need to be captured in the repeatable WP6 fixture before the specific screenshot pairing can be declared reconciled.
 
 ## 5. People & Institutions information-architecture audit
 
@@ -168,13 +168,12 @@ Persistence:
 - `src/state/saveEnvelope.ts` validates schema-v3 state and supports validated schema-v2 migration/normalization. Relationship edges and Event references are validated; matter statuses and institution active-matter entries are validated.
 - `src/state/GameProvider.tsx` restores the save from browser localStorage and writes the complete envelope after state transitions, with rollback/error handling for failed writes.
 
-Retrieved Day-13 display values:
-- Ena-an-ru, Uruk, Day 13; AP 6/6; Currency 1; Provisions 0; Career XP 529; Historical Progress XP 0; Stress 5/100; Professional Rank Grade 1.
-- Career record: competence 50, reliability 50, discretion 50, judgment 53.
-- Career history summary: 3 Assignments presented/completed; aggregate rewards 13 Currency and 47 Career XP; one Challenge resolved. The captured receipt for North-Bay Roof Inspection was Overreached and received by Ur-Nanna, with Trust −4, Respect −3, and Temple Storehouse standing −2.
-- Historical Progress XP 0 is consistent with the Works-only rule. Career XP and Grade are separate tracks; the current Grade is derived from skills, not a stored rank value.
+Day-13 display values stated by the approved specification:
+- AP 3/6; Currency 77; Provisions 9; Career XP 631; Professional Rank Grade 1; Historical Progress XP 0; Stress 5.
+- The approved specification also reports the archived-record count as a value to reconcile, but does not state the numeric count in its observation summary.
+- Historical Progress XP 0 is consistent with the Works-only rule. Career XP 631 and Grade 1 are not inherently contradictory: Career XP and Professional Rank are separate tracks, and the current Grade is derived from skills rather than stored as an independent rank value.
 
-**Not reconciled:** The actual save envelope and full transaction/event history were not available. The display summary alone cannot prove the exact path to Currency 1, Provisions 0, Career XP 529, Stress 5, or AP 6/6. Do not infer missing purchases, awards, or transitions. A Day-13 fixture must capture the full state and transaction/event trace to establish these balances reproducibly.
+**Not reconciled:** The actual save envelope and full transaction/event history were not available. The approved display summary alone cannot prove the exact path to Currency 77, Provisions 9, Career XP 631, Stress 5, or AP 3/6, nor supply the archived-record count. Do not infer missing purchases, awards, or transitions. A Day-13 fixture must capture the full state and transaction/event trace to establish these balances reproducibly.
 
 ## 8. WP0 findings table and next actions
 
