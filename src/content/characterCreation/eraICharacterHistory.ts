@@ -1,4 +1,5 @@
 import type { PersonId } from '../../state/ids';
+import { ERA_I_CHARACTER_CREATION_CONTENT_VERSION } from '../../state/eraICharacterStartingState';
 import type {
   CharacterCreationRecord,
   FamiliarityExposure,
@@ -318,7 +319,7 @@ export function resolveEraICharacterHistory(input: ResolveEraICharacterHistoryIn
 
   return {
     characterCreation: {
-      contentVersion: ERA_I_CHARACTER_HISTORY_CONTENT_VERSION,
+      contentVersion: ERA_I_CHARACTER_CREATION_CONTENT_VERSION,
       originId: choices.originId,
       responsibilityId: choices.responsibilityId,
       formativeExperienceId: choices.formativeExperienceId,
