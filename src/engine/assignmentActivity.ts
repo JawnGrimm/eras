@@ -5,7 +5,7 @@ import type { AssignmentId, KnowledgeEntryId, RecordId, InstitutionId } from '..
 import { NORTH_BAY_ACTIVITY_ID, NORTH_BAY_POST_EXECUTION_ACTIVITY_ID, NORTH_BAY_PEOPLE, ASSIGNMENT_ACTIVITY_CATALOG, validateAssignmentActivityProgress, normalizeActivityDraft } from '../content/assignments/northBayRoofInspection';
 import { submitNorthBayPostExecutionInspection } from './northBayPostExecutionSubmission';
 import { submitUrukAssignmentActivity } from './urukAssignmentSubmission';
-import { submitEraIAnchorAssignmentActivity } from './eraIAnchorSubmission';
+import { submitRubricAssignmentActivity } from './eraIAnchorSubmission';
 import { MATTER_IDS, createRoofRepairMatter } from './institutionalMatters';
 
 type ActivityAction = Extract<GameAction, { type: 'PERFORM_ASSIGNMENT_ACTIVITY_ACTION' | 'UPDATE_ASSIGNMENT_ACTIVITY_DRAFT' | 'SUBMIT_ASSIGNMENT_ACTIVITY' }>;
@@ -56,7 +56,7 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
       ?? fail(state, 'assignment-activity-resolver-missing', 'No post-execution inspection resolver is registered.');
   }
   if (definition.evaluation) {
-    return submitEraIAnchorAssignmentActivity(state, offer, definition, progress)
+    return submitRubricAssignmentActivity(state, offer, definition, progress)
       ?? fail(state, 'assignment-activity-resolver-missing', 'No rubric-based report resolver is registered.');
   }
   if (offer.activityId !== NORTH_BAY_ACTIVITY_ID) {

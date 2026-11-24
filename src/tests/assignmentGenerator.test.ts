@@ -86,14 +86,23 @@ describe('matter-driven Assignment discovery', () => {
     const delivery = base.world.matters['matter-south-court-delivery-reconciliation' as MatterId];
     const awning = base.world.matters['matter-south-loading-awning-inspection' as MatterId];
     const additional = Array.from({ length: 3 }, (_, index) => [
-      { ...delivery, id: `matter-delivery-additional-${index}` as MatterId, createdDay: index + 2 },
-      { ...awning, id: `matter-awning-additional-${index}` as MatterId, createdDay: index + 2 },
+      { ...delivery, id: `matter-delivery-additional-${index}` as MatterId, createdDay: 1,
+        sourceEventId: `event-delivery-additional-${index}` as keyof typeof base.world.events },
+      { ...awning, id: `matter-awning-additional-${index}` as MatterId, createdDay: 1,
+        sourceEventId: `event-awning-additional-${index}` as keyof typeof base.world.events },
     ]).flat();
+    const additionalEvents = additional.map((matter) => {
+      const template = matter.kind === 'south_court_delivery_reconciliation'
+        ? base.world.events['event-south-court-delivery-source' as keyof typeof base.world.events]
+        : base.world.events['event-south-loading-awning-source' as keyof typeof base.world.events];
+      return { ...template, id: matter.sourceEventId!, dayNumber: 1, summary: `A separate material occurrence for ${matter.id}.` };
+    });
     const state: GameState = {
       ...base,
       world: {
         ...base.world,
         matters: { ...base.world.matters, ...Object.fromEntries(additional.map((matter) => [matter.id, matter])) },
+        events: { ...base.world.events, ...Object.fromEntries(additionalEvents.map((event) => [event.id, event])) },
         institutions: {
           ...base.world.institutions,
           [institutionId]: {

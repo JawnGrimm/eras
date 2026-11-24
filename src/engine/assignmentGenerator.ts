@@ -91,7 +91,19 @@ export function generateDailyAssignments(state: GameState): GameState {
     };
     const result: TransitionResult = transitionOpportunityAction(next, { type: 'PRESENT_ASSIGNMENT', offer });
     if (result.feedback?.kind === 'error') continue;
-    next = result.state;
+    const requiredSourceFactIds = [executionEvent.id, response.recordId].sort();
+    const occurrenceKey = `${NORTH_BAY_POST_EXECUTION_ACTIVITY_ID}|${requiredSourceFactIds.join('|')}`;
+    next = {
+      ...result.state,
+      opportunities: {
+        ...result.state.opportunities,
+        occurrenceLedger: [...result.state.opportunities.occurrenceLedger, {
+          scenarioId: NORTH_BAY_POST_EXECUTION_ACTIVITY_ID, occurrenceKey, lifecycle: 'offered' as const,
+          matterId: matter.id, primarySourceFact: { kind: 'event' as const, id: executionEvent.id },
+          requiredSourceFactIds, deliveryChannels: offer.deliveryChannels, presentedDay: next.calendar.dayNumber,
+        }],
+      },
+    };
     sequence++;
     lastPresentedDayByActivity[NORTH_BAY_POST_EXECUTION_ACTIVITY_ID] = next.calendar.dayNumber;
   }
@@ -106,7 +118,7 @@ export function generateDailyAssignments(state: GameState): GameState {
       if (sourceMatter.status !== 'active' || !sourceInstitution?.activeMatters.includes(sourceMatter.id)) continue;
       const requiredSourceFactIds = occurrenceSourceFacts(next, sourceMatter);
       if (requiredSourceFactIds.length === 0) continue;
-      const occurrenceKey = `${definition.offer.activityId}|${sourceMatter.id}|${requiredSourceFactIds.join('|')}`;
+      const occurrenceKey = `${definition.offer.activityId}|${requiredSourceFactIds.join('|')}`;
       if (next.opportunities.occurrenceLedger.some((entry) => entry.occurrenceKey === occurrenceKey)) continue;
       if (Object.values(next.opportunities.assignments).some((offer) => offer.originMatterId === sourceMatter.id
         || (!offer.originMatterId && offer.activityId === definition.offer.activityId))) continue;
@@ -131,8 +143,10 @@ export function generateDailyAssignments(state: GameState): GameState {
             occurrenceKey,
             lifecycle: 'offered' as const,
             matterId: sourceMatter.id,
-            ...(sourceMatter.sourceEventId ? { primarySourceFact: { kind: 'event' as const, id: sourceMatter.sourceEventId } }
-              : sourceMatter.sourceRecordId ? { primarySourceFact: { kind: 'record' as const, id: sourceMatter.sourceRecordId } } : {}),
+            ...(sourceMatter.sourceEventId && next.world.events[sourceMatter.sourceEventId]
+              ? { primarySourceFact: { kind: 'event' as const, id: sourceMatter.sourceEventId } }
+              : sourceMatter.sourceRecordId && next.records.entries[sourceMatter.sourceRecordId]
+                ? { primarySourceFact: { kind: 'record' as const, id: sourceMatter.sourceRecordId } } : {}),
             requiredSourceFactIds,
             deliveryChannels: definition.offer.deliveryChannels,
             presentedDay: next.calendar.dayNumber,

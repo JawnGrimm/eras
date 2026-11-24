@@ -101,6 +101,7 @@ export function AssignmentActivityScreen({ assignmentId, onBack }: { assignmentI
               ? [...(draft.selectedLimitationIds ?? []), id]
               : (draft.selectedLimitationIds ?? []).filter((item) => item !== id) })} />{label}
         </label>)}
+        {draft.limitations.length > 0 && <p className="mt-2 text-xs text-stone-500">Legacy notes preserved, ungraded: {draft.limitations.join('; ')}</p>}
         <label className="mt-3 block text-sm font-medium">Additional note (optional)
           <textarea rows={2} value={draft.limitationNotes ?? ''} onChange={(e) => dispatchDraft({ ...draft, limitationNotes: e.target.value })}
             placeholder="Add a source-specific qualification." className="mt-1 block w-full rounded border border-stone-300 p-2 text-sm" />
