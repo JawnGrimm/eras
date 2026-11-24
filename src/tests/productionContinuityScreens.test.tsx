@@ -180,6 +180,17 @@ describe('production continuity and social screens', () => {
       id: 'matter-resolved-history' as MatterId, institutionId: storehouseId, kind: 'general',
       summary: 'A resolved matter remains available in institutional history.', status: 'resolved', createdDay: 1,
     };
+    const institutionRecordId = 'record-institution-history' as RecordId;
+    const institutionRecord: RecordEntry = {
+      id: institutionRecordId, createdDay: 3, authorPersonId: INITIAL_PERSON_ID, institutionId: storehouseId,
+      title: 'Institutional ledger record',
+      sources: [{ id: 'source-institution-ledger', kind: 'other', description: 'A signed tablet was copied.' }],
+      assertions: [{ id: 'assertion-institution-ledger', text: 'Twenty-four measures were dispatched.', classification: 'observed', sourceIds: ['source-institution-ledger'] }],
+      uncertaintyLimits: ['The second seal was not independently verified.'],
+      amendments: [{ id: 'amendment-institution-ledger', dayNumber: 4, authorPersonId: INITIAL_PERSON_ID,
+        reason: 'Later testimony qualified the count.', sourcesAdded: [], assertionsAdded: [],
+        uncertaintyLimitsAdded: ['The carrier route remains unverified.'], note: 'The original count remains preserved.' }],
+    };
     const state: GameState = {
       ...base,
       world: {
@@ -198,6 +209,7 @@ describe('production continuity and social screens', () => {
             authorityScope: ['Verify incoming measures'], responsibilities: ['Maintain daily accounts'], startDay: 1 },
         },
       },
+      records: { ...base.records, entries: { ...base.records.entries, [institutionRecordId]: institutionRecord } },
     };
     const markup = renderScreen(state, createElement(ProductionPeopleAndInstitutions));
     const institutionMarkup = renderScreen(state, createElement(ProductionPeopleAndInstitutions, { initialSection: 'institutions' }));
@@ -221,6 +233,12 @@ describe('production continuity and social screens', () => {
     expect(institutionMarkup).toContain('Appointments and delegated office scopes');
     expect(institutionMarkup).toContain('An active matter omitted from the institution index remains visible.');
     expect(institutionMarkup).toContain('A resolved matter remains available in institutional history.');
+    expect(institutionMarkup).toContain('Institutional ledger record');
+    expect(institutionMarkup).toContain('A signed tablet was copied.');
+    expect(institutionMarkup).toContain('Twenty-four measures were dispatched.');
+    expect(institutionMarkup).toContain('The second seal was not independently verified.');
+    expect(institutionMarkup).toContain('The original count remains preserved.');
+    expect(institutionMarkup).toContain('The carrier route remains unverified.');
   });
 
   it('renders immutable record assertions, append-only amendments, knowledge holders, and durable notices', () => {
