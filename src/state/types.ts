@@ -244,6 +244,8 @@ export interface OpportunityOccurrenceLedgerEntry {
   matterId?: MatterId;
   primarySourceFact?: { kind: 'event'; id: EventId } | { kind: 'record'; id: RecordId };
   requiredSourceFactIds: string[];
+  deliveryChannels?: OpportunityDeliveryChannel[];
+  presentedDay?: number;
   assigneePersonId?: PersonId;
   legacy?: true;
 }
