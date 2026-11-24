@@ -7,10 +7,11 @@ export function ClosingReceiptScreen({ receipt, kind, onReturn }: {
   kind: 'assignment' | 'challenge';
   onReturn: () => void;
 }) {
+  const formatDelta = (value: number) => value > 0 ? `+${value}` : String(value);
   const rows: Array<{ label: string; value: string }> = [];
-  if (receipt.deltas.currency !== 0) rows.push({ label: 'Currency', value: `+${receipt.deltas.currency}` });
-  if (receipt.deltas.provisions !== 0) rows.push({ label: 'Provisions', value: `+${receipt.deltas.provisions}` });
-  if (receipt.deltas.careerXp !== 0) rows.push({ label: 'Career XP', value: `+${receipt.deltas.careerXp}` });
+  if (receipt.deltas.currency !== 0) rows.push({ label: 'Currency', value: formatDelta(receipt.deltas.currency) });
+  if (receipt.deltas.provisions !== 0) rows.push({ label: 'Provisions', value: formatDelta(receipt.deltas.provisions) });
+  if (receipt.deltas.careerXp !== 0) rows.push({ label: 'Career XP', value: formatDelta(receipt.deltas.careerXp) });
   rows.push({ label: 'Judgment', value: receipt.deltas.judgment > 0 ? `+${receipt.deltas.judgment}` : receipt.deltas.judgment < 0 ? String(receipt.deltas.judgment) : '0 · unchanged' });
   if (receipt.institutionName) rows.push({ label: `Institutional Standing · ${receipt.institutionName}`, value: receipt.deltas.institutionalStanding > 0 ? `+${receipt.deltas.institutionalStanding}` : receipt.deltas.institutionalStanding < 0 ? String(receipt.deltas.institutionalStanding) : '0 · unchanged' });
   if (receipt.receiverName) {

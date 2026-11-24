@@ -26,7 +26,7 @@ function assess(definition: AssignmentActivityDefinition, progress: AssignmentAc
   return thorough ? 'Thorough' as const : 'Defensible' as const;
 }
 
-export function submitEraIAnchorAssignmentActivity(
+export function submitRubricAssignmentActivity(
   state: GameState, offer: AssignmentOffer, definition: AssignmentActivityDefinition, progress: AssignmentActivityProgress,
 ): TransitionResult | null {
   if (!definition.evaluation) return null;

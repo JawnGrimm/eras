@@ -34,6 +34,7 @@ function isClosingReceipt(value: unknown): boolean {
     && ['Thorough','Defensible','Incomplete','Overreached'].includes(String(value.assessment))
     && nonEmptyString(value.rationale) && nonEmptyString(value.reaction)
     && (value.receiverName === undefined || nonEmptyString(value.receiverName))
+    && (value.institutionName === undefined || nonEmptyString(value.institutionName))
     && (value.compensationTiming === undefined || nonEmptyString(value.compensationTiming))
     && isObject(value.deltas)
     && ['currency','provisions','careerXp','judgment','institutionalStanding','trust','respect'].every((key) => finiteNumber(value.deltas[key]));
