@@ -48,7 +48,7 @@ Eligibility is evaluated before presentation weighting. Weighting may influence 
 
 ### 3.2 Era I anchor portfolio
 
-Plan for roughly 8–9 distinct, richer bespoke Assignment definitions across the Era I shared pool. Aim for about two credible anchors in each orientation's institutional context, allowing genuine overlap where the same institution or responsibility serves more than one orientation.
+Plan for roughly 8–9 distinct, richer bespoke Assignment definitions across the Era I shared pool. The authoring target is about two credible anchors per orientation context, allowing genuine overlap where the same institution or responsibility serves more than one orientation. This is a content target, not permission to invent unsupported institutions: if the evidence cannot support two distinct Martial anchors, record the gap and use historically plausible shared-pool work rather than manufacture a military bureaucracy.
 
 The portfolio should:
 - **Civic:** make institutional administration, land/labor, production, storage, redistribution, collective work, or public/monumental responsibilities legible.
@@ -59,6 +59,17 @@ The portfolio should:
 Civic and Religious contexts overlap historically. Their distinction must emerge from the actual purpose, people, evidence, responsibilities, authority, and consequences—not a secular-versus-religious label. Likewise, transport alone does not make an Assignment Martial, and the presence of a carrier alone does not establish a distinct Commercial setting.
 
 The existing three Temple Storehouse activities remain the baseline cluster for content review. They do not, by themselves, demonstrate four-orientation coverage. Review them for retention, correction, and sharper Civic/Religious responsibility; do not multiply them into cosmetic variants.
+
+### 3.2a Initial historical constraints (Issue #80 source check)
+
+These are preliminary constraints, not the completed research deliverable:
+
+- **Commercial — Attested / Inferred:** Uruk IV administrative texts record commodity quantities and warehouse entries/exits; sealing practices relate to containers, doors, goods, senders, and destinations. This supports institutionally mediated receipt, dispatch, custody, and reconciliation. It does not establish a modern private merchant-house system or detailed regulation of every long-distance route. Nissen, “Uruk: Early Administration Practices and the Development of Proto-Cuneiform Writing,” *Archéo-Nil* 26 (2016), pp. 38–42; Kelley et al., “Seals and signs: tracing the origins of writing in ancient south-west Asia,” *Antiquity* (2024), https://doi.org/10.15184/aqy.2024.165.
+- **Commercial — caution:** Archaeometric evidence supports long-distance movement of bitumen, but Wright notes no direct evidence for how that transport was administered or regulated. Do not turn the existence of exchange into an invented commercial office or workflow. Wright, “The Uruk Expansion and Beyond,” *Journal of Archaeological Science: Reports* (2016), https://doi.org/10.1016/j.jasrep.2016.04.010.
+- **Martial — Attested scholarly assessment / major gap:** Richardson describes Uruk-period Mesopotamia (c. 3400–3000 BCE) as virtually devoid of symbolic evidence for military power, with records focused on agricultural administration/scribal training and urban architecture focused on temple complexes that were walled but not overtly fortified. He notes one fourth-millennium Uruk seal impression that may depict a ruler overseeing prisoners' execution, but this is a lone uncertain example. No two distinct Martial anchor Assignments are established by this evidence set. Richardson, “Mesopotamia and the ‘New’ Military History” (2011), pp. 17–18, https://oi.uchicago.edu/sites/default/files/uploads/shared/docs/new_military_history_2011.pdf.
+- **Civic / Religious — Attested evidence, inferred distinction:** Level IV title lists and administrative texts indicate a diversified administrative landscape and record commodity volumes and warehouse entries/exits; the proposed responsibilities behind some titles remain tentative and the documents do not reveal a complete institutional chart. Seal research connects goods movement, temple-like settings, and possible cultic offerings, while noting interpretive uncertainty. Differentiate Civic and Religious play by purpose, recipients, obligations, timing, evidence, and authority—not by inventing separate modern bureaucracies. Nissen (2016), pp. 39–40; Kelley et al. (2024).
+
+**Immediate content consequence:** prioritize an institutionally mediated Commercial transfer/custody anchor; do not force two Martial anchors without stronger phase-specific evidence; build Civic/Religious distinction through purpose and consequences within overlapping institutional settings. These findings refine the target but do not yet supply finished scenarios or a validated parameter matrix.
 
 ### 3.3 Two-tier supply
 
