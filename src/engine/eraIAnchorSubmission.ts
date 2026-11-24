@@ -182,7 +182,7 @@ export function submitRubricAssignmentActivity(
     amendments: [],
   } : undefined;
   const f01Matter = f01 && matter && f01DispositionRecordId ? {
-    ...matter,
+    ...(updatedMatter ?? matter),
     provenance: [
       ...(matter.provenance ?? []),
       { id: `f01-disposition-${recordId}`, kind: 'record_copy' as const, sourceId: f01DispositionRecordId,
