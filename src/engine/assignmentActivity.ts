@@ -55,9 +55,9 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
     return submitNorthBayPostExecutionInspection(state, offer, definition, progress)
       ?? fail(state, 'assignment-activity-resolver-missing', 'No post-execution inspection resolver is registered.');
   }
-  if (offer.activityId?.startsWith('activity-era1-')) {
+  if (definition.evaluation) {
     return submitEraIAnchorAssignmentActivity(state, offer, definition, progress)
-      ?? fail(state, 'assignment-activity-resolver-missing', 'No Era I anchor report resolver is registered.');
+      ?? fail(state, 'assignment-activity-resolver-missing', 'No rubric-based report resolver is registered.');
   }
   if (offer.activityId !== NORTH_BAY_ACTIVITY_ID) {
     return submitUrukAssignmentActivity(state, offer, definition, progress)

@@ -1,5 +1,5 @@
-import type { AssignmentOffer, AssignmentActivityProgress, GameState, TransitionResult, RecordEntry, RecordSource, RecordAssertion } from '../state/types';
-import type { AssignmentId, InstitutionId, RecordId } from '../state/ids';
+import type { AssignmentOffer, AssignmentActivityProgress, GameState, TransitionResult, RecordEntry, RecordSource, RecordAssertion, KnowledgeEntry } from '../state/types';
+import type { AssignmentId, InstitutionId, KnowledgeEntryId, PersonId, RecordId } from '../state/ids';
 import type { AssignmentActivityDefinition } from '../content/assignments/northBayRoofInspection';
 import { getInitializedScribal } from '../state/scribalState';
 import { applyClosingAssessment } from './closingReceipt';
@@ -15,7 +15,8 @@ function assess(definition: AssignmentActivityDefinition, progress: AssignmentAc
   const cited = new Set(progress.draft.citedDiscoveryIds);
   const selectedLimitations = new Set(progress.draft.selectedLimitationIds ?? []);
   const overreached = rubric.unsupportedFindingIds.includes(progress.draft.finding)
-    || rubric.unsupportedResponsibilityClaimIds.includes(progress.draft.responsibilityClaim);
+    || rubric.unsupportedResponsibilityClaimIds.includes(progress.draft.responsibilityClaim)
+    || (rubric.unsupportedRecommendationIds ?? []).some((id) => progress.draft.recommendations.includes(id));
   if (overreached) return 'Overreached' as const;
   const incomplete = rubric.requiredEvidenceIds.some((id) => !cited.has(id))
     || rubric.requiredLimitationIds.some((id) => !selectedLimitations.has(id));
@@ -28,7 +29,7 @@ function assess(definition: AssignmentActivityDefinition, progress: AssignmentAc
 export function submitEraIAnchorAssignmentActivity(
   state: GameState, offer: AssignmentOffer, definition: AssignmentActivityDefinition, progress: AssignmentActivityProgress,
 ): TransitionResult | null {
-  if (!offer.activityId?.startsWith('activity-era1-')) return null;
+  if (!definition.evaluation) return null;
   const rubric = definition.evaluation;
   const person = state.world.people[state.player.currentCharacterId];
   const scribal = getInitializedScribal(person);
@@ -48,6 +49,8 @@ export function submitEraIAnchorAssignmentActivity(
   const recordId = `record-${offer.id}-day-${state.calendar.dayNumber}` as RecordId;
   if (state.records.entries[recordId]) return fail(state, 'assignment-activity-record-exists', 'A report record already exists for this deterministic submission ID.');
   const sources: RecordSource[] = [
+    ...(matter?.sourceEventId ? [{ id: 'source-matter-event', kind: 'event' as const, sourceId: matter.sourceEventId, description: matter.summary }] : []),
+    ...(matter?.sourceRecordId ? [{ id: 'source-matter-record', kind: 'other' as const, sourceId: matter.sourceRecordId, description: 'Original source record linked to the active institutional matter.' }] : []),
     { id: 'source-player-report', kind: 'other', description: 'Submitted report by the current scribe; selected limitations and notes are player-authored content.' },
     ...citedDiscoveries.map((item) => ({
       id: `source-${item.id}`, kind: 'other' as const,
@@ -60,12 +63,12 @@ export function submitEraIAnchorAssignmentActivity(
       id: `assertion-${item.id}`, text: item.text, classification: 'reported' as const,
       sourceIds: [`source-${item.id}`],
     })),
-    { id: 'assertion-finding', text: `Finding: ${finding?.label ?? progress.draft.finding}`, classification: 'reported', sourceIds: reportSourceIds },
-    { id: 'assertion-responsibility', text: `Responsibility: ${responsibility?.label ?? progress.draft.responsibilityClaim}`, classification: 'reported', sourceIds: reportSourceIds },
+    { id: 'assertion-finding', text: `Finding: ${finding?.label ?? progress.draft.finding}`, classification: assessment === 'Overreached' ? 'disputed' : 'reported', sourceIds: reportSourceIds },
+    { id: 'assertion-responsibility', text: `Responsibility: ${responsibility?.label ?? progress.draft.responsibilityClaim}`, classification: assessment === 'Overreached' ? 'disputed' : 'reported', sourceIds: reportSourceIds },
     ...progress.draft.recommendations.map((id, index) => ({
       id: `assertion-recommendation-${index}`,
       text: `Recommendation: ${definition.reportSchema.recommendations.find((option) => option.id === id)?.label ?? id}`,
-      classification: 'reported' as const, sourceIds: reportSourceIds,
+      classification: (rubric.unsupportedRecommendationIds ?? []).includes(id) ? 'disputed' as const : 'reported' as const, sourceIds: reportSourceIds,
     })),
     ...selectedLimitations.map((item) => ({
       id: `assertion-selected-limitation-${item.id}`, text: `Player-selected limitation: ${item.label}`,
@@ -86,6 +89,33 @@ export function submitEraIAnchorAssignmentActivity(
     title: definition.reportSchema.title, sources, assertions,
     uncertaintyLimits: systemCaveats, amendments: [],
   };
+  const reportProvenanceId = `assignment-report-${recordId}`;
+  const updatedMatter = matter ? {
+    ...matter,
+    provenance: [
+      ...(matter.provenance ?? []).filter((source) => source.id !== reportProvenanceId),
+      { id: reportProvenanceId, kind: 'record_copy' as const, sourceId: recordId, description: 'Submitted apprentice report; filing does not itself resolve the institutional matter.' },
+    ],
+  } : undefined;
+  const knowledgeHolders = [...new Set<PersonId>([
+    ...(receiverId ? [receiverId] : []),
+    ...(offer.employer.kind === 'person' ? [offer.employer.id as PersonId] : []),
+    ...progress.consultedPersonIds,
+  ])];
+  const knowledge: KnowledgeEntry[] = [
+    ...knowledgeHolders.map((holder) => ({
+      id: `knowledge-${offer.id}-day-${state.calendar.dayNumber}-${holder}` as KnowledgeEntryId,
+      holder: { kind: 'person' as const, id: holder },
+      subject: { kind: 'record' as const, id: recordId },
+      basis: 'received-copy' as const, learnedDay: state.calendar.dayNumber, sourcePersonId: person.id,
+    })),
+    {
+      id: `knowledge-${offer.id}-day-${state.calendar.dayNumber}-institution` as KnowledgeEntryId,
+      holder: { kind: 'institution' as const, id: institution.id },
+      subject: { kind: 'record' as const, id: recordId },
+      basis: 'received-copy' as const, learnedDay: state.calendar.dayNumber, sourcePersonId: person.id,
+    },
+  ];
   const receiverId = rubric.receiverPersonId;
   const receiverName = receiverId ? state.world.people[receiverId]?.name : undefined;
   const reaction = rubric.reactions[assessment]
@@ -113,6 +143,11 @@ export function submitEraIAnchorAssignmentActivity(
     ...evaluated.state,
     actionEconomy: { ...evaluated.state.actionEconomy, apRemaining: evaluated.state.actionEconomy.apRemaining - definition.submissionApCost },
     records: { ...evaluated.state.records, entries: { ...evaluated.state.records.entries, [recordId]: record } },
+    world: {
+      ...evaluated.state.world,
+      matters: updatedMatter ? { ...evaluated.state.world.matters, [updatedMatter.id]: updatedMatter } : evaluated.state.world.matters,
+      knowledge: { ...evaluated.state.world.knowledge, ...Object.fromEntries(knowledge.map((entry) => [entry.id, entry])) },
+    },
     opportunities: { ...evaluated.state.opportunities, assignments: {
       ...evaluated.state.opportunities.assignments, [offer.id]: completedOffer,
     } },

@@ -34,7 +34,7 @@ export function applyClosingAssessment(state: GameState, input: {
   const careerXp = Math.round(input.baseCareerXp * schedule.careerXpMultiplier);
   const nextJudgment = clamp(scribal.professionalReputation.judgment + schedule.judgment);
   const judgmentDelta = nextJudgment - scribal.professionalReputation.judgment;
-  const nextStanding = input.institutionId && state.world.institutions[input.institutionId]
+  const nextStanding = input.institutionId && state.world.institutions[input.institutionId] && schedule.institutionalStanding !== 0
     ? clamp((scribal.institutionalStanding[input.institutionId] ?? 50) + schedule.institutionalStanding)
     : undefined;
   const standingDelta = nextStanding === undefined ? 0
@@ -49,20 +49,22 @@ export function applyClosingAssessment(state: GameState, input: {
     const nextRespect = clamp(dimensions.respect + schedule.respect);
     trustDelta = nextTrust - dimensions.trust;
     respectDelta = nextRespect - dimensions.respect;
-    relationships = {
-      ...relationships,
-      [receiver.id]: {
-        ...relationships[receiver.id],
-        [person.id]: {
-          dimensions: { ...dimensions, trust: nextTrust, respect: nextRespect },
-          history: [...(current?.history ?? []), {
-            id: input.receiptId + ':receiver-relationship',
-            dayNumber: state.calendar.dayNumber,
-            summary: input.reaction,
-          }],
+    if (trustDelta !== 0 || respectDelta !== 0) {
+      relationships = {
+        ...relationships,
+        [receiver.id]: {
+          ...relationships[receiver.id],
+          [person.id]: {
+            dimensions: { ...dimensions, trust: nextTrust, respect: nextRespect },
+            history: [...(current?.history ?? []), {
+              id: input.receiptId + ':receiver-relationship',
+              dayNumber: state.calendar.dayNumber,
+              summary: input.reaction,
+            }],
+          },
         },
-      },
-    };
+      };
+    }
   }
   const updatedPerson = {
     ...person,
@@ -83,6 +85,7 @@ export function applyClosingAssessment(state: GameState, input: {
     },
   };
   const receipt: ClosingReceiptPayload = {
+    dayNumber: state.calendar.dayNumber,
     title: input.title,
     disposition: input.disposition,
     assessment: input.assessment,
