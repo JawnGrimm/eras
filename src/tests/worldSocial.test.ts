@@ -10,7 +10,7 @@ import { NORTH_BAY_POST_EXECUTION_ACTIVITY_ID } from '../content/assignments/nor
 import type { PersonId, InstitutionId, AppointmentId, EventId, RecordId, KnowledgeEntryId } from '../state/ids';
 import type { GameState, Person } from '../state/types';
 
-function nextWorkday(state: GameState, dayNumber = state.calendar.dayNumber) {
+function nextWorkday(state: GameState, dayNumber = state.calendar.dayNumber): ReturnType<typeof transitionGame> {
   const closed = nextWorkday(state, dayNumber);
   const settlementId = closed.state.dayClose.pendingSettlementId;
   return settlementId

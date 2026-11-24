@@ -9,7 +9,7 @@ import type { AssignmentOffer, ChallengeInstance, GameState, OpportunityDelivery
 import { storehouseReckoning } from '../works/storehouseReckoning';
 import { STOREHOUSE_WORK_ID } from '../works/storehouseReckoning';
 
-function nextWorkday(state: GameState, dayNumber = state.calendar.dayNumber, workCatalog: Parameters<typeof transitionGame>[3] = {}) {
+function nextWorkday(state: GameState, dayNumber = state.calendar.dayNumber, workCatalog: Parameters<typeof transitionGame>[3] = {}): ReturnType<typeof transitionGame> {
   const closed = nextWorkday(state, dayNumber, workCatalog);
   const settlementId = closed.state.dayClose.pendingSettlementId;
   return settlementId
