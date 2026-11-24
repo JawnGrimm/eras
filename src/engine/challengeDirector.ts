@@ -21,11 +21,52 @@ export type ChallengeTriggerDomain =
 type ChallengeSourceFact = { kind: 'event'; id: EventId } | { kind: 'record'; id: RecordId };
 
 interface ChallengeOccurrence {
-  matterId: MatterId;
+  matterId?: MatterId;
   primarySourceFact: ChallengeSourceFact;
   requiredSourceFactIds: string[];
   deliveryChannels: OpportunityDeliveryChannel[];
 }
+
+type ChallengeActivityKind = 'presented' | 'accepted' | 'declined' | 'lapsed' | 'completed' | 'cancelled';
+
+export type ChallengeTriggerDescriptor =
+  | {
+      domain: 'player_action_outcome';
+      activityId: string;
+      matterId: MatterId;
+      activityKinds: ChallengeActivityKind[];
+      findingIds?: string[];
+      reportTitle?: string;
+    }
+  | {
+      domain: 'professional_behavior_pattern';
+      rule: ChallengeTriggerRule;
+      activityId: string;
+      matterId: MatterId;
+      activityKinds: ChallengeActivityKind[];
+      findingIds?: string[];
+      reportTitle: string;
+    }
+  | {
+      domain: 'relationship_update';
+      fromId: PersonId;
+      toId: PersonId;
+      deliveryChannels: OpportunityDeliveryChannel[];
+    }
+  | {
+      domain: 'institutional_matter_update';
+      matterId: MatterId;
+      statuses: Array<'active' | 'resolved' | 'developed'>;
+      minimumAgeDays?: number;
+      deliveryActivityId: string;
+      deliveryKinds: ChallengeActivityKind[];
+    }
+  | {
+      domain: 'authored_world_event';
+      eventId: EventId;
+      matterId?: MatterId;
+      deliveryChannels: OpportunityDeliveryChannel[];
+    };
 
 interface ChallengeCandidate {
   scenarioId: string;
@@ -68,6 +109,86 @@ function reportRecordForMatter(state: GameState, matterId: MatterId, title: stri
     if (record?.title === title) return record;
   }
   return undefined;
+}
+
+function resolveAssignmentOccurrence(
+  state: GameState,
+  trigger: {
+    activityId: string;
+    matterId: MatterId;
+    activityKinds: ChallengeActivityKind[];
+    findingIds?: string[];
+    reportTitle?: string;
+  },
+): ChallengeOccurrence | null {
+  const offer = recentOffer(state, trigger.activityId, trigger.activityKinds);
+  if (!offer) return null;
+  const finding = offer.activityProgress?.draft.finding;
+  if (trigger.findingIds && !trigger.findingIds.includes(finding ?? '')) return null;
+  const matter = state.world.matters[trigger.matterId];
+  if (!matter?.sourceEventId || !state.world.events[matter.sourceEventId]) return null;
+  const report = trigger.reportTitle ? reportRecordForMatter(state, matter.id, trigger.reportTitle) : undefined;
+  if (trigger.reportTitle && !report) return null;
+  return {
+    matterId: matter.id,
+    primarySourceFact: report
+      ? { kind: 'record', id: report.id }
+      : { kind: 'event', id: matter.sourceEventId },
+    requiredSourceFactIds: sourceIds(matter.sourceEventId, report?.id),
+    deliveryChannels: offer.deliveryChannels,
+  };
+}
+
+/**
+ * Resolves one explicitly authored trigger without scanning historical archives.
+ * Relationship triggers require an event-linked latest history entry because the
+ * existing v3 occurrence ledger can persist only Event/Record source facts.
+ */
+export function resolveChallengeTrigger(state: GameState, trigger: ChallengeTriggerDescriptor): ChallengeOccurrence | null {
+  switch (trigger.domain) {
+    case 'player_action_outcome':
+      return resolveAssignmentOccurrence(state, trigger);
+    case 'professional_behavior_pattern':
+      if (!evaluateChallengeTriggers(state, [trigger.rule]).includes(trigger.rule.id)) return null;
+      return resolveAssignmentOccurrence(state, trigger);
+    case 'relationship_update': {
+      if (trigger.fromId === trigger.toId) return null;
+      const history = state.world.relationships[trigger.fromId]?.[trigger.toId]?.history ?? [];
+      const latest = history[history.length - 1];
+      if (!latest?.eventId || !state.world.events[latest.eventId] || !trigger.deliveryChannels.length) return null;
+      return {
+        primarySourceFact: { kind: 'event', id: latest.eventId },
+        requiredSourceFactIds: [latest.eventId],
+        deliveryChannels: trigger.deliveryChannels,
+      };
+    }
+    case 'institutional_matter_update': {
+      const matter = state.world.matters[trigger.matterId];
+      if (!matter || !trigger.statuses.includes(matter.status)
+        || (trigger.minimumAgeDays !== undefined && state.calendar.dayNumber - matter.createdDay < trigger.minimumAgeDays)
+        || !matter.sourceEventId || !state.world.events[matter.sourceEventId]) return null;
+      const offer = recentOffer(state, trigger.deliveryActivityId, trigger.deliveryKinds);
+      if (!offer) return null;
+      const sourceRecordId = matter.sourceRecordId && state.records.entries[matter.sourceRecordId]
+        ? matter.sourceRecordId : undefined;
+      return {
+        matterId: matter.id,
+        primarySourceFact: { kind: 'event', id: matter.sourceEventId },
+        requiredSourceFactIds: sourceIds(matter.sourceEventId, sourceRecordId),
+        deliveryChannels: offer.deliveryChannels,
+      };
+    }
+    case 'authored_world_event': {
+      if (!state.world.events[trigger.eventId] || !trigger.deliveryChannels.length
+        || (trigger.matterId && !state.world.matters[trigger.matterId])) return null;
+      return {
+        ...(trigger.matterId ? { matterId: trigger.matterId } : {}),
+        primarySourceFact: { kind: 'event', id: trigger.eventId },
+        requiredSourceFactIds: [trigger.eventId],
+        deliveryChannels: trigger.deliveryChannels,
+      };
+    }
+  }
 }
 
 function sourceIds(...ids: Array<string | undefined>): string[] {
