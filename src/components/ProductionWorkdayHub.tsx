@@ -172,7 +172,7 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenActivity, settlement, o
             return <article key={offer.id} className="rounded-lg bg-stone-50 p-3">
             <h3 className="font-semibold text-stone-900">{offer.title}</h3><p className="mt-1 text-sm text-stone-600">{offer.description}</p>
             <ContextDetails context={offer.context} />
-            <p className="mt-2 text-xs text-stone-500">{offer.activityId ? `Estimated ${offer.estimatedTotalAp} AP total` : `Completion: ${offer.apCost} AP`} · {offer.compensation.money} silver · {offer.careerXpReward} Career XP</p>
+            <p className="mt-2 text-xs text-stone-500">{offer.activityId ? `Estimated ${offer.estimatedTotalAp} AP total` : `Completion: ${offer.apCost} AP`} · {offer.compensation.money} Currency · {offer.careerXpReward} Career XP</p>
             <div className="mt-2 flex gap-2"><button disabled={activeAssignments.length >= 2 || !qualifies || expired} onClick={() => game.dispatch({ type: 'ACCEPT_ASSIGNMENT', assignmentId: offer.id })} className="rounded-md bg-stone-900 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-40">Accept</button><button onClick={() => game.dispatch({ type: 'DECLINE_ASSIGNMENT', assignmentId: offer.id })} className="rounded-md border border-stone-300 px-3 py-1.5 text-xs">Decline</button></div>
             {Object.keys(offer.requiredSkills).length > 0 && <p className="mt-2 text-xs text-stone-500">Requirements: {Object.entries(offer.requiredSkills).map(([skill, level]) => `${skill.replaceAll('_', ' ')} ${level}`).join(', ')}</p>}
             {!qualifies && <p className="mt-1 text-xs text-amber-800">Current skills do not meet the stated requirements.</p>}
