@@ -3,6 +3,8 @@ import { advanceInstitutionalMatters, MATTER_IDS, STOREHOUSE_INSTITUTION_ID, EAN
 import { generateDailyAssignments } from '../engine/assignmentGenerator';
 import { createInitialGameState } from '../state/initialState';
 import { createSaveEnvelope, restoreSave } from '../state/saveEnvelope';
+import { era1ComF02TwoClaims, ERA1_COM_F02_F04_PEOPLE } from '../content/assignments/eraICommercialFamilies';
+import { submitRubricAssignmentActivity } from '../engine/eraIAnchorSubmission';
 import type { InstitutionalMatter, MatterId } from '../state/types';
 import type { RecordId } from '../state/ids';
 
@@ -108,6 +110,47 @@ describe('Era I Commercial F02-F04 causal matter pipeline', () => {
     expect(Object.values(state.opportunities.assignments).some((offer) =>
       offer.activityId === 'activity-era1-com-f04-custody-chain' && offer.originMatterId === matter!.id,
     )).toBe(true);
+  });
+
+  it('files F02 evidence with its live source identities and applies the existing fair-report relationship schedule to both claimants', () => {
+    const state = advance(withOpenNorthBayRepairNeed(), 8);
+    const offer = Object.values(state.opportunities.assignments).find((item) =>
+      item.activityId === era1ComF02TwoClaims.id,
+    )!;
+    const initialProgress = era1ComF02TwoClaims.createInitialProgress();
+    const progress = {
+      ...initialProgress,
+      completedActionIds: era1ComF02TwoClaims.actions.map((action) => action.id),
+      discoveryIds: era1ComF02TwoClaims.discoveries.map((item) => item.id),
+      consultedPersonIds: [...new Set(era1ComF02TwoClaims.actions.flatMap((action) =>
+        action.consultedPersonId ? [action.consultedPersonId] : [],
+      ))],
+      draft: {
+        ...initialProgress.draft,
+        finding: 'both_claims_documented',
+        responsibilityClaim: 'none',
+        citedDiscoveryIds: era1ComF02TwoClaims.evaluation!.requiredEvidenceIds
+          .concat(era1ComF02TwoClaims.evaluation!.relevantEvidenceIds),
+        selectedLimitationIds: era1ComF02TwoClaims.evaluation!.requiredLimitationIds,
+        recommendations: ['present_both_claims'],
+      },
+    };
+
+    const submitted = submitRubricAssignmentActivity(state, offer, era1ComF02TwoClaims, progress);
+    expect(submitted?.feedback?.code).toBe('assignment-activity-submitted');
+    const playerId = state.player.currentCharacterId;
+    const urNannaRelationship = submitted!.state.world.relationships[ERA1_COM_F02_F04_PEOPLE.urNanna][playerId];
+    const gemeRelationship = submitted!.state.world.relationships[ERA1_COM_F02_F04_PEOPLE.gemeInana][playerId];
+    expect(urNannaRelationship.dimensions).toMatchObject({ trust: 52, respect: 51 });
+    expect(gemeRelationship.dimensions).toMatchObject({ trust: 52, respect: 51 });
+
+    const report = Object.values(submitted!.state.records.entries).find((entry) => entry.title === 'Competing claims summary')!;
+    expect(report.sources.find((source) => source.id === 'source-f02-household-request')).toMatchObject({
+      kind: 'other', sourceId: 'record-era1-com-f02-household-request',
+    });
+    expect(report.sources.find((source) => source.id === 'source-f02-storehouse-request')).toMatchObject({
+      kind: 'other', sourceId: 'record-era1-com-f02-storehouse-request',
+    });
   });
 
   it('preserves all three family occurrences and their source records through save restoration without duplicate generation', () => {
