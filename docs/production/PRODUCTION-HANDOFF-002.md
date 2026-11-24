@@ -1,6 +1,6 @@
 # PRODUCTION-HANDOFF-002 — GD-STATE-INTEGRITY-001
 
-**Status:** PROPOSED — not implementation-authorizing  
+**Status:** APPROVED — READY FOR IMPLEMENTATION  
 **Specification:** [GD-STATE-INTEGRITY-001](../../dev/GD-STATE-INTEGRITY-001.md)  
 **Tracking:** New independent Production issue to be created after specification approval  
 **Reviewed baseline:** `main` `0644be85e415b44cbf1561e644d54e96862a2748`  
@@ -171,4 +171,4 @@ Return a Production report containing:
 
 ## 6. Approval gate
 
-This handoff is **PROPOSED**. It authorizes non-mutating audit and estimation only after the Game Director approves the specification. Implementation requires explicit **APPROVED — READY FOR IMPLEMENTATION** status. Do not treat the existence of this document or its tracking issue as authorization.
+**Approved by the Game Director on 24 November 2026. Status: APPROVED — READY FOR IMPLEMENTATION.** Production is authorized to execute the assigned work packages within the approved specification. The tracking issue coordinates work but does not expand scope. Any deviation affecting approved behavior, any persistent-state change, or any new design decision must return to Design HQ/Game Director before implementation.
