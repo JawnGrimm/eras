@@ -200,6 +200,4 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
   });
   next = addActivity(next, completedOffer, 'completed');
   return succeed(next, 'assignment-activity-submitted', `The report was filed and a ${assessment} Closing Receipt is ready for review.`);
-  return succeed(next, 'assignment-activity-submitted',
-    `The report was filed. ${overclaims ? 'Its unsupported certification may mislead the institution.' : qualified ? 'Its limitations remain explicit.' : incompleteReport ? 'The report is incomplete and its limitations are not sufficiently explained.' : 'The findings and follow-up are recorded.'}`);
 }
