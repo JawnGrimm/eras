@@ -1,7 +1,7 @@
 import React from 'react';
 
 export interface SealImpressionProps {
-  status: 'authorized';
+  status: 'authorized' | 'filed';
   institutionName?: string;
   className?: string;
   dayNumber?: number;
@@ -18,7 +18,7 @@ export function SealImpression({
   return (
     <div
       className={`inline-flex flex-col items-center justify-center rounded-lg border-2 border-[var(--seal-border)] p-2.5 text-[var(--seal-ochre)] select-none pointer-events-none rotate-[-2.5deg] mix-blend-multiply opacity-90 ${className}`}
-      aria-label={`Official seal: AUTHORIZED by ${institutionName}${dayLabel}`}
+      aria-label={`Official seal: ${status.toUpperCase()} by ${institutionName}${dayLabel}`}
       role="img"
     >
       <div className="flex w-full items-center justify-center gap-1.5 border-b border-[var(--seal-border)] pb-1">

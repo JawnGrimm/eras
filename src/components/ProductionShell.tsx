@@ -18,6 +18,7 @@ import { ProductionRecordsAndJournal } from './ProductionRecordsAndJournal';
 import { deriveProfessionalRank } from '../engine/professionalRank';
 import { CharacterCreator } from './CharacterCreator';
 import { EveningInterlude } from './EveningInterlude';
+import { ClosingReceiptScreen } from './ClosingReceiptScreen';
 
 type Screen = 'workday' | 'storehouse' | 'assignments' | 'activity' | 'challenges' | 'people' | 'records' | 'help';
 
@@ -54,6 +55,35 @@ export function ProductionShellContent() {
   const scribal = getInitializedScribal(person);
 
   if (game.needsCharacterCreation) return <CharacterCreator />;
+
+  const pendingAssignmentReceipt = Object.values(game.state.opportunities.assignments)
+    .find((offer) => offer.closingReceipt && !offer.receiptAcknowledged);
+  if (pendingAssignmentReceipt?.closingReceipt) {
+    return <div data-era={game.state.calendar.eraId} className="min-h-screen bg-[var(--surface-ground)] text-[var(--ink-primary)]">
+      <ProductionHeader />
+      <div className="mx-auto max-w-[1100px] px-4 py-6 lg:px-6">
+        <ClosingReceiptScreen receipt={pendingAssignmentReceipt.closingReceipt} kind="assignment"
+          onReturn={() => {
+            const result = game.dispatch({ type: 'ACKNOWLEDGE_ASSIGNMENT_RECEIPT', assignmentId: pendingAssignmentReceipt.id });
+            if (result.feedback?.kind !== 'error') { setActiveActivityId(null); setScreen('assignments'); }
+          }} />
+      </div>
+    </div>;
+  }
+  const pendingChallengeReceipt = game.state.opportunities.challengeOutcomes
+    .find((outcome) => outcome.closingReceipt && !outcome.receiptAcknowledged);
+  if (pendingChallengeReceipt?.closingReceipt) {
+    return <div data-era={game.state.calendar.eraId} className="min-h-screen bg-[var(--surface-ground)] text-[var(--ink-primary)]">
+      <ProductionHeader />
+      <div className="mx-auto max-w-[1100px] px-4 py-6 lg:px-6">
+        <ClosingReceiptScreen receipt={pendingChallengeReceipt.closingReceipt} kind="challenge"
+          onReturn={() => {
+            const result = game.dispatch({ type: 'ACKNOWLEDGE_CHALLENGE_RECEIPT', challengeId: pendingChallengeReceipt.challengeId });
+            if (result.feedback?.kind !== 'error') setScreen('challenges');
+          }} />
+      </div>
+    </div>;
+  }
 
   const alerts = <>
     {game.loadStatus !== 'ready' && <section role="alert" className="rounded-xl border border-red-300 bg-red-50 p-4">

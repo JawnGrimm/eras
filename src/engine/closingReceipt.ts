@@ -91,6 +91,7 @@ export function applyClosingAssessment(state: GameState, input: {
     assessment: input.assessment,
     rationale: input.rationale,
     ...(receiver ? { receiverName: receiver.name } : {}),
+    ...(input.institutionId && state.world.institutions[input.institutionId] ? { institutionName: state.world.institutions[input.institutionId].name } : {}),
     reaction: input.reaction,
     deltas: {
       currency: input.currencyDelta ?? 0,

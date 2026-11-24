@@ -304,6 +304,7 @@ export interface ClosingReceiptPayload {
   assessment: AssignmentAssessmentCategory;
   rationale: string;
   receiverName?: string;
+  institutionName?: string;
   reaction: string;
   deltas: ClosingReceiptDeltas;
   compensationTiming?: string;
