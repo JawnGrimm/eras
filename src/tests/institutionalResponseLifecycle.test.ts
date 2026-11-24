@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { transitionGame } from '../engine/actionEconomy';
+import { queueSettlementCredit } from '../engine/dayClose';
 import { validateInstitutionalResponseEvent } from '../engine/institutionalResponseValidation';
 import { createRoofRepairMatter, MATTER_IDS, NORTH_BAY_LOCATION_ID, STOREHOUSE_INSTITUTION_ID } from '../engine/institutionalMatters';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
@@ -9,6 +10,12 @@ import type { AppointmentId, AssignmentId, EventId, InstitutionId, KnowledgeEntr
 
 function nextWorkday(state: GameState, dayNumber = state.calendar.dayNumber): ReturnType<typeof transitionGame> {
   let ready = state;
+  if (!ready.dayClose.pendingCredits.length) {
+    ready = queueSettlementCredit(ready, {
+      id: `test-workday-credit-${dayNumber}`, source: { kind: 'work', id: 'institutional-response-test' },
+      earnedDay: dayNumber, money: 1, provisions: 0,
+    });
+  }
   for (const offer of Object.values(ready.opportunities.assignments)) {
     if (offer.closingReceipt && !offer.receiptAcknowledged) {
       ready = transitionGame(ready, { type: 'ACKNOWLEDGE_ASSIGNMENT_RECEIPT', assignmentId: offer.id }).state;
