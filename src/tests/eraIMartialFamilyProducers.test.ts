@@ -60,12 +60,12 @@ function advance(state: ReturnType<typeof createInitialGameState>, day: number) 
   });
 }
 
-const martialKinds = [
+const martialKinds = new Set<string>([
   'era1_mar_f01_door_opened',
   'era1_mar_f02_party_returns_short',
   'era1_mar_f03_late_turned_aside',
   'era1_mar_f04_valued_object_trail',
-];
+]);
 
 describe('Era I Martial F01-F04 causal matter pipeline', () => {
   it('creates F01 as a finite household access incident with distinct impression, inventory, and attributed accounts', () => {
