@@ -1,6 +1,6 @@
 import type { AssignmentOffer, InstitutionalMatterKind } from '../../state/types';
 import type { AssignmentOpportunityDefinition } from './opportunityDefinitions';
-import type { PersonId, InstitutionId } from '../../state/ids';
+import type { PersonId } from '../../state/ids';
 import { ERA_I_ASSIGNMENT_PARAMETERS } from './eraIParameters';
 
 const people = {
@@ -8,7 +8,6 @@ const people = {
   senior: 'person-shuruppak-ilu' as PersonId,
   offeringParticipant: 'person-nin-kasi' as PersonId,
 };
-const institution = { kind: 'institution' as const, id: 'institution-uruk-temple-storehouse' as InstitutionId };
 type OfferContent = Pick<AssignmentOffer,
   'title' | 'description' | 'employer' | 'category' | 'context' | 'requiredSkills' | 'difficulty'
   | 'estimatedTotalAp' | 'activityId' | 'compensation' | 'careerXpReward' | 'deliveryChannels' | 'compensationDisclosure'

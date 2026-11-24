@@ -93,15 +93,29 @@ export function AssignmentActivityScreen({ assignmentId, onBack }: { assignmentI
           <input type="checkbox" checked={draft.recommendations.includes(id)} onChange={(e) => dispatchDraft({ ...draft, recommendations: e.target.checked ? [...draft.recommendations, id] : draft.recommendations.filter((x) => x !== id) })} />{label}
         </label>)}
       </fieldset>
-      <label className="mt-4 block text-sm font-medium">{definition.reportSchema.limitationsLabel}
+      {definition.reportSchema.limitationOptions?.length ? <fieldset className="mt-4">
+        <legend className="text-sm font-medium">{definition.reportSchema.limitationsLabel}</legend>
+        {definition.reportSchema.limitationOptions.map(({ id, label }) => <label key={id} className="mt-2 flex gap-2 text-sm">
+          <input type="checkbox" checked={(draft.selectedLimitationIds ?? []).includes(id)}
+            onChange={(e) => dispatchDraft({ ...draft, selectedLimitationIds: e.target.checked
+              ? [...(draft.selectedLimitationIds ?? []), id]
+              : (draft.selectedLimitationIds ?? []).filter((item) => item !== id) })} />{label}
+        </label>)}
+        <label className="mt-3 block text-sm font-medium">Additional note (optional)
+          <textarea rows={2} value={draft.limitationNotes ?? ''} onChange={(e) => dispatchDraft({ ...draft, limitationNotes: e.target.value })}
+            placeholder="Add a source-specific qualification." className="mt-1 block w-full rounded border border-stone-300 p-2 text-sm" />
+        </label>
+      </fieldset> : <label className="mt-4 block text-sm font-medium">{definition.reportSchema.limitationsLabel}
         <textarea rows={3} value={draft.limitations.join('\n')} onChange={(e) => dispatchDraft({ ...draft, limitations: e.target.value.split('\n') })} placeholder="State what you did not inspect or cannot establish." className="mt-1 block w-full rounded border border-stone-300 p-2 text-sm" />
-      </label>
+      </label>}
       <section className="mt-5 rounded-lg border border-stone-200 bg-stone-50 p-3">
         <h3 className="font-semibold">Report preview</h3>
         <p className="mt-2 text-sm"><strong>Finding:</strong> {draft.finding.replaceAll('_', ' ')}</p>
         <p className="mt-1 text-sm"><strong>Responsibility:</strong> {draft.responsibilityClaim === 'dudu' ? 'Attributes unresolved work to Dudu' : 'No individual responsibility assigned'}</p>
         <p className="mt-1 text-sm"><strong>Cited discoveries:</strong> {draft.citedDiscoveryIds.map((id) => definition.discoveries.find((item) => item.id === id)?.title ?? id).join('; ') || 'None'}</p>
-        <p className="mt-1 text-sm"><strong>Limitations:</strong> {draft.limitations.join('; ') || 'None stated'}</p>
+        <p className="mt-1 text-sm"><strong>Limitations:</strong> {definition.reportSchema.limitationOptions?.length
+          ? (draft.selectedLimitationIds ?? []).map((id) => definition.reportSchema.limitationOptions?.find((option) => option.id === id)?.label ?? id).join('; ') || 'None selected'
+          : draft.limitations.join('; ') || 'None stated'} {draft.limitationNotes ?? ''}</p>
         <p className="mt-1 text-sm"><strong>Recommendations:</strong> {draft.recommendations.map((id) => definition.reportSchema.recommendations.find((item) => item.id === id)?.label ?? id).join('; ') || 'None'}</p>
       </section>
       <div className="mt-5 flex flex-wrap items-center gap-3">

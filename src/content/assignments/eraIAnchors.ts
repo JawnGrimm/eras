@@ -10,9 +10,6 @@ const people = {
   offeringParticipant: 'person-nin-kasi' as PersonId,
 };
 
-const assessmentOrder = ['Thorough','Defensible','Incomplete','Overreached'] as const;
-type Assessment = typeof assessmentOrder[number];
-
 function activity(definition: Omit<AssignmentActivityDefinition, 'createInitialProgress'>): AssignmentActivityDefinition {
   return {
     ...definition,
@@ -34,9 +31,6 @@ const humanReactions = (who: string, subject: string) => ({
 const rationales = (complete: string, defensible: string, incomplete: string, overreach: string) => ({
   Thorough: complete, Defensible: defensible, Incomplete: incomplete, Overreached: overreach,
 });
-const noUnsupported = ['unsupported'];
-const noBlame = ['unsupported'];
-
 export const sealedVesselTextileConsignment = activity({
   id: 'activity-era1-com-01-sealed-consignment',
   title: 'Sealed Vessel and Textile Consignment',
@@ -226,8 +220,8 @@ export const laborGroupDisbursement = activity({
   actions: [
     { id: 'civ02-review-request', family: 'consult', label: 'Consult the reviewer', description: 'Clarify the two-part report and the group’s need for a timely answer.', apCost: 1, discoveryIds: ['civ02-request'], consultedPersonId: people.senior },
     { id: 'civ02-check-labor', family: 'compare', label: 'Check the labor-group total', description: 'Recalculate the displayed group entries without assuming a ration link.', apCost: 1, prerequisites: ['civ02-review-request'], discoveryIds: ['civ02-labor-account'] },
-    { id: 'civ02-review-disbursement', family: 'compare', label: 'Summarize the separate disbursement', description: 'Identify the recorded recipient/category and preserve the separate record identity.', apCost: 1, discoveryIds: ['civ02-disbursement','civ02-provenance'] },
-    { id: 'civ02-submit-two-part', family: 'compare', label: 'Prepare the two-part note', description: 'State what each record establishes and whether a link is supported.', apCost: 1, discoveryIds: [] },
+    { id: 'civ02-review-disbursement', family: 'compare', label: 'Summarize the separate disbursement', description: 'Identify the recorded recipient/category without linking it to the labor group.', apCost: 1, discoveryIds: ['civ02-disbursement'] },
+    { id: 'civ02-compare-provenance', family: 'compare', label: 'Compare the provenance notes', description: 'State why the two records cannot be treated as one transaction.', apCost: 1, discoveryIds: ['civ02-provenance'] },
   ],
   interpretationRules: [],
   reportSchema: {

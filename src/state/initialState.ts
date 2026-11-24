@@ -92,10 +92,10 @@ export function createInitialGameState(player?: Person, opportunitySeed = 'era1-
     institutionIds: [templeStorehouseId], locationId: SOUTH_LOADING_LOCATION_ID,
   };
   const deliveryMatter = { ...createSouthCourtDeliveryMatter(1), sourceEventId: deliveryEventId,
-    provenance: [...createSouthCourtDeliveryMatter(1).provenance ?? [],
+    provenance: [...(createSouthCourtDeliveryMatter(1).provenance ?? []),
       { id: 'delivery-source-event', kind: 'event' as const, sourceId: deliveryEventId, description: 'The dispatch/receiving discrepancy is recorded as an active in-world matter.' }] };
   const awningMatter = { ...createSouthLoadingAwningMatter(1), sourceEventId: awningEventId,
-    provenance: [...createSouthLoadingAwningMatter(1).provenance ?? [],
+    provenance: [...(createSouthLoadingAwningMatter(1).provenance ?? []),
       { id: 'awning-source-event', kind: 'event' as const, sourceId: awningEventId, description: 'The observed frayed ties and request for inspection are recorded as an active in-world matter.' }] };
   const casePeople: Person[] = [
     {

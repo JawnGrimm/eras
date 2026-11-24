@@ -187,6 +187,21 @@ export function validateAssignmentActivityDefinition(definition: AssignmentActiv
     if (!Array.isArray(options) || options.length === 0 || new Set(options.map((option) => option.id)).size !== options.length || options.some((option) => !option.id.trim() || !option.label.trim())) issues.push(`Report schema ${field} must contain unique, labeled options.`);
   }
   if (!definition.reportSchema.title.trim() || !definition.reportSchema.responsibilityLabel.trim() || !definition.reportSchema.limitationsLabel.trim()) issues.push('Report schema requires title, responsibility, and limitations labels.');
+  const limitationOptions = definition.reportSchema.limitationOptions ?? [];
+  if (new Set(limitationOptions.map((option) => option.id)).size !== limitationOptions.length
+    || limitationOptions.some((option) => !option.id.trim() || !option.label.trim())) issues.push('Structured limitation options must have unique IDs and labels.');
+  if (definition.evaluation) {
+    const evaluation = definition.evaluation;
+    const limitationIds = new Set(limitationOptions.map((option) => option.id));
+    for (const id of [...evaluation.requiredEvidenceIds, ...evaluation.relevantEvidenceIds]) if (!discoveryIds.has(id)) issues.push(`Evaluation references unknown evidence ${id}.`);
+    for (const id of [...evaluation.requiredLimitationIds, ...evaluation.relevantLimitationIds]) if (!limitationIds.has(id)) issues.push(`Evaluation references unknown limitation ${id}.`);
+    for (const id of evaluation.unsupportedFindingIds) if (!definition.reportSchema.findings.some((option) => option.id === id)) issues.push(`Evaluation references unknown finding ${id}.`);
+    for (const id of evaluation.unsupportedResponsibilityClaimIds) if (!definition.reportSchema.responsibilityClaims.some((option) => option.id === id)) issues.push(`Evaluation references unknown responsibility claim ${id}.`);
+    if (evaluation.receiverPersonId && !definition.participants.includes(evaluation.receiverPersonId)) issues.push('Evaluation receiver must be an activity participant.');
+    for (const category of ['Thorough','Defensible','Incomplete','Overreached'] as const) {
+      if (!evaluation.rationales[category]?.trim() || !evaluation.reactions[category]?.trim()) issues.push(`Evaluation needs authored ${category} rationale and reaction.`);
+    }
+  }
   if (definition.participants.some((id) => typeof id !== 'string' || !id.trim()) || new Set(definition.participants).size !== definition.participants.length) issues.push('Participants need unique, non-empty PersonIds.');
   for (const action of definition.actions) {
     if (!action.id || !Number.isInteger(action.apCost) || action.apCost < 1 || action.apCost > 6) issues.push(`Action ${action.id} AP must be 1..6.`);
@@ -242,10 +257,15 @@ export function validateAssignmentActivityProgress(definition: AssignmentActivit
     && definition.reportSchema.responsibilityClaims.some((option) => option.id === p.draft.responsibilityClaim)
     && Array.isArray(p.draft.citedDiscoveryIds) && p.draft.citedDiscoveryIds.every((id) => p.discoveryIds.includes(id))
     && Array.isArray(p.draft.limitations) && p.draft.limitations.every((x) => typeof x === 'string')
+    && (p.draft.selectedLimitationIds === undefined || (Array.isArray(p.draft.selectedLimitationIds)
+      && p.draft.selectedLimitationIds.every((id) => (definition.reportSchema.limitationOptions ?? []).some((option) => option.id === id))))
+    && (p.draft.limitationNotes === undefined || typeof p.draft.limitationNotes === 'string')
     && Array.isArray(p.draft.recommendations) && p.draft.recommendations.every((x) => definition.reportSchema.recommendations.some((option) => option.id === x));
 }
 export function normalizeActivityDraft(draft: AssignmentActivityDraft): AssignmentActivityDraft {
   return { finding: draft.finding, responsibilityClaim: draft.responsibilityClaim, citedDiscoveryIds: [...new Set(draft.citedDiscoveryIds)],
     limitations: [...new Set(draft.limitations.map((x) => x.trim()).filter(Boolean))],
-    recommendations: [...new Set(draft.recommendations)] };
+    recommendations: [...new Set(draft.recommendations)],
+    ...(draft.selectedLimitationIds !== undefined ? { selectedLimitationIds: [...new Set(draft.selectedLimitationIds)] } : {}),
+    ...(draft.limitationNotes !== undefined ? { limitationNotes: draft.limitationNotes.trim() } : {}) };
 }
