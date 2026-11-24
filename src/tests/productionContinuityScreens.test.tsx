@@ -72,6 +72,8 @@ describe('production continuity and social screens', () => {
     expect(markup).toContain('Stress: 0/100');
     expect(markup).toContain('Professional Rank: Grade 1');
     expect(markup).toContain('Introductory Tutorial · Storehouse');
+    expect(markup).toContain('Currency');
+    expect(markup).not.toContain('Silver');
     expect(markup).not.toContain('Active Work · Storehouse');
   });
 
@@ -125,6 +127,10 @@ describe('production continuity and social screens', () => {
     expect(unqualifiedMarkup).toContain('Current skills do not meet the stated requirements.');
     expect(unqualifiedMarkup).toMatch(/disabled=""[^>]*>Accept</);
     expect(journalMarkup).toContain('Assignment rewards');
+    expect(journalMarkup).toContain('Currency');
+    expect(journalMarkup).not.toContain('silver');
+    expect(expiredMarkup).toContain('Currency');
+    expect(expiredMarkup).not.toContain('silver');
     expect(journalMarkup).not.toContain('Career rewards');
   });
 
