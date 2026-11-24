@@ -1,4 +1,4 @@
-import type { ChallengeId } from '../state/ids';
+import type { ChallengeId, InstitutionId } from '../state/ids';
 import type { ChallengeInstance, ChallengeTriggerRule, GameState, OpportunityConsequences } from '../state/types';
 import { evaluateChallengeTriggers, transitionOpportunityAction } from './opportunities';
 import { MATTER_IDS } from './institutionalMatters';
@@ -7,7 +7,6 @@ import { STOREHOUSE_WORK_ID } from '../works/storehouseReckoning';
 const STOREHOUSE = 'institution-uruk-temple-storehouse';
 const STEWARD = 'person-ur-nanna' as const;
 const SENIOR = 'person-shuruppak-ilu' as const;
-const CARRIER = 'person-enlil-kisu' as const;
 
 /** Aggregate-based rule is evaluated against the compact counters and five-entry activity window. */
 export const CHALLENGE_TRIGGER_RULES: ChallengeTriggerRule[] = [
@@ -24,13 +23,7 @@ function present(state: GameState, challenge: Omit<ChallengeInstance, 'status' |
   return result.feedback?.kind === 'error' ? state : result.state;
 }
 
-function challengeEffects(careerXp: number, relationships: OpportunityConsequences['relationships'], standing = 0): OpportunityConsequences {
-  return {
-    careerXp,
-    ...(relationships?.length ? { relationships } : {}),
-    ...(standing ? { institutionalStanding: [{ institutionId: STOREHOUSE as never, delta: standing }] } : {}),
-  };
-}
+function challengeEffects(careerXp: number): OpportunityConsequences { return { careerXp }; }
 
 function sevenSacks(state: GameState): GameState {
   const id = 'challenge-seven-sacks';
@@ -42,7 +35,6 @@ function sevenSacks(state: GameState): GameState {
     && offer.activityProgress?.draft.finding === 'qualified_incomplete');
   if (!activeAndAged && !incompleteReport) return state;
 
-  const player = state.player.currentCharacterId;
   const challenge = {
     id: id as ChallengeId,
     title: 'The Seven Sealed Jars',
@@ -66,9 +58,9 @@ function sevenSacks(state: GameState): GameState {
     presentedDay: state.calendar.dayNumber,
     apCost: 2,
     choices: [
-      { id: 'recommend-five-two', label: 'Recommend five for consideration; retain two', description: 'Recommend that Ur-Nanna consider releasing the five surface-dry jars while retaining the two stained jars for authorized sampling or cleaning. No release occurs until the Steward issues an order.', consequences: challengeEffects(12, [{ fromId: player as never, toId: STEWARD as never, changes: { trust: 2, respect: 2 }, summary: 'The scribe offered a bounded recommendation and left stock authority with the Steward.' }], 1) },
-      { id: 'retain-all-sample', label: 'Retain all seven pending sampling', description: 'Recommend continued segregation until an authorized sample establishes internal grain condition.', consequences: challengeEffects(10, [{ fromId: player as never, toId: STEWARD as never, changes: { trust: 1, respect: 2 }, summary: 'The scribe prioritized a verified grain condition before disposition.' }], 1) },
-      { id: 'certify-all-sound', label: 'Certify all seven as sound', description: 'Claim that the five surface-dry jars and two stained jars are all fit for use despite the absence of internal sampling.', consequences: challengeEffects(0, [{ fromId: player as never, toId: STEWARD as never, changes: { trust: -5, respect: -5 }, summary: 'The scribe certified internal grain condition without sampling evidence.' }], -4) },
+      { id: 'recommend-five-two', label: 'Recommend five for consideration; retain two', description: 'Recommend that Ur-Nanna consider releasing the five surface-dry jars while retaining the two stained jars for authorized sampling or cleaning. No release occurs until the Steward issues an order.', consequences: challengeEffects(12), evaluation: { assessment: 'Thorough', rationale: 'The recommendation distinguishes the observed exterior from untested grain and leaves the release decision with the Steward.', receiverPersonId: STEWARD, institutionId: STOREHOUSE as InstitutionId, reaction: 'Ur-Nanna reads the recommendation. “You have separated what was seen from what remains unknown. I can decide what to sample.”' } },
+      { id: 'retain-all-sample', label: 'Retain all seven pending sampling', description: 'Recommend continued segregation until an authorized sample establishes internal grain condition.', consequences: challengeEffects(10), evaluation: { assessment: 'Defensible', rationale: 'Retaining all seven pending sampling is cautious and within the evidence, though it does not offer a more discriminating next step.', receiverPersonId: STEWARD, institutionId: STOREHOUSE as InstitutionId, reaction: 'Ur-Nanna nods. “The jars remain held until we have a sample. That is safe, even if it delays the tally.”' } },
+      { id: 'certify-all-sound', label: 'Certify all seven as sound', description: 'Claim that the five surface-dry jars and two stained jars are all fit for use despite the absence of internal sampling.', consequences: challengeEffects(0), evaluation: { assessment: 'Overreached', rationale: 'The choice certifies internal grain condition without sampling, which the physical inspection cannot establish.', receiverPersonId: STEWARD, institutionId: STOREHOUSE as InstitutionId, reaction: 'Ur-Nanna closes the copy. “You have certified what nobody has examined. I cannot use this recommendation.”' } },
     ],
   };
   return present(state, challenge);
@@ -83,7 +75,6 @@ function missingMeasure(state: GameState): GameState {
     && ['unlocated_discrepancy','qualified_incomplete'].includes(offer.activityProgress?.draft.finding ?? ''));
   if (!triggered && !completedReconciliation) return state;
 
-  const player = state.player.currentCharacterId;
   const challenge = {
     id: id as ChallengeId,
     title: 'The Missing Measure',
@@ -107,19 +98,9 @@ function missingMeasure(state: GameState): GameState {
     presentedDay: state.calendar.dayNumber,
     apCost: 2,
     choices: [
-      { id: 'preserve-request-origin', label: 'Preserve both figures and request the origin copy', description: 'Record 24 dispatched and 23 received, leave the difference unresolved, and request the originating record or further recount.', consequences: challengeEffects(14, [
-        { fromId: player as never, toId: CARRIER as never, changes: { trust: 2, respect: 2 }, summary: 'The scribe preserved Enlil-kisu’s dispatch record without assigning him unsupported responsibility.' },
-        { fromId: player as never, toId: SENIOR as never, changes: { trust: 1, respect: 2 }, summary: 'The scribe recommended a traceable reconciliation that preserves both source figures.' },
-      ], 2) },
-      { id: 'close-qualified-23', label: 'Close at 23 with a qualification', description: 'Carry 23 as the physically received quantity while preserving 24 as the dispatch figure and noting the unresolved difference.', consequences: challengeEffects(10, [
-        { fromId: player as never, toId: CARRIER as never, changes: { trust: 1, respect: 1 }, summary: 'The scribe retained the dispatch figure while recording the receiving quantity.' },
-        { fromId: player as never, toId: SENIOR as never, changes: { trust: 1, respect: 1 }, summary: 'The scribe proposed a qualified closing entry without concealing the discrepancy.' },
-      ], 1) },
-      { id: 'blame-carrier', label: 'Attribute the missing measure to Enlil-kisu', description: 'Name the carrier foreman as responsible even though neither the dispatch/receipt comparison nor the available route evidence locates the loss.', consequences: challengeEffects(0, [
-        { fromId: player as never, toId: CARRIER as never, changes: { trust: -6, respect: -5 }, summary: 'The scribe blamed Enlil-kisu without evidence locating the one-measure loss.' },
-        { fromId: CARRIER as never, toId: player as never, changes: { trust: -4, respect: -4 }, summary: 'Enlil-kisu lost trust and respect after being blamed without supporting evidence.' },
-        { fromId: player as never, toId: SENIOR as never, changes: { trust: -2, respect: -3 }, summary: 'The Senior Scribe received an unsupported attribution in the account.' },
-      ], -4) },
+      { id: 'preserve-request-origin', label: 'Preserve both figures and request the origin copy', description: 'Record 24 dispatched and 23 received, leave the difference unresolved, and request the originating record or further recount.', consequences: challengeEffects(14), evaluation: { assessment: 'Thorough', rationale: 'Both source figures are preserved, the unresolved difference remains visible, and the originating record is requested rather than inventing a cause.', receiverPersonId: SENIOR, institutionId: STOREHOUSE as InstitutionId, reaction: 'Shuruppak-ilu keeps both figures in the working account. “This can be traced. We will not write a culprit where the tablet gives us none.”' } },
+      { id: 'close-qualified-23', label: 'Close at 23 with a qualification', description: 'Carry 23 as the physically received quantity while preserving 24 as the dispatch figure and noting the unresolved difference.', consequences: challengeEffects(10), evaluation: { assessment: 'Defensible', rationale: 'The physically received quantity is carried forward while the dispatch figure and unresolved difference remain attached to the entry.', receiverPersonId: SENIOR, institutionId: STOREHOUSE as InstitutionId, reaction: 'Shuruppak-ilu nods. “We can close the received quantity without erasing the dispatch figure.”' } },
+      { id: 'blame-carrier', label: 'Attribute the missing measure to Enlil-kisu', description: 'Name the carrier foreman as responsible even though neither the dispatch/receipt comparison nor the available route evidence locates the loss.', consequences: challengeEffects(0), evaluation: { assessment: 'Overreached', rationale: 'The dispatch/receipt comparison and available route evidence do not locate the loss or establish carrier responsibility.', receiverPersonId: SENIOR, institutionId: STOREHOUSE as InstitutionId, reaction: 'Shuruppak-ilu refuses the accusation. “The account does not locate the loss. I will not enter a name as its cause.”' } },
     ],
   };
   return present(state, challenge);
