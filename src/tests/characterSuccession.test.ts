@@ -143,8 +143,17 @@ describe('character departure and succession lifecycle', () => {
       ...state,
       world: {
         ...state.world,
-        people: survivingPeople,
+        people: Object.fromEntries(Object.entries(survivingPeople).map(([id, person]) => [id, {
+          ...person,
+          lifeEvents: [],
+        }])),
         relationships: {},
+        appointments: {},
+        knowledge: {},
+        events: Object.fromEntries(Object.entries(state.world.events).map(([id, event]) => [id, {
+          ...event, personIds: event.personIds.filter((personId) => !!survivingPeople[personId]),
+          institutionalResponse: undefined,
+        }])),
         matters: Object.fromEntries(Object.entries(state.world.matters).map(([id, matter]) => [id, {
           ...matter,
           involvedPersonIds: (matter.involvedPersonIds ?? []).filter((personId) => !!survivingPeople[personId]),

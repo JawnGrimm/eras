@@ -50,7 +50,13 @@ function displayDate(dayNumber: number): string {
 /** Pure, deterministic state transition. UI feedback is ephemeral; notices are saved in GameState. */
 export function transitionGame(state: GameState, action: GameAction, careerPolicy?: CareerProgressionPolicy, workCatalog: Readonly<Record<string, WorkDefinition<any>>> = {}): TransitionResult {
   const economy = state.actionEconomy;
-  if (state.pendingSuccession && action.type !== 'SELECT_SUCCESSOR') {
+  const pendingAssignmentReceipt = Object.values(state.opportunities.assignments).some((offer) => offer.closingReceipt && !offer.receiptAcknowledged);
+  const pendingChallengeReceipt = state.opportunities.challengeOutcomes.some((outcome) => outcome.closingReceipt && !outcome.receiptAcknowledged);
+  const receiptAcknowledgement = action.type === 'ACKNOWLEDGE_ASSIGNMENT_RECEIPT' || action.type === 'ACKNOWLEDGE_CHALLENGE_RECEIPT';
+  if ((pendingAssignmentReceipt || pendingChallengeReceipt) && !receiptAcknowledgement) {
+    return { state, feedback: feedback('error', 'closing-receipt-pending', 'Review and explicitly return from the Closing Receipt before taking another action.') };
+  }
+  if (state.pendingSuccession && action.type !== 'SELECT_SUCCESSOR' && !receiptAcknowledgement) {
     return { state, feedback: feedback('error', 'succession-pending', 'Ordinary actions are paused until the pending character transition is resolved.') };
   }
   if (action.type === 'BEGIN_CHARACTER_DEPARTURE' || action.type === 'SELECT_SUCCESSOR') {
@@ -59,7 +65,8 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
   const person = state.world.people[state.player.currentCharacterId];
   const scribal = getInitializedScribal(person);
   if (!person || !scribal) return { state, feedback: feedback('error', 'missing-active-character', 'The current character is unavailable.') };
-  const interludeAction = action.type === 'BUY_PROVISIONS' || action.type === 'BEGIN_WORKDAY';
+  const interludeAction = action.type === 'BUY_PROVISIONS' || action.type === 'BEGIN_WORKDAY'
+    || action.type === 'ACKNOWLEDGE_ASSIGNMENT_RECEIPT' || action.type === 'ACKNOWLEDGE_CHALLENGE_RECEIPT';
   if (state.dayClose.phase === 'interlude_open' && !interludeAction) {
     return { state, feedback: feedback('error', 'evening-interlude-open', 'The Workday is closed. Only an eligible provisions exchange or Begin Workday is available.') };
   }
@@ -85,6 +92,8 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
     case 'ACCEPT_CHALLENGE':
     case 'DECLINE_CHALLENGE':
     case 'RESOLVE_CHALLENGE':
+    case 'ACKNOWLEDGE_ASSIGNMENT_RECEIPT':
+    case 'ACKNOWLEDGE_CHALLENGE_RECEIPT':
       if (action.type === 'PERFORM_ASSIGNMENT_ACTIVITY_ACTION' || action.type === 'UPDATE_ASSIGNMENT_ACTIVITY_DRAFT' || action.type === 'SUBMIT_ASSIGNMENT_ACTIVITY') return transitionAssignmentActivityAction(state, action);
       return transitionOpportunityAction(state, action);
     case 'SET_INSTITUTIONAL_STANDING':

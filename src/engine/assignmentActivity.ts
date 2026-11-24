@@ -5,6 +5,9 @@ import type { AssignmentId, KnowledgeEntryId, RecordId, InstitutionId } from '..
 import { NORTH_BAY_ACTIVITY_ID, NORTH_BAY_POST_EXECUTION_ACTIVITY_ID, NORTH_BAY_PEOPLE, ASSIGNMENT_ACTIVITY_CATALOG, validateAssignmentActivityProgress, normalizeActivityDraft } from '../content/assignments/northBayRoofInspection';
 import { submitNorthBayPostExecutionInspection } from './northBayPostExecutionSubmission';
 import { submitUrukAssignmentActivity } from './urukAssignmentSubmission';
+import { submitRubricAssignmentActivity, evaluateAssignmentAssessment } from './eraIAnchorSubmission';
+import { applyClosingAssessment } from './closingReceipt';
+import { queueSettlementCredit } from './dayClose';
 import { MATTER_IDS, createRoofRepairMatter } from './institutionalMatters';
 
 type ActivityAction = Extract<GameAction, { type: 'PERFORM_ASSIGNMENT_ACTIVITY_ACTION' | 'UPDATE_ASSIGNMENT_ACTIVITY_DRAFT' | 'SUBMIT_ASSIGNMENT_ACTIVITY' }>;
@@ -54,6 +57,10 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
     return submitNorthBayPostExecutionInspection(state, offer, definition, progress)
       ?? fail(state, 'assignment-activity-resolver-missing', 'No post-execution inspection resolver is registered.');
   }
+  if (definition.evaluation && offer.activityId?.startsWith('activity-era1-')) {
+    return submitRubricAssignmentActivity(state, offer, definition, progress)
+      ?? fail(state, 'assignment-activity-resolver-missing', 'No rubric-based report resolver is registered.');
+  }
   if (offer.activityId !== NORTH_BAY_ACTIVITY_ID) {
     return submitUrukAssignmentActivity(state, offer, definition, progress)
       ?? fail(state, 'assignment-activity-resolver-missing', 'No report resolver is registered for this interactive Assignment.');
@@ -61,11 +68,17 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
   const draft = progress.draft;
   const roofObserved = progress.discoveryIds.includes('roof-inspection');
   const roofCited = draft.citedDiscoveryIds.includes('roof-inspection');
+  const assessment = evaluateAssignmentAssessment(definition, progress);
+  if (!assessment || !definition.evaluation) return fail(state, 'assignment-activity-rubric-invalid', 'The North-Bay inspection has no valid authored evaluation.');
   const unsupportedCertification = draft.finding === 'repair_appears_sound'
     || (draft.finding === 'repair_incomplete' && (!roofObserved || !roofCited));
-  const overclaims = unsupportedCertification || draft.responsibilityClaim === 'dudu';
-  const incompleteReport = draft.finding === 'insufficient_evidence';
-  const qualified = incompleteReport && draft.limitations.length > 0;
+  const overclaims = assessment === 'Overreached';
+  const incompleteReport = assessment === 'Incomplete';
+  const qualified = assessment === 'Thorough' || assessment === 'Defensible';
+  const selectedLimitations = (draft.selectedLimitationIds ?? []).flatMap((id) => {
+    const option = definition.reportSchema.limitationOptions?.find((item) => item.id === id);
+    return option ? [{ id, label: option.label }] : [];
+  });
   const discoveries = definition.discoveries.filter((item) => progress.discoveryIds.includes(item.id));
   const sources = [
     ...(offer.sourceRecordId ? [{ id: 'source-storehouse-reckoning', kind: 'other' as const, sourceId: offer.sourceRecordId, description: 'Storehouse Reckoning record that generated this roof-verification Assignment' }] : []),
@@ -99,6 +112,23 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
     id: 'assertion-responsibility-claim', text: 'The report attributes the unresolved parapet and beam work to Dudu, although the recorded contract scope does not establish that he was responsible for those items.',
     classification: 'disputed' as const, sourceIds: sources.some((source) => source.id === 'source-repairer-scope') ? ['source-repairer-scope'] : ['source-player-report'],
   });
+  assertions.push({
+    id: 'assertion-report-disposition',
+    text: `Finding: ${definition.reportSchema.findings.find((option) => option.id === draft.finding)?.label ?? draft.finding}; responsibility: ${definition.reportSchema.responsibilityClaims.find((option) => option.id === draft.responsibilityClaim)?.label ?? draft.responsibilityClaim}.`,
+    classification: overclaims ? 'disputed' as const : 'reported' as const, sourceIds: ['source-player-report'],
+  });
+  for (const item of selectedLimitations) assertions.push({
+    id: `assertion-selected-limitation-${item.id}`, text: `Player-selected limitation: ${item.label}`,
+    classification: 'reported' as const, sourceIds: ['source-player-report'],
+  });
+  if (draft.limitationNotes?.trim()) assertions.push({
+    id: 'assertion-limitation-note', text: `Ungraded player note: ${draft.limitationNotes.trim()}`,
+    classification: 'reported' as const, sourceIds: ['source-player-report'],
+  });
+  draft.limitations.filter(Boolean).forEach((note, index) => assertions.push({
+    id: `assertion-legacy-limitation-${index}`, text: `Legacy free-text limitation (ungraded): ${note}`,
+    classification: 'reported' as const, sourceIds: ['source-player-report'],
+  }));
   if (draft.finding === 'insufficient_evidence') assertions.push({
     id: 'assertion-inspection-limits',
     text: 'The available inspection was insufficient to certify the full roof condition.',
@@ -109,9 +139,12 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
   const record: RecordEntry = {
     id: recordId, createdDay: state.calendar.dayNumber, authorPersonId: state.player.currentCharacterId,
     institutionId: STOREHOUSE, title: 'North-Bay Roof Inspection Report', sources, assertions,
-    uncertaintyLimits: [...draft.limitations, ...(!roofObserved ? ['The roof and shaded beam socket were not physically inspected.'] : []),
-      'The seven sealed pottery storage jars were observed in segregation only; the grain inside was not tested.',
-      'This report does not authorize building expenditure, stock release, or assignment of individual responsibility.'],
+    uncertaintyLimits: [
+      ...(definition.submissionNote ? [`System caveat: ${definition.submissionNote}`] : []),
+      ...(!roofObserved ? ['System caveat: The roof and shaded beam socket were not physically inspected.'] : []),
+      'System caveat: The seven sealed pottery storage jars were observed in segregation only; the grain inside was not tested.',
+      'System caveat: This report does not authorize building expenditure, stock release, or assignment of individual responsibility.',
+    ],
     amendments: [],
   };
   const holders = [
@@ -135,37 +168,38 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
   const addHeldBarleyMatter = draft.recommendations.includes('inspect_held_barley') && progress.discoveryIds.includes('roof-inspection');
   const heldBarleyMatter = { id: MATTER_IDS.heldBarley, institutionId: STOREHOUSE, kind: 'held_barley_inspection' as const, summary: 'Seven sealed pottery storage jars containing held barley remain segregated; grain condition has not yet been assessed.', status: 'active' as const, createdDay: state.calendar.dayNumber, sourceRecordId: recordId, locationId: roofMatter.locationId };
   const activeMatters = [...new Set([...institution.activeMatters, MATTER_IDS.roofRepair, ...(addHeldBarleyMatter ? [MATTER_IDS.heldBarley] : [])])];
-  const reputationDelta = overclaims ? -6 : qualified ? 1 : incompleteReport ? -1 : 3;
-  const relationshipChanges = [
-    { target: NORTH_BAY_PEOPLE.steward, trust: overclaims ? -5 : qualified ? 1 : incompleteReport ? -1 : 3,
-      summary: overclaims ? 'The Steward received a report that exceeded the available inspection evidence.' : 'The Steward received a qualified, traceable inspection report.' },
-    ...(progress.consultedPersonIds.includes(NORTH_BAY_PEOPLE.repairer) ? [{ target: NORTH_BAY_PEOPLE.repairer,
-      trust: overclaims ? -4 : 2, summary: 'The repairer was consulted and the limits of the contracted work were recorded.' }] : []),
-  ];
-  let relationships = { ...state.world.relationships };
-  for (const change of relationshipChanges) {
-    const current = relationships[state.player.currentCharacterId]?.[change.target];
-    const dimensions = { trust: 50, respect: 50, affection: 50, resentment: 0, rivalry: 0, familiarity: 0, ...current?.dimensions };
-    dimensions.trust = Math.max(0, Math.min(100, dimensions.trust + change.trust));
-    const history = [...(current?.history ?? []), { id: `activity-${offer.id}-day-${state.calendar.dayNumber}-${change.target}`,
-      dayNumber: state.calendar.dayNumber, summary: change.summary }];
-    relationships = { ...relationships, [state.player.currentCharacterId]: { ...relationships[state.player.currentCharacterId],
-      [change.target]: { dimensions, history } } };
-  }
-  const updatedScribal = { ...scribal, careerXp: scribal.careerXp + offer.careerXpReward,
-    wallet: { ...scribal.wallet, money: scribal.wallet.money + offer.compensation.money, provisions: scribal.wallet.provisions + offer.compensation.provisions },
-    professionalReputation: { ...scribal.professionalReputation, judgment: Math.max(0, Math.min(100, scribal.professionalReputation.judgment + reputationDelta)) } };
+  const findingLabel = definition.reportSchema.findings.find((option) => option.id === draft.finding)?.label ?? draft.finding;
+  const reaction = definition.evaluation.reactions[assessment]
+    .replaceAll('{finding}', findingLabel)
+    .replaceAll('{responsibility}', definition.reportSchema.responsibilityClaims.find((option) => option.id === draft.responsibilityClaim)?.label ?? draft.responsibilityClaim);
+  const evaluated = applyClosingAssessment(state, {
+    receiptId: `assignment-receipt-${offer.id}-day-${state.calendar.dayNumber}`,
+    title: offer.title, disposition: findingLabel, assessment,
+    rationale: definition.evaluation.rationales[assessment], reaction,
+    baseCareerXp: offer.careerXpReward, institutionId: STOREHOUSE,
+    receiverPersonId: definition.evaluation.receiverPersonId,
+    currencyDelta: offer.compensation.money, provisionsDelta: offer.compensation.provisions,
+    ...(offer.compensation.money || offer.compensation.provisions
+      ? { compensationTiming: 'Contracted compensation is payable in full at preliminary Day-Close, regardless of assessment.' } : {}),
+  });
+  if (!evaluated) return fail(state, 'assignment-activity-outcome-invalid', 'The Closing Receipt could not be applied to the current character.');
+  const completedOffer = { ...offer, status: 'completed' as const, activityProgress: progress,
+    closingReceipt: evaluated.receipt, receiptAcknowledged: false };
   let next: GameState = {
-    ...state, actionEconomy: { ...state.actionEconomy, apRemaining: state.actionEconomy.apRemaining - cost },
-    world: { ...state.world, people: { ...state.world.people, [person.id]: { ...person, scribal: updatedScribal } },
-      relationships, institutions: { ...state.world.institutions, [STOREHOUSE]: { ...institution, activeMatters } },
-      matters: { ...state.world.matters, [MATTER_IDS.roofRepair]: updatedRoofMatter, ...(addHeldBarleyMatter ? { [MATTER_IDS.heldBarley]: heldBarleyMatter } : {}) },
-      knowledge: { ...state.world.knowledge, ...Object.fromEntries(knowledge.map((item) => [item.id, item])) } },
-    records: { ...state.records, entries: { ...state.records.entries, [recordId]: record } },
-    opportunities: { ...state.opportunities, assignments: { ...state.opportunities.assignments,
-      [offer.id]: { ...offer, status: 'completed', activityProgress: progress } } },
+    ...evaluated.state,
+    actionEconomy: { ...evaluated.state.actionEconomy, apRemaining: evaluated.state.actionEconomy.apRemaining - cost },
+    world: { ...evaluated.state.world,
+      institutions: { ...evaluated.state.world.institutions, [STOREHOUSE]: { ...institution, activeMatters } },
+      matters: { ...evaluated.state.world.matters, [MATTER_IDS.roofRepair]: updatedRoofMatter, ...(addHeldBarleyMatter ? { [MATTER_IDS.heldBarley]: heldBarleyMatter } : {}) },
+      knowledge: { ...evaluated.state.world.knowledge, ...Object.fromEntries(knowledge.map((item) => [item.id, item])) } },
+    records: { ...evaluated.state.records, entries: { ...evaluated.state.records.entries, [recordId]: record } },
+    opportunities: { ...evaluated.state.opportunities, assignments: { ...evaluated.state.opportunities.assignments, [offer.id]: completedOffer } },
   };
-  next = addActivity(next, offer, 'completed');
-  return succeed(next, 'assignment-activity-submitted',
-    `The report was filed. ${overclaims ? 'Its unsupported certification may mislead the institution.' : qualified ? 'Its limitations remain explicit.' : incompleteReport ? 'The report is incomplete and its limitations are not sufficiently explained.' : 'The findings and follow-up are recorded.'}`);
+  next = queueSettlementCredit(next, {
+    id: 'assignment:' + offer.id + ':' + state.calendar.dayNumber,
+    source: { kind: 'assignment', id: offer.id }, earnedDay: state.calendar.dayNumber,
+    money: offer.compensation.money, provisions: offer.compensation.provisions,
+  });
+  next = addActivity(next, completedOffer, 'completed');
+  return succeed(next, 'assignment-activity-submitted', `The report was filed and a ${assessment} Closing Receipt is ready for review.`);
 }

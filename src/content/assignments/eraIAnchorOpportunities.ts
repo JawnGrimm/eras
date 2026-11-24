@@ -1,0 +1,138 @@
+import type { AssignmentOffer, InstitutionalMatterKind } from '../../state/types';
+import type { AssignmentOpportunityDefinition } from './opportunityDefinitions';
+import type { PersonId } from '../../state/ids';
+import { ERA_I_ASSIGNMENT_PARAMETERS } from './eraIParameters';
+
+const people = {
+  receiver: 'person-utu-mansum' as PersonId,
+  senior: 'person-shuruppak-ilu' as PersonId,
+  offeringParticipant: 'person-nin-kasi' as PersonId,
+};
+type OfferContent = Pick<AssignmentOffer,
+  'title' | 'description' | 'employer' | 'category' | 'context' | 'requiredSkills' | 'difficulty'
+  | 'estimatedTotalAp' | 'activityId' | 'compensation' | 'careerXpReward' | 'deliveryChannels' | 'compensationDisclosure'
+> & { activityId: string; estimatedTotalAp: number };
+function offer(matterKind: InstitutionalMatterKind, slug: string, content: OfferContent): AssignmentOpportunityDefinition {
+  return { matterKind, slug, offer: content };
+}
+const tierA = ERA_I_ASSIGNMENT_PARAMETERS.tierA;
+
+export const ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS: readonly AssignmentOpportunityDefinition[] = [
+  offer('era1_com_01_consignment','era1-com-01',{
+    activityId:'activity-era1-com-01-sealed-consignment',
+    title:'Sealed Vessel and Textile Consignment',
+    description:'Utu-mansum wants the receiving entry checked before the court closes. Enlil-kisu is ready to leave with his crew; neither man wants the other’s account altered without a reason.',
+    employer:{kind:'person',id:people.receiver}, category:'commercial_consignment',
+    context:{
+      what:'Compare a sealed vessel and textile consignment against its tag and receiving entry.',
+      who:['Utu-mansum, Receiving Official','Enlil-kisu, Carrier Foreman','Ur-Nanna, Storehouse Steward'],
+      quantity:'PROVISIONAL gameplay transcription: 8 vessels and 3 textile bundles; the two commodity counts remain separate.',
+      when:'Before the receiving court closes.',
+      where:'A receiving court and tablet room in Uruk; the exact counterparty setting belongs to this authored occurrence.',
+      from:'The active consignment matter, its tag transcription, custody observation, and dispatch account.',
+      to:'Utu-mansum for the receiving record and responsible review.',
+      purpose:'Establish which entries agree, identify any limited discrepancy, and preserve what the seal observation cannot establish.',
+      responsibility:['The apprentice compares and reports; the receiving official or steward decides whether to recount or proceed.'],
+      authority:'The report does not accuse the carrier, decide ownership, or authorize release.',
+      provenance:['Uruk IV tags, sealing, warehouse entries/exits, and vessel/textile movement are attested; the specific lot and discrepancy are PROVISIONAL authored reconstruction.'],
+    },
+    requiredSkills:{},difficulty:'demanding',
+    estimatedTotalAp:tierA.estimatedTotalAp['ERA1-COM-01'],
+    compensation:{money:tierA.currency,provisions:tierA.defaultProvisions},careerXpReward:tierA.baseCareerXp,
+    deliveryChannels:[{kind:'baseline_reach',explanation:'The receiving official has asked for a second comparison before the consignment is accepted.'}],
+  }),
+  offer('era1_com_02_brewing_account','era1-com-02',{
+    activityId:'activity-era1-com-02-brewing-account',
+    title:'Brewing-Ingredient Account Reconciliation',
+    description:'A brewer is worried that an apparent shortfall will reduce what is credited to his work. Shuruppak-ilu wants the sums checked before the account is closed; he is not asking you to invent a ratio.',
+    employer:{kind:'person',id:people.senior},category:'commercial_account',
+    context:{
+      what:'Recalculate grain-product and malt entries without combining their separate categories.',
+      who:['Shuruppak-ilu, Senior Scribe','A brewer involved in the account (unnamed authored participant)'],
+      quantity:'PROVISIONAL gameplay transcription: groats entries 4, 3, and 2; written subtotal 8; separate malt total 7.',
+      when:'Before the working account is copied forward.',
+      where:'A tablet room used for supervised account review.',
+      from:'An active account matter based on MSVO 3, 51/52/55 and an explicitly provisional playable transcription.',
+      to:'Shuruppak-ilu for review; the brewer’s credited allocation remains under responsible authority.',
+      purpose:'Show the arithmetic and uncertainty so a copying error can be corrected without assigning motive.',
+      responsibility:['The apprentice recalculates and reports; a responsible recorder decides whether to amend the account.'],
+      authority:'The apprentice does not determine the goods’ destination or alter the authoritative account.',
+      provenance:['MSVO 3, 51/52/55 include grain products/groats and malt, totals/subtotals, and distinct numerical notations; the displayed values are PROVISIONAL gameplay transcription.'],
+    },
+    requiredSkills:{},difficulty:'demanding',
+    estimatedTotalAp:tierA.estimatedTotalAp['ERA1-COM-02'],
+    compensation:{money:tierA.currency,provisions:tierA.defaultProvisions},careerXpReward:tierA.baseCareerXp,
+    deliveryChannels:[{kind:'baseline_reach',explanation:'The senior recorder has requested a second arithmetic check of the account.'}],
+  }),
+  offer('era1_civ_01_field_measurement','era1-civ-01',{
+    activityId:'activity-era1-civ-01-field-measurement',
+    title:'Field Measurement and Area Reconciliation',
+    description:'A working summary is being copied. Shuruppak-ilu wants the arithmetic checked before the figures travel; the source’s uncertain provenance must travel with them.',
+    employer:{kind:'person',id:people.senior},category:'civic_field_measurement',
+    context:{
+      what:'Check a readable parcel-area transcription and its written subtotal.',
+      who:['Shuruppak-ilu, Senior Scribe','The responsible recorder who supplied the working copy'],
+      quantity:'PROVISIONAL gameplay transcription: parcel areas 2, 3, and 4; written subtotal 8.',
+      when:'Before the figures are copied into a working summary.',
+      where:'A supervised tablet room; no precise field location is inferred.',
+      from:'A source-based teaching copy of MSVO 1, 2/3.',
+      to:'Shuruppak-ilu for review of the arithmetic and provenance note.',
+      purpose:'Identify a simple arithmetic omission without turning the calculation into a claim about land rights.',
+      responsibility:['The apprentice checks the transcription; any new measurement or land decision remains with an appropriately situated official.'],
+      authority:'The report cannot establish a boundary, ownership, yield, or allocation.',
+      provenance:['MSVO 1, 2/3 are catalogued Uruk III with uncertain provenience and often attributed to Jemdet Nasr; displayed values are PROVISIONAL simplified gameplay transcription.'],
+    },
+    requiredSkills:{},difficulty:'routine',
+    estimatedTotalAp:tierA.estimatedTotalAp['ERA1-CIV-01'],
+    compensation:{money:tierA.currency,provisions:tierA.defaultProvisions},careerXpReward:tierA.baseCareerXp,
+    deliveryChannels:[{kind:'baseline_reach',explanation:'A responsible recorder has asked for a second arithmetic check before copying the figures.'}],
+  }),
+  offer('era1_civ_02_labor_disbursement','era1-civ-02',{
+    activityId:'activity-era1-civ-02-labor-disbursement',
+    title:'Labor-Group Records and Grain Disbursement',
+    description:'The group leader wants an answer before the work group leaves. Shuruppak-ilu has brought two records into the same review, but he is careful not to say the grain was issued to these laborers.',
+    employer:{kind:'person',id:people.senior},category:'civic_labor_accountability',
+    context:{
+      what:'Check a labor-group total and separately summarize a grain-disbursement record.',
+      who:['Shuruppak-ilu, Senior Scribe','An unnamed labor-group leader','The officials named by the separate disbursement record'],
+      quantity:'PROVISIONAL gameplay transcription: labor-group entries 6, 8, and 5; written total 19. The separate record has no asserted link to this group.',
+      when:'Before the labor group is released from its current obligation.',
+      where:'A supervised review setting; the two source records retain separate provenance.',
+      from:'W 9827 and W 15897,c8, paired only as a PROVISIONAL accountability exercise.',
+      to:'Shuruppak-ilu for a bounded two-part report.',
+      purpose:'Verify the group arithmetic while stating plainly that the separate grain disbursement does not establish a labor-group ration.',
+      responsibility:['The apprentice reports each source separately; the responsible reviewer decides whether more records are needed.'],
+      authority:'The report cannot claim an entitlement, accuse an official of diversion, or authorize redistribution.',
+      provenance:['W 9827 records laborer group accounts/totals; W 15897,c8 separately records grain disbursed to/consumed as rations by high-ranking officials. The pairing is PROVISIONAL.'],
+    },
+    requiredSkills:{},difficulty:'demanding',
+    estimatedTotalAp:tierA.estimatedTotalAp['ERA1-CIV-02'],
+    compensation:{money:tierA.currency,provisions:ERA_I_ASSIGNMENT_PARAMETERS.explicitProvisionContract.provisions},
+    careerXpReward:tierA.baseCareerXp,
+    compensationDisclosure:'Contracted pay: 10 Currency and 1 Provision when the two-part account check is filed. The Provision is compensation under this specific commission, not a ration issued to the labor group.',
+    deliveryChannels:[{kind:'baseline_reach',explanation:'The senior reviewer has commissioned a two-part account check before the group is released.'}],
+  }),
+  offer('era1_rel_01_inana_offering','era1-rel-01',{
+    activityId:'activity-era1-rel-01-inana-offering',
+    title:'Inana Offering Records and Sanctuary Supply',
+    description:'Nin-kasi wants the entries checked before preparations continue. She would rather not reopen the account late in the day; the senior recorder wants the source distinction preserved.',
+    employer:{kind:'person',id:people.offeringParticipant},category:'religious_offering_records',
+    context:{
+      what:'Review an Inana-associated offering record and a separate commodity record without assuming they belong to one supply schedule.',
+      who:['Nin-kasi, an authored participant in offering preparations','Shuruppak-ilu, Senior Scribe'],
+      quantity:'PROVISIONAL gameplay transcription: the offering copy omits one same-category entry; the separate fish record remains distinct.',
+      when:'Before the next stage of offering preparations.',
+      where:'An institutionally mediated record review in Uruk; no separate modern church administration is implied.',
+      from:'An Inana-associated archaic offering record and a separate broader commodity-corpus record.',
+      to:'Nin-kasi and the senior recorder for review by the responsible authority.',
+      purpose:'Identify what the offering record says, what the separate commodity record says, and what cannot be linked.',
+      responsibility:['The apprentice compares entries and reports; the responsible participant decides whether to seek another source or proceed.'],
+      authority:'The report does not determine ritual validity, invent a substitute offering, or declare a ritual interruption.',
+      provenance:['Archaic Uruk offering records are associated with Inana; dairy/fish categories occur in the broader corpus. The combined supply review and specific copying omission are PROVISIONAL.'],
+    },
+    requiredSkills:{},difficulty:'routine',
+    estimatedTotalAp:tierA.estimatedTotalAp['ERA1-REL-01'],
+    compensation:{money:tierA.currency,provisions:tierA.defaultProvisions},careerXpReward:tierA.baseCareerXp,
+    deliveryChannels:[{kind:'baseline_reach',explanation:'A participant in the offering preparations has asked for the entries to be checked before the next step.'}],
+  }),
+];

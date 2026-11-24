@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { transitionGame } from '../engine/actionEconomy';
+import { queueSettlementCredit } from '../engine/dayClose';
+import { generateDailyAssignments } from '../engine/assignmentGenerator';
 import { validateInstitutionalResponseEvent } from '../engine/institutionalResponseValidation';
 import { createRoofRepairMatter, MATTER_IDS, NORTH_BAY_LOCATION_ID, STOREHOUSE_INSTITUTION_ID } from '../engine/institutionalMatters';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
@@ -8,7 +10,19 @@ import type { AssignmentOffer, GameState, InstitutionalResponse, RecordEntry, Wo
 import type { AppointmentId, AssignmentId, EventId, InstitutionId, KnowledgeEntryId, PersonId, RecordId } from '../state/ids';
 
 function nextWorkday(state: GameState, dayNumber = state.calendar.dayNumber): ReturnType<typeof transitionGame> {
-  const closed = transitionGame(state, { type: 'END_DAY', expectedDayNumber: dayNumber });
+  let ready = state;
+  if (!ready.dayClose.pendingCredits.length) {
+    ready = queueSettlementCredit(ready, {
+      id: `test-workday-credit-${dayNumber}`, source: { kind: 'work', id: 'institutional-response-test' },
+      earnedDay: dayNumber, money: 1, provisions: 0,
+    });
+  }
+  for (const offer of Object.values(ready.opportunities.assignments)) {
+    if (offer.closingReceipt && !offer.receiptAcknowledged) {
+      ready = transitionGame(ready, { type: 'ACKNOWLEDGE_ASSIGNMENT_RECEIPT', assignmentId: offer.id }).state;
+    }
+  }
+  const closed = transitionGame(ready, { type: 'END_DAY', expectedDayNumber: dayNumber });
   const settlementId = closed.state.dayClose.pendingSettlementId;
   return settlementId
     ? transitionGame(closed.state, { type: 'BEGIN_WORKDAY', expectedSettlementId: settlementId })
@@ -94,24 +108,20 @@ describe('institutional response lifecycle', () => {
     let state = stateWithExecution(false);
     const noEvidence = nextWorkday(state, 1);
     expect(Object.values(noEvidence.state.world.events).some((event) => event.institutionalResponse?.stage === 'verification')).toBe(false);
-    state = stateWithExecution(true);
-    const acceptedOffer = {
-      id: 'assignment-auto-post-execution-event-lifecycle-execution' as AssignmentId,
-      activityId: NORTH_BAY_POST_EXECUTION_ACTIVITY_ID,
-      originMatterId: MATTER_IDS.roofRepair,
-      status: 'accepted',
-    } as unknown as AssignmentOffer;
-    state = { ...state, opportunities: { ...state.opportunities,
-      assignments: { ...state.opportunities.assignments, [acceptedOffer.id]: acceptedOffer } } };
+    state = generateDailyAssignments(stateWithExecution(true));
+    const acceptedOffer = Object.values(state.opportunities.assignments).find((offer) =>
+      offer.activityId === NORTH_BAY_POST_EXECUTION_ACTIVITY_ID && offer.originMatterId === MATTER_IDS.roofRepair)!;
+    expect(acceptedOffer).toBeDefined();
+    const accepted = transitionGame(state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: acceptedOffer.id });
+    expect(accepted.feedback?.code).toBe('assignment-accepted');
 
-    const held = nextWorkday(state, 1);
+    const held = nextWorkday(accepted.state, 1);
     expect(held.feedback?.code).toBe('workday-begun');
     expect(Object.values(held.state.world.events).some((event) => event.institutionalResponse?.stage === 'verification')).toBe(false);
 
-    const released = { ...held.state, opportunities: { ...held.state.opportunities,
-      assignments: { ...held.state.opportunities.assignments,
-        [acceptedOffer.id]: { ...acceptedOffer, status: 'cancelled' as const } } } };
-    const settled = nextWorkday(released, 2);
+    const released = transitionGame(held.state, { type: 'CANCEL_ASSIGNMENT', assignmentId: acceptedOffer.id });
+    expect(released.feedback?.code).toBe('assignment-cancelled');
+    const settled = nextWorkday(released.state, 2);
     const verification = Object.values(settled.state.world.events).find((event) => event.institutionalResponse?.stage === 'verification');
     const resolution = Object.values(settled.state.world.events).find((event) => event.institutionalResponse?.stage === 'resolution');
 

@@ -11,7 +11,13 @@ import type { PersonId, InstitutionId, AppointmentId, EventId, RecordId, Knowled
 import type { GameState, Person } from '../state/types';
 
 function nextWorkday(state: GameState, dayNumber = state.calendar.dayNumber): ReturnType<typeof transitionGame> {
-  const closed = transitionGame(state, { type: 'END_DAY', expectedDayNumber: dayNumber });
+  let ready = state;
+  for (const offer of Object.values(ready.opportunities.assignments)) {
+    if (offer.closingReceipt && !offer.receiptAcknowledged) {
+      ready = transitionGame(ready, { type: 'ACKNOWLEDGE_ASSIGNMENT_RECEIPT', assignmentId: offer.id }).state;
+    }
+  }
+  const closed = transitionGame(ready, { type: 'END_DAY', expectedDayNumber: dayNumber });
   const settlementId = closed.state.dayClose.pendingSettlementId;
   return settlementId
     ? transitionGame(closed.state, { type: 'BEGIN_WORKDAY', expectedSettlementId: settlementId })
@@ -279,6 +285,7 @@ describe('world, relationships, institutions and records', () => {
     const inspectionDraft = { ...inspectionProgress.draft, finding: 'channel_clear_beam_followup',
       responsibilityClaim: 'none', citedDiscoveryIds: ['post-execution-observation', 'post-execution-record'],
       limitations: ['The shaded beam joint remains damp and requires a separate inspection after drying.'],
+      selectedLimitationIds: ['post_scope_limited','post_no_verification_authority','post_no_future_performance'],
       recommendations: ['accept_execution_with_followup', 'inspect_beam_after_drying'] };
     const draftedInspection = transitionGame(inspectionState, { type: 'UPDATE_ASSIGNMENT_ACTIVITY_DRAFT',
       assignmentId: postExecutionOffer!.id, draft: inspectionDraft });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { AssignmentId, InstitutionId, MatterId } from '../state/ids';
+import type { AssignmentId, EventId, InstitutionId, MatterId } from '../state/ids';
 import { createInitialGameState } from '../state/initialState';
 import { createNewGameState } from '../state/newGameState';
 import { TEST_CHARACTER_CREATION } from './fixtures/newGameCharacter';
@@ -12,7 +12,7 @@ import { transitionOpportunityAction } from '../engine/opportunities';
 import { transitionAssignmentActivityAction } from '../engine/assignmentActivity';
 import { MATTER_IDS } from '../engine/institutionalMatters';
 import {
-  heldBarleyInspection, southCourtDeliveryReconciliation, southLoadingAwningInspection,
+  heldBarleyInspection, southCourtDeliveryReconciliation, southLoadingAwningInspection, URUK_ASSIGNMENT_ACTIVITY_CATALOG,
 } from '../content/assignments/urukAssignments';
 import { validateAssignmentActivityDefinition } from '../content/assignments/northBayRoofInspection';
 import type { AssignmentOffer, GameState } from '../state/types';
@@ -21,15 +21,24 @@ const STOREHOUSE = 'institution-uruk-temple-storehouse' as InstitutionId;
 const HELD_MATTER = MATTER_IDS.heldBarley;
 
 function withHeldMatter(state: GameState, createdDay = 1): GameState {
+  const sourceEventId = 'event-held-barley-test-source' as EventId;
+  const sourceEvent = {
+    ...Object.values(state.world.events)[0],
+    id: sourceEventId, dayNumber: createdDay,
+    summary: 'A separately recorded held-stock inspection occurrence supports the active matter.',
+  };
   const matter = {
     id: HELD_MATTER, institutionId: STOREHOUSE, kind: 'held_barley_inspection' as const,
     summary: 'Seven held measures remain segregated in seven sealed pottery storage jars.', status: 'active' as const, createdDay,
+    sourceEventId,
+    provenance: [{ id: 'held-barley-test-source', kind: 'event' as const, sourceId: sourceEventId, description: 'Distinct test fixture source occurrence.' }],
   };
   const institution = state.world.institutions[STOREHOUSE];
   return {
     ...state,
     world: {
       ...state.world,
+      events: { ...state.world.events, [sourceEventId]: sourceEvent },
       matters: { ...state.world.matters, [HELD_MATTER]: matter },
       institutions: { ...state.world.institutions, [STOREHOUSE]: {
         ...institution, activeMatters: [...institution.activeMatters, HELD_MATTER],
@@ -57,7 +66,7 @@ function perform(state: GameState, assignmentId: AssignmentId, actionId: string)
   return transitionAssignmentActivityAction(state, { type: 'PERFORM_ASSIGNMENT_ACTIVITY_ACTION', assignmentId, actionId }).state;
 }
 function draft(state: GameState, assignmentId: AssignmentId, value: {
-  finding: string; responsibilityClaim: string; citedDiscoveryIds: string[]; limitations: string[]; recommendations: string[];
+  finding: string; responsibilityClaim: string; citedDiscoveryIds: string[]; limitations: string[]; recommendations: string[]; selectedLimitationIds?: string[]; limitationNotes?: string;
 }): GameState {
   return transitionAssignmentActivityAction(state, { type: 'UPDATE_ASSIGNMENT_ACTIVITY_DRAFT', assignmentId, draft: value }).state;
 }
@@ -100,7 +109,7 @@ describe('P2-2 authored Uruk Assignment activities', () => {
     expect(firstOffers).toHaveLength(2);
     expect(firstOffers.every((offer) => !!offer.originMatterId)).toBe(true);
     expect(new Set(firstOffers.map((offer) => offer.originMatterId)).size).toBe(2);
-    expect(firstOffers.reduce((sum, offer) => sum + (offer.estimatedTotalAp ?? 0), 0)).toBe(7);
+    expect(firstOffers.reduce((sum, offer) => sum + (offer.estimatedTotalAp ?? 0), 0)).toBe(6);
     expect(first.opportunities.assignmentGeneratorLedger?.sequence).toBe(2);
     const sameDay = generateDailyAssignments(first);
     expect(Object.values(sameDay.opportunities.assignments)).toHaveLength(2);
@@ -108,9 +117,13 @@ describe('P2-2 authored Uruk Assignment activities', () => {
   });
 
   it('offers Held-Barley only while the structured held-stock matter is active', () => {
-    const generated = generateDailyAssignments(withHeldMatter(createInitialGameState()));
+    const fixture = withHeldMatter(createInitialGameState());
+    expect(URUK_ASSIGNMENT_ACTIVITY_CATALOG[heldBarleyInspection.id as keyof typeof URUK_ASSIGNMENT_ACTIVITY_CATALOG]).toBeDefined();
+    expect(fixture.world.events[fixture.world.matters[HELD_MATTER].sourceEventId!]).toBeDefined();
+    expect(fixture.world.institutions[STOREHOUSE].activeMatters).toContain(HELD_MATTER);
+    const generated = generateDailyAssignments(fixture);
     const held = Object.values(generated.opportunities.assignments).find((offer) => offer.activityId === heldBarleyInspection.id);
-    expect(held?.estimatedTotalAp).toBe(5);
+    expect(held?.estimatedTotalAp).toBe(3);
     expect(held?.originMatterId).toBe(HELD_MATTER);
     const withoutMatter = generateDailyAssignments(createInitialGameState());
     expect(Object.values(withoutMatter.opportunities.assignments).some((offer) => offer.activityId === heldBarleyInspection.id)).toBe(false);
@@ -178,7 +191,7 @@ describe('P2-2 authored Uruk Assignment activities', () => {
     state = draft(state, offer.id, {
       finding: 'surface_condition_only', responsibilityClaim: 'none',
       citedDiscoveryIds: ['held-container-observation','held-intake-record','held-recount-record'],
-      limitations: [], recommendations: ['release_five_retain_two'],
+      limitations: [], recommendations: ['release_five_retain_two'], selectedLimitationIds: ['capacity_container_distinct','internal_condition_untested','no_release_authority'],
     });
     const historicalXp = state.historicalProgression.historicalXp;
     state = submit(state, offer.id);
@@ -186,10 +199,11 @@ describe('P2-2 authored Uruk Assignment activities', () => {
     expect(completed.status).toBe('completed');
     const record = Object.values(state.records.entries).find((entry) => entry.title === 'Held-Barley Finding and Recommendation');
     expect(record).toBeDefined();
-    expect(record?.assertions.some((assertion) => assertion.text.includes('not a release order'))).toBe(true);
-    expect(record?.uncertaintyLimits.join(' ')).toContain('capacity tally');
-    expect(record?.uncertaintyLimits.join(' ')).toContain('internal grain soundness');
-    expect(record?.uncertaintyLimits.join(' ')).toContain('sealed pottery storage jars');
+    expect(record && state.records.entries[record.id]).toEqual(record);
+    expect(record?.uncertaintyLimits.join(' ').toLowerCase()).toContain('does not authorize release');
+    expect(record?.assertions.map((assertion) => assertion.text).join(' ')).toContain('does not record a physical container count');
+    expect(record?.assertions.map((assertion) => assertion.text).join(' ')).toContain('does not establish the condition of grain inside any jar');
+    expect(record?.assertions.map((assertion) => assertion.text).join(' ')).toContain('sealed pottery storage jars');
     expect(record?.uncertaintyLimits.join(' ')).not.toMatch(/\bsacks?\b/i);
     expect(record?.assertions.map((assertion) => assertion.text).join(' ')).not.toMatch(/\bsacks?\b/i);
     expect(state.world.matters[HELD_MATTER]?.status).toBe('active');
@@ -220,17 +234,25 @@ describe('P2-2 authored Uruk Assignment activities', () => {
     state = draft(state, offer.id, {
       finding: 'unlocated_discrepancy', responsibilityClaim: 'none',
       citedDiscoveryIds: ['delivery-dispatch-copy','delivery-arrival-tally','delivery-enlil-testimony'],
-      limitations: [], recommendations: ['retain_both_request_origin'],
+      limitations: [], recommendations: ['retain_both_request_origin'], selectedLimitationIds: ['cause_unlocated','no_individual_blame','no_amend_authority'],
     });
     state = submit(state, offer.id);
+    expect(state.opportunities.recentActivity.some((activity) =>
+      activity.assignmentId === offer.id && activity.kind === 'completed')).toBe(true);
     const record = Object.values(state.records.entries).find((entry) => entry.title === 'South-Court Delivery Reconciliation');
     expect(record?.assertions.some((assertion) => assertion.text.includes('24') && assertion.text.includes('23'))).toBe(true);
     expect(record?.assertions.some((assertion) => assertion.classification === 'disputed')).toBe(false);
     expect(state.world.matters[MATTER_IDS.southCourtDelivery]?.status).toBe('active');
     expect(state.world.matters[MATTER_IDS.southCourtDelivery]?.provenance?.some((source) => source.kind === 'record_copy')).toBe(true);
+    const regenerated = generateDailyAssignments(state);
+    expect(Object.values(regenerated.opportunities.assignments).filter((item) =>
+      item.activityId === southCourtDeliveryReconciliation.id && item.originMatterId === MATTER_IDS.southCourtDelivery)).toHaveLength(1);
+    expect(regenerated.opportunities.occurrenceLedger.filter((entry) =>
+      entry.scenarioId === southCourtDeliveryReconciliation.id && entry.matterId === MATTER_IDS.southCourtDelivery)).toHaveLength(1);
     expect(state.world.matters['matter-south-court-delivery-discrepancy' as MatterId]).toBeUndefined();
-    expect(state.world.relationships[state.player.currentCharacterId]?.['person-enlil-kisu' as never]?.dimensions.trust).toBe(53);
-    expect(state.world.relationships['person-enlil-kisu' as never]?.[state.player.currentCharacterId]?.dimensions.trust).toBe(57);
+    expect(state.world.relationships[state.player.currentCharacterId]?.['person-enlil-kisu' as never]?.dimensions).toMatchObject({ trust: 53, respect: 56 });
+    expect(state.world.relationships['person-enlil-kisu' as never]?.[state.player.currentCharacterId]?.dimensions).toMatchObject({ trust: 57, respect: 53 });
+    expect(state.world.relationships['person-shuruppak-ilu' as never]?.[state.player.currentCharacterId]).toBeUndefined();
     const directed = runChallengeDirector(withCompletedTutorial(state));
     expect(directed.opportunities.challenges['challenge-missing-measure' as never]?.title).toBe('The Missing Measure');
     expect(directed.historicalProgression.historicalXp).toBe(state.historicalProgression.historicalXp);

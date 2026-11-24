@@ -175,7 +175,9 @@ export interface Appointment {
   startDay: number; endDay?: number;
 }
 export type InstitutionalMatterKind = 'tutorial' | 'roof_repair_verification' | 'held_barley_inspection' | 'north_bay_water_ingress'
-  | 'south_court_delivery_reconciliation' | 'south_loading_awning_inspection' | 'general';
+  | 'south_court_delivery_reconciliation' | 'south_loading_awning_inspection'
+  | 'era1_com_01_consignment' | 'era1_com_02_brewing_account' | 'era1_civ_01_field_measurement'
+  | 'era1_civ_02_labor_disbursement' | 'era1_rel_01_inana_offering' | 'general';
 export interface MatterProvenance {
   id: string;
   kind: 'record_copy' | 'instruction' | 'agreement' | 'observation' | 'testimony' | 'event' | 'other';
@@ -290,12 +292,33 @@ export interface OpportunityConsequences {
   institutionalStanding?: Array<{ institutionId: InstitutionId; delta: number }>;
   event?: WorldEvent; record?: RecordEntry; knowledge?: KnowledgeEntry[];
 }
+export type AssignmentAssessmentCategory = 'Thorough' | 'Defensible' | 'Incomplete' | 'Overreached';
+export interface ClosingReceiptDeltas {
+  currency?: number; provisions?: number; careerXp?: number; judgment: number;
+  institutionalStanding?: number; trust?: number; respect?: number;
+}
+export interface ClosingReceiptPayload {
+  dayNumber: number;
+  title: string;
+  disposition: string;
+  assessment: AssignmentAssessmentCategory;
+  rationale: string;
+  receiverName?: string;
+  institutionName?: string;
+  reaction: string;
+  deltas: ClosingReceiptDeltas;
+  compensationTiming?: string;
+}
 export interface AssignmentActivityDraft {
   finding: string;
   responsibilityClaim: string;
   citedDiscoveryIds: string[];
+  /** Legacy free-text limitations are preserved for display and record provenance; never graded. */
   limitations: string[];
   recommendations: string[];
+  /** New structured selections; absence is preserved for legacy activity progress. */
+  selectedLimitationIds?: string[];
+  limitationNotes?: string;
 }
 export interface AssignmentActivityProgress {
   completedActionIds: string[];
@@ -304,7 +327,7 @@ export interface AssignmentActivityProgress {
   draft: AssignmentActivityDraft;
 }
 export interface AssignmentOffer {
-  id: AssignmentId; title: string; description: string; employer: OpportunityEmployer; sourceRecordId?: RecordId; originMatterId?: MatterId;
+  id: AssignmentId; title: string; description: string; employer: OpportunityEmployer; sourceRecordId?: RecordId; sourceEventId?: EventId; occurrenceKey?: string; originMatterId?: MatterId;
   category: string; commodity?: string; context: AssignmentContext;
   requiredSkills: Partial<Record<SkillId, number>>; difficulty: 'routine' | 'demanding' | 'critical';
   /** Single-action completion cost; omitted for interactive Assignments. */
@@ -315,9 +338,20 @@ export interface AssignmentOffer {
   /** Character who accepted this commitment; legacy accepted offers without an owner belong to the active character. */
   assigneePersonId?: PersonId;
   lapsedDuringMandatoryWork?: boolean; cancellationConsequences?: OpportunityConsequences; completionConsequences?: OpportunityConsequences;
+  compensationDisclosure?: string;
+  closingReceipt?: ClosingReceiptPayload;
+  receiptAcknowledged?: boolean;
 }
 export interface ChallengeChoice {
   id: string; label: string; description: string; consequences: OpportunityConsequences;
+  /** Authored evaluation metadata for the shared Closing Receipt; legacy choices may omit it. */
+  evaluation?: {
+    assessment: AssignmentAssessmentCategory;
+    rationale: string;
+    receiverPersonId?: PersonId;
+    institutionId?: InstitutionId;
+    reaction: string;
+  };
 }
 export interface ChallengeInstance {
   id: ChallengeId; title: string; description: string; category: string; commodity?: string;
@@ -330,6 +364,8 @@ export interface ChallengeInstance {
 export interface ChallengeOutcome {
   challengeId: ChallengeId; title: string; category: string; resolvedDay: number;
   choiceId: string; choiceLabel: string; summary: string; assigneePersonId?: PersonId;
+  closingReceipt?: ClosingReceiptPayload;
+  receiptAcknowledged?: boolean;
 }
 export interface ChallengeTriggerRule {
   id: string; category?: string; minPresented?: number; minAccepted?: number; minDeclined?: number;
@@ -455,7 +491,9 @@ export type GameAction =
   | { type: 'PRESENT_CHALLENGE'; challenge: Omit<ChallengeInstance, 'status' | 'assigneePersonId'> }
   | { type: 'ACCEPT_CHALLENGE'; challengeId: ChallengeId }
   | { type: 'DECLINE_CHALLENGE'; challengeId: ChallengeId }
-  | { type: 'RESOLVE_CHALLENGE'; challengeId: ChallengeId; choiceId: string };
+  | { type: 'RESOLVE_CHALLENGE'; challengeId: ChallengeId; choiceId: string }
+  | { type: 'ACKNOWLEDGE_ASSIGNMENT_RECEIPT'; assignmentId: AssignmentId }
+  | { type: 'ACKNOWLEDGE_CHALLENGE_RECEIPT'; challengeId: ChallengeId };
 export interface ActionFeedback { kind: 'success' | 'error' | 'info'; code: string; message: string; }
 export interface DaySettlement {
   startingProvisions: number;

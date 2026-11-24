@@ -34,11 +34,26 @@ export interface AssignmentActivityReportSchema {
   responsibilityClaims: Array<{ id: string; label: string }>;
   recommendations: Array<{ id: string; label: string }>;
   limitationsLabel: string;
+  limitationOptions?: Array<{ id: string; label: string }>;
+}
+export interface AssignmentActivityEvaluation {
+  requiredEvidenceIds: string[];
+  requiredLimitationIds: string[];
+  relevantEvidenceIds: string[];
+  relevantLimitationIds: string[];
+  unsupportedFindingIds: string[];
+  unsupportedResponsibilityClaimIds: string[];
+  unsupportedRecommendationIds?: string[];
+  unsupportedFindingConditions?: Array<{ findingId: string; requiredEvidenceIds: string[] }>;
+  receiverPersonId?: PersonId;
+  rationales: Record<import('../../state/types').AssignmentAssessmentCategory, string>;
+  reactions: Record<import('../../state/types').AssignmentAssessmentCategory, string>;
 }
 export interface AssignmentActivityDefinition {
   id: string; title: string; submissionApCost: number; participants: PersonId[];
   actions: AssignmentActivityActionDefinition[]; discoveries: AssignmentActivityDiscoveryDefinition[];
   interpretationRules: InterpretationRule[]; reportSchema: AssignmentActivityReportSchema; submissionNote?: string;
+  evaluation?: AssignmentActivityEvaluation;
   createInitialProgress(): AssignmentActivityProgress;
 }
 const interpretationRules: InterpretationRule[] = [
@@ -87,10 +102,37 @@ export const northBayRoofInspection: AssignmentActivityDefinition = {
       { id: 'monitor_repair', label: 'Monitor the repaired section after heavy rain' },
     ],
     limitationsLabel: 'Limitations and unverified matters',
+    limitationOptions: [
+      { id: 'full_roof_uninspected', label: 'The inspection did not certify the full roof or future performance' },
+      { id: 'held_stock_separate', label: 'The seven jars were observed in segregation; grain inside was not tested' },
+      { id: 'no_authority', label: 'This report does not authorize building expenditure, stock release, or assigning responsibility' },
+    ],
+  },
+  evaluation: {
+    requiredEvidenceIds: ['roof-inspection','repairer-scope'],
+    requiredLimitationIds: ['full_roof_uninspected','held_stock_separate','no_authority'],
+    relevantEvidenceIds: ['steward-briefing','scope-comparison','intake-boundary'],
+    relevantLimitationIds: [],
+    unsupportedFindingIds: ['repair_appears_sound'],
+    unsupportedFindingConditions: [{ findingId: 'repair_incomplete', requiredEvidenceIds: ['roof-inspection'] }],
+    unsupportedResponsibilityClaimIds: ['dudu'],
+    receiverPersonId: NORTH_BAY_PEOPLE.steward,
+    rationales: {
+      Thorough: 'The physical inspection and repair scope are cited, relevant briefing and account comparisons are addressed, and the report distinguishes roof condition from held-stock and authorization limits.',
+      Defensible: 'The report is supported by the inspection and scope evidence and does not certify the full roof or assign unsupported responsibility.',
+      Incomplete: 'A required physical inspection, contract-scope source, or authority limitation is missing.',
+      Overreached: 'The report certifies beyond the inspected area, concludes incompleteness without the required observation, or assigns unsupported responsibility.',
+    },
+    reactions: {
+      Thorough: 'Ur-Nanna reads the report. “Now I can commission the next step without confusing the repairer’s contract with the whole roof.”',
+      Defensible: 'Ur-Nanna nods. “That is enough to decide what to inspect next. The rest remains open.”',
+      Incomplete: 'Ur-Nanna returns the copy. “I still need the inspection and contract boundary recorded before I can act.”',
+      Overreached: 'Ur-Nanna closes the report. “You have written beyond what was inspected or contracted. We will correct this first.”',
+    },
   },
   submissionNote: 'Submission closes the Assignment. Held barley remains a separate inspection.',
   createInitialProgress: () => ({ completedActionIds: [], discoveryIds: [], consultedPersonIds: [], draft: {
-    finding: 'insufficient_evidence', responsibilityClaim: 'none', citedDiscoveryIds: [], limitations: [], recommendations: [],
+    finding: 'insufficient_evidence', responsibilityClaim: 'none', citedDiscoveryIds: [], limitations: [], recommendations: [], selectedLimitationIds: [],
   } }),
 };
 
@@ -141,10 +183,36 @@ export const northBayPostExecutionInspection: AssignmentActivityDefinition = {
       { id: 'reopen_channel_work', label: 'Request further channel maintenance' },
     ],
     limitationsLabel: 'Inspection scope and unresolved condition',
+    limitationOptions: [
+      { id: 'post_scope_limited', label: 'The inspection covers only the runoff channel and shaded beam socket' },
+      { id: 'post_no_verification_authority', label: 'The scribe supplies evidence; an appointed official verifies and disposes' },
+      { id: 'post_no_future_performance', label: 'The inspection does not establish future performance or permanent dryness' },
+    ],
+  },
+  evaluation: {
+    requiredEvidenceIds: ['post-execution-observation','post-execution-record'],
+    requiredLimitationIds: ['post_scope_limited','post_no_verification_authority','post_no_future_performance'],
+    relevantEvidenceIds: ['post-execution-steward-request'],
+    relevantLimitationIds: [],
+    unsupportedFindingIds: ['channel_obstructed'],
+    unsupportedResponsibilityClaimIds: ['aru'],
+    receiverPersonId: NORTH_BAY_PEOPLE.seniorScribe,
+    rationales: {
+      Thorough: 'The physical observation and execution record are both cited, and the report preserves the limits of inspection and official verification.',
+      Defensible: 'The report records the inspected condition without assuming verification or future performance.',
+      Incomplete: 'A required source or limitation is missing, so the appointed official cannot safely complete the review.',
+      Overreached: 'The report contradicts the recorded execution without support or assigns responsibility to the worker beyond the evidence.',
+    },
+    reactions: {
+      Thorough: 'Shuruppak-ilu receives the inspection record. “The evidence is separate from the worker’s account. I can make the verification decision from here.”',
+      Defensible: 'Shuruppak-ilu nods. “The scope is clear. I will review the result and decide whether anything further is required.”',
+      Incomplete: 'Shuruppak-ilu sets the record aside. “I need the missing source or limitation before I can verify the execution.”',
+      Overreached: 'Shuruppak-ilu returns the record. “This claim goes beyond the evidence or assigns fault without support. I will not verify it as written.”',
+    },
   },
   submissionNote: 'This report supplies independent evidence to an appointed verifier. It is not itself a verification decision, authorization, or final institutional disposition.',
   createInitialProgress: () => ({ completedActionIds: [], discoveryIds: [], consultedPersonIds: [], draft: {
-    finding: 'channel_clear_beam_followup', responsibilityClaim: 'none', citedDiscoveryIds: [], limitations: [], recommendations: [],
+    finding: 'channel_clear_beam_followup', responsibilityClaim: 'none', citedDiscoveryIds: [], limitations: [], recommendations: [], selectedLimitationIds: [],
   } }),
 };
 function validatePredicate(predicate: Predicate, issues: string[], discoveryIds: Set<string>): void {
@@ -174,6 +242,28 @@ export function validateAssignmentActivityDefinition(definition: AssignmentActiv
     if (!Array.isArray(options) || options.length === 0 || new Set(options.map((option) => option.id)).size !== options.length || options.some((option) => !option.id.trim() || !option.label.trim())) issues.push(`Report schema ${field} must contain unique, labeled options.`);
   }
   if (!definition.reportSchema.title.trim() || !definition.reportSchema.responsibilityLabel.trim() || !definition.reportSchema.limitationsLabel.trim()) issues.push('Report schema requires title, responsibility, and limitations labels.');
+  const limitationOptions = definition.reportSchema.limitationOptions ?? [];
+  if (new Set(limitationOptions.map((option) => option.id)).size !== limitationOptions.length
+    || limitationOptions.some((option) => !option.id.trim() || !option.label.trim())) issues.push('Structured limitation options must have unique IDs and labels.');
+  if (definition.evaluation) {
+    const evaluation = definition.evaluation;
+    const limitationIds = new Set(limitationOptions.map((option) => option.id));
+    for (const id of [...evaluation.requiredEvidenceIds, ...evaluation.relevantEvidenceIds]) if (!discoveryIds.has(id)) issues.push(`Evaluation references unknown evidence ${id}.`);
+    for (const id of [...evaluation.requiredLimitationIds, ...evaluation.relevantLimitationIds]) if (!limitationIds.has(id)) issues.push(`Evaluation references unknown limitation ${id}.`);
+    for (const id of evaluation.unsupportedFindingIds) if (!definition.reportSchema.findings.some((option) => option.id === id)) issues.push(`Evaluation references unknown finding ${id}.`);
+    for (const id of evaluation.unsupportedResponsibilityClaimIds) if (!definition.reportSchema.responsibilityClaims.some((option) => option.id === id)) issues.push(`Evaluation references unknown responsibility claim ${id}.`);
+    for (const id of evaluation.unsupportedRecommendationIds ?? []) if (!definition.reportSchema.recommendations.some((option) => option.id === id)) issues.push(`Evaluation references unknown recommendation ${id}.`);
+    for (const condition of evaluation.unsupportedFindingConditions ?? []) {
+      if (!definition.reportSchema.findings.some((option) => option.id === condition.findingId)
+        || !condition.requiredEvidenceIds.length || condition.requiredEvidenceIds.some((id) => !discoveryIds.has(id))) {
+        issues.push('Evaluation contains an invalid conditional unsupported-finding predicate.');
+      }
+    }
+    if (evaluation.receiverPersonId && !definition.participants.includes(evaluation.receiverPersonId)) issues.push('Evaluation receiver must be an activity participant.');
+    for (const category of ['Thorough','Defensible','Incomplete','Overreached'] as const) {
+      if (!evaluation.rationales[category]?.trim() || !evaluation.reactions[category]?.trim()) issues.push(`Evaluation needs authored ${category} rationale and reaction.`);
+    }
+  }
   if (definition.participants.some((id) => typeof id !== 'string' || !id.trim()) || new Set(definition.participants).size !== definition.participants.length) issues.push('Participants need unique, non-empty PersonIds.');
   for (const action of definition.actions) {
     if (!action.id || !Number.isInteger(action.apCost) || action.apCost < 1 || action.apCost > 6) issues.push(`Action ${action.id} AP must be 1..6.`);
@@ -207,7 +297,9 @@ export function validateAssignmentActivityDefinition(definition: AssignmentActiv
   }
   return issues;
 }
-export const ASSIGNMENT_ACTIVITY_CATALOG = { [NORTH_BAY_ACTIVITY_ID]: northBayRoofInspection, [NORTH_BAY_POST_EXECUTION_ACTIVITY_ID]: northBayPostExecutionInspection, ...URUK_ASSIGNMENT_ACTIVITY_CATALOG } as const;
+import { ERA_I_ANCHOR_ACTIVITY_CATALOG } from './eraIAnchors';
+
+export const ASSIGNMENT_ACTIVITY_CATALOG = { [NORTH_BAY_ACTIVITY_ID]: northBayRoofInspection, [NORTH_BAY_POST_EXECUTION_ACTIVITY_ID]: northBayPostExecutionInspection, ...URUK_ASSIGNMENT_ACTIVITY_CATALOG, ...ERA_I_ANCHOR_ACTIVITY_CATALOG } as const;
 
 export function validateAssignmentActivityProgress(definition: AssignmentActivityDefinition, value: unknown): value is AssignmentActivityProgress {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
@@ -227,10 +319,15 @@ export function validateAssignmentActivityProgress(definition: AssignmentActivit
     && definition.reportSchema.responsibilityClaims.some((option) => option.id === p.draft.responsibilityClaim)
     && Array.isArray(p.draft.citedDiscoveryIds) && p.draft.citedDiscoveryIds.every((id) => p.discoveryIds.includes(id))
     && Array.isArray(p.draft.limitations) && p.draft.limitations.every((x) => typeof x === 'string')
+    && (p.draft.selectedLimitationIds === undefined || (Array.isArray(p.draft.selectedLimitationIds)
+      && p.draft.selectedLimitationIds.every((id) => (definition.reportSchema.limitationOptions ?? []).some((option) => option.id === id))))
+    && (p.draft.limitationNotes === undefined || typeof p.draft.limitationNotes === 'string')
     && Array.isArray(p.draft.recommendations) && p.draft.recommendations.every((x) => definition.reportSchema.recommendations.some((option) => option.id === x));
 }
 export function normalizeActivityDraft(draft: AssignmentActivityDraft): AssignmentActivityDraft {
   return { finding: draft.finding, responsibilityClaim: draft.responsibilityClaim, citedDiscoveryIds: [...new Set(draft.citedDiscoveryIds)],
     limitations: [...new Set(draft.limitations.map((x) => x.trim()).filter(Boolean))],
-    recommendations: [...new Set(draft.recommendations)] };
+    recommendations: [...new Set(draft.recommendations)],
+    ...(draft.selectedLimitationIds !== undefined ? { selectedLimitationIds: [...new Set(draft.selectedLimitationIds)] } : {}),
+    ...(draft.limitationNotes !== undefined ? { limitationNotes: draft.limitationNotes.trim() } : {}) };
 }

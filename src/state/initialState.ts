@@ -1,5 +1,5 @@
-import type { Appointment, GameState, Person } from './types';
-import type { InstitutionId, PersonId, AppointmentId } from './ids';
+import type { Appointment, GameState, Person, WorldEvent } from './types';
+import type { EventId, InstitutionId, PersonId, AppointmentId } from './ids';
 import { UR_GIR_PERSON_ID } from './ids';
 import { NORTH_BAY_LOCATION_ID, NORTH_BAY_PEOPLE } from '../content/assignments/northBayRoofInspection';
 import {
@@ -77,6 +77,26 @@ export function createInitialGameState(player?: Person, opportunitySeed = 'era1-
   ];
   const deliveryMatterId = MATTER_IDS.southCourtDelivery;
   const awningMatterId = MATTER_IDS.southLoadingAwning;
+  const deliveryEventId = 'event-south-court-delivery-source' as EventId;
+  const awningEventId = 'event-south-loading-awning-source' as EventId;
+  const deliveryEvent: WorldEvent = {
+    id: deliveryEventId, dayNumber: 1,
+    summary: 'A dispatch copy records 24 capacity measures and the receiving tally records 23; the difference is not located.',
+    personIds: [urNannaId, utuMansumId, enlilKisuId, shuruppakId],
+    institutionIds: [templeStorehouseId], locationId: SOUTH_COURT_LOCATION_ID,
+  };
+  const awningEvent: WorldEvent = {
+    id: awningEventId, dayNumber: 1,
+    summary: 'Two reed ties on the south loading awning are observed frayed; the steward requests a condition report before further loading.',
+    personIds: [urNannaId, shuruppakId, maintenanceWorkerId],
+    institutionIds: [templeStorehouseId], locationId: SOUTH_LOADING_LOCATION_ID,
+  };
+  const deliveryMatter = { ...createSouthCourtDeliveryMatter(1), sourceEventId: deliveryEventId,
+    provenance: [...(createSouthCourtDeliveryMatter(1).provenance ?? []),
+      { id: 'delivery-source-event', kind: 'event' as const, sourceId: deliveryEventId, description: 'The dispatch/receiving discrepancy is recorded as an active in-world matter.' }] };
+  const awningMatter = { ...createSouthLoadingAwningMatter(1), sourceEventId: awningEventId,
+    provenance: [...(createSouthLoadingAwningMatter(1).provenance ?? []),
+      { id: 'awning-source-event', kind: 'event' as const, sourceId: awningEventId, description: 'The observed frayed ties and request for inspection are recorded as an active in-world matter.' }] };
   const casePeople: Person[] = [
     {
       id: shuruppakId, name: 'Shuruppak-ilu', alive: true, affiliations: [templeStorehouseId],
@@ -153,11 +173,11 @@ export function createInitialGameState(player?: Person, opportunitySeed = 'era1-
         [SOUTH_COURT_LOCATION_ID]: { id: SOUTH_COURT_LOCATION_ID, name: 'Temple Storehouse, south receiving court' },
         [SOUTH_LOADING_LOCATION_ID]: { id: SOUTH_LOADING_LOCATION_ID, name: 'Temple Storehouse, south loading court' },
       },
-      appointments: Object.fromEntries(appointments.map((appointment) => [appointment.id, appointment])), events: {}, knowledge: {},
+      appointments: Object.fromEntries(appointments.map((appointment) => [appointment.id, appointment])), events: { [deliveryEventId]: deliveryEvent, [awningEventId]: awningEvent }, knowledge: {},
       matters: {
         [MATTER_IDS.tutorial]: { id: MATTER_IDS.tutorial, institutionId: STOREHOUSE_INSTITUTION_ID, kind: 'tutorial', summary: 'The Storehouse Reckoning introductory tutorial.', status: 'active', createdDay: 1 },
-        [deliveryMatterId]: createSouthCourtDeliveryMatter(1),
-        [awningMatterId]: createSouthLoadingAwningMatter(1),
+        [deliveryMatterId]: deliveryMatter,
+        [awningMatterId]: awningMatter,
       },
     },
     historicalProgression: { historicalXp: 0, completedWorks: [] },

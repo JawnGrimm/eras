@@ -4,6 +4,8 @@ import type { AssignmentActivityDefinition } from '../content/assignments/northB
 import { NORTH_BAY_POST_EXECUTION_ACTIVITY_ID, NORTH_BAY_PEOPLE } from '../content/assignments/northBayRoofInspection';
 import type { AssignmentActivityProgress, AssignmentOffer, GameState, RecordAssertion, RecordEntry, TransitionResult } from '../state/types';
 import { addActivity } from './opportunities';
+import { applyClosingAssessment } from './closingReceipt';
+import { evaluateAssignmentAssessment } from './eraIAnchorSubmission';
 import { queueSettlementCredit } from './dayClose';
 import { MATTER_IDS } from './institutionalMatters';
 
@@ -16,7 +18,7 @@ const fail = (state: GameState, code: string, message: string): TransitionResult
 export function submitNorthBayPostExecutionInspection(
   state: GameState,
   offer: AssignmentOffer,
-  _definition: AssignmentActivityDefinition,
+  definition: AssignmentActivityDefinition,
   progress: AssignmentActivityProgress,
 ): TransitionResult | null {
   if (offer.activityId !== NORTH_BAY_POST_EXECUTION_ACTIVITY_ID) return null;
@@ -52,8 +54,14 @@ export function submitNorthBayPostExecutionInspection(
     return fail(state, 'post-execution-evidence-required', 'Inspect the completed work, review the execution record, and cite both sources before submitting.');
   }
   const finding = progress.draft.finding;
+  const assessment = evaluateAssignmentAssessment(definition, progress);
+  if (!assessment || !definition.evaluation) return fail(state, 'post-execution-rubric-invalid', 'The post-execution inspection has no valid authored evaluation.');
   const unsupportedFinding = finding === 'channel_obstructed';
   const unsupportedResponsibility = progress.draft.responsibilityClaim === 'aru';
+  const selectedLimitations = (progress.draft.selectedLimitationIds ?? []).flatMap((id) => {
+    const option = definition.reportSchema.limitationOptions?.find((item) => item.id === id);
+    return option ? [{ id, label: option.label }] : [];
+  });
   const playerId = state.player.currentCharacterId;
   const recordId = `record-${offer.id}-day-${state.calendar.dayNumber}` as RecordId;
   if (state.records.entries[recordId]) {
@@ -87,6 +95,24 @@ export function submitNorthBayPostExecutionInspection(
     classification: 'reported',
     sourceIds: ['source-execution-record'],
   });
+  assertions.push({
+    id: 'assertion-report-disposition',
+    text: `Finding: ${definition.reportSchema.findings.find((option) => option.id === finding)?.label ?? finding}; responsibility: ${definition.reportSchema.responsibilityClaims.find((option) => option.id === progress.draft.responsibilityClaim)?.label ?? progress.draft.responsibilityClaim}.`,
+    classification: assessment === 'Overreached' ? 'disputed' : 'reported',
+    sourceIds: ['source-player-report'],
+  });
+  for (const item of selectedLimitations) assertions.push({
+    id: `assertion-selected-limitation-${item.id}`, text: `Player-selected limitation: ${item.label}`,
+    classification: 'reported', sourceIds: ['source-player-report'],
+  });
+  if (progress.draft.limitationNotes?.trim()) assertions.push({
+    id: 'assertion-limitation-note', text: `Ungraded player note: ${progress.draft.limitationNotes.trim()}`,
+    classification: 'reported', sourceIds: ['source-player-report'],
+  });
+  progress.draft.limitations.filter(Boolean).forEach((note, index) => assertions.push({
+    id: `assertion-legacy-limitation-${index}`, text: `Legacy free-text limitation (ungraded): ${note}`,
+    classification: 'reported', sourceIds: ['source-player-report'],
+  }));
   if (unsupportedFinding || unsupportedResponsibility) assertions.push({
     id: 'assertion-unsupported-post-execution-claim',
     text: unsupportedResponsibility
@@ -105,11 +131,11 @@ export function submitNorthBayPostExecutionInspection(
     sources,
     assertions,
     uncertaintyLimits: [
-      ...progress.draft.limitations,
-      ...(!observed ? ['No independent physical inspection of the completed work was recorded.'] : []),
-      'The observation is limited to the inspected runoff channel and shaded beam socket.',
-      'The inspection does not certify the entire roof or establish that the beam joint has dried.',
-      'This record supplies evidence for an appointed official; it does not itself verify, authorize, or resolve institutional action.',
+      ...(definition.submissionNote ? [`System caveat: ${definition.submissionNote}`] : []),
+      ...(!observed ? ['System caveat: No independent physical inspection of the completed work was recorded.'] : []),
+      'System caveat: The observation is limited to the inspected runoff channel and shaded beam socket.',
+      'System caveat: The inspection does not certify the entire roof or establish that the beam joint has dried.',
+      'System caveat: This record supplies evidence for an appointed official; it does not itself verify, authorize, or resolve institutional action.',
     ],
     amendments: [],
   };
@@ -144,42 +170,48 @@ export function submitNorthBayPostExecutionInspection(
       description: 'Independent post-execution inspection record submitted by the player.',
     }],
   };
-  const updatedPerson = {
-    ...person,
-    scribal: {
-      ...scribal,
-      careerXp: scribal.careerXp + offer.careerXpReward,
-    },
-  };
-  const cost = _definition.submissionApCost;
+  const cost = definition.submissionApCost;
   if (state.actionEconomy.apRemaining < cost) {
     return fail(state, 'insufficient-ap', 'The inspection report submission does not have enough AP.');
   }
 
+  const findingLabel = definition.reportSchema.findings.find((option) => option.id === finding)?.label ?? finding;
+  const reaction = definition.evaluation.reactions[assessment]
+    .replaceAll('{finding}', findingLabel)
+    .replaceAll('{responsibility}', definition.reportSchema.responsibilityClaims.find((option) => option.id === progress.draft.responsibilityClaim)?.label ?? progress.draft.responsibilityClaim);
+  const evaluated = applyClosingAssessment(state, {
+    receiptId: `assignment-receipt-${offer.id}-day-${state.calendar.dayNumber}`,
+    title: offer.title, disposition: findingLabel, assessment,
+    rationale: definition.evaluation.rationales[assessment], reaction,
+    baseCareerXp: offer.careerXpReward, institutionId: STOREHOUSE,
+    receiverPersonId: definition.evaluation.receiverPersonId,
+    currencyDelta: offer.compensation.money, provisionsDelta: offer.compensation.provisions,
+    ...(offer.compensation.money || offer.compensation.provisions
+      ? { compensationTiming: 'Contracted compensation is payable in full at preliminary Day-Close, regardless of assessment.' } : {}),
+  });
+  if (!evaluated) return fail(state, 'post-execution-receipt-invalid', 'The Closing Receipt could not be applied to the current character.');
+  const completedOffer = { ...offer, status: 'completed' as const, activityProgress: progress,
+    closingReceipt: evaluated.receipt, receiptAcknowledged: false };
   let next: GameState = {
-    ...state,
-    actionEconomy: { ...state.actionEconomy, apRemaining: state.actionEconomy.apRemaining - cost },
+    ...evaluated.state,
+    actionEconomy: { ...evaluated.state.actionEconomy, apRemaining: evaluated.state.actionEconomy.apRemaining - cost },
     world: {
-      ...state.world,
-      people: { ...state.world.people, [playerId]: updatedPerson },
-      matters: { ...state.world.matters, [matter.id]: updatedMatter },
-      knowledge: { ...state.world.knowledge, ...Object.fromEntries(knowledge.map((entry) => [entry.id, entry])) },
+      ...evaluated.state.world,
+      matters: { ...evaluated.state.world.matters, [matter.id]: updatedMatter },
+      knowledge: { ...evaluated.state.world.knowledge, ...Object.fromEntries(knowledge.map((entry) => [entry.id, entry])) },
     },
-    records: { ...state.records, entries: { ...state.records.entries, [recordId]: record } },
+    records: { ...evaluated.state.records, entries: { ...evaluated.state.records.entries, [recordId]: record } },
     opportunities: {
-      ...state.opportunities,
-      assignments: { ...state.opportunities.assignments,
-        [offer.id]: { ...offer, status: 'completed', activityProgress: progress } },
+      ...evaluated.state.opportunities,
+      assignments: { ...evaluated.state.opportunities.assignments, [offer.id]: completedOffer },
     },
   };
   next = queueSettlementCredit(next, {
     id: 'assignment:' + offer.id + ':' + state.calendar.dayNumber,
-    source: { kind: 'assignment', id: offer.id },
-    earnedDay: state.calendar.dayNumber,
-    money: offer.compensation.money,
-    provisions: offer.compensation.provisions,
+    source: { kind: 'assignment', id: offer.id }, earnedDay: state.calendar.dayNumber,
+    money: offer.compensation.money, provisions: offer.compensation.provisions,
   });
-  next = addActivity(next, offer, 'completed');
+  next = addActivity(next, completedOffer, 'completed');
   return { state: next, feedback: { kind: 'success', code: 'assignment-activity-submitted',
-    message: 'The independent inspection record was filed for institutional review.' } };
+    message: `The independent inspection record was filed. A ${assessment} Closing Receipt is ready for review.` } };
 }

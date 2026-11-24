@@ -1,24 +1,39 @@
-import type { AssignmentId } from '../state/ids';
-import type { AssignmentOffer, GameState, TransitionResult, WorldEvent } from '../state/types';
+import type { AssignmentId, EventId, RecordId } from '../state/ids';
+import type { AssignmentOffer, GameState, TransitionResult, WorldEvent, InstitutionalMatter } from '../state/types';
 import { ASSIGNMENT_ACTIVITY_CATALOG, NORTH_BAY_POST_EXECUTION_ACTIVITY_ID } from '../content/assignments/northBayRoofInspection';
 import { URUK_ASSIGNMENT_OPPORTUNITY_DEFINITIONS } from '../content/assignments/opportunityDefinitions';
+import { ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS } from '../content/assignments/eraIAnchorOpportunities';
 import { transitionOpportunityAction } from './opportunities';
+
+function occurrenceSourceFacts(state: GameState, matter: InstitutionalMatter): string[] {
+  // A report filed in response to a matter is derivative evidence, not a new
+  // causal development. Exclude record_copy sources before considering either
+  // the direct sourceRecordId field or the broader provenance list.
+  const derivativeRecordIds = new Set((matter.provenance ?? [])
+    .filter((source) => source.kind === 'record_copy' && source.sourceId)
+    .map((source) => source.sourceId!));
+  return [...new Set([
+    ...(matter.sourceEventId && state.world.events[matter.sourceEventId] ? [matter.sourceEventId] : []),
+    ...(matter.sourceRecordId && !derivativeRecordIds.has(matter.sourceRecordId)
+      && state.records.entries[matter.sourceRecordId] ? [matter.sourceRecordId] : []),
+    ...(matter.provenance ?? []).flatMap((source) => source.kind !== 'record_copy' && source.sourceId
+      && (state.world.events[source.sourceId as keyof typeof state.world.events] || state.records.entries[source.sourceId as keyof typeof state.records.entries])
+      ? [source.sourceId] : []),
+  ])].sort();
+}
 
 /**
  * Discover playable opportunities from active institutional matters.
  * Authored definitions own scenario copy and rewards; this engine owns bounded,
- * deterministic discovery, duplicate prevention, and offer presentation.
+ * deterministic discovery, duplicate prevention, and offer presentation. The
+ * ~8 AP/day target is a multi-Workday pacing measure, never a hard daily cap.
  */
 export function generateDailyAssignments(state: GameState): GameState {
   const ledger = state.opportunities.assignmentGeneratorLedger ?? { sequence: 0, lastPresentedDayByActivity: {} };
   let next: GameState = { ...state, opportunities: { ...state.opportunities, assignmentGeneratorLedger: ledger } };
-  const openCount = () => Object.values(next.opportunities.assignments).filter(
-    (offer) => offer.status === 'offered' || offer.status === 'accepted',
-  ).length;
-  const definitions = URUK_ASSIGNMENT_OPPORTUNITY_DEFINITIONS;
+  const definitions = [...URUK_ASSIGNMENT_OPPORTUNITY_DEFINITIONS, ...ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS];
   const offset = ledger.sequence % definitions.length;
   const rotated = [...definitions.slice(offset), ...definitions.slice(0, offset)];
-  let offeredAp = 0;
   let sequence = ledger.sequence;
   const lastPresentedDayByActivity = { ...ledger.lastPresentedDayByActivity };
 
@@ -34,12 +49,18 @@ export function generateDailyAssignments(state: GameState): GameState {
   const executions = [...latestExecutionByMatter.values()]
     .sort((a, b) => a.dayNumber - b.dayNumber || a.id.localeCompare(b.id));
   for (const executionEvent of executions) {
-    if (offeredAp >= 8 || openCount() >= 4) break;
     const response = executionEvent.institutionalResponse!;
     const matter = next.world.matters[response.matterId];
     if (!matter || matter.kind !== 'roof_repair_verification' || matter.status === 'resolved' || !response.assigneePersonId
       || response.assigneePersonId === next.player.currentCharacterId
       || !next.records.entries[response.recordId]) continue;
+    const requiredSourceFactIds = [executionEvent.id, response.recordId].sort();
+    const occurrenceKey = `${NORTH_BAY_POST_EXECUTION_ACTIVITY_ID}|${matter.id}|event:${executionEvent.id}|${requiredSourceFactIds.join('|')}`;
+    if (next.opportunities.occurrenceLedger.some((entry) => entry.scenarioId === NORTH_BAY_POST_EXECUTION_ACTIVITY_ID
+      && entry.matterId === matter.id && entry.primarySourceFact?.kind === 'event'
+      && entry.primarySourceFact.id === executionEvent.id
+      && entry.requiredSourceFactIds.length === requiredSourceFactIds.length
+      && entry.requiredSourceFactIds.every((id, index) => id === requiredSourceFactIds[index]))) continue;
     const id = `assignment-auto-post-execution-${executionEvent.id}` as AssignmentId;
     if (next.opportunities.assignments[id]) continue;
     if (Object.values(next.world.events).some((event) => event.institutionalResponse?.stage === 'verification'
@@ -58,6 +79,8 @@ export function generateDailyAssignments(state: GameState): GameState {
       activityId: NORTH_BAY_POST_EXECUTION_ACTIVITY_ID,
       originMatterId: matter.id,
       sourceRecordId: response.recordId,
+      sourceEventId: executionEvent.id,
+      occurrenceKey,
       title: 'Post-Execution North-Bay Inspection',
       description: 'Independently inspect the completed maintenance and file evidence for an appointed official. This Assignment does not itself verify or authorize the work.',
       employer: { kind: 'institution', id: matter.institutionId },
@@ -84,8 +107,17 @@ export function generateDailyAssignments(state: GameState): GameState {
     };
     const result: TransitionResult = transitionOpportunityAction(next, { type: 'PRESENT_ASSIGNMENT', offer });
     if (result.feedback?.kind === 'error') continue;
-    next = result.state;
-    offeredAp += offer.estimatedTotalAp ?? 0;
+    next = {
+      ...result.state,
+      opportunities: {
+        ...result.state.opportunities,
+        occurrenceLedger: [...result.state.opportunities.occurrenceLedger, {
+          scenarioId: NORTH_BAY_POST_EXECUTION_ACTIVITY_ID, occurrenceKey, lifecycle: 'offered' as const,
+          matterId: matter.id, primarySourceFact: { kind: 'event' as const, id: executionEvent.id },
+          requiredSourceFactIds, deliveryChannels: offer.deliveryChannels, presentedDay: next.calendar.dayNumber,
+        }],
+      },
+    };
     sequence++;
     lastPresentedDayByActivity[NORTH_BAY_POST_EXECUTION_ACTIVITY_ID] = next.calendar.dayNumber;
   }
@@ -96,25 +128,61 @@ export function generateDailyAssignments(state: GameState): GameState {
       .sort((a, b) => a.createdDay - b.createdDay || a.id.localeCompare(b.id));
 
     for (const sourceMatter of matchingMatters) {
-      if (offeredAp >= 8 || openCount() >= 4) break;
       const sourceInstitution = next.world.institutions[sourceMatter.institutionId];
       if (sourceMatter.status !== 'active' || !sourceInstitution?.activeMatters.includes(sourceMatter.id)) continue;
-      if (Object.values(next.opportunities.assignments).some((offer) => offer.originMatterId === sourceMatter.id
-        || (!offer.originMatterId && offer.activityId === definition.offer.activityId))) continue;
+      const requiredSourceFactIds = occurrenceSourceFacts(next, sourceMatter);
+      if (requiredSourceFactIds.length === 0) continue;
+      const primaryEventId = sourceMatter.sourceEventId && next.world.events[sourceMatter.sourceEventId]
+        ? sourceMatter.sourceEventId : requiredSourceFactIds.find((factId) => next.world.events[factId as EventId]);
+      const primaryRecordId = requiredSourceFactIds.find((factId) => next.records.entries[factId as RecordId]);
+      const primarySourceFact = primaryEventId
+        ? { kind: 'event' as const, id: primaryEventId as EventId }
+        : primaryRecordId ? { kind: 'record' as const, id: primaryRecordId as RecordId } : undefined;
+      if (!primarySourceFact) continue;
+      const occurrenceKey = `${definition.offer.activityId}|${sourceMatter.id}|${primarySourceFact.kind}:${primarySourceFact.id}|${requiredSourceFactIds.join('|')}`;
+      const alreadyRecorded = next.opportunities.occurrenceLedger.some((entry) =>
+        entry.scenarioId === definition.offer.activityId && entry.matterId === sourceMatter.id
+        && entry.primarySourceFact?.kind === primarySourceFact.kind
+        && entry.primarySourceFact.id === primarySourceFact.id
+        && entry.requiredSourceFactIds.length === requiredSourceFactIds.length
+        && entry.requiredSourceFactIds.every((id, index) => id === requiredSourceFactIds[index]));
+      if (alreadyRecorded) continue;
+      const existingOfferForOccurrence = Object.values(next.opportunities.assignments).some((offer) =>
+        offer.activityId === definition.offer.activityId && offer.originMatterId === sourceMatter.id
+        && (offer.occurrenceKey === occurrenceKey || (!offer.occurrenceKey
+          && offer.sourceEventId === sourceMatter.sourceEventId && offer.sourceRecordId === sourceMatter.sourceRecordId)));
+      if (existingOfferForOccurrence) continue;
       if (!ASSIGNMENT_ACTIVITY_CATALOG[definition.offer.activityId as keyof typeof ASSIGNMENT_ACTIVITY_CATALOG]) continue;
 
-      const id = `assignment-auto-${definition.slug}-${sourceMatter.id}` as AssignmentId;
+      const occurrenceSuffix = requiredSourceFactIds.map((factId) => factId.replace(/[^a-zA-Z0-9-]/g, '-')).join('-');
+      const id = `assignment-auto-${definition.slug}-${sourceMatter.id}-${occurrenceSuffix}` as AssignmentId;
       if (next.opportunities.assignments[id]) continue;
       const offer: Omit<AssignmentOffer, 'offeredDay' | 'expiresDay' | 'status' | 'lapsedDuringMandatoryWork'> = {
         ...definition.offer,
         id,
         originMatterId: sourceMatter.id,
+        occurrenceKey,
+        ...(sourceMatter.sourceEventId ? { sourceEventId: sourceMatter.sourceEventId } : {}),
         ...(sourceMatter.sourceRecordId ? { sourceRecordId: sourceMatter.sourceRecordId } : {}),
       };
       const result: TransitionResult = transitionOpportunityAction(next, { type: 'PRESENT_ASSIGNMENT', offer });
       if (result.feedback?.kind === 'error') continue;
-      next = result.state;
-      offeredAp += definition.offer.estimatedTotalAp ?? 0;
+      next = {
+        ...result.state,
+        opportunities: {
+          ...result.state.opportunities,
+          occurrenceLedger: [...result.state.opportunities.occurrenceLedger, {
+            scenarioId: definition.offer.activityId,
+            occurrenceKey,
+            lifecycle: 'offered' as const,
+            matterId: sourceMatter.id,
+            primarySourceFact,
+            requiredSourceFactIds,
+            deliveryChannels: definition.offer.deliveryChannels,
+            presentedDay: next.calendar.dayNumber,
+          }],
+        },
+      };
       sequence++;
       lastPresentedDayByActivity[definition.offer.activityId] = next.calendar.dayNumber;
     }
