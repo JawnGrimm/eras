@@ -7,6 +7,11 @@ export const SOUTH_COURT_LOCATION_ID = 'location-uruk-south-receiving-court' as 
 export const SOUTH_LOADING_LOCATION_ID = 'location-uruk-south-loading-court' as LocationId;
 export const ERA1_COM_F01_LOCATION_ID = 'location-uruk-eanna-receiving-court' as LocationId;
 
+export const EANNA_INSTITUTION_ID = 'institution-uruk-eanna-precinct' as InstitutionId;
+export const EANNA_TABLET_ROOM_LOCATION_ID = 'location-uruk-eanna-tablet-room' as LocationId;
+
+
+
 export const MATTER_IDS = {
   tutorial: 'matter-storehouse-reckoning-tutorial' as MatterId,
   roofRepair: 'matter-north-bay-roof-verification' as MatterId,
@@ -27,6 +32,74 @@ const PEOPLE = {
   responsibleAuthority: 'person-lu-nanshe' as PersonId,
   carrier: 'person-kuli' as PersonId,
 } as const;
+
+const ERA_I_ANCHOR_MATTER_SEEDS = [
+  {
+    dayNumber: 2, matterId: 'matter-era1-com-01-consignment' as MatterId,
+    eventId: 'event-era1-com-01-consignment-source' as EventId,
+    kind: 'era1_com_01_consignment' as const,
+    summary: 'A consignment is presented for comparison before its receiving entry is accepted.',
+    eventSummary: 'A vessel and textile consignment is presented at the Eanna receiving court. Its tag, custody observation, dispatch account, and receiving entry are available for a bounded comparison; the authored occurrence does not establish loss or responsibility.',
+    personIds: [PEOPLE.receivingOfficial, PEOPLE.carrierForeman, PEOPLE.steward, PEOPLE.seniorScribe],
+    locationId: ERA1_COM_F01_LOCATION_ID,
+    provenance: [
+      { id: 'com01-request', kind: 'instruction' as const, description: 'The receiving official requests a comparison before accepting the consignment entry.' },
+      { id: 'com01-event', kind: 'event' as const, sourceId: 'event-era1-com-01-consignment-source', description: 'A distinct consignment is presented for receiving review.' },
+    ],
+  },
+  {
+    dayNumber: 3, matterId: 'matter-era1-com-02-brewing-account' as MatterId,
+    eventId: 'event-era1-com-02-brewing-account-source' as EventId,
+    kind: 'era1_com_02_brewing_account' as const,
+    summary: 'A grain-product and malt account is submitted for a second arithmetic check.',
+    eventSummary: 'A working account containing separate grain-product/groats and malt entries is brought for review before it is copied forward. The displayed gameplay transcription and its uncertain reading remain qualified.',
+    personIds: [PEOPLE.seniorScribe, PEOPLE.steward],
+    locationId: EANNA_TABLET_ROOM_LOCATION_ID,
+    provenance: [
+      { id: 'com02-request', kind: 'instruction' as const, description: 'The senior recorder requests a second arithmetic check before the account is copied forward.' },
+      { id: 'com02-event', kind: 'event' as const, sourceId: 'event-era1-com-02-brewing-account-source', description: 'A distinct account review is initiated.' },
+    ],
+  },
+  {
+    dayNumber: 4, matterId: 'matter-era1-civ-01-field-measurement' as MatterId,
+    eventId: 'event-era1-civ-01-field-measurement-source' as EventId,
+    kind: 'era1_civ_01_field_measurement' as const,
+    summary: 'A readable field-measurement transcription is submitted for arithmetic review.',
+    eventSummary: 'A responsible recorder asks for a second check of a field-measurement working copy. Its source chronology and provenience remain qualified; the simplified values are a gameplay transcription, not ancient notation.',
+    personIds: [PEOPLE.seniorScribe, PEOPLE.steward],
+    locationId: EANNA_TABLET_ROOM_LOCATION_ID,
+    provenance: [
+      { id: 'civ01-request', kind: 'instruction' as const, description: 'A responsible recorder requests an arithmetic check before the working summary is copied.' },
+      { id: 'civ01-event', kind: 'event' as const, sourceId: 'event-era1-civ-01-field-measurement-source', description: 'A distinct field-measurement account is submitted for review.' },
+    ],
+  },
+  {
+    dayNumber: 6, matterId: 'matter-era1-civ-02-labor-disbursement' as MatterId,
+    eventId: 'event-era1-civ-02-labor-disbursement-source' as EventId,
+    kind: 'era1_civ_02_labor_disbursement' as const,
+    summary: 'A labor-group account and a separate grain-disbursement record are submitted for a bounded review.',
+    eventSummary: 'A labor-group account is brought for checking alongside a separately sourced grain-disbursement record. Their pairing is a provisional accountability exercise; no shared group, institution, workflow, date, or entitlement is established.',
+    personIds: [PEOPLE.seniorScribe, PEOPLE.steward],
+    locationId: EANNA_TABLET_ROOM_LOCATION_ID,
+    provenance: [
+      { id: 'civ02-request', kind: 'instruction' as const, description: 'The senior reviewer requests separate checks of the labor-group account and the grain-disbursement record.' },
+      { id: 'civ02-event', kind: 'event' as const, sourceId: 'event-era1-civ-02-labor-disbursement-source', description: 'A distinct two-source accountability review is initiated; the records remain separate.' },
+    ],
+  },
+  {
+    dayNumber: 7, matterId: 'matter-era1-rel-01-inana-offering' as MatterId,
+    eventId: 'event-era1-rel-01-inana-offering-source' as EventId,
+    kind: 'era1_rel_01_inana_offering' as const,
+    summary: 'Inana-associated offering entries and a separate commodity record are submitted for review.',
+    eventSummary: 'A participant in offering preparations asks for an Inana-associated offering copy and a separate commodity record to be reviewed before preparations continue. Their combined use as one supply schedule is provisional gameplay fiction.',
+    personIds: [PEOPLE.seniorScribe, 'person-nin-kasi' as PersonId],
+    locationId: EANNA_TABLET_ROOM_LOCATION_ID,
+    provenance: [
+      { id: 'rel01-request', kind: 'instruction' as const, description: 'A participant in offering preparations requests a bounded review of the entries.' },
+      { id: 'rel01-event', kind: 'event' as const, sourceId: 'event-era1-rel-01-inana-offering-source', description: 'A distinct offering-record review is initiated; no ritual outcome is implied.' },
+    ],
+  },
+] as const;
 
 export function createSouthCourtDeliveryMatter(dayNumber: number): InstitutionalMatter {
   return {
@@ -88,7 +161,59 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
   const matters = { ...state.world.matters };
   const events = { ...state.world.events };
   const institutions = { ...state.world.institutions };
+  const locations = { ...state.world.locations };
   let changed = false;
+
+
+  // The five authored institutional anchors enter through distinct, dated
+  // source events. They are finite opening situations, not recurring quota
+  // generation; each retains its own matter and occurrence identity.
+  for (const seed of ERA_I_ANCHOR_MATTER_SEEDS) {
+    if (seed.dayNumber !== nextDay || matters[seed.matterId]) continue;
+    if (!institutions[EANNA_INSTITUTION_ID]) {
+      institutions[EANNA_INSTITUTION_ID] = {
+        id: EANNA_INSTITUTION_ID,
+        name: 'Eanna Precinct',
+        locationId: EANNA_TABLET_ROOM_LOCATION_ID,
+        responsibilities: ['Maintain precinct records and supervised administrative work', 'Receive reports concerning precinct goods, labor, and offering preparations'],
+        authority: ['Review submitted administrative records', 'Refer matters to the responsible precinct authority'],
+        standing: 50,
+        activeMatters: [],
+      };
+    }
+    if (!locations[EANNA_TABLET_ROOM_LOCATION_ID]) {
+      locations[EANNA_TABLET_ROOM_LOCATION_ID] = {
+        id: EANNA_TABLET_ROOM_LOCATION_ID,
+        name: 'Eanna precinct tablet room, Uruk',
+      };
+    }
+    const institution = institutions[EANNA_INSTITUTION_ID];
+    events[seed.eventId] = {
+      id: seed.eventId,
+      dayNumber: nextDay,
+      summary: seed.eventSummary,
+      personIds: seed.personIds,
+      institutionIds: [EANNA_INSTITUTION_ID],
+      locationId: seed.locationId,
+    };
+    matters[seed.matterId] = {
+      id: seed.matterId,
+      institutionId: EANNA_INSTITUTION_ID,
+      kind: seed.kind,
+      summary: seed.summary,
+      status: 'active',
+      createdDay: nextDay,
+      sourceEventId: seed.eventId,
+      locationId: seed.locationId,
+      involvedPersonIds: [...seed.personIds],
+      provenance: seed.provenance.map((source) => ({ ...source })),
+    };
+    institutions[EANNA_INSTITUTION_ID] = {
+      ...institution,
+      activeMatters: [...new Set([...institution.activeMatters, seed.matterId])],
+    };
+    changed = true;
+  }
 
   // The first Commercial procurement occurrence enters the world on Day 2,
   // after the Day 1 board has presented its existing six-AP supply.
@@ -161,7 +286,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
     changed = true;
   }
 
-  return changed ? { ...state, world: { ...state.world, matters, events, institutions } } : state;
+  return changed ? { ...state, world: { ...state.world, matters, events, institutions, locations } } : state;
 }
 
 export function createMaterialNotAsDescribedMatter(dayNumber: number): InstitutionalMatter {

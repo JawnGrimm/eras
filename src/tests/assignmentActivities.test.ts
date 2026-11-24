@@ -85,7 +85,7 @@ describe('North-Bay Roof Inspection activity definition and engine', () => {
   it('keeps legacy v2 saves loadable by normalizing Dudu, the storehouse location, and initial appointments', () => {
     const state = createInitialGameState();
     const world = { ...state.world, people: { ...state.world.people }, locations: {}, appointments: {},
-      institutions: { ...state.world.institutions, ['institution-uruk-temple-storehouse' as never]: {
+      institutions: { ['institution-uruk-temple-storehouse' as never]: {
         ...state.world.institutions['institution-uruk-temple-storehouse' as never], locationId: undefined,
       } } };
     delete world.people['person-dudu' as never];
