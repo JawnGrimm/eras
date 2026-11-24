@@ -52,9 +52,8 @@ function starterChallenge(player: Person): Omit<ChallengeInstance, 'status' | 'a
       provenance: ['The apprentice’s practice copy and her report of the oral instruction.'],
     },
     deliveryChannels: [{
-      kind: 'relationship',
-      personId: STOREHOUSE_PEOPLE.seniorScribe,
-      explanation: 'The Senior Scribe has involved the current scribe in routine instruction.',
+      kind: 'baseline_reach',
+      explanation: 'The newly instructed apprentice is included in routine practice-copy instruction.',
     }],
     presentedDay: 1,
     apCost: 1,
