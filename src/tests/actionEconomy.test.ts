@@ -173,7 +173,10 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
         [STOREHOUSE_WORK_ID]: { ...progress, provisionContract: { provisionsPerQualifiedWorkday: 1, minimumWorkApPerDay: 1 } },
       } },
     };
-    const result = transitionGame(legacyState, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber }, undefined, INITIAL_WORK_CATALOG);
+    const opened = transitionGame(legacyState, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber }, undefined, INITIAL_WORK_CATALOG);
+    const result = transitionGame(opened.state, {
+      type: 'BEGIN_WORKDAY', expectedSettlementId: opened.state.dayClose.pendingSettlementId!,
+    }, undefined, INITIAL_WORK_CATALOG);
     expect(result.settlement?.workContractProvisionReason).toBe('no_active_work_contract');
     expect(result.settlement?.workContractProvisionEarned).toBe(0);
     expect(getInitializedScribal(result.state.world.people[state.player.currentCharacterId])?.wallet.provisions).toBe(4);

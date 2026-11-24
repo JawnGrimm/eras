@@ -497,6 +497,9 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
     }
     case 'BUY_PROVISIONS': {
       const preview = state.dayClose.preview;
+      if (state.calendar.eraId !== 'era-1') {
+        return { state, feedback: feedback('error', 'provisions-exchange-era-unavailable', 'This provisional Playtest 1 exchange is authored for Era I only.') };
+      }
       if (state.dayClose.phase !== 'interlude_open' || !preview) {
         return { state, feedback: feedback('error', 'evening-interlude-not-open', 'A provisions exchange is available only during the Evening Interlude.') };
       }
