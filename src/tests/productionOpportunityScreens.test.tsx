@@ -17,6 +17,8 @@ describe('production opportunity screens', () => {
       createElement(ProductionAssignmentBoard)));
 
     expect(markup).toContain('Assignment Board');
+    expect(markup).toContain('Currency');
+    expect(markup).not.toContain('silver');
     expect(markup).toContain('Why this reached you');
     expect(markup).toContain('Enlil-kisu’s dispatch copy is being compared with the Temple Storehouse receiving tally.');
     expect(markup).toContain('Ur-Nanna has asked a storehouse scribe to document the awning before further loading.');
