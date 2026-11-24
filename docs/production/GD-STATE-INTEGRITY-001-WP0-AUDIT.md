@@ -8,7 +8,7 @@
 **Audit date:** 24 November 2026  
 **Runtime changes in this audit:** None
 
-This is an evidence report, not a design amendment. The approved specification and GDD remain authoritative. PR #106 is still open and unmerged; Issue #107 independently authorizes execution against the reviewed baseline. This document records the source audit performed against that baseline.
+This is an evidence report, not a design amendment. The approved specification and GDD remain authoritative. PR #106 was merged after the audit baseline was established; Issue #107 independently authorizes execution. This report preserves the source baseline used for the audit and does not imply PR #106 remains open. This document records the source audit performed against that baseline.
 
 ## 1. Executive findings
 
@@ -93,16 +93,17 @@ When new relationship edges are created, current helpers in `closingReceipt.ts`,
 
 ### 4.3 Day-13 task-feedback finding
 
-The Day-13 playtest summary identifies the North-Bay Roof Inspection receipt as **Overreached**, received by Ur-Nanna, with Trust −4, Respect −3, and Temple Storehouse standing −2. That is a completed report/Assignment outcome, not evidence of completed physical maintenance or independent verification.
+The approved Day-13 specification records a comparison-task completion toast while related institutional matters remain active. The relevant South-Court comparison action adds the dispatch and receiving discoveries to the Assignment's activity progress; it does not create a Record, resolve a matter, or authorize an institutional disposition. The later report-submission path creates a Record and appends it to matter provenance, with an explicit statement that filing does not itself resolve the matter.
 
 The current source contract separates:
-- completion of the player's report/task;
-- the record and recommendation added to the matter;
+- completion of one evidence-gathering action;
+- completion/submission of the player's report;
+- the Record and recommendation added to the matter;
 - an authorized institutional decision;
 - any later execution;
 - independent verification and final resolution.
 
-Accordingly, a completion toast alongside an active matter is **not a defect by itself**. The source code contains explicit examples where a submitted comparison/report updates the matter's provenance but intentionally leaves it active pending a separate authority decision. The exact Day-13 task ID, matter IDs, and displayed toast text still need to be captured in the repeatable WP6 fixture before the specific screenshot pairing can be declared reconciled.
+Accordingly, the comparison-task toast alongside an active matter is **not a matter-lifecycle defect**. The feedback itself was too generic and is being corrected in PR #110 to state the 24-versus-23 result, the unresolved cause/responsibility, and that the matter remains open. The exact Day-13 save envelope and matter IDs are still needed to reconcile the full screenshot state.
 
 ## 5. People & Institutions information-architecture audit
 
@@ -182,7 +183,7 @@ Day-13 display values stated by the approved specification:
 | Relationship cross-attribution | F02/F04 receiver reaction is copied to secondary relationship edges. | **Defect verified in source.** WP1: add failing tests, correct the producer without inventing NPC speech, and preserve the correct directional score effects. |
 | Relationship provenance | History type has optional Event link but no Record link/typed actor; several producers omit provenance. | **Contract limitation verified.** Prepare technical proposal; no persistent change until schema/legacy-save review. |
 | Numeric familiarity | No runtime accrual path; PersonFamiliarity is a separate domain exposure model. | **Gap verified.** Return the missing rule to Design HQ; no arbitrary score increments. |
-| Matter completion | Report completion does not equal institutional resolution. | **Expected behavior confirmed** for North-Bay Overreached report. WP2: test the active-index invariant and exact Day-13 matter IDs. |
+| Matter completion | Report completion does not equal institutional resolution. | **Expected lifecycle confirmed** for the South-Court comparison step; task feedback was too generic. PR #110 corrects the message without changing matter status. WP2: verify active-index invariants and exact Day-13 matter IDs. |
 | Active matter reverse invariant | Save validation checks listed active matters but not all active matters are listed. | **Test gap / potential integrity risk.** WP2: reproduce before proposing code correction. |
 | People/Institutions IA | Full eager rendering, no search/filter or focused detail. | **UI audit complete.** WP3: produce a compact index/detail proposal in parallel; implementation follows domain verification. |
 | Sparse NPC states | Distinct unknown/unavailable/empty states are repeated as full-profile placeholders. | **Presentation gap verified.** WP4: define compact empty-state rules without creating facts. |
@@ -193,7 +194,7 @@ Day-13 display values stated by the approved specification:
 
 - No runtime code, GDD, Decision Register, save schema, migration, numerical formula, or player-facing content was changed in WP0.
 - No audit-specific tests were written during this audit-only stage.
-- GitHub Actions on PR #108 head `89568af87493c3174f77a1914345d8f78252999d` ran the existing regression suite: TypeScript check passed; 37 test files / 276 tests passed; production build passed; CodeQL passed. These are repository-wide CI checks, not new WP0-specific tests.
+- GitHub Actions on PR #108 head `9a2229f7b9bcd0b2372900ca962bf982fdeefc2f` ran the existing regression suite: TypeScript check passed; 37 test files / 276 tests passed; production build passed; CodeQL passed. These are repository-wide CI checks, not new WP0-specific tests.
 - No local test/build/type-check was run.
 - Source paths above were read from the live `main` baseline identified at the top of this report.
 - The next authorized runtime work is WP1's relationship-history attribution correction and WP2's matter-state invariant audit, with any persistent-state proposal held for review.
