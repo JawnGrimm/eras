@@ -247,7 +247,7 @@ function sevenSacks(state: GameState, id: ChallengeId, occurrence: ChallengeOccu
       quantity: 'Seven capacity measures in seven sealed pottery storage jars; two jar exteriors stained/crusted and five are surface-dry.',
       when: 'During harvest preparation, while the held-stock matter remains open.',
       where: 'Temple Storehouse, north storage bay.',
-      from: 'The held-stock inspection report and direct container observation.',
+      from: 'The held-stock matter and its linked source event, with any submitted inspection report attached to the matter.',
       to: 'Ur-Nanna for an authorized stock decision.',
       purpose: 'Balance harvest pressure against the unresolved internal condition of the grain.',
       responsibility: ['The scribe recommends; the Steward or Senior Scribe decides whether stock may be released.'],
