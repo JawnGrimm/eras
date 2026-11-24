@@ -1,5 +1,6 @@
 import type { AssignmentOffer, AssignmentActivityProgress, GameState, TransitionResult, RecordEntry, RecordSource, RecordAssertion, KnowledgeEntry } from '../state/types';
-import type { InstitutionId, KnowledgeEntryId, PersonId, RecordId } from '../state/ids';
+import type { EventId, InstitutionId, KnowledgeEntryId, PersonId, RecordId } from '../state/ids';
+import { ERA1_COM_F01_ACTIVITY_ID, ERA1_COM_F01_PEOPLE } from '../content/assignments/eraICommercialMartial';
 import type { AssignmentActivityDefinition } from '../content/assignments/northBayRoofInspection';
 import { getInitializedScribal } from '../state/scribalState';
 import { applyClosingAssessment } from './closingReceipt';
@@ -107,6 +108,7 @@ export function submitRubricAssignmentActivity(
   const knowledgeHolders = [...new Set<PersonId>([
     ...(receiverId ? [receiverId] : []),
     ...(offer.employer.kind === 'person' ? [offer.employer.id as PersonId] : []),
+    ...(offer.activityId === ERA1_COM_F01_ACTIVITY_ID ? [ERA1_COM_F01_PEOPLE.responsibleAuthority] : []),
     ...progress.consultedPersonIds,
   ])];
   const knowledge: KnowledgeEntry[] = [
@@ -142,15 +144,85 @@ export function submitRubricAssignmentActivity(
       ? { compensationTiming: 'Contracted compensation is payable in full at preliminary Day-Close, regardless of assessment.' } : {}),
   });
   if (!evaluated) return fail(state, 'assignment-activity-outcome-invalid', 'The Closing Receipt could not be applied to the current character.');
+  const f01 = offer.activityId === ERA1_COM_F01_ACTIVITY_ID;
+  const f01Recommendation = progress.draft.recommendations[0];
+  const f01Supported = assessment === 'Thorough' || assessment === 'Defensible';
+  const f01Disposition = !f01 ? undefined
+    : !f01Supported ? (assessment === 'Incomplete' ? 'report_set_aside_existing_hold_retained' : 'report_returned_existing_hold_retained')
+    : f01Recommendation === 'hold_for_craft_examination' ? 'held_for_craft_examination'
+    : f01Recommendation === 'enter_with_exception' ? 'exception_recorded_acceptance_pending'
+    : 'held_for_clarification';
+  const f01DispositionLabel = !f01Disposition ? undefined : ({
+    held_for_craft_examination: 'Receiving entry held; referral recorded for Ur-Lamma’s craft-suitability judgment.',
+    exception_recorded_acceptance_pending: 'Description difference entered as an exception; acceptance remains pending.',
+    held_for_clarification: 'Receiving entry held; clarifying-record request routed to Lu-Nanshe for an authorized decision.',
+    report_set_aside_existing_hold_retained: 'Report set aside; the existing receiving hold remains unchanged.',
+    report_returned_existing_hold_retained: 'Report returned; the existing receiving hold remains unchanged.',
+  } as const)[f01Disposition];
+  const f01EventId = f01 ? `event-${offer.id}-day-${state.calendar.dayNumber}-receiving-disposition` as EventId : undefined;
+  const f01DispositionRecordId = f01 ? `record-${offer.id}-day-${state.calendar.dayNumber}-receiving-disposition` as RecordId : undefined;
+  const f01Event = f01 && f01EventId ? {
+    id: f01EventId, dayNumber: state.calendar.dayNumber,
+    summary: `Utu-mansum’s receiving response to the submitted report: ${f01DispositionLabel}`,
+    personIds: [ERA1_COM_F01_PEOPLE.receiver, ERA1_COM_F01_PEOPLE.responsibleAuthority, ERA1_COM_F01_PEOPLE.workshopOverseer, person.id],
+    institutionIds: [institution.id], locationId: matter?.locationId,
+  } : undefined;
+  const f01DispositionRecord = f01 && f01DispositionRecordId && f01EventId && f01DispositionLabel ? {
+    id: f01DispositionRecordId, createdDay: state.calendar.dayNumber, authorPersonId: ERA1_COM_F01_PEOPLE.receiver,
+    institutionId: institution.id, title: 'Receiving disposition — Material Not As Described',
+    sources: [
+      { id: 'source-player-report', kind: 'other' as const, sourceId: recordId, description: 'Submitted apprentice report; this records the receiving official’s response, not an amendment to a pre-existing receiving entry.' },
+      { id: 'source-disposition-event', kind: 'event' as const, sourceId: f01EventId, description: 'Utu-mansum’s authored receiving response to the submitted report.' },
+    ],
+    assertions: [
+      { id: 'assertion-receiving-disposition', text: f01DispositionLabel, classification: 'reported' as const, sourceIds: ['source-disposition-event'] },
+      { id: 'assertion-authority-boundary', text: 'This disposition does not accept or reject the material, authorize replacement, or resolve the institutional matter. Lu-Nanshe retains the acceptance or replacement decision.', classification: 'reported' as const, sourceIds: ['source-disposition-event'] },
+    ],
+    uncertaintyLimits: ['No separate original receiving RecordEntry existed to amend; this is a new durable disposition record linked to the player report.'],
+    amendments: [],
+  } : undefined;
+  const f01Matter = f01 && matter && f01DispositionRecordId ? {
+    ...(updatedMatter ?? matter),
+    provenance: [
+      ...(updatedMatter?.provenance ?? matter.provenance ?? []),
+      { id: `f01-disposition-${recordId}`, kind: 'record_copy' as const, sourceId: f01DispositionRecordId,
+        description: 'Durable receiving disposition linked to the submitted report; the matter remains active pending an authorized decision.' },
+    ],
+  } : undefined;
+  let outcomeRelationships = evaluated.state.world.relationships;
+  if (f01 && f01Supported) {
+    const affected = ERA1_COM_F01_PEOPLE.workshopOverseer;
+    const current = outcomeRelationships[affected]?.[person.id];
+    const dimensions = { trust: 50, respect: 50, affection: 50, resentment: 0, rivalry: 0, familiarity: 0, ...current?.dimensions };
+    const trustDelta = assessment === 'Thorough' ? 2 : 1;
+    outcomeRelationships = {
+      ...outcomeRelationships,
+      [affected]: {
+        ...outcomeRelationships[affected],
+        [person.id]: {
+          dimensions: { ...dimensions, trust: Math.min(100, dimensions.trust + trustDelta), respect: Math.min(100, dimensions.respect + 1) },
+          history: [...(current?.history ?? []), {
+            id: `assignment-receipt-${offer.id}-day-${state.calendar.dayNumber}:ur-lamma-relationship`,
+            dayNumber: state.calendar.dayNumber,
+            summary: assessment === 'Thorough'
+              ? 'Ur-Lamma regards the scribe as reliable after a thorough report supports the documented description difference.'
+              : 'Ur-Lamma regards the scribe as reliable after a defensible report supports the documented description difference.',
+          }],
+        },
+      },
+    };
+  }
   const completedOffer = { ...offer, status: 'completed' as const, activityProgress: progress,
     closingReceipt: evaluated.receipt, receiptAcknowledged: false };
   const next: GameState = {
     ...evaluated.state,
     actionEconomy: { ...evaluated.state.actionEconomy, apRemaining: evaluated.state.actionEconomy.apRemaining - definition.submissionApCost },
-    records: { ...evaluated.state.records, entries: { ...evaluated.state.records.entries, [recordId]: record } },
+    records: { ...evaluated.state.records, entries: { ...evaluated.state.records.entries, [recordId]: record, ...(f01DispositionRecord ? { [f01DispositionRecord.id]: f01DispositionRecord } : {}) } },
     world: {
       ...evaluated.state.world,
-      matters: updatedMatter ? { ...evaluated.state.world.matters, [updatedMatter.id]: updatedMatter } : evaluated.state.world.matters,
+      relationships: outcomeRelationships,
+      events: f01Event ? { ...evaluated.state.world.events, [f01Event.id]: f01Event } : evaluated.state.world.events,
+      matters: updatedMatter || f01Matter ? { ...evaluated.state.world.matters, ...(updatedMatter ? { [updatedMatter.id]: updatedMatter } : {}), ...(f01Matter ? { [f01Matter.id]: f01Matter } : {}) } : evaluated.state.world.matters,
       knowledge: { ...evaluated.state.world.knowledge, ...Object.fromEntries(knowledge.map((entry) => [entry.id, entry])) },
     },
     opportunities: { ...evaluated.state.opportunities, assignments: {

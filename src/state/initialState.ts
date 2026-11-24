@@ -2,8 +2,9 @@ import type { Appointment, GameState, Person, WorldEvent } from './types';
 import type { EventId, InstitutionId, PersonId, AppointmentId } from './ids';
 import { UR_GIR_PERSON_ID } from './ids';
 import { NORTH_BAY_LOCATION_ID, NORTH_BAY_PEOPLE } from '../content/assignments/northBayRoofInspection';
+import { ERA1_COM_F01_PEOPLE } from '../content/assignments/eraICommercialMartial';
 import {
-  MATTER_IDS, STOREHOUSE_INSTITUTION_ID, SOUTH_COURT_LOCATION_ID, SOUTH_LOADING_LOCATION_ID,
+  MATTER_IDS, STOREHOUSE_INSTITUTION_ID, SOUTH_COURT_LOCATION_ID, SOUTH_LOADING_LOCATION_ID, ERA1_COM_F01_LOCATION_ID,
   createSouthCourtDeliveryMatter, createSouthLoadingAwningMatter,
 } from '../engine/institutionalMatters';
 export const INITIAL_PERSON_ID = 'person-enlil-barni' as PersonId;
@@ -135,6 +136,9 @@ export function createInitialGameState(player?: Person, opportunitySeed = 'era1-
       circumstances: [{ id: 'circumstance-enlil-kisu-dispatch', kind: 'dispute' as const, summary: 'His dispatch copy records 24 measures leaving the holding yard; the receiving tally records 23 at intake.', sinceDay: 1, status: 'active' as const, visibility: 'public' as const, relatedMatterIds: [deliveryMatterId] }],
     },
     { id: ninKasiId, name: 'Nin-kasi', alive: true, affiliations: [templeStorehouseId] },
+    { id: ERA1_COM_F01_PEOPLE.workshopOverseer, name: 'Ur-Lamma', alive: true, affiliations: [], lifeStage: 'craft_practitioner' as const, socialIdentity: { occupation: 'Precinct workshop overseer', summary: 'A workshop overseer who judges whether delivered material is suitable for the work in hand.' } },
+    { id: ERA1_COM_F01_PEOPLE.responsibleAuthority, name: 'Lu-Nanshe', alive: true, affiliations: [templeStorehouseId], lifeStage: 'active_official' as const, socialIdentity: { occupation: 'Household overseer', summary: 'A responsible overseer who decides whether a disputed delivery is accepted or referred for replacement.' } },
+    { id: ERA1_COM_F01_PEOPLE.carrier, name: 'Kuli', alive: true, affiliations: [], lifeStage: 'craft_practitioner' as const, socialIdentity: { occupation: 'Carrier', summary: 'A carrier who brought the covered load to the receiving court and can give an account of his part in its movement.' } },
   ];
   const people: Record<PersonId, Person> = {
     [activePlayer.id]: activePlayer,
@@ -172,6 +176,7 @@ export function createInitialGameState(player?: Person, opportunitySeed = 'era1-
         [storehouseLocationId]: { id: storehouseLocationId, name: 'Temple Storehouse, north storage bay' },
         [SOUTH_COURT_LOCATION_ID]: { id: SOUTH_COURT_LOCATION_ID, name: 'Temple Storehouse, south receiving court' },
         [SOUTH_LOADING_LOCATION_ID]: { id: SOUTH_LOADING_LOCATION_ID, name: 'Temple Storehouse, south loading court' },
+        [ERA1_COM_F01_LOCATION_ID]: { id: ERA1_COM_F01_LOCATION_ID, name: 'Eanna receiving court, Uruk' },
       },
       appointments: Object.fromEntries(appointments.map((appointment) => [appointment.id, appointment])), events: { [deliveryEventId]: deliveryEvent, [awningEventId]: awningEvent }, knowledge: {},
       matters: {

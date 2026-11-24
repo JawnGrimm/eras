@@ -1,6 +1,9 @@
 name: Pull Request Validation
 
 on:
+  push:
+    branches:
+      - eng/era1-commercial-martial-assignments
   pull_request:
     branches:
       - main

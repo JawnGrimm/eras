@@ -26,11 +26,12 @@ describe('matter-driven Assignment discovery', () => {
     const institutionId = 'institution-uruk-temple-storehouse' as keyof typeof base.world.institutions;
     const deliveryId = 'matter-south-court-delivery-reconciliation' as MatterId;
     const awningId = 'matter-south-loading-awning-inspection' as MatterId;
+    const materialId = 'matter-era1-com-f01-material-description' as MatterId;
     const matters = {
       ...base.world.matters,
       [deliveryId]: { ...base.world.matters[deliveryId], status: 'developed' as const },
     };
-    const activeMatters = base.world.institutions[institutionId].activeMatters.filter((id) => id !== awningId);
+    const activeMatters = base.world.institutions[institutionId].activeMatters.filter((id) => id !== awningId && id !== materialId);
     const state: GameState = {
       ...base,
       world: {
@@ -52,7 +53,7 @@ describe('matter-driven Assignment discovery', () => {
     const secondEventId = 'event-south-court-delivery-followup' as keyof typeof base.world.events;
     const secondEvent = { ...base.world.events['event-south-court-delivery-source' as keyof typeof base.world.events],
       id: secondEventId, dayNumber: 1, summary: 'A separate later dispatch and receiving tally require their own reconciliation.' };
-    const second = { ...original, id: secondId, createdDay: 2, sourceEventId: secondEventId,
+    const second = { ...original, id: secondId, createdDay: 1, sourceEventId: secondEventId,
       summary: 'A second dispatch and receipt discrepancy requires its own reconciliation.' };
     const state: GameState = {
       ...base,

@@ -79,11 +79,13 @@ describe('Phase 2 Uruk world-state foundation', () => {
     );
   });
 
-  it('leaves unresolved matters untouched when no authored development condition is met', () => {
+  it('leaves existing unresolved matters untouched while introducing the scheduled Day 2 procurement event', () => {
     const state = createInitialGameState();
     const advanced = advanceInstitutionalMatters(state, 2);
     expect(advanced.world.matters[MATTER_IDS.southCourtDelivery]).toEqual(state.world.matters[MATTER_IDS.southCourtDelivery]);
     expect(advanced.world.matters[MATTER_IDS.southLoadingAwning]).toEqual(state.world.matters[MATTER_IDS.southLoadingAwning]);
-    expect(advanced.world.events).toEqual(state.world.events);
+    expect(advanced.world.events['event-era1-com-f01-seeded-delivery' as never]?.dayNumber).toBe(2);
+    expect(advanced.world.matters[MATTER_IDS.era1ComF01]?.status).toBe('active');
+    expect(advanced.world.institutions[STOREHOUSE_INSTITUTION_ID].activeMatters).toContain(MATTER_IDS.era1ComF01);
   });
 });
