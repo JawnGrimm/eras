@@ -18,7 +18,7 @@ This is a separate, paired follow-up slice. It must not block PR #90, the two Is
 2. Contracted Assignment Currency and Provisions remain payable when work is filed, regardless of assessment.
 3. Career XP, Judgment, Institutional Standing, and relevant NPC Trust/Respect reflect quality.
 4. The receipt remains visible until the player explicitly chooses its return action. No timed dismissal or automatic navigation.
-5. NPC reaction is authored, in voice, and responsive to the actual report/choice and assessment. No runtime generative text. Do not invent a receiving NPC: use an institutional filing response where no person is established.
+5. NPC reaction is authored, in voice, and responsive to the actual report/choice and assessment. Each scenario/choice authors category-specific reaction copy and may use only safe, authored substitutions for the selected finding, responsibility label, or choice label; no runtime generative text. Do not invent a receiving NPC: use an institutional filing response where no person is established.
 6. Display actual deltas, not generic success copy. Show only relevant dimensions; unchanged relationship dimensions may be shown as zero only if the receipt layout clearly distinguishes “unchanged” from an omitted/untracked relationship.
 7. Apply consequences once. Existing scenario-specific quality deltas must be migrated into, or reconciled with, the evaluation result—not stacked on top of it.
 
@@ -56,13 +56,13 @@ Rubrics must allow multiple defensible findings where evidence supports them. Do
 
 ## 4. Challenge evaluation
 
-Challenge choices are authored actions, not freeform reports. Each choice must author its evaluation category and concise rationale; the category is not inferred from prose or generated at runtime. The chosen outcome's authored consequences remain authoritative. Apply the same receipt and visible-delta contract, while preserving choice-specific world consequences and any non-evaluation relationship effects.
+Challenge choices are authored actions, not freeform reports. Each choice must author its evaluation category and concise rationale; the category is not inferred from prose or generated at runtime. The chosen outcome's authored consequences remain authoritative. Apply the same receipt and visible-delta contract, while preserving choice-specific world consequences and any non-evaluation relationship effects. If a choice awards Career XP, treat its authored amount as the base reward and apply the category multiplier in §5. Challenge choices do not receive Assignment contract pay unless the authored choice explicitly defines a separate contract.
 
 For the evaluated recipient, do not double-apply Trust/Respect: the category schedule below is the single quality-related adjustment. If a Challenge has no career-XP reward or no relevant recipient/institution, omit those dimensions. Challenge choices do not inherit Assignment citation/limitation requirements.
 
 ## 5. PROVISIONAL Playtest 1 scaling proposal
 
-These values are deliberately simple and provisional. Assignment XP multiplier applies to the authored base Career XP reward; round to the nearest integer. Contracted Currency/Provisions are never multiplied or withheld.
+These values are deliberately simple and provisional. The Career XP multiplier applies to the authored base Career XP reward on either an Assignment or Challenge outcome, when one exists; round to the nearest integer. Contracted Currency/Provisions are never multiplied or withheld.
 
 | Assessment | Career XP multiplier | Judgment | Institutional Standing | Recipient Trust | Recipient Respect |
 |---|---:|---:|---:|---:|---:|
