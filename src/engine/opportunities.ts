@@ -7,7 +7,7 @@ import { queueSettlementCredit } from './dayClose';
 import { applyClosingAssessment } from './closingReceipt';
 import type { WorkDefinition } from '../works/workDefinition';
 import type {
-  AssignmentActivityAggregate, AssignmentOffer, ChallengeInstance, ChallengeOutcome, ChallengeTriggerRule,
+  AssignmentActivityAggregate, AssignmentOffer, ChallengeInstance, ChallengeOutcome, ChallengeTriggerRule, OpportunityOccurrenceLifecycle,
   GameAction, GameState, OpportunityActivity, OpportunityConsequences, OpportunityDeliveryChannel, TransitionResult,
 } from '../state/types';
 
