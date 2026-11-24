@@ -192,7 +192,7 @@ export const CHALLENGE_CANDIDATE_POOL: readonly ChallengeCandidate[] = [
     scenarioId: 'challenge-seven-sacks',
     weight: 1,
     repeatability: 'once_per_world',
-    triggerDomains: ['player_action_outcome', 'institutional_matter_update', 'authored_world_event'],
+    triggerDomains: ['player_action_outcome', 'institutional_matter_update'],
     resolveOccurrence: resolveSevenSacks,
     buildChallenge: sevenSacks,
   },
@@ -200,7 +200,7 @@ export const CHALLENGE_CANDIDATE_POOL: readonly ChallengeCandidate[] = [
     scenarioId: 'challenge-missing-measure',
     weight: 1,
     repeatability: 'once_per_world',
-    triggerDomains: ['player_action_outcome', 'professional_behavior_pattern', 'institutional_matter_update', 'authored_world_event'],
+    triggerDomains: ['player_action_outcome', 'professional_behavior_pattern'],
     resolveOccurrence: resolveMissingMeasure,
     buildChallenge: missingMeasure,
   },
@@ -247,13 +247,26 @@ export function selectWeightedChallengeCandidate<T extends { scenarioId: string;
   return undefined;
 }
 
-function hasScenarioHistory(state: GameState, candidate: ChallengeCandidate): boolean {
+function hasScenarioHistory(
+  state: GameState,
+  candidate: ChallengeCandidate,
+  occurrence: ChallengeOccurrence,
+  occurrenceKey: string,
+): boolean {
+  // A legacy fixed ID has no recoverable causal identity. Suppress that authored
+  // scenario rather than inventing a source fact or migrating a fabricated occurrence.
+  if (state.opportunities.challenges[candidate.scenarioId as ChallengeId]
+    || state.opportunities.challengeOutcomes.some((outcome) => outcome.challengeId === candidate.scenarioId)
+    || state.opportunities.occurrenceLedger.some((entry) => entry.legacy === true && entry.scenarioId === candidate.scenarioId)) return true;
+
   if (candidate.repeatability === 'once_per_world') {
-    return state.opportunities.occurrenceLedger.some((entry) => entry.scenarioId === candidate.scenarioId)
-      || !!state.opportunities.challenges[candidate.scenarioId as ChallengeId]
-      || state.opportunities.challengeOutcomes.some((outcome) => outcome.challengeId === candidate.scenarioId);
+    return state.opportunities.occurrenceLedger.some((entry) => entry.scenarioId === candidate.scenarioId);
   }
-  return false;
+  if (candidate.repeatability === 'once_per_matter') {
+    return state.opportunities.occurrenceLedger.some((entry) =>
+      entry.scenarioId === candidate.scenarioId && entry.matterId === occurrence.matterId);
+  }
+  return state.opportunities.occurrenceLedger.some((entry) => entry.occurrenceKey === occurrenceKey);
 }
 
 export function runChallengeDirector(state: GameState): GameState {
@@ -267,14 +280,13 @@ export function runChallengeDirector(state: GameState): GameState {
 
   const eligible: EligibleCandidate[] = [];
   for (const definition of CHALLENGE_CANDIDATE_POOL) {
-    if (hasScenarioHistory(state, definition)) continue;
     const occurrence = definition.resolveOccurrence(state);
     if (!occurrence || !occurrence.primarySourceFact || occurrence.requiredSourceFactIds.length === 0
       || !occurrence.requiredSourceFactIds.includes(occurrence.primarySourceFact.id)
       || occurrence.requiredSourceFactIds.some((id) => !state.world.events[id as EventId] && !state.records.entries[id as RecordId])
       || !occurrence.deliveryChannels.length) continue;
     const occurrenceKey = canonicalOccurrenceKey(definition.scenarioId, occurrence);
-    if (state.opportunities.occurrenceLedger.some((entry) => entry.occurrenceKey === occurrenceKey)) continue;
+    if (hasScenarioHistory(state, definition, occurrence, occurrenceKey)) continue;
     eligible.push({ definition, occurrence, occurrenceKey });
   }
 
