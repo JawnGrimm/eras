@@ -43,6 +43,38 @@ function advance(state: ReturnType<typeof createInitialGameState>, day: number) 
 }
 
 describe('Era I Commercial F02-F04 causal matter pipeline', () => {
+  it('adds provisional participants and their institutions lazily when continuing a save predating these families', () => {
+    const base = withOpenNorthBayRepairNeed();
+    const people = { ...base.world.people };
+    const institutions = { ...base.world.institutions };
+    const locations = { ...base.world.locations };
+    delete people[ERA1_COM_F02_F04_PEOPLE.gemeInana];
+    delete people[ERA1_COM_F02_F04_PEOPLE.amaGi];
+    delete people[ERA1_COM_F02_F04_PEOPLE.sigAna];
+    delete institutions[TEXTILE_HOUSEHOLD_INSTITUTION_ID];
+    delete locations['location-uruk-textile-household-provisional' as never];
+    delete locations['location-uruk-river-landing-provisional' as never];
+
+    const preFamilySave = {
+      ...base,
+      world: { ...base.world, people, institutions, locations },
+    };
+    const restored = restoreSave(JSON.stringify(createSaveEnvelope(preFamilySave, 1)))?.state;
+    expect(restored).toBeDefined();
+    expect(restored!.world.people[ERA1_COM_F02_F04_PEOPLE.gemeInana]).toBeUndefined();
+
+    let state = advance(restored!, 8);
+    expect(state.world.people[ERA1_COM_F02_F04_PEOPLE.gemeInana]).toBeDefined();
+    expect(state.world.institutions[TEXTILE_HOUSEHOLD_INSTITUTION_ID]).toBeDefined();
+    state = advance(state, 9);
+    state = advance(state, 10);
+    expect(state.world.people[ERA1_COM_F02_F04_PEOPLE.amaGi]).toBeDefined();
+    expect(state.world.people[ERA1_COM_F02_F04_PEOPLE.sigAna]).toBeDefined();
+    expect(Object.values(state.world.matters).some((matter) => matter.kind === 'era1_com_f02_two_claims')).toBe(true);
+    expect(Object.values(state.world.matters).some((matter) => matter.kind === 'era1_com_f03_partial_return')).toBe(true);
+    expect(Object.values(state.world.matters).some((matter) => matter.kind === 'era1_com_f04_custody_chain')).toBe(true);
+  });
+
   it('creates F02 only when both competing needs and a new timber delivery are present', () => {
     const noStorehouseNeed = advance(createInitialGameState(), 8);
     expect(Object.values(noStorehouseNeed.world.matters).some((matter) => matter.kind === 'era1_com_f02_two_claims')).toBe(false);
