@@ -555,7 +555,8 @@ function isValidV3GameState(value: unknown, workCatalog: Readonly<Record<string,
     || !Array.isArray(opportunities.occurrenceLedger)) return false;
   const expectedPendingId = `${String(value.calendar.eraId)}:${String(value.calendar.dayNumber)}`;
   if ((dayClose.phase === 'interlude_open' && dayClose.pendingSettlementId !== expectedPendingId)
-    || (dayClose.phase === 'workday_open' && dayClose.pendingSettlementId !== null)) return false;
+    || (dayClose.phase === 'workday_open' && dayClose.pendingSettlementId !== null)
+    || (dayClose.pendingSettlementId !== null && dayClose.pendingSettlementId === dayClose.lastFinalizedSettlementId)) return false;
   const creditIds = new Set<string>();
   const assignments = opportunities.assignments as unknown as Record<string, unknown>;
   const workProgress = value.works.progress as unknown as Record<string, unknown>;
@@ -568,7 +569,10 @@ function isValidV3GameState(value: unknown, workCatalog: Readonly<Record<string,
       || (raw.money as number) + (raw.provisions as number) <= 0
       || !['pending','credited'].includes(String(raw.status))
       || (raw.status === 'pending' && raw.creditedBySettlementId !== undefined)
-      || (raw.status === 'credited' && !nonEmptyString(raw.creditedBySettlementId))) return false;
+      || (raw.status === 'credited' && !nonEmptyString(raw.creditedBySettlementId))
+      || (dayClose.phase === 'interlude_open' && raw.status !== 'credited')
+      || (raw.status === 'credited' && raw.creditedBySettlementId !== dayClose.pendingSettlementId
+        && raw.creditedBySettlementId !== dayClose.lastFinalizedSettlementId)) return false;
     creditIds.add(raw.id);
     if (raw.source.kind === 'assignment' && !isObject(assignments[raw.source.id])) return false;
     if (raw.source.kind === 'work' && !isObject(workProgress[raw.source.id])) return false;
@@ -579,7 +583,8 @@ function isValidV3GameState(value: unknown, workCatalog: Readonly<Record<string,
       || occurrenceKeys.has(raw.occurrenceKey)
       || !['offered','accepted','declined','lapsed','cancelled','completed'].includes(String(raw.lifecycle))
       || !Array.isArray(raw.requiredSourceFactIds)
-      || raw.requiredSourceFactIds.some((id, index, ids) => !nonEmptyString(id) || (index > 0 && ids[index - 1].localeCompare(id) > 0))
+      || raw.requiredSourceFactIds.some((id, index, ids) => !nonEmptyString(id) || (index > 0 && ids[index - 1] > id)
+        || (!isObject(value.world.events[id]) && !isObject(value.records.entries[id])))
       || new Set(raw.requiredSourceFactIds).size !== raw.requiredSourceFactIds.length
       || (raw.presentedDay !== undefined && (!Number.isInteger(raw.presentedDay) || (raw.presentedDay as number) < 1 || (raw.presentedDay as number) > value.calendar.dayNumber))
       || (raw.deliveryChannels !== undefined && (!Array.isArray(raw.deliveryChannels) || !raw.deliveryChannels.length
@@ -589,6 +594,7 @@ function isValidV3GameState(value: unknown, workCatalog: Readonly<Record<string,
       || (raw.assigneePersonId !== undefined && (typeof raw.assigneePersonId !== 'string' || !isObject(value.world.people[raw.assigneePersonId])))
       || (raw.legacy !== undefined && raw.legacy !== true)) return false;
     occurrenceKeys.add(raw.occurrenceKey);
+    if (raw.legacy === true && raw.primarySourceFact !== undefined) return false;
     if (raw.primarySourceFact !== undefined) {
       if (!isObject(raw.primarySourceFact) || !['event','record'].includes(String(raw.primarySourceFact.kind))
         || !nonEmptyString(raw.primarySourceFact.id)
