@@ -125,7 +125,7 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenActivity, settlement, o
         </article>}
         <article className="rounded-lg border border-amber-200 bg-white p-3">
           <h3 className="font-semibold text-stone-900">Request an Advance from Ur-gir</h3>
-          <p className="mt-1 text-sm text-stone-600">Ur-gir may advance one provision. The existing obligation is to repay one silver or provide a day of scribal assistance, by mutual arrangement.</p>
+          <p className="mt-1 text-sm text-stone-600">Ur-gir may advance one provision. The existing obligation is to repay one unit of Currency or provide a day of scribal assistance, by mutual arrangement.</p>
           <p className="mt-2 text-xs text-stone-500">1 AP · +1 provision · One outstanding obligation at a time</p>
           <button disabled={!canRequestUrGir || state.actionEconomy.apRemaining < 1}
             onClick={() => game.dispatch({ type: 'REQUEST_CONTACT_ADVANCE', contactId: UR_GIR_PERSON_ID as PersonId })}
@@ -140,7 +140,7 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenActivity, settlement, o
       <h2 id="obligations-heading" className="font-semibold text-stone-900">Outstanding obligations</h2>
       <ul className="mt-2 space-y-2 text-sm text-stone-700">
         {scribal.obligations.filter((obligation) => obligation.status === 'outstanding').map((obligation) =>
-          <li key={obligation.id}><strong>{state.world.people[obligation.creditorPersonId]?.name ?? 'Creditor'}:</strong> {obligation.description}</li>)}
+          <li key={obligation.id}><strong>{state.world.people[obligation.creditorPersonId]?.name ?? 'Creditor'}:</strong> {obligation.description.replace(/\bone silver\b/gi, 'one unit of Currency')}</li>)}
       </ul>
     </section>}
     <section className="rounded-xl border border-stone-300 bg-white p-5 shadow-sm">
@@ -156,7 +156,7 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenActivity, settlement, o
       <div className="mt-4 flex flex-wrap gap-4 border-t border-stone-200 pt-4 text-sm">
         <span><strong className="font-mono">{state.actionEconomy.apRemaining}/{state.actionEconomy.dailyApAllocation}</strong> AP remaining</span>
         <span><strong className="font-mono">{wallet.provisions}</strong> provisions</span>
-        <span><strong className="font-mono">{wallet.money}</strong> silver</span>
+        <span><strong className="font-mono">{wallet.money}</strong> Currency</span>
         <span><strong className="font-mono">{state.historicalProgression.historicalXp.toLocaleString()}</strong> Historical Progress XP</span>
       </div>
     </section>
@@ -172,7 +172,7 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenActivity, settlement, o
             return <article key={offer.id} className="rounded-lg bg-stone-50 p-3">
             <h3 className="font-semibold text-stone-900">{offer.title}</h3><p className="mt-1 text-sm text-stone-600">{offer.description}</p>
             <ContextDetails context={offer.context} />
-            <p className="mt-2 text-xs text-stone-500">{offer.activityId ? `Estimated ${offer.estimatedTotalAp} AP total` : `Completion: ${offer.apCost} AP`} · {offer.compensation.money} silver · {offer.careerXpReward} Career XP</p>
+            <p className="mt-2 text-xs text-stone-500">{offer.activityId ? `Estimated ${offer.estimatedTotalAp} AP total` : `Completion: ${offer.apCost} AP`} · {offer.compensation.money} Currency · {offer.careerXpReward} Career XP</p>
             <div className="mt-2 flex gap-2"><button disabled={activeAssignments.length >= 2 || !qualifies || expired} onClick={() => game.dispatch({ type: 'ACCEPT_ASSIGNMENT', assignmentId: offer.id })} className="rounded-md bg-stone-900 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-40">Accept</button><button onClick={() => game.dispatch({ type: 'DECLINE_ASSIGNMENT', assignmentId: offer.id })} className="rounded-md border border-stone-300 px-3 py-1.5 text-xs">Decline</button></div>
             {Object.keys(offer.requiredSkills).length > 0 && <p className="mt-2 text-xs text-stone-500">Requirements: {Object.entries(offer.requiredSkills).map(([skill, level]) => `${skill.replaceAll('_', ' ')} ${level}`).join(', ')}</p>}
             {!qualifies && <p className="mt-1 text-xs text-amber-800">Current skills do not meet the stated requirements.</p>}

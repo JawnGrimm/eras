@@ -10,6 +10,7 @@ export interface WorkEvidenceDefinition {
 }
 export interface WorkActionDefinition {
   id: string;
+  successMessage?: string;
   apCost: number;
   prerequisites?: string[];
   grantsEvidence?: EvidenceId[];
@@ -137,6 +138,9 @@ export function validateWorkDefinition<TProgress extends Record<string, unknown>
   }
   for (const id of work.startingEvidence) if (!evidenceIds.has(id)) issues.push({ code: 'unknown-starting-evidence', message: `Starting packet references missing evidence ${id}.` });
   for (const action of work.actions) {
+    if (action.successMessage !== undefined && (typeof action.successMessage !== 'string' || !action.successMessage.trim())) {
+      issues.push({ code: 'invalid-work-action-message', message: `Action ${action.id} has an empty success message.` });
+    }
     if (!action.id.trim() || !Number.isInteger(action.apCost) || action.apCost < 0 || action.apCost > 6) {
       issues.push({ code: 'invalid-work-action', message: `Action ${action.id} needs an ID and an integer AP cost from 0 to 6.` });
     }

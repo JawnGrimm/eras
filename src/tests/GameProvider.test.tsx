@@ -55,7 +55,7 @@ describe('GameProvider production persistence', () => {
     const saved = restoreSave(storage.getItem(SAVE_KEY), INITIAL_WORK_CATALOG);
     expect(saved?.state.works.activeWorkId).toBe('work-storehouse-reckoning');
     expect(Object.keys(saved?.state.opportunities.assignments ?? {})).toHaveLength(2);
-    expect(Object.keys(saved?.state.opportunities.challenges ?? {})).toHaveLength(1);
+    expect(Object.keys(saved?.state.opportunities.challenges ?? {})).toHaveLength(0);
     expect(saved?.state.calendar.dayNumber).toBe(1);
   });
 

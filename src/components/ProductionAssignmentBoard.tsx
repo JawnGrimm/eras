@@ -50,7 +50,7 @@ export function ProductionAssignmentBoard({ onOpenActivity }: { onOpenActivity: 
             <p className="mt-2 text-xs font-medium text-amber-900">Expires Day {offer.expiresDay} · {daysRemaining} {daysRemaining === 1 ? 'day' : 'days'} remaining</p>
             <DeliveryReasons channels={offer.deliveryChannels} /><ContextDetails context={offer.context} />
             <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 border-t border-stone-200 pt-3 text-xs text-stone-600">
-              <span>{offer.activityId ? `Estimated ${offer.estimatedTotalAp} AP across multiple Workdays` : `${offer.apCost} AP to complete`}</span><span>{offer.compensation.money} silver</span><span>{offer.compensation.provisions} provisions</span><span>{offer.careerXpReward} Career XP</span>
+              <span>{offer.activityId ? `Estimated ${offer.estimatedTotalAp} AP across multiple Workdays` : `${offer.apCost} AP to complete`}</span><span>{offer.compensation.money} Currency</span><span>{offer.compensation.provisions} provisions</span><span>{offer.careerXpReward} Career XP</span>
             </div>
             {activityDefinition && <details className="mt-2 rounded-md border border-stone-200 bg-white px-3 py-2 text-xs text-stone-600">
               <summary className="cursor-pointer font-medium text-amber-800">Action costs before accepting</summary>
@@ -77,7 +77,7 @@ export function ProductionAssignmentBoard({ onOpenActivity }: { onOpenActivity: 
         {opportunities.acceptedAssignments.map((offer) => <article key={offer.id} className="rounded-lg border border-stone-200 bg-stone-50 p-4">
           <h3 className="font-semibold text-stone-900">{offer.title}</h3><p className="mt-2 text-sm text-stone-600">{offer.description}</p>
           <DeliveryReasons channels={offer.deliveryChannels} /><ContextDetails context={offer.context} />
-          <p className="mt-3 text-xs text-stone-600">{offer.activityId ? `Estimated total: ${offer.estimatedTotalAp} AP · submitted report` : `Completion: ${offer.apCost} AP`} · {offer.compensation.money} silver · {offer.careerXpReward} Career XP</p>
+          <p className="mt-3 text-xs text-stone-600">{offer.activityId ? `Estimated total: ${offer.estimatedTotalAp} AP · submitted report` : `Completion: ${offer.apCost} AP`} · {offer.compensation.money} Currency · {offer.careerXpReward} Career XP</p>
           <div className="mt-3 flex gap-2">
             {offer.activityId ? <button onClick={() => onOpenActivity(offer.id)} className="rounded-md bg-stone-900 px-3 py-2 text-xs font-semibold text-white">{offer.activityProgress?.completedActionIds.length ? 'Resume Activity' : 'Open Activity'}</button> : <button disabled={state.actionEconomy.apRemaining < (offer.apCost ?? 0)} onClick={() => game.dispatch({ type: 'COMPLETE_ASSIGNMENT', assignmentId: offer.id })} className="rounded-md bg-stone-900 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">Complete · {offer.apCost} AP</button>}
             <button disabled={state.actionEconomy.apRemaining < 1} onClick={() => game.dispatch({ type: 'CANCEL_ASSIGNMENT', assignmentId: offer.id })} className="rounded-md border border-stone-300 px-3 py-2 text-xs disabled:opacity-40">Cancel · 1 AP</button>

@@ -3,7 +3,7 @@ import type { CareerPathId, PersonId } from '../state/ids';
 import type { EraICharacterHistoryChoices } from '../content/characterCreation/eraICharacterHistory';
 import { resolveEraICharacterHistory } from '../content/characterCreation/eraICharacterHistory';
 import {
-  ERA_I_CURATED_SAMPLE_NAMES,
+  ERA_I_AVAILABLE_SAMPLE_NAMES,
   resolveEraICharacterStartingState,
   validateEraICharacterName,
 } from '../state/eraICharacterStartingState';
@@ -154,9 +154,9 @@ export function CharacterCreator() {
               <select value="" onChange={(event) => { if (event.target.value) setName(event.target.value); }}
                 className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm">
                 <option value="">Choose a sample name…</option>
-                {ERA_I_CURATED_SAMPLE_NAMES.map((item) => <option key={item.name} value={item.name}>{item.name}</option>)}
+                {ERA_I_AVAILABLE_SAMPLE_NAMES.map((item) => <option key={item.name} value={item.name}>{item.name}</option>)}
               </select>
-              <span className="mt-1 block text-xs text-stone-500">Some readings are uncertain sign sequences, not reconstructed pronunciations.</span>
+              <span className="mt-1 block text-xs text-stone-500">{ERA_I_AVAILABLE_SAMPLE_NAMES.length} historically grounded sample names are currently available. Entries containing raw sign-catalog notation are withheld from this picker; source records remain unchanged.</span>
             </label>
           </div>
         </section>

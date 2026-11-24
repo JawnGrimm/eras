@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import type { AssignmentId, InstitutionId, MatterId } from '../state/ids';
 import { createInitialGameState } from '../state/initialState';
+import { createNewGameState } from '../state/newGameState';
+import { TEST_CHARACTER_CREATION } from './fixtures/newGameCharacter';
+import { STOREHOUSE_WORK_ID } from '../works/storehouseReckoning';
 import { createSaveEnvelope, isValidSaveEnvelope } from '../state/saveEnvelope';
 import { INITIAL_WORK_CATALOG } from '../state/newGameState';
 import { generateDailyAssignments } from '../engine/assignmentGenerator';
@@ -31,6 +34,18 @@ function withHeldMatter(state: GameState, createdDay = 1): GameState {
       institutions: { ...state.world.institutions, [STOREHOUSE]: {
         ...institution, activeMatters: [...institution.activeMatters, HELD_MATTER],
       } },
+    },
+  };
+}
+
+function withCompletedTutorial(state: GameState): GameState {
+  const tutorial = createNewGameState(TEST_CHARACTER_CREATION).works.progress[STOREHOUSE_WORK_ID];
+  return {
+    ...state,
+    works: {
+      ...state.works,
+      activeWorkId: null,
+      progress: { ...state.works.progress, [STOREHOUSE_WORK_ID]: { ...tutorial, status: 'completed' } },
     },
   };
 }
@@ -183,6 +198,19 @@ describe('P2-2 authored Uruk Assignment activities', () => {
     expect(state.historicalProgression.historicalXp).toBe(historicalXp);
   });
 
+  it('holds real Challenge causes behind the introductory tutorial without queuing a generic onboarding Challenge', () => {
+    let state = withHeldMatter(createInitialGameState(), 1);
+    state = { ...state, calendar: { ...state.calendar, dayNumber: 3 } };
+    const beforeTutorial = runChallengeDirector(state);
+    expect(beforeTutorial.opportunities.challenges).toEqual({});
+
+    const afterTutorial = runChallengeDirector(withCompletedTutorial(state));
+    expect(afterTutorial.opportunities.challenges['challenge-seven-sacks' as never]?.title).toBe('The Seven Sealed Jars');
+
+    const noCause = runChallengeDirector(withCompletedTutorial(createInitialGameState()));
+    expect(noCause.opportunities.challenges).toEqual({});
+  });
+
   it('records a neutral 24/23 reconciliation and triggers The Missing Measure without blaming Enlil-kisu', () => {
     let state = generateDailyAssignments(createInitialGameState());
     const offer = Object.values(state.opportunities.assignments).find((item) => item.activityId === southCourtDeliveryReconciliation.id)!;
@@ -203,7 +231,7 @@ describe('P2-2 authored Uruk Assignment activities', () => {
     expect(state.world.matters['matter-south-court-delivery-discrepancy' as MatterId]).toBeUndefined();
     expect(state.world.relationships[state.player.currentCharacterId]?.['person-enlil-kisu' as never]?.dimensions.trust).toBe(53);
     expect(state.world.relationships['person-enlil-kisu' as never]?.[state.player.currentCharacterId]?.dimensions.trust).toBe(57);
-    const directed = runChallengeDirector(state);
+    const directed = runChallengeDirector(withCompletedTutorial(state));
     expect(directed.opportunities.challenges['challenge-missing-measure' as never]?.title).toBe('The Missing Measure');
     expect(directed.historicalProgression.historicalXp).toBe(state.historicalProgression.historicalXp);
   });
@@ -211,14 +239,14 @@ describe('P2-2 authored Uruk Assignment activities', () => {
   it('triggers The Seven Sacks after an open held-stock matter reaches two days and never reoffers after decline', () => {
     let state = withHeldMatter(createInitialGameState(), 1);
     state = { ...state, calendar: { ...state.calendar, dayNumber: 3 } };
-    const directed = runChallengeDirector(state);
+    const directed = runChallengeDirector(withCompletedTutorial(state));
     const challenge = directed.opportunities.challenges['challenge-seven-sacks' as never];
     expect(challenge?.title).toBe('The Seven Sealed Jars');
     expect(challenge?.description).toContain('sealed pottery storage jars');
     expect(challenge?.description).not.toMatch(/\bsacks?\b/i);
     expect(challenge?.context.quantity).toContain('sealed pottery storage jars');
     const declined = transitionOpportunityAction(directed, { type: 'DECLINE_CHALLENGE', challengeId: challenge!.id }).state;
-    const again = runChallengeDirector(declined);
+    const again = runChallengeDirector(withCompletedTutorial(declined));
     expect(again.opportunities.challenges['challenge-seven-sacks' as never]?.status).toBe('declined');
     expect(again.historicalProgression.historicalXp).toBe(state.historicalProgression.historicalXp);
   });

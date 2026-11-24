@@ -1,4 +1,5 @@
-import type { PersonId } from './ids';
+import type { ChallengeId, PersonId } from './ids';
+import { STOREHOUSE_WORK_ID } from '../works/storehouseReckoning';
 import type { AssignmentOffer, ChallengeInstance, ChallengeOutcome, GameState, OpportunityActivity } from './types';
 
 export interface OpportunityTotals {
@@ -34,6 +35,11 @@ export function selectCharacterOpportunities(state: GameState): {
   const currentCharacterId: PersonId = state.player.currentCharacterId;
   const assignments = Object.values(state.opportunities.assignments);
   const aggregates = Object.values(state.opportunities.assignmentAggregates);
+  const eraIOnboardingComplete = state.calendar.eraId !== 'era-1'
+    || state.works.progress[STOREHOUSE_WORK_ID]?.status === 'completed';
+  const visibleChallenges = eraIOnboardingComplete
+    ? Object.values(state.opportunities.challenges).filter((challenge) => challenge.id !== ('challenge-apprentice-copy-dispute' as ChallengeId))
+    : [];
   const recentAssignmentActivity = state.opportunities.recentActivity
     .slice(-5)
     .reverse()
@@ -58,8 +64,8 @@ export function selectCharacterOpportunities(state: GameState): {
   return {
     offeredAssignments: assignments.filter((offer) => offer.status === 'offered'),
     acceptedAssignments: assignments.filter((offer) => offer.status === 'accepted' && offer.assigneePersonId === currentCharacterId),
-    offeredChallenges: Object.values(state.opportunities.challenges).filter((challenge) => challenge.status === 'offered'),
-    acceptedChallenges: Object.values(state.opportunities.challenges).filter((challenge) =>
+    offeredChallenges: visibleChallenges.filter((challenge) => challenge.status === 'offered'),
+    acceptedChallenges: visibleChallenges.filter((challenge) =>
       challenge.status === 'accepted' && challenge.assigneePersonId === currentCharacterId),
     challengeArchive: [...state.opportunities.challengeOutcomes].sort((a, b) => b.resolvedDay - a.resolvedDay),
     recentAssignmentActivity,

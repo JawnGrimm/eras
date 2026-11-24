@@ -100,6 +100,8 @@ describe('Assignment and Challenge foundations', () => {
     expect(accepted.feedback?.code).toBe('challenge-accepted');
     const resolved = transitionGame(accepted.state, { type: 'RESOLVE_CHALLENGE', challengeId: 'challenge-1' as ChallengeId, choiceId: 'endorse-claim' });
     expect(resolved.feedback?.code).toBe('challenge-resolved');
+    expect(resolved.feedback?.message).toContain('Disputed delivery: Endorse one claim.');
+    expect(resolved.feedback?.message).toContain('Accept the senior official’s account without further proof.');
     expect(resolved.state.opportunities.challenges['challenge-1' as ChallengeId]).toBeUndefined();
     expect(resolved.state.opportunities.challengeOutcomes).toHaveLength(1);
     expect(getInitializedScribal(resolved.state.world.people[INITIAL_PERSON_ID])?.wallet.provisions).toBe(7);

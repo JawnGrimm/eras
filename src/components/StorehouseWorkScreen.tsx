@@ -190,7 +190,7 @@ export function StorehouseWorkScreen({ onBack }: { onBack: () => void }) {
             {evidenceActions.map((action) => {
               const done = completed.includes(action.id);
               return <div key={action.id} className="flex items-center justify-between gap-3 rounded-lg bg-stone-50 p-3">
-                <div><p className="text-sm font-medium text-stone-800">{actionLabels[action.id] ?? action.id}</p><p className="text-xs text-stone-500">{action.grantsEvidence?.map((id) => id.toUpperCase()).join(', ')}</p></div>
+                <div><p className="text-sm font-medium text-stone-800">{actionLabels[action.id] ?? 'Additional evidence'}</p><p className="text-xs text-stone-500">{action.grantsEvidence?.map((id) => id.toUpperCase()).join(', ')}</p></div>
                 <button disabled={!active || done || game.state.actionEconomy.apRemaining < action.apCost}
                   onClick={() => dispatch({ type: 'ACQUIRE_WORK_EVIDENCE', workId, actionId: action.id })}
                   className="shrink-0 rounded-md bg-stone-900 px-3 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40">
