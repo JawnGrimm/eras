@@ -1,8 +1,8 @@
 # Issue #85 — Production Technical Design Notes
 
-**Status:** PROPOSED — technical review draft  
+**Status:** APPROVED — IMPLEMENTATION IN PROGRESS  
 **Specification:** `GD-OPPORTUNITY-001` §§3.6–3.7 and 4.1–4.6  
-**Scope:** Non-overlapping technical audit and implementation preparation. This note does not authorize persistent-state changes, economy rebalance, or runtime edits to the opportunity/UI surfaces while Issue #82 remains open.
+**Scope:** Approved production technical contracts and implementation tracking for Issue #85. Runtime work proceeds in separately reviewable slices; this note does not authorize changes outside the approved behavioral and persistence boundaries.
 
 ## 1. Era I anchor content boundary
 
@@ -35,7 +35,7 @@ if (scribal.wallet.provisions > 0) return recovery-not-needed;
 
 It also requires the Temple Storehouse and its location to exist. That means the route is presently a zero-Provisions emergency action, not the approved pre-depletion replenishment path. The current engine has the action and the storehouse baseline, but its availability rule and presentation do not yet satisfy GD-OPPORTUNITY-001 §3.6.
 
-**Required runtime correction after Issue #82:**
+**Required runtime correction (Issue #82 CLOSED — VERIFIED; implementation authorized):**
 - Make the ordinary-workday route visible before the final Provision is consumed.
 - Show it by the first Morning Report after Storehouse Reckoning, and again when balance plus known commitments indicate likely depletion.
 - Make it available across all four orientations without Currency, appointment, or special relationship.
@@ -49,7 +49,7 @@ The current labor action and conditional Ur-gir advance already provide two dist
 
 Selling or pawning an actual possession is the other approved category, but the current character equipment representation is a list of strings, not an item/ownership/value model. Implementing sale/pawn now would require inventing a price and item semantics or expanding the persistent model. It is not the smallest safe route while a conditional advance category already exists. Revisit only if the personal-advance route fails the approved acceptance criteria or Design HQ prefers the possession route.
 
-No Currency-to-Provisions rate is assigned here. The provisional Playtest 1 conversion requires a separate economy table and worked survival example for Game Director review.
+Playtest 1 abstract Currency purchasing is ratified provisionally at 2 Currency → 1 Provision. The rate remains a game parameter for Playtest 1, not a historical market-price claim. Authored Provisions-in-kind amounts remain specific to each Assignment; no universal payout is authorized.
 
 ## 3. Assignment occurrence identity
 
@@ -130,7 +130,7 @@ The current save envelope is schema version 2. `isValidSaveEnvelope` accepts onl
 
 Therefore, **an intermediate Evening Interlude save must not be shipped as an optional additive schema-v2 field**. An old reader could ignore it and load the state as an ordinary open Workday.
 
-### 6.2 Proposed safe transition model
+### 6.2 Approved safe transition model
 
 A persistent Day-Close implementation should have explicit phases and a stable settlement identity, conceptually:
 - `workday_open`;
