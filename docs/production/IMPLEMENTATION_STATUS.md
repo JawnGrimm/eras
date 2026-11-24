@@ -186,3 +186,36 @@ No save-schema bump or migration is authorized. Keep schema v2; preserve legacy 
 - Production is authorized to complete QA-82-1 through QA-82-5, run the complete acceptance/regression suite, and merge Issue #82 when verified. Issue #82 remains the sequencing gate before overlapping Issue #85 runtime edits; non-overlapping Issue #85 preparation may continue.
 
 This is an implementation authorization and presentation rule, not a revision to the historical name source or the character's saved identity model. No merge/deployment/verification status is implied by this note.
+
+## Issue #82 verification and Issue #85 runtime authorization — 24 November 2026
+
+**Verified main baseline:** `main` at `7fe4a2cb695ed8b4aaac18b02490f3871046d69b`. This addendum supersedes the earlier Issue #82 / #85 status entries above.
+
+### Issue #82 — CLOSED · VERIFIED
+
+- PR #88 merged as `45251e76482e7b770e0d35016d2eff11939ca4b8`.
+- The Game Director recorded the deployed smoke-test results and formally closed Issue #82. Verification included Day 9 legacy-save restoration preserving `Šubur-e₂a×1N57`, all five QA findings, fresh character creation through tutorial/Assignment/causal Day 3 Challenge, Currency presentation, and narrative resolution feedback.
+- The sequencing gate is satisfied. The earlier statements that Issue #82 remains open or blocks overlapping Issue #85 work are superseded.
+
+### PR #87 — MERGED
+
+- PR #87 merged after synchronization with `main` and fresh validation on the resulting documentation head.
+- Merge commit: `7fe4a2cb695ed8b4aaac18b02490f3871046d69b`.
+- Pull Request Validation #430 and CodeQL #301 passed on exact head `975de014c31d4a49eea4faea4f479606efa64b29`.
+- The technical-design note now records the approved schema-v3/Day-Close contract, ratified provisional Playtest 1 economy, and non-blocking South-Court offer disclosure / Responsibility-choice polish.
+
+### Issue #85 — runtime implementation authorized and in progress
+
+- The Game Director authorized schema v3, v2→v3 migration and rollback protections, settlementId exactly-once settlement, the ratified provisional Playtest 1 economy, and authored per-Assignment Provisions-in-kind compensation.
+- The current `main` save schema remains v2 until the runtime PR merges. Do not describe schema v3 as shipped.
+- **PR #90 — OPEN:** first persistence-foundation slice on `production/issue-85-schema-v3-day-close`. It adds the v3 state/envelope model, validated v2 migration, exact-byte rollback copy, legacy Challenge suppression entries without fabricated provenance, explicit new-game seed persistence, and Day-Close provider write rollback.
+- PR #90 does not yet implement the two-step preliminary close / Interlude / Begin Workday transitions, compensation credit timing, replenishment transactions, Assignment Supply, or the general Challenge Director.
+- PR #90 current head after synchronizing with the PR #87 merge: `0ae9b4b030036e4ad4d5c905ea738aaea6c85985`. Pull Request Validation #433 and CodeQL #305 were in progress at the time of this status entry. An earlier validation attempt failed on tests that have since been corrected; do not treat the earlier run as current-head validation.
+- No local tests were executed. No merge or deployment of PR #90 is claimed.
+
+### Non-blocking content/UI follow-up
+
+- South-Court offer cards disclose the authored +1 Provision compensation before acceptance.
+- South-Court Responsibility choices add a second plausible scenario-specific claim beside “No individual responsibility assigned”; do not restore the unrelated Dudu option.
+
+**Current production state:** Issue #82 — CLOSED / VERIFIED. PR #87 — MERGED. Issue #85 — IN PROGRESS / AUTHORIZED. PR #90 — OPEN / CI PENDING. The next implementation slices remain gated on review and merge of the persistence foundation, then will proceed through Day-Close transitions and compensation timing before broader Assignment Supply / Challenge Director integration.
