@@ -3,7 +3,7 @@ import { getInitializedScribal } from '../state/scribalState';
 import { transitionGame } from '../engine/actionEconomy';
 import { evaluateChallengeTriggers } from '../engine/opportunities';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
-import { createSaveEnvelope, isValidSaveEnvelope } from '../state/saveEnvelope';
+import { createSaveEnvelope, isValidSaveEnvelope, restoreSave } from '../state/saveEnvelope';
 import type { AssignmentId, ChallengeId, EventId, KnowledgeEntryId, RecordId, WorkId } from '../state/ids';
 import type { AssignmentOffer, ChallengeInstance, GameState, OpportunityDeliveryChannel } from '../state/types';
 import { storehouseReckoning } from '../works/storehouseReckoning';
@@ -298,9 +298,20 @@ describe('Assignment and Challenge foundations', () => {
     expect(getInitializedScribal(resolved.state.world.people[INITIAL_PERSON_ID])?.careerXp).toBe(153);
     expect(resolved.state.world.relationships['person-ur-nanna' as never]?.[INITIAL_PERSON_ID]?.dimensions.trust).toBe(51);
     expect(transitionGame(resolved.state, { type: 'END_DAY', expectedDayNumber: 1 }).feedback?.code).toBe('closing-receipt-pending');
-    expect(isValidSaveEnvelope(createSaveEnvelope(resolved.state, 1))).toBe(true);
-    const returned = transitionGame(resolved.state, { type: 'ACKNOWLEDGE_CHALLENGE_RECEIPT', challengeId: 'receipt-challenge' as ChallengeId });
+    const envelope = createSaveEnvelope(resolved.state, 1);
+    expect(isValidSaveEnvelope(envelope)).toBe(true);
+    const restored = restoreSave(JSON.stringify(envelope));
+    expect(restored?.state.opportunities.challengeOutcomes.at(-1)).toMatchObject({
+      challengeId: 'receipt-challenge', receiptAcknowledged: false,
+      closingReceipt: { assessment: 'Defensible', deltas: { careerXp: 3, trust: 1 } },
+    });
+    const beforeAcknowledgement = getInitializedScribal(restored!.state.world.people[INITIAL_PERSON_ID])!;
+    const beforeRelationship = restored!.state.world.relationships['person-ur-nanna' as never]?.[INITIAL_PERSON_ID]?.dimensions;
+    const returned = transitionGame(restored!.state, { type: 'ACKNOWLEDGE_CHALLENGE_RECEIPT', challengeId: 'receipt-challenge' as ChallengeId });
     expect(returned.state.opportunities.challengeOutcomes.at(-1)?.receiptAcknowledged).toBe(true);
+    expect(getInitializedScribal(returned.state.world.people[INITIAL_PERSON_ID])?.careerXp).toBe(beforeAcknowledgement.careerXp);
+    expect(getInitializedScribal(returned.state.world.people[INITIAL_PERSON_ID])?.wallet).toEqual(beforeAcknowledgement.wallet);
+    expect(returned.state.world.relationships['person-ur-nanna' as never]?.[INITIAL_PERSON_ID]?.dimensions).toEqual(beforeRelationship);
   });
 
 });
