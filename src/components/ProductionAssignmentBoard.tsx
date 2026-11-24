@@ -50,7 +50,7 @@ export function ProductionAssignmentBoard({ onOpenActivity }: { onOpenActivity: 
             <p className="mt-2 text-xs font-medium text-amber-900">Expires Day {offer.expiresDay} · {daysRemaining} {daysRemaining === 1 ? 'day' : 'days'} remaining</p>
             <DeliveryReasons channels={offer.deliveryChannels} /><ContextDetails context={offer.context} />
             <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 border-t border-stone-200 pt-3 text-xs text-stone-600">
-              <span>{offer.activityId ? `Estimated ${offer.estimatedTotalAp} AP across multiple Workdays` : `${offer.apCost} AP to complete`}</span><span>{offer.compensation.money} silver</span><span>{offer.compensation.provisions} provisions</span><span>{offer.careerXpReward} Career XP</span>
+              <span>{offer.activityId ? `Estimated ${offer.estimatedTotalAp} AP across multiple Workdays` : `${offer.apCost} AP to complete`}</span><span>{offer.compensation.money} Currency</span><span>{offer.compensation.provisions} provisions</span><span>{offer.careerXpReward} Career XP</span>
             </div>
             {activityDefinition && <details className="mt-2 rounded-md border border-stone-200 bg-white px-3 py-2 text-xs text-stone-600">
               <summary className="cursor-pointer font-medium text-amber-800">Action costs before accepting</summary>
