@@ -75,6 +75,13 @@ describe('production continuity and social screens', () => {
     expect(markup).not.toContain('Active Work · Storehouse');
   });
 
+  it('renders authored tutorial action labels without exposing internal action IDs', () => {
+    const state = createNewGameState(TEST_CHARACTER_CREATION);
+    const markup = renderScreen(state, createElement(StorehouseWorkScreen, { onBack: () => undefined }));
+    expect(markup).toContain('Examine intake inspection and issue records');
+    expect(markup).not.toContain('intake_issue');
+  });
+
   it('hides submission controls after the Storehouse tutorial is completed', () => {
     const fresh = createNewGameState(TEST_CHARACTER_CREATION);
     const progress = fresh.works.progress[STOREHOUSE_WORK_ID];
