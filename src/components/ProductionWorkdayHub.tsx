@@ -140,7 +140,7 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenActivity, settlement, o
       <h2 id="obligations-heading" className="font-semibold text-stone-900">Outstanding obligations</h2>
       <ul className="mt-2 space-y-2 text-sm text-stone-700">
         {scribal.obligations.filter((obligation) => obligation.status === 'outstanding').map((obligation) =>
-          <li key={obligation.id}><strong>{state.world.people[obligation.creditorPersonId]?.name ?? 'Creditor'}:</strong> {obligation.description}</li>)}
+          <li key={obligation.id}><strong>{state.world.people[obligation.creditorPersonId]?.name ?? 'Creditor'}:</strong> {obligation.description.replace(/\\bone silver\\b/gi, 'one unit of Currency')}</li>)}
       </ul>
     </section>}
     <section className="rounded-xl border border-stone-300 bg-white p-5 shadow-sm">
