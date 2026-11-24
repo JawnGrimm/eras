@@ -97,8 +97,10 @@ describe('ERA1-COM-F01 Material Not As Described', () => {
     expect(submitted.state.historicalProgression.historicalXp).toBe(0);
     const playerId = submitted.state.player.currentCharacterId;
     const urLamma = ERA1_COM_F01_PEOPLE.workshopOverseer;
-    expect(submitted.state.world.knowledge[`knowledge-${offer.id}-day-2-${ERA1_COM_F01_PEOPLE.responsibleAuthority}`]?.holder)
-      .toEqual({ kind: 'person', id: ERA1_COM_F01_PEOPLE.responsibleAuthority });
+    expect(Object.values(submitted.state.world.knowledge).some((entry) =>
+      entry.holder.kind === 'person' && entry.holder.id === ERA1_COM_F01_PEOPLE.responsibleAuthority
+      && entry.subject.kind === 'record' && entry.subject.id === `record-${offer.id}-day-2`,
+    )).toBe(true);
     expect(submitted.state.world.relationships[urLamma]?.[playerId]?.dimensions).toMatchObject({ trust: 52, respect: 51 });
     expect(submitted.state.world.relationships[playerId]?.[urLamma]).toBeUndefined();
     expect(submitted.state.world.relationships[ERA1_COM_F01_PEOPLE.receiver]?.[playerId]?.dimensions).toMatchObject({ trust: 52, respect: 51 });
