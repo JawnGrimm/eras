@@ -14,7 +14,7 @@ import { transitionGame } from '../engine/actionEconomy';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
 import { GameProvider } from '../state/GameProvider';
 import type { AppointmentId, EventId, KnowledgeEntryId, MatterId, PersonId, RecordId } from '../state/ids';
-import type { GameState, InstitutionalMatter, RecordEntry } from '../state/types';
+import type { GameState, InstitutionalMatter, RecordEntry, WorldEvent } from '../state/types';
 import { getInitializedScribal } from '../state/scribalState';
 import { createSaveEnvelope, restoreSave } from '../state/saveEnvelope';
 import { INITIAL_WORK_CATALOG } from '../state/newGameState';
@@ -191,6 +191,16 @@ describe('production continuity and social screens', () => {
         reason: 'Later testimony qualified the count.', sourcesAdded: [], assertionsAdded: [],
         uncertaintyLimitsAdded: ['The carrier route remains unverified.'], note: 'The original count remains preserved.' }],
     };
+    const responseEventId = 'event-institution-assessment' as EventId;
+    const assessmentEvent: WorldEvent = {
+      id: responseEventId, dayNumber: 5, summary: 'The appointed scribe assessed the comparison record.',
+      personIds: [INITIAL_PERSON_ID], institutionIds: [storehouseId],
+      institutionalResponse: {
+        matterId: unindexedActiveMatter.id, stage: 'assessment', actorPersonId: INITIAL_PERSON_ID,
+        appointmentId, recordId: institutionRecordId, decision: 'accepted_for_action',
+        scope: 'Review the recorded comparison.',
+      },
+    };
     const state: GameState = {
       ...base,
       world: {
@@ -203,6 +213,7 @@ describe('production continuity and social screens', () => {
           } },
         },
         matters: { ...base.world.matters, [unindexedActiveMatter.id]: unindexedActiveMatter, [resolvedMatter.id]: resolvedMatter },
+        events: { ...base.world.events, [responseEventId]: assessmentEvent },
         appointments: {
           [appointmentId]: { id: appointmentId, personId: INITIAL_PERSON_ID,
             institutionId: storehouseId, title: 'Account Keeper',
@@ -239,6 +250,11 @@ describe('production continuity and social screens', () => {
     expect(institutionMarkup).toContain('The second seal was not independently verified.');
     expect(institutionMarkup).toContain('The original count remains preserved.');
     expect(institutionMarkup).toContain('The carrier route remains unverified.');
+    expect(institutionMarkup).toContain('Institutional response stages (1)');
+    expect(institutionMarkup).toContain('assessment');
+    expect(institutionMarkup).toContain('accepted for action');
+    expect(institutionMarkup).toContain('Account Keeper');
+    expect(institutionMarkup).toContain('The appointed scribe assessed the comparison record.');
   });
 
   it('renders immutable record assertions, append-only amendments, knowledge holders, and durable notices', () => {
