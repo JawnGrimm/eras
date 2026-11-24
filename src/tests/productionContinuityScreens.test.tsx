@@ -13,7 +13,7 @@ import { createNewGameState } from '../state/newGameState';
 import { transitionGame } from '../engine/actionEconomy';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
 import { GameProvider } from '../state/GameProvider';
-import type { AppointmentId, EventId, KnowledgeEntryId, ObligationId, PersonId, RecordId } from '../state/ids';
+import type { AppointmentId, EventId, KnowledgeEntryId, PersonId, RecordId } from '../state/ids';
 import type { GameState, RecordEntry } from '../state/types';
 import { getInitializedScribal } from '../state/scribalState';
 import { createSaveEnvelope, restoreSave } from '../state/saveEnvelope';
@@ -86,7 +86,7 @@ describe('production continuity and social screens', () => {
     const person = fresh.world.people[playerId];
     const scribal = getInitializedScribal(person)!;
     const legacyObligation = {
-      id: 'obligation-legacy-ur-gir' as ObligationId,
+      id: 'obligation-legacy-ur-gir',
       creditorPersonId: 'person-uruk-ur-gir' as PersonId,
       createdDay: 1,
       kind: 'repayment_or_service' as const,
