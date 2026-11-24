@@ -161,6 +161,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
   const matters = { ...state.world.matters };
   const events = { ...state.world.events };
   const institutions = { ...state.world.institutions };
+  const locations = { ...state.world.locations };
   let changed = false;
 
 
@@ -169,8 +170,24 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
   // generation; each retains its own matter and occurrence identity.
   for (const seed of ERA_I_ANCHOR_MATTER_SEEDS) {
     if (seed.dayNumber !== nextDay || matters[seed.matterId]) continue;
+    if (!institutions[EANNA_INSTITUTION_ID]) {
+      institutions[EANNA_INSTITUTION_ID] = {
+        id: EANNA_INSTITUTION_ID,
+        name: 'Eanna Precinct',
+        locationId: EANNA_TABLET_ROOM_LOCATION_ID,
+        responsibilities: ['Maintain precinct records and supervised administrative work', 'Receive reports concerning precinct goods, labor, and offering preparations'],
+        authority: ['Review submitted administrative records', 'Refer matters to the responsible precinct authority'],
+        standing: 50,
+        activeMatters: [],
+      };
+    }
+    if (!locations[EANNA_TABLET_ROOM_LOCATION_ID]) {
+      locations[EANNA_TABLET_ROOM_LOCATION_ID] = {
+        id: EANNA_TABLET_ROOM_LOCATION_ID,
+        name: 'Eanna precinct tablet room, Uruk',
+      };
+    }
     const institution = institutions[EANNA_INSTITUTION_ID];
-    if (!institution) continue;
     events[seed.eventId] = {
       id: seed.eventId,
       dayNumber: nextDay,
@@ -269,7 +286,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
     changed = true;
   }
 
-  return changed ? { ...state, world: { ...state.world, matters, events, institutions } } : state;
+  return changed ? { ...state, world: { ...state.world, matters, events, institutions, locations } } : state;
 }
 
 export function createMaterialNotAsDescribedMatter(dayNumber: number): InstitutionalMatter {
