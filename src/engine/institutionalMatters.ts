@@ -5,6 +5,7 @@ export const STOREHOUSE_INSTITUTION_ID = 'institution-uruk-temple-storehouse' as
 export const NORTH_BAY_LOCATION_ID = 'location-uruk-temple-storehouse' as LocationId;
 export const SOUTH_COURT_LOCATION_ID = 'location-uruk-south-receiving-court' as LocationId;
 export const SOUTH_LOADING_LOCATION_ID = 'location-uruk-south-loading-court' as LocationId;
+export const ERA1_COM_F01_LOCATION_ID = 'location-uruk-eanna-receiving-court' as LocationId;
 
 export const MATTER_IDS = {
   tutorial: 'matter-storehouse-reckoning-tutorial' as MatterId,
@@ -13,6 +14,7 @@ export const MATTER_IDS = {
   waterIngress: 'matter-north-bay-water-ingress' as MatterId,
   southCourtDelivery: 'matter-south-court-delivery-reconciliation' as MatterId,
   southLoadingAwning: 'matter-south-loading-awning-inspection' as MatterId,
+  era1ComF01: 'matter-era1-com-f01-material-description' as MatterId,
 } as const;
 
 const PEOPLE = {
@@ -126,4 +128,29 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
   }
 
   return changed ? { ...state, world: { ...state.world, matters, events, institutions } } : state;
+}
+
+export function createMaterialNotAsDescribedMatter(dayNumber: number): InstitutionalMatter {
+  return {
+    id: MATTER_IDS.era1ComF01,
+    institutionId: STOREHOUSE_INSTITUTION_ID,
+    kind: 'era1_com_f01_material_description',
+    summary: 'A sender’s tag describes a delivered timber load as worked, while the receiving observation describes the visible pieces as unworked; the difference remains unexplained.',
+    status: 'active',
+    createdDay: dayNumber,
+    locationId: ERA1_COM_F01_LOCATION_ID,
+    involvedPersonIds: [
+      PEOPLE.receivingOfficial,
+      'person-ur-lamma' as PersonId,
+      'person-lu-nanshe' as PersonId,
+      'person-kuli' as PersonId,
+    ],
+    provenance: [
+      { id: 'comf01-procurement-request', kind: 'instruction', description: 'A provisional request calls for worked timber for a precinct craft commission.' },
+      { id: 'comf01-sender-tag', kind: 'record_copy', description: 'A provisional sender tag describes the delivered load as worked timber.' },
+      { id: 'comf01-receiving-observation', kind: 'observation', description: 'The receiving observation describes the visible pieces as unworked without identifying species or origin.' },
+      { id: 'comf01-carrier-account', kind: 'testimony', description: 'Kuli gives a separate account of carrying the covered load to the receiving court.' },
+      { id: 'comf01-authority-boundary', kind: 'other', description: 'The scribe reports; the receiving official records, the responsible authority decides acceptance, and the workshop overseer judges suitability.' },
+    ],
+  };
 }

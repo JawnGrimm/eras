@@ -14,6 +14,7 @@ describe('matter-driven Assignment discovery', () => {
     expect(offers.map((offer) => offer.title)).toEqual([
       'South-Court Delivery Reconciliation',
       'South Loading-Awning Inspection',
+      'Material Not As Described',
     ]);
     expect(offers.every((offer) => !!offer.originMatterId)).toBe(true);
     expect(offers.every((offer) => generated.world.matters[offer.originMatterId!]?.status === 'active')).toBe(true);
@@ -26,11 +27,12 @@ describe('matter-driven Assignment discovery', () => {
     const institutionId = 'institution-uruk-temple-storehouse' as keyof typeof base.world.institutions;
     const deliveryId = 'matter-south-court-delivery-reconciliation' as MatterId;
     const awningId = 'matter-south-loading-awning-inspection' as MatterId;
+    const materialId = 'matter-era1-com-f01-material-description' as MatterId;
     const matters = {
       ...base.world.matters,
       [deliveryId]: { ...base.world.matters[deliveryId], status: 'developed' as const },
     };
-    const activeMatters = base.world.institutions[institutionId].activeMatters.filter((id) => id !== awningId);
+    const activeMatters = base.world.institutions[institutionId].activeMatters.filter((id) => id !== awningId && id !== materialId);
     const state: GameState = {
       ...base,
       world: {
