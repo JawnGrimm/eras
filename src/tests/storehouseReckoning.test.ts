@@ -37,7 +37,11 @@ function submitValid(state: GameState): GameState {
   return transitionGame(state, { type: 'SUBMIT_WORK', workId: STOREHOUSE_WORK_ID }, undefined, catalog).state;
 }
 function nextDay(state: GameState): GameState {
-  return transitionGame(state, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber }, undefined, catalog).state;
+  const closed = transitionGame(state, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber }, undefined, catalog);
+  const settlementId = closed.state.dayClose.pendingSettlementId;
+  return settlementId
+    ? transitionGame(closed.state, { type: 'BEGIN_WORKDAY', expectedSettlementId: settlementId }, undefined, catalog).state
+    : closed.state;
 }
 
 describe('Storehouse Reckoning introductory tutorial', () => {
