@@ -20,6 +20,8 @@ Priority is a working triage, not a design decision. Reassess when the milestone
 
 **Current planning boundary (24 November 2026):** GD-OPPORTUNITY-001 and the QA-82 triage package are **APPROVED**; Production is authorized under `docs/production/PRODUCTION-HANDOFF-001.md`. Issue #82 remains the immediate runtime landing priority. Draft PR #88 contains QA-82-1, -2, -4, and -5 as implemented changes with passing latest-head CI; QA-82-3 remains blocked on a Game Director decision about curated sample-name display forms. Issue #85 is open and authorized. Its runtime edits to overlapping opportunity/UI surfaces remain sequenced after #82, while independent technical preparation may continue. PR #86's five authored anchor scripts are merged on `main`; Draft PR #87 is documentation-only and carries a Production technical proposal, not a runtime content model or approved persistence contract. This filter records current execution status; it does not change design authority.
 
+**Game Director authoring direction — 24 November 2026:** Era I authored content (Assignments, Challenges, and UI copy) must deliver GDD §3.5's grounded humor, pettiness, human warmth, and messy bureaucracy. Keep records/evidence objective and reliable; let people around the desk be impatient, defensive, territorial, wry, exhausted, generous, and recognizably human. Express authority and evidentiary boundaries through lived situations and enforce them in actions/outcomes, not repetitive rulebook-prose prompts. Apply this to the five anchor scripts as they become playable content and to existing starter-prose cleanup. Historical discipline remains unchanged. See the authoring mandate in `dev/GD-ERA1-ANCHORS-001.md`.
+
 **Immediate unresolved owner input:** QA-82-3 cannot be completed by Production without either approved player-readable forms for the curated sample names or approval to withhold/replace affected curated options. The source specification forbids invented pronunciations and does not supply alternate display forms. Existing saved character identities must remain unchanged.
 
 | Priority | Open item / dependency | Why it sits here |
@@ -90,6 +92,14 @@ These are open design tasks, not invitations to fill gaps with arbitrary placeho
 
 ---
 
+
+27. **Deferred GDD housekeeping — post-Issue-#85 coordinated update (non-blocking).** Queue these four documentation cleanups for one coordinated revision of `docs/GDD.md` after Issue #85 reaches its planned implementation milestone. They do not block Issue #82, Issue #85, or current Era I content authoring:
+   - Resolve or explain the §6.5 → §22 numbering jump, including the omitted §§7–21 (restore missing sections, explain deliberate reservation/omission, or renumber only after a full cross-reference audit).
+   - Integrate the approved finite, non-AP Evening Interlude clarification consistently in §§6.4–6.5, including the preliminary-close / replenishment / Begin Workday boundary and exactly-once settlement principle.
+   - If Issue #85 adopts schema v3, update §22's hardcoded `scribe_game_v2` reference to the actual approved persistence contract; do not pre-emptively change it before the schema decision and migration plan are approved and implemented.
+   - Replace or formally retire §4.3's legacy cumulative Historical Progress XP targets (73,000 / 1,887,050) with cleaner milestone thresholds only after Era I Works and the required portfolio are balanced. Do not change thresholds as documentation housekeeping alone.
+
+These are coordinated GDD maintenance tasks, not new design approvals. Preserve existing authority and cross-reference integrity; update the Decision Register only if a substantive design decision changes.
 
 ## Triage rules
 
