@@ -3,6 +3,7 @@ import { getInitializedScribal } from '../state/scribalState';
 import type { AssignmentId, InstitutionId, KnowledgeEntryId, MatterId, PersonId, RecordId } from '../state/ids';
 import type { AssignmentActivityDefinition } from '../content/assignments/northBayRoofInspection';
 import { addActivity } from './opportunities';
+import { queueSettlementCredit } from './dayClose';
 import { MATTER_IDS } from './institutionalMatters';
 
 const STOREHOUSE = 'institution-uruk-temple-storehouse' as InstitutionId;
@@ -199,7 +200,6 @@ export function submitUrukAssignmentActivity(
   }
   const updatedPerson = { ...person, scribal: {
     ...scribal, careerXp: scribal.careerXp + offer.careerXpReward,
-    wallet: { ...scribal.wallet, money: scribal.wallet.money + offer.compensation.money, provisions: scribal.wallet.provisions + offer.compensation.provisions },
     professionalReputation: { ...scribal.professionalReputation, judgment: Math.max(0, Math.min(100, scribal.professionalReputation.judgment + judgmentDelta)) },
     institutionalStanding: { ...scribal.institutionalStanding, [STOREHOUSE]: Math.max(0, Math.min(100, (scribal.institutionalStanding[STOREHOUSE] ?? 50) + (overclaim ? -2 : 1))) },
   } };
@@ -243,6 +243,13 @@ export function submitUrukAssignmentActivity(
       ...state.opportunities.assignments, [offer.id]: { ...offer, status: 'completed', activityProgress: progress },
     } },
   };
-  const logged = addActivity(next, offer, 'completed');
+  const queued = queueSettlementCredit(next, {
+    id: 'assignment:' + offer.id + ':' + state.calendar.dayNumber,
+    source: { kind: 'assignment', id: offer.id },
+    earnedDay: state.calendar.dayNumber,
+    money: offer.compensation.money,
+    provisions: offer.compensation.provisions,
+  });
+  const logged = addActivity(queued, offer, 'completed');
   return succeed(logged, `The report was filed. ${overclaim ? 'Its unsupported claim is preserved as disputed.' : 'Its findings and limitations are preserved; no executive authority was exercised.'}`);
 }

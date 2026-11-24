@@ -4,6 +4,7 @@ import type { AssignmentActivityDefinition } from '../content/assignments/northB
 import { NORTH_BAY_POST_EXECUTION_ACTIVITY_ID, NORTH_BAY_PEOPLE } from '../content/assignments/northBayRoofInspection';
 import type { AssignmentActivityProgress, AssignmentOffer, GameState, RecordAssertion, RecordEntry, TransitionResult } from '../state/types';
 import { addActivity } from './opportunities';
+import { queueSettlementCredit } from './dayClose';
 import { MATTER_IDS } from './institutionalMatters';
 
 const STOREHOUSE = 'institution-uruk-temple-storehouse' as import('../state/ids').InstitutionId;
@@ -148,11 +149,6 @@ export function submitNorthBayPostExecutionInspection(
     scribal: {
       ...scribal,
       careerXp: scribal.careerXp + offer.careerXpReward,
-      wallet: {
-        ...scribal.wallet,
-        money: scribal.wallet.money + offer.compensation.money,
-        provisions: scribal.wallet.provisions + offer.compensation.provisions,
-      },
     },
   };
   const cost = _definition.submissionApCost;
@@ -176,6 +172,13 @@ export function submitNorthBayPostExecutionInspection(
         [offer.id]: { ...offer, status: 'completed', activityProgress: progress } },
     },
   };
+  next = queueSettlementCredit(next, {
+    id: 'assignment:' + offer.id + ':' + state.calendar.dayNumber,
+    source: { kind: 'assignment', id: offer.id },
+    earnedDay: state.calendar.dayNumber,
+    money: offer.compensation.money,
+    provisions: offer.compensation.provisions,
+  });
   next = addActivity(next, offer, 'completed');
   return { state: next, feedback: { kind: 'success', code: 'assignment-activity-submitted',
     message: 'The independent inspection record was filed for institutional review.' } };
