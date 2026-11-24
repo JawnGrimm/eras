@@ -196,54 +196,40 @@ function sourceIds(...ids: Array<string | undefined>): string[] {
 }
 
 function resolveSevenSacks(state: GameState): ChallengeOccurrence | null {
-  const matter = state.world.matters[MATTER_IDS.heldBarley];
-  if (!matter?.sourceEventId || !state.world.events[matter.sourceEventId]) return null;
-
-  const reportOffer = recentOffer(state, 'activity-held-barley-inspection', ['completed']);
-  if (reportOffer?.status === 'completed'
-    && reportOffer.activityProgress?.draft.finding === 'qualified_incomplete') {
-    const report = reportRecordForMatter(state, matter.id, 'Held-Barley Finding and Recommendation');
-    if (report) return {
-      matterId: matter.id,
-      primarySourceFact: { kind: 'record', id: report.id },
-      requiredSourceFactIds: sourceIds(matter.sourceEventId, report.id),
-      deliveryChannels: reportOffer.deliveryChannels,
-    };
-  }
-
-  if (matter.status !== 'active' || state.calendar.dayNumber - matter.createdDay < 2) return null;
-  const deliveredOffer = recentOffer(state, 'activity-held-barley-inspection', ['presented', 'accepted', 'completed']);
-  if (!deliveredOffer) return null;
-  const sourceRecordId = matter.sourceRecordId && state.records.entries[matter.sourceRecordId]
-    ? matter.sourceRecordId : undefined;
-  return {
-    matterId: matter.id,
-    primarySourceFact: { kind: 'event', id: matter.sourceEventId },
-    requiredSourceFactIds: sourceIds(matter.sourceEventId, sourceRecordId),
-    deliveryChannels: deliveredOffer.deliveryChannels,
-  };
+  return resolveChallengeTrigger(state, {
+    domain: 'player_action_outcome',
+    activityId: 'activity-held-barley-inspection',
+    matterId: MATTER_IDS.heldBarley,
+    activityKinds: ['completed'],
+    findingIds: ['qualified_incomplete'],
+    reportTitle: 'Held-Barley Finding and Recommendation',
+  }) ?? resolveChallengeTrigger(state, {
+    domain: 'institutional_matter_update',
+    matterId: MATTER_IDS.heldBarley,
+    statuses: ['active'],
+    minimumAgeDays: 2,
+    deliveryActivityId: 'activity-held-barley-inspection',
+    deliveryKinds: ['presented', 'accepted', 'completed'],
+  });
 }
 
 function resolveMissingMeasure(state: GameState): ChallengeOccurrence | null {
-  const matter = state.world.matters[MATTER_IDS.southCourtDelivery];
-  if (!matter?.sourceEventId || !state.world.events[matter.sourceEventId]) return null;
-
-  // Assignment-pattern eligibility is bounded by the compact aggregate and five-entry activity window.
-  const aggregateTriggered = evaluateChallengeTriggers(state, CHALLENGE_TRIGGER_RULES).includes('challenge-missing-measure');
-  const offer = recentOffer(state, 'activity-south-court-delivery-reconciliation', ['completed']);
-  if (!offer || offer.status !== 'completed') return null;
-  const finding = offer.activityProgress?.draft.finding ?? '';
-  const completedReconciliation = ['unlocated_discrepancy', 'qualified_incomplete'].includes(finding);
-  if (!aggregateTriggered && !completedReconciliation) return null;
-
-  const report = reportRecordForMatter(state, matter.id, 'South-Court Delivery Reconciliation');
-  if (!report) return null;
-  return {
-    matterId: matter.id,
-    primarySourceFact: { kind: 'record', id: report.id },
-    requiredSourceFactIds: sourceIds(matter.sourceEventId, report.id),
-    deliveryChannels: offer.deliveryChannels,
-  };
+  // Aggregate-pattern eligibility remains bounded by the compact counters and five-entry activity window.
+  return resolveChallengeTrigger(state, {
+    domain: 'professional_behavior_pattern',
+    rule: CHALLENGE_TRIGGER_RULES[0],
+    activityId: 'activity-south-court-delivery-reconciliation',
+    matterId: MATTER_IDS.southCourtDelivery,
+    activityKinds: ['completed'],
+    reportTitle: 'South-Court Delivery Reconciliation',
+  }) ?? resolveChallengeTrigger(state, {
+    domain: 'player_action_outcome',
+    activityId: 'activity-south-court-delivery-reconciliation',
+    matterId: MATTER_IDS.southCourtDelivery,
+    activityKinds: ['completed'],
+    findingIds: ['unlocated_discrepancy', 'qualified_incomplete'],
+    reportTitle: 'South-Court Delivery Reconciliation',
+  });
 }
 
 function sevenSacks(state: GameState, id: ChallengeId, occurrence: ChallengeOccurrence): Omit<ChallengeInstance, 'status' | 'assigneePersonId'> {
@@ -343,7 +329,7 @@ function stableHash32(value: string): number {
 
 function canonicalOccurrenceKey(scenarioId: string, occurrence: ChallengeOccurrence): string {
   const facts = sourceIds(...occurrence.requiredSourceFactIds);
-  return scenarioId + '|matter:' + occurrence.matterId
+  return scenarioId + '|matter:' + (occurrence.matterId ?? 'none')
     + '|primary:' + occurrence.primarySourceFact.kind + ':' + occurrence.primarySourceFact.id
     + '|facts:' + facts.join(',');
 }
@@ -433,7 +419,7 @@ export function runChallengeDirector(state: GameState): GameState {
     scenarioId: definition.scenarioId,
     occurrenceKey,
     lifecycle: 'offered' as OpportunityOccurrenceLifecycle,
-    matterId: occurrence.matterId,
+    ...(occurrence.matterId ? { matterId: occurrence.matterId } : {}),
     primarySourceFact: occurrence.primarySourceFact,
     requiredSourceFactIds: occurrence.requiredSourceFactIds,
     deliveryChannels: occurrence.deliveryChannels,
