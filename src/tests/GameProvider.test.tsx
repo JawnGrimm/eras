@@ -35,27 +35,27 @@ function validSavedState(): GameState {
 }
 
 describe('GameProvider production persistence', () => {
-  it('allows in-memory play when browser storage is unavailable', () => {
+  it('opens the Creator when browser storage is unavailable and permits session-only creation', () => {
     const game = renderProvider(null);
-    const result = game.dispatch({ type: 'SPEND_AP', amount: 1, reason: 'Continue without storage' });
-
     expect(game.loadStatus).toBe('ready');
+    expect(game.needsCharacterCreation).toBe(true);
     expect(game.feedback?.code).toBe('save-write-failed');
-    expect(game.hasUnsavedChanges).toBe(true);
     expect(game.storageError).toContain('only in this session');
-    expect(result.state.actionEconomy.apRemaining).toBe(5);
-    expect(result.state).not.toBe(game.state);
+    expect(game.createCharacterAndStartGame(TEST_CHARACTER_CREATION)).toBe(true);
   });
 
-  it('creates and persists the authored Day 1 state only when the v2 key is absent', () => {
+  it('opens the Creator for a missing save and persists only after character confirmation', () => {
     const storage = new MemoryStorage();
     const game = renderProvider(storage);
-    const saved = restoreSave(storage.getItem(SAVE_KEY), INITIAL_WORK_CATALOG);
 
     expect(game.loadStatus).toBe('ready');
-    expect(game.state.works.activeWorkId).toBe('work-storehouse-reckoning');
-    expect(Object.keys(game.state.opportunities.assignments)).toHaveLength(2);
-    expect(Object.keys(game.state.opportunities.challenges)).toHaveLength(1);
+    expect(game.needsCharacterCreation).toBe(true);
+    expect(storage.getItem(SAVE_KEY)).toBeNull();
+    expect(game.createCharacterAndStartGame(TEST_CHARACTER_CREATION)).toBe(true);
+    const saved = restoreSave(storage.getItem(SAVE_KEY), INITIAL_WORK_CATALOG);
+    expect(saved?.state.works.activeWorkId).toBe('work-storehouse-reckoning');
+    expect(Object.keys(saved?.state.opportunities.assignments ?? {})).toHaveLength(2);
+    expect(Object.keys(saved?.state.opportunities.challenges ?? {})).toHaveLength(1);
     expect(saved?.state.calendar.dayNumber).toBe(1);
   });
 
@@ -126,6 +126,8 @@ describe('GameProvider production persistence', () => {
 
     expect(game.loadStatus).toBe('corrupt_save');
     expect(game.startFreshProductionSave()).toBe(true);
+    expect(storage.getItem(SAVE_KEY)).toBe('corrupt');
+    expect(game.createCharacterAndStartGame(TEST_CHARACTER_CREATION)).toBe(true);
 
     const raw = storage.getItem(SAVE_KEY);
     expect(raw).not.toBeNull();
