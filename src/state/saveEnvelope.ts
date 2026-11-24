@@ -10,10 +10,10 @@ import { validateInstitutionalResponseEvent } from '../engine/institutionalRespo
 import { isInitializedScribalState } from './scribalState';
 import { NORTH_BAY_PEOPLE, NORTH_BAY_LOCATION_ID, ASSIGNMENT_ACTIVITY_CATALOG, validateAssignmentActivityProgress } from '../content/assignments/northBayRoofInspection';
 
+// Keep the physical key stable: v2-only clients read this slot and reject a v3 envelope by version.
 export const SAVE_KEY = 'scribe_game_v2';
-// Keep schema v2 for compatibility with early production saves that contain empty opportunity maps and works.progress; populated entries are validated against the registered Work catalog.
-// Populated Work progress is checked against the supplied Work catalog; legacy empty maps remain valid without migration.
-export const SAVE_SCHEMA_VERSION = 2 as const;
+export const ROLLBACK_SAVE_KEY = 'scribe_game_v2_rollback';
+export const SAVE_SCHEMA_VERSION = 3 as const;
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -543,13 +543,140 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
     && Array.isArray(value.records.permanentOutcomes)
     && Array.isArray(value.journal.notices);
 }
+function isValidV3GameState(value: unknown, workCatalog: Readonly<Record<string, WorkDefinition<any>>>): value is GameState {
+  if (!isValidGameState(value, workCatalog) || !isObject(value)) return false;
+  const dayClose = value.dayClose;
+  const opportunities = value.opportunities;
+  if (!isObject(dayClose) || !['workday_open','interlude_open'].includes(String(dayClose.phase))
+    || !(dayClose.pendingSettlementId === null || nonEmptyString(dayClose.pendingSettlementId))
+    || !(dayClose.lastFinalizedSettlementId === null || nonEmptyString(dayClose.lastFinalizedSettlementId))
+    || !Array.isArray(dayClose.pendingCredits)
+    || typeof opportunities.selectionSeed !== 'string' || !opportunities.selectionSeed.trim()
+    || !Array.isArray(opportunities.occurrenceLedger)) return false;
+  const expectedPendingId = `${String(value.calendar.eraId)}:${String(value.calendar.dayNumber)}`;
+  if ((dayClose.phase === 'interlude_open' && dayClose.pendingSettlementId !== expectedPendingId)
+    || (dayClose.phase === 'workday_open' && dayClose.pendingSettlementId !== null)
+    || (dayClose.pendingSettlementId !== null && dayClose.pendingSettlementId === dayClose.lastFinalizedSettlementId)) return false;
+  const creditIds = new Set<string>();
+  const assignments = opportunities.assignments as unknown as Record<string, unknown>;
+  const workProgress = value.works.progress as unknown as Record<string, unknown>;
+  for (const raw of dayClose.pendingCredits) {
+    if (!isObject(raw) || !nonEmptyString(raw.id) || creditIds.has(raw.id)
+      || !isObject(raw.source) || !['assignment','work'].includes(String(raw.source.kind))
+      || !nonEmptyString(raw.source.id) || !Number.isInteger(raw.earnedDay) || (raw.earnedDay as number) < 1
+      || (raw.earnedDay as number) > value.calendar.dayNumber
+      || !finiteNonNegative(raw.money) || !finiteNonNegative(raw.provisions)
+      || (raw.money as number) + (raw.provisions as number) <= 0
+      || !['pending','credited'].includes(String(raw.status))
+      || (raw.status === 'pending' && raw.creditedBySettlementId !== undefined)
+      || (raw.status === 'credited' && !nonEmptyString(raw.creditedBySettlementId))
+      || (dayClose.phase === 'interlude_open' && raw.status !== 'credited')) return false;
+    creditIds.add(raw.id);
+    if (raw.source.kind === 'assignment' && !isObject(assignments[raw.source.id])) return false;
+    if (raw.source.kind === 'work' && !isObject(workProgress[raw.source.id])) return false;
+  }
+  const occurrenceKeys = new Set<string>();
+  for (const raw of opportunities.occurrenceLedger) {
+    if (!isObject(raw) || !nonEmptyString(raw.scenarioId) || !nonEmptyString(raw.occurrenceKey)
+      || occurrenceKeys.has(raw.occurrenceKey)
+      || !['offered','accepted','declined','lapsed','cancelled','completed'].includes(String(raw.lifecycle))
+      || !Array.isArray(raw.requiredSourceFactIds)
+      || raw.requiredSourceFactIds.some((id, index, ids) => !nonEmptyString(id) || (index > 0 && ids[index - 1] > id)
+        || (!Object.prototype.hasOwnProperty.call(value.world.events, id)
+          && !Object.prototype.hasOwnProperty.call(value.records.entries, id)))
+      || new Set(raw.requiredSourceFactIds).size !== raw.requiredSourceFactIds.length
+      || (raw.presentedDay !== undefined && (!Number.isInteger(raw.presentedDay) || (raw.presentedDay as number) < 1 || (raw.presentedDay as number) > value.calendar.dayNumber))
+      || (raw.deliveryChannels !== undefined && (!Array.isArray(raw.deliveryChannels) || !raw.deliveryChannels.length
+        || raw.deliveryChannels.some((channel) => !isObject(channel) || typeof channel.explanation !== 'string' || !channel.explanation
+          || !['baseline_reach','relationship','specialization','appointment','reputation'].includes(String(channel.kind)))))
+      || (raw.matterId !== undefined && (typeof raw.matterId !== 'string' || !isObject(value.world.matters[raw.matterId])))
+      || (raw.assigneePersonId !== undefined && (typeof raw.assigneePersonId !== 'string' || !isObject(value.world.people[raw.assigneePersonId])))
+      || (raw.legacy !== undefined && raw.legacy !== true)) return false;
+    occurrenceKeys.add(raw.occurrenceKey);
+    if (raw.legacy === true && raw.primarySourceFact !== undefined) return false;
+    if (raw.primarySourceFact !== undefined) {
+      if (!isObject(raw.primarySourceFact) || !['event','record'].includes(String(raw.primarySourceFact.kind))
+        || !nonEmptyString(raw.primarySourceFact.id)
+        || (raw.primarySourceFact.kind === 'event' && !isObject(value.world.events[raw.primarySourceFact.id]))
+        || (raw.primarySourceFact.kind === 'record' && !isObject(value.records.entries[raw.primarySourceFact.id]))) return false;
+    } else if (raw.legacy !== true) return false;
+    if (raw.legacy !== true && (!Array.isArray(raw.deliveryChannels) || !raw.deliveryChannels.length || !Number.isInteger(raw.presentedDay))) return false;
+  }
+  return true;
+}
+
 export function createSaveEnvelope(state: GameState, revision: number, savedAt = new Date().toISOString()): SaveEnvelope {
   return { schemaVersion: SAVE_SCHEMA_VERSION, gameVersion: '0.1.0', revision, savedAt, state };
+}
+
+/** Kept for migration tests and explicit proof that v2-only readers reject v3. */
+export function isValidV2SaveEnvelope(value: unknown, workCatalog: Readonly<Record<string, WorkDefinition<any>>> = {}): boolean {
+  return isObject(value) && value.schemaVersion === 2 && typeof value.gameVersion === 'string'
+    && finiteNonNegative(value.revision) && Number.isInteger(value.revision) && typeof value.savedAt === 'string'
+    && Number.isFinite(Date.parse(value.savedAt)) && isValidGameState(value.state, workCatalog);
 }
 export function isValidSaveEnvelope(value: unknown, workCatalog: Readonly<Record<string, WorkDefinition<any>>> = {}): value is SaveEnvelope {
   return isObject(value) && value.schemaVersion === SAVE_SCHEMA_VERSION && typeof value.gameVersion === 'string'
     && finiteNonNegative(value.revision) && Number.isInteger(value.revision) && typeof value.savedAt === 'string'
-    && Number.isFinite(Date.parse(value.savedAt)) && isValidGameState(value.state, workCatalog);
+    && Number.isFinite(Date.parse(value.savedAt)) && isValidV3GameState(value.state, workCatalog);
+}
+
+function digestLegacyV2Save(raw: string): string {
+  // FNV-1a over the exact UTF-8 bytes of the validated legacy envelope; stable across reloads.
+  let hash = 0x811c9dc5;
+  for (const byte of new TextEncoder().encode(raw)) hash = Math.imul(hash ^ byte, 0x01000193) >>> 0;
+  return `legacy-v2-fnv1a32-${hash.toString(16).padStart(8, '0')}`;
+}
+
+function migrateV2Envelope(value: Record<string, unknown>, raw: string): SaveEnvelope {
+  const legacyState = value.state as GameState;
+  const opportunities = legacyState.opportunities;
+  const occurrenceLedger = [
+    ...Object.values(opportunities.challenges).map((challenge) => ({
+      scenarioId: String(challenge.id),
+      occurrenceKey: `legacy:challenge-instance:${String(challenge.id)}`,
+      lifecycle: challenge.status,
+      requiredSourceFactIds: [],
+      deliveryChannels: challenge.deliveryChannels,
+      presentedDay: challenge.presentedDay,
+      ...(challenge.assigneePersonId ? { assigneePersonId: challenge.assigneePersonId } : {}),
+      legacy: true as const,
+    })),
+    ...opportunities.challengeOutcomes.map((outcome, index) => ({
+      scenarioId: String(outcome.challengeId),
+      occurrenceKey: `legacy:challenge-outcome:${index}:${String(outcome.challengeId)}`,
+      lifecycle: 'completed' as const,
+      requiredSourceFactIds: [],
+      ...(outcome.assigneePersonId ? { assigneePersonId: outcome.assigneePersonId } : {}),
+      legacy: true as const,
+    })),
+  ];
+  const state: GameState = {
+    ...legacyState,
+    dayClose: {
+      phase: 'workday_open',
+      pendingSettlementId: null,
+      lastFinalizedSettlementId: null,
+      pendingCredits: [],
+    },
+    opportunities: {
+      ...opportunities,
+      selectionSeed: digestLegacyV2Save(raw),
+      occurrenceLedger,
+    },
+  };
+  return {
+    schemaVersion: 3,
+    gameVersion: String(value.gameVersion),
+    revision: Number(value.revision),
+    savedAt: String(value.savedAt),
+    state,
+  };
+}
+
+export function isLegacyV2Save(raw: string): boolean {
+  try { const parsed: unknown = JSON.parse(raw); return isObject(parsed) && parsed.schemaVersion === 2; }
+  catch { return false; }
 }
 function normalizeNorthBayWorldBaseline(parsed: unknown): unknown {
   if (!isObject(parsed) || !isObject(parsed.state) || !isObject(parsed.state.world)) return parsed;
@@ -813,7 +940,14 @@ function normalizeHardshipState(parsed: unknown): unknown {
 export function restoreSave(raw: string | null, workCatalog: Readonly<Record<string, WorkDefinition<any>>> = {}): SaveEnvelope | null {
   if (!raw) return null;
   try {
-    const parsed: unknown = normalizeHardshipState(normalizeLegacyStarterAssignments(normalizeUnavailableWorkProgress(normalizeLegacyTutorialProgression(normalizeInstitutionalMatters(normalizeNorthBayWorldBaseline(JSON.parse(raw))), workCatalog), workCatalog)));
+    const parsedRaw: unknown = JSON.parse(raw);
+    const parsed: unknown = normalizeHardshipState(normalizeLegacyStarterAssignments(normalizeUnavailableWorkProgress(normalizeLegacyTutorialProgression(normalizeInstitutionalMatters(normalizeNorthBayWorldBaseline(parsedRaw)), workCatalog), workCatalog)));
+    if (!isObject(parsed)) return null;
+    if (parsed.schemaVersion === 2) {
+      if (!isValidV2SaveEnvelope(parsed, workCatalog)) return null;
+      const migrated = migrateV2Envelope(parsed, raw);
+      return isValidSaveEnvelope(migrated, workCatalog) ? migrated : null;
+    }
     return isValidSaveEnvelope(parsed, workCatalog) ? parsed : null;
   } catch { return null; }
 }

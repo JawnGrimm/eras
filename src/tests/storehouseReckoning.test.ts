@@ -282,7 +282,7 @@ describe('Storehouse Reckoning introductory tutorial', () => {
     expect(getInitializedScribal(state.world.people[INITIAL_PERSON_ID])!.wallet.provisions).toBe(3);
   });
 
-  it('normalizes completed tutorial progression in existing v2 saves without invalidating the save', () => {
+  it('migrates v2 saves while normalizing completed tutorial progression', () => {
     let state = submitValid(acquireMinimum(start()));
     state = nextDay(state);
     state = transitionGame(state, { type: 'DISPOSE_WORK', workId: STOREHOUSE_WORK_ID, disposition: 'authorized' }, undefined, catalog).state;
@@ -301,10 +301,14 @@ describe('Storehouse Reckoning introductory tutorial', () => {
         },
       } },
     };
-    const legacyEnvelope = createSaveEnvelope(legacyState, 7, '2026-11-22T12:00:00.000Z');
+    const legacyEnvelope = JSON.parse(JSON.stringify(createSaveEnvelope(legacyState, 7, '2026-11-22T12:00:00.000Z')));
+    legacyEnvelope.schemaVersion = 2;
+    delete legacyEnvelope.state.dayClose;
+    delete legacyEnvelope.state.opportunities.selectionSeed;
+    delete legacyEnvelope.state.opportunities.occurrenceLedger;
     const restored = restoreSave(JSON.stringify(legacyEnvelope), catalog);
     expect(restored).not.toBeNull();
-    expect(restored?.schemaVersion).toBe(2);
+    expect(restored?.schemaVersion).toBe(3);
     expect(restored?.state.historicalProgression.historicalXp).toBe(0);
     expect(restored?.state.historicalProgression.completedWorks).toEqual([]);
     expect(restored?.state.calendar.displayDate).toBe('Day 47 · Uruk (c. 3200 BCE)');

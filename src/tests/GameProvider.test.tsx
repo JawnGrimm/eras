@@ -6,7 +6,7 @@ import { GameProvider, useGame } from '../state/GameProvider';
 import type { ProductionStorage } from '../state/GameProvider';
 import { createNewGameState, INITIAL_WORK_CATALOG } from '../state/newGameState';
 import { transitionGame } from '../engine/actionEconomy';
-import { createSaveEnvelope, restoreSave, SAVE_KEY } from '../state/saveEnvelope';
+import { createSaveEnvelope, restoreSave, ROLLBACK_SAVE_KEY, SAVE_KEY } from '../state/saveEnvelope';
 import type { GameState } from '../state/types';
 
 class MemoryStorage implements ProductionStorage {
@@ -59,7 +59,7 @@ describe('GameProvider production persistence', () => {
     expect(saved?.state.calendar.dayNumber).toBe(1);
   });
 
-  it('restores a valid v2 save using the registered Work catalog', () => {
+  it('restores a valid v3 save using the registered Work catalog', () => {
     const storage = new MemoryStorage();
     const state = transitionGame(validSavedState(), { type: 'SPEND_AP', amount: 2, reason: 'Test saved AP' }).state;
     storage.setItem(SAVE_KEY, JSON.stringify(createSaveEnvelope(state, 7, '2026-11-22T12:00:00.000Z')));
@@ -69,6 +69,70 @@ describe('GameProvider production persistence', () => {
     expect(game.loadStatus).toBe('ready');
     expect(game.state.actionEconomy.apRemaining).toBe(4);
     expect(game.state.works.activeWorkId).toBe(validSavedState().works.activeWorkId);
+  });
+
+  it('backs up exact v2 bytes and durably rewrites the migrated v3 envelope before opening play', () => {
+    const storage = new MemoryStorage();
+    const state = validSavedState();
+    const legacyState = structuredClone(state) as unknown as Record<string, any>;
+    delete legacyState.dayClose;
+    delete legacyState.opportunities.selectionSeed;
+    delete legacyState.opportunities.occurrenceLedger;
+    const legacyRaw = JSON.stringify({
+      schemaVersion: 2, gameVersion: '0.1.0', revision: 6,
+      savedAt: '2026-11-22T12:00:00.000Z', state: legacyState,
+    });
+    storage.setItem(SAVE_KEY, legacyRaw);
+
+    const game = renderProvider(storage);
+    const persisted = JSON.parse(storage.getItem(SAVE_KEY) ?? 'null');
+
+    expect(game.loadStatus).toBe('ready');
+    expect(game.needsCharacterCreation).toBe(false);
+    expect(storage.getItem(ROLLBACK_SAVE_KEY)).toBe(legacyRaw);
+    expect(persisted.schemaVersion).toBe(3);
+    expect(persisted.revision).toBe(6);
+    expect(game.state.dayClose.phase).toBe('workday_open');
+    expect(game.state.opportunities.selectionSeed).toMatch(/^legacy-v2-fnv1a32-/);
+  });
+
+  it('does not expose a migrated v2 save as playable when the rollback or v3 write fails', () => {
+    const storage = new MemoryStorage();
+    const state = validSavedState();
+    const legacyState = structuredClone(state) as unknown as Record<string, any>;
+    delete legacyState.dayClose;
+    delete legacyState.opportunities.selectionSeed;
+    delete legacyState.opportunities.occurrenceLedger;
+    const legacyRaw = JSON.stringify({
+      schemaVersion: 2, gameVersion: '0.1.0', revision: 3,
+      savedAt: '2026-11-22T12:00:00.000Z', state: legacyState,
+    });
+    storage.setItem(SAVE_KEY, legacyRaw);
+    storage.failWrites = true;
+
+    const game = renderProvider(storage);
+    const result = game.dispatch({ type: 'SPEND_AP', amount: 1, reason: 'Must remain paused' });
+
+    expect(game.loadStatus).toBe('read_error');
+    expect(game.needsCharacterCreation).toBe(false);
+    expect(result.feedback?.code).toBe('save-load-confirmation-required');
+    expect(storage.getItem(SAVE_KEY)).toBe(legacyRaw);
+  });
+
+  it('rolls back a Day-Close transition when its durable save write fails', () => {
+    const storage = new MemoryStorage();
+    const state = validSavedState();
+    storage.setItem(SAVE_KEY, JSON.stringify(createSaveEnvelope(state, 2, '2026-11-22T12:00:00.000Z')));
+    const game = renderProvider(storage);
+    const priorState = game.state;
+    storage.failWrites = true;
+
+    const result = game.dispatch({ type: 'END_DAY', expectedDayNumber: priorState.calendar.dayNumber });
+
+    expect(result.feedback?.code).toBe('day-close-save-failed');
+    expect(result.state.calendar.dayNumber).toBe(priorState.calendar.dayNumber);
+    expect(result.state).toBe(priorState);
+    expect(storage.getItem(SAVE_KEY)).toContain('"revision":2');
   });
 
   it('preserves a corrupt v2 save and blocks automatic production actions', () => {

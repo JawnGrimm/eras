@@ -66,18 +66,22 @@ describe('persistent character creation data validation', () => {
     expect(restoredPerson.familiarities).toEqual(originalPerson.familiarities);
   });
 
-  it('restores legacy v2 saves without fabricating character history', () => {
+  it('migrates v2 saves without fabricating missing character history', () => {
     const legacyState = createInitialGameState();
     const legacyPerson = legacyState.world.people[INITIAL_PERSON_ID];
     delete legacyPerson.characterCreation;
     delete legacyPerson.lifeEvents;
     delete legacyPerson.familiarities;
 
-    const legacyEnvelope = createSaveEnvelope(legacyState, 0, '2026-11-23T12:00:00.000Z');
+    const legacyEnvelope = JSON.parse(JSON.stringify(createSaveEnvelope(legacyState, 0, '2026-11-23T12:00:00.000Z')));
+    legacyEnvelope.schemaVersion = 2;
+    delete legacyEnvelope.state.dayClose;
+    delete legacyEnvelope.state.opportunities.selectionSeed;
+    delete legacyEnvelope.state.opportunities.occurrenceLedger;
     const restored = restoreSave(JSON.stringify(legacyEnvelope));
 
     expect(restored).not.toBeNull();
-    expect(restored?.schemaVersion).toBe(2);
+    expect(restored?.schemaVersion).toBe(3);
     const restoredLegacyPerson = restored!.state.world.people[INITIAL_PERSON_ID];
     expect(restoredLegacyPerson.characterCreation).toBeUndefined();
     expect(restoredLegacyPerson.lifeEvents).toBeUndefined();

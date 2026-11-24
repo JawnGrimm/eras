@@ -4,7 +4,7 @@ import { transitionGame } from '../engine/actionEconomy';
 import type { ActionFeedback, CareerProgressionPolicy, GameAction, GameState, TransitionResult } from './types';
 import type { WorkDefinition } from '../works/workDefinition';
 import { createCharacterCreationPreviewState, createNewGameState, INITIAL_WORK_CATALOG, type EraICharacterCreationInput } from './newGameState';
-import { createSaveEnvelope, restoreSave, SAVE_KEY } from './saveEnvelope';
+import { createSaveEnvelope, isLegacyV2Save, restoreSave, ROLLBACK_SAVE_KEY, SAVE_KEY } from './saveEnvelope';
 
 export type ProductionLoadStatus = 'ready' | 'corrupt_save' | 'read_error';
 
@@ -36,8 +36,8 @@ function storageFeedback(code: string, message: string): ActionFeedback {
 }
 
 /**
- * Reads only the production v2 key. A missing save opens the Creator without
- * writing a placeholder. A malformed existing save is never overwritten.
+ * Reads the stable production save slot. A v2 envelope is validated, backed up,
+ * migrated, and durably rewritten as v3 before the session becomes playable.
  */
 export function initializeProductionSession(
   storage: ProductionStorage | null,
@@ -72,6 +72,20 @@ export function initializeProductionSession(
         hasUnsavedChanges: false, storageError: 'The existing production save is malformed or incompatible.',
         needsCharacterCreation: false,
       };
+    }
+    if (isLegacyV2Save(raw)) {
+      try {
+        // Preserve the exact validated v2 bytes before replacing the primary slot.
+        storage.setItem(ROLLBACK_SAVE_KEY, raw);
+        storage.setItem(SAVE_KEY, JSON.stringify(restored));
+      } catch {
+        return {
+          state: placeholderState(), loadStatus: 'read_error', revision: restored.revision,
+          feedback: storageFeedback('save-migration-failed', 'The v2 save was validated and migrated in memory, but its rollback copy or v3 write could not be confirmed. The original save remains the recovery source; play is paused.'),
+          hasUnsavedChanges: false, storageError: 'The v2-to-v3 migration could not be durably committed.',
+          needsCharacterCreation: false,
+        };
+      }
     }
     return {
       state: restored.state, loadStatus: 'ready', revision: restored.revision,
@@ -141,8 +155,32 @@ export function GameProvider({
       return { state: stateRef.current, feedback: blocked };
     }
 
-    const result = transitionGame(stateRef.current, action, careerPolicy, resolvedCatalog);
-    if (result.state !== stateRef.current) {
+    const previousState = stateRef.current;
+    const result = transitionGame(previousState, action, careerPolicy, resolvedCatalog);
+    if (result.state !== previousState) {
+      const dayCloseBoundary = action.type === 'END_DAY' || action.type === 'BEGIN_WORKDAY';
+      if (dayCloseBoundary) {
+        try {
+          const nextRevision = revisionRef.current + 1;
+          if (!resolvedStorage) throw new Error('Browser storage is unavailable.');
+          resolvedStorage.setItem(SAVE_KEY, JSON.stringify(createSaveEnvelope(result.state, nextRevision)));
+          revisionRef.current = nextRevision;
+        } catch {
+          const blocked = storageFeedback('day-close-save-failed',
+            'The Day-Close transition was rolled back because it could not be saved. No settlement phase, credit, sustenance, or calendar change was applied.');
+          setHasUnsavedChanges(false);
+          setStorageError('The Day-Close transition could not be durably written; the prior saved state remains active.');
+          setFeedback(blocked);
+          return { state: previousState, feedback: blocked };
+        }
+        stateRef.current = result.state;
+        setSession((current) => ({ ...current, state: result.state }));
+        setHasUnsavedChanges(false);
+        setStorageError(null);
+        setFeedback(result.feedback);
+        return result;
+      }
+
       stateRef.current = result.state;
       setSession((current) => ({ ...current, state: result.state }));
       try {

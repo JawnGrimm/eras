@@ -107,7 +107,7 @@ export function createNewGameState(input: EraICharacterCreationInput): GameState
     },
   };
 
-  let state = createInitialGameState(player);
+  let state = createInitialGameState(player, input.seed);
   const actions = [
     { type: 'START_WORK', workId: STOREHOUSE_WORK_ID } as const,
   ];
