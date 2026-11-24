@@ -8,6 +8,14 @@ import type { ScribalCharacterState } from '../state/types';
 import { evaluateEvidenceInterpretation } from '../works/evidenceInterpretation';
 import { defineWork, validateWorkDefinition } from '../works/workDefinition';
 
+function nextWorkday(state: ReturnType<typeof createInitialGameState>, dayNumber = state.calendar.dayNumber, workCatalog: Parameters<typeof transitionGame>[3] = {}) {
+  const closed = transitionGame(state, { type: 'END_DAY', expectedDayNumber: dayNumber }, undefined, workCatalog);
+  const settlementId = closed.state.dayClose.pendingSettlementId;
+  return settlementId
+    ? transitionGame(closed.state, { type: 'BEGIN_WORKDAY', expectedSettlementId: settlementId }, undefined, workCatalog)
+    : closed;
+}
+
 const E1 = 'evidence-1' as EvidenceId;
 const E2 = 'evidence-2' as EvidenceId;
 const E3 = 'evidence-3' as EvidenceId;
@@ -280,7 +288,7 @@ describe('Work lifecycle and save validation', () => {
     let state = transitionGame(createInitialGameState(), { type: 'START_WORK', workId: WORK }, undefined, catalog).state;
     state = transitionGame(state, { type: 'SPEND_AP', amount: 1, reason: 'Work action', workId: WORK }, undefined, catalog).state;
     const noContract = { ...definition, provisionsContract: undefined };
-    state = transitionGame(state, { type: 'END_DAY', expectedDayNumber: 1 }, undefined, { [WORK]: noContract }).state;
+    state = nextWorkday(state, 1, { [WORK]: noContract }).state;
     expect(getInitializedScribal(state.world.people[INITIAL_PERSON_ID])?.wallet.provisions).toBe(4);
   });
 
@@ -290,7 +298,7 @@ describe('Work lifecycle and save validation', () => {
     expect(state.works.progress[WORK].workApSpentToday).toBe(0);
     state = transitionGame(state, { type: 'SPEND_AP', amount: 1, reason: 'Work action', workId: WORK }, undefined, catalog).state;
     expect(state.works.progress[WORK].workApSpentToday).toBe(1);
-    state = transitionGame(state, { type: 'END_DAY', expectedDayNumber: 1 }, undefined, catalog).state;
+    state = nextWorkday(state, 1, catalog).state;
     expect(state.works.progress[WORK].workApSpentToday).toBe(0);
     expect(getInitializedScribal(state.world.people[INITIAL_PERSON_ID])?.wallet.provisions).toBe(5);
   });

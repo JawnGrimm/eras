@@ -9,6 +9,14 @@ import type { AssignmentOffer, ChallengeInstance, GameState, OpportunityDelivery
 import { storehouseReckoning } from '../works/storehouseReckoning';
 import { STOREHOUSE_WORK_ID } from '../works/storehouseReckoning';
 
+function nextWorkday(state: GameState, dayNumber = state.calendar.dayNumber, workCatalog: Parameters<typeof transitionGame>[3] = {}) {
+  const closed = nextWorkday(state, dayNumber, workCatalog);
+  const settlementId = closed.state.dayClose.pendingSettlementId;
+  return settlementId
+    ? transitionGame(closed.state, { type: 'BEGIN_WORKDAY', expectedSettlementId: settlementId }, undefined, workCatalog)
+    : closed;
+}
+
 const channel: OpportunityDeliveryChannel = { kind: 'baseline_reach', explanation: 'Within the character’s ordinary professional reach.' };
 function offer(id: string): Omit<AssignmentOffer, 'offeredDay' | 'expiresDay' | 'status' | 'lapsedDuringMandatoryWork'> {
   return {
@@ -61,7 +69,7 @@ describe('Assignment and Challenge foundations', () => {
 
   it('expires after three days and counts only non-Work lapses for neglect triggers', () => {
     let state = present(createInitialGameState(), 'ordinary');
-    for (let day = 1; day <= 4; day++) state = transitionGame(state, { type: 'END_DAY', expectedDayNumber: day }).state;
+    for (let day = 1; day <= 4; day++) state = nextWorkday(state, day).state;
     expect(state.opportunities.assignments['ordinary' as AssignmentId].status).toBe('lapsed');
     expect(state.opportunities.assignmentAggregates['person|person-enlil-barni|accounts|barley'].nonWorkLapsed).toBe(1);
     expect(evaluateChallengeTriggers(state, [{ id: 'neglect', category: 'accounts', minNonWorkLapsed: 1 }])).toContain('neglect');
@@ -70,14 +78,14 @@ describe('Assignment and Challenge foundations', () => {
     const workCatalog = { [STOREHOUSE_WORK_ID]: genuineWork };
     let workState = present(createInitialGameState(), 'work-offer');
     workState = transitionGame(workState, { type: 'START_WORK', workId: STOREHOUSE_WORK_ID }, undefined, workCatalog).state;
-    for (let day = 1; day <= 4; day++) workState = transitionGame(workState, { type: 'END_DAY', expectedDayNumber: day }, undefined, workCatalog).state;
+    for (let day = 1; day <= 4; day++) workState = nextWorkday(workState, day, workCatalog).state;
     expect(workState.opportunities.assignments['work-offer' as AssignmentId].lapsedDuringMandatoryWork).toBe(true);
     expect(workState.opportunities.assignmentAggregates['person|person-enlil-barni|accounts|barley'].nonWorkLapsed).toBe(0);
     expect(evaluateChallengeTriggers(workState, [{ id: 'neglect', category: 'accounts', minNonWorkLapsed: 1 }])).not.toContain('neglect');
 
     let unavailableState = present(createInitialGameState(), 'unavailable-work-offer');
     unavailableState = { ...unavailableState, works: { ...unavailableState.works, activeWorkId: 'missing-work' as WorkId } };
-    for (let day = 1; day <= 4; day++) unavailableState = transitionGame(unavailableState, { type: 'END_DAY', expectedDayNumber: day }).state;
+    for (let day = 1; day <= 4; day++) unavailableState = nextWorkday(unavailableState, day).state;
     expect(unavailableState.opportunities.assignments['unavailable-work-offer' as AssignmentId].lapsedDuringMandatoryWork).toBe(false);
     expect(unavailableState.opportunities.assignmentAggregates['person|person-enlil-barni|accounts|barley'].nonWorkLapsed).toBe(1);
   });
@@ -183,7 +191,7 @@ describe('Assignment and Challenge foundations', () => {
     } };
     let state = transitionGame(createInitialGameState(), { type: 'PRESENT_ASSIGNMENT', offer: offerWithEffects }).state;
     state = transitionGame(state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: 'dated' as AssignmentId }).state;
-    state = transitionGame(state, { type: 'END_DAY', expectedDayNumber: 1 }).state;
+    state = nextWorkday(state, 1).state;
     expect(isValidSaveEnvelope(createSaveEnvelope(state, 1))).toBe(true);
     const result = transitionGame(state, { type: 'COMPLETE_ASSIGNMENT', assignmentId: 'dated' as AssignmentId });
     expect(result.feedback?.code).toBe('assignment-completed');
@@ -253,7 +261,7 @@ describe('Assignment and Challenge foundations', () => {
     const tutorialCatalog = { [tutorialId]: storehouseReckoning };
     state = transitionGame(state, { type: 'START_WORK', workId: tutorialId }, undefined, tutorialCatalog).state;
     state = { ...state, calendar: { ...state.calendar, dayNumber: 4 } };
-    const result = transitionGame(state, { type: 'END_DAY', expectedDayNumber: 4 }, undefined, tutorialCatalog);
+    const result = nextWorkday(state, 4, tutorialCatalog);
     expect(result.state.opportunities.assignments['tutorial-lapse' as AssignmentId].lapsedDuringMandatoryWork).toBe(false);
     expect(Object.values(result.state.opportunities.assignmentAggregates)[0].nonWorkLapsed).toBe(1);
   });
