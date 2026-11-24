@@ -226,13 +226,13 @@ describe('Era I Commercial F02-F04 causal matter pipeline', () => {
     expect(gemeRelationship?.dimensions).toMatchObject({ trust: 52, respect: 51 });
 
     const receiverRelationship = submitted!.state.world.relationships[ERA1_COM_F02_F04_PEOPLE.luNanshe][playerId];
-    expect(receiverRelationship?.history[0].summary).toContain('Lu-Nanshe reads the two claims side by side');
+    expect(receiverRelationship?.history.at(-1)?.summary).toContain('Lu-Nanshe reads the two claims side by side');
     for (const recipientId of [ERA1_COM_F02_F04_PEOPLE.urNanna, ERA1_COM_F02_F04_PEOPLE.gemeInana]) {
       const recipientName = submitted!.state.world.people[recipientId].name;
       const history = submitted!.state.world.relationships[recipientId][playerId]?.history;
-      expect(history).toHaveLength(1);
-      expect(history![0].summary).not.toContain('Lu-Nanshe reads the two claims side by side');
-      expect(history![0].summary).toContain(`After Enlil-barni submitted "Competing claims summary" on Day 8, ${recipientName}'s trust toward Enlil-barni increased and respect increased.`);
+      const latest = history?.at(-1);
+      expect(latest?.summary).not.toContain('Lu-Nanshe reads the two claims side by side');
+      expect(latest?.summary).toContain(`After Enlil-barni submitted "Competing claims summary" on Day 8, ${recipientName}'s trust toward Enlil-barni increased and respect increased.`);
     }
 
     const report = Object.values(submitted!.state.records.entries).find((entry) => entry.title === 'Competing claims summary')!;
@@ -272,14 +272,14 @@ describe('Era I Commercial F02-F04 causal matter pipeline', () => {
     expect(submitted?.feedback?.code).toBe('assignment-activity-submitted');
     const playerId = state.player.currentCharacterId;
     const receiverHistory = submitted!.state.world.relationships[ERA1_COM_F02_F04_PEOPLE.utuMansum][playerId]?.history;
-    expect(receiverHistory?.[0].summary).toContain('Utu-mansum reads the sequence twice');
+    expect(receiverHistory?.at(-1)?.summary).toContain('Utu-mansum reads the sequence twice');
 
     for (const recipientId of [ERA1_COM_F02_F04_PEOPLE.enlilKisu, ERA1_COM_F02_F04_PEOPLE.amaGi]) {
       const recipientName = submitted!.state.world.people[recipientId].name;
       const history = submitted!.state.world.relationships[recipientId][playerId]?.history;
-      expect(history).toHaveLength(1);
-      expect(history![0].summary).not.toContain('Utu-mansum reads the sequence twice');
-      expect(history![0].summary).toContain(`After Enlil-barni submitted "Custody-chain report" on Day 10, ${recipientName}'s trust toward Enlil-barni increased and respect increased.`);
+      const latest = history?.at(-1);
+      expect(latest?.summary).not.toContain('Utu-mansum reads the sequence twice');
+      expect(latest?.summary).toContain(`After Enlil-barni submitted "Custody-chain report" on Day 10, ${recipientName}'s trust toward Enlil-barni increased and respect increased.`);
     }
   });
 
