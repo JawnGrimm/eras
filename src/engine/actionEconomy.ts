@@ -592,8 +592,8 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
       next = advanceInstitutionalMatters(next, state.calendar.dayNumber + 1);
       next = advanceInstitutionalResponses(next, state.calendar.dayNumber + 1);
       next = generateDailyAssignments(next);
-      next = buildSituatedMorningReport(state, next);
       next = runChallengeDirector(next);
+      next = buildSituatedMorningReport(state, next);
       if (!hadProvision && (shortageWorkdays <= 2 || shortageWorkdays === 3)) {
         next = withNotice(next, 'settlement', shortageWorkdays <= 2
           ? 'No provisions were available. Shortage day ' + shortageWorkdays + ' of 2 grace days.'

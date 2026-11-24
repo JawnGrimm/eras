@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { AssignmentId, EventId, InstitutionId, MatterId } from '../state/ids';
 import { createInitialGameState } from '../state/initialState';
+import { transitionGame } from '../engine/actionEconomy';
 import { createNewGameState } from '../state/newGameState';
 import { TEST_CHARACTER_CREATION } from './fixtures/newGameCharacter';
 import { STOREHOUSE_WORK_ID } from '../works/storehouseReckoning';
@@ -272,4 +273,24 @@ describe('P2-2 authored Uruk Assignment activities', () => {
     expect(again.opportunities.challenges['challenge-seven-sacks' as never]?.status).toBe('declined');
     expect(again.historicalProgression.historicalXp).toBe(state.historicalProgression.historicalXp);
   });
+  it('includes a newly selected Challenge in the same Workday Morning Report', () => {
+    let state = withHeldMatter(withCompletedTutorial(createInitialGameState()), 1);
+    state = { ...state, calendar: { ...state.calendar, dayNumber: 3, displayDate: 'Day 3 · Uruk (c. 3200 BCE)' } };
+
+    const closed = transitionGame(state, { type: 'END_DAY', expectedDayNumber: 3 });
+    expect(closed.feedback?.code).toBe('evening-interlude-opened');
+    const settlementId = closed.state.dayClose.pendingSettlementId;
+    expect(settlementId).toBe('era-1:3');
+
+    const begun = transitionGame(closed.state, { type: 'BEGIN_WORKDAY', expectedSettlementId: settlementId! });
+    expect(begun.feedback?.code).toBe('workday-begun');
+    const challenge = Object.values(begun.state.opportunities.challenges)
+      .find((item) => item.title === 'The Seven Sealed Jars');
+    expect(challenge?.presentedDay).toBe(4);
+
+    const report = begun.state.journal.notices.find((notice) => notice.id === 'morning-report-day-4');
+    expect(report?.message).toContain('New Challenge arose: The Seven Sealed Jars.');
+    expect(begun.state.journal.notices.filter((notice) => notice.id === 'morning-report-day-4')).toHaveLength(1);
+  });
+
 });
