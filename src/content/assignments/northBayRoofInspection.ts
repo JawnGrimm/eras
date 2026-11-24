@@ -29,6 +29,7 @@ export interface AssignmentActivityDiscoveryDefinition { id: string; title: stri
 export interface AssignmentActivityReportSchema {
   title: string;
   responsibilityLabel: string;
+  responsibilityHint?: string;
   findings: Array<{ id: string; label: string }>;
   responsibilityClaims: Array<{ id: string; label: string }>;
   recommendations: Array<{ id: string; label: string }>;
@@ -69,6 +70,7 @@ export const northBayRoofInspection: AssignmentActivityDefinition = {
   reportSchema: {
     title: 'Inspection report',
     responsibilityLabel: 'Responsibility claim',
+    responsibilityHint: 'Dudu’s recorded contract covered the mid-bay patch only; the remaining work was outside the recorded fee.',
     findings: [
       { id: 'insufficient_evidence', label: 'Insufficient evidence to certify' },
       { id: 'repair_incomplete', label: 'Repair incomplete / further work required' },
