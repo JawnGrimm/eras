@@ -7,7 +7,7 @@ import {
   createSouthCourtDeliveryMatter, createSouthLoadingAwningMatter,
 } from '../engine/institutionalMatters';
 export const INITIAL_PERSON_ID = 'person-enlil-barni' as PersonId;
-export function createInitialGameState(player?: Person): GameState {
+export function createInitialGameState(player?: Person, opportunitySeed = 'era1-initial-state-seed'): GameState {
   const initialPerson: Person = player ?? {
     id: INITIAL_PERSON_ID, name: 'Enlil-barni', alive: true, affiliations: [],
     lifeStage: 'junior_scribe' as const,
@@ -126,6 +126,7 @@ export function createInitialGameState(player?: Person): GameState {
   };
   return {
     calendar: { eraId: 'era-1', dayNumber: 1, displayDate: 'Day 1 · Uruk (c. 3200 BCE)' },
+    dayClose: { phase: 'workday_open', pendingSettlementId: null, lastFinalizedSettlementId: null, pendingCredits: [] },
     actionEconomy: { dailyApAllocation: 6, apRemaining: 6, overtimeUsedToday: false, nextDayApPenalty: false, recoveryLaborUsedToday: false },
     player: { currentCharacterId: activePlayer.id },
     pendingSuccession: null,
@@ -160,7 +161,7 @@ export function createInitialGameState(player?: Person): GameState {
       },
     },
     historicalProgression: { historicalXp: 0, completedWorks: [] },
-    opportunities: { assignments: {}, challenges: {}, challengeOutcomes: [], assignmentAggregates: {}, recentActivity: [], assignmentGeneratorLedger: { sequence: 0, lastPresentedDayByActivity: {} } },
+    opportunities: { assignments: {}, challenges: {}, challengeOutcomes: [], assignmentAggregates: {}, recentActivity: [], selectionSeed: opportunitySeed, occurrenceLedger: [], assignmentGeneratorLedger: { sequence: 0, lastPresentedDayByActivity: {} } },
     works: { activeWorkId: null, progress: {} },
     records: { entries: {}, permanentOutcomes: [] },
     journal: { notices: [] },
