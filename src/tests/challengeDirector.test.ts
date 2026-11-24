@@ -165,6 +165,12 @@ describe('Challenge candidate selection and occurrence lifecycle', () => {
         }],
       },
     };
+    const duplicate = transitionOpportunityAction({
+      ...state,
+      opportunities: { ...state.opportunities, challenges: {} },
+    }, { type: 'PRESENT_CHALLENGE', challenge: item });
+    expect(duplicate.feedback?.code).toBe('challenge-occurrence-duplicate');
+
     const accepted = transitionOpportunityAction(state, { type: 'ACCEPT_CHALLENGE', challengeId: id as ChallengeId });
     expect(accepted.state.opportunities.occurrenceLedger[0].lifecycle).toBe('accepted');
     expect(accepted.state.opportunities.occurrenceLedger[0].assigneePersonId).toBe(state.player.currentCharacterId);
