@@ -146,3 +146,31 @@ No save-schema bump or migration is authorized. Keep schema v2; preserve legacy 
 - No runtime generative AI was added.
 
 **Production result:** The approved character-creation flow is on `main` and deployed. The live entry path is the Creator for players without a production save; confirmed creation leads to Workday 1 with six AP and the Storehouse Reckoning available.
+
+
+## Issue #82 / Issue #85 execution snapshot — 24 November 2026
+
+**Verified source:** live GitHub repository `JawnGrimm/eras`, `main` at `a6e00cb6fbb08bbec8773d1dce9da5a4341f750c`; PR metadata, current PR heads, and GitHub check runs inspected on 24 November 2026. This entry supplements earlier dated snapshots; it does not rewrite them.
+
+### Historical content and authored source
+
+- **PR #86 — MERGED:** `dev/GD-ERA1-ANCHORS-001.md` is present on `main` as the authored semantic source for the five approved Era I Assignment anchors. Its merge-commit blob matches the current `main` blob; no drift was found.
+- The five scripts are authored content, not merely research seeds or Production fixtures. They remain a semantic authoring document; they are not yet executable Assignment definitions or a TypeScript content schema.
+- **PR #87 — OPEN / DRAFT / UNMERGED:** current head `1d283ad3eeeda76e72940d7429528eda249629c9`; documentation-only. The inert TypeScript mirror and structural tests were removed. It retains `docs/production/ISSUE-85-TECHNICAL-DESIGN.md` as a proposed technical note. Pull Request Validation, TypeScript analysis, and CodeQL all passed on that exact head. No runtime files or save data changed.
+
+### Issue #82 — QA corrections
+
+- **Issue #82 remains OPEN.**
+- **PR #88 — OPEN / DRAFT / UNMERGED**, head `16ae78c8a4f40ea5bd3ef16839fbba86a07f598e`. QA-82-1, QA-82-2, QA-82-4, and QA-82-5 are implemented in the PR. The latest-head checks `validate`, `Analyze (javascript-typescript)`, and `CodeQL` all completed successfully. The reported CI run executed 29 test files / 221 tests, TypeScript validation, and the production build; these are CI results, not local execution.
+- QA-82-3 remains BLOCKED pending Game Director direction. The current character-creation specification requires curated transliterations to be displayed as written and prohibits invented pronunciations; the QA finding prohibits exposing raw sign/catalog notation as the player-facing name. Production has not invented pronunciations or silently renamed saved characters.
+- No QA correction is yet merged, deployed, or accepted as verified. The issue remains open until the blocked item is resolved and the corrections meet their individual acceptance criteria.
+
+### Issue #85 — authorized preparation; runtime held by sequencing
+
+- **Issue #85 remains OPEN and authorized.** Runtime integration touching overlapping opportunity/UI surfaces remains sequenced after Issue #82 lands. Independent audit, technical design, and non-overlapping preparation may continue.
+- **Runtime integration has not started** in the verified PRs described above. No persistent-state change, save-schema change, or migration has shipped; the live save schema remains v2.
+- The Production technical note in PR #87 proposes a durable occurrence/lifecycle model, deterministic selection, and a Day-Close compatibility approach. These are proposals, not approved technical contracts. It correctly identifies that an optional schema-v2 field cannot safely represent a persisted intermediate Interlude to an older reader; a schema-v3/migration proposal requires review before implementation ships.
+- Recovery audit: `REQUEST_CONTACT_ADVANCE` is an existing conditional personal-help/advance route from Ur-gir, transferring one Provision with a repayment/service obligation. It is not universally available. `PERFORM_RECOVERY_LABOR` exists but currently rejects use while the player has any Provisions; it therefore fails the approved pre-depletion availability requirement. The route must become visible and usable before depletion, across all four orientations, using ordinary Workday AP/approved Overtime only.
+- The proposed Playtest 1 Currency-to-Provisions table and worked multi-day survival example have not yet been submitted/ratified. No Currency conversion rate or permanent recovery payout is approved by this status entry.
+
+**Status summary:** Issue #82 — IN PROGRESS, with four corrections in an unmerged draft PR and one owner-blocked correction. Issue #85 — IN PROGRESS, with authored anchor source merged and non-overlapping technical preparation in draft review; runtime integration remains held behind #82. No merge, deployment, or end-to-end verification is claimed for either issue.
