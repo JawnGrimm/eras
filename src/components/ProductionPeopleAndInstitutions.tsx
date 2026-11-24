@@ -289,7 +289,7 @@ function InstitutionDetail({ institution, people, matters, records, events, appo
   </article>;
 }
 
-export function ProductionPeopleAndInstitutions({ initialSection = 'people' }: { initialSection?: PeopleInstitutionSection } = {}) {
+export function ProductionPeopleAndInstitutions({ initialSection = 'people' }: { initialSection?: PeopleInstitutionSection }) {
   const { state } = useGame();
   const people = Object.values(state.world.people).sort((a, b) => a.name.localeCompare(b.name));
   const institutions = Object.values(state.world.institutions).sort((a, b) => a.name.localeCompare(b.name));
@@ -319,7 +319,7 @@ export function ProductionPeopleAndInstitutions({ initialSection = 'people' }: {
       if (fromId !== selectedPerson.id && toId !== selectedPerson.id) return [];
       const from = state.world.people[fromId as PersonId];
       const to = state.world.people[toId as PersonId];
-      return from && to ? [{ from, to, relationship }] : [];
+      return from && to && relationship ? [{ from, to, relationship }] : [];
     })) : [];
   const selectedPersonAppointments = selectedPerson
     ? Object.values(state.world.appointments).filter((item) => item.personId === selectedPerson.id)
