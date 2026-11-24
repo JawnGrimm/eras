@@ -10,6 +10,29 @@ export const ERA1_COM_F01_LOCATION_ID = 'location-uruk-eanna-receiving-court' as
 export const EANNA_INSTITUTION_ID = 'institution-uruk-eanna-precinct' as InstitutionId;
 export const EANNA_TABLET_ROOM_LOCATION_ID = 'location-uruk-eanna-tablet-room' as LocationId;
 
+
+
+export const MATTER_IDS = {
+  tutorial: 'matter-storehouse-reckoning-tutorial' as MatterId,
+  roofRepair: 'matter-north-bay-roof-verification' as MatterId,
+  heldBarley: 'matter-held-barley-inspection' as MatterId,
+  waterIngress: 'matter-north-bay-water-ingress' as MatterId,
+  southCourtDelivery: 'matter-south-court-delivery-reconciliation' as MatterId,
+  southLoadingAwning: 'matter-south-loading-awning-inspection' as MatterId,
+  era1ComF01: 'matter-era1-com-f01-material-description' as MatterId,
+} as const;
+
+const PEOPLE = {
+  steward: 'person-ur-nanna' as PersonId,
+  receivingOfficial: 'person-utu-mansum' as PersonId,
+  carrierForeman: 'person-enlil-kisu' as PersonId,
+  seniorScribe: 'person-shuruppak-ilu' as PersonId,
+  repairer: 'person-dudu' as PersonId,
+  workshopOverseer: 'person-ur-lamma' as PersonId,
+  responsibleAuthority: 'person-lu-nanshe' as PersonId,
+  carrier: 'person-kuli' as PersonId,
+} as const;
+
 const ERA_I_ANCHOR_MATTER_SEEDS = [
   {
     dayNumber: 2, matterId: 'matter-era1-com-01-consignment' as MatterId,
@@ -77,27 +100,6 @@ const ERA_I_ANCHOR_MATTER_SEEDS = [
     ],
   },
 ] as const;
-
-export const MATTER_IDS = {
-  tutorial: 'matter-storehouse-reckoning-tutorial' as MatterId,
-  roofRepair: 'matter-north-bay-roof-verification' as MatterId,
-  heldBarley: 'matter-held-barley-inspection' as MatterId,
-  waterIngress: 'matter-north-bay-water-ingress' as MatterId,
-  southCourtDelivery: 'matter-south-court-delivery-reconciliation' as MatterId,
-  southLoadingAwning: 'matter-south-loading-awning-inspection' as MatterId,
-  era1ComF01: 'matter-era1-com-f01-material-description' as MatterId,
-} as const;
-
-const PEOPLE = {
-  steward: 'person-ur-nanna' as PersonId,
-  receivingOfficial: 'person-utu-mansum' as PersonId,
-  carrierForeman: 'person-enlil-kisu' as PersonId,
-  seniorScribe: 'person-shuruppak-ilu' as PersonId,
-  repairer: 'person-dudu' as PersonId,
-  workshopOverseer: 'person-ur-lamma' as PersonId,
-  responsibleAuthority: 'person-lu-nanshe' as PersonId,
-  carrier: 'person-kuli' as PersonId,
-} as const;
 
 export function createSouthCourtDeliveryMatter(dayNumber: number): InstitutionalMatter {
   return {
