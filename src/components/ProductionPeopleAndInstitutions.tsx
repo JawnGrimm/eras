@@ -1,131 +1,398 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { getInitializedScribal } from '../state/scribalState';
 import { useGame } from '../state/GameProvider';
-import type { PersonRelationship } from '../state/types';
-import type { InstitutionId, PersonId } from '../state/ids';
+import type { InstitutionId, PersonId, MatterId, RecordId } from '../state/ids';
+import type { InstitutionalMatter, Person, PersonRelationship, RecordEntry } from '../state/types';
 import { PersonHistoryPanel } from './PersonHistoryPanel';
+
+type DirectorySection = 'people' | 'institutions';
+type PersonLifeFilter = 'all' | 'living' | 'deceased';
+
+function matchesQuery(values: Array<string | undefined>, query: string): boolean {
+  const normalized = query.trim().toLocaleLowerCase();
+  return !normalized || values.some((value) => value?.toLocaleLowerCase().includes(normalized));
+}
 
 function RelationshipCard({ fromName, toName, relationship }: {
   fromName: string; toName: string; relationship: PersonRelationship;
 }) {
-  return <article className="rounded-lg border border-stone-200 bg-stone-50 p-4">
-    <h3 className="font-semibold text-stone-900">{fromName} → {toName}</h3>
-    <dl className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+  return <details className="rounded-lg border border-stone-200 bg-stone-50 p-3">
+    <summary className="cursor-pointer rounded text-sm font-semibold text-stone-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-700">
+      {fromName} → {toName}
+      <span className="ml-2 text-xs font-normal text-stone-500">{relationship.history.length} history entries</span>
+    </summary>
+    <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
       {Object.entries(relationship.dimensions).map(([dimension, score]) => <div key={dimension}>
-        <dt className="text-xs capitalize text-stone-500">{dimension}</dt><dd className="font-mono text-lg">{score}<span className="text-xs text-stone-400">/100</span></dd>
+        <dt className="text-xs capitalize text-stone-500">{dimension}</dt>
+        <dd className="font-mono text-base">{score}<span className="text-xs text-stone-400">/100</span></dd>
       </div>)}
-    </dl>
-    <div className="mt-3 border-t border-stone-200 pt-3">
-      <h4 className="text-xs font-semibold uppercase tracking-wide text-stone-500">History from this perspective</h4>
-      {relationship.history.length === 0 ? <p className="mt-1 text-xs text-stone-500">No relationship history recorded.</p> :
-        <ol className="mt-2 space-y-2">{relationship.history.map((entry) => <li key={entry.id} className="text-sm text-stone-700">
+    </div>
+    <details className="mt-3 border-t border-stone-200 pt-3">
+      <summary className="cursor-pointer text-xs font-semibold text-stone-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-700">
+        History from this perspective ({relationship.history.length})
+      </summary>
+      {relationship.history.length === 0
+        ? <p className="mt-2 text-xs text-stone-500">No relationship history recorded.</p>
+        : <ol className="mt-2 space-y-2">{relationship.history.map((entry) => <li key={entry.id} className="text-sm text-stone-700">
           <span className="mr-2 font-mono text-xs text-stone-500">Day {entry.dayNumber}</span>{entry.summary}
           {entry.eventId && <span className="ml-1 text-xs text-stone-500">(Event: {entry.eventId})</span>}
         </li>)}</ol>}
+    </details>
+  </details>;
+}
+
+function PersonIndexRow({ person, context, selected, onSelect }: {
+  person: Person; context: string; selected: boolean; onSelect: () => void;
+}) {
+  return <button type="button" onClick={onSelect} aria-pressed={selected}
+    className={`w-full rounded-lg border px-3 py-3 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-700 ${selected ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-200 bg-white text-stone-900 hover:bg-stone-50'}`}>
+    <span className="flex items-center justify-between gap-2">
+      <span className="font-semibold">{person.name}</span>
+      {selected && <span className="text-[10px] font-semibold uppercase tracking-wide">Selected</span>}
+    </span>
+    <span className={`mt-1 block text-xs ${selected ? 'text-stone-200' : 'text-stone-500'}`}>
+      {person.alive ? 'Living' : 'Deceased'}{person.lifeStage ? ` · ${person.lifeStage.replace(/_/g, ' ')}` : ''}
+    </span>
+    <span className={`mt-1 block line-clamp-2 text-xs ${selected ? 'text-stone-200' : 'text-stone-600'}`}>{context}</span>
+  </button>;
+}
+
+function PersonDetail({ person, people, institutions, relationships, appointments }: {
+  person: Person;
+  people: Readonly<Record<string, Person>>;
+  institutions: Readonly<Record<string, { name: string }>>;
+  relationships: Array<{ from: Person; to: Person; relationship: PersonRelationship }>;
+  appointments: Array<{ id: string; title: string; institutionId: InstitutionId; startDay: number; endDay?: number; authorityScope: string[]; responsibilities: string[] }>;
+}) {
+  const scribal = getInitializedScribal(person);
+  const circumstances = (person.circumstances ?? []).filter((item) => item.status === 'active' && item.visibility === 'public');
+  const commitments = (person.commitments ?? []).filter((item) => item.status === 'active' && item.visibility === 'public');
+  const historyCount = person.lifeEvents?.length ?? 0;
+  const familiarityCount = person.familiarities?.length ?? 0;
+
+  return <article aria-labelledby="selected-person-heading" className="rounded-xl border border-stone-300 bg-white p-4 sm:p-5">
+    <header>
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div>
+          <h3 id="selected-person-heading" className="font-serif text-2xl font-semibold">{person.name}</h3>
+          <p className="mt-1 text-xs text-stone-500">
+            {person.alive ? 'Living' : 'Deceased'} · {person.ageYears === undefined ? 'Age not recorded' : `${person.ageYears} years`}
+            {person.lifeStage ? ` · ${person.lifeStage.replace(/_/g, ' ')}` : ''}
+          </p>
+          {person.socialIdentity?.summary && <p className="mt-2 max-w-2xl text-sm leading-6 text-stone-700">{person.socialIdentity.summary}</p>}
+        </div>
+        {person.id === person.id && <span className="rounded bg-stone-100 px-2 py-1 text-xs text-stone-600">Profile detail</span>}
+      </div>
+    </header>
+
+    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+      <details className="rounded-lg border border-stone-200 bg-stone-50 p-3">
+        <summary className="cursor-pointer text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-700">
+          Affiliations ({person.affiliations.length})
+        </summary>
+        {person.affiliations.length
+          ? <ul className="mt-2 list-inside list-disc text-sm text-stone-700">{person.affiliations.map((id) => <li key={id}>{institutions[id as InstitutionId]?.name ?? id}</li>)}</ul>
+          : <p className="mt-2 text-xs text-stone-500">None recorded.</p>}
+      </details>
+
+      <details className="rounded-lg border border-stone-200 bg-stone-50 p-3">
+        <summary className="cursor-pointer text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-700">
+          Professional reputation {scribal ? '' : '(no record)'}
+        </summary>
+        {scribal
+          ? <dl className="mt-2 grid grid-cols-2 gap-2">{Object.entries(scribal.professionalReputation).map(([key, value]) =>
+            <div key={key} className="rounded bg-white p-2"><dt className="text-xs capitalize text-stone-500">{key}</dt><dd className="font-mono">{value}/100</dd></div>)}</dl>
+          : <p className="mt-2 text-xs text-stone-500">No professional reputation record is available for this person.</p>}
+      </details>
+
+      <details className="rounded-lg border border-stone-200 bg-stone-50 p-3 sm:col-span-2">
+        <summary className="cursor-pointer text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-700">
+          Institutional standing ({scribal ? Object.keys(scribal.institutionalStanding).length : 0})
+        </summary>
+        {scribal && Object.keys(scribal.institutionalStanding).length
+          ? <dl className="mt-2 grid gap-2 sm:grid-cols-2">{Object.entries(scribal.institutionalStanding).map(([id, value]) =>
+            <div key={id} className="rounded bg-white p-3"><dt className="text-xs text-stone-500">{institutions[id as InstitutionId]?.name ?? id}</dt><dd className="font-mono">{value}/100</dd></div>)}</dl>
+          : <p className="mt-2 text-xs text-stone-500">No institutional standing entries are recorded.</p>}
+      </details>
     </div>
+
+    <details className="mt-3 rounded-lg border border-stone-200 bg-white p-3">
+      <summary className="cursor-pointer text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-700">
+        Personal history ({historyCount} Life Events · {familiarityCount} domain familiarity entries)
+      </summary>
+      <PersonHistoryPanel person={person} people={people} compact />
+    </details>
+
+    {(circumstances.length > 0 || commitments.length > 0) && <div className="mt-3 grid gap-3 sm:grid-cols-2">
+      {circumstances.length > 0 && <details className="rounded-lg border border-stone-200 bg-stone-50 p-3">
+        <summary className="cursor-pointer text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-700">Current circumstances ({circumstances.length})</summary>
+        <ul className="mt-2 space-y-2">{circumstances.map((item) => <li key={item.id} className="rounded bg-white p-3 text-sm text-stone-700">{item.summary}</li>)}</ul>
+      </details>}
+      {commitments.length > 0 && <details className="rounded-lg border border-stone-200 bg-stone-50 p-3">
+        <summary className="cursor-pointer text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-700">Declared responsibilities ({commitments.length})</summary>
+        <ul className="mt-2 space-y-2">{commitments.map((item) => <li key={item.id} className="rounded bg-white p-3 text-sm text-stone-700">{item.summary}</li>)}</ul>
+      </details>}
+    </div>}
+
+    <details className="mt-3 rounded-lg border border-stone-200 bg-stone-50 p-3">
+      <summary className="cursor-pointer text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-700">
+        Appointments and office scopes ({appointments.length})
+      </summary>
+      {appointments.length
+        ? <div className="mt-2 space-y-2">{appointments.map((appointment) => <article key={appointment.id} className="rounded bg-white p-3">
+          <p className="text-sm font-semibold">{appointment.title} · {institutions[appointment.institutionId]?.name ?? appointment.institutionId}</p>
+          <p className="mt-1 text-xs text-stone-500">From Day {appointment.startDay}{appointment.endDay === undefined ? ' · Current' : ` to Day ${appointment.endDay} · Ended`}</p>
+          <p className="mt-2 text-xs text-stone-700"><strong>Authority scope:</strong> {appointment.authorityScope.join('; ')}</p>
+          <p className="mt-1 text-xs text-stone-700"><strong>Responsibilities:</strong> {appointment.responsibilities.join('; ') || 'Not specified'}</p>
+        </article>)}</div>
+        : <p className="mt-2 text-xs text-stone-500">No appointments are recorded.</p>}
+    </details>
+
+    <section className="mt-4 border-t border-stone-200 pt-4">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h4 className="text-sm font-semibold">Directional relationships</h4>
+        <span className="text-xs text-stone-500">{relationships.length} recorded edges</span>
+      </div>
+      <p className="mt-1 text-xs text-stone-500">Each arrow is one person's perspective. A reverse relationship appears only when separately recorded.</p>
+      {relationships.length
+        ? <div className="mt-2 space-y-2">{relationships.map(({ from, to, relationship }) =>
+          <RelationshipCard key={`${from.id}-${to.id}`} fromName={from.name} toName={to.name} relationship={relationship} />)}</div>
+        : <p className="mt-2 text-xs text-stone-500">No directional relationship entries are recorded for this person.</p>}
+    </section>
+  </article>;
+}
+
+function MatterSources({ matter, records, people, events }: {
+  matter: InstitutionalMatter;
+  records: Readonly<Record<string, RecordEntry>>;
+  people: Readonly<Record<string, Person>>;
+  events: Readonly<Record<string, { summary: string }>>;
+}) {
+  if (!matter.provenance?.length) return <p className="mt-2 text-xs text-stone-500">No linked provenance is recorded for this matter.</p>;
+  return <details className="mt-3 border-t border-stone-200 pt-2">
+    <summary className="cursor-pointer text-xs font-semibold text-stone-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-700">
+      Source trail ({matter.provenance.length})
+    </summary>
+    <ul className="mt-2 space-y-1 text-xs text-stone-700">{matter.provenance.map((source) => {
+      const label = source.kind === 'record_copy' ? records[source.sourceId]?.title ?? source.sourceId
+        : source.kind === 'event' ? events[source.sourceId]?.summary ?? source.sourceId
+          : source.kind === 'testimony' ? people[source.sourceId]?.name ?? source.sourceId
+            : source.sourceId;
+      return <li key={source.id}><span className="font-medium">{label}</span> · {source.description}</li>;
+    })}</ul>
+  </details>;
+}
+
+function InstitutionDetail({ institution, people, institutions, matters, records, events, appointments }: {
+  institution: { id: InstitutionId; name: string; standing: number; responsibilities: string[]; authority: string[]; activeMatters: MatterId[] };
+  people: Readonly<Record<string, Person>>;
+  institutions: Readonly<Record<string, { name: string }>>;
+  matters: InstitutionalMatter[];
+  records: Readonly<Record<string, RecordEntry>>;
+  events: Readonly<Record<string, { summary: string }>>;
+  appointments: Array<{ id: string; personId: PersonId; title: string; authorityScope: string[]; responsibilities: string[]; startDay: number; endDay?: number }>;
+}) {
+  const currentMatters = matters.filter((matter) => matter.status === 'active');
+  const historicalMatters = matters.filter((matter) => matter.status !== 'active');
+  return <article aria-labelledby="selected-institution-heading" className="rounded-xl border border-stone-300 bg-white p-4 sm:p-5">
+    <header className="flex flex-wrap items-start justify-between gap-2">
+      <div><h3 id="selected-institution-heading" className="font-serif text-2xl font-semibold">{institution.name}</h3>
+        <p className="mt-1 text-xs text-stone-500">General standing <span className="font-mono">{institution.standing}/100</span></p></div>
+    </header>
+
+    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+      <section className="rounded-lg bg-stone-50 p-3"><h4 className="text-sm font-semibold">Responsibilities</h4>
+        <ul className="mt-2 list-inside list-disc text-sm text-stone-700">{institution.responsibilities.map((item, index) => <li key={index}>{item}</li>)}</ul>
+      </section>
+      <section className="rounded-lg bg-stone-50 p-3"><h4 className="text-sm font-semibold">Institutional authority</h4>
+        <ul className="mt-2 list-inside list-disc text-sm text-stone-700">{institution.authority.map((item, index) => <li key={index}>{item}</li>)}</ul>
+      </section>
+    </div>
+
+    <section className="mt-4">
+      <h4 className="text-sm font-semibold">Current matters ({currentMatters.length})</h4>
+      {currentMatters.length
+        ? <div className="mt-2 space-y-2">{currentMatters.map((matter) => <article key={matter.id} className="rounded-lg border border-amber-200 bg-amber-50/40 p-3">
+          <p className="text-sm font-medium text-stone-800">{matter.summary}</p>
+          <p className="mt-1 text-xs text-stone-500">Active · opened Day {matter.createdDay}{matter.involvedPersonIds?.length ? ` · ${matter.involvedPersonIds.map((id) => people[id]?.name ?? id).join(', ')}` : ''}</p>
+          <MatterSources matter={matter} records={records} people={people} events={events} />
+        </article>)}</div>
+        : <p className="mt-2 text-xs text-stone-500">No active matters are recorded for this institution.</p>}
+    </section>
+
+    <details className="mt-4 border-t border-stone-200 pt-3">
+      <summary className="cursor-pointer text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-700">
+        Historical matters ({historicalMatters.length})
+      </summary>
+      {historicalMatters.length
+        ? <div className="mt-2 space-y-2">{historicalMatters.map((matter) => <article key={matter.id} className="rounded-lg bg-stone-50 p-3">
+          <p className="text-sm text-stone-800">{matter.summary}</p>
+          <p className="mt-1 text-xs capitalize text-stone-500">{matter.status.replace(/_/g, ' ')} · opened Day {matter.createdDay}{matter.developedDay ? ` · developed Day ${matter.developedDay}` : ''}</p>
+          <MatterSources matter={matter} records={records} people={people} events={events} />
+        </article>)}</div>
+        : <p className="mt-2 text-xs text-stone-500">No developed or resolved matters are recorded.</p>}
+    </details>
+
+    <details className="mt-4 border-t border-stone-200 pt-3">
+      <summary className="cursor-pointer text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-700">
+        Appointments and delegated office scopes ({appointments.length})
+      </summary>
+      {appointments.length
+        ? <div className="mt-2 space-y-2">{appointments.map((appointment) => <article key={appointment.id} className="rounded-lg bg-stone-50 p-3">
+          <p className="text-sm font-semibold">{appointment.title} · {people[appointment.personId]?.name ?? appointment.personId}</p>
+          <p className="mt-1 text-xs text-stone-700"><strong>Authority:</strong> {appointment.authorityScope.join('; ')}</p>
+          <p className="mt-1 text-xs text-stone-700"><strong>Responsibilities:</strong> {appointment.responsibilities.join('; ')}</p>
+          <p className="mt-1 text-xs text-stone-500">Day {appointment.startDay}{appointment.endDay === undefined ? ' onward' : ` through Day ${appointment.endDay}`}</p>
+        </article>)}</div>
+        : <p className="mt-2 text-xs text-stone-500">No appointments are recorded.</p>}
+    </details>
+
+    <details className="mt-4 border-t border-stone-200 pt-3">
+      <summary className="cursor-pointer text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-700">
+        Institutional records ({Object.values(records).length})
+      </summary>
+      {Object.values(records).length
+        ? <div className="mt-2 space-y-2">{Object.values(records).sort((a, b) => b.createdDay - a.createdDay).map((record) => <details key={record.id} className="rounded-lg bg-stone-50 p-3">
+          <summary className="cursor-pointer text-sm font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-700">
+            {record.title} · Day {record.createdDay} · {record.assertions.length} assertions
+          </summary>
+          <p className="mt-2 text-xs text-stone-500">Author: {people[record.authorPersonId]?.name ?? record.authorPersonId}</p>
+          <h5 className="mt-2 text-xs font-semibold">Sources</h5>
+          <ul className="mt-1 space-y-1 text-xs text-stone-700">{record.sources.map((source) => <li key={source.id}>{source.description}</li>)}</ul>
+          <h5 className="mt-2 text-xs font-semibold">Assertions</h5>
+          <ul className="mt-1 space-y-1 text-sm text-stone-700">{record.assertions.map((assertion) => <li key={assertion.id}>{assertion.text} <span className="text-xs text-stone-500">({assertion.classification})</span></li>)}</ul>
+        </details>)}</div>
+        : <p className="mt-2 text-xs text-stone-500">No institutional records are linked.</p>}
+    </details>
   </article>;
 }
 
 export function ProductionPeopleAndInstitutions() {
   const { state } = useGame();
-  const people = Object.values(state.world.people);
-  const institutions = Object.values(state.world.institutions);
-  const relationshipRows = people.flatMap((from) => Object.entries(state.world.relationships[from.id] ?? {})
-    .flatMap(([toId, relationship]) => {
-      const to = state.world.people[toId as PersonId];
-      return to && relationship ? [{ from, to, relationship }] : [];
-    }));
+  const people = Object.values(state.world.people).sort((a, b) => a.name.localeCompare(b.name));
+  const institutions = Object.values(state.world.institutions).sort((a, b) => a.name.localeCompare(b.name));
+  const [section, setSection] = useState<DirectorySection>('people');
+  const [personQuery, setPersonQuery] = useState('');
+  const [personLifeFilter, setPersonLifeFilter] = useState<PersonLifeFilter>('all');
+  const [institutionQuery, setInstitutionQuery] = useState('');
+  const [selectedPersonId, setSelectedPersonId] = useState<PersonId>(state.player.currentCharacterId);
+  const initialInstitution = institutions.find((item) => item.activeMatters.length > 0) ?? institutions[0];
+  const [selectedInstitutionId, setSelectedInstitutionId] = useState<InstitutionId>(initialInstitution?.id);
 
-  return <div className="mx-auto max-w-6xl space-y-6">
+  const matchingPeople = people.filter((person) => {
+    if (personLifeFilter === 'living' && !person.alive) return false;
+    if (personLifeFilter === 'deceased' && person.alive) return false;
+    const appointments = Object.values(state.world.appointments).filter((item) => item.personId === person.id);
+    const affiliationNames = person.affiliations.map((id) => state.world.institutions[id as InstitutionId]?.name);
+    return matchesQuery([
+      person.name, person.socialIdentity?.occupation, person.socialIdentity?.summary, person.lifeStage,
+      ...affiliationNames, ...appointments.map((item) => item.title),
+    ], personQuery);
+  });
+  const selectedPerson = matchingPeople.find((person) => person.id === selectedPersonId) ?? matchingPeople[0];
+  const relationshipRows = selectedPerson ? Object.entries(state.world.relationships).flatMap(([fromId, targets]) =>
+    Object.entries(targets).flatMap(([toId, relationship]) => {
+      if (fromId !== selectedPerson.id && toId !== selectedPerson.id) return [];
+      const from = state.world.people[fromId as PersonId];
+      const to = state.world.people[toId as PersonId];
+      return from && to ? [{ from, to, relationship }] : [];
+    })) : [];
+  const selectedPersonAppointments = selectedPerson
+    ? Object.values(state.world.appointments).filter((item) => item.personId === selectedPerson.id)
+    : [];
+
+  const matchingInstitutions = institutions.filter((institution) => {
+    const matters = Object.values(state.world.matters).filter((matter) => matter.institutionId === institution.id);
+    const appointments = Object.values(state.world.appointments).filter((item) => item.institutionId === institution.id);
+    return matchesQuery([
+      institution.name, ...institution.responsibilities, ...institution.authority,
+      ...matters.map((matter) => matter.summary), ...appointments.map((item) => item.title),
+    ], institutionQuery);
+  });
+  const selectedInstitution = matchingInstitutions.find((item) => item.id === selectedInstitutionId) ?? matchingInstitutions[0];
+  const selectedInstitutionMatters = selectedInstitution
+    ? Object.values(state.world.matters).filter((matter) => matter.institutionId === selectedInstitution.id)
+    : [];
+  const selectedInstitutionAppointments = selectedInstitution
+    ? Object.values(state.world.appointments).filter((item) => item.institutionId === selectedInstitution.id)
+    : [];
+  const linkedRecordIds = new Set(selectedInstitutionMatters.flatMap((matter) =>
+    (matter.provenance ?? []).filter((source) => source.kind === 'record_copy').map((source) => source.sourceId as RecordId)));
+  const selectedInstitutionRecords = selectedInstitution
+    ? Object.values(state.records.entries).filter((record) => record.institutionId === selectedInstitution.id || linkedRecordIds.has(record.id))
+    : [];
+
+  const personContext = (person: Person) => person.socialIdentity?.occupation
+    ?? person.affiliations.map((id) => state.world.institutions[id as InstitutionId]?.name).filter(Boolean).join(', ')
+    ?? 'No additional role recorded';
+
+  return <div className="mx-auto max-w-6xl space-y-5">
     <header>
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-800">World and social network</p>
       <h1 className="font-serif text-3xl font-semibold">People & Institutions</h1>
-      <p className="mt-2 max-w-3xl text-sm leading-6 text-stone-600">Personal relationships are directional. Professional reputation and standing within each institution are separate records, as are an institution’s authority and the scopes of its appointed office-holders.</p>
+      <p className="mt-2 max-w-3xl text-sm leading-6 text-stone-600">Personal relationships are directional. Professional reputation and standing within each institution are separate records, as are an institution's authority and the scopes of its appointed office-holders.</p>
     </header>
 
-    <section className="space-y-4">
-      <h2 className="font-serif text-2xl font-semibold">People</h2>
-      {people.map((person) => {
-        const scribal = getInitializedScribal(person);
-        const appointments = Object.values(state.world.appointments).filter((item) => item.personId === person.id);
-        return <article key={person.id} className="rounded-xl border border-stone-300 bg-white p-5">
-          <div className="flex flex-wrap items-start justify-between gap-2">
-            <div><h3 className="font-serif text-xl font-semibold">{person.name}</h3>
-              <p className="text-xs text-stone-500">{person.alive ? 'Living' : 'Deceased'} · {person.ageYears === undefined ? 'Age unknown' : `${person.ageYears} years`}{person.lifeStage ? ` · ${person.lifeStage.replace(/_/g, ' ')}` : ''}</p>
-              {person.socialIdentity && <p className="mt-1 max-w-2xl text-sm text-stone-600">{person.socialIdentity.summary}</p>}
-            </div>
-            {person.id === state.player.currentCharacterId && <span className="rounded bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-900">Current character</span>}
-          </div>
-          <div className="mt-4 grid gap-4 lg:grid-cols-2">
-            <section><h4 className="text-sm font-semibold">Affiliations</h4>
-              {person.affiliations.length ? <ul className="mt-2 list-inside list-disc text-sm text-stone-700">{person.affiliations.map((id) => <li key={id}>{state.world.institutions[id as InstitutionId]?.name ?? id}</li>)}</ul> : <p className="mt-1 text-xs text-stone-500">No affiliations recorded.</p>}
-            </section>
-            <section><h4 className="text-sm font-semibold">Professional reputation</h4>
-              {scribal ? <dl className="mt-2 grid grid-cols-2 gap-2">{Object.entries(scribal.professionalReputation).map(([key, value]) =>
-                <div key={key} className="rounded bg-stone-50 p-2"><dt className="text-xs capitalize text-stone-500">{key}</dt><dd className="font-mono">{value}/100</dd></div>)}</dl>
-                : <p className="mt-1 text-xs text-stone-500">No initialized scribal capability sheet.</p>}
-            </section>
-          </div>
-          {scribal && <section className="mt-4"><h4 className="text-sm font-semibold">Institutional standing</h4>
-            {Object.keys(scribal.institutionalStanding).length ? <dl className="mt-2 grid gap-2 sm:grid-cols-2">{Object.entries(scribal.institutionalStanding).map(([id, value]) =>
-              <div key={id} className="rounded bg-stone-50 p-3"><dt className="text-xs text-stone-500">{state.world.institutions[id as InstitutionId]?.name ?? id}</dt><dd className="font-mono">{value}/100</dd></div>)}</dl>
-              : <p className="mt-1 text-xs text-stone-500">No institution-specific standing is recorded.</p>}
-          </section>}
-          <PersonHistoryPanel person={person} people={state.world.people} />
-          {(() => {
-            const circumstances = (person.circumstances ?? []).filter((item) => item.status === 'active' && item.visibility === 'public');
-            const commitments = (person.commitments ?? []).filter((item) => item.status === 'active' && item.visibility === 'public');
-            return (circumstances.length > 0 || commitments.length > 0) ? <div className="mt-4 grid gap-4 lg:grid-cols-2">
-              {circumstances.length > 0 && <section><h4 className="text-sm font-semibold">Current circumstances</h4>
-                <ul className="mt-2 space-y-2">{circumstances.map((item) => <li key={item.id} className="rounded bg-stone-50 p-3 text-sm text-stone-700">{item.summary}</li>)}</ul>
-              </section>}
-              {commitments.length > 0 && <section><h4 className="text-sm font-semibold">Declared responsibilities and commitments</h4>
-                <ul className="mt-2 space-y-2">{commitments.map((item) => <li key={item.id} className="rounded bg-stone-50 p-3 text-sm text-stone-700">{item.summary}</li>)}</ul>
-              </section>}
-            </div> : null;
-          })()}
-                    <section className="mt-4"><h4 className="text-sm font-semibold">Appointments and office scopes</h4>
-            {appointments.length ? <div className="mt-2 space-y-2">{appointments.map((appointment) => <div key={appointment.id} className="rounded bg-stone-50 p-3">
-              <p className="text-sm font-semibold">{appointment.title} · {state.world.institutions[appointment.institutionId]?.name ?? appointment.institutionId}</p>
-              <p className="mt-1 text-xs text-stone-500">From Day {appointment.startDay}{appointment.endDay === undefined ? ' · Current' : ` to Day ${appointment.endDay} · Ended`}</p>
-              <p className="mt-2 text-xs text-stone-700"><strong>Authority scope:</strong> {appointment.authorityScope.join('; ')}</p>
-              <p className="mt-1 text-xs text-stone-700"><strong>Responsibilities:</strong> {appointment.responsibilities.join('; ') || 'Not specified'}</p>
-            </div>)}</div> : <p className="mt-1 text-xs text-stone-500">No appointments recorded.</p>}
-          </section>
-        </article>;
-      })}
-    </section>
+    <nav aria-label="People and institution directories" className="flex flex-wrap gap-2 border-b border-stone-300 pb-3">
+      <button type="button" aria-pressed={section === 'people'} onClick={() => setSection('people')}
+        className={`rounded-lg px-4 py-2 text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-700 ${section === 'people' ? 'bg-stone-900 text-white' : 'border border-stone-300 bg-white text-stone-700'}`}>People ({people.length})</button>
+      <button type="button" aria-pressed={section === 'institutions'} onClick={() => setSection('institutions')}
+        className={`rounded-lg px-4 py-2 text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-700 ${section === 'institutions' ? 'bg-stone-900 text-white' : 'border border-stone-300 bg-white text-stone-700'}`}>Institutions ({institutions.length})</button>
+    </nav>
 
-    <section className="space-y-3">
-      <div><h2 className="font-serif text-2xl font-semibold">Directional relationships</h2>
-        <p className="mt-1 text-sm text-stone-600">Each arrow is one person’s perspective. A reverse relationship appears as a separate entry only when the world records it.</p></div>
-      {relationshipRows.map(({ from, to, relationship }) => <RelationshipCard key={`${from.id}-${to.id}`} fromName={from.name} toName={to.name} relationship={relationship} />)}
-      {relationshipRows.length === 0 && <p className="rounded-lg border border-stone-300 bg-white p-4 text-sm text-stone-500">No personal relationships are recorded.</p>}
-    </section>
-
-    <section className="space-y-3">
-      <h2 className="font-serif text-2xl font-semibold">Institutions</h2>
-      {institutions.map((institution) => {
-        const appointments = Object.values(state.world.appointments).filter((item) => item.institutionId === institution.id);
-        return <article key={institution.id} className="rounded-xl border border-stone-300 bg-white p-5">
-          <div className="flex flex-wrap items-start justify-between gap-2"><h3 className="font-serif text-xl font-semibold">{institution.name}</h3><span className="font-mono text-sm">General standing {institution.standing}/100</span></div>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <section><h4 className="text-sm font-semibold">Responsibilities</h4><ul className="mt-1 list-inside list-disc text-sm text-stone-700">{institution.responsibilities.map((item, index) => <li key={index}>{item}</li>)}</ul></section>
-            <section><h4 className="text-sm font-semibold">Institutional authority</h4><ul className="mt-1 list-inside list-disc text-sm text-stone-700">{institution.authority.map((item, index) => <li key={index}>{item}</li>)}</ul></section>
+    {section === 'people'
+      ? <section aria-label="People directory" className="grid gap-4 lg:grid-cols-[minmax(220px,300px)_minmax(0,1fr)]">
+        <aside className="space-y-3">
+          <div className="rounded-xl border border-stone-300 bg-[#fbf9f4] p-3">
+            <label htmlFor="people-search" className="text-xs font-semibold text-stone-700">Search people</label>
+            <input id="people-search" type="search" value={personQuery} onChange={(event) => setPersonQuery(event.target.value)}
+              placeholder="Name, role, affiliation, appointment" className="mt-1 w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-700" />
+            <label htmlFor="people-life-filter" className="mt-3 block text-xs font-semibold text-stone-700">Life status</label>
+            <select id="people-life-filter" value={personLifeFilter} onChange={(event) => setPersonLifeFilter(event.target.value as PersonLifeFilter)}
+              className="mt-1 w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-700">
+              <option value="all">All people</option><option value="living">Living</option><option value="deceased">Deceased</option>
+            </select>
+            <p className="mt-2 text-xs text-stone-500" aria-live="polite">{matchingPeople.length} of {people.length} people</p>
           </div>
-          <section className="mt-4"><h4 className="text-sm font-semibold">Active matters</h4>
-            {institution.activeMatters.length ? <ul className="mt-1 list-inside list-disc text-sm text-stone-700">{institution.activeMatters.map((matterId) => <li key={matterId}>{state.world.matters[matterId]?.summary ?? matterId}</li>)}</ul> : <p className="mt-1 text-xs text-stone-500">No active matters recorded.</p>}
-          </section>
-          <section className="mt-4"><h4 className="text-sm font-semibold">Appointments and delegated office scopes</h4>
-            {appointments.length ? <div className="mt-2 space-y-2">{appointments.map((appointment) => <div key={appointment.id} className="rounded bg-stone-50 p-3">
-              <p className="text-sm font-semibold">{appointment.title} · {state.world.people[appointment.personId]?.name ?? appointment.personId}</p>
-              <p className="mt-1 text-xs text-stone-700"><strong>Authority:</strong> {appointment.authorityScope.join('; ')}</p>
-              <p className="mt-1 text-xs text-stone-700"><strong>Responsibilities:</strong> {appointment.responsibilities.join('; ')}</p>
-              <p className="mt-1 text-xs text-stone-500">Day {appointment.startDay}{appointment.endDay === undefined ? ' onward' : ` through Day ${appointment.endDay}`}</p>
-            </div>)}</div> : <p className="mt-1 text-xs text-stone-500">No appointments recorded.</p>}
-          </section>
-        </article>;
-      })}
-    </section>
+          <div className="space-y-2" aria-label="Matching people">
+            {matchingPeople.map((person) => <PersonIndexRow key={person.id} person={person}
+              context={personContext(person) || 'No additional role recorded'}
+              selected={selectedPerson?.id === person.id} onSelect={() => setSelectedPersonId(person.id)} />)}
+            {matchingPeople.length === 0 && <p className="rounded-lg border border-stone-300 bg-white p-3 text-sm text-stone-500">No people match this search.</p>}
+          </div>
+        </aside>
+        <div id="people-detail" aria-live="polite" className="min-w-0">
+          {selectedPerson
+            ? <PersonDetail person={selectedPerson} people={state.world.people} institutions={state.world.institutions}
+              relationships={relationshipRows} appointments={selectedPersonAppointments} />
+            : <p className="rounded-lg border border-stone-300 bg-white p-4 text-sm text-stone-500">Select a person to view recorded detail.</p>}
+        </div>
+      </section>
+      : <section aria-label="Institution directory" className="grid gap-4 lg:grid-cols-[minmax(220px,300px)_minmax(0,1fr)]">
+        <aside className="space-y-3">
+          <div className="rounded-xl border border-stone-300 bg-[#fbf9f4] p-3">
+            <label htmlFor="institutions-search" className="text-xs font-semibold text-stone-700">Search institutions</label>
+            <input id="institutions-search" type="search" value={institutionQuery} onChange={(event) => setInstitutionQuery(event.target.value)}
+              placeholder="Name, responsibility, matter, office" className="mt-1 w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-700" />
+            <p className="mt-2 text-xs text-stone-500" aria-live="polite">{matchingInstitutions.length} of {institutions.length} institutions</p>
+          </div>
+          <div className="space-y-2" aria-label="Matching institutions">
+            {matchingInstitutions.map((institution) => <button key={institution.id} type="button" onClick={() => setSelectedInstitutionId(institution.id)}
+              aria-pressed={selectedInstitution?.id === institution.id}
+              className={`w-full rounded-lg border px-3 py-3 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-700 ${selectedInstitution?.id === institution.id ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-200 bg-white text-stone-900 hover:bg-stone-50'}`}>
+              <span className="block font-semibold">{institution.name}</span>
+              <span className={`mt-1 block text-xs ${selectedInstitution?.id === institution.id ? 'text-stone-200' : 'text-stone-500'}`}>{institution.activeMatters.length} indexed active matters · Standing {institution.standing}/100</span>
+            </button>)}
+            {matchingInstitutions.length === 0 && <p className="rounded-lg border border-stone-300 bg-white p-3 text-sm text-stone-500">No institutions match this search.</p>}
+          </div>
+        </aside>
+        <div id="institution-detail" aria-live="polite" className="min-w-0">
+          {selectedInstitution
+            ? <InstitutionDetail institution={selectedInstitution} people={state.world.people} institutions={state.world.institutions}
+              matters={selectedInstitutionMatters} records={Object.fromEntries(selectedInstitutionRecords.map((record) => [record.id, record]))}
+              events={state.world.events} appointments={selectedInstitutionAppointments} />
+            : <p className="rounded-lg border border-stone-300 bg-white p-4 text-sm text-stone-500">Select an institution to view recorded detail.</p>}
+        </div>
+      </section>}
   </div>;
 }
