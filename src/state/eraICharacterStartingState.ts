@@ -21,6 +21,16 @@ export const ERA_I_CURATED_SAMPLE_NAMES = [
   { name: 'NIₐ GIR₃c', note: 'Late Uruk name sequence reported by Englund; not a confidently reconstructed pronunciation.' },
 ] as const;
 
+/**
+ * QA-82-3: keep source-authored sign/catalog notation in provenance, not in the
+ * player-facing sample picker. The multiplication sign is the catalog
+ * notation marker in the current curated set; this does not rename or delete
+ * the underlying source entry.
+ */
+export const ERA_I_AVAILABLE_SAMPLE_NAMES = ERA_I_CURATED_SAMPLE_NAMES.filter(
+  (item) => !item.name.includes('×'),
+);
+
 const INVISIBLE_CONTROL_CHARACTERS = /[\u0000-\u001F\u007F-\u009F\u202A-\u202E\u2066-\u2069]/u;
 
 export type EraICharacterNameValidation =
