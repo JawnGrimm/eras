@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { generateDailyAssignments } from '../engine/assignmentGenerator';
+import { transitionOpportunityAction } from '../engine/opportunities';
 import { createInitialGameState } from '../state/initialState';
 import type { GameState } from '../state/types';
 import type { EventId, MatterId } from '../state/ids';

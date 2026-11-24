@@ -285,6 +285,7 @@ describe('world, relationships, institutions and records', () => {
     const inspectionDraft = { ...inspectionProgress.draft, finding: 'channel_clear_beam_followup',
       responsibilityClaim: 'none', citedDiscoveryIds: ['post-execution-observation', 'post-execution-record'],
       limitations: ['The shaded beam joint remains damp and requires a separate inspection after drying.'],
+      selectedLimitationIds: ['post_scope_limited','post_no_verification_authority','post_no_future_performance'],
       recommendations: ['accept_execution_with_followup', 'inspect_beam_after_drying'] };
     const draftedInspection = transitionGame(inspectionState, { type: 'UPDATE_ASSIGNMENT_ACTIVITY_DRAFT',
       assignmentId: postExecutionOffer!.id, draft: inspectionDraft });
