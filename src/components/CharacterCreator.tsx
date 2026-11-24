@@ -83,15 +83,18 @@ export function CharacterCreator() {
   const choices: EraICharacterHistoryChoices = {
     originId, responsibilityId, formativeExperienceId, entryRouteId, instructionId,
   };
+  const previewChoices: EraICharacterHistoryChoices = formativeExperienceId ? choices : {
+    ...choices, formativeExperienceId: 'FE-02',
+  };
   const nameResult = validateEraICharacterName(name);
   const choicesReady = Boolean(originId && responsibilityId && formativeExperienceId && entryRouteId && instructionId);
   const ready = nameResult.valid && choicesReady;
   const history = resolveEraICharacterHistory({
     personId: 'person-character-creator-preview' as PersonId,
     people: game.state.world.people,
-    choices,
+    choices: previewChoices,
   });
-  const starting = resolveEraICharacterStartingState(choices, careerPath);
+  const starting = resolveEraICharacterStartingState(previewChoices, careerPath);
   const selectedOrientation = ORIENTATIONS.find((item) => item.id === careerPath)!;
   const eventNames = history.lifeEvents.map((event) => ({
     ...event,
