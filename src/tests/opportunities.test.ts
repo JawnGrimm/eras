@@ -273,4 +273,34 @@ describe('Assignment and Challenge foundations', () => {
     expect(Object.values(result.state.opportunities.assignmentAggregates)[0].nonWorkLapsed).toBe(1);
   });
 
+  it('applies the shared Closing Receipt schedule to Challenge outcomes and requires explicit return', () => {
+    const base = createInitialGameState();
+    const challengeWithReceipt: ChallengeInstance = {
+      ...challenge('receipt-challenge'),
+      choices: [{
+        id: 'record-qualified', label: 'Record the discrepancy', description: 'Preserve both claims and their limits.',
+        consequences: { moneyDelta: 1, careerXp: 4 },
+        evaluation: {
+          assessment: 'Defensible',
+          rationale: 'Both claims remain visible and the report does not pretend the discrepancy is resolved.',
+          receiverPersonId: 'person-ur-nanna' as never,
+          institutionId: 'institution-uruk-temple-storehouse' as never,
+          reaction: 'Ur-Nanna reads the qualified entry. “I can carry this forward without pretending the matter is settled.”',
+        },
+      }],
+    };
+    let state = transitionGame(base, { type: 'PRESENT_CHALLENGE', challenge: challengeWithReceipt }).state;
+    state = transitionGame(state, { type: 'ACCEPT_CHALLENGE', challengeId: 'receipt-challenge' as ChallengeId }).state;
+    const resolved = transitionGame(state, { type: 'RESOLVE_CHALLENGE', challengeId: 'receipt-challenge' as ChallengeId, choiceId: 'record-qualified' });
+    const outcome = resolved.state.opportunities.challengeOutcomes.at(-1)!;
+    expect(outcome.closingReceipt?.assessment).toBe('Defensible');
+    expect(outcome.closingReceipt?.deltas).toMatchObject({ currency: 1, careerXp: 3, judgment: 2, institutionalStanding: 1, trust: 1, respect: 1 });
+    expect(getInitializedScribal(resolved.state.world.people[INITIAL_PERSON_ID])?.careerXp).toBe(153);
+    expect(resolved.state.world.relationships['person-ur-nanna' as never]?.[INITIAL_PERSON_ID]?.dimensions.trust).toBe(51);
+    expect(transitionGame(resolved.state, { type: 'END_DAY', expectedDayNumber: 1 }).feedback?.code).toBe('closing-receipt-pending');
+    expect(isValidSaveEnvelope(createSaveEnvelope(resolved.state, 1))).toBe(true);
+    const returned = transitionGame(resolved.state, { type: 'ACKNOWLEDGE_CHALLENGE_RECEIPT', challengeId: 'receipt-challenge' as ChallengeId });
+    expect(returned.state.opportunities.challengeOutcomes.at(-1)?.receiptAcknowledged).toBe(true);
+  });
+
 });

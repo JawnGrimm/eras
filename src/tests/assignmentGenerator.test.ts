@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { generateDailyAssignments } from '../engine/assignmentGenerator';
 import { createInitialGameState } from '../state/initialState';
 import type { GameState } from '../state/types';
-import type { MatterId } from '../state/ids';
+import type { EventId, MatterId } from '../state/ids';
 
 describe('matter-driven Assignment discovery', () => {
   it('discovers authored activities only from active matters listed by their institution', () => {
@@ -117,6 +117,58 @@ describe('matter-driven Assignment discovery', () => {
     expect(offers.length).toBeGreaterThan(4);
     expect(offers.reduce((sum, offer) => sum + (offer.estimatedTotalAp ?? 0), 0)).toBeGreaterThan(8);
     expect(new Set(offers.map((offer) => offer.originMatterId)).size).toBe(offers.length);
+  });
+
+  it('rejects a duplicate matter wrapper when its source facts are unchanged', () => {
+    const base = createInitialGameState();
+    const institutionId = 'institution-uruk-temple-storehouse' as keyof typeof base.world.institutions;
+    const originalId = 'matter-south-court-delivery-reconciliation' as MatterId;
+    const duplicateId = 'matter-south-court-delivery-duplicate-wrapper' as MatterId;
+    const duplicate = { ...base.world.matters[originalId], id: duplicateId };
+    const state: GameState = {
+      ...base,
+      world: {
+        ...base.world,
+        matters: { ...base.world.matters, [duplicateId]: duplicate },
+        institutions: { ...base.world.institutions, [institutionId]: {
+          ...base.world.institutions[institutionId],
+          activeMatters: [...base.world.institutions[institutionId].activeMatters, duplicateId],
+        } },
+      },
+    };
+    const generated = generateDailyAssignments(state);
+    expect(Object.values(generated.opportunities.assignments).filter((offer) => offer.activityId === 'activity-south-court-delivery-reconciliation')).toHaveLength(1);
+    expect(generated.opportunities.occurrenceLedger.filter((entry) => entry.scenarioId === 'activity-south-court-delivery-reconciliation')).toHaveLength(1);
+  });
+
+  it('generates an anchor only when an active matter has a real source event', () => {
+    const base = createInitialGameState();
+    const institutionId = 'institution-uruk-temple-storehouse' as keyof typeof base.world.institutions;
+    const matterId = 'matter-era1-com-01-occurrence' as MatterId;
+    const eventId = 'event-era1-com-01-occurrence' as EventId;
+    const templateMatter = base.world.matters['matter-south-court-delivery-reconciliation' as MatterId];
+    const templateEvent = base.world.events['event-south-court-delivery-source' as EventId];
+    const event = { ...templateEvent, id: eventId, summary: 'A distinct provisional consignment occurrence is presented for receiving review.' };
+    const matter = { ...templateMatter, id: matterId, kind: 'era1_com_01_consignment' as const,
+      sourceEventId: eventId, summary: 'A provisional sealed consignment is presented for receiving review.',
+      provenance: [...(templateMatter.provenance ?? []), { id: 'era1-com-01-event-source', kind: 'event' as const, sourceId: eventId, description: 'Distinct authored anchor occurrence.' }] };
+    const state: GameState = {
+      ...base,
+      world: {
+        ...base.world,
+        events: { ...base.world.events, [eventId]: event },
+        matters: { ...base.world.matters, [matterId]: matter },
+        institutions: { ...base.world.institutions, [institutionId]: {
+          ...base.world.institutions[institutionId], activeMatters: [...base.world.institutions[institutionId].activeMatters, matterId],
+        } },
+      },
+    };
+    const generated = generateDailyAssignments(state);
+    const anchor = Object.values(generated.opportunities.assignments).find((offer) => offer.activityId === 'activity-era1-com-01-sealed-consignment');
+    expect(anchor).toMatchObject({ title: 'Sealed Vessel and Textile Consignment', estimatedTotalAp: 5,
+      compensation: { money: 10, provisions: 0 }, careerXpReward: 12, originMatterId: matterId });
+    expect(generated.opportunities.occurrenceLedger.some((entry) => entry.scenarioId === 'activity-era1-com-01-sealed-consignment'
+      && entry.primarySourceFact?.id === eventId && entry.requiredSourceFactIds.includes(eventId))).toBe(true);
   });
 
 });

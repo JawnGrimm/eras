@@ -6,7 +6,8 @@ import { createSaveEnvelope, isValidSaveEnvelope, restoreSave } from '../state/s
 import { INITIAL_WORK_CATALOG } from '../state/newGameState';
 import type { AssignmentOffer, GameState } from '../state/types';
 import type { AssignmentId } from '../state/ids';
-import { NORTH_BAY_ACTIVITY_ID, NORTH_BAY_ASSIGNMENT_ID, NORTH_BAY_DISCOVERIES, northBayRoofInspection, validateAssignmentActivityDefinition } from '../content/assignments/northBayRoofInspection';
+import { NORTH_BAY_ACTIVITY_ID, NORTH_BAY_ASSIGNMENT_ID, NORTH_BAY_DISCOVERIES, northBayRoofInspection, validateAssignmentActivityDefinition, ERA_I_ANCHOR_ACTIVITY_CATALOG } from '../content/assignments/northBayRoofInspection';
+import { ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS } from '../content/assignments/eraIAnchorOpportunities';
 
 const baseline = { kind: 'baseline_reach' as const, explanation: 'The Senior Scribe directed the inspection after reviewing the prior record.' };
 function roofOffer(): Omit<AssignmentOffer, 'offeredDay' | 'expiresDay' | 'status' | 'lapsedDuringMandatoryWork'> {
@@ -32,6 +33,17 @@ function present(state: GameState): GameState {
 describe('North-Bay Roof Inspection activity definition and engine', () => {
   it('passes static validation for unique IDs, bounded AP, reachable prerequisites, valid person/skill/attribute references, and interpretation rules', () => {
     expect(validateAssignmentActivityDefinition(northBayRoofInspection)).toEqual([]);
+  });
+
+  it('validates all five authored Era I anchors and their approved provisional parameter values', () => {
+    const anchors = Object.values(ERA_I_ANCHOR_ACTIVITY_CATALOG);
+    expect(anchors).toHaveLength(5);
+    expect(anchors.map((definition) => validateAssignmentActivityDefinition(definition))).toEqual([[],[],[],[],[]]);
+    expect(ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS.map((definition) => definition.offer.estimatedTotalAp)).toEqual([5,4,4,5,4]);
+    expect(ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS.every((definition) => definition.offer.compensation.money === 10
+      && definition.offer.careerXpReward === 12)).toBe(true);
+    expect(ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS.filter((definition) => definition.offer.compensation.provisions === 1)).toHaveLength(1);
+    expect(ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS.find((definition) => definition.offer.compensation.provisions === 1)?.offer.compensationDisclosure).toContain('1 Provision');
   });
 
   it('uses sealed pottery storage jars throughout North-Bay evidence and actions', () => {
@@ -188,5 +200,11 @@ describe('North-Bay Roof Inspection activity definition and engine', () => {
     expect(result.state.historicalProgression.historicalXp).toBe(0);
     expect(result.state.world.institutions['institution-uruk-temple-storehouse' as never].activeMatters.some((matterId) => result.state.world.matters[matterId]?.summary.includes('inspection incomplete'))).toBe(true);
     expect(isValidSaveEnvelope(createSaveEnvelope(result.state, 2), INITIAL_WORK_CATALOG)).toBe(true);
+    const restored = restoreSave(JSON.stringify(createSaveEnvelope(result.state, 2)), INITIAL_WORK_CATALOG);
+    expect(restored?.state.opportunities.assignments[NORTH_BAY_ASSIGNMENT_ID].closingReceipt?.assessment).toBe('Incomplete');
+    expect(transitionGame(result.state, { type: 'END_DAY', expectedDayNumber: 1 }).feedback?.code).toBe('closing-receipt-pending');
+    const returned = transitionGame(result.state, { type: 'ACKNOWLEDGE_ASSIGNMENT_RECEIPT', assignmentId: NORTH_BAY_ASSIGNMENT_ID });
+    expect(returned.state.opportunities.assignments[NORTH_BAY_ASSIGNMENT_ID].receiptAcknowledged).toBe(true);
+    expect(transitionGame(returned.state, { type: 'END_DAY', expectedDayNumber: 1 }).feedback?.code).not.toBe('closing-receipt-pending');
   });
 });
