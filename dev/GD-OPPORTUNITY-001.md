@@ -127,6 +127,38 @@ Track 1 acceptance must exercise Assignment compensation and END_DAY settlement 
 
 ## 4. Track 2 — General Challenge Director
 
+
+### 3.7 Between-days loop — Day-Close / Evening Interlude (PROPOSAL; separate approval required)
+
+**Purpose:** Make the transition from one Workday to the next deliberate and legible, and give the player a practical opportunity to address provisions before the next sustenance settlement. This is a bounded management/transaction interlude, **not** a second activity schedule or an unlimited evening action phase.
+
+**Proposed sequence:**
+
+1. **End Workday.** The player explicitly chooses End Workday after normal AP allocation and any eligible Overtime use. Overtime remains governed exclusively by GDD §6.4: only after all six daily AP are spent, before settlement; +1 immediate AP, +5 Stress, and one fewer AP the following Workday. No second Overtime activation or post-settlement labor.
+2. **Resolve daily settlement once.** Apply completed-work/contract compensation, obligations and penalties, sustenance, shortage/Stress consequences, and date transition in the documented deterministic order. Provisions earned through qualifying work must be credited before sustenance is deducted. Do not charge the player for a market purchase that has not yet been chosen.
+3. **Open Day-Close / Evening Interlude.** Present the settlement result and a compact, navigable review of current balances, active Assignment/Work dossiers, deadlines or commitments, relevant household obligations, and the next day's known circumstances. This is a review and transaction surface, not another Workday.
+4. **Provision replenishment.** Show the player's current Provisions, the next expected sustenance deduction, and any shortage trajectory in plain language. Expose only historically and situationally valid routes:
+   - **Contract/service in kind:** show eligible provisions-paid work or an explicit provisions entitlement already earned under a contract. Actual labor must be performed during the ordinary six-AP Workday or through the existing Overtime rule; the interlude must not award provisions for unperformed labor.
+   - **Purchase/exchange:** may be offered only where Issue #80 / period-specific research supports a local source, exchange practice, unit, price, and access conditions. Do not assume a modern market, universal retail availability, coinage, or silver payment in Late Uruk. The current research baseline is provisions-in-kind/service; a Money-to-Provisions exchange remains conditional, not guaranteed.
+   - **Ration fallback:** not a free daily ration and not a universal bailout. It may appear only as a specific, evidenced or explicitly bounded institutional/household arrangement with clear eligibility, quantity, timing, and any service, debt, or relationship obligation. If no historically credible fallback can be established, do not fabricate one; instead ensure the player has a viable provisions-paid service/contract route before the final starting Provisions unit is consumed.
+   - Every route must disclose cost, quantity, timing, source, and conditions before confirmation. No negative Provisions, automatic ration, or hidden retroactive compensation.
+5. **Begin Workday.** The player explicitly clicks Begin Workday. Only then initialize the next Workday's AP (six, or five following Overtime), deliver its Morning Report, and surface any newly eligible Challenge. The Challenge onboarding gate remains in force: “The Apprentice's Copy” is held until the initial Storehouse Reckoning is complete; no Challenge is released merely because the player clicked Begin Workday.
+
+**Action economy guardrail:** The interlude grants zero AP and contains no labor actions, study, relationship visits, Work-stage advancement, or repeatable income loop. Reviewing dossiers and confirming a valid transaction are bounded between-days management interactions, not free professional work. Any substantive labor—including advancing a Work, producing a document, or completing a service for provisions—uses normal Workday AP or the existing pre-settlement Overtime rule. Do not add lamplight AP or an after-hours Work action in this proposal.
+
+**Household upkeep:** Display known recurring household obligations and settlement effects; do not create a broad household-management simulator in this step. Any player-initiated upkeep payment or exchange must have clear cost and consequence and must not introduce a third tracked balance. Exact household obligations and any new purchase categories remain open.
+
+**GDD alignment / unresolved boundary:** GDD §6.4 explicitly rejects a separate unlimited evening action phase, while §6.5 says the player reviews settlement before beginning the next day. This proposal interprets the requested interlude as a finite review/transaction step between those two existing phases, not as a second schedule. The Game Director must approve whether this limited transaction surface is compatible with §6.4 before implementation; no GDD amendment is made here.
+
+**Acceptance tests for a later approved specification:**
+- End Workday settles exactly once; returning from the interlude cannot repeat compensation, sustenance, stress, or date advancement.
+- Settlement is visible before the player commits to Begin Workday.
+- Provisions earned by completed work settle before sustenance; unearned or merely offered provisions do not.
+- A player at risk of depletion sees at least one viable, circumstance-valid route before the final unit is consumed; zero-Money cases cannot be left with only End Workday.
+- Purchase/ration options appear only when their historical, institutional, and personal eligibility conditions are satisfied; no universal free ration or negative balance.
+- Begin Workday initializes the correct AP budget and only then presents the Morning Report and eligible Challenges.
+- No AP is added, no Work advances, and no repeatable labor/income can occur in the interlude.
+
 ### 4.1 Authored scenario pool
 
 Replace the two hard-coded Uruk functions with a general pool of authored Challenge scenarios. Each scenario must define its own:
