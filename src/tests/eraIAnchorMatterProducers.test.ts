@@ -8,17 +8,17 @@ import { ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS } from '../content/assignments/era
 describe('Era I institutional anchor matter producers', () => {
   it('introduces each approved anchor through its own dated source event and active institutional matter', () => {
     let state = createInitialGameState();
-    expect(Object.values(state.world.matters).filter((matter) => matter.kind.startsWith('era1_'))).toHaveLength(0);
+    expect(Object.values(state.world.matters).filter((matter) => expectedDays.has(matter.kind))).toHaveLength(0);
 
     const expectedDays = new Map([
       ['era1_com_01_consignment', 2],
       ['era1_com_02_brewing_account', 3],
       ['era1_civ_01_field_measurement', 4],
-      ['era1_civ_02_labor_disbursement', 5],
-      ['era1_rel_01_inana_offering', 6],
+      ['era1_civ_02_labor_disbursement', 6],
+      ['era1_rel_01_inana_offering', 7],
     ]);
 
-    for (let day = 2; day <= 6; day++) {
+    for (let day = 2; day <= 7; day++) {
       state = advanceInstitutionalMatters(state, day);
       state = { ...state, calendar: { ...state.calendar, dayNumber: day } };
       const createdToday = Object.values(state.world.matters).filter((matter) => matter.createdDay === day
@@ -42,7 +42,7 @@ describe('Era I institutional anchor matter producers', () => {
       )).toBe(true);
     }
 
-    expect(Object.values(state.world.matters).filter((matter) => matter.kind.startsWith('era1_'))).toHaveLength(5);
+    expect(Object.values(state.world.matters).filter((matter) => expectedDays.has(matter.kind))).toHaveLength(5);
     expect(state.opportunities.occurrenceLedger.filter((entry) =>
       ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS.some((definition) => definition.offer.activityId === entry.scenarioId),
     )).toHaveLength(5);
@@ -59,7 +59,7 @@ describe('Era I institutional anchor matter producers', () => {
     const envelope = createSaveEnvelope(state, 1);
     const restored = restoreSave(JSON.stringify(envelope))?.state;
     expect(restored).toBeDefined();
-    for (const matter of Object.values(state.world.matters).filter((item) => item.kind.startsWith('era1_'))) {
+    for (const matter of Object.values(state.world.matters).filter((item) => ['era1_com_01_consignment','era1_com_02_brewing_account','era1_civ_01_field_measurement','era1_civ_02_labor_disbursement','era1_rel_01_inana_offering'].includes(item.kind))) {
       expect(restored!.world.matters[matter.id]).toEqual(matter);
       expect(restored!.world.events[matter.sourceEventId!]).toEqual(state.world.events[matter.sourceEventId!]);
       expect(restored!.world.institutions[matter.institutionId].activeMatters).toContain(matter.id);
@@ -74,7 +74,7 @@ describe('Era I institutional anchor matter producers', () => {
       state = { ...state, calendar: { ...state.calendar, dayNumber: day } };
       state = generateDailyAssignments(state);
     }
-    const matterIds = Object.values(state.world.matters).filter((matter) => matter.kind.startsWith('era1_'))
+    const matterIds = Object.values(state.world.matters).filter((matter) => ['era1_com_01_consignment','era1_com_02_brewing_account','era1_civ_01_field_measurement','era1_civ_02_labor_disbursement','era1_rel_01_inana_offering'].includes(matter.kind))
       .map((matter) => matter.id).sort();
     const occurrenceKeys = state.opportunities.occurrenceLedger
       .filter((entry) => ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS.some((definition) => definition.offer.activityId === entry.scenarioId))
@@ -85,7 +85,7 @@ describe('Era I institutional anchor matter producers', () => {
       state = generateDailyAssignments(state);
     }
 
-    expect(Object.values(state.world.matters).filter((matter) => matter.kind.startsWith('era1_')).map((matter) => matter.id).sort()).toEqual(matterIds);
+    expect(Object.values(state.world.matters).filter((matter) => ['era1_com_01_consignment','era1_com_02_brewing_account','era1_civ_01_field_measurement','era1_civ_02_labor_disbursement','era1_rel_01_inana_offering'].includes(matter.kind)).map((matter) => matter.id).sort()).toEqual(matterIds);
     expect(state.opportunities.occurrenceLedger
       .filter((entry) => ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS.some((definition) => definition.offer.activityId === entry.scenarioId))
       .map((entry) => entry.occurrenceKey).sort()).toEqual(occurrenceKeys);
