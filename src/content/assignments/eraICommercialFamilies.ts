@@ -1,4 +1,4 @@
-import type { PersonId } from '../../state/ids';
+import type { PersonId, RecordId } from '../../state/ids';
 import type { AssignmentActivityProgress } from '../../state/types';
 import type { AssignmentActivityDefinition } from './northBayRoofInspection';
 import type { AssignmentOpportunityDefinition } from './opportunityDefinitions';
@@ -19,21 +19,21 @@ export const ERA1_COM_F02_F04_PEOPLE = {
 } as const;
 
 export const ERA1_COM_F02_RECORD_IDS = {
-  storehouseRequest: 'record-era1-com-f02-storehouse-request',
-  householdRequest: 'record-era1-com-f02-household-request',
-  deliveryReceipt: 'record-era1-com-f02-delivery-receipt',
-  carrierAccount: 'record-era1-com-f02-carrier-account',
+  storehouseRequest: 'record-era1-com-f02-storehouse-request' as RecordId,
+  householdRequest: 'record-era1-com-f02-household-request' as RecordId,
+  deliveryReceipt: 'record-era1-com-f02-delivery-receipt' as RecordId,
+  carrierAccount: 'record-era1-com-f02-carrier-account' as RecordId,
 } as const;
 
 export const ERA1_COM_F03_RECORD_IDS = {
-  outboundDispatch: 'record-era1-com-f03-outbound-dispatch',
-  partialReturn: 'record-era1-com-f03-partial-return',
+  outboundDispatch: 'record-era1-com-f03-outbound-dispatch' as RecordId,
+  partialReturn: 'record-era1-com-f03-partial-return' as RecordId,
 } as const;
 
 export const ERA1_COM_F04_RECORD_IDS = {
-  dispatchTally: 'record-era1-com-f04-dispatch-tally',
-  landingTally: 'record-era1-com-f04-landing-tally',
-  receivingTally: 'record-era1-com-f04-receiving-tally',
+  dispatchTally: 'record-era1-com-f04-dispatch-tally' as RecordId,
+  landingTally: 'record-era1-com-f04-landing-tally' as RecordId,
+  receivingTally: 'record-era1-com-f04-receiving-tally' as RecordId,
 } as const;
 
 function activity(definition: Omit<AssignmentActivityDefinition, 'createInitialProgress'>): AssignmentActivityDefinition {
