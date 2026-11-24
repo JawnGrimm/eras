@@ -58,7 +58,7 @@ describe('Phase 2 Uruk world-state foundation', () => {
 
   it('shows public circumstances and duties without revealing private NPC objectives', () => {
     const state = createNewGameState(TEST_CHARACTER_CREATION);
-    const markup = renderToStaticMarkup(createElement(GameProvider, { initialState: state }, createElement(ProductionPeopleAndInstitutions)));
+    const markup = renderToStaticMarkup(createElement(GameProvider, { initialState: state }, createElement(ProductionPeopleAndInstitutions, { initialPersonId: 'person-enlil-kisu' as PersonId })));
     expect(markup).toContain('Current circumstances');
     expect(markup).toContain('Declared responsibilities and commitments');
     expect(markup).toContain('Two reed ties on the south loading awning are visibly frayed');
