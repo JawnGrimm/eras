@@ -39,9 +39,21 @@ The institution detail separates:
 2. **Current matters**, derived from canonical `world.matters` entries whose status is `active`.
 3. **Historical matters**, retaining the current model's exact `developed` and `resolved` labels. No parallel lifecycle states were added.
 4. Appointments and delegated office scopes, with the actual office-holder.
-5. Institutional records, including records linked through matter `record_copy` provenance. Original sources and assertions remain available behind disclosure.
+5. Institutional records, including records linked through matter `record_copy` provenance. Original sources, assertions, uncertainty limits, and amendments remain available behind disclosure.
+6. Any recorded institutional-response stage timeline, including actor, appointment, decision, scope, execution, verification, resolution, and linked Record. The UI does not infer missing stages.
 
 The UI derives the current-matter list from each matter's status and institution ID rather than relying solely on the denormalized `Institution.activeMatters` array. This makes an active matter visible even if that secondary index is stale; it does not mutate or repair state. The institution index's active count is derived from the same status query.
+
+### Existing lifecycle mapping (no new states)
+
+- `InstitutionalMatter.status === 'active'`: active/open.
+- Evidence or activity updated: represented by appended Record/provenance and activity history while the matter remains active; this is not a separate matter status.
+- Awaiting decision/authority: not a persisted matter status. The existing `InstitutionalResponse.stage` events record assessment, authorization, commitment, execution, verification, and resolution. The UI displays those recorded stages, actors, appointments, decisions, scopes, and linked Records; it does not infer an unrecorded “awaiting” stage.
+- `status === 'developed'`: a predecessor matter retained after a scheduled development/follow-up transition; shown in historical matters, not relabelled as resolved.
+- `status === 'resolved'`: explicitly resolved; shown in historical matters.
+- No distinct closed/archived matter status exists. Resolved/developed matter objects and their linked records remain retained.
+
+The UI therefore shows current status and any recorded institutional-response timeline as separate information.
 
 ## 3. Sparse-state rules
 
