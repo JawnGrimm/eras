@@ -1,8 +1,8 @@
 # QA-ISSUE-82 — Character Creation / Tutorial Smoke-Test Triage
 
-**Status:** TRIAGED — READY FOR GAME DIRECTOR REVIEW  
+**Status:** APPROVED — READY FOR QA HANDOFF (Game Director sign-off, 24 November 2026)  
 **Source:** Game Director's manual smoke test of the deployed Character Creation → Workday 1 → Storehouse Reckoning build, 24 November 2026; Issue #82 and its source follow-up.  
-**Authority:** Issue #82 records observed defects, not new design approval. This document is a QA handoff proposal, not Production authorization.
+**Authority:** Issue #82 records observed defects. The Game Director approved this triage package on 24 November 2026; Production is authorized to begin the five independent QA corrections under `docs/production/PRODUCTION-HANDOFF-001.md`.
 
 ## 1. Scope and disposition
 
@@ -132,4 +132,4 @@ For each finding, report:
 6. Hotfix risk/size and recommended sequencing.
 7. Any deviation from the approved expected behavior.
 
-**Status boundary:** This document is a Design HQ triage package for review. It does not authorize code changes, reprioritize Production, or declare any defect fixed. Issue #82 remains open until Production reports and the Game Director accepts the appropriate disposition.
+**Execution boundary:** This approved package authorizes Production to investigate and implement QA-82-1 through QA-82-5 independently and immediately, without waiting for the broader GD-OPPORTUNITY-001 runtime milestone or Evening Interlude UI. QA-82-5 Currency-label replacement may ship across existing surfaces now. This does not silently reprioritize other roadmap work; Production reports sizing/risk and coordinates sequencing. Issue #82 remains open until fixes are verified and accepted. No defect is declared fixed by this document.
