@@ -47,6 +47,10 @@ const ORIENTATIONS: Array<{ id: CareerPathId; label: string; description: string
 ];
 const SEED = 'era1-character-creation-v1';
 
+function humanize(value: string): string {
+  return value.replace(/_/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
 function compatibleFormative(responsibilityId: string, formativeId: string): boolean {
   if (formativeId === 'FE-01') return responsibilityId === 'RS-01' || responsibilityId === 'RS-02';
   if (formativeId === 'FE-03') return responsibilityId === 'RS-01' || responsibilityId === 'RS-02' || responsibilityId === 'RS-03';
@@ -216,14 +220,14 @@ export function CharacterCreator() {
           <h3 className="mt-6 font-semibold">Life history</h3>
           <ol className="mt-2 space-y-3">
             {eventNames.map((event) => <li key={event.id} className="border-l-2 border-stone-300 pl-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-stone-500">{event.chronology.order + 1}. {event.chronology.stage.replace(/_/g, ' ')}</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-stone-500">{event.chronology.order + 1}. {humanize(event.chronology.stage)}</p>
               <p className="mt-1 text-sm">{event.summary}</p>
-              {event.participants.map((participant, index) => <p key={index} className="mt-1 text-xs text-stone-600">{participant.role.replace(/_/g, ' ')}: {participant.name}</p>)}
+              {event.participants.map((participant, index) => <p key={index} className="mt-1 text-xs text-stone-600">{humanize(participant.role)}: {participant.name}</p>)}
             </li>)}
           </ol>
           <h3 className="mt-6 font-semibold">Familiarities</h3>
           <ul className="mt-2 space-y-1 text-sm">
-            {history.familiarities.map((item) => <li key={item.id}>{item.domainId} · {item.scopeId.replace(/_/g, ' ')} · {item.exposure.replace(/_/g, ' ')} · Supporting Life Event(s): {item.basisLifeEventIds.map((id) => {
+            {history.familiarities.map((item) => <li key={item.id}>{{humanize(item.domainId)} · {humanize(item.scopeId)} · {humanize(item.exposure)}} · Supporting Life Event(s): {item.basisLifeEventIds.map((id) => {
               const event = history.lifeEvents.find((candidate) => candidate.id === id);
               return event ? event.chronology.order + 1 : 'recorded';
             }).join(', ')}</li>)}
