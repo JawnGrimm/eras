@@ -42,7 +42,7 @@ function RelationshipCard({ fromName, toName, relationship }: {
 }
 
 function PersonIndexRow({ person, context, selected, onSelect }: {
-  person: Person; context: string; selected: boolean; onSelect: () => void;
+  person: Person; context?: string; selected: boolean; onSelect: () => void;
 }) {
   return <button type="button" onClick={onSelect} aria-pressed={selected}
     className={`w-full rounded-lg border px-3 py-3 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-700 ${selected ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-200 bg-white text-stone-900 hover:bg-stone-50'}`}>
@@ -277,7 +277,7 @@ export function ProductionPeopleAndInstitutions({ initialSection = 'people' }: {
   const [personLifeFilter, setPersonLifeFilter] = useState<PersonLifeFilter>('all');
   const [institutionQuery, setInstitutionQuery] = useState('');
   const [selectedPersonId, setSelectedPersonId] = useState<PersonId>(state.player.currentCharacterId);
-  const initialInstitution = institutions.find((item) => item.activeMatters.length > 0) ?? institutions[0];
+  const initialInstitution = institutions.find((item) => Object.values(state.world.matters).some((matter) => matter.institutionId === item.id && matter.status === 'active')) ?? institutions[0];
   const [selectedInstitutionId, setSelectedInstitutionId] = useState<InstitutionId | null>(initialInstitution?.id ?? null);
 
   const matchingPeople = people.filter((person) => {
@@ -286,7 +286,7 @@ export function ProductionPeopleAndInstitutions({ initialSection = 'people' }: {
     const appointments = Object.values(state.world.appointments).filter((item) => item.personId === person.id);
     const affiliationNames = person.affiliations.map((id) => state.world.institutions[id as InstitutionId]?.name);
     return matchesQuery([
-      person.name, person.socialIdentity?.occupation, person.socialIdentity?.summary, person.lifeStage,
+      person.name, person.socialIdentity?.occupation, person.socialIdentity?.summary, person.lifeStage?.replace(/_/g, ' '),
       ...affiliationNames, ...appointments.map((item) => item.title),
     ], personQuery);
   });
@@ -359,7 +359,7 @@ export function ProductionPeopleAndInstitutions({ initialSection = 'people' }: {
           </div>
           <div className="space-y-2" aria-label="Matching people">
             {matchingPeople.map((person) => <PersonIndexRow key={person.id} person={person}
-              context={personContext(person) || 'No additional role recorded'}
+              context={personContext(person) || undefined}
               selected={selectedPerson?.id === person.id} onSelect={() => setSelectedPersonId(person.id)} />)}
             {matchingPeople.length === 0 && <p className="rounded-lg border border-stone-300 bg-white p-3 text-sm text-stone-500">No people match this search.</p>}
           </div>
