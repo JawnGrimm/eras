@@ -47,12 +47,12 @@ describe('GD-CHARACTER-START-001 starting-state resolver', () => {
   });
 
   it('awards the specified lesson Skill XP without raising levels', () => {
-    const cases = [
+    const cases: Array<[EraICharacterHistoryChoices['instructionId'], Record<string, number>]> = [
       ['TR-01', { recordkeeping_accounts: 20 }],
       ['TR-02', { writing_composition: 20 }],
       ['TR-03', { reading_scripts: 20, writing_composition: 10 }],
       ['TR-04', { recordkeeping_accounts: 15, analysis_research: 15 }],
-    ] as const;
+    ];
     for (const [instructionId, expected] of cases) {
       const result = resolveEraICharacterStartingState({ ...base, instructionId }, 'merchant');
       for (const [skillId, skill] of Object.entries(result.skills)) {
