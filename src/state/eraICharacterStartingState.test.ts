@@ -35,6 +35,9 @@ describe('GD-CHARACTER-START-001 starting-state resolver', () => {
     expect(result.professionalReputation).toEqual({
       competence: 50, reliability: 50, discretion: 50, judgment: 50,
     });
+    expect(result.attributeSources.precision).toEqual(['Chapter 2 · Count or measure']);
+    expect(result.attributeSources.reasoning).toEqual(['Chapter 3 · A quantity did not match']);
+    expect(result.skillXpSources.recordkeeping_accounts).toEqual(['Quantities and commodity notation']);
   });
 
   it('uses the approved distinct FE-02 and FE-04 emphases', () => {
@@ -44,6 +47,14 @@ describe('GD-CHARACTER-START-001 starting-state resolver', () => {
     expect(fe02.attributes.endurance).toBe(5);
     expect(fe04.attributes.endurance).toBe(6);
     expect(fe04.attributes.composure).toBe(5);
+    const doubledReasoning = resolveEraICharacterStartingState({
+      ...base, responsibilityId: 'RS-04', formativeExperienceId: 'FE-01',
+    }, 'civic' as never);
+    expect(doubledReasoning.attributes.reasoning).toBe(7);
+    expect(doubledReasoning.attributeSources.reasoning).toEqual([
+      'Chapter 2 · Observe a record or seal in use',
+      'Chapter 3 · A quantity did not match',
+    ]);
   });
 
   it('awards the specified lesson Skill XP without raising levels', () => {
