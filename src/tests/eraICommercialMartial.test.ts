@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { generateDailyAssignments } from '../engine/assignmentGenerator';
+import { advanceInstitutionalMatters } from '../engine/institutionalMatters';
 import { transitionGame } from '../engine/actionEconomy';
 import { createInitialGameState } from '../state/initialState';
 import { createSaveEnvelope, isValidSaveEnvelope, restoreSave } from '../state/saveEnvelope';
@@ -21,9 +22,12 @@ describe('ERA1-COM-F01 Material Not As Described', () => {
   });
 
   it('becomes available on its scheduled day from one active matter and causal event, without duplicate presentation', () => {
-    const dayOne = generateDailyAssignments(createInitialGameState());
+    const initial = createInitialGameState();
+    const dayOne = generateDailyAssignments(initial);
     expect(Object.values(dayOne.opportunities.assignments).some((offer) => offer.activityId === ERA1_COM_F01_ACTIVITY_ID)).toBe(false);
-    const generated = generateDailyAssignments({ ...dayOne, calendar: { ...dayOne.calendar, dayNumber: 2 } });
+    const dayTwoWorld = advanceInstitutionalMatters(dayOne, 2);
+    expect(dayTwoWorld.world.matters['matter-era1-com-f01-material-description' as MatterId]?.createdDay).toBe(2);
+    const generated = generateDailyAssignments(dayTwoWorld);
     const offers = Object.values(generated.opportunities.assignments).filter((offer) => offer.activityId === ERA1_COM_F01_ACTIVITY_ID);
     expect(offers).toHaveLength(1);
     expect(offers[0]).toMatchObject({
@@ -39,7 +43,7 @@ describe('ERA1-COM-F01 Material Not As Described', () => {
   });
 
   it('gives separate matters and causal events distinct occurrence identities', () => {
-    const base = { ...createInitialGameState(), calendar: { ...createInitialGameState().calendar, dayNumber: 2 } };
+    const base = advanceInstitutionalMatters(createInitialGameState(), 2);
     const matterId = 'matter-era1-com-f01-second-delivery' as MatterId;
     const eventId = 'event-era1-com-f01-second-delivery' as EventId;
     const originalMatter = base.world.matters['matter-era1-com-f01-material-description' as MatterId];
@@ -66,8 +70,8 @@ describe('ERA1-COM-F01 Material Not As Described', () => {
   });
 
   it('plays through evidence acquisition and submission without granting Historical Progress XP', () => {
-    const initial = createInitialGameState();
-    let state = generateDailyAssignments({ ...initial, calendar: { ...initial.calendar, dayNumber: 2 } });
+    const initial = advanceInstitutionalMatters(createInitialGameState(), 2);
+    let state = generateDailyAssignments(initial);
     const offer = Object.values(state.opportunities.assignments).find((item) => item.activityId === ERA1_COM_F01_ACTIVITY_ID)!;
     state = transitionGame(state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: offer.id }).state;
     for (const actionId of ['comf01-consult-receiver','comf01-compare-request-tag','comf01-inspect-load','comf01-consult-carrier']) {

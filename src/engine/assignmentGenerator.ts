@@ -124,7 +124,7 @@ export function generateDailyAssignments(state: GameState): GameState {
 
   for (const definition of rotated) {
     const matchingMatters = Object.values(next.world.matters)
-      .filter((matter) => matter.kind === definition.matterKind && matter.createdDay <= next.calendar.dayNumber)
+      .filter((matter) => matter.kind === definition.matterKind)
       .sort((a, b) => a.createdDay - b.createdDay || a.id.localeCompare(b.id));
 
     for (const sourceMatter of matchingMatters) {

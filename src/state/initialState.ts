@@ -5,7 +5,7 @@ import { NORTH_BAY_LOCATION_ID, NORTH_BAY_PEOPLE } from '../content/assignments/
 import { ERA1_COM_F01_PEOPLE } from '../content/assignments/eraICommercialMartial';
 import {
   MATTER_IDS, STOREHOUSE_INSTITUTION_ID, SOUTH_COURT_LOCATION_ID, SOUTH_LOADING_LOCATION_ID, ERA1_COM_F01_LOCATION_ID,
-  createSouthCourtDeliveryMatter, createSouthLoadingAwningMatter, createMaterialNotAsDescribedMatter,
+  createSouthCourtDeliveryMatter, createSouthLoadingAwningMatter,
 } from '../engine/institutionalMatters';
 export const INITIAL_PERSON_ID = 'person-enlil-barni' as PersonId;
 export function createInitialGameState(player?: Person, opportunitySeed = 'era1-initial-state-seed'): GameState {
@@ -78,10 +78,8 @@ export function createInitialGameState(player?: Person, opportunitySeed = 'era1-
   ];
   const deliveryMatterId = MATTER_IDS.southCourtDelivery;
   const awningMatterId = MATTER_IDS.southLoadingAwning;
-  const materialDescriptionMatterId = MATTER_IDS.era1ComF01;
   const deliveryEventId = 'event-south-court-delivery-source' as EventId;
   const awningEventId = 'event-south-loading-awning-source' as EventId;
-  const materialDescriptionEventId = 'event-era1-com-f01-seeded-delivery' as EventId;
   const deliveryEvent: WorldEvent = {
     id: deliveryEventId, dayNumber: 1,
     summary: 'A dispatch copy records 24 capacity measures and the receiving tally records 23; the difference is not located.',
@@ -94,15 +92,6 @@ export function createInitialGameState(player?: Person, opportunitySeed = 'era1-
     personIds: [urNannaId, shuruppakId, maintenanceWorkerId],
     institutionIds: [templeStorehouseId], locationId: SOUTH_LOADING_LOCATION_ID,
   };
-  const materialDescriptionEvent: WorldEvent = {
-    id: materialDescriptionEventId, dayNumber: 2,
-    summary: 'A provisional procurement request calls for worked timber; the sender’s tag describes the load as worked, while the receiving observation describes the visible pieces as unworked. The difference is documented but not explained.',
-    personIds: [utuMansumId, ERA1_COM_F01_PEOPLE.workshopOverseer, ERA1_COM_F01_PEOPLE.responsibleAuthority, ERA1_COM_F01_PEOPLE.carrier],
-    institutionIds: [templeStorehouseId], locationId: ERA1_COM_F01_LOCATION_ID,
-  };
-  const materialDescriptionMatter = { ...createMaterialNotAsDescribedMatter(2), sourceEventId: materialDescriptionEventId,
-    provenance: [...(createMaterialNotAsDescribedMatter(2).provenance ?? []),
-      { id: 'comf01-source-event', kind: 'event' as const, sourceId: materialDescriptionEventId, description: 'The procurement/delivery description difference is recorded as a distinct causal source event.' }] };
   const deliveryMatter = { ...createSouthCourtDeliveryMatter(1), sourceEventId: deliveryEventId,
     provenance: [...(createSouthCourtDeliveryMatter(1).provenance ?? []),
       { id: 'delivery-source-event', kind: 'event' as const, sourceId: deliveryEventId, description: 'The dispatch/receiving discrepancy is recorded as an active in-world matter.' }] };
@@ -185,19 +174,18 @@ export function createInitialGameState(player?: Person, opportunitySeed = 'era1-
       },
       institutions: { [templeStorehouseId]: {
         id: templeStorehouseId, name: 'Temple Storehouse', locationId: storehouseLocationId, responsibilities: ['Receive, safeguard, and issue institutional barley stocks'],
-        authority: ['Maintain storehouse accounts', 'Authorize stock inspection and segregation'], standing: 50, activeMatters: [MATTER_IDS.tutorial, deliveryMatterId, awningMatterId, materialDescriptionMatterId],
+        authority: ['Maintain storehouse accounts', 'Authorize stock inspection and segregation'], standing: 50, activeMatters: [MATTER_IDS.tutorial, deliveryMatterId, awningMatterId],
       } }, locations: {
         [storehouseLocationId]: { id: storehouseLocationId, name: 'Temple Storehouse, north storage bay' },
         [SOUTH_COURT_LOCATION_ID]: { id: SOUTH_COURT_LOCATION_ID, name: 'Temple Storehouse, south receiving court' },
         [SOUTH_LOADING_LOCATION_ID]: { id: SOUTH_LOADING_LOCATION_ID, name: 'Temple Storehouse, south loading court' },
         [ERA1_COM_F01_LOCATION_ID]: { id: ERA1_COM_F01_LOCATION_ID, name: 'Eanna receiving court, Uruk' },
       },
-      appointments: Object.fromEntries(appointments.map((appointment) => [appointment.id, appointment])), events: { [deliveryEventId]: deliveryEvent, [awningEventId]: awningEvent, [materialDescriptionEventId]: materialDescriptionEvent }, knowledge: {},
+      appointments: Object.fromEntries(appointments.map((appointment) => [appointment.id, appointment])), events: { [deliveryEventId]: deliveryEvent, [awningEventId]: awningEvent }, knowledge: {},
       matters: {
         [MATTER_IDS.tutorial]: { id: MATTER_IDS.tutorial, institutionId: STOREHOUSE_INSTITUTION_ID, kind: 'tutorial', summary: 'The Storehouse Reckoning introductory tutorial.', status: 'active', createdDay: 1 },
         [deliveryMatterId]: deliveryMatter,
         [awningMatterId]: awningMatter,
-        [materialDescriptionMatterId]: materialDescriptionMatter,
       },
     },
     historicalProgression: { historicalXp: 0, completedWorks: [] },

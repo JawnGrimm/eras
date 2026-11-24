@@ -23,6 +23,9 @@ const PEOPLE = {
   carrierForeman: 'person-enlil-kisu' as PersonId,
   seniorScribe: 'person-shuruppak-ilu' as PersonId,
   repairer: 'person-dudu' as PersonId,
+  workshopOverseer: 'person-ur-lamma' as PersonId,
+  responsibleAuthority: 'person-lu-nanshe' as PersonId,
+  carrier: 'person-kuli' as PersonId,
 } as const;
 
 export function createSouthCourtDeliveryMatter(dayNumber: number): InstitutionalMatter {
@@ -87,6 +90,37 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
   const institutions = { ...state.world.institutions };
   let changed = false;
 
+  // The first Commercial procurement occurrence enters the world on Day 2,
+  // after the Day 1 board has presented its existing six-AP supply.
+  if (nextDay >= 2 && !matters[MATTER_IDS.era1ComF01]) {
+    const eventId = 'event-era1-com-f01-seeded-delivery' as EventId;
+    events[eventId] = {
+      id: eventId,
+      dayNumber: nextDay,
+      summary: 'A provisional procurement request calls for worked timber; the sender’s tag describes the load as worked, while the receiving observation describes the visible pieces as unworked. The difference is documented but not explained.',
+      personIds: [PEOPLE.receivingOfficial, PEOPLE.workshopOverseer, PEOPLE.responsibleAuthority, PEOPLE.carrier],
+      institutionIds: [STOREHOUSE_INSTITUTION_ID],
+      locationId: ERA1_COM_F01_LOCATION_ID,
+    };
+    const created = createMaterialNotAsDescribedMatter(nextDay);
+    matters[created.id] = {
+      ...created,
+      sourceEventId: eventId,
+      provenance: [
+        ...(created.provenance ?? []),
+        { id: 'comf01-source-event', kind: 'event', sourceId: eventId, description: 'The procurement/delivery description difference is recorded as a distinct causal source event.' },
+      ],
+    };
+    const institution = institutions[STOREHOUSE_INSTITUTION_ID];
+    if (institution && !institution.activeMatters.includes(created.id)) {
+      institutions[STOREHOUSE_INSTITUTION_ID] = {
+        ...institution,
+        activeMatters: [...institution.activeMatters, created.id],
+      };
+    }
+    changed = true;
+  }
+
   for (const matter of Object.values(matters)) {
     const schedule = matter.scheduledDevelopment;
     if (matter.status === 'resolved' || matter.status === 'developed' || schedule?.kind !== 'rain' || schedule.dayNumber > nextDay) continue;
@@ -141,9 +175,9 @@ export function createMaterialNotAsDescribedMatter(dayNumber: number): Instituti
     locationId: ERA1_COM_F01_LOCATION_ID,
     involvedPersonIds: [
       PEOPLE.receivingOfficial,
-      'person-ur-lamma' as PersonId,
-      'person-lu-nanshe' as PersonId,
-      'person-kuli' as PersonId,
+      PEOPLE.workshopOverseer,
+      PEOPLE.responsibleAuthority,
+      PEOPLE.carrier,
     ],
     provenance: [
       { id: 'comf01-procurement-request', kind: 'instruction', description: 'A provisional request calls for worked timber for a precinct craft commission.' },
