@@ -286,7 +286,7 @@ export function transitionOpportunityAction(state: GameState, action: Opportunit
       const next = { ...effected, actionEconomy: { ...effected.actionEconomy, apRemaining: effected.actionEconomy.apRemaining - challenge.apCost },
         opportunities: { ...effected.opportunities, challenges: active,
         challengeOutcomes: [...effected.opportunities.challengeOutcomes, outcome] } };
-      return succeed(next, 'challenge-resolved', 'The Challenge was resolved and moved to the permanent outcome archive.');
+      return succeed(next, 'challenge-resolved', `${challenge.title}: ${choice.label}. ${choice.description}`);
     }
   }
 }
