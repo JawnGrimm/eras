@@ -167,20 +167,26 @@ function createAuthoredSourceRecord(input: {
   id: RecordId;
   createdDay: number;
   authorPersonId: PersonId;
+  reportedByPersonId?: PersonId;
   institutionId: InstitutionId;
   title: string;
   assertion: string;
   uncertaintyLimit: string;
 }): RecordEntry {
-  const sourceId = `source-${input.id}`;
+  const authorSourceId = `source-${input.id}-author`;
+  const reportSourceId = `source-${input.id}-reported-by`;
+  const sources = [
+    { id: authorSourceId, kind: 'person' as const, sourceId: input.authorPersonId, description: 'The named scribe is responsible for recording this entry.' },
+    ...(input.reportedByPersonId ? [{ id: reportSourceId, kind: 'person' as const, sourceId: input.reportedByPersonId, description: 'The named participant is the source of the reported account.' }] : []),
+  ];
   return {
     id: input.id,
     createdDay: input.createdDay,
     authorPersonId: input.authorPersonId,
     institutionId: input.institutionId,
     title: input.title,
-    sources: [{ id: sourceId, kind: 'person', sourceId: input.authorPersonId, description: 'The named author is responsible for this authored record.' }],
-    assertions: [{ id: `assertion-${input.id}`, text: input.assertion, classification: 'reported', sourceIds: [sourceId] }],
+    sources,
+    assertions: [{ id: `assertion-${input.id}`, text: input.assertion, classification: 'reported', sourceIds: sources.map((source) => source.id) }],
     uncertaintyLimits: [input.uncertaintyLimit],
     amendments: [],
   };
@@ -287,13 +293,13 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
       ];
       records[ERA1_COM_F02_RECORD_IDS.storehouseRequest] = createAuthoredSourceRecord({
         id: ERA1_COM_F02_RECORD_IDS.storehouseRequest, createdDay: nextDay,
-        authorPersonId: ERA1_COM_F02_F04_PEOPLE.urNanna, institutionId: STOREHOUSE_INSTITUTION_ID,
+        authorPersonId: ERA1_COM_F02_F04_PEOPLE.shuruppak, reportedByPersonId: ERA1_COM_F02_F04_PEOPLE.urNanna, institutionId: STOREHOUSE_INSTITUTION_ID,
         title: 'Storehouse request for timber', assertion: 'The Storehouse requests timber for the north-bay repair.',
         uncertaintyLimit: 'The request records the Storehouse need; it does not establish priority over another claimant.',
       });
       records[ERA1_COM_F02_RECORD_IDS.householdRequest] = createAuthoredSourceRecord({
         id: ERA1_COM_F02_RECORD_IDS.householdRequest, createdDay: nextDay,
-        authorPersonId: ERA1_COM_F02_F04_PEOPLE.gemeInana, institutionId: TEXTILE_HOUSEHOLD_INSTITUTION_ID,
+        authorPersonId: ERA1_COM_F02_F04_PEOPLE.shuruppak, reportedByPersonId: ERA1_COM_F02_F04_PEOPLE.gemeInana, institutionId: TEXTILE_HOUSEHOLD_INSTITUTION_ID,
         title: 'Sealed textile-household request', assertion: 'The household requests timber for work-frames; a sealing is present on the request.',
         uncertaintyLimit: 'The sealing establishes an impression, not the holder’s authority to commit this delivery.',
       });
@@ -305,7 +311,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
       });
       records[ERA1_COM_F02_RECORD_IDS.carrierAccount] = createAuthoredSourceRecord({
         id: ERA1_COM_F02_RECORD_IDS.carrierAccount, createdDay: nextDay,
-        authorPersonId: ERA1_COM_F02_F04_PEOPLE.kuli, institutionId: EANNA_INSTITUTION_ID,
+        authorPersonId: ERA1_COM_F02_F04_PEOPLE.shuruppak, reportedByPersonId: ERA1_COM_F02_F04_PEOPLE.kuli, institutionId: EANNA_INSTITUTION_ID,
         title: 'Carrier account of delivery instruction', assertion: 'Kuli gives his account of the instruction he received for the delivery.',
         uncertaintyLimit: 'The carrier account is attributed testimony and does not establish either claimant’s authority or good faith.',
       });
@@ -353,7 +359,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
     if (exchangeOpen && institutions[TEXTILE_HOUSEHOLD_INSTITUTION_ID]) {
       records[ERA1_COM_F03_RECORD_IDS.outboundDispatch] = createAuthoredSourceRecord({
         id: ERA1_COM_F03_RECORD_IDS.outboundDispatch, createdDay: nextDay,
-        authorPersonId: ERA1_COM_F02_F04_PEOPLE.gemeInana, institutionId: TEXTILE_HOUSEHOLD_INSTITUTION_ID,
+        authorPersonId: ERA1_COM_F02_F04_PEOPLE.shuruppak, reportedByPersonId: ERA1_COM_F02_F04_PEOPLE.gemeInana, institutionId: TEXTILE_HOUSEHOLD_INSTITUTION_ID,
         title: 'Outbound household dispatch', assertion: 'The household records goods sent out with a carrier party under an expected return of goods of another kind.',
         uncertaintyLimit: 'The dispatch records what was sent; it does not record a written exchange equivalence.',
       });
@@ -418,13 +424,13 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
     const eventId = 'event-era1-com-f04-custody-chain' as EventId;
     records[ERA1_COM_F04_RECORD_IDS.dispatchTally] = createAuthoredSourceRecord({
       id: ERA1_COM_F04_RECORD_IDS.dispatchTally, createdDay: nextDay,
-      authorPersonId: ERA1_COM_F02_F04_PEOPLE.enlilKisu, institutionId: STOREHOUSE_INSTITUTION_ID,
+      authorPersonId: ERA1_COM_F02_F04_PEOPLE.shuruppak, reportedByPersonId: ERA1_COM_F02_F04_PEOPLE.enlilKisu, institutionId: STOREHOUSE_INSTITUTION_ID,
       title: 'Dispatch tally', assertion: 'Twelve sealed vessels are recorded at dispatch.',
       uncertaintyLimit: 'The tally establishes the dispatch count, not the condition at later handovers.',
     });
     records[ERA1_COM_F04_RECORD_IDS.landingTally] = createAuthoredSourceRecord({
       id: ERA1_COM_F04_RECORD_IDS.landingTally, createdDay: nextDay,
-      authorPersonId: ERA1_COM_F02_F04_PEOPLE.amaGi, institutionId: EANNA_INSTITUTION_ID,
+      authorPersonId: ERA1_COM_F02_F04_PEOPLE.shuruppak, reportedByPersonId: ERA1_COM_F02_F04_PEOPLE.amaGi, institutionId: EANNA_INSTITUTION_ID,
       title: 'Landing tally', assertion: 'Twelve vessels are recorded at the intermediate landing handover.',
       uncertaintyLimit: 'The tally establishes the count at landing, not what happened after that handover.',
     });
