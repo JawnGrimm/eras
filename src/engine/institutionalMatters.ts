@@ -1,5 +1,6 @@
 import type { EventId, InstitutionId, LocationId, MatterId, PersonId, RecordId } from '../state/ids';
-import type { GameState, InstitutionalMatter } from '../state/types';
+import type { GameState, InstitutionalMatter, RecordEntry } from '../state/types';
+import { ERA1_COM_F02_F04_PEOPLE, ERA1_COM_F02_RECORD_IDS, ERA1_COM_F03_RECORD_IDS, ERA1_COM_F04_RECORD_IDS } from '../content/assignments/eraICommercialFamilies';
 
 export const STOREHOUSE_INSTITUTION_ID = 'institution-uruk-temple-storehouse' as InstitutionId;
 export const NORTH_BAY_LOCATION_ID = 'location-uruk-temple-storehouse' as LocationId;
@@ -162,13 +163,231 @@ export function createRoofRepairMatter(dayNumber: number, sourceRecordId?: Recor
   };
 }
 
+function createAuthoredSourceRecord(input: {
+  id: RecordId;
+  createdDay: number;
+  authorPersonId: PersonId;
+  institutionId: InstitutionId;
+  title: string;
+  assertion: string;
+  uncertaintyLimit: string;
+}): RecordEntry {
+  const sourceId = `source-${input.id}`;
+  return {
+    id: input.id,
+    createdDay: input.createdDay,
+    authorPersonId: input.authorPersonId,
+    institutionId: input.institutionId,
+    title: input.title,
+    sources: [{ id: sourceId, kind: 'person', sourceId: input.authorPersonId, description: 'The named author is responsible for this authored record.' }],
+    assertions: [{ id: `assertion-${input.id}`, text: input.assertion, classification: 'reported', sourceIds: [sourceId] }],
+    uncertaintyLimits: [input.uncertaintyLimit],
+    amendments: [],
+  };
+}
+
 export function advanceInstitutionalMatters(state: GameState, nextDay: number): GameState {
   const matters = { ...state.world.matters };
   const events = { ...state.world.events };
   const institutions = { ...state.world.institutions };
   const locations = { ...state.world.locations };
+  const records = { ...state.records.entries };
   let changed = false;
 
+
+
+  // Commercial F02: a new timber delivery becomes an Assignment only while
+  // both the Storehouse repair need and the household work-frame need remain open.
+  if (nextDay === 8 && !matters['matter-era1-com-f02-two-claims' as MatterId]) {
+    const storehouseNeedOpen = Object.values(matters).some((matter) =>
+      matter.status === 'active' && (matter.kind === 'roof_repair_verification' || matter.kind === 'north_bay_water_ingress'));
+    const household = state.world.people[ERA1_COM_F02_F04_PEOPLE.gemeInana];
+    const householdNeedOpen = household?.objectives?.some((objective) =>
+      objective.id === 'objective-geme-inana-workframes' && objective.status === 'active');
+    if (storehouseNeedOpen && householdNeedOpen && institutions[EANNA_INSTITUTION_ID]
+      && institutions[TEXTILE_HOUSEHOLD_INSTITUTION_ID]) {
+      const eventId = 'event-era1-com-f02-two-claims-delivery' as EventId;
+      const sourceRecords: RecordId[] = [
+        ERA1_COM_F02_RECORD_IDS.storehouseRequest,
+        ERA1_COM_F02_RECORD_IDS.householdRequest,
+        ERA1_COM_F02_RECORD_IDS.deliveryReceipt,
+        ERA1_COM_F02_RECORD_IDS.carrierAccount,
+      ];
+      records[ERA1_COM_F02_RECORD_IDS.storehouseRequest] = createAuthoredSourceRecord({
+        id: ERA1_COM_F02_RECORD_IDS.storehouseRequest, createdDay: nextDay,
+        authorPersonId: ERA1_COM_F02_F04_PEOPLE.urNanna, institutionId: STOREHOUSE_INSTITUTION_ID,
+        title: 'Storehouse request for timber', assertion: 'The Storehouse requests timber for the north-bay repair.',
+        uncertaintyLimit: 'The request records the Storehouse need; it does not establish priority over another claimant.',
+      });
+      records[ERA1_COM_F02_RECORD_IDS.householdRequest] = createAuthoredSourceRecord({
+        id: ERA1_COM_F02_RECORD_IDS.householdRequest, createdDay: nextDay,
+        authorPersonId: ERA1_COM_F02_F04_PEOPLE.gemeInana, institutionId: TEXTILE_HOUSEHOLD_INSTITUTION_ID,
+        title: 'Sealed textile-household request', assertion: 'The household requests timber for work-frames; a sealing is present on the request.',
+        uncertaintyLimit: 'The sealing establishes an impression, not the holder’s authority to commit this delivery.',
+      });
+      records[ERA1_COM_F02_RECORD_IDS.deliveryReceipt] = createAuthoredSourceRecord({
+        id: ERA1_COM_F02_RECORD_IDS.deliveryReceipt, createdDay: nextDay,
+        authorPersonId: ERA1_COM_F02_F04_PEOPLE.utuMansum, institutionId: STOREHOUSE_INSTITUTION_ID,
+        title: 'Timber delivery receipt', assertion: 'A small load of timber is recorded as arrived at the receiving court.',
+        uncertaintyLimit: 'The receipt establishes what arrived as recorded; it does not decide which request is entitled to the load.',
+      });
+      records[ERA1_COM_F02_RECORD_IDS.carrierAccount] = createAuthoredSourceRecord({
+        id: ERA1_COM_F02_RECORD_IDS.carrierAccount, createdDay: nextDay,
+        authorPersonId: ERA1_COM_F02_F04_PEOPLE.kuli, institutionId: EANNA_INSTITUTION_ID,
+        title: 'Carrier account of delivery instruction', assertion: 'Kuli gives his account of the instruction he received for the delivery.',
+        uncertaintyLimit: 'The carrier account is attributed testimony and does not establish either claimant’s authority or good faith.',
+      });
+      events[eventId] = {
+        id: eventId, dayNumber: nextDay,
+        summary: 'A small timber delivery arrives while the Storehouse north-bay repair need and Geme-Inana’s household work-frame need are both open. Two documented requests compete for the same load; Lu-Nanshe asks for a neutral account before deciding priority.',
+        personIds: [ERA1_COM_F02_F04_PEOPLE.luNanshe, ERA1_COM_F02_F04_PEOPLE.urNanna,
+          ERA1_COM_F02_F04_PEOPLE.gemeInana, ERA1_COM_F02_F04_PEOPLE.utuMansum,
+          ERA1_COM_F02_F04_PEOPLE.kuli, ERA1_COM_F02_F04_PEOPLE.dudu, ERA1_COM_F02_F04_PEOPLE.shuruppak],
+        institutionIds: [EANNA_INSTITUTION_ID, STOREHOUSE_INSTITUTION_ID, TEXTILE_HOUSEHOLD_INSTITUTION_ID],
+        locationId: ERA1_COM_F01_LOCATION_ID,
+      };
+      const matterId = 'matter-era1-com-f02-two-claims' as MatterId;
+      matters[matterId] = {
+        id: matterId, institutionId: EANNA_INSTITUTION_ID, kind: 'era1_com_f02_two_claims',
+        summary: 'A small timber load is claimed by the Storehouse for north-bay repair and by a textile household for work-frames.',
+        status: 'active', createdDay: nextDay, sourceEventId: eventId,
+        sourceRecordId: ERA1_COM_F02_RECORD_IDS.deliveryReceipt,
+        locationId: ERA1_COM_F01_LOCATION_ID,
+        involvedPersonIds: [ERA1_COM_F02_F04_PEOPLE.luNanshe, ERA1_COM_F02_F04_PEOPLE.urNanna,
+          ERA1_COM_F02_F04_PEOPLE.gemeInana, ERA1_COM_F02_F04_PEOPLE.utuMansum,
+          ERA1_COM_F02_F04_PEOPLE.kuli, ERA1_COM_F02_F04_PEOPLE.dudu],
+        provenance: [
+          { id: 'comf02-storehouse-request', kind: 'record_copy', sourceId: ERA1_COM_F02_RECORD_IDS.storehouseRequest, description: 'The Storehouse claim and its stated repair need.' },
+          { id: 'comf02-household-request', kind: 'record_copy', sourceId: ERA1_COM_F02_RECORD_IDS.householdRequest, description: 'The textile household claim and its sealing.' },
+          { id: 'comf02-delivery-receipt', kind: 'record_copy', sourceId: ERA1_COM_F02_RECORD_IDS.deliveryReceipt, description: 'The receiving entry for the small timber load.' },
+          { id: 'comf02-carrier-account', kind: 'record_copy', sourceId: ERA1_COM_F02_RECORD_IDS.carrierAccount, description: 'Kuli’s separately attributed account.' },
+          { id: 'comf02-source-event', kind: 'event', sourceId: eventId, description: 'The delivery arrives while both documented needs remain open.' },
+        ],
+      };
+      institutions[EANNA_INSTITUTION_ID] = {
+        ...institutions[EANNA_INSTITUTION_ID],
+        activeMatters: [...institutions[EANNA_INSTITUTION_ID].activeMatters, matterId],
+      };
+      changed = true;
+    }
+  }
+
+  // Commercial F03 begins with a distinct outbound dispatch. The Assignment
+  // is not offered until a later, separate partial-return event exists.
+  if (nextDay === 8 && !events['event-era1-com-f03-outbound-dispatch' as EventId]) {
+    const household = state.world.people[ERA1_COM_F02_F04_PEOPLE.gemeInana];
+    const exchangeOpen = household?.objectives?.some((objective) =>
+      objective.id === 'objective-geme-inana-exchange' && objective.status === 'active');
+    if (exchangeOpen && institutions[TEXTILE_HOUSEHOLD_INSTITUTION_ID]) {
+      records[ERA1_COM_F03_RECORD_IDS.outboundDispatch] = createAuthoredSourceRecord({
+        id: ERA1_COM_F03_RECORD_IDS.outboundDispatch, createdDay: nextDay,
+        authorPersonId: ERA1_COM_F02_F04_PEOPLE.gemeInana, institutionId: TEXTILE_HOUSEHOLD_INSTITUTION_ID,
+        title: 'Outbound household dispatch', assertion: 'The household records goods sent out with a carrier party under an expected return of goods of another kind.',
+        uncertaintyLimit: 'The dispatch records what was sent; it does not record a written exchange equivalence.',
+      });
+      events['event-era1-com-f03-outbound-dispatch' as EventId] = {
+        id: 'event-era1-com-f03-outbound-dispatch' as EventId, dayNumber: nextDay,
+        summary: 'Goods leave Geme-Inana’s textile household under an expected return of goods of another kind. The dispatch is recorded, but no written equivalence is entered.',
+        personIds: [ERA1_COM_F02_F04_PEOPLE.gemeInana, ERA1_COM_F02_F04_PEOPLE.enlilKisu],
+        institutionIds: [TEXTILE_HOUSEHOLD_INSTITUTION_ID],
+        locationId: TEXTILE_HOUSEHOLD_LOCATION_ID,
+      };
+      changed = true;
+    }
+  }
+
+  if (nextDay === 9 && !matters['matter-era1-com-f03-partial-return' as MatterId]
+    && events['event-era1-com-f03-outbound-dispatch' as EventId]) {
+    const eventId = 'event-era1-com-f03-partial-return' as EventId;
+    records[ERA1_COM_F03_RECORD_IDS.partialReturn] = createAuthoredSourceRecord({
+      id: ERA1_COM_F03_RECORD_IDS.partialReturn, createdDay: nextDay,
+      authorPersonId: ERA1_COM_F02_F04_PEOPLE.utuMansum, institutionId: EANNA_INSTITUTION_ID,
+      title: 'Partial return receipt', assertion: 'The first return is received and recorded as partial against the earlier outbound dispatch.',
+      uncertaintyLimit: 'The receipt establishes what arrived; it does not establish what the counterparty owes under the spoken understanding.',
+    });
+    events[eventId] = {
+      id: eventId, dayNumber: nextDay,
+      summary: 'The first return from the earlier outbound dispatch arrives only in part. Geme-Inana says the exchange was to return goods of another kind; Kuli says the remainder will follow on the next trip.',
+      personIds: [ERA1_COM_F02_F04_PEOPLE.gemeInana, ERA1_COM_F02_F04_PEOPLE.kuli,
+        ERA1_COM_F02_F04_PEOPLE.enlilKisu, ERA1_COM_F02_F04_PEOPLE.utuMansum],
+      institutionIds: [TEXTILE_HOUSEHOLD_INSTITUTION_ID, EANNA_INSTITUTION_ID],
+      locationId: ERA1_COM_F01_LOCATION_ID,
+    };
+    const matterId = 'matter-era1-com-f03-partial-return' as MatterId;
+    matters[matterId] = {
+      id: matterId, institutionId: TEXTILE_HOUSEHOLD_INSTITUTION_ID, kind: 'era1_com_f03_partial_return',
+      summary: 'A first return has arrived only in part; the written dispatch and receipt do not record an exchange equivalence.',
+      status: 'active', createdDay: nextDay, sourceEventId: eventId,
+      sourceRecordId: ERA1_COM_F03_RECORD_IDS.partialReturn,
+      locationId: TEXTILE_HOUSEHOLD_LOCATION_ID,
+      involvedPersonIds: [ERA1_COM_F02_F04_PEOPLE.gemeInana, ERA1_COM_F02_F04_PEOPLE.kuli,
+        ERA1_COM_F02_F04_PEOPLE.enlilKisu, ERA1_COM_F02_F04_PEOPLE.utuMansum],
+      provenance: [
+        { id: 'comf03-outbound-record', kind: 'record_copy', sourceId: ERA1_COM_F03_RECORD_IDS.outboundDispatch, description: 'The earlier outbound dispatch record.' },
+        { id: 'comf03-outbound-event', kind: 'event', sourceId: 'event-era1-com-f03-outbound-dispatch', description: 'The distinct earlier dispatch event.' },
+        { id: 'comf03-return-record', kind: 'record_copy', sourceId: ERA1_COM_F03_RECORD_IDS.partialReturn, description: 'The first partial return receipt.' },
+        { id: 'comf03-return-event', kind: 'event', sourceId: eventId, description: 'The later partial-return event.' },
+      ],
+    };
+    institutions[TEXTILE_HOUSEHOLD_INSTITUTION_ID] = {
+      ...institutions[TEXTILE_HOUSEHOLD_INSTITUTION_ID],
+      activeMatters: [...institutions[TEXTILE_HOUSEHOLD_INSTITUTION_ID].activeMatters, matterId],
+    };
+    changed = true;
+  }
+
+  // Commercial F04 is a separate finite consignment with three independent
+  // tallies; the first recorded difference is visible, but the cause is not.
+  if (nextDay === 10 && !matters['matter-era1-com-f04-custody-chain' as MatterId]) {
+    const eventId = 'event-era1-com-f04-custody-chain' as EventId;
+    records[ERA1_COM_F04_RECORD_IDS.dispatchTally] = createAuthoredSourceRecord({
+      id: ERA1_COM_F04_RECORD_IDS.dispatchTally, createdDay: nextDay,
+      authorPersonId: ERA1_COM_F02_F04_PEOPLE.enlilKisu, institutionId: STOREHOUSE_INSTITUTION_ID,
+      title: 'Dispatch tally', assertion: 'Twelve sealed vessels are recorded at dispatch.',
+      uncertaintyLimit: 'The tally establishes the dispatch count, not the condition at later handovers.',
+    });
+    records[ERA1_COM_F04_RECORD_IDS.landingTally] = createAuthoredSourceRecord({
+      id: ERA1_COM_F04_RECORD_IDS.landingTally, createdDay: nextDay,
+      authorPersonId: ERA1_COM_F02_F04_PEOPLE.amaGi, institutionId: EANNA_INSTITUTION_ID,
+      title: 'Landing tally', assertion: 'Twelve vessels are recorded at the intermediate landing handover.',
+      uncertaintyLimit: 'The tally establishes the count at landing, not what happened after that handover.',
+    });
+    records[ERA1_COM_F04_RECORD_IDS.receivingTally] = createAuthoredSourceRecord({
+      id: ERA1_COM_F04_RECORD_IDS.receivingTally, createdDay: nextDay,
+      authorPersonId: ERA1_COM_F02_F04_PEOPLE.utuMansum, institutionId: STOREHOUSE_INSTITUTION_ID,
+      title: 'Receiving tally and condition note', assertion: 'Eleven vessels are recorded at receipt; one vessel is noted as cracked.',
+      uncertaintyLimit: 'The receiving tally and condition note do not establish when or how the vessel was damaged.',
+    });
+    events[eventId] = {
+      id: eventId, dayNumber: nextDay,
+      summary: 'A consignment of twelve sealed vessels is tallied at dispatch and again at the river landing. The receiving tally records eleven; one vessel is noted as cracked. The three tallies do not identify where or why the difference occurred.',
+      personIds: [ERA1_COM_F02_F04_PEOPLE.enlilKisu, ERA1_COM_F02_F04_PEOPLE.amaGi,
+        ERA1_COM_F02_F04_PEOPLE.kuli, ERA1_COM_F02_F04_PEOPLE.sigAna, ERA1_COM_F02_F04_PEOPLE.utuMansum],
+      institutionIds: [STOREHOUSE_INSTITUTION_ID, EANNA_INSTITUTION_ID],
+      locationId: RIVER_LANDING_LOCATION_ID,
+    };
+    const matterId = 'matter-era1-com-f04-custody-chain' as MatterId;
+    matters[matterId] = {
+      id: matterId, institutionId: STOREHOUSE_INSTITUTION_ID, kind: 'era1_com_f04_custody_chain',
+      summary: 'Three custody tallies record twelve vessels at dispatch and landing, then eleven at receipt, with one cracked vessel noted.',
+      status: 'active', createdDay: nextDay, sourceEventId: eventId,
+      sourceRecordId: ERA1_COM_F04_RECORD_IDS.receivingTally,
+      locationId: RIVER_LANDING_LOCATION_ID,
+      involvedPersonIds: [ERA1_COM_F02_F04_PEOPLE.enlilKisu, ERA1_COM_F02_F04_PEOPLE.amaGi,
+        ERA1_COM_F02_F04_PEOPLE.kuli, ERA1_COM_F02_F04_PEOPLE.sigAna, ERA1_COM_F02_F04_PEOPLE.utuMansum],
+      provenance: [
+        { id: 'comf04-dispatch-tally', kind: 'record_copy', sourceId: ERA1_COM_F04_RECORD_IDS.dispatchTally, description: 'The first tally at dispatch.' },
+        { id: 'comf04-landing-tally', kind: 'record_copy', sourceId: ERA1_COM_F04_RECORD_IDS.landingTally, description: 'The second tally at landing.' },
+        { id: 'comf04-receiving-tally', kind: 'record_copy', sourceId: ERA1_COM_F04_RECORD_IDS.receivingTally, description: 'The third tally and receiving condition note.' },
+        { id: 'comf04-source-event', kind: 'event', sourceId: eventId, description: 'The consignment arrives with a recorded count difference.' },
+      ],
+    };
+    institutions[STOREHOUSE_INSTITUTION_ID] = {
+      ...institutions[STOREHOUSE_INSTITUTION_ID],
+      activeMatters: [...institutions[STOREHOUSE_INSTITUTION_ID].activeMatters, matterId],
+    };
+    changed = true;
+  }
 
   // The five authored institutional anchors enter through distinct, dated
   // source events. They are finite opening situations, not recurring quota
@@ -291,7 +510,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
     changed = true;
   }
 
-  return changed ? { ...state, world: { ...state.world, matters, events, institutions, locations } } : state;
+  return changed ? { ...state, world: { ...state.world, matters, events, institutions, locations }, records: { ...state.records, entries: records } } : state;
 }
 
 export function createMaterialNotAsDescribedMatter(dayNumber: number): InstitutionalMatter {
