@@ -343,11 +343,6 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
         || familiarity.basisLifeEventIds.some((eventId) => !eventIds.has(String(eventId)))) return false;
     }
   }
-  for (const p of Object.values(people)) {
-    if (isObject(p) && isObject(p.scribal) && Array.isArray(p.scribal.obligations)
-      && p.scribal.obligations.some((item) => !isObject(item) || !isObject(people[String(item.creditorPersonId)])
-        || !Number.isInteger(item.createdDay) || (item.createdDay as number) > (calendar.dayNumber as number))) return false;
-  }
   const active = people[player.currentCharacterId];
   if (!isObject(active) || !isScribal(active.scribal, new Set(Object.keys(institutions)))
     || !isInitializedScribalState(active.scribal)) return false;
