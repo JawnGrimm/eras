@@ -134,6 +134,7 @@ export const southLoadingAwningInspection = activity({
   reportSchema: {
     title: 'South loading-awning condition report',
     responsibilityLabel: 'Responsibility claim',
+    responsibilityHint: 'Dudu’s recorded contract covered the mid-bay patch only; the south loading awning was outside that commission.',
     findings: [
       { id: 'ties_frayed_posts_upright', label: 'Two ties frayed; inspected posts upright' },
       { id: 'qualified_incomplete', label: 'Qualified report; inspection incomplete' },
