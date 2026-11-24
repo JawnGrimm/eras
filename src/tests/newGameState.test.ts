@@ -7,6 +7,7 @@ import { createSaveEnvelope, isValidSaveEnvelope } from '../state/saveEnvelope';
 import type { ChallengeId, PersonId } from '../state/ids';
 import type { ChallengeInstance } from '../state/types';
 import { STOREHOUSE_WORK_ID } from '../works/storehouseReckoning';
+import { ERA_I_CHARACTER_CREATION_CONTENT_VERSION } from '../state/eraICharacterStartingState';
 
 const catalog = INITIAL_WORK_CATALOG;
 
@@ -162,5 +163,55 @@ describe('Challenge character ownership', () => {
     expect(result.feedback?.code).toBe('challenge-resolved');
     expect(result.state.opportunities.challengeOutcomes[0].assigneePersonId).toBe(originalPlayerId);
     expect(result.state.historicalProgression.historicalXp).toBe(0);
+  });
+});
+
+
+describe('GD-CHARACTER-START-001 fresh-game integration', () => {
+  it('starts each orientation with the approved baseline and the same Storehouse tutorial', () => {
+    const orientations = ['government', 'military', 'religious', 'merchant'] as const;
+    const states = orientations.map((careerPath) => createNewGameState({
+      ...TEST_CHARACTER_CREATION,
+      careerPath,
+    }));
+    const tutorial = states[0].works.progress[STOREHOUSE_WORK_ID];
+
+    for (const state of states) {
+      const person = state.world.people[state.player.currentCharacterId];
+      const scribal = getInitializedScribal(person)!;
+      expect(person.name).toBe(TEST_CHARACTER_CREATION.name);
+      expect(person.lifeStage).toBe('apprentice');
+      expect(person.characterCreation?.contentVersion).toBe(ERA_I_CHARACTER_CREATION_CONTENT_VERSION);
+      expect(person.lifeEvents).toHaveLength(5);
+      expect(Object.keys(scribal.attributes)).toHaveLength(6);
+      expect(Object.keys(scribal.skills)).toHaveLength(6);
+      expect(Object.values(scribal.skills).every((skill) => skill.level === 1)).toBe(true);
+      expect(scribal.professionalReputation).toEqual({
+        competence: 50, reliability: 50, discretion: 50, judgment: 50,
+      });
+      expect(scribal).toMatchObject({
+        careerXp: 0,
+        careerPath: state.player.currentCharacterId === person.id
+          ? scribal.careerPath : undefined,
+        wallet: { money: 0, provisions: 5 },
+        stress: 0,
+        obligations: [],
+        specializations: [],
+        traits: [],
+        conditions: [],
+        equipment: [],
+        institutionalStanding: {},
+      });
+      expect(state.world.appointments && Object.values(state.world.appointments).some((item) => item.personId === person.id)).toBe(false);
+      expect(state.world.relationships[person.id]).toBeUndefined();
+      expect(state.world.people).not.toHaveProperty('person-enlil-barni');
+      expect(state.player.currentCharacterId).toBe(person.id);
+      expect(state.actionEconomy).toMatchObject({ dailyApAllocation: 6, apRemaining: 6 });
+      expect(state.works.activeWorkId).toBe(STOREHOUSE_WORK_ID);
+      expect(state.works.progress[STOREHOUSE_WORK_ID]).toEqual(tutorial);
+      expect(state.historicalProgression.historicalXp).toBe(0);
+    }
+    expect(states.map((state) => state.world.people[state.player.currentCharacterId].scribal?.careerPath))
+      .toEqual(orientations);
   });
 });
