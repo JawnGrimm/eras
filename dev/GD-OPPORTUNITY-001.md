@@ -1,9 +1,9 @@
 # GD-OPPORTUNITY-001 — Assignment Supply and Challenge Director
 
-**Status:** PROPOSED — HISTORICAL RESEARCH RECONCILED; AWAITING FINAL GAME DIRECTOR REVIEW  
+**Status:** APPROVED — READY FOR IMPLEMENTATION (Game Director sign-off, 24 November 2026)  
 **Owners:** Game Design; Historical Research  
 **Authority:** GDD §§5.1–5.2, 6.3; approved Assignment Orientation and Institutional Context Specification; Game Director direction, 24 November 2026  
-**Implementation status:** Not ready for implementation. No runtime or save-state change is authorized by this document.
+**Implementation status:** READY FOR PRODUCTION HANDOFF. Runtime implementation is authorized under `docs/production/PRODUCTION-HANDOFF-001.md`; technical contracts remain Production-owned. No save-schema migration is pre-approved.
 
 ## 1. Decision maturity
 
@@ -144,7 +144,7 @@ Track 1 acceptance must exercise Assignment compensation and END_DAY settlement 
 
 ### 3.7 Between-days loop — Day-Close / Evening Interlude (APPROVED DIRECTION; SEQUENCE REVISED)
 
-**Purpose:** Make the transition between Workdays deliberate and legible, and give the player a practical opportunity to address Provisions before sustenance and shortage consequences are finalized. The Game Director has approved a finite, non-AP interlude as compatible with GDD §6.4, provided it contains no evening AP, free labor, study, or Work grind. A small GDD §6.4 clarification note is to be prepared when the canonical GDD update/implementation is scheduled; this document does not itself modify the GDD.
+**Purpose:** Make the transition between Workdays deliberate and legible, and give the player a practical opportunity to address Provisions before sustenance and shortage consequences are finalized. The Game Director has approved a finite, non-AP interlude as compatible with GDD §6.4, provided it contains no evening AP, free labor, study, or Work grind. **Implementation is authorized now** by the Game Director approval recorded in `docs/design/DECISION_REGISTER.md` and this approved §3.7 contract; Production must not wait for a future coordinated `docs/GDD.md` edit. Prepare the small §6.4 clarification note for the next coordinated GDD update. This document does not itself modify the GDD.
 
 **Required sequence:**
 
@@ -309,8 +309,8 @@ These are source findings, not a claim that the full world simulation is impleme
 
 - **Game Design:** Own the anchor portfolio, recurrence semantics, trigger vocabulary, candidate weighting policy, and pacing playtests.
 - **Historical Research:** Issue #80's concise five-seed research deliverable is approved and closed; confidence labels and parameter boundaries are incorporated in §§3.2a–3.2b.
-- **Engineering/Architecture:** After behavioral approval, propose deterministic bounded trigger capture, occurrence identity, and persistence compatibility. Production owns exact types, module placement, serialization, and APIs.
-- **Production/QA:** No immediate implementation work. The Character Creation → Storehouse Reckoning milestone is already reported complete under Issue #69; do not divert Production to this proposal. After approval and handoff, test multi-day supply, trigger coverage, determinism, save/load, and succession.
+- **Engineering/Architecture:** Production owns exact types, module placement, serialization, and APIs. Before persistence-affecting changes ship, provide the concise technical plan required by `docs/production/PRODUCTION-HANDOFF-001.md`, including bounded trigger capture, occurrence identity, determinism, duplicate prevention, and schema-v2 compatibility.
+- **Production/QA:** Implementation is authorized under `docs/production/PRODUCTION-HANDOFF-001.md`. Issue #82 QA corrections may proceed independently and immediately. For the broader opportunity runtime, test multi-day supply, trigger coverage, determinism, era-data compatibility, save/load, and succession; persistence changes require the brief technical plan.
 - **Art/UI/UX:** No immediate change. Distinct settings may later need differentiated scene/context presentation; preserve accessibility and readability.
 - **Audio:** No material impact at this stage.
 
@@ -322,4 +322,4 @@ Issue #80 is **CLOSED — research deliverable approved**. The five anchor seeds
 
 **Playtest scope guardrail:** keep the first implementation focused on the approved five seeds, the small recurrence domains above, shared-pool supply, bounded Challenge triggers, and the explicitly provisional Playtest 1 pacing/economy rules. Do not expand into a general market simulator, autonomous NPC scheduler, universal unit-conversion engine, or exhaustive institutional simulation.
 
-The remaining gates are final Game Director review of this reconciled behavioral contract and the separate Issue #82 QA triage package. Until that review, this document is **not READY FOR IMPLEMENTATION**. No Production handoff or runtime/save-state authorization is made here.
+**Approval:** The Game Director approved this reconciled behavioral contract and the separate Issue #82 QA triage package on 24 November 2026. This document is **APPROVED — READY FOR IMPLEMENTATION**. Production execution is authorized by `docs/production/PRODUCTION-HANDOFF-001.md`; save-schema changes and deviations from approved behavior remain subject to review.
