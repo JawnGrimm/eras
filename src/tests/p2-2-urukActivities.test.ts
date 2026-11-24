@@ -219,10 +219,11 @@ describe('P2-2 authored Uruk Assignment activities', () => {
     const beforeTutorial = runChallengeDirector(state);
     expect(beforeTutorial.opportunities.challenges).toEqual({});
 
-    const afterTutorial = runChallengeDirector(withCompletedTutorial(state));
-    expect(afterTutorial.opportunities.challenges['challenge-seven-sacks' as never]?.title).toBe('The Seven Sealed Jars');
+    const afterTutorial = runChallengeDirector(generateDailyAssignments(withCompletedTutorial(state)));
+    expect(Object.values(afterTutorial.opportunities.challenges).some((challenge) => challenge.title === 'The Seven Sealed Jars')).toBe(true);
 
-    const noCause = runChallengeDirector(withCompletedTutorial(createInitialGameState()));
+    const noCauseState = createInitialGameState();
+    const noCause = runChallengeDirector(withCompletedTutorial({ ...noCauseState, calendar: { ...noCauseState.calendar, dayNumber: 5 } }));
     expect(noCause.opportunities.challenges).toEqual({});
   });
 
@@ -255,22 +256,44 @@ describe('P2-2 authored Uruk Assignment activities', () => {
     expect(state.world.relationships['person-enlil-kisu' as never]?.[state.player.currentCharacterId]?.dimensions).toMatchObject({ trust: 57, respect: 53 });
     expect(state.world.relationships['person-shuruppak-ilu' as never]?.[state.player.currentCharacterId]).toBeUndefined();
     const directed = runChallengeDirector(withCompletedTutorial(state));
-    expect(directed.opportunities.challenges['challenge-missing-measure' as never]?.title).toBe('The Missing Measure');
+    expect(Object.values(directed.opportunities.challenges).some((challenge) => challenge.title === 'The Missing Measure')).toBe(true);
     expect(directed.historicalProgression.historicalXp).toBe(state.historicalProgression.historicalXp);
+  });
+
+  it('presents at most one Challenge when both authored candidates are eligible', () => {
+    let state = generateDailyAssignments(withHeldMatter(createInitialGameState(), 1));
+    const offer = Object.values(state.opportunities.assignments)
+      .find((item) => item.activityId === southCourtDeliveryReconciliation.id)!;
+    state = accept(state, offer);
+    state = perform(state, offer.id, 'delivery-compare-tablets');
+    state = perform(state, offer.id, 'delivery-consult-enlil');
+    state = draft(state, offer.id, {
+      finding: 'unlocated_discrepancy', responsibilityClaim: 'none',
+      citedDiscoveryIds: ['delivery-dispatch-copy','delivery-arrival-tally','delivery-enlil-testimony'],
+      limitations: [], recommendations: ['retain_both_request_origin'], selectedLimitationIds: ['cause_unlocated','no_individual_blame','no_amend_authority'],
+    });
+    state = submit(state, offer.id);
+    state = { ...state, calendar: { ...state.calendar, dayNumber: 3 } };
+
+    const directed = runChallengeDirector(withCompletedTutorial(state));
+    expect(Object.values(directed.opportunities.challenges)).toHaveLength(1);
+    expect(directed.opportunities.occurrenceLedger.filter((entry) =>
+      entry.scenarioId === 'challenge-seven-sacks' || entry.scenarioId === 'challenge-missing-measure')).toHaveLength(1);
   });
 
   it('triggers The Seven Sacks after an open held-stock matter reaches two days and never reoffers after decline', () => {
     let state = withHeldMatter(createInitialGameState(), 1);
     state = { ...state, calendar: { ...state.calendar, dayNumber: 3 } };
-    const directed = runChallengeDirector(withCompletedTutorial(state));
-    const challenge = directed.opportunities.challenges['challenge-seven-sacks' as never];
+    const directed = runChallengeDirector(generateDailyAssignments(withCompletedTutorial(state)));
+    const challenge = Object.values(directed.opportunities.challenges).find((item) => item.title === 'The Seven Sealed Jars');
     expect(challenge?.title).toBe('The Seven Sealed Jars');
     expect(challenge?.description).toContain('sealed pottery storage jars');
     expect(challenge?.description).not.toMatch(/\bsacks?\b/i);
     expect(challenge?.context.quantity).toContain('sealed pottery storage jars');
     const declined = transitionOpportunityAction(directed, { type: 'DECLINE_CHALLENGE', challengeId: challenge!.id }).state;
+    expect(declined.opportunities.occurrenceLedger.find((entry) => entry.occurrenceKey === challenge!.id)?.lifecycle).toBe('declined');
     const again = runChallengeDirector(withCompletedTutorial(declined));
-    expect(again.opportunities.challenges['challenge-seven-sacks' as never]?.status).toBe('declined');
+    expect(again.opportunities.challenges[challenge!.id]?.status).toBe('declined');
     expect(again.historicalProgression.historicalXp).toBe(state.historicalProgression.historicalXp);
   });
   it('includes a newly selected Challenge in the same Workday Morning Report', () => {
