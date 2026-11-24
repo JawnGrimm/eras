@@ -8,7 +8,7 @@ import type { ScribalCharacterState } from '../state/types';
 import { evaluateEvidenceInterpretation } from '../works/evidenceInterpretation';
 import { defineWork, validateWorkDefinition } from '../works/workDefinition';
 
-function nextWorkday(state: ReturnType<typeof createInitialGameState>, dayNumber = state.calendar.dayNumber, workCatalog: Parameters<typeof transitionGame>[3] = {}) {
+function nextWorkday(state: ReturnType<typeof createInitialGameState>, dayNumber = state.calendar.dayNumber, workCatalog: Parameters<typeof transitionGame>[3] = {}): ReturnType<typeof transitionGame> {
   const closed = transitionGame(state, { type: 'END_DAY', expectedDayNumber: dayNumber }, undefined, workCatalog);
   const settlementId = closed.state.dayClose.pendingSettlementId;
   return settlementId

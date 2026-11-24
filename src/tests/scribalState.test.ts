@@ -6,7 +6,7 @@ import { getInitializedScribal, isInitializedScribalState } from '../state/scrib
 import type { GameState, Person } from '../state/types';
 import type { PersonId } from '../state/ids';
 
-function nextWorkday(state: GameState) {
+function nextWorkday(state: GameState): ReturnType<typeof transitionGame> {
   const closed = transitionGame(state, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber });
   const settlementId = closed.state.dayClose.pendingSettlementId;
   return settlementId
