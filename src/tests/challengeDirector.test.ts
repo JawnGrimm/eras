@@ -104,9 +104,9 @@ describe('Challenge candidate selection and occurrence lifecycle', () => {
         relationships: {
           ...linked.world.relationships,
           [fromId]: {
-            ...linked.world.relationships[fromId],
+            ...linked.world.relationships[fromId]!,
             [toId]: {
-              ...linked.world.relationships[fromId][toId],
+              ...linked.world.relationships[fromId]![toId]!,
               history: [{ id: 'relationship-unlinked-test', dayNumber: 1, summary: 'No linked event.' }],
             },
           },
