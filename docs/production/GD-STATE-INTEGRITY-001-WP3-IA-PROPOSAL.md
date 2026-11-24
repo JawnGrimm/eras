@@ -41,7 +41,7 @@ The institution detail separates:
 4. Appointments and delegated office scopes, with the actual office-holder.
 5. Institutional records, including records linked through matter `record_copy` provenance. Original sources and assertions remain available behind disclosure.
 
-The UI derives the current-matter list from each matter's canonical status and institution ID rather than relying solely on the denormalized `Institution.activeMatters` array. This makes an active matter visible even if that secondary index is stale; it does not mutate or repair state.
+The UI derives the current-matter list from each matter's status and institution ID rather than relying solely on the denormalized `Institution.activeMatters` array. This makes an active matter visible even if that secondary index is stale; it does not mutate or repair state. The institution index's active count is derived from the same status query.
 
 ## 3. Sparse-state rules
 
