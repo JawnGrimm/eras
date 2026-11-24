@@ -582,7 +582,8 @@ function isValidV3GameState(value: unknown, workCatalog: Readonly<Record<string,
       || !['offered','accepted','declined','lapsed','cancelled','completed'].includes(String(raw.lifecycle))
       || !Array.isArray(raw.requiredSourceFactIds)
       || raw.requiredSourceFactIds.some((id, index, ids) => !nonEmptyString(id) || (index > 0 && ids[index - 1] > id)
-        || (!isObject(value.world.events[id]) && !isObject(value.records.entries[id])))
+        || (!Object.prototype.hasOwnProperty.call(value.world.events, id)
+          && !Object.prototype.hasOwnProperty.call(value.records.entries, id)))
       || new Set(raw.requiredSourceFactIds).size !== raw.requiredSourceFactIds.length
       || (raw.presentedDay !== undefined && (!Number.isInteger(raw.presentedDay) || (raw.presentedDay as number) < 1 || (raw.presentedDay as number) > value.calendar.dayNumber))
       || (raw.deliveryChannels !== undefined && (!Array.isArray(raw.deliveryChannels) || !raw.deliveryChannels.length
