@@ -291,6 +291,7 @@ describe('P2-2 authored Uruk Assignment activities', () => {
     expect(challenge?.description).not.toMatch(/\bsacks?\b/i);
     expect(challenge?.context.quantity).toContain('sealed pottery storage jars');
     const declined = transitionOpportunityAction(directed, { type: 'DECLINE_CHALLENGE', challengeId: challenge!.id }).state;
+    expect(declined.opportunities.occurrenceLedger.find((entry) => entry.occurrenceKey === challenge!.id)?.lifecycle).toBe('declined');
     const again = runChallengeDirector(withCompletedTutorial(declined));
     expect(again.opportunities.challenges[challenge!.id]?.status).toBe('declined');
     expect(again.historicalProgression.historicalXp).toBe(state.historicalProgression.historicalXp);
