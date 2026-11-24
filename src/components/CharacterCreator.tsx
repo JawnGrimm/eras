@@ -28,10 +28,10 @@ const FORMATIVE = [
   ['FE-04', 'You were trusted with an adult responsibility'],
 ] as const;
 const ENTRY_ROUTES = [
-  ['EN-01', 'Introduced to scribal work'],
-  ['EN-02', 'Recommended for scribal work'],
-  ['EN-03', 'Sponsored into scribal work'],
-  ['EN-04', 'Made a professional contact'],
+  ['EN-01', 'Introducer'],
+  ['EN-02', 'Recommender'],
+  ['EN-03', 'Sponsor'],
+  ['EN-04', 'Professional contact'],
 ] as const;
 const INSTRUCTIONS = [
   ['TR-01', 'Quantities and commodity notation'],
