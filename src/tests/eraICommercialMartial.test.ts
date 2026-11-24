@@ -115,7 +115,13 @@ describe('ERA1-COM-F01 Material Not As Described', () => {
     expect(duplicate.state.world.relationships[urLamma]?.[playerId]?.history).toHaveLength(1);
     const envelope = createSaveEnvelope(submitted.state, 3);
     expect(isValidSaveEnvelope(envelope, INITIAL_WORK_CATALOG)).toBe(true);
-    expect(restoreSave(JSON.stringify(envelope), INITIAL_WORK_CATALOG)?.state.opportunities.assignments[offer.id].status).toBe('completed');
+    const restored = restoreSave(JSON.stringify(envelope), INITIAL_WORK_CATALOG)?.state;
+    expect(restored?.opportunities.assignments[offer.id].status).toBe('completed');
+    expect(restored?.world.relationships[urLamma]?.[playerId]).toEqual(submitted.state.world.relationships[urLamma]?.[playerId]);
+    expect(restored?.world.relationships[ERA1_COM_F01_PEOPLE.receiver]?.[playerId]).toEqual(submitted.state.world.relationships[ERA1_COM_F01_PEOPLE.receiver]?.[playerId]);
+    expect(Object.values(restored?.world.knowledge ?? {}).some((entry) => entry.holder.kind === 'person'
+      && entry.holder.id === ERA1_COM_F01_PEOPLE.responsibleAuthority)).toBe(true);
+    expect(Object.values(restored?.records.entries ?? {}).some((entry) => entry.title === 'Receiving disposition — Material Not As Described')).toBe(true);
     expect(submitted.state.world.people[ERA1_COM_F01_PEOPLE.workshopOverseer]?.name).toBe('Ur-Lamma');
     expect(submitted.state.world.people[ERA1_COM_F01_PEOPLE.responsibleAuthority]?.name).toBe('Lu-Nanshe');
   });
