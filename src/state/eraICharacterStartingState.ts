@@ -31,7 +31,7 @@ export type EraICharacterNameValidation =
 export function validateEraICharacterName(value: unknown): EraICharacterNameValidation {
   if (typeof value !== 'string') return { valid: false, error: 'A non-empty character name is required.' };
   const name = value.trim();
-  if (name.length === 0) return { valid: false, error: 'Enter a character name.' };
+  if (name.length === 0) return { valid: false, error: 'A non-empty character name is required.' };
   if (Array.from(name).length > 60) {
     return { valid: false, error: 'Character names must be 60 Unicode code points or fewer.' };
   }
