@@ -1,9 +1,9 @@
 import { transitionGame } from '../engine/actionEconomy';
 import { generateDailyAssignments } from '../engine/assignmentGenerator';
 import { createInitialGameState } from './initialState';
-import type { ChallengeInstance, GameState, Person } from './types';
-import type { ChallengeId, PersonId, CareerPathId } from './ids';
-import { STOREHOUSE_WORK_ID, STOREHOUSE_PEOPLE, storehouseReckoning } from '../works/storehouseReckoning';
+import type { GameState, Person } from './types';
+import type { PersonId, CareerPathId } from './ids';
+import { STOREHOUSE_WORK_ID, storehouseReckoning } from '../works/storehouseReckoning';
 import { ASSIGNMENT_ACTIVITY_CATALOG } from '../content/assignments/northBayRoofInspection';
 import {
   resolveEraICharacterHistory,
@@ -41,65 +41,6 @@ export interface EraICharacterCreationInput {
   name: string;
   choices: EraICharacterHistoryChoices;
   careerPath: CareerPathId;
-}
-
-function starterChallenge(player: Person): Omit<ChallengeInstance, 'status' | 'assigneePersonId'> {
-  return {
-    id: 'challenge-apprentice-copy-dispute' as ChallengeId,
-    title: 'The Apprentice’s Copy',
-    description: 'Nin-aya has copied a short practice passage, but one line differs from the wording she recalls hearing. She asks whether to erase it, preserve the uncertain reading, or seek another recitation.',
-    category: 'scribal_instruction',
-    employer: { kind: 'person', id: STOREHOUSE_PEOPLE.seniorScribe },
-    context: {
-      what: 'Decide how to handle one uncertain line in an apprentice practice copy.',
-      who: ['Nin-aya, apprentice', `${player.name}, assisting scribe`, 'Shuruppak-ilu, Senior Scribe'],
-      quantity: 'One disputed line in a practice tablet.',
-      when: 'Day 1, during instruction.',
-      where: 'Temple scribal room, Uruk',
-      from: 'Nin-aya’s recollection of the oral exercise.',
-      to: 'The practice tablet retained for instruction.',
-      purpose: 'Balance legibility, fidelity, and the apprentice’s opportunity to learn.',
-      responsibility: ['The assisting scribe advises; the Senior Scribe retains authority over instruction.'],
-      authority: 'The Senior Scribe may approve a correction or require a new recitation.',
-      provenance: ['The apprentice’s practice copy and her report of the oral instruction.'],
-    },
-    deliveryChannels: [{
-      kind: 'baseline_reach',
-      explanation: 'The newly instructed apprentice is included in routine practice-copy instruction.',
-    }],
-    presentedDay: 1,
-    apCost: 1,
-    choices: [
-      {
-        id: 'preserve-uncertain-reading',
-        label: 'Preserve the uncertain reading',
-        description: 'Mark the line as uncertain and retain the apprentice’s copy for comparison.',
-        consequences: {
-          careerXp: 5,
-          relationships: [{
-            fromId: player.id,
-            toId: 'person-uruk-nin-aya' as PersonId,
-            changes: { respect: 3, familiarity: 2 },
-            summary: 'The apprentice’s uncertainty was preserved rather than erased.',
-          }],
-        },
-      },
-      {
-        id: 'request-new-recitation',
-        label: 'Request another recitation',
-        description: 'Set the copy aside and ask the Senior Scribe to repeat the passage before a clean copy is made.',
-        consequences: {
-          moneyDelta: -1,
-          relationships: [{
-            fromId: player.id,
-            toId: 'person-uruk-nin-aya' as PersonId,
-            changes: { trust: 3, familiarity: 1 },
-            summary: 'The apprentice was asked to wait for a fresh recitation before correcting the line.',
-          }],
-        },
-      },
-    ],
-  };
 }
 
 /**
@@ -169,7 +110,6 @@ export function createNewGameState(input: EraICharacterCreationInput): GameState
   let state = createInitialGameState(player);
   const actions = [
     { type: 'START_WORK', workId: STOREHOUSE_WORK_ID } as const,
-    { type: 'PRESENT_CHALLENGE', challenge: starterChallenge(player) } as const,
   ];
   for (const action of actions) {
     const result = transitionGame(state, action, undefined, INITIAL_WORK_CATALOG);
