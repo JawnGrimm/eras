@@ -5,7 +5,6 @@ import { createInitialGameState } from '../state/initialState';
 import { createSaveEnvelope, isValidSaveEnvelope, restoreSave } from '../state/saveEnvelope';
 import { INITIAL_WORK_CATALOG } from '../state/newGameState';
 import { ERA1_COM_F02_F04_PEOPLE } from '../content/assignments/eraICommercialFamilies';
-import { ERA1_MAR_PEOPLE } from '../content/assignments/eraIMartialFamilies';
 import type { AssignmentOffer, GameState } from '../state/types';
 import type { AssignmentId } from '../state/ids';
 import { NORTH_BAY_ACTIVITY_ID, NORTH_BAY_ASSIGNMENT_ID, NORTH_BAY_DISCOVERIES, northBayRoofInspection, validateAssignmentActivityDefinition } from '../content/assignments/northBayRoofInspection';
@@ -90,11 +89,6 @@ describe('North-Bay Roof Inspection activity definition and engine', () => {
     delete legacyPeople[ERA1_COM_F02_F04_PEOPLE.gemeInana];
     delete legacyPeople[ERA1_COM_F02_F04_PEOPLE.amaGi];
     delete legacyPeople[ERA1_COM_F02_F04_PEOPLE.sigAna];
-    delete legacyPeople[ERA1_MAR_PEOPLE.ninDara];
-    delete legacyPeople[ERA1_MAR_PEOPLE.sealingOwner];
-    delete legacyPeople[ERA1_MAR_PEOPLE.luKala];
-    delete legacyPeople[ERA1_MAR_PEOPLE.partyMember];
-    delete legacyPeople[ERA1_MAR_PEOPLE.urAb];
     const luNanshe = legacyPeople['person-lu-nanshe' as never];
     if (luNanshe) legacyPeople['person-lu-nanshe' as never] = {
       ...luNanshe, affiliations: luNanshe.affiliations.filter((id) => id !== 'institution-uruk-eanna-precinct'),

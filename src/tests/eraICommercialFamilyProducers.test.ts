@@ -1,11 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { advanceInstitutionalMatters, MATTER_IDS, STOREHOUSE_INSTITUTION_ID, EANNA_INSTITUTION_ID, TEXTILE_HOUSEHOLD_INSTITUTION_ID, HOUSEHOLD_STRONGROOM_INSTITUTION_ID, HOUSEHOLD_STRONGROOM_LOCATION_ID } from '../engine/institutionalMatters';
+import { advanceInstitutionalMatters, MATTER_IDS, STOREHOUSE_INSTITUTION_ID, EANNA_INSTITUTION_ID, TEXTILE_HOUSEHOLD_INSTITUTION_ID } from '../engine/institutionalMatters';
 import { NORTH_BAY_LOCATION_ID } from '../content/assignments/northBayRoofInspection';
 import { generateDailyAssignments } from '../engine/assignmentGenerator';
 import { createInitialGameState } from '../state/initialState';
 import { createSaveEnvelope, restoreSave } from '../state/saveEnvelope';
 import { era1ComF02TwoClaims, era1ComF03PartialReturn, ERA1_COM_F02_F04_PEOPLE } from '../content/assignments/eraICommercialFamilies';
-import { ERA1_MAR_PEOPLE } from '../content/assignments/eraIMartialFamilies';
 import { submitRubricAssignmentActivity } from '../engine/eraIAnchorSubmission';
 import type { InstitutionalMatter } from '../state/types';
 import type { EventId, InstitutionId, MatterId, RecordId } from '../state/ids';
@@ -64,16 +63,9 @@ describe('Era I Commercial F02-F04 causal matter pipeline', () => {
     delete people[ERA1_COM_F02_F04_PEOPLE.gemeInana];
     delete people[ERA1_COM_F02_F04_PEOPLE.amaGi];
     delete people[ERA1_COM_F02_F04_PEOPLE.sigAna];
-    delete people[ERA1_MAR_PEOPLE.ninDara];
-    delete people[ERA1_MAR_PEOPLE.sealingOwner];
-    delete people[ERA1_MAR_PEOPLE.luKala];
-    delete people[ERA1_MAR_PEOPLE.partyMember];
-    delete people[ERA1_MAR_PEOPLE.urAb];
     delete institutions[TEXTILE_HOUSEHOLD_INSTITUTION_ID];
-    delete institutions[HOUSEHOLD_STRONGROOM_INSTITUTION_ID];
     delete locations['location-uruk-textile-household-provisional' as never];
     delete locations['location-uruk-river-landing-provisional' as never];
-    delete locations[HOUSEHOLD_STRONGROOM_LOCATION_ID];
 
     const preFamilySave = {
       ...base,
