@@ -51,6 +51,7 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenActivity, settlement, o
 }) {
   const game = useGame();
   const state = game.state;
+  const [confirmingOvertimeForfeit, setConfirmingOvertimeForfeit] = React.useState(false);
   const person = state.world.people[state.player.currentCharacterId];
   const scribal = getInitializedScribal(person);
   if (state.pendingSuccession || !person?.alive || !scribal) {
