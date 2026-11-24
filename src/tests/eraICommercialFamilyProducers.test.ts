@@ -232,7 +232,7 @@ describe('Era I Commercial F02-F04 causal matter pipeline', () => {
       const history = submitted!.state.world.relationships[recipientId][playerId]?.history;
       const latest = history?.at(-1);
       expect(latest?.summary).not.toContain('Lu-Nanshe reads the two claims side by side');
-      expect(latest?.summary).toContain(`After Enlil-barni submitted "Competing claims summary" on Day 8, ${recipientName}'s trust toward Enlil-barni increased and respect increased.`);
+      expect(latest?.summary).toContain(`After Enlil-barni submitted "Competing claims summary" on Day 8, ${recipientName}'s trust toward Enlil-barni increased and respect toward Enlil-barni increased.`);
     }
 
     const report = Object.values(submitted!.state.records.entries).find((entry) => entry.title === 'Competing claims summary')!;
