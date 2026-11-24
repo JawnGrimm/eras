@@ -208,8 +208,8 @@ function MatterSources({ matter, records, people, events, appointments }: {
           {response.precedingEventId && <p className="mt-1">Preceding event: {events[response.precedingEventId]?.summary ?? response.precedingEventId}</p>}
           {response.assigneePersonId && <p className="mt-1">Assignee: {people[response.assigneePersonId]?.name ?? response.assigneePersonId}</p>}
           {response.execution && <p className="mt-1">Execution: {response.execution.workPerformed} · Labor: {response.execution.laborBasis} · Materials: {response.execution.materialsBasis} · Result: {response.execution.result}</p>}
-          {response.verification && <p className="mt-1">Verification: {response.verification.outcome} · {response.verification.rationale}</p>}
-          {response.resolution && <p className="mt-1">Resolution: {response.resolution.disposition} · {response.resolution.rationale}</p>}
+          {response.verification && <p className="mt-1">Verification: {response.verification.outcome} · {response.verification.rationale} · Execution event: {events[response.verification.executionEventId]?.summary ?? response.verification.executionEventId}</p>}
+          {response.resolution && <p className="mt-1">Resolution: {response.resolution.disposition} · {response.resolution.rationale} · Verification event: {events[response.resolution.verificationEventId]?.summary ?? response.resolution.verificationEventId}</p>}
         </li>;
       })}</ol>
     </details>}
