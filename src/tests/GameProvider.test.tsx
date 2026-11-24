@@ -1,4 +1,5 @@
 import React, { createElement } from 'react';
+import { TEST_CHARACTER_CREATION } from './fixtures/newGameCharacter';
 import { renderToString } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { GameProvider, useGame } from '../state/GameProvider';
@@ -30,7 +31,7 @@ function renderProvider(storage: ProductionStorage | null) {
 }
 
 function validSavedState(): GameState {
-  return createNewGameState();
+  return createNewGameState(TEST_CHARACTER_CREATION);
 }
 
 describe('GameProvider production persistence', () => {
