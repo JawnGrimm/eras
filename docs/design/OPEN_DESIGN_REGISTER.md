@@ -41,6 +41,7 @@ Priority is a working triage, not a design decision. Reassess when the milestone
 | **Required soon** | 21. Evaluation feedback and scenario validator behavior | Existing engine contract is a foundation; feedback and validation need player-facing verification. |
 | **Required soon** | 22. Character system beyond the approved Era I Creator/starting-state package | GD-CHARACTER-START-001 settles the first playable Era I starting package with PROVISIONAL values. Specializations, traits, conditions, action resolution, final skill/rank formulas, advancement balance, and later-era starting profiles remain staged design work. |
 | **Required soon** | 24. Notification and attention rules | Morning Report exists; prioritization, grouping, and navigation need playtesting. |
+| **Post-Issue-#85 polish** | 28. Era I UI readability, materiality, and bounded-layout polish | Dedicated cross-screen pass after the core Assignment/Challenge loop and Evening Interlude stabilize; improve legibility, physical document hierarchy, bounded layout, feedback placement, and presentation consistency without expanding simulation scope. |
 | **Required soon** | 25. Internal-monologue authoring and character influence model | Evidence remains objective; situated interpretation needs content and threshold testing. |
 | **Future** | 9. Historical connections across distant eras | Important to long-range continuity, not a prerequisite for the Era I opening. |
 | **Future** | 12. Final historical progression thresholds and XP awards | Must follow the Works portfolio; current thresholds are provisional legacy targets. |
@@ -108,3 +109,38 @@ These are coordinated GDD maintenance tasks, not new design approvals. Preserve 
 3. Do not block current work on future decisions without a demonstrated dependency.
 4. Do not implement unresolved values as approved. Use clearly identified provisional configuration only when the current task can safely proceed and provisional behavior is explicitly acceptable.
 5. When a question is resolved, update this register, the Decision Register, and the relevant supporting specification. Update the GDD only when the approved decision changes a core principle or locked boundary.
+
+## 28. Era I UI readability, materiality, and bounded-layout polish
+
+**Status:** OPEN — POST-CORE-LOOP UI/UX PASS  
+**Timing:** After the Issue #85 Assignment/Challenge core loop and Evening Interlude are implemented and stable. This is a dedicated polish pass, not a prerequisite for PR #90, the persistence foundation, or the Evening Interlude.
+
+Review and address the following verified friction areas across `ProductionWorkdayHub`, `StorehouseWorkScreen`, `AssignmentActivityScreen`, and `ProductionChallengeJournal`:
+
+1. **Typography and contrast**
+   - Raise body, evidence, and prompt reading copy to approximately 15–16px with high-contrast ink near `#2B1B17`.
+   - Keep metadata at approximately 14px; avoid shrinking essential instructions or evidence into metadata styling.
+   - Tighten reading-column width for sustained evidence and report reading.
+   - Preserve hierarchy, responsive behavior, keyboard access, and visible focus.
+
+2. **Clay tokens and material document hierarchy**
+   - Apply the existing `--surface-card`, `--surface-pressed`, and `--border-tablet` tokens defined in `src/index.css` rather than duplicating component-local approximations.
+   - Distinguish Written Records/Tablets, Oral Testimony, and outgoing Report Dockets through consistent visual treatment without implying that presentation style changes evidentiary authority.
+   - Extend `SealImpression` to completed report dockets.
+   - Wire existing `playStylusTap` and `playSealStamp` audio functions to appropriate Assignment actions and Challenge choices; audio must remain supplementary and nonessential.
+
+3. **Bounded, stable layout**
+   - Replace height-expanding `<details>` matter-context accordions inside grid cards with a fixed inspection drawer or bounded panel. Opening context must not push primary actions such as End Workday or Resume Activity vertically.
+   - Float or reserve space for dismissible toast banners so they do not reflow primary controls.
+   - Keep empty Challenge states compact.
+   - Anchor the Close the Workday action consistently.
+   - Remove redundant AP, Currency, and Provisions readouts from the Tutorial card on the Workday Hub where the same values are already presented in the main status area.
+
+4. **Non-blocking repository hygiene**
+   - Respect Vite's `base: '/eras/'`: visual assets must use Vite imports or `BASE_URL`, not root-relative `/src/assets/...` paths.
+   - Add a small clay-seal/stylus favicon to eliminate the current `favicon.ico` 404.
+   - Optionally remove unused `@google/genai`, `express`, and `dotenv` dependencies, the unused `MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API` metadata entry, and unused `src/engine/CharacterSystem.ts` after confirming no live consumers. This cleanup is not a prerequisite for UI polish or core-loop delivery.
+
+**Acceptance criteria:** Reading copy is comfortably legible at desktop and narrow widths; metadata remains visually subordinate; evidence types and outgoing dockets are distinguishable without changing evidence semantics; seal/audio affordances are consistent and accessible; opening contextual information does not move primary actions; toasts and empty states do not destabilize layout; no asset path breaks the deployed `/eras/` base; and optional cleanup removes only verified dead code/dependencies.
+
+**Exclusions:** No redesign of Assignment, Challenge, Workday, AP, economy, evidence, authority, or persistence behavior. No new simulation systems. No runtime generative AI. Repository hygiene remains optional and separately reviewable.
