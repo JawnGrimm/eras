@@ -21,6 +21,7 @@ Priority is a working triage, not a design decision. Reassess when the milestone
 **Current planning boundary:** GD-OPPORTUNITY-001 is in behavioral review and historical research. It creates no Production task and is not READY FOR IMPLEMENTATION. Production should continue its existing approved roadmap; do not divert it to Assignment/Challenge generation before the Game Director approves the completed contract. This filter is a planning description, not a newly approved scope lock.
 
 | Priority | Open item / dependency | Why it sits here |
+|---|---|---|
 | **Required soon** | 1. Era I Work authoring and lifecycle (portfolio shape approved) | Option 1 is approved: the Eanna Provisioning Undertaking is the required milestone, followed by one required career-scale Work selected from two alternatives. The milestone brief, historical scenario, lifecycle rules, and detailed Work content still require review and development; the remaining eras' portfolios are still open. |
 | **Required soon** | 2. Introductory Tutorial playtest | Verify onboarding clarity and that TSR is not mistaken for a Work or template. |
 | **Required soon** | 3. Assignment commitment, cancellation, and offer balance | Initial two-slot / 6-AP model exists; remaining balance and player comprehension need playtesting. |
