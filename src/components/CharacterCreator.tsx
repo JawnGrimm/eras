@@ -240,7 +240,7 @@ export function CharacterCreator() {
           <p className="mt-1 text-sm">Competence 50 · Reliability 50 · Discretion 50 · Judgment 50</p>
           <h3 className="mt-6 font-semibold">Opening state</h3>
           <p className="mt-1 text-sm">Career XP 0 · Historical Progress XP 0 · Money 0 · Provisions 5 · Stress 0 · Six Action Points on Workday 1.</p>
-          <p className="mt-2 text-sm text-stone-600">No appointments, formal authority, obligations, conditions, specializations, traits, equipment, or institutional standing. Participation in a Life Event does not create friendship, trust, or patronage.</p>
+          <p className="mt-2 text-sm text-stone-600">No formal affiliation, appointments, authority, obligations, conditions, specializations, traits, equipment, or institutional standing. Participation in a Life Event does not create friendship, trust, or patronage.</p>
         </section>
         {error && <p role="alert" className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-900">{error}</p>}
         <div className="flex flex-wrap justify-between gap-3">
