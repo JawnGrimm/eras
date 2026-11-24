@@ -109,6 +109,10 @@ describe('ERA1-COM-F01 Material Not As Described', () => {
     expect(submitted.state.world.events[disposition!.sources[1].sourceId as EventId]).toBeDefined();
     expect(submitted.state.world.matters['matter-era1-com-f01-material-description' as MatterId].status).toBe('active');
     expect(submitted.state.world.matters['matter-era1-com-f01-material-description' as MatterId].provenance?.some((source) => source.sourceId === disposition!.id)).toBe(true);
+    const duplicate = transitionGame(submitted.state, { type: 'SUBMIT_ASSIGNMENT_ACTIVITY', assignmentId: offer.id });
+    expect(duplicate.feedback?.kind).toBe('error');
+    expect(Object.values(duplicate.state.records.entries).filter((record) => record.title === 'Receiving disposition — Material Not As Described')).toHaveLength(1);
+    expect(duplicate.state.world.relationships[urLamma]?.[playerId]?.history).toHaveLength(1);
     const envelope = createSaveEnvelope(submitted.state, 3);
     expect(isValidSaveEnvelope(envelope, INITIAL_WORK_CATALOG)).toBe(true);
     expect(restoreSave(JSON.stringify(envelope), INITIAL_WORK_CATALOG)?.state.opportunities.assignments[offer.id].status).toBe('completed');
@@ -116,7 +120,7 @@ describe('ERA1-COM-F01 Material Not As Described', () => {
     expect(submitted.state.world.people[ERA1_COM_F01_PEOPLE.responsibleAuthority]?.name).toBe('Lu-Nanshe');
   });
   it('records all recommendation dispositions and keeps incomplete or overreached reports on hold', () => {
-    const run = (recommendation: string, incomplete = false, overreached = false) => {
+    const run = (recommendation: string, incomplete = false, overreached = false, defensible = false) => {
       const advanced = advanceInstitutionalMatters(createInitialGameState(), 2);
       const initial = { ...advanced, calendar: { ...advanced.calendar, dayNumber: 2 } };
       let state = generateDailyAssignments(initial);
@@ -128,7 +132,7 @@ describe('ERA1-COM-F01 Material Not As Described', () => {
       const draft = {
         finding: overreached ? 'identify_material' : 'tag_observation_differ',
         responsibilityClaim: 'none',
-        citedDiscoveryIds: incomplete ? ['comf01-request','comf01-tag'] : ['comf01-request','comf01-tag','comf01-observation','comf01-carrier-account'],
+        citedDiscoveryIds: incomplete ? ['comf01-request','comf01-tag'] : defensible ? ['comf01-request','comf01-tag','comf01-observation'] : ['comf01-request','comf01-tag','comf01-observation','comf01-carrier-account'],
         limitations: [], recommendations: [recommendation],
         selectedLimitationIds: incomplete ? [] : ['material_not_identified','no_intent_or_liability','no_acceptance_authority'],
       };
@@ -148,6 +152,13 @@ describe('ERA1-COM-F01 Material Not As Described', () => {
       const restored = restoreSave(JSON.stringify(createSaveEnvelope(result, 3)), INITIAL_WORK_CATALOG)?.state;
       expect(restored?.records.entries[disposition.id]).toEqual(disposition);
     }
+    const defensible = run('hold_for_craft_examination', false, false, true);
+    const playerId = defensible.player.currentCharacterId;
+    expect(Object.values(defensible.opportunities.assignments).find((offer) => offer.activityId === ERA1_COM_F01_ACTIVITY_ID)?.closingReceipt?.assessment).toBe('Defensible');
+    expect(defensible.world.relationships[ERA1_COM_F01_PEOPLE.workshopOverseer]?.[playerId]?.dimensions).toMatchObject({ trust: 51, respect: 51 });
+    expect(defensible.world.relationships[playerId]?.[ERA1_COM_F01_PEOPLE.workshopOverseer]).toBeUndefined();
+    expect(Object.values(defensible.world.knowledge).some((entry) => entry.holder.kind === 'person'
+      && entry.holder.id === ERA1_COM_F01_PEOPLE.responsibleAuthority)).toBe(true);
     for (const [incomplete, overreached, expected] of [
       [true, false, 'Report set aside'],
       [false, true, 'Report returned'],
