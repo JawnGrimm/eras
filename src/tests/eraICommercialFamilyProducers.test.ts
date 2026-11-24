@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { advanceInstitutionalMatters, MATTER_IDS, STOREHOUSE_INSTITUTION_ID, EANNA_INSTITUTION_ID, TEXTILE_HOUSEHOLD_INSTITUTION_ID } from '../engine/institutionalMatters';
+import { NORTH_BAY_LOCATION_ID } from '../content/assignments/northBayRoofInspection';
 import { generateDailyAssignments } from '../engine/assignmentGenerator';
 import { createInitialGameState } from '../state/initialState';
 import { createSaveEnvelope, restoreSave } from '../state/saveEnvelope';
@@ -17,12 +18,22 @@ function withOpenNorthBayRepairNeed() {
     summary: 'A repair need remains open for the north-bay roof.',
     status: 'active',
     createdDay: 2,
+    sourceEventId: 'event-fixture-north-bay-repair-need' as EventId,
+    locationId: NORTH_BAY_LOCATION_ID,
+    involvedPersonIds: ['person-ur-nanna' as never, 'person-dudu' as never],
+    provenance: [{ id: 'fixture-roof-repair-event', kind: 'event', sourceId: 'event-fixture-north-bay-repair-need', description: 'The north-bay repair need remains open.' }],
   };
   return {
     ...base,
     world: {
       ...base.world,
       matters: { ...base.world.matters, [matter.id]: matter },
+      events: { ...base.world.events, ['event-fixture-north-bay-repair-need' as EventId]: {
+        id: 'event-fixture-north-bay-repair-need' as EventId, dayNumber: 2,
+        summary: 'The north-bay roof repair remains unfinished and requires timber.',
+        personIds: ['person-ur-nanna' as never, 'person-dudu' as never],
+        institutionIds: [STOREHOUSE_INSTITUTION_ID], locationId: NORTH_BAY_LOCATION_ID,
+      } },
       institutions: {
         ...base.world.institutions,
         [STOREHOUSE_INSTITUTION_ID]: {
