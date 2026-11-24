@@ -4,6 +4,7 @@ import { generateDailyAssignments } from '../engine/assignmentGenerator';
 import { createInitialGameState } from '../state/initialState';
 import { createSaveEnvelope, restoreSave } from '../state/saveEnvelope';
 import type { InstitutionalMatter, MatterId } from '../state/types';
+import type { RecordId } from '../state/ids';
 
 function withOpenNorthBayRepairNeed() {
   const base = createInitialGameState();
@@ -62,7 +63,7 @@ describe('Era I Commercial F02-F04 causal matter pipeline', () => {
       'record-era1-com-f02-household-request',
       'record-era1-com-f02-delivery-receipt',
       'record-era1-com-f02-carrier-account',
-    ]) expect(state.records.entries[id as MatterId]).toBeDefined();
+    ]) expect(state.records.entries[id as RecordId]).toBeDefined();
 
     expect(Object.values(state.opportunities.assignments).some((offer) =>
       offer.activityId === 'activity-era1-com-f02-two-claims' && offer.originMatterId === matter!.id,
