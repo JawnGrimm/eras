@@ -184,7 +184,7 @@ export function submitRubricAssignmentActivity(
   const f01Matter = f01 && matter && f01DispositionRecordId ? {
     ...(updatedMatter ?? matter),
     provenance: [
-      ...(matter.provenance ?? []),
+      ...(updatedMatter?.provenance ?? matter.provenance ?? []),
       { id: `f01-disposition-${recordId}`, kind: 'record_copy' as const, sourceId: f01DispositionRecordId,
         description: 'Durable receiving disposition linked to the submitted report; the matter remains active pending an authorized decision.' },
     ],

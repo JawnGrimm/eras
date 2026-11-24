@@ -110,7 +110,18 @@ describe('ERA1-COM-F01 Material Not As Described', () => {
     expect(disposition?.assertions[0].text).toContain('Receiving entry held');
     expect(submitted.state.world.events[disposition!.sources[1].sourceId as EventId]).toBeDefined();
     expect(submitted.state.world.matters['matter-era1-com-f01-material-description' as MatterId].status).toBe('active');
-    expect(submitted.state.world.matters['matter-era1-com-f01-material-description' as MatterId].provenance?.some((source) => source.sourceId === disposition!.id)).toBe(true);
+    const matterAfterSubmission = submitted.state.world.matters['matter-era1-com-f01-material-description' as MatterId];
+    const reportRecordId = `record-${offer.id}-day-2`;
+    const reportProvenance = matterAfterSubmission.provenance?.find((source) =>
+      source.kind === 'record_copy' && source.sourceId === reportRecordId,
+    );
+    const dispositionProvenance = matterAfterSubmission.provenance?.find((source) =>
+      source.kind === 'record_copy' && source.sourceId === disposition!.id,
+    );
+    expect(reportProvenance).toMatchObject({ kind: 'record_copy', sourceId: reportRecordId });
+    expect(dispositionProvenance).toMatchObject({ kind: 'record_copy', sourceId: disposition!.id });
+    expect(submitted.state.records.entries[reportRecordId as keyof typeof submitted.state.records.entries]?.id).toBe(reportRecordId);
+    expect(submitted.state.records.entries[disposition!.id]?.id).toBe(disposition!.id);
     const duplicate = transitionGame(submitted.state, { type: 'SUBMIT_ASSIGNMENT_ACTIVITY', assignmentId: offer.id });
     expect(duplicate.feedback?.kind).toBe('error');
     expect(Object.values(duplicate.state.records.entries).filter((record) => record.title === 'Receiving disposition — Material Not As Described')).toHaveLength(1);
