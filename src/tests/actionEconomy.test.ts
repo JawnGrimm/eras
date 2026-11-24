@@ -113,7 +113,7 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
       type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber, confirmUnusedOvertimeApForfeit: true,
     });
     expect(duplicate.state).toBe(confirmed.state);
-    expect(duplicate.feedback?.code).toBe('stale-day-settlement');
+    expect(duplicate.feedback?.code).toBe('evening-interlude-open');
 
     const begun = transitionGame(confirmed.state, {
       type: 'BEGIN_WORKDAY', expectedSettlementId: confirmed.state.dayClose.pendingSettlementId!,
