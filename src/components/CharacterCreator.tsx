@@ -220,7 +220,10 @@ export function CharacterCreator() {
           </ol>
           <h3 className="mt-6 font-semibold">Familiarities</h3>
           <ul className="mt-2 space-y-1 text-sm">
-            {history.familiarities.map((item) => <li key={item.id}>{item.domainId} · {item.scopeId.replace(/_/g, ' ')} · {item.exposure.replace(/_/g, ' ')} · Supporting Life Event(s): {item.basisLifeEventIds.map((id) => history.lifeEvents.find((event) => event.id === id)?.chronology.order + 1 ?? 'recorded').join(', ')}</li>)}
+            {history.familiarities.map((item) => <li key={item.id}>{item.domainId} · {item.scopeId.replace(/_/g, ' ')} · {item.exposure.replace(/_/g, ' ')} · Supporting Life Event(s): {item.basisLifeEventIds.map((id) => {
+              const event = history.lifeEvents.find((candidate) => candidate.id === id);
+              return event ? event.chronology.order + 1 : 'recorded';
+            }).join(', ')}</li>)}
           </ul>
           <h3 className="mt-6 font-semibold">Attributes</h3>
           <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
