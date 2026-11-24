@@ -74,7 +74,7 @@ const ERA_I_ANCHOR_MATTER_SEEDS = [
     ],
   },
   {
-    dayNumber: 5, matterId: 'matter-era1-civ-02-labor-disbursement' as MatterId,
+    dayNumber: 6, matterId: 'matter-era1-civ-02-labor-disbursement' as MatterId,
     eventId: 'event-era1-civ-02-labor-disbursement-source' as EventId,
     kind: 'era1_civ_02_labor_disbursement' as const,
     summary: 'A labor-group account and a separate grain-disbursement record are submitted for a bounded review.',
@@ -87,7 +87,7 @@ const ERA_I_ANCHOR_MATTER_SEEDS = [
     ],
   },
   {
-    dayNumber: 6, matterId: 'matter-era1-rel-01-inana-offering' as MatterId,
+    dayNumber: 7, matterId: 'matter-era1-rel-01-inana-offering' as MatterId,
     eventId: 'event-era1-rel-01-inana-offering-source' as EventId,
     kind: 'era1_rel_01_inana_offering' as const,
     summary: 'Inana-associated offering entries and a separate commodity record are submitted for review.',
