@@ -23,10 +23,11 @@ function RelationshipCard({ fromName, toName, relationship }: {
     </summary>
     <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
       {Object.entries(relationship.dimensions).map(([dimension, score]) => <div key={dimension}>
-        <dt className="text-xs capitalize text-stone-500">{dimension}</dt>
+        <dt className="text-xs capitalize text-stone-500">{dimension === 'familiarity' ? 'Personal familiarity' : dimension}</dt>
         <dd className="font-mono text-base">{score}<span className="text-xs text-stone-400">/100</span></dd>
       </div>)}
     </div>
+    {relationship.dimensions.familiarity !== undefined && <p className="mt-2 text-xs text-stone-500">Personal familiarity is a relationship measure; recorded domain familiarity is separate and appears under Personal history.</p>}
     <details className="mt-3 border-t border-stone-200 pt-3">
       <summary className="cursor-pointer text-xs font-semibold text-stone-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-700">
         History from this perspective ({relationship.history.length})
