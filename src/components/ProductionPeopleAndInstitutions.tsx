@@ -5,7 +5,7 @@ import type { InstitutionId, PersonId, RecordId } from '../state/ids';
 import type { Appointment, Institution, InstitutionalMatter, Person, PersonRelationship, RecordEntry } from '../state/types';
 import { PersonHistoryPanel } from './PersonHistoryPanel';
 
-type DirectorySection = 'people' | 'institutions';
+export type PeopleInstitutionSection = 'people' | 'institutions';
 type PersonLifeFilter = 'all' | 'living' | 'deceased';
 
 function matchesQuery(values: Array<string | undefined>, query: string): boolean {
@@ -268,11 +268,11 @@ function InstitutionDetail({ institution, people, matters, records, events, appo
   </article>;
 }
 
-export function ProductionPeopleAndInstitutions() {
+export function ProductionPeopleAndInstitutions({ initialSection = 'people' }: { initialSection?: PeopleInstitutionSection } = {}) {
   const { state } = useGame();
   const people = Object.values(state.world.people).sort((a, b) => a.name.localeCompare(b.name));
   const institutions = Object.values(state.world.institutions).sort((a, b) => a.name.localeCompare(b.name));
-  const [section, setSection] = useState<DirectorySection>('people');
+  const [section, setSection] = useState<PeopleInstitutionSection>(initialSection);
   const [personQuery, setPersonQuery] = useState('');
   const [personLifeFilter, setPersonLifeFilter] = useState<PersonLifeFilter>('all');
   const [institutionQuery, setInstitutionQuery] = useState('');
