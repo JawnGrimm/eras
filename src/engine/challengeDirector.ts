@@ -22,6 +22,7 @@ type ChallengeSourceFact = { kind: 'event'; id: EventId } | { kind: 'record'; id
 
 interface ChallengeOccurrence {
   matterId?: MatterId;
+  identityDiscriminator?: string;
   primarySourceFact: ChallengeSourceFact;
   requiredSourceFactIds: string[];
   deliveryChannels: OpportunityDeliveryChannel[];
@@ -152,11 +153,12 @@ export function resolveChallengeTrigger(state: GameState, trigger: ChallengeTrig
       if (!evaluateChallengeTriggers(state, [trigger.rule]).includes(trigger.rule.id)) return null;
       return resolveAssignmentOccurrence(state, trigger);
     case 'relationship_update': {
-      if (trigger.fromId === trigger.toId) return null;
+      if (trigger.fromId === trigger.toId || !state.world.people[trigger.fromId] || !state.world.people[trigger.toId]) return null;
       const history = state.world.relationships[trigger.fromId]?.[trigger.toId]?.history ?? [];
       const latest = history[history.length - 1];
       if (!latest?.eventId || !state.world.events[latest.eventId] || !trigger.deliveryChannels.length) return null;
       return {
+        identityDiscriminator: 'relationship:' + trigger.fromId + ':' + trigger.toId + ':' + latest.id,
         primarySourceFact: { kind: 'event', id: latest.eventId },
         requiredSourceFactIds: [latest.eventId],
         deliveryChannels: trigger.deliveryChannels,
@@ -331,6 +333,7 @@ function canonicalOccurrenceKey(scenarioId: string, occurrence: ChallengeOccurre
   const facts = sourceIds(...occurrence.requiredSourceFactIds);
   return scenarioId + '|matter:' + (occurrence.matterId ?? 'none')
     + '|primary:' + occurrence.primarySourceFact.kind + ':' + occurrence.primarySourceFact.id
+    + (occurrence.identityDiscriminator ? '|identity:' + occurrence.identityDiscriminator : '')
     + '|facts:' + facts.join(',');
 }
 
