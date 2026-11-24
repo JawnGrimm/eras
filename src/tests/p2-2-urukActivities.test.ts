@@ -118,7 +118,7 @@ describe('P2-2 authored Uruk Assignment activities', () => {
 
   it('offers Held-Barley only while the structured held-stock matter is active', () => {
     const fixture = withHeldMatter(createInitialGameState());
-    expect(URUK_ASSIGNMENT_ACTIVITY_CATALOG[heldBarleyInspection.id]).toBeDefined();
+    expect(URUK_ASSIGNMENT_ACTIVITY_CATALOG[heldBarleyInspection.id as keyof typeof URUK_ASSIGNMENT_ACTIVITY_CATALOG]).toBeDefined();
     expect(fixture.world.events[fixture.world.matters[HELD_MATTER].sourceEventId!]).toBeDefined();
     expect(fixture.world.institutions[STOREHOUSE].activeMatters).toContain(HELD_MATTER);
     const generated = generateDailyAssignments(fixture);
