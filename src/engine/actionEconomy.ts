@@ -153,7 +153,7 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
         workApSpentToday: progress.workApSpentToday + actionDefinition.apCost };
       return { state: { ...state, actionEconomy: { ...economy, apRemaining: economy.apRemaining - actionDefinition.apCost },
         works: { ...state.works, progress: { ...state.works.progress, [action.workId]: nextProgress } } },
-        feedback: feedback('success', 'work-evidence-acquired', actionDefinition.id) };
+        feedback: feedback('success', 'work-evidence-acquired', actionDefinition.successMessage ?? (action.type === 'ACQUIRE_WORK_EVIDENCE' ? 'The requested evidence has been added to your packet.' : 'The Work action has been completed.')) };
     }
     case 'EXAMINE_WORK_EVIDENCE': {
       const definition = isValidWorkDefinition(workCatalog[action.workId]) ? workCatalog[action.workId] : undefined;
@@ -396,7 +396,7 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
         creditorPersonId: contact.id,
         createdDay: state.calendar.dayNumber,
         kind: 'repayment_or_service' as const,
-        description: 'Repay one silver or provide one day of scribal assistance to Ur-gir, by mutual arrangement.',
+        description: 'Repay one unit of Currency or provide one day of scribal assistance to Ur-gir, by mutual arrangement.',
         status: 'outstanding' as const,
       };
       return {
@@ -409,7 +409,7 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
             [contact.id]: { ...contact, scribal: { ...contactScribal, wallet: { ...contactScribal.wallet, provisions: contactScribal.wallet.provisions - 1 } } },
           } },
         },
-        feedback: feedback('success', 'contact-advance-received', 'Ur-gir advanced one provision. You owe him one silver or a day of scribal assistance, by mutual arrangement.'),
+        feedback: feedback('success', 'contact-advance-received', 'Ur-gir advanced one provision. You owe him one unit of Currency or a day of scribal assistance, by mutual arrangement.'),
       };
     }
     case 'END_DAY': {
