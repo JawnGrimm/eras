@@ -6,6 +6,7 @@ import { transitionGame } from '../engine/actionEconomy';
 import { createSaveEnvelope, isValidSaveEnvelope, restoreSave } from '../state/saveEnvelope';
 import { createNewGameState, INITIAL_WORK_CATALOG } from '../state/newGameState';
 import { STOREHOUSE_WORK_ID, storehouseReckoning } from '../works/storehouseReckoning';
+import { getOvertimeApForfeitPrompt } from '../components/ProductionWorkdayHub';
 
 const endDay = (state: ReturnType<typeof createInitialGameState>) => {
   const opened = transitionGame(state, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber });
@@ -88,6 +89,45 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
     day = endDay(day).state;
     expect(day.actionEconomy.dailyApAllocation).toBe(5);
     expect(day.actionEconomy.apRemaining).toBe(5);
+  });
+
+
+  it('requires explicit confirmation to forfeit unused overtime AP, then settles once', () => {
+    let state = createInitialGameState();
+    state = transitionGame(state, { type: 'SPEND_AP', amount: 6, reason: 'Use the ordinary allocation' }).state;
+    state = transitionGame(state, { type: 'ACTIVATE_OVERTIME' }).state;
+    expect(state.actionEconomy.apRemaining).toBe(1);
+
+    const unconfirmed = transitionGame(state, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber });
+    expect(unconfirmed.state).toBe(state);
+    expect(unconfirmed.feedback?.code).toBe('overtime-ap-unspent');
+
+    const confirmed = transitionGame(state, {
+      type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber, confirmUnusedOvertimeApForfeit: true,
+    });
+    expect(confirmed.state.dayClose.phase).toBe('interlude_open');
+    expect(confirmed.settlement).toMatchObject({ overtimeStress: 5, tomorrowAp: 5 });
+    expect(confirmed.state.actionEconomy.apRemaining).toBe(1);
+
+    const duplicate = transitionGame(confirmed.state, {
+      type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber, confirmUnusedOvertimeApForfeit: true,
+    });
+    expect(duplicate.state).toBe(confirmed.state);
+    expect(duplicate.feedback?.code).toBe('stale-day-settlement');
+
+    const begun = transitionGame(confirmed.state, {
+      type: 'BEGIN_WORKDAY', expectedSettlementId: confirmed.state.dayClose.pendingSettlementId!,
+    });
+    expect(begun.state.calendar.dayNumber).toBe(state.calendar.dayNumber + 1);
+    expect(begun.state.actionEconomy.apRemaining).toBe(5);
+    expect(begun.state.actionEconomy.overtimeUsedToday).toBe(false);
+  });
+
+  it('shows the overtime-forfeit warning only for a positive unused overtime balance', () => {
+    expect(getOvertimeApForfeitPrompt(false, 3)).toBeNull();
+    expect(getOvertimeApForfeitPrompt(true, 0)).toBeNull();
+    expect(getOvertimeApForfeitPrompt(true, 1)).toBe('You have 1 unused Overtime AP remaining. End the day and forfeit it?');
+    expect(getOvertimeApForfeitPrompt(true, 3)).toBe('You have 3 unused Overtime AP remaining. End the day and forfeit them?');
   });
 
   it('emits the full engine-driven settlement breakdown for a day without a Work contract', () => {
