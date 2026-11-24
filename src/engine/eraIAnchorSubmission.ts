@@ -216,7 +216,6 @@ export function submitRubricAssignmentActivity(
       },
     };
   }
-  let outcomeRelationships = evaluated.state.world.relationships;
   for (const affectedPersonId of rubric.relationshipPersonIds ?? []) {
     if (affectedPersonId === receiverId || affectedPersonId === person.id) continue;
     const affectedPerson = state.world.people[affectedPersonId];
