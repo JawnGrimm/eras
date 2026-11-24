@@ -400,6 +400,9 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
         { id: 'comf03-outbound-event', kind: 'event', sourceId: 'event-era1-com-f03-outbound-dispatch', description: 'The distinct earlier dispatch event.' },
         { id: 'comf03-return-record', kind: 'record_copy', sourceId: ERA1_COM_F03_RECORD_IDS.partialReturn, description: 'The first partial return receipt.' },
         { id: 'comf03-return-event', kind: 'event', sourceId: eventId, description: 'The later partial-return event.' },
+        { id: 'comf03-geme-account', kind: 'testimony', sourceId: ERA1_COM_F02_F04_PEOPLE.gemeInana, description: 'Geme-Inana’s spoken account of the exchange understanding.' },
+        { id: 'comf03-kuli-account', kind: 'testimony', sourceId: ERA1_COM_F02_F04_PEOPLE.kuli, description: 'Kuli’s spoken account of the next trip.' },
+        { id: 'comf03-enlil-recollection', kind: 'testimony', sourceId: ERA1_COM_F02_F04_PEOPLE.enlilKisu, description: 'Enlil-kisu’s recollection of the outbound carrying.' },
       ],
     };
     institutions[TEXTILE_HOUSEHOLD_INSTITUTION_ID] = {
@@ -453,6 +456,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
         { id: 'comf04-landing-tally', kind: 'record_copy', sourceId: ERA1_COM_F04_RECORD_IDS.landingTally, description: 'The second tally at landing.' },
         { id: 'comf04-receiving-tally', kind: 'record_copy', sourceId: ERA1_COM_F04_RECORD_IDS.receivingTally, description: 'The third tally and receiving condition note.' },
         { id: 'comf04-source-event', kind: 'event', sourceId: eventId, description: 'The consignment arrives with a recorded count difference.' },
+        { id: 'comf04-sig-ana-account', kind: 'testimony', sourceId: ERA1_COM_F02_F04_PEOPLE.sigAna, description: 'Sig-ana’s account of the landing handover.' },
       ],
     };
     institutions[STOREHOUSE_INSTITUTION_ID] = {
