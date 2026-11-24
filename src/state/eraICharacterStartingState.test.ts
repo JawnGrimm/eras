@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import type { EraICharacterHistoryChoices } from '../content/characterCreation/eraICharacterHistory';
 import {
   ERA_I_CHARACTER_CREATION_CONTENT_VERSION,
   ERA_I_CHARACTER_HISTORY_DEPENDENCY_VERSION,
