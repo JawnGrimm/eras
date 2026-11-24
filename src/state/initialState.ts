@@ -8,7 +8,7 @@ import {
 } from '../engine/institutionalMatters';
 export const INITIAL_PERSON_ID = 'person-enlil-barni' as PersonId;
 export function createInitialGameState(player?: Person): GameState {
-  const initialPerson: Person = {
+  const initialPerson: Person = player ?? {
     id: INITIAL_PERSON_ID, name: 'Enlil-barni', alive: true, affiliations: [],
     lifeStage: 'junior_scribe' as const,
     socialIdentity: { occupation: 'Scribe', summary: 'A junior scribe attached to the Temple Storehouse work.' },
@@ -20,7 +20,7 @@ export function createInitialGameState(player?: Person): GameState {
       institutionalStanding: {},
     },
   };
-  const activePlayer = player ?? initialPerson;
+  const activePlayer = initialPerson;
   const apprenticeId = 'person-uruk-nin-aya' as PersonId;
   const colleagueId = UR_GIR_PERSON_ID;
   // Authored fictional Uruk scribes provide a small, connected continuity network.
