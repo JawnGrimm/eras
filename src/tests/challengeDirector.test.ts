@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { ChallengeId, EventId, MatterId, PersonId } from '../state/ids';
+import type { ChallengeId, EventId, PersonId } from '../state/ids';
 import type { ChallengeInstance, GameState } from '../state/types';
 import { createInitialGameState } from '../state/initialState';
 import { isValidSaveEnvelope, createSaveEnvelope } from '../state/saveEnvelope';
