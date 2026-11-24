@@ -192,7 +192,8 @@ Day-13 display values stated by the approved specification:
 ## 9. Scope and verification record
 
 - No runtime code, GDD, Decision Register, save schema, migration, numerical formula, or player-facing content was changed in WP0.
-- No tests were written or executed as part of this audit-only stage.
-- No local build/type-check was run.
+- No audit-specific tests were written during this audit-only stage.
+- GitHub Actions on PR #108 head `89568af87493c3174f77a1914345d8f78252999d` ran the existing regression suite: TypeScript check passed; 37 test files / 276 tests passed; production build passed; CodeQL passed. These are repository-wide CI checks, not new WP0-specific tests.
+- No local test/build/type-check was run.
 - Source paths above were read from the live `main` baseline identified at the top of this report.
 - The next authorized runtime work is WP1's relationship-history attribution correction and WP2's matter-state invariant audit, with any persistent-state proposal held for review.
