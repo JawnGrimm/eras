@@ -169,6 +169,7 @@ function MatterSources({ matter, records, people, events }: {
   people: Readonly<Record<string, Person>>;
   events: Readonly<Record<string, { summary: string }>>;
 }) {
+  if (!matter.provenance?.length && matter.sourceRecordId) return <p className="mt-2 text-xs text-stone-600">Source record: {records[matter.sourceRecordId]?.title ?? matter.sourceRecordId}</p>;
   if (!matter.provenance?.length) return <p className="mt-2 text-xs text-stone-500">No linked provenance is recorded for this matter.</p>;
   return <details className="mt-3 border-t border-stone-200 pt-2">
     <summary className="cursor-pointer text-xs font-semibold text-stone-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-700">
@@ -340,8 +341,10 @@ export function ProductionPeopleAndInstitutions({ initialSection = 'people' }: {
   const selectedInstitutionAppointments = selectedInstitution
     ? Object.values(state.world.appointments).filter((item) => item.institutionId === selectedInstitution.id)
     : [];
-  const linkedRecordIds = new Set(selectedInstitutionMatters.flatMap((matter) =>
-    (matter.provenance ?? []).filter((source) => source.kind === 'record_copy' && source.sourceId).map((source) => source.sourceId as RecordId)));
+  const linkedRecordIds = new Set(selectedInstitutionMatters.flatMap((matter) => [
+    ...(matter.sourceRecordId ? [matter.sourceRecordId] : []),
+    ...(matter.provenance ?? []).filter((source) => source.kind === 'record_copy' && source.sourceId).map((source) => source.sourceId as RecordId),
+  ]));
   const selectedInstitutionRecords = selectedInstitution
     ? Object.values(state.records.entries).filter((record) => record.institutionId === selectedInstitution.id || linkedRecordIds.has(record.id))
     : [];
