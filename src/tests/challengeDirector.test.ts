@@ -73,7 +73,7 @@ describe('Challenge candidate selection and occurrence lifecycle', () => {
     const people = Object.keys(base.world.people);
     const fromId = people[0] as PersonId;
     const toId = people[1] as PersonId;
-    const linked = {
+    const linked: GameState = {
       ...base,
       world: {
         ...base.world,
@@ -97,7 +97,7 @@ describe('Challenge candidate selection and occurrence lifecycle', () => {
     });
     expect(relationshipOccurrence?.primarySourceFact).toEqual({ kind: 'event', id: eventId });
 
-    const unlinked = {
+    const unlinked: GameState = {
       ...linked,
       world: {
         ...linked.world,
