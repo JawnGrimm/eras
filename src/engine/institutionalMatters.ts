@@ -279,6 +279,67 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
 
 
 
+  if (nextDay >= 11 && !institutions[HOUSEHOLD_STRONGROOM_INSTITUTION_ID]) {
+    institutions[HOUSEHOLD_STRONGROOM_INSTITUTION_ID] = {
+      id: HOUSEHOLD_STRONGROOM_INSTITUTION_ID, name: 'Household Strongroom (provisional)',
+      locationId: HOUSEHOLD_STRONGROOM_LOCATION_ID,
+      responsibilities: ['Maintain household access and inventory records for the specific authored incident'],
+      authority: ['Household members and the responsible authority determine any further inquiry'],
+      standing: 50, activeMatters: [],
+    };
+    changed = true;
+  }
+  if (nextDay >= 11 && !locations[HOUSEHOLD_STRONGROOM_LOCATION_ID]) {
+    locations[HOUSEHOLD_STRONGROOM_LOCATION_ID] = { id: HOUSEHOLD_STRONGROOM_LOCATION_ID, name: 'Household strongroom (provisional), Uruk' };
+    changed = true;
+  }
+  if (nextDay >= 11 && !locations[NORTH_BAY_LOCATION_ID]) {
+    locations[NORTH_BAY_LOCATION_ID] = { id: NORTH_BAY_LOCATION_ID, name: 'North-bay storehouse area, Uruk' };
+    changed = true;
+  }
+  if (nextDay >= 11 && !people[ERA1_MAR_PEOPLE.ninDara]) {
+    people[ERA1_MAR_PEOPLE.ninDara] = {
+      id: ERA1_MAR_PEOPLE.ninDara, name: 'Nin-dara', alive: true,
+      affiliations: [HOUSEHOLD_STRONGROOM_INSTITUTION_ID], currentLocationId: HOUSEHOLD_STRONGROOM_LOCATION_ID,
+      lifeStage: 'craft_practitioner',
+      socialIdentity: { occupation: 'Household member entrusted with access (provisional)', summary: 'A provisional household participant entrusted with access in one authored strongroom incident; not a formally attested office-holder.' },
+    } satisfies Person;
+    changed = true;
+  }
+  if (nextDay >= 11 && !people[ERA1_MAR_PEOPLE.sealingOwner]) {
+    people[ERA1_MAR_PEOPLE.sealingOwner] = {
+      id: ERA1_MAR_PEOPLE.sealingOwner, name: 'Household sealing owner', alive: true,
+      affiliations: [HOUSEHOLD_STRONGROOM_INSTITUTION_ID], currentLocationId: HOUSEHOLD_STRONGROOM_LOCATION_ID,
+      lifeStage: 'craft_practitioner',
+      socialIdentity: { occupation: 'Household member', summary: 'An unnamed participant associated with the household sealing in this authored incident; no formal office is implied.' },
+    } satisfies Person;
+    changed = true;
+  }
+  if (nextDay >= 11 && !people[ERA1_MAR_PEOPLE.luKala]) {
+    people[ERA1_MAR_PEOPLE.luKala] = {
+      id: ERA1_MAR_PEOPLE.luKala, name: 'Lu-kala', alive: true, affiliations: [],
+      currentLocationId: NORTH_BAY_LOCATION_ID, lifeStage: 'craft_practitioner',
+      socialIdentity: { occupation: 'Task-party leader (provisional)', summary: 'Leads one sponsor-gathered party for a specific repair task; not a military officer or member of a standing unit.' },
+    } satisfies Person;
+    changed = true;
+  }
+  if (nextDay >= 11 && !people[ERA1_MAR_PEOPLE.partyMember]) {
+    people[ERA1_MAR_PEOPLE.partyMember] = {
+      id: ERA1_MAR_PEOPLE.partyMember, name: 'Task-party member', alive: true, affiliations: [],
+      currentLocationId: NORTH_BAY_LOCATION_ID, lifeStage: 'craft_practitioner',
+      socialIdentity: { occupation: 'Task-party participant', summary: 'An unnamed participant in one sponsor-gathered task party; no formal military status is implied.' },
+    } satisfies Person;
+    changed = true;
+  }
+  if (nextDay >= 11 && !people[ERA1_MAR_PEOPLE.urAb]) {
+    people[ERA1_MAR_PEOPLE.urAb] = {
+      id: ERA1_MAR_PEOPLE.urAb, name: 'Ur-ab', alive: true, affiliations: [],
+      currentLocationId: RIVER_LANDING_LOCATION_ID, lifeStage: 'craft_practitioner',
+      socialIdentity: { occupation: 'Yard watcher (provisional)', summary: 'A provisional participant who observed part of a movement near a yard; not a formal guard or security office.' },
+    } satisfies Person;
+    changed = true;
+  }
+
   // Commercial F02: a new timber delivery becomes an Assignment only while
   // both the Storehouse repair need and the household work-frame need remain open.
   if (nextDay >= 8 && !matters['matter-era1-com-f02-two-claims' as MatterId]) {
