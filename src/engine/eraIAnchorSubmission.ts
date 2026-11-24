@@ -53,6 +53,9 @@ export function submitRubricAssignmentActivity(
     return option ? [{ id, label: option.label }] : [];
   });
   const citedDiscoveries = definition.discoveries.filter((item) => progress.draft.citedDiscoveryIds.includes(item.id));
+  const unresolvedSource = definition.discoveries.find((item) => progress.draft.citedDiscoveryIds.includes(item.id)
+    && item.sourceProvenanceId && !matter?.provenance?.some((source) => source.id === item.sourceProvenanceId));
+  if (unresolvedSource) return fail(state, 'assignment-activity-source-missing', `The source provenance for ${unresolvedSource.title} is not present on the active matter.`);
   const recordId = `record-${offer.id}-day-${state.calendar.dayNumber}` as RecordId;
   if (state.records.entries[recordId]) return fail(state, 'assignment-activity-record-exists', 'A report record already exists for this deterministic submission ID.');
   const sources: RecordSource[] = [
