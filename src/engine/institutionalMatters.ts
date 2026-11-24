@@ -204,12 +204,12 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
       lifeStage: 'craft_practitioner',
       socialIdentity: { occupation: 'Textile household organizer', summary: 'A provisional authored participant who coordinates textile work and exchange obligations within her household.' },
       objectives: [
-        { id: 'objective-geme-inana-workframes', horizon: 'immediate', summary: 'Secure timber for household work-frames.', motivation: 'The household has work waiting that depends on the timber request.', createdDay: 1, status: 'active', visibility: 'public' },
-        { id: 'objective-geme-inana-exchange', horizon: 'immediate', summary: 'Receive the goods expected from an earlier outbound exchange.', motivation: 'People in the household are waiting on the return before the next dispatch is sent.', createdDay: 1, status: 'active', visibility: 'public' },
+        { id: 'objective-geme-inana-workframes', horizon: 'immediate', summary: 'Secure timber for household work-frames.', motivation: 'The household has work waiting that depends on the timber request.', createdDay: nextDay, status: 'active', visibility: 'public' },
+        { id: 'objective-geme-inana-exchange', horizon: 'immediate', summary: 'Receive the goods expected from an earlier outbound exchange.', motivation: 'People in the household are waiting on the return before the next dispatch is sent.', createdDay: nextDay, status: 'active', visibility: 'public' },
       ],
       circumstances: [
-        { id: 'circumstance-geme-inana-workframes', kind: 'work', summary: 'A household work-frame task is waiting on timber.', sinceDay: 1, status: 'active', visibility: 'public' },
-        { id: 'circumstance-geme-inana-exchange', kind: 'dispute', summary: 'An earlier outbound exchange has not yet been fully returned.', sinceDay: 1, status: 'active', visibility: 'public' },
+        { id: 'circumstance-geme-inana-workframes', kind: 'work', summary: 'A household work-frame task is waiting on timber.', sinceDay: nextDay, status: 'active', visibility: 'public' },
+        { id: 'circumstance-geme-inana-exchange', kind: 'dispute', summary: 'An earlier outbound exchange has not yet been fully returned.', sinceDay: nextDay, status: 'active', visibility: 'public' },
       ],
     } satisfies Person;
     changed = true;
