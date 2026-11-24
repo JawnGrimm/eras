@@ -76,6 +76,7 @@ describe('Phase 2 Uruk world-state foundation', () => {
     expect(stewardMarkup).toContain('Declared responsibilities and commitments');
     expect(stewardMarkup).toContain('Safeguard institutional stocks and maintain custody and maintenance records.');
     expect(stewardMarkup).toContain('Two reed ties on the south loading awning are visibly frayed');
+    expect(stewardMarkup).toContain('active official');
     expect(stewardMarkup).not.toContain('Resolve the delivery discrepancy before the next stock tally.');
     expect(stewardMarkup).not.toContain('Establish whether the south loading awning is safe for further loading.');
   });
