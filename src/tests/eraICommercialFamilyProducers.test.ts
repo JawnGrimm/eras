@@ -93,6 +93,44 @@ describe('Era I Commercial F02-F04 causal matter pipeline', () => {
     )).toBe(true);
   });
 
+  it('resolves F03 oral evidence to its current matter testimony sources when the report is filed', () => {
+    let state = advance(createInitialGameState(), 8);
+    state = advance(state, 9);
+    const { era1ComF03PartialReturn } = require('../content/assignments/eraICommercialFamilies') as typeof import('../content/assignments/eraICommercialFamilies');
+    const offer = Object.values(state.opportunities.assignments).find((item) =>
+      item.activityId === era1ComF03PartialReturn.id,
+    )!;
+    const initialProgress = era1ComF03PartialReturn.createInitialProgress();
+    const progress = {
+      ...initialProgress,
+      completedActionIds: era1ComF03PartialReturn.actions.map((action) => action.id),
+      discoveryIds: era1ComF03PartialReturn.discoveries.map((item) => item.id),
+      consultedPersonIds: [...new Set(era1ComF03PartialReturn.actions.flatMap((action) =>
+        action.consultedPersonId ? [action.consultedPersonId] : [],
+      ))],
+      draft: {
+        ...initialProgress.draft,
+        finding: 'written_and_spoken_separated',
+        responsibilityClaim: 'none',
+        citedDiscoveryIds: era1ComF03PartialReturn.evaluation!.requiredEvidenceIds
+          .concat(era1ComF03PartialReturn.evaluation!.relevantEvidenceIds),
+        selectedLimitationIds: era1ComF03PartialReturn.evaluation!.requiredLimitationIds,
+      },
+    };
+    const submitted = submitRubricAssignmentActivity(state, offer, era1ComF03PartialReturn, progress);
+    expect(submitted?.feedback?.code).toBe('assignment-activity-submitted');
+    const report = Object.values(submitted!.state.records.entries).find((entry) => entry.title === 'Exchange statement')!;
+    expect(report.sources.find((source) => source.id === 'source-f03-geme-account')).toMatchObject({
+      kind: 'person', sourceId: ERA1_COM_F02_F04_PEOPLE.gemeInana,
+    });
+    expect(report.sources.find((source) => source.id === 'source-f03-kuli-account')).toMatchObject({
+      kind: 'person', sourceId: ERA1_COM_F02_F04_PEOPLE.kuli,
+    });
+    expect(report.sources.find((source) => source.id === 'source-f03-enlil-recollection')).toMatchObject({
+      kind: 'person', sourceId: ERA1_COM_F02_F04_PEOPLE.enlilKisu,
+    });
+  });
+
   it('creates F04 from three independently authored custody tallies and preserves the first difference without assigning fault', () => {
     const state = advance(createInitialGameState(), 10);
     const matter = Object.values(state.world.matters).find((item) => item.kind === 'era1_com_f04_custody_chain');
