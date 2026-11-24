@@ -101,7 +101,7 @@ export function createInitialGameState(player?: Person, opportunitySeed = 'era1-
     institutionIds: [templeStorehouseId], locationId: ERA1_COM_F01_LOCATION_ID,
   };
   const materialDescriptionMatter = { ...createMaterialNotAsDescribedMatter(2), sourceEventId: materialDescriptionEventId,
-    provenance: [...(createMaterialNotAsDescribedMatter(1).provenance ?? []),
+    provenance: [...(createMaterialNotAsDescribedMatter(2).provenance ?? []),
       { id: 'comf01-source-event', kind: 'event' as const, sourceId: materialDescriptionEventId, description: 'The procurement/delivery description difference is recorded as a distinct causal source event.' }] };
   const deliveryMatter = { ...createSouthCourtDeliveryMatter(1), sourceEventId: deliveryEventId,
     provenance: [...(createSouthCourtDeliveryMatter(1).provenance ?? []),
