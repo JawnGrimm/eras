@@ -6,6 +6,12 @@ import type { AssignmentId, InstitutionId, PersonId } from '../state/ids';
 import { ASSIGNMENT_ACTIVITY_CATALOG } from '../content/assignments/northBayRoofInspection';
 import { evaluateEvidenceInterpretation } from '../works/evidenceInterpretation';
 
+export function responsibilityClaimPreviewLabel(
+  options: readonly { id: string; label: string }[], selectedId: string,
+): string {
+  return options.find((option) => option.id === selectedId)?.label ?? selectedId;
+}
+
 export function AssignmentActivityScreen({ assignmentId, onBack }: { assignmentId: AssignmentId; onBack: () => void }) {
   const game = useGame();
   const offer = game.state.opportunities.assignments[assignmentId];
@@ -112,7 +118,7 @@ export function AssignmentActivityScreen({ assignmentId, onBack }: { assignmentI
       <section className="mt-5 rounded-lg border border-stone-200 bg-stone-50 p-3">
         <h3 className="font-semibold">Report preview</h3>
         <p className="mt-2 text-sm"><strong>Finding:</strong> {draft.finding.replaceAll('_', ' ')}</p>
-        <p className="mt-1 text-sm"><strong>Responsibility:</strong> {draft.responsibilityClaim === 'dudu' ? 'Attributes unresolved work to Dudu' : 'No individual responsibility assigned'}</p>
+        <p className="mt-1 text-sm"><strong>Responsibility:</strong> {responsibilityClaimPreviewLabel(definition.reportSchema.responsibilityClaims, draft.responsibilityClaim)}</p>
         <p className="mt-1 text-sm"><strong>Cited discoveries:</strong> {draft.citedDiscoveryIds.map((id) => definition.discoveries.find((item) => item.id === id)?.title ?? id).join('; ') || 'None'}</p>
         <p className="mt-1 text-sm"><strong>Limitations:</strong> {definition.reportSchema.limitationOptions?.length
           ? (draft.selectedLimitationIds ?? []).map((id) => definition.reportSchema.limitationOptions?.find((option) => option.id === id)?.label ?? id).join('; ') || 'None selected'
