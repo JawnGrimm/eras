@@ -35,7 +35,8 @@ describe('production continuity and social screens', () => {
     expect(markup).toContain('Derived professional rank: Grade');
     expect(markup).toContain('Connection priority: Direct personal connection');
     expect(markup).toContain('Reading scripts');
-    expect(markup).toContain('Silver');
+    expect(markup).toContain('Currency');
+    expect(markup).not.toContain('Silver');
     expect(markup).toContain('Enlil-barni → Nin-aya');
     expect(markup).toContain('Ur-gir → Enlil-barni');
     expect(markup).toContain('Relationship history');
