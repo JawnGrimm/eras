@@ -58,12 +58,27 @@ describe('Phase 2 Uruk world-state foundation', () => {
 
   it('shows public circumstances and duties without revealing private NPC objectives', () => {
     const state = createNewGameState(TEST_CHARACTER_CREATION);
-    const markup = renderToStaticMarkup(createElement(GameProvider, { initialState: state }, createElement(ProductionPeopleAndInstitutions)));
-    expect(markup).toContain('Current circumstances');
-    expect(markup).toContain('Declared responsibilities and commitments');
-    expect(markup).toContain('Two reed ties on the south loading awning are visibly frayed');
-    expect(markup).not.toContain('Ensure the dispatch quantity is distinguished from the receiving count.');
-    expect(markup).toContain('active official');
+    const renderPerson = (personId: PersonId) => renderToStaticMarkup(createElement(
+      GameProvider,
+      { initialState: state },
+      createElement(ProductionPeopleAndInstitutions, { initialPersonId: personId }),
+    ));
+
+    // The foreman's public circumstance is visible, while his private objective is not.
+    const foremanMarkup = renderPerson('person-enlil-kisu' as PersonId);
+    expect(foremanMarkup).toContain('Current circumstances');
+    expect(foremanMarkup).toContain('His dispatch copy records 24 measures leaving the holding yard');
+    expect(foremanMarkup).not.toContain('Ensure the dispatch quantity is distinguished from the receiving count.');
+
+    // Public duties belong to the steward's selected profile; they are not globally
+    // repeated on the foreman's dossier merely because both NPCs are in the directory.
+    const stewardMarkup = renderPerson('person-ur-nanna' as PersonId);
+    expect(stewardMarkup).toContain('Declared responsibilities and commitments');
+    expect(stewardMarkup).toContain('Safeguard institutional stocks and maintain custody and maintenance records.');
+    expect(stewardMarkup).toContain('Two reed ties on the south loading awning are visibly frayed');
+    expect(stewardMarkup).toContain('active official');
+    expect(stewardMarkup).not.toContain('Resolve the delivery discrepancy before the next stock tally.');
+    expect(stewardMarkup).not.toContain('Establish whether the south loading awning is safe for further loading.');
   });
 
   it('preserves the new profile and matter data through a schema-v2 save round trip', () => {

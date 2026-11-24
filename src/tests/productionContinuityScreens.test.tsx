@@ -13,8 +13,8 @@ import { createNewGameState } from '../state/newGameState';
 import { transitionGame } from '../engine/actionEconomy';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
 import { GameProvider } from '../state/GameProvider';
-import type { AppointmentId, EventId, KnowledgeEntryId, PersonId, RecordId } from '../state/ids';
-import type { GameState, RecordEntry } from '../state/types';
+import type { AppointmentId, EventId, KnowledgeEntryId, MatterId, PersonId, RecordId } from '../state/ids';
+import type { GameState, InstitutionalMatter, RecordEntry } from '../state/types';
 import { getInitializedScribal } from '../state/scribalState';
 import { createSaveEnvelope, restoreSave } from '../state/saveEnvelope';
 import { INITIAL_WORK_CATALOG } from '../state/newGameState';
@@ -171,6 +171,26 @@ describe('production continuity and social screens', () => {
   it('renders directional relationships separately and separates reputation from institution standing and authority', () => {
     const base = createInitialGameState();
     const appointmentId = 'appointment-reviewer' as AppointmentId;
+    const storehouseId = 'institution-uruk-temple-storehouse' as never;
+    const unindexedActiveMatter: InstitutionalMatter = {
+      id: 'matter-unindexed-active' as MatterId, institutionId: storehouseId, kind: 'general',
+      summary: 'An active matter omitted from the institution index remains visible.', status: 'active', createdDay: 2,
+    };
+    const resolvedMatter: InstitutionalMatter = {
+      id: 'matter-resolved-history' as MatterId, institutionId: storehouseId, kind: 'general',
+      summary: 'A resolved matter remains available in institutional history.', status: 'resolved', createdDay: 1,
+    };
+    const institutionRecordId = 'record-institution-history' as RecordId;
+    const institutionRecord: RecordEntry = {
+      id: institutionRecordId, createdDay: 3, authorPersonId: INITIAL_PERSON_ID, institutionId: storehouseId,
+      title: 'Institutional ledger record',
+      sources: [{ id: 'source-institution-ledger', kind: 'other', description: 'A signed tablet was copied.' }],
+      assertions: [{ id: 'assertion-institution-ledger', text: 'Twenty-four measures were dispatched.', classification: 'observed', sourceIds: ['source-institution-ledger'] }],
+      uncertaintyLimits: ['The second seal was not independently verified.'],
+      amendments: [{ id: 'amendment-institution-ledger', dayNumber: 4, authorPersonId: INITIAL_PERSON_ID,
+        reason: 'Later testimony qualified the count.', sourcesAdded: [], assertionsAdded: [],
+        uncertaintyLimitsAdded: ['The carrier route remains unverified.'], note: 'The original count remains preserved.' }],
+    };
     const state: GameState = {
       ...base,
       world: {
@@ -179,25 +199,46 @@ describe('production continuity and social screens', () => {
           ...base.world.people,
           [INITIAL_PERSON_ID]: { ...base.world.people[INITIAL_PERSON_ID], scribal: {
             ...base.world.people[INITIAL_PERSON_ID].scribal!,
-            institutionalStanding: { ['institution-uruk-temple-storehouse' as never]: 73 },
+            institutionalStanding: { [storehouseId]: 73 },
           } },
         },
+        matters: { ...base.world.matters, [unindexedActiveMatter.id]: unindexedActiveMatter, [resolvedMatter.id]: resolvedMatter },
         appointments: {
           [appointmentId]: { id: appointmentId, personId: INITIAL_PERSON_ID,
-            institutionId: 'institution-uruk-temple-storehouse' as never, title: 'Account Keeper',
+            institutionId: storehouseId, title: 'Account Keeper',
             authorityScope: ['Verify incoming measures'], responsibilities: ['Maintain daily accounts'], startDay: 1 },
         },
       },
+      records: { ...base.records, entries: { ...base.records.entries, [institutionRecordId]: institutionRecord } },
     };
     const markup = renderScreen(state, createElement(ProductionPeopleAndInstitutions));
+    const institutionMarkup = renderScreen(state, createElement(ProductionPeopleAndInstitutions, { initialSection: 'institutions' }));
 
+    expect(markup).toContain('Search people');
+    expect(markup).toContain('Life status');
     expect(markup).toContain('Enlil-barni → Nin-aya');
     expect(markup).toContain('Ur-gir → Enlil-barni');
     expect(markup).not.toContain('Nin-aya → Enlil-barni');
     expect(markup).toContain('Professional reputation');
     expect(markup).toContain('Institutional standing');
     expect(markup).toContain('Verify incoming measures');
-    expect(markup).toContain('Active matters');
+    expect(markup).toContain('History from this perspective');
+    expect(markup).not.toContain('No initialized scribal capability sheet');
+    expect((markup.match(/Personal history \(/g) ?? []).length).toBe(1);
+
+    expect(institutionMarkup).toContain('Search institutions');
+    expect(institutionMarkup).toContain('Current matters');
+    expect(institutionMarkup).toContain('Historical matters');
+    expect(institutionMarkup).toContain('Institutional records');
+    expect(institutionMarkup).toContain('Appointments and delegated office scopes');
+    expect(institutionMarkup).toContain('An active matter omitted from the institution index remains visible.');
+    expect(institutionMarkup).toContain('A resolved matter remains available in institutional history.');
+    expect(institutionMarkup).toContain('Institutional ledger record');
+    expect(institutionMarkup).toContain('A signed tablet was copied.');
+    expect(institutionMarkup).toContain('Twenty-four measures were dispatched.');
+    expect(institutionMarkup).toContain('The second seal was not independently verified.');
+    expect(institutionMarkup).toContain('The original count remains preserved.');
+    expect(institutionMarkup).toContain('The carrier route remains unverified.');
   });
 
   it('renders immutable record assertions, append-only amendments, knowledge holders, and durable notices', () => {
