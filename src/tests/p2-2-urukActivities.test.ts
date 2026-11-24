@@ -231,7 +231,16 @@ describe('P2-2 authored Uruk Assignment activities', () => {
     let state = generateDailyAssignments(createInitialGameState());
     const offer = Object.values(state.opportunities.assignments).find((item) => item.activityId === southCourtDeliveryReconciliation.id)!;
     state = accept(state, offer);
-    state = perform(state, offer.id, 'delivery-compare-tablets');
+    const comparison = transitionAssignmentActivityAction(state, {
+      type: 'PERFORM_ASSIGNMENT_ACTIVITY_ACTION', assignmentId: offer.id, actionId: 'delivery-compare-tablets',
+    });
+    expect(comparison.feedback?.code).toBe('assignment-activity-action-completed');
+    expect(comparison.feedback?.message).toBe(
+      'The dispatch copy records 24 measures and the receiving tally 23. A one-measure discrepancy is established, but its cause and responsibility remain unknown; the storehouse matter remains open.',
+    );
+    expect(comparison.state.world.matters[MATTER_IDS.southCourtDelivery]?.status).toBe('active');
+    expect(comparison.state.world.institutions[STOREHOUSE].activeMatters).toContain(MATTER_IDS.southCourtDelivery);
+    state = comparison.state;
     state = perform(state, offer.id, 'delivery-consult-enlil');
     state = draft(state, offer.id, {
       finding: 'unlocated_discrepancy', responsibilityClaim: 'none',
