@@ -88,8 +88,8 @@ export const era1MarF01DoorOpened = activity({
   submissionApCost: 1,
   participants: [p.luNanshe,p.shuruppak,p.urNanna,p.ninDara,p.sealingOwner],
   discoveries: [
-    { id: 'mar01-closure-impression', title: 'Present closure impression', text: 'The strongroom closure is re-sealed. Its present impression can be compared with the household’s known sealing; the impression establishes which seal was used, not who was authorized to open the room.', sourceProvenanceId: 'mar01-closure-impression' },
-    { id: 'mar01-inventory', title: 'Inventory of contents', text: 'The inventory lists what should be inside the strongroom. It can be compared with the contents found, but it does not identify who entered or when.', sourceProvenanceId: 'mar01-inventory' },
+    { id: 'mar01-closure-impression', title: 'Present closure impression', text: 'The strongroom closure is re-sealed with an impression that differs from the household’s known sealing. The impression establishes which seal was used, not who was authorized to open the room.', sourceProvenanceId: 'mar01-closure-impression' },
+    { id: 'mar01-inventory', title: 'Inventory of contents', text: 'The inventory lists what should be inside the strongroom; the current check finds the listed contents present. The contents match the inventory, but this does not identify who entered or when.', sourceProvenanceId: 'mar01-inventory' },
     { id: 'mar01-nin-dara-account', title: 'Nin-dara’s account', text: 'Nin-dara says she opened the door for a man who showed a sealing. She is a household member entrusted with access in this authored incident, not the holder of an attested door-warden office.', sourceProvenanceId: 'mar01-nin-dara-account' },
     { id: 'mar01-owner-account', title: 'Sealing owner’s account', text: 'The sealing owner says no one was sent to open the strongroom. This is an attributed account and does not by itself prove who entered.', sourceProvenanceId: 'mar01-owner-account' },
     { id: 'mar01-authorization-search', title: 'Earlier authorization search', text: 'No earlier authorization record has been linked to this opening in the records examined. The absence of a linked record does not prove that no authorization was given.', sourceProvenanceId: 'mar01-authorization-search' },
@@ -110,9 +110,8 @@ export const era1MarF01DoorOpened = activity({
     title: 'Strongroom access account',
     responsibilityLabel: 'Responsibility claim',
     findings: [
-      { id: 'impression_matches_household_seal', label: 'The present impression matches the household’s known sealing' },
       { id: 'impression_differs', label: 'The present impression differs from the household’s known sealing' },
-      { id: 'impression_unclear', label: 'The impression cannot be compared with confidence' },
+      { id: 'contents_match_inventory', label: 'The contents checked match the inventory' },
       { id: 'authorization_not_linked', label: 'No authorization record is linked to this opening in the records examined' },
       { id: 'theft_established', label: 'The evidence establishes theft' },
     ],
@@ -145,8 +144,8 @@ export const era1MarF01DoorOpened = activity({
     receiverPersonId: p.luNanshe,
     relationshipPersonIds: [p.ninDara],
     rationales: {
-      Thorough: 'The impression, inventory, and two accounts are kept distinct. The report states what is and is not linked to an authorization without accusing anyone.',
-      Defensible: 'The report compares the seal and inventory while preserving the difference between physical access and permission.',
+      Thorough: 'The different impression, matching contents, and two accounts are kept distinct. The report states what is and is not linked to an authorization without accusing anyone.',
+      Defensible: 'The report compares the different seal impression and matching inventory while preserving the difference between physical access and permission.',
       Incomplete: 'A required account, inventory comparison, or authorization limitation is missing.',
       Overreached: 'The report calls the event theft or treats an impression as proof of authority or guilt.',
     },
@@ -398,7 +397,7 @@ export const era1MarF04ValuedObjectTrail = activity({
       Overreached: 'Lu-Nanshe frowns. “A missing handover is not proof of mishandling.”',
     },
   },
-  submissionNote: 'Lu-Nanshe and the precinct body decide whether to search, ask custodians, or report the object missing. The scribe does not assign responsibility or demand the object.',
+  submissionNote: 'Lu-Nanshe and the responsible institutional authority decide whether to search, ask custodians, or report the object missing. The scribe does not assign responsibility or demand the object.',
 });
 
 const m01Ap = estimatedTotalAp(era1MarF01DoorOpened);
