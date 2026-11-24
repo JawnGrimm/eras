@@ -1,6 +1,6 @@
 # GD-STATE-INTEGRITY-001 — Day-13 State, Provenance, and Information Architecture Audit
 
-**Status:** PROPOSED — awaiting Game Director approval  
+**Status:** APPROVED — READY FOR IMPLEMENTATION  
 **Specification owner:** Design HQ  
 **Production owner:** Production (all implementation departments)  
 **Baseline reviewed:** `main` at `0644be85e415b44cbf1561e644d54e96862a2748` (24 November 2026)  
@@ -189,4 +189,4 @@ Do not guess. Escalate any required behavioral choice to Design HQ and the Game 
 
 ## 10. Approval gate
 
-This document is **PROPOSED**, not approved. Production may perform non-mutating inspection and estimate work. It may not implement behavior-changing corrections under this specification until the Game Director explicitly approves it and it is marked **APPROVED — READY FOR IMPLEMENTATION**. Routine technical choices remain Production-owned after approval.
+**Approved by the Game Director on 24 November 2026. Status: APPROVED — READY FOR IMPLEMENTATION.** Production is authorized to execute the work packages and acceptance criteria in this specification, subject to its exclusions, dependencies, and escalation requirements. Routine technical choices remain Production-owned. Any behavior-changing proposal outside this approved contract, persistent-state change, new lifecycle behavior, numerical change, or scope expansion requires the appropriate Design HQ/Game Director review before implementation.
