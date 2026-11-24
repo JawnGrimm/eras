@@ -15,10 +15,10 @@ export const ERA_I_CURATED_SAMPLE_NAMES = [
   { name: 'Ena-an-ru', note: 'Uruk-period attested name-form; reading remains cautious.' },
   { name: 'Šubur-e₂a×1N57', note: 'Uruk-period attested sign sequence; reading remains cautious.' },
   { name: 'BUₐ GI', note: 'Late Uruk name sequence reported by Englund; not a confidently reconstructed pronunciation.' },
-  { name: 'DIMₐ', note: 'Late Uruk name sequence; not a confidently reconstructed pronunciation.' },
-  { name: 'ENₐ U₂ᵦ DU', note: 'Late Uruk name sequence; not a confidently reconstructed pronunciation.' },
-  { name: 'EZENᵦ ENₐ', note: 'Late Uruk name sequence; not a confidently reconstructed pronunciation.' },
-  { name: 'NIₐ GIR₃c', note: 'Late Uruk name sequence; not a confidently reconstructed pronunciation.' },
+  { name: 'DIMₐ', note: 'Late Uruk name sequence reported by Englund; not a confidently reconstructed pronunciation.' },
+  { name: 'ENₐ U₂ᵦ DU', note: 'Late Uruk name sequence reported by Englund; not a confidently reconstructed pronunciation.' },
+  { name: 'EZENᵦ ENₐ', note: 'Late Uruk name sequence reported by Englund; not a confidently reconstructed pronunciation.' },
+  { name: 'NIₐ GIR₃c', note: 'Late Uruk name sequence reported by Englund; not a confidently reconstructed pronunciation.' },
 ] as const;
 
 const INVISIBLE_CONTROL_CHARACTERS = /[\u0000-\u001F\u007F-\u009F\u202A-\u202E\u2066-\u2069]/u;
@@ -124,7 +124,7 @@ export function resolveEraICharacterStartingState(
   const attributeSources: Partial<Record<AttributeId, string[]>> = {
     [responsibilityAttribute]: ['Chapter 2 · ' + RESPONSIBILITY_LABEL[choices.responsibilityId]],
     [formativeAttribute]: [
-      ...(responsibilityAttribute === formativeAttribute ? ['Chapter 2 · ' + choices.responsibilityId] : []),
+      ...(responsibilityAttribute === formativeAttribute ? ['Chapter 2 · ' + RESPONSIBILITY_LABEL[choices.responsibilityId]] : []),
       'Chapter 3 · ' + FORMATIVE_LABEL[choices.formativeExperienceId],
     ],
   };
