@@ -334,3 +334,24 @@ The scripts rely on the approved Issue #80 research baseline. Key references:
 - Englund (1998), “Texts from the Late Uruk Period,” OBO 160/1, pp. 13–233.
 
 **Review status:** This is an authored content draft, not an implementation-ready schema payload. A rapid Historical Research red-flag comparison against the closed and approved Issue #80 baseline found **no material contradiction** in the five seed identities, confidence boundaries, Martial exclusion, or commodity/provenance guardrails. That is a bounded sanity check, not a reopened research cycle or fresh source audit. Numerical examples remain provisional fixture content; Production need not wait for Assyriological number verification to build the interactions. Game Director approval of this revision is still required before the scripts are marked READY FOR IMPLEMENTATION.
+
+
+## 10. Game Director voice and presentation mandate — 24 November 2026
+
+This is an approved authoring direction for turning these semantic blueprints into playable Era I Assignment scripts and for upcoming Challenges and player-facing UI copy. It governs presentation, not historical claims or simulation outcomes.
+
+**Keep the evidence sober; let the people be human.** Tablets, labels, quantities, provenance notes, and evidence packets remain objective, internally consistent, and appropriately qualified. Carriers, brewers, stewards, colleagues, and senior scribes may be impatient, defensive, petty, wry, exhausted, territorial, self-important, absurdly particular, quietly generous, or kind under pressure. Their motives and reactions should arise from their circumstances and stakes, not from modern caricature.
+
+**Write lived situations, not compliance prompts.** Replace rulebook-style player-facing disclaimers with concrete human friction: who needs the account closed, whose allocation may be affected, who is tired of being blamed, who insists that the reed awning is absolutely not their responsibility, or who quietly helps an apprentice avoid a public embarrassment. Preserve the same exact authority limits and evidentiary boundaries in the actual actions, records, and outcomes; do not make the player read those boundaries as sterile warnings at every choice.
+
+**Ground humor and warmth in the setting.** Use small bureaucratic comedy, pettiness, ordinary generosity, strained patience, rivalries, pride in one's work, and everyday absurdity. Avoid modern idiom, contemporary institutional assumptions, sitcom caricature, and jokes that undermine the seriousness of material consequences. Historical people should feel like people, not props for anachronistic jokes.
+
+**Authoring review:**
+- [ ] Evidence text remains factual and does not inherit an NPC's bias or interpretation.
+- [ ] Character dialogue and reactions reveal plausible motives, relationships, fatigue, pride, or pressure.
+- [ ] Player prompts describe a recognizable situation and meaningful stakes rather than reciting policy constraints.
+- [ ] Authority and evidentiary limits remain enforced by the actual available actions and outcomes.
+- [ ] Humor and warmth are specific to the people and situation, not generic quips.
+- [ ] No historical uncertainty has been converted into confident exposition merely to improve the scene.
+
+This mandate does not authorize new institutions, offices, procedures, commodities, or historical claims. Apply it as Game Design develops the five anchors into playable scripts and cleans up existing starter prose. Production's Issue #82 → Issue #85 sequence is unchanged.

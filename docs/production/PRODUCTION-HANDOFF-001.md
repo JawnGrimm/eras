@@ -10,15 +10,15 @@
 
 ### Workstream A — Issue #82 QA corrections (may start immediately)
 
-Production may investigate and implement QA-82-1 through QA-82-5 independently, without waiting for GD-OPPORTUNITY-001's broader runtime work or the Evening Interlude UI. In particular:
+Production may investigate and implement QA-82-1 through QA-82-5 independently, without waiting for GD-OPPORTUNITY-001's broader runtime work or the Evening Interlude UI. Current execution status is tracked in `dev/QA-ISSUE-82-TRIAGE.md`: Draft PR #88 implements QA-82-1, -2, -4, and -5 with passing latest-head CI; QA-82-3 is now unblocked by the Game Director's 24 November ruling approving temporary withholding of curated options containing raw sign-catalog notation. Issue #82 remains open and is still the runtime sequencing gate for overlapping opportunity/UI files. In particular:
 
 - QA-82-1 cross-Assignment text bleed: isolate the active option's authored content.
 - QA-82-2 raw `intake_issue` alert key: restore player-facing tutorial copy.
-- QA-82-3 curated sign-catalog notation in protagonist header: use the approved display form; retain source notation separately only as provenance, without inventing pronunciation.
+- QA-82-3 curated sign-catalog notation: **UNBLOCKED — temporarily withhold affected curated options from the Character Creator picker.** If fewer than approximately four choices remain, Design HQ may provide clean readable names from the verified Uruk pool or strip only a suffix whose remainder is a source-supported standalone display form. No speculative pronunciations; existing saves untouched.
 - QA-82-4 “The Apprentice's Copy”: remove fresh-game Day 1 pre-seeding/bypass; enforce the approved post-TSR gate and narrative outcome feedback.
 - QA-82-5 replace player-facing **Silver** with **Currency** across existing surfaces now. Do not wait for Evening Interlude UI. This is a presentation correction to the existing abstract Money balance, not a new balance or save migration.
 
-Use `dev/QA-ISSUE-82-TRIAGE.md` for per-finding acceptance and regression criteria. Production should report exact source locations, root causes, files, tests actually executed, and save compatibility. The QA package does not require a broad localization, content, or Challenge rewrite. Keep the five findings separately traceable; Issue #82 remains open until the fixes are verified and accepted.
+Use `dev/QA-ISSUE-82-TRIAGE.md` for per-finding acceptance and regression criteria. Production should report exact source locations, root causes, files, tests actually executed, and save compatibility. The QA package does not require a broad localization, content, or Challenge rewrite. Keep the five findings separately traceable; Issue #82 remains open until the fixes are verified and accepted. The QA-82-3 owner decision is no longer a blocker.
 
 ### Workstream B — GD-OPPORTUNITY-001 runtime implementation
 
@@ -42,7 +42,7 @@ Keep these values in versioned era content/parameter data, clearly labelled **PR
 - Keep the opportunity simulation era-agnostic and data-driven across all seven eras.
 - Era I commodity/unit compatibility, notation, labels (Currency, jars, measures, bundles), allowed combinations, and provisional economic values belong in era content/parameter data. Do not add Uruk-only branches, hard-code Era I labels/commodities in shared logic, or create bespoke numerical-sign calculators.
 - Shared engine behavior should consume validated semantic quantities and authored compatibility data. Production owns exact TypeScript types, interfaces, module placement, serialization, save schemas, and transition APIs.
-- Preserve current schema-v2 compatibility unless a separately reviewed change is necessary. Do not introduce a save-schema bump or migration by implication.
+- Preserve current schema-v2 compatibility unless a separately reviewed change is necessary. The Production technical note now identifies schema v3 plus a v2 migration/older-reader rejection strategy as a likely safe approach for persisted Day-Close phases. This remains a proposal, not approval to bump the schema or ship an intermediate Interlude save. Do not introduce a save-schema bump or migration by implication.
 - Before any persistent-state change, duplicate-control change, or new occurrence/trigger persistence is shipped, provide a brief technical plan identifying:
   1. occurrence identity and how it is derived/stored;
   2. trigger provenance and bounded consumption/retention rules;
@@ -56,18 +56,18 @@ Keep these values in versioned era content/parameter data, clearly labelled **PR
 
 Production is **not** responsible for inventing the five historical scenario scripts and must not wait for finished prose to begin the shared engine.
 
-- **Game Design (Design HQ) owns** authoring the five scenario scripts and their playable structure: human problem, participants/institution, player role and authority limits, evidence presented, player actions/choices, deliverables, evaluation, outcomes/consequences, recovery, recurrence boundaries, and delivery route.
-- **Historical Research (Design HQ) owns** source review, confidence labels, chronology/provenance constraints, and review of each scenario's Attested / Inferred / PROVISIONAL components.
-- Work proceeds under Open Design Register **Item #20 — Content authoring and validation pipeline**, using the approved five seeds in GD-OPPORTUNITY-001 §§3.2a–3.2b. The approved research deliverable in Issue #80 is the evidence baseline, not a substitute for playable scripts.
-- Design HQ should deliver the five concise scripts/content records in parallel with Production's engine work. Start with content skeletons and required fields; refine prose and scenario-specific parameters as the engine contract stabilizes.
-- **Production owns** the content schema, validation tooling, deterministic runtime interpretation, and integration. Production may use clearly marked test fixtures while authored scripts are in progress; fixtures must not silently become canon or ship as substitutes.
+- **Game Design (Design HQ) owns** the five scenario scripts' playable behavior and semantic content. The five scripts are now authored in `dev/GD-ERA1-ANCHORS-001.md`, merged through PR #86, and form the canonical semantic source for the first Era I slice.
+- **Historical Research (Design HQ) owns** source review, confidence labels, chronology/provenance constraints, and review of each scenario's Attested / Inferred / PROVISIONAL components. The bounded red-flag check against Issue #80 found no material contradiction; this does not constitute a new research cycle.
+- **Production owns** the executable Assignment schema, validation tooling, deterministic runtime interpretation, and integration. Do not create an inert TypeScript mirror of editorial prose. The eventual `src/content/` definitions must be playable Assignment data under the actual runtime contract.
+- **Game Director tone mandate (24 November 2026):** Design HQ owns the human voice of authored Era I Assignments, Challenges, and UI copy. Keep records/evidence objective; let character dialogue and situations carry grounded humor, pettiness, warmth, fatigue, and institutional friction. Production should preserve authored voice in presentation rather than replace it with generic compliance prose. This is a content-authoring direction, not a runtime scope expansion; see `dev/GD-ERA1-ANCHORS-001.md` §10.
+- Draft PR #87 retains a documentation-only technical note covering occurrence/lifecycle identity, deterministic selection, recovery audit, and Day-Close compatibility. Its technical mechanisms remain proposals pending review; no schema-v3 migration or persistent Interlude is pre-approved.
 - Do not expand the first milestone into all 8–9 portfolio targets, a general market simulator, an autonomous NPC scheduler, or exhaustive institutional simulation. The five approved seeds and bounded recurrence domains are the first content slice; remaining portfolio coverage follows playtest feedback and Item #20.
 
 ## 5. Required implementation / QA sequence
 
-1. **Start QA-82 independently.** Reproduce all five findings; identify exact source/content locations and root causes. Implement narrow fixes and targeted regressions. Currency-label correction can ship independently of the Interlude.
-2. **Production technical plan.** Audit trigger producers/consumers and propose bounded occurrence identity, deterministic selection, persistence, and schema-v2 compatibility before persistent-state changes.
-3. **Parallel content work.** Design HQ authors five scenario scripts under Item #20; Production builds/validates the era-agnostic content/runtime path using test fixtures.
+1. **Land and verify Issue #82 first.** PR #88 currently implements QA-82-1, -2, -4, and -5 with passing latest-head CI. Implement the approved QA-82-3 temporary picker filter, then complete targeted and integrated regression for QA-82-1 through QA-82-5, review, merge, deployment, and acceptance reporting.
+2. **Continue non-overlapping Issue #85 preparation.** Review the technical note in PR #87, complete producer/consumer and persistence audits, and prepare the executable content schema without editing runtime opportunity/UI surfaces that overlap #82.
+3. **Use the authored anchor source.** The five scripts in `dev/GD-ERA1-ANCHORS-001.md` are merged through PR #86. Production may use fixtures during engine work, but shipping definitions must implement the real playable Assignment schema and preserve the authored semantic constraints.
 4. **Implement Assignment Supply.** Shared pool, approved soft ~8 AP/day target, five approved Era I anchors, bounded recurrence data, deterministic occurrence identity, and supported delivery/access semantics.
 5. **Implement Challenge Director.** Phase 1 supported trigger domains, deterministic weighted selection, post-TSR gate, no generic trigger backlog, 0–1 arrival per END_DAY pass and two unresolved Challenge cap as PROVISIONAL Playtest 1 safeguards.
 6. **Implement Day-Close / Evening Interlude.** Follow §3.7's six-step order exactly: close labor; preliminary settlement and preview; finite review; eligible replenishment; final sustenance/shortage once on Begin Workday; calendar/AP/Morning Report/eligible Challenge. No evening AP, labor, study, Work advancement, free ration, negative Provisions, or repeatable income.
