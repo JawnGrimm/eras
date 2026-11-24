@@ -71,7 +71,7 @@ describe('Era I institutional anchor matter producers', () => {
 
   it('does not recreate or re-present an anchor occurrence on repeated advancement', () => {
     let state = createInitialGameState();
-    for (let day = 2; day <= 6; day++) {
+    for (let day = 2; day <= 7; day++) {
       state = advanceInstitutionalMatters(state, day);
       state = { ...state, calendar: { ...state.calendar, dayNumber: day } };
       state = generateDailyAssignments(state);
@@ -87,7 +87,7 @@ describe('Era I institutional anchor matter producers', () => {
       state = generateDailyAssignments(state);
     }
 
-    expect(Object.values(state.world.matters).filter((matter) => ['era1_com_01_consignment','era1_com_02_brewing_account','era1_civ_01_field_measurement','era1_civ_02_labor_disbursement','era1_rel_01_inana_offering'].includes(matter.kind)).map((matter) => matter.id).sort()).toEqual(matterIds);
+    expect(Object.values(state.world.matters).filter((matter) => ANCHOR_KINDS.has(matter.kind)).map((matter) => matter.id).sort()).toEqual(matterIds);
     expect(state.opportunities.occurrenceLedger
       .filter((entry) => ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS.some((definition) => definition.offer.activityId === entry.scenarioId))
       .map((entry) => entry.occurrenceKey).sort()).toEqual(occurrenceKeys);
