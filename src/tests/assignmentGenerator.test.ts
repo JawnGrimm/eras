@@ -53,7 +53,7 @@ describe('matter-driven Assignment discovery', () => {
     const secondEventId = 'event-south-court-delivery-followup' as keyof typeof base.world.events;
     const secondEvent = { ...base.world.events['event-south-court-delivery-source' as keyof typeof base.world.events],
       id: secondEventId, dayNumber: 1, summary: 'A separate later dispatch and receiving tally require their own reconciliation.' };
-    const second = { ...original, id: secondId, createdDay: 2, sourceEventId: secondEventId,
+    const second = { ...original, id: secondId, createdDay: 1, sourceEventId: secondEventId,
       summary: 'A second dispatch and receipt discrepancy requires its own reconciliation.' };
     const state: GameState = {
       ...base,
