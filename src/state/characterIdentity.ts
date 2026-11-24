@@ -13,7 +13,7 @@ const UINT64_MASK = 0xffffffffffffffffn;
 export interface EraIPlayerIdentityInput {
   /** Caller-supplied seed. The same seed and character inputs always produce the same Person ID. */
   seed: string;
-  /** Exact player-entered name; only the documented non-empty minimum is enforced here. */
+  /** Display name after the approved trim, Unicode code-point, and invisible-control hygiene. */
   name: string;
   careerPath: CareerPathId;
   choices: EraICharacterHistoryChoices;
@@ -31,7 +31,7 @@ function hashIdentity(value: string): string {
 /**
  * Builds a deterministic, collision-checked Person ID from the complete authored
  * creation input. This is an identity primitive only; it does not create or
- * initialize the Person and does not impose a naming catalogue or formatting policy.
+ * initialize the Person and does not impose a curated catalogue or historical naming policy.
  */
 export function createEraIPlayerPersonId(
   input: EraIPlayerIdentityInput,
