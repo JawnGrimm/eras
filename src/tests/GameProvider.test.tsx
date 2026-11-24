@@ -135,6 +135,26 @@ describe('GameProvider production persistence', () => {
     expect(storage.getItem(SAVE_KEY)).toContain('"revision":2');
   });
 
+  it('persists and restores an open Evening Interlude without replaying settlement credits', () => {
+    const storage = new MemoryStorage();
+    const state = validSavedState();
+    storage.setItem(SAVE_KEY, JSON.stringify(createSaveEnvelope(state, 4, '2026-11-22T12:00:00.000Z')));
+    const game = renderProvider(storage);
+    const opened = game.dispatch({ type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber });
+    expect(opened.state.dayClose.phase).toBe('interlude_open');
+    expect(JSON.parse(storage.getItem(SAVE_KEY) ?? 'null').state.dayClose.phase).toBe('interlude_open');
+
+    const restored = renderProvider(storage);
+    expect(restored.state.dayClose.pendingSettlementId).toBe(opened.state.dayClose.pendingSettlementId);
+    expect(restored.state.calendar.dayNumber).toBe(state.calendar.dayNumber);
+    const begun = restored.dispatch({
+      type: 'BEGIN_WORKDAY',
+      expectedSettlementId: restored.state.dayClose.pendingSettlementId!,
+    });
+    expect(begun.state.calendar.dayNumber).toBe(state.calendar.dayNumber + 1);
+    expect(begun.state.dayClose.phase).toBe('workday_open');
+  });
+
   it('preserves a corrupt v2 save and blocks automatic production actions', () => {
     const storage = new MemoryStorage();
     const malformed = '{not valid json';
