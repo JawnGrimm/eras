@@ -437,3 +437,9 @@ export const ERA_I_COMMERCIAL_FAMILY_OPPORTUNITY_DEFINITIONS = [
   ERA1_COM_F03_OPPORTUNITY_DEFINITION,
   ERA1_COM_F04_OPPORTUNITY_DEFINITION,
 ] as const;
+
+export const ERA_I_COMMERCIAL_FAMILY_ACTIVITY_CATALOG: Record<string, AssignmentActivityDefinition> = {
+  [era1ComF02TwoClaims.id]: era1ComF02TwoClaims,
+  [era1ComF03PartialReturn.id]: era1ComF03PartialReturn,
+  [era1ComF04CustodyChain.id]: era1ComF04CustodyChain,
+} as const;
