@@ -100,10 +100,37 @@ export const northBayRoofInspection: AssignmentActivityDefinition = {
       { id: 'monitor_repair', label: 'Monitor the repaired section after heavy rain' },
     ],
     limitationsLabel: 'Limitations and unverified matters',
+    limitationOptions: [
+      { id: 'full_roof_uninspected', label: 'The inspection did not certify the full roof or future performance' },
+      { id: 'held_stock_separate', label: 'The seven jars were observed in segregation; grain inside was not tested' },
+      { id: 'no_authority', label: 'This report does not authorize building expenditure, stock release, or assigning responsibility' },
+    ],
+  },
+  evaluation: {
+    requiredEvidenceIds: ['roof-inspection','repairer-scope'],
+    requiredLimitationIds: ['full_roof_uninspected','held_stock_separate','no_authority'],
+    relevantEvidenceIds: ['steward-briefing','scope-comparison','intake-boundary'],
+    relevantLimitationIds: [],
+    unsupportedFindingIds: ['repair_appears_sound'],
+    unsupportedFindingConditions: [{ findingId: 'repair_incomplete', requiredEvidenceIds: ['roof-inspection'] }],
+    unsupportedResponsibilityClaimIds: ['dudu'],
+    receiverPersonId: NORTH_BAY_PEOPLE.steward,
+    rationales: {
+      Thorough: 'The physical inspection and repair scope are cited, relevant briefing and account comparisons are addressed, and the report distinguishes roof condition from held-stock and authorization limits.',
+      Defensible: 'The report is supported by the inspection and scope evidence and does not certify the full roof or assign unsupported responsibility.',
+      Incomplete: 'A required physical inspection, contract-scope source, or authority limitation is missing.',
+      Overreached: 'The report certifies beyond the inspected area, concludes incompleteness without the required observation, or assigns unsupported responsibility.',
+    },
+    reactions: {
+      Thorough: 'Ur-Nanna reads the report. “Now I can commission the next step without confusing the repairer’s contract with the whole roof.”',
+      Defensible: 'Ur-Nanna nods. “That is enough to decide what to inspect next. The rest remains open.”',
+      Incomplete: 'Ur-Nanna returns the copy. “I still need the inspection and contract boundary recorded before I can act.”',
+      Overreached: 'Ur-Nanna closes the report. “You have written beyond what was inspected or contracted. We will correct this first.”',
+    },
   },
   submissionNote: 'Submission closes the Assignment. Held barley remains a separate inspection.',
   createInitialProgress: () => ({ completedActionIds: [], discoveryIds: [], consultedPersonIds: [], draft: {
-    finding: 'insufficient_evidence', responsibilityClaim: 'none', citedDiscoveryIds: [], limitations: [], recommendations: [],
+    finding: 'insufficient_evidence', responsibilityClaim: 'none', citedDiscoveryIds: [], limitations: [], recommendations: [], selectedLimitationIds: [],
   } }),
 };
 
@@ -154,10 +181,36 @@ export const northBayPostExecutionInspection: AssignmentActivityDefinition = {
       { id: 'reopen_channel_work', label: 'Request further channel maintenance' },
     ],
     limitationsLabel: 'Inspection scope and unresolved condition',
+    limitationOptions: [
+      { id: 'post_scope_limited', label: 'The inspection covers only the runoff channel and shaded beam socket' },
+      { id: 'post_no_verification_authority', label: 'The scribe supplies evidence; an appointed official verifies and disposes' },
+      { id: 'post_no_future_performance', label: 'The inspection does not establish future performance or permanent dryness' },
+    ],
+  },
+  evaluation: {
+    requiredEvidenceIds: ['post-execution-observation','post-execution-record'],
+    requiredLimitationIds: ['post_scope_limited','post_no_verification_authority','post_no_future_performance'],
+    relevantEvidenceIds: ['post-execution-steward-request'],
+    relevantLimitationIds: [],
+    unsupportedFindingIds: ['channel_obstructed'],
+    unsupportedResponsibilityClaimIds: ['aru'],
+    receiverPersonId: NORTH_BAY_PEOPLE.seniorScribe,
+    rationales: {
+      Thorough: 'The physical observation and execution record are both cited, and the report preserves the limits of inspection and official verification.',
+      Defensible: 'The report records the inspected condition without assuming verification or future performance.',
+      Incomplete: 'A required source or limitation is missing, so the appointed official cannot safely complete the review.',
+      Overreached: 'The report contradicts the recorded execution without support or assigns responsibility to the worker beyond the evidence.',
+    },
+    reactions: {
+      Thorough: 'Shuruppak-ilu receives the inspection record. “The evidence is separate from the worker’s account. I can make the verification decision from here.”',
+      Defensible: 'Shuruppak-ilu nods. “The scope is clear. I will review the result and decide whether anything further is required.”',
+      Incomplete: 'Shuruppak-ilu sets the record aside. “I need the missing source or limitation before I can verify the execution.”',
+      Overreached: 'Shuruppak-ilu returns the record. “This claim goes beyond the evidence or assigns fault without support. I will not verify it as written.”',
+    },
   },
   submissionNote: 'This report supplies independent evidence to an appointed verifier. It is not itself a verification decision, authorization, or final institutional disposition.',
   createInitialProgress: () => ({ completedActionIds: [], discoveryIds: [], consultedPersonIds: [], draft: {
-    finding: 'channel_clear_beam_followup', responsibilityClaim: 'none', citedDiscoveryIds: [], limitations: [], recommendations: [],
+    finding: 'channel_clear_beam_followup', responsibilityClaim: 'none', citedDiscoveryIds: [], limitations: [], recommendations: [], selectedLimitationIds: [],
   } }),
 };
 function validatePredicate(predicate: Predicate, issues: string[], discoveryIds: Set<string>): void {
@@ -198,6 +251,12 @@ export function validateAssignmentActivityDefinition(definition: AssignmentActiv
     for (const id of evaluation.unsupportedFindingIds) if (!definition.reportSchema.findings.some((option) => option.id === id)) issues.push(`Evaluation references unknown finding ${id}.`);
     for (const id of evaluation.unsupportedResponsibilityClaimIds) if (!definition.reportSchema.responsibilityClaims.some((option) => option.id === id)) issues.push(`Evaluation references unknown responsibility claim ${id}.`);
     for (const id of evaluation.unsupportedRecommendationIds ?? []) if (!definition.reportSchema.recommendations.some((option) => option.id === id)) issues.push(`Evaluation references unknown recommendation ${id}.`);
+    for (const condition of evaluation.unsupportedFindingConditions ?? []) {
+      if (!definition.reportSchema.findings.some((option) => option.id === condition.findingId)
+        || !condition.requiredEvidenceIds.length || condition.requiredEvidenceIds.some((id) => !discoveryIds.has(id))) {
+        issues.push('Evaluation contains an invalid conditional unsupported-finding predicate.');
+      }
+    }
     if (evaluation.receiverPersonId && !definition.participants.includes(evaluation.receiverPersonId)) issues.push('Evaluation receiver must be an activity participant.');
     for (const category of ['Thorough','Defensible','Incomplete','Overreached'] as const) {
       if (!evaluation.rationales[category]?.trim() || !evaluation.reactions[category]?.trim()) issues.push(`Evaluation needs authored ${category} rationale and reaction.`);

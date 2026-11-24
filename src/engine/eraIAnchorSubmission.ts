@@ -9,12 +9,14 @@ import { queueSettlementCredit } from './dayClose';
 const fail = (state: GameState, code: string, message: string): TransitionResult => ({ state, feedback: { kind: 'error', code, message } });
 const succeed = (state: GameState, message: string): TransitionResult => ({ state, feedback: { kind: 'success', code: 'assignment-activity-submitted', message } });
 
-function assess(definition: AssignmentActivityDefinition, progress: AssignmentActivityProgress) {
+export function evaluateAssignmentAssessment(definition: AssignmentActivityDefinition, progress: AssignmentActivityProgress) {
   const rubric = definition.evaluation;
   if (!rubric) return null;
   const cited = new Set(progress.draft.citedDiscoveryIds);
   const selectedLimitations = new Set(progress.draft.selectedLimitationIds ?? []);
   const overreached = rubric.unsupportedFindingIds.includes(progress.draft.finding)
+    || (rubric.unsupportedFindingConditions ?? []).some((condition) => condition.findingId === progress.draft.finding
+      && !condition.requiredEvidenceIds.every((id) => cited.has(id)))
     || rubric.unsupportedResponsibilityClaimIds.includes(progress.draft.responsibilityClaim)
     || (rubric.unsupportedRecommendationIds ?? []).some((id) => progress.draft.recommendations.includes(id));
   if (overreached) return 'Overreached' as const;
@@ -37,7 +39,7 @@ export function submitRubricAssignmentActivity(
   const institutionId = matter?.institutionId ?? (offer.employer.kind === 'institution' ? offer.employer.id : undefined);
   const institution = institutionId ? state.world.institutions[institutionId] : undefined;
   if (!rubric || !person || !scribal || !institution) return fail(state, 'assignment-activity-world-invalid', 'The anchor report lacks its authored evaluation or receiving institution.');
-  const assessment = assess(definition, progress);
+  const assessment = evaluateAssignmentAssessment(definition, progress);
   if (!assessment) return fail(state, 'assignment-activity-rubric-invalid', 'The anchor report has no valid assessment.');
   const finding = definition.reportSchema.findings.find((option) => option.id === progress.draft.finding);
   const responsibility = definition.reportSchema.responsibilityClaims.find((option) => option.id === progress.draft.responsibilityClaim);
