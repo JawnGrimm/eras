@@ -3,7 +3,6 @@ import { TEST_CHARACTER_CREATION } from './fixtures/newGameCharacter';
 import { getInitializedScribal } from '../state/scribalState';
 import { transitionGame } from '../engine/actionEconomy';
 import { createNewGameState, INITIAL_WORK_CATALOG } from '../state/newGameState';
-import { INITIAL_PERSON_ID } from '../state/initialState';
 import { createSaveEnvelope, isValidSaveEnvelope } from '../state/saveEnvelope';
 import type { ChallengeId, PersonId } from '../state/ids';
 import type { ChallengeInstance } from '../state/types';
@@ -17,7 +16,7 @@ describe('Day 1 Uruk production bootstrap', () => {
     expect(state.works.activeWorkId).toBe('work-storehouse-reckoning');
     expect(state.works.progress[STOREHOUSE_WORK_ID]).toBeDefined();
     expect(state.works.progress[STOREHOUSE_WORK_ID].provisionContract).toBeUndefined();
-    expect(getInitializedScribal(state.world.people[INITIAL_PERSON_ID])?.wallet.provisions).toBe(5);
+    expect(getInitializedScribal(state.world.people[state.player.currentCharacterId])?.wallet.provisions).toBe(5);
     expect(state.calendar.displayDate).toBe('Day 1 · Uruk (c. 3200 BCE)');
     const dayOneOffers = Object.values(state.opportunities.assignments);
     expect(dayOneOffers.map((offer) => offer.title)).toEqual([
@@ -37,7 +36,9 @@ describe('Day 1 Uruk production bootstrap', () => {
     expect(challenge.choices.every((choice) => !('historicalXp' in choice.consequences))).toBe(true);
     expect(JSON.stringify(challenge)).not.toMatch(/ev-0[1-7]/);
     expect(state.actionEconomy.apRemaining).toBe(6);
-    expect(state.player.currentCharacterId).toBe(INITIAL_PERSON_ID);
+    expect(state.world.people[state.player.currentCharacterId].name).toBe('Test Scribe');
+    expect(state.world.people).not.toHaveProperty('person-enlil-barni');
+    expect(getInitializedScribal(state.world.people[state.player.currentCharacterId])).toMatchObject({ careerXp: 0, wallet: { money: 0, provisions: 5 }, stress: 0 });
     expect(isValidSaveEnvelope(createSaveEnvelope(state, 1), catalog)).toBe(true);
   });
 
@@ -59,7 +60,7 @@ describe('Challenge character ownership', () => {
       category: 'scribal_instruction',
       context: {
         what: 'Decide how to handle an uncertain line.',
-        who: ['Nin-aya', 'Enlil-barni'],
+        who: ['Nin-aya', 'Current scribe'],
         quantity: 'One line on a practice tablet.',
         when: 'Day 1',
         where: 'Scribal room, Uruk',
@@ -104,11 +105,12 @@ describe('Challenge character ownership', () => {
     expect(offeredResolution.feedback?.code).toBe('challenge-not-active');
     state = transitionGame(state, { type: 'ACCEPT_CHALLENGE', challengeId }).state;
     const otherCharacter = 'person-uruk-nin-aya' as PersonId;
+    const originalPlayerId = state.player.currentCharacterId;
     const switched = { ...state, player: { currentCharacterId: otherCharacter } };
     const wrongOwner = transitionGame(switched, { type: 'RESOLVE_CHALLENGE', challengeId, choiceId: 'preserve-uncertain-reading' });
     expect(wrongOwner.feedback?.code).toBe('challenge-not-active');
     expect(wrongOwner.state.opportunities.challenges[challengeId].status).toBe('accepted');
-    expect(wrongOwner.state.opportunities.challenges[challengeId].assigneePersonId).toBe(INITIAL_PERSON_ID);
+    expect(wrongOwner.state.opportunities.challenges[challengeId].assigneePersonId).toBe(originalPlayerId);
   });
 
   it('requires assigneePersonId for accepted Challenges in saves while preserving empty schema-v2 maps', () => {
@@ -133,6 +135,7 @@ describe('Challenge character ownership', () => {
   it('preserves Challenge ownership through a real character handoff', () => {
     let state = createNewGameState(TEST_CHARACTER_CREATION);
     const id = Object.keys(state.opportunities.challenges)[0] as ChallengeId;
+    const originalPlayerId = state.player.currentCharacterId;
     state = transitionGame(state, { type: 'ACCEPT_CHALLENGE', challengeId: id }).state;
     state = transitionGame(state, { type: 'BEGIN_CHARACTER_DEPARTURE', departureKind: 'departure' }).state;
     state = transitionGame(state, { type: 'SELECT_SUCCESSOR', nextCharacterId: 'person-uruk-nin-aya' as PersonId }).state;
