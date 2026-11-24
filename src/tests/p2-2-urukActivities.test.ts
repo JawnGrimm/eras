@@ -12,9 +12,9 @@ import { transitionOpportunityAction } from '../engine/opportunities';
 import { transitionAssignmentActivityAction } from '../engine/assignmentActivity';
 import { MATTER_IDS } from '../engine/institutionalMatters';
 import {
-  heldBarleyInspection, southCourtDeliveryReconciliation, southLoadingAwningInspection,
+  heldBarleyInspection, southCourtDeliveryReconciliation, southLoadingAwningInspection, URUK_ASSIGNMENT_ACTIVITY_CATALOG,
 } from '../content/assignments/urukAssignments';
-import { ASSIGNMENT_ACTIVITY_CATALOG, validateAssignmentActivityDefinition } from '../content/assignments/northBayRoofInspection';
+import { validateAssignmentActivityDefinition } from '../content/assignments/northBayRoofInspection';
 import type { AssignmentOffer, GameState } from '../state/types';
 
 const STOREHOUSE = 'institution-uruk-temple-storehouse' as InstitutionId;
@@ -118,7 +118,7 @@ describe('P2-2 authored Uruk Assignment activities', () => {
 
   it('offers Held-Barley only while the structured held-stock matter is active', () => {
     const fixture = withHeldMatter(createInitialGameState());
-    expect(ASSIGNMENT_ACTIVITY_CATALOG[heldBarleyInspection.id]).toBeDefined();
+    expect(URUK_ASSIGNMENT_ACTIVITY_CATALOG[heldBarleyInspection.id]).toBeDefined();
     expect(fixture.world.events[fixture.world.matters[HELD_MATTER].sourceEventId!]).toBeDefined();
     expect(fixture.world.institutions[STOREHOUSE].activeMatters).toContain(HELD_MATTER);
     const generated = generateDailyAssignments(fixture);
