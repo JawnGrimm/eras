@@ -3,7 +3,7 @@ import type { EventId, InstitutionId, KnowledgeEntryId, PersonId, RecordId } fro
 import { ERA1_COM_F01_ACTIVITY_ID, ERA1_COM_F01_PEOPLE } from '../content/assignments/eraICommercialMartial';
 import type { AssignmentActivityDefinition } from '../content/assignments/northBayRoofInspection';
 import { getInitializedScribal } from '../state/scribalState';
-import { applyClosingAssessment } from './closingReceipt';
+import { applyClosingAssessment, CLOSING_RECEIPT_SCHEDULE } from './closingReceipt';
 import { addActivity } from './opportunities';
 import { queueSettlementCredit } from './dayClose';
 
@@ -53,16 +53,34 @@ export function submitRubricAssignmentActivity(
     return option ? [{ id, label: option.label }] : [];
   });
   const citedDiscoveries = definition.discoveries.filter((item) => progress.draft.citedDiscoveryIds.includes(item.id));
+  const unresolvedSource = definition.discoveries.find((item) => progress.draft.citedDiscoveryIds.includes(item.id)
+    && item.sourceProvenanceId && !matter?.provenance?.some((source) => source.id === item.sourceProvenanceId));
+  if (unresolvedSource) return fail(state, 'assignment-activity-source-missing', `The source provenance for ${unresolvedSource.title} is not present on the active matter.`);
   const recordId = `record-${offer.id}-day-${state.calendar.dayNumber}` as RecordId;
   if (state.records.entries[recordId]) return fail(state, 'assignment-activity-record-exists', 'A report record already exists for this deterministic submission ID.');
   const sources: RecordSource[] = [
     ...(matter?.sourceEventId ? [{ id: 'source-matter-event', kind: 'event' as const, sourceId: matter.sourceEventId, description: matter.summary }] : []),
     ...(matter?.sourceRecordId ? [{ id: 'source-matter-record', kind: 'other' as const, sourceId: matter.sourceRecordId, description: 'Original source record linked to the active institutional matter.' }] : []),
     { id: 'source-player-report', kind: 'other', description: 'Submitted report by the current scribe; selected limitations and notes are player-authored content.' },
-    ...citedDiscoveries.map((item) => ({
-      id: `source-${item.id}`, kind: 'other' as const,
-      description: `${item.title}: ${item.text}`,
-    })),
+    ...citedDiscoveries.map((item) => {
+      const linkedProvenance = item.sourceProvenanceId
+        ? matter?.provenance?.find((source) => source.id === item.sourceProvenanceId)
+        : undefined;
+      const sourcePersonId = item.sourcePersonId
+        ?? (linkedProvenance?.kind === 'testimony' ? linkedProvenance.sourceId as PersonId : undefined);
+      const sourceEventId = item.sourceEventId
+        ?? (linkedProvenance?.kind === 'event' ? linkedProvenance.sourceId as EventId : undefined);
+      const sourceRecordId = item.sourceRecordId
+        ?? (linkedProvenance?.kind === 'record_copy' ? linkedProvenance.sourceId as RecordId : undefined);
+      return {
+        id: `source-${item.id}`,
+        kind: sourcePersonId ? 'person' as const : sourceEventId ? 'event' as const : 'other' as const,
+        ...(sourcePersonId ? { sourceId: sourcePersonId }
+          : sourceEventId ? { sourceId: sourceEventId }
+          : sourceRecordId ? { sourceId: sourceRecordId } : {}),
+        description: `${item.title}: ${item.text}`,
+      };
+    }),
   ];
   const reportSourceIds = ['source-player-report'];
   const assertions: RecordAssertion[] = [
@@ -207,6 +225,31 @@ export function submitRubricAssignmentActivity(
             summary: assessment === 'Thorough'
               ? 'Ur-Lamma regards the scribe as reliable after a thorough report supports the documented description difference.'
               : 'Ur-Lamma regards the scribe as reliable after a defensible report supports the documented description difference.',
+          }],
+        },
+      },
+    };
+  }
+  for (const affectedPersonId of rubric.relationshipPersonIds ?? []) {
+    if (affectedPersonId === receiverId || affectedPersonId === person.id) continue;
+    const affectedPerson = state.world.people[affectedPersonId];
+    if (!affectedPerson) continue;
+    const current = outcomeRelationships[affectedPersonId]?.[person.id];
+    const dimensions = { trust: 50, respect: 50, affection: 50, resentment: 0, rivalry: 0, familiarity: 0, ...current?.dimensions };
+    const schedule = CLOSING_RECEIPT_SCHEDULE[assessment];
+    const trust = Math.max(0, Math.min(100, dimensions.trust + schedule.trust));
+    const respect = Math.max(0, Math.min(100, dimensions.respect + schedule.respect));
+    if (trust === dimensions.trust && respect === dimensions.respect) continue;
+    outcomeRelationships = {
+      ...outcomeRelationships,
+      [affectedPersonId]: {
+        ...outcomeRelationships[affectedPersonId],
+        [person.id]: {
+          dimensions: { ...dimensions, trust, respect },
+          history: [...(current?.history ?? []), {
+            id: `assignment-receipt-${offer.id}-day-${state.calendar.dayNumber}:relationship-${affectedPersonId}`,
+            dayNumber: state.calendar.dayNumber,
+            summary: reaction,
           }],
         },
       },

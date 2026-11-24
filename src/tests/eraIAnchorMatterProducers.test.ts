@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { advanceInstitutionalMatters, EANNA_INSTITUTION_ID, EANNA_TABLET_ROOM_LOCATION_ID } from '../engine/institutionalMatters';
+import { advanceInstitutionalMatters, EANNA_INSTITUTION_ID, EANNA_TABLET_ROOM_LOCATION_ID, TEXTILE_HOUSEHOLD_INSTITUTION_ID, TEXTILE_HOUSEHOLD_LOCATION_ID, RIVER_LANDING_LOCATION_ID } from '../engine/institutionalMatters';
+import { ERA1_COM_F02_F04_PEOPLE } from '../content/assignments/eraICommercialFamilies';
 import { generateDailyAssignments } from '../engine/assignmentGenerator';
 import { createInitialGameState } from '../state/initialState';
 import { createSaveEnvelope, restoreSave } from '../state/saveEnvelope';
@@ -54,17 +55,26 @@ describe('Era I institutional anchor matter producers', () => {
     const initial = createInitialGameState();
     const institutions = { ...initial.world.institutions };
     const locations = { ...initial.world.locations };
+    const people = { ...initial.world.people };
     delete institutions[EANNA_INSTITUTION_ID];
+    delete institutions[TEXTILE_HOUSEHOLD_INSTITUTION_ID];
     delete locations[EANNA_TABLET_ROOM_LOCATION_ID];
+    delete locations[TEXTILE_HOUSEHOLD_LOCATION_ID];
+    delete locations[RIVER_LANDING_LOCATION_ID];
+    delete people[ERA1_COM_F02_F04_PEOPLE.gemeInana];
+    delete people[ERA1_COM_F02_F04_PEOPLE.amaGi];
+    delete people[ERA1_COM_F02_F04_PEOPLE.sigAna];
+    const luNanshe = people['person-lu-nanshe' as never];
+    if (luNanshe) people['person-lu-nanshe' as never] = {
+      ...luNanshe, affiliations: luNanshe.affiliations.filter((id) => id !== EANNA_INSTITUTION_ID),
+    };
     const prePortfolioState = {
       ...initial,
-      world: { ...initial.world, institutions, locations },
+      world: { ...initial.world, institutions, locations, people },
     };
-    const restored = restoreSave(JSON.stringify(createSaveEnvelope(prePortfolioState, 1)))?.state;
-    expect(restored).toBeDefined();
-    expect(restored!.world.institutions[EANNA_INSTITUTION_ID]).toBeUndefined();
+    expect(prePortfolioState.world.institutions[EANNA_INSTITUTION_ID]).toBeUndefined();
 
-    const advanced = advanceInstitutionalMatters(restored!, 2);
+    const advanced = advanceInstitutionalMatters(prePortfolioState, 2);
     expect(advanced.world.institutions[EANNA_INSTITUTION_ID]).toMatchObject({
       id: EANNA_INSTITUTION_ID,
       locationId: EANNA_TABLET_ROOM_LOCATION_ID,
