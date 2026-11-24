@@ -190,14 +190,25 @@ describe('production continuity and social screens', () => {
       },
     };
     const markup = renderScreen(state, createElement(ProductionPeopleAndInstitutions));
+    const institutionMarkup = renderScreen(state, createElement(ProductionPeopleAndInstitutions, { initialSection: 'institutions' }));
 
+    expect(markup).toContain('Search people');
+    expect(markup).toContain('Life status');
     expect(markup).toContain('Enlil-barni → Nin-aya');
     expect(markup).toContain('Ur-gir → Enlil-barni');
     expect(markup).not.toContain('Nin-aya → Enlil-barni');
     expect(markup).toContain('Professional reputation');
     expect(markup).toContain('Institutional standing');
     expect(markup).toContain('Verify incoming measures');
-    expect(markup).toContain('Active matters');
+    expect(markup).toContain('History from this perspective');
+    expect(markup).not.toContain('No initialized scribal capability sheet');
+    expect((markup.match(/Personal history \(/g) ?? []).length).toBe(1);
+
+    expect(institutionMarkup).toContain('Search institutions');
+    expect(institutionMarkup).toContain('Current matters');
+    expect(institutionMarkup).toContain('Historical matters');
+    expect(institutionMarkup).toContain('Institutional records');
+    expect(institutionMarkup).toContain('Appointments and delegated office scopes');
   });
 
   it('renders immutable record assertions, append-only amendments, knowledge holders, and durable notices', () => {
