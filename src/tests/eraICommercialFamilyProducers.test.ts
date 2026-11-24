@@ -5,8 +5,8 @@ import { createInitialGameState } from '../state/initialState';
 import { createSaveEnvelope, restoreSave } from '../state/saveEnvelope';
 import { era1ComF02TwoClaims, era1ComF03PartialReturn, ERA1_COM_F02_F04_PEOPLE } from '../content/assignments/eraICommercialFamilies';
 import { submitRubricAssignmentActivity } from '../engine/eraIAnchorSubmission';
-import type { InstitutionalMatter, MatterId } from '../state/types';
-import type { RecordId } from '../state/ids';
+import type { InstitutionalMatter } from '../state/types';
+import type { EventId, MatterId, RecordId } from '../state/ids';
 
 function withOpenNorthBayRepairNeed() {
   const base = createInitialGameState();
@@ -74,7 +74,7 @@ describe('Era I Commercial F02-F04 causal matter pipeline', () => {
 
   it('creates F03 from a prior outbound event followed by a distinct partial-return event', () => {
     let state = advance(createInitialGameState(), 8);
-    expect(state.world.events['event-era1-com-f03-outbound-dispatch']).toMatchObject({ dayNumber: 8 });
+    expect(state.world.events['event-era1-com-f03-outbound-dispatch' as EventId]).toMatchObject({ dayNumber: 8 });
     expect(Object.values(state.world.matters).some((matter) => matter.kind === 'era1_com_f03_partial_return')).toBe(false);
 
     state = advance(state, 9);
@@ -178,8 +178,8 @@ describe('Era I Commercial F02-F04 causal matter pipeline', () => {
     const playerId = state.player.currentCharacterId;
     const urNannaRelationship = submitted!.state.world.relationships[ERA1_COM_F02_F04_PEOPLE.urNanna][playerId];
     const gemeRelationship = submitted!.state.world.relationships[ERA1_COM_F02_F04_PEOPLE.gemeInana][playerId];
-    expect(urNannaRelationship.dimensions).toMatchObject({ trust: 52, respect: 51 });
-    expect(gemeRelationship.dimensions).toMatchObject({ trust: 52, respect: 51 });
+    expect(urNannaRelationship?.dimensions).toMatchObject({ trust: 52, respect: 51 });
+    expect(gemeRelationship?.dimensions).toMatchObject({ trust: 52, respect: 51 });
 
     const report = Object.values(submitted!.state.records.entries).find((entry) => entry.title === 'Competing claims summary')!;
     expect(report.sources.find((source) => source.id === 'source-f02-household-request')).toMatchObject({
