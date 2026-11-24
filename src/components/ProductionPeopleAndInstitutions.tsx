@@ -259,9 +259,30 @@ function InstitutionDetail({ institution, people, matters, records, events, appo
           </summary>
           <p className="mt-2 text-xs text-stone-500">Author: {people[record.authorPersonId]?.name ?? record.authorPersonId}</p>
           <h5 className="mt-2 text-xs font-semibold">Sources</h5>
-          <ul className="mt-1 space-y-1 text-xs text-stone-700">{record.sources.map((source) => <li key={source.id}>{source.description}</li>)}</ul>
-          <h5 className="mt-2 text-xs font-semibold">Assertions</h5>
-          <ul className="mt-1 space-y-1 text-sm text-stone-700">{record.assertions.map((assertion) => <li key={assertion.id}>{assertion.text} <span className="text-xs text-stone-500">({assertion.classification})</span></li>)}</ul>
+          {record.sources.length
+            ? <ul className="mt-1 space-y-1 text-xs text-stone-700">{record.sources.map((source) => <li key={source.id}>{source.kind.replace(/_/g, ' ')} · {source.description}</li>)}</ul>
+            : <p className="mt-1 text-xs text-stone-500">No sources recorded.</p>}
+          <h5 className="mt-2 text-xs font-semibold">Original assertions</h5>
+          {record.assertions.length
+            ? <ul className="mt-1 space-y-1 text-sm text-stone-700">{record.assertions.map((assertion) => <li key={assertion.id}>{assertion.text} <span className="text-xs text-stone-500">({assertion.classification})</span></li>)}</ul>
+            : <p className="mt-1 text-xs text-stone-500">No assertions recorded.</p>}
+          <h5 className="mt-2 text-xs font-semibold">Original uncertainty limits</h5>
+          {record.uncertaintyLimits.length
+            ? <ul className="mt-1 list-inside list-disc text-xs text-stone-700">{record.uncertaintyLimits.map((limit, index) => <li key={index}>{limit}</li>)}</ul>
+            : <p className="mt-1 text-xs text-stone-500">No explicit limits recorded in the original entry.</p>}
+          <details className="mt-3 border-t border-stone-200 pt-2">
+            <summary className="cursor-pointer text-xs font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-700">Append-only amendments ({record.amendments.length})</summary>
+            {record.amendments.length
+              ? <ol className="mt-2 space-y-2">{record.amendments.map((amendment) => <li key={amendment.id} className="rounded bg-white p-2 text-xs text-stone-700">
+                <p className="font-semibold">Day {amendment.dayNumber} · {people[amendment.authorPersonId]?.name ?? amendment.authorPersonId}</p>
+                <p className="mt-1"><strong>Reason:</strong> {amendment.reason}</p>
+                {amendment.note && <p className="mt-1">{amendment.note}</p>}
+                {amendment.sourcesAdded.length > 0 && <p className="mt-1">Sources added: {amendment.sourcesAdded.map((source) => source.description).join('; ')}</p>}
+                {amendment.assertionsAdded.length > 0 && <p className="mt-1">Assertions added: {amendment.assertionsAdded.map((assertion) => assertion.text).join('; ')}</p>}
+                {amendment.uncertaintyLimitsAdded.length > 0 && <p className="mt-1">Limits added: {amendment.uncertaintyLimitsAdded.join('; ')}</p>}
+              </li>)}</ol>
+              : <p className="mt-2 text-xs text-stone-500">No amendments have been appended.</p>}
+          </details>
         </details>)}</div>
         : <p className="mt-2 text-xs text-stone-500">No institutional records are linked.</p>}
     </details>
