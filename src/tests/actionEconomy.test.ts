@@ -234,6 +234,8 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
     } } } };
     const advance = transitionGame(state, { type: 'REQUEST_CONTACT_ADVANCE', contactId: 'person-uruk-ur-gir' as typeof INITIAL_PERSON_ID });
     expect(advance.feedback?.code).toBe('contact-advance-received');
+    expect(advance.feedback?.message).toContain('one unit of Currency');
+    expect(advance.feedback?.message).not.toContain('silver');
     expect(getInitializedScribal(advance.state.world.people[INITIAL_PERSON_ID])?.wallet.provisions).toBe(1);
     expect(getInitializedScribal(advance.state.world.people['person-uruk-ur-gir' as typeof INITIAL_PERSON_ID])?.wallet.provisions).toBe(5);
     expect(getInitializedScribal(advance.state.world.people[INITIAL_PERSON_ID])?.obligations).toHaveLength(1);
