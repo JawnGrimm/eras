@@ -432,8 +432,8 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
       if (state.dayClose.phase !== 'workday_open' || action.expectedDayNumber !== state.calendar.dayNumber) {
         return { state, feedback: feedback('error', 'stale-day-settlement', 'This Workday has already been closed or the calendar has changed.') };
       }
-      if (economy.overtimeUsedToday && economy.apRemaining > 0) {
-        return { state, feedback: feedback('error', 'overtime-ap-unspent', 'Spend the overtime AP before settling the day.') };
+      if (economy.overtimeUsedToday && economy.apRemaining > 0 && action.confirmUnusedOvertimeApForfeit !== true) {
+        return { state, feedback: feedback('error', 'overtime-ap-unspent', 'Confirm that you want to forfeit the unused overtime AP before settling the day.') };
       }
       const startingProvisions = scribal.wallet.provisions;
       const genuineWorkProgress = Object.entries(state.works.progress).flatMap(([workId, progress]) => {

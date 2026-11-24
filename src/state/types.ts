@@ -461,7 +461,7 @@ export type GameAction =
   | { type: 'DISPOSE_WORK'; workId: WorkId; disposition: string }
   | { type: 'RECORD_WORK_ASSESSMENT'; workId: WorkId; outcome: 'accepted' | 'revise' | 'rejected'; summary: string; historicalXpReward: number }
   | { type: 'ACTIVATE_OVERTIME' }
-  | { type: 'END_DAY'; expectedDayNumber: number }
+  | { type: 'END_DAY'; expectedDayNumber: number; confirmUnusedOvertimeApForfeit?: boolean }
   | { type: 'BEGIN_WORKDAY'; expectedSettlementId: string }
   | { type: 'BUY_PROVISIONS'; amount: number }
   | { type: 'PERFORM_RECOVERY_LABOR' }

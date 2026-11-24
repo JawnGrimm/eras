@@ -8,6 +8,7 @@ import { UR_GIR_PERSON_ID } from '../state/ids';
 import { STOREHOUSE_WORK_ID } from '../works/storehouseReckoning';
 import { selectCharacterOpportunities } from '../state/opportunitySelectors';
 import { characterQualifiesForAssignment } from '../engine/opportunities';
+import { getOvertimeApForfeitPrompt } from './overtimeApForfeit';
 
 function ContextDetails({ context }: { context: { what: string; who: string[]; quantity?: string; when?: string; where?: string; from?: string; to?: string; purpose: string; responsibility: string[]; authority?: string; provenance: string[] } }) {
   const rows: Array<[string, string | undefined]> = [
@@ -51,6 +52,7 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenActivity, settlement, o
 }) {
   const game = useGame();
   const state = game.state;
+  const [confirmingOvertimeForfeit, setConfirmingOvertimeForfeit] = React.useState(false);
   const person = state.world.people[state.player.currentCharacterId];
   const scribal = getInitializedScribal(person);
   if (state.pendingSuccession || !person?.alive || !scribal) {
@@ -81,9 +83,18 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenActivity, settlement, o
   const activeAssignments = opportunities.acceptedAssignments;
   const offeredChallenges = opportunities.offeredChallenges;
   const acceptedChallenges = opportunities.acceptedChallenges;
-  const canEndDay = !(state.actionEconomy.overtimeUsedToday && state.actionEconomy.apRemaining > 0);
-  const endDay = () => {
-    const result = game.dispatch({ type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber });
+  const overtimeForfeitPrompt = getOvertimeApForfeitPrompt(state.actionEconomy.overtimeUsedToday, state.actionEconomy.apRemaining);
+  const endDay = (confirmUnusedOvertimeApForfeit = false) => {
+    if (overtimeForfeitPrompt && !confirmUnusedOvertimeApForfeit) {
+      setConfirmingOvertimeForfeit(true);
+      return;
+    }
+    const result = game.dispatch({
+      type: 'END_DAY',
+      expectedDayNumber: state.calendar.dayNumber,
+      ...(confirmUnusedOvertimeApForfeit ? { confirmUnusedOvertimeApForfeit: true } : {}),
+    });
+    setConfirmingOvertimeForfeit(false);
     if (result.settlement) {
       onSettlement(result.settlement);
       playSettlementChime();
@@ -218,8 +229,16 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenActivity, settlement, o
       <div><h2 className="font-serif text-xl font-semibold text-stone-900">Close the Workday</h2><p className="mt-1 text-sm text-stone-600">Settle provisions, sustenance, shortage, overtime, and tomorrow’s AP.</p></div>
       <div className="flex gap-2">
         {state.actionEconomy.apRemaining === 0 && !state.actionEconomy.overtimeUsedToday && <button onClick={activateOvertime} className="rounded-lg border border-amber-700 px-3 py-2 text-sm text-amber-900">Work overtime · +1 AP</button>}
-        <button disabled={!canEndDay} onClick={endDay} className="rounded-lg bg-amber-800 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-40">End Workday</button>
+        <button onClick={() => endDay()} className="rounded-lg bg-amber-800 px-4 py-2.5 text-sm font-semibold text-white">End Workday</button>
       </div>
+      {confirmingOvertimeForfeit && overtimeForfeitPrompt && <div role="alertdialog" aria-labelledby="overtime-forfeit-heading" aria-describedby="overtime-forfeit-description" className="mt-4 rounded-lg border border-amber-400 bg-amber-50 p-4">
+        <h3 id="overtime-forfeit-heading" className="font-semibold text-stone-900">Unused Overtime AP</h3>
+        <p id="overtime-forfeit-description" className="mt-1 text-sm text-stone-700">{overtimeForfeitPrompt}</p>
+        <div className="mt-3 flex flex-wrap justify-end gap-2">
+          <button onClick={() => setConfirmingOvertimeForfeit(false)} className="rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm font-medium text-stone-800">Cancel</button>
+          <button onClick={() => endDay(true)} className="rounded-lg bg-amber-800 px-3 py-2 text-sm font-semibold text-white">End day and forfeit AP</button>
+        </div>
+      </div>}
     </section>
   </div>;
 }
