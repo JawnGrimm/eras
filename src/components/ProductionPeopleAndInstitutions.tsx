@@ -260,7 +260,7 @@ function InstitutionDetail({ institution, people, matters, records, events, appo
         ? <div className="mt-2 space-y-2">{historicalMatters.map((matter) => <article key={matter.id} className="rounded-lg bg-stone-50 p-3">
           <p className="text-sm text-stone-800">{matter.summary}</p>
           <p className="mt-1 text-xs capitalize text-stone-500">{matter.status.replace(/_/g, ' ')} · opened Day {matter.createdDay}{matter.developedDay ? ` · developed Day ${matter.developedDay}` : ''}</p>
-          <MatterSources matter={matter} records={records} people={people} events={events} />
+          <MatterSources matter={matter} records={records} people={people} events={events} appointments={appointments} />
         </article>)}</div>
         : <p className="mt-2 text-xs text-stone-500">No developed or resolved matters are recorded.</p>}
     </details>
