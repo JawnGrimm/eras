@@ -1,6 +1,6 @@
 # GD-CLOSING-RECEIPT-001 — Assignment & Challenge Closing Receipt
 
-**Status:** PROPOSED — evaluation model and contracted-pay principle APPROVED; provisional numeric schedule awaits Game Director approval  
+**Status:** APPROVED — READY FOR IMPLEMENTATION  
 **Scope:** Paired follow-up slice after the Issue #85 Assignment runner is playable  
 **Owners:** Game Design; Engineering & Architecture; Production/QA  
 **Authority:** Game Director approval recorded 24 Nov 2026  
@@ -60,9 +60,9 @@ Challenge choices are authored actions, not freeform reports. Each choice must a
 
 For the evaluated recipient, do not double-apply Trust/Respect: the category schedule below is the single quality-related adjustment. If a Challenge has no career-XP reward or no relevant recipient/institution, omit those dimensions. Challenge choices do not inherit Assignment citation/limitation requirements.
 
-## 5. PROVISIONAL Playtest 1 scaling proposal
+## 5. Approved Playtest 1 scaling schedule
 
-These values are deliberately simple and provisional. The Career XP multiplier applies to the authored base Career XP reward on either an Assignment or Challenge outcome, when one exists; round to the nearest integer. Contracted Currency/Provisions are never multiplied or withheld.
+The Game Director ratified this schedule on 24 Nov 2026 for Playtest 1. The Career XP multiplier applies to the authored base Career XP reward on either an Assignment or Challenge outcome, when one exists; round to the nearest integer. Contracted Currency/Provisions are never multiplied or withheld.
 
 | Assessment | Career XP multiplier | Judgment | Institutional Standing | Recipient Trust | Recipient Respect |
 |---|---:|---:|---:|---:|---:|
@@ -78,7 +78,7 @@ Application rules:
 - If no receiver exists, omit Trust/Respect and use an institutional disposition.
 - Preserve unrelated authored consequences. The table replaces existing quality-related deltas for the same outcome; it is not an additive bonus.
 - Contracted Currency/Provisions settle exactly as offered on filed Assignment work, even when Incomplete or Overreached.
-- These multipliers/deltas are not canonical balance values until playtest review and ratification.
+- These are approved Playtest 1 values; subsequent balance changes require Game Director approval.
 
 ## 6. Closing Receipt and persistence
 
@@ -90,9 +90,9 @@ The receipt shows:
 - SealImpression for the completed docket;
 - one explicit return action: **Return to Workday / Assignment Board** for Assignments, and the appropriate Workday/Challenge Journal destination for Challenges.
 
-Persist enough receipt data to restore the exact screen after reload. Preferred behavior is an optional receipt payload attached to the completed Assignment outcome/offer and Challenge outcome, with a pending/acknowledged state. Completion, consequence application, and pending-receipt creation must be atomic. Return marks the receipt acknowledged; it does not reapply rewards or consequences.
+Persist enough receipt data to restore the exact screen after reload. Receipt payload and pending/acknowledged state on completed Assignment outcomes/offers and Challenge outcomes must remain OPTIONAL in Schema v3. Completed records created before this slice ships, and any other completed records lacking receipt fields, must continue to pass validation and restore normally; absence of receipt state must not synthesize a receipt or retroactively trigger one. Completion, consequence application, and pending-receipt creation must be atomic for new completions. Return marks the receipt acknowledged; it does not reapply rewards or consequences.
 
-**Schema constraint:** remain compatible with the approved Schema v3 envelope. No schema-version bump. No parallel save slot. Existing v3 saves lacking receipt fields remain valid; do not synthesize receipts for historical completed work. Production owns exact types, serialization, validation, and state transition APIs.
+**Schema constraint:** remain compatible with the approved Schema v3 envelope. No schema-version bump. No parallel save slot. Receipt fields remain optional for every completed Assignment and Challenge record. Existing v3 saves and completed records lacking receipt fields must validate and restore; absence means no pending receipt, not a migration error or retroactive receipt. Do not synthesize receipts for historical completed work. Production owns exact types, serialization, validation, and state transition APIs.
 
 ## 7. Acceptance and QA
 
@@ -113,6 +113,6 @@ Persist enough receipt data to restore the exact screen after reload. Preferred 
 
 No schema-v4 work; no grading of free-text prose; no AI-generated evaluation or NPC dialogue; no withholding contracted pay; no redesign of Assignment/Challenge generation, AP, economy, Workday, or historical evidence; no generic universal rubric; no new relationship dimensions.
 
-## 9. Outstanding approval
+## 9. Approval and implementation authorization
 
-The four-category model, precedence rule, structured-limitations guardrail, contracted-pay principle, and Schema v3 compatibility constraint are approved. The numeric schedule in §5 remains **PROPOSED — PROVISIONAL** pending Game Director approval. Once §5 is approved, this specification may be marked **APPROVED — READY FOR IMPLEMENTATION** for the paired follow-up slice.
+The Game Director approved the four-category model, Overreached precedence, structured-limitations guardrail, contracted-pay principle, Schema v3 compatibility constraint, and the complete numeric schedule in §5 on 24 Nov 2026. This specification is **APPROVED — READY FOR IMPLEMENTATION** for the paired follow-up slice. Production must preserve optional receipt fields and the legacy completed-record behavior stated in §6.
