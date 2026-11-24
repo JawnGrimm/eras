@@ -226,6 +226,7 @@ Inspected the live repository after PR #79 merged, on main at 783528cfb832ad251b
 - Relationship changes are written through world-social actions, Assignment activity/submission, and authored opportunity consequences. Factual participation alone does not create a relationship.
 - The current institutional world update is a narrow deterministic matter/response pipeline, not a general autonomous NPC-action scheduler. Person objectives, circumstances, and commitments exist as state, but their existence alone does not mean a general NPC agency loop is implemented.
 - The current director does not consume general relationship, NPC-action, institutional-event, or historical-event candidates from an authored pool.
+- Fresh-game initialization separately seeds the authored “The Apprentice’s Copy” Challenge through `starterChallenge()` in `src/state/newGameState.ts`; this bypasses the END_DAY Challenge Director and is the source of the observed Day 1 offer. It is an intentional bootstrap seed in the current implementation, but it is **not an approved exception** to the Playtest 1 onboarding gate. Under this contract it must not be seeded, surfaced, or queued during Workday 1 / supervised Storehouse Reckoning. Do not silently preserve it as a guided vignette; any such exception requires explicit Game Director approval and separate presentation as a guided onboarding activity. Otherwise, only make it eligible after the gate if a real, still-valid authored cause exists; do not release it merely as a banked tutorial trigger.
 
 These are source findings, not a claim that the full world simulation is implemented. Production must repeat the consumer/producer audit against the exact approved contract before changing runtime architecture.
 
@@ -250,7 +251,7 @@ These are source findings, not a claim that the full world simulation is impleme
 2. A scenario is selected only when its authored eligibility conditions and access route are satisfied.
 3. Weighted selection is deterministic for the same saved state, seed, and evaluation point.
 4. Changing a relevant trigger or weight can change the selected eligible candidate; ineligible candidates are never selected.
-5. No candidate means no arrival; passage of a day alone does not create a Challenge. No unprompted arrival occurs before initial Storehouse Reckoning completion.
+5. No candidate means no arrival; passage of a day alone does not create a Challenge. No unprompted arrival occurs before initial Storehouse Reckoning completion. Fresh-game initialization must not bypass this gate by pre-seeding “The Apprentice’s Copy” or another Challenge; any guided-vignette exception requires explicit Game Director approval.
 6. Mandatory-Work lapses are excluded from neglect interpretation.
 7. Repeatability, cooldown, and duplicate prevention work across save/load and succession.
 8. At most one new Challenge arrives per settlement pass and no more than two unresolved Challenges are active in Playtest 1; a full cap creates no delayed backlog. No Challenge flood, hidden Work prerequisite, AP bypass, or Historical Progress XP award.
