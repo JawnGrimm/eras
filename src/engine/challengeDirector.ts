@@ -234,8 +234,9 @@ export function selectWeightedChallengeCandidate<T extends { scenarioId: string;
   evaluationIdentity: string,
 ): T | undefined {
   if (!selectionSeed.trim() || candidates.length === 0) return undefined;
+  const compareText = (a: string, b: string) => a < b ? -1 : a > b ? 1 : 0;
   const ordered = [...candidates].sort((a, b) =>
-    a.scenarioId.localeCompare(b.scenarioId) || a.occurrenceKey.localeCompare(b.occurrenceKey));
+    compareText(a.scenarioId, b.scenarioId) || compareText(a.occurrenceKey, b.occurrenceKey));
   if (ordered.some((candidate) => !Number.isInteger(candidate.weight) || candidate.weight <= 0)) return undefined;
   const totalWeight = ordered.reduce((sum, candidate) => sum + candidate.weight, 0);
   if (!Number.isSafeInteger(totalWeight) || totalWeight <= 0) return undefined;
