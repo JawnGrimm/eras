@@ -239,7 +239,7 @@ describe('P2-2 authored Uruk Assignment activities', () => {
   it('triggers The Seven Sacks after an open held-stock matter reaches two days and never reoffers after decline', () => {
     let state = withHeldMatter(createInitialGameState(), 1);
     state = { ...state, calendar: { ...state.calendar, dayNumber: 3 } };
-    const directed = runChallengeDirector(state);
+    const directed = runChallengeDirector(withCompletedTutorial(state));
     const challenge = directed.opportunities.challenges['challenge-seven-sacks' as never];
     expect(challenge?.title).toBe('The Seven Sealed Jars');
     expect(challenge?.description).toContain('sealed pottery storage jars');
