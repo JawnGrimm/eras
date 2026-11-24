@@ -1,6 +1,6 @@
 import { transitionGame } from '../engine/actionEconomy';
 import { generateDailyAssignments } from '../engine/assignmentGenerator';
-import { INITIAL_PERSON_ID, createInitialGameState } from './initialState';
+import { createInitialGameState } from './initialState';
 import type { ChallengeInstance, GameState, Person } from './types';
 import type { ChallengeId, PersonId, CareerPathId } from './ids';
 import { STOREHOUSE_WORK_ID, STOREHOUSE_PEOPLE, storehouseReckoning } from '../works/storehouseReckoning';
@@ -22,6 +22,18 @@ export const INITIAL_ASSIGNMENT_ACTIVITY_CATALOG = ASSIGNMENT_ACTIVITY_CATALOG;
 export const INITIAL_WORK_CATALOG = {
   [STOREHOUSE_WORK_ID]: storehouseReckoning,
 } as const;
+
+const CHARACTER_CREATION_PREVIEW_PERSON: Person = {
+  id: 'person-character-creator-preview' as PersonId,
+  name: 'New character',
+  alive: true,
+  affiliations: [],
+};
+
+/** Non-persistent Creator context containing the authored NPC roster, not a legacy protagonist. */
+export function createCharacterCreationPreviewState(): GameState {
+  return createInitialGameState(CHARACTER_CREATION_PREVIEW_PERSON);
+}
 
 export interface EraICharacterCreationInput {
   /** Caller-supplied deterministic seed; no clock or random source is consulted. */
@@ -103,8 +115,8 @@ export function createNewGameState(input: EraICharacterCreationInput): GameState
 
   // Build the authored NPC roster first; the legacy fixture protagonist is excluded
   // from collision checks and is replaced entirely by the newly created Person.
-  const npcFixture = createInitialGameState();
-  const occupied = new Set(Object.keys(npcFixture.world.people).filter((id) => id !== INITIAL_PERSON_ID));
+  const npcFixture = createCharacterCreationPreviewState();
+  const occupied = new Set(Object.keys(npcFixture.world.people).filter((id) => id !== CHARACTER_CREATION_PREVIEW_PERSON.id));
   const personId = createEraIPlayerPersonId({
     seed: input.seed,
     name: nameResult.name,
