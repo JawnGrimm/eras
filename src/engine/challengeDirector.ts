@@ -33,7 +33,7 @@ interface ChallengeCandidate {
   repeatability: 'once_per_world' | 'once_per_matter' | 'per_occurrence';
   triggerDomains: ChallengeTriggerDomain[];
   resolveOccurrence(state: GameState): ChallengeOccurrence | null;
-  buildChallenge(state: GameState, id: ChallengeId): Omit<ChallengeInstance, 'status' | 'assigneePersonId'>;
+  buildChallenge(state: GameState, id: ChallengeId, occurrence: ChallengeOccurrence): Omit<ChallengeInstance, 'status' | 'assigneePersonId'>;
 }
 
 /** Aggregate-based rule is evaluated against compact counters and the five-entry activity window. */
@@ -125,7 +125,7 @@ function resolveMissingMeasure(state: GameState): ChallengeOccurrence | null {
   };
 }
 
-function sevenSacks(state: GameState, id: ChallengeId): Omit<ChallengeInstance, 'status' | 'assigneePersonId'> {
+function sevenSacks(state: GameState, id: ChallengeId, occurrence: ChallengeOccurrence): Omit<ChallengeInstance, 'status' | 'assigneePersonId'> {
   return {
     id,
     title: 'The Seven Sealed Jars',
@@ -145,7 +145,7 @@ function sevenSacks(state: GameState, id: ChallengeId): Omit<ChallengeInstance, 
       authority: 'The Challenge does not grant stock-release authority and cannot itself release, clean, or destroy stock.',
       provenance: ['Seven sealed-jar physical observation', 'Capacity records ev-04 and ev-07 remain separate and unchanged'],
     },
-    deliveryChannels: [{ kind: 'baseline_reach', explanation: 'Ur-Nanna has received the report and asks the reporting scribe for a recommendation.' }],
+    deliveryChannels: occurrence.deliveryChannels,
     presentedDay: state.calendar.dayNumber,
     apCost: 2,
     choices: [
@@ -156,7 +156,7 @@ function sevenSacks(state: GameState, id: ChallengeId): Omit<ChallengeInstance, 
   };
 }
 
-function missingMeasure(state: GameState, id: ChallengeId): Omit<ChallengeInstance, 'status' | 'assigneePersonId'> {
+function missingMeasure(state: GameState, id: ChallengeId, occurrence: ChallengeOccurrence): Omit<ChallengeInstance, 'status' | 'assigneePersonId'> {
   return {
     id,
     title: 'The Missing Measure',
@@ -176,7 +176,7 @@ function missingMeasure(state: GameState, id: ChallengeId): Omit<ChallengeInstan
       authority: 'The Challenge does not authorize amendment of the institutional ledger or assignment of liability.',
       provenance: ['24-measure dispatch copy', '23-measure receiving tally', 'Witness testimony does not establish the point of loss'],
     },
-    deliveryChannels: [{ kind: 'baseline_reach', explanation: 'Shuruppak-ilu requests a recommendation after receiving the reconciliation report.' }],
+    deliveryChannels: occurrence.deliveryChannels,
     presentedDay: state.calendar.dayNumber,
     apCost: 2,
     choices: [
@@ -303,7 +303,7 @@ export function runChallengeDirector(state: GameState): GameState {
   if (!selected) return state;
 
   const { definition, occurrence, occurrenceKey } = selected.candidate;
-  const challenge = definition.buildChallenge(state, occurrenceKey as ChallengeId);
+  const challenge = definition.buildChallenge(state, occurrenceKey as ChallengeId, occurrence);
   const result = transitionOpportunityAction(state, { type: 'PRESENT_CHALLENGE', challenge });
   if (result.feedback?.kind === 'error') return state;
 
