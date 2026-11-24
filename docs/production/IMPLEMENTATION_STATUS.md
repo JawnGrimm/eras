@@ -174,3 +174,15 @@ No save-schema bump or migration is authorized. Keep schema v2; preserve legacy 
 - The proposed Playtest 1 Currency-to-Provisions table and worked multi-day survival example have not yet been submitted/ratified. No Currency conversion rate or permanent recovery payout is approved by this status entry.
 
 **Status summary:** Issue #82 — IN PROGRESS, with four corrections in an unmerged draft PR and one owner-blocked correction. Issue #85 — IN PROGRESS, with authored anchor source merged and non-overlapping technical preparation in draft review; runtime integration remains held behind #82. No merge, deployment, or end-to-end verification is claimed for either issue.
+
+
+## Production update — 24 November 2026 (QA-82-3 owner ruling)
+
+**Authority:** Game Director ruling, 24 November 2026, recorded on Issue #82 and PR #88.
+
+- QA-82-3 is unblocked. Temporarily withhold any curated Character Creator sample containing raw sign-catalog notation (e.g. `×1N57`) from the picker. Do not expose the notation as a player-facing display name.
+- If fewer than approximately four curated choices remain, Design HQ may provide clean, readable period-grounded names from the existing verified Uruk pool, or strip a suffix only when the remainder is already a source-supported standalone display form. No speculative pronunciation.
+- Existing saves and character identities are unchanged; no save migration or identity rewrite.
+- Production is authorized to complete QA-82-1 through QA-82-5, run the complete acceptance/regression suite, and merge Issue #82 when verified. Issue #82 remains the sequencing gate before overlapping Issue #85 runtime edits; non-overlapping Issue #85 preparation may continue.
+
+This is an implementation authorization and presentation rule, not a revision to the historical name source or the character's saved identity model. No merge/deployment/verification status is implied by this note.
