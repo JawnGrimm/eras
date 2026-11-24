@@ -113,8 +113,8 @@ export function createNewGameState(input: EraICharacterCreationInput): GameState
   const choiceErrors = validateEraICharacterHistoryChoices(input.choices);
   if (choiceErrors.length > 0) throw new Error(choiceErrors.join(' '));
 
-  // Build the authored NPC roster first; the legacy fixture protagonist is excluded
-  // from collision checks and is replaced entirely by the newly created Person.
+  // Build the authored NPC roster from a non-persistent preview Person; the preview
+  // identity is excluded from collision checks and never enters the playable state.
   const npcFixture = createCharacterCreationPreviewState();
   const occupied = new Set(Object.keys(npcFixture.world.people).filter((id) => id !== CHARACTER_CREATION_PREVIEW_PERSON.id));
   const personId = createEraIPlayerPersonId({
