@@ -124,13 +124,14 @@ describe('GameProvider production persistence', () => {
     const state = validSavedState();
     storage.setItem(SAVE_KEY, JSON.stringify(createSaveEnvelope(state, 2, '2026-11-22T12:00:00.000Z')));
     const game = renderProvider(storage);
+    const priorState = game.state;
     storage.failWrites = true;
 
-    const result = game.dispatch({ type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber });
+    const result = game.dispatch({ type: 'END_DAY', expectedDayNumber: priorState.calendar.dayNumber });
 
     expect(result.feedback?.code).toBe('day-close-save-failed');
-    expect(result.state.calendar.dayNumber).toBe(state.calendar.dayNumber);
-    expect(result.state).toEqual(state);
+    expect(result.state.calendar.dayNumber).toBe(priorState.calendar.dayNumber);
+    expect(result.state).toBe(priorState);
     expect(storage.getItem(SAVE_KEY)).toContain('"revision":2');
   });
 
