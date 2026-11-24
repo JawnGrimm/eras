@@ -20,14 +20,17 @@ describe('ERA1-COM-F01 Material Not As Described', () => {
     expect(ERA1_COM_F01_OPPORTUNITY_DEFINITION.offer.requiredSkills).toEqual({});
   });
 
-  it('is seeded from one active matter and causal event, without duplicate presentation', () => {
-    const generated = generateDailyAssignments(createInitialGameState());
+  it('becomes available on its scheduled day from one active matter and causal event, without duplicate presentation', () => {
+    const dayOne = generateDailyAssignments(createInitialGameState());
+    expect(Object.values(dayOne.opportunities.assignments).some((offer) => offer.activityId === ERA1_COM_F01_ACTIVITY_ID)).toBe(false);
+    const generated = generateDailyAssignments({ ...dayOne, calendar: { ...dayOne.calendar, dayNumber: 2 } });
     const offers = Object.values(generated.opportunities.assignments).filter((offer) => offer.activityId === ERA1_COM_F01_ACTIVITY_ID);
     expect(offers).toHaveLength(1);
     expect(offers[0]).toMatchObject({
       title: 'Material Not As Described',
       originMatterId: 'matter-era1-com-f01-material-description',
       sourceEventId: 'event-era1-com-f01-seeded-delivery',
+      offeredDay: 2,
     });
     expect(generated.opportunities.occurrenceLedger.filter((entry) => entry.scenarioId === ERA1_COM_F01_ACTIVITY_ID)).toHaveLength(1);
     const repeated = generateDailyAssignments(generated);
@@ -36,7 +39,7 @@ describe('ERA1-COM-F01 Material Not As Described', () => {
   });
 
   it('gives separate matters and causal events distinct occurrence identities', () => {
-    const base = createInitialGameState();
+    const base = { ...createInitialGameState(), calendar: { ...createInitialGameState().calendar, dayNumber: 2 } };
     const matterId = 'matter-era1-com-f01-second-delivery' as MatterId;
     const eventId = 'event-era1-com-f01-second-delivery' as EventId;
     const originalMatter = base.world.matters['matter-era1-com-f01-material-description' as MatterId];
@@ -63,7 +66,8 @@ describe('ERA1-COM-F01 Material Not As Described', () => {
   });
 
   it('plays through evidence acquisition and submission without granting Historical Progress XP', () => {
-    let state = generateDailyAssignments(createInitialGameState());
+    const initial = createInitialGameState();
+    let state = generateDailyAssignments({ ...initial, calendar: { ...initial.calendar, dayNumber: 2 } });
     const offer = Object.values(state.opportunities.assignments).find((item) => item.activityId === ERA1_COM_F01_ACTIVITY_ID)!;
     state = transitionGame(state, { type: 'ACCEPT_ASSIGNMENT', assignmentId: offer.id }).state;
     for (const actionId of ['comf01-consult-receiver','comf01-compare-request-tag','comf01-inspect-load','comf01-consult-carrier']) {

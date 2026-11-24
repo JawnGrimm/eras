@@ -95,12 +95,12 @@ export function createInitialGameState(player?: Person, opportunitySeed = 'era1-
     institutionIds: [templeStorehouseId], locationId: SOUTH_LOADING_LOCATION_ID,
   };
   const materialDescriptionEvent: WorldEvent = {
-    id: materialDescriptionEventId, dayNumber: 1,
+    id: materialDescriptionEventId, dayNumber: 2,
     summary: 'A provisional procurement request calls for worked timber; the sender’s tag describes the load as worked, while the receiving observation describes the visible pieces as unworked. The difference is documented but not explained.',
     personIds: [utuMansumId, ERA1_COM_F01_PEOPLE.workshopOverseer, ERA1_COM_F01_PEOPLE.responsibleAuthority, ERA1_COM_F01_PEOPLE.carrier],
     institutionIds: [templeStorehouseId], locationId: ERA1_COM_F01_LOCATION_ID,
   };
-  const materialDescriptionMatter = { ...createMaterialNotAsDescribedMatter(1), sourceEventId: materialDescriptionEventId,
+  const materialDescriptionMatter = { ...createMaterialNotAsDescribedMatter(2), sourceEventId: materialDescriptionEventId,
     provenance: [...(createMaterialNotAsDescribedMatter(1).provenance ?? []),
       { id: 'comf01-source-event', kind: 'event' as const, sourceId: materialDescriptionEventId, description: 'The procurement/delivery description difference is recorded as a distinct causal source event.' }] };
   const deliveryMatter = { ...createSouthCourtDeliveryMatter(1), sourceEventId: deliveryEventId,

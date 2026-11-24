@@ -14,7 +14,6 @@ describe('matter-driven Assignment discovery', () => {
     expect(offers.map((offer) => offer.title)).toEqual([
       'South-Court Delivery Reconciliation',
       'South Loading-Awning Inspection',
-      'Material Not As Described',
     ]);
     expect(offers.every((offer) => !!offer.originMatterId)).toBe(true);
     expect(offers.every((offer) => generated.world.matters[offer.originMatterId!]?.status === 'active')).toBe(true);
