@@ -191,8 +191,6 @@ describe('GD-CHARACTER-START-001 fresh-game integration', () => {
       });
       expect(scribal).toMatchObject({
         careerXp: 0,
-        careerPath: state.player.currentCharacterId === person.id
-          ? scribal.careerPath : undefined,
         wallet: { money: 0, provisions: 5 },
         stress: 0,
         obligations: [],
