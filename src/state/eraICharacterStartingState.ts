@@ -64,6 +64,25 @@ const FORMATIVE_ATTRIBUTE: Record<EraICharacterHistoryChoices['formativeExperien
   'FE-04': 'endurance',
 };
 
+const RESPONSIBILITY_LABEL: Record<EraICharacterHistoryChoices['responsibilityId'], string> = {
+  'RS-01': 'Count or measure',
+  'RS-02': 'Help with deliveries',
+  'RS-03': 'Judge materials or quality',
+  'RS-04': 'Observe a record or seal in use',
+};
+const FORMATIVE_LABEL: Record<EraICharacterHistoryChoices['formativeExperienceId'], string> = {
+  'FE-01': 'A quantity did not match',
+  'FE-02': 'You were blamed unfairly',
+  'FE-03': 'You helped settle a disagreement',
+  'FE-04': 'You were trusted with an adult responsibility',
+};
+const INSTRUCTION_LABEL: Record<EraICharacterHistoryChoices['instructionId'], string> = {
+  'TR-01': 'Quantities and commodity notation',
+  'TR-02': 'Clay, stylus, and tablet preparation',
+  'TR-03': 'Signs and category lists',
+  'TR-04': 'Checking and organizing records',
+};
+
 const ATTRIBUTE_IDS: readonly AttributeId[] = [
   'precision', 'perception', 'reasoning', 'expression', 'endurance', 'composure',
 ];
@@ -83,7 +102,7 @@ export function resolveEraICharacterStartingState(
   const skillXpSources: Partial<Record<SkillId, string[]>> = {};
   const award = (skillId: SkillId, amount: number) => {
     skills[skillId].skillXp += amount;
-    skillXpSources[skillId] = [choices.instructionId];
+    skillXpSources[skillId] = [INSTRUCTION_LABEL[choices.instructionId]];
   };
   switch (choices.instructionId) {
     case 'TR-01':
@@ -103,10 +122,10 @@ export function resolveEraICharacterStartingState(
   }
 
   const attributeSources: Partial<Record<AttributeId, string[]>> = {
-    [responsibilityAttribute]: ['Chapter 2 · ' + choices.responsibilityId],
+    [responsibilityAttribute]: ['Chapter 2 · ' + RESPONSIBILITY_LABEL[choices.responsibilityId]],
     [formativeAttribute]: [
       ...(responsibilityAttribute === formativeAttribute ? ['Chapter 2 · ' + choices.responsibilityId] : []),
-      'Chapter 3 · ' + choices.formativeExperienceId,
+      'Chapter 3 · ' + FORMATIVE_LABEL[choices.formativeExperienceId],
     ],
   };
 
