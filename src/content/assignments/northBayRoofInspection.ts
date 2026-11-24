@@ -197,6 +197,7 @@ export function validateAssignmentActivityDefinition(definition: AssignmentActiv
     for (const id of [...evaluation.requiredLimitationIds, ...evaluation.relevantLimitationIds]) if (!limitationIds.has(id)) issues.push(`Evaluation references unknown limitation ${id}.`);
     for (const id of evaluation.unsupportedFindingIds) if (!definition.reportSchema.findings.some((option) => option.id === id)) issues.push(`Evaluation references unknown finding ${id}.`);
     for (const id of evaluation.unsupportedResponsibilityClaimIds) if (!definition.reportSchema.responsibilityClaims.some((option) => option.id === id)) issues.push(`Evaluation references unknown responsibility claim ${id}.`);
+    for (const id of evaluation.unsupportedRecommendationIds ?? []) if (!definition.reportSchema.recommendations.some((option) => option.id === id)) issues.push(`Evaluation references unknown recommendation ${id}.`);
     if (evaluation.receiverPersonId && !definition.participants.includes(evaluation.receiverPersonId)) issues.push('Evaluation receiver must be an activity participant.');
     for (const category of ['Thorough','Defensible','Incomplete','Overreached'] as const) {
       if (!evaluation.rationales[category]?.trim() || !evaluation.reactions[category]?.trim()) issues.push(`Evaluation needs authored ${category} rationale and reaction.`);
