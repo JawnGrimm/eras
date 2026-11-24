@@ -1,7 +1,7 @@
 import type { ChallengeId, EventId, InstitutionId, MatterId, PersonId, RecordId } from '../state/ids';
 import type {
-  ChallengeInstance, ChallengeTriggerRule, GameState, OpportunityDeliveryChannel,
-  OpportunityOccurrenceLifecycle, OpportunityActivityKind,
+  AssignmentOffer, ChallengeInstance, ChallengeTriggerRule, GameState, OpportunityDeliveryChannel,
+  OpportunityOccurrenceLifecycle,
 } from '../state/types';
 import { evaluateChallengeTriggers, transitionOpportunityAction } from './opportunities';
 import { MATTER_IDS } from './institutionalMatters';
@@ -18,11 +18,7 @@ export type ChallengeTriggerDomain =
   | 'institutional_matter_update'
   | 'authored_world_event';
 
-interface ChallengeSourceFact {
-  kind: 'event'; id: EventId;
-} | {
-  kind: 'record'; id: RecordId;
-}
+type ChallengeSourceFact = { kind: 'event'; id: EventId } | { kind: 'record'; id: RecordId };
 
 interface ChallengeOccurrence {
   matterId: MatterId;
@@ -50,8 +46,8 @@ function challengeEffects(careerXp: number) { return { careerXp }; }
 function recentOffer(
   state: GameState,
   activityId: string,
-  kinds: OpportunityActivityKind[],
-): GameState['opportunities']['assignments'][keyof GameState['opportunities']['assignments']] | undefined {
+  kinds: Array<'presented' | 'accepted' | 'declined' | 'lapsed' | 'completed' | 'cancelled'>,
+): AssignmentOffer | undefined {
   const allowed = new Set(kinds);
   for (let index = state.opportunities.recentActivity.length - 1; index >= 0; index--) {
     const activity = state.opportunities.recentActivity[index];
