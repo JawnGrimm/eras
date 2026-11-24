@@ -120,7 +120,7 @@ describe('matter-driven Assignment discovery', () => {
     expect(new Set(offers.map((offer) => offer.originMatterId)).size).toBe(offers.length);
   });
 
-  it('rejects a duplicate matter wrapper when its source facts are unchanged', () => {
+  it('keeps distinct durable matters independently addressable when they share a source fact', () => {
     const base = createInitialGameState();
     const institutionId = 'institution-uruk-temple-storehouse' as keyof typeof base.world.institutions;
     const originalId = 'matter-south-court-delivery-reconciliation' as MatterId;
@@ -138,8 +138,8 @@ describe('matter-driven Assignment discovery', () => {
       },
     };
     const generated = generateDailyAssignments(state);
-    expect(Object.values(generated.opportunities.assignments).filter((offer) => offer.activityId === 'activity-south-court-delivery-reconciliation')).toHaveLength(1);
-    expect(generated.opportunities.occurrenceLedger.filter((entry) => entry.scenarioId === 'activity-south-court-delivery-reconciliation')).toHaveLength(1);
+    expect(Object.values(generated.opportunities.assignments).filter((offer) => offer.activityId === 'activity-south-court-delivery-reconciliation')).toHaveLength(2);
+    expect(generated.opportunities.occurrenceLedger.filter((entry) => entry.scenarioId === 'activity-south-court-delivery-reconciliation')).toHaveLength(2);
   });
 
   it('generates an anchor only when an active matter has a real source event', () => {
