@@ -182,7 +182,7 @@ describe('production continuity and social screens', () => {
     };
     const institutionRecordId = 'record-institution-history' as RecordId;
     const institutionRecord: RecordEntry = {
-      id: institutionRecordId, createdDay: 3, authorPersonId: INITIAL_PERSON_ID, institutionId: storehouseId,
+      id: institutionRecordId, createdDay: 3, authorPersonId: INITIAL_PERSON_ID,
       title: 'Institutional ledger record',
       sources: [{ id: 'source-institution-ledger', kind: 'other', description: 'A signed tablet was copied.' }],
       assertions: [{ id: 'assertion-institution-ledger', text: 'Twenty-four measures were dispatched.', classification: 'observed', sourceIds: ['source-institution-ledger'] }],
