@@ -25,7 +25,7 @@ export interface AssignmentActivityActionDefinition {
   id: string; family: 'consult' | 'observe' | 'compare'; label: string; description: string;
   apCost: number; prerequisites?: string[]; discoveryIds: string[]; consultedPersonId?: PersonId;
 }
-export interface AssignmentActivityDiscoveryDefinition { id: string; title: string; text: string; sourcePersonId?: PersonId; sourceRecordId?: import('../../state/ids').RecordId; sourceEventId?: import('../../state/ids').EventId; }
+export interface AssignmentActivityDiscoveryDefinition { id: string; title: string; text: string; sourcePersonId?: PersonId; sourceRecordId?: import('../../state/ids').RecordId; sourceEventId?: import('../../state/ids').EventId; sourceProvenanceId?: string; }
 export interface AssignmentActivityReportSchema {
   title: string;
   responsibilityLabel: string;
