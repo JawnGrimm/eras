@@ -9,12 +9,12 @@ export function ClosingReceiptScreen({ receipt, kind, onReturn }: {
 }) {
   const formatDelta = (value: number) => value > 0 ? `+${value}` : String(value);
   const rows: Array<{ label: string; value: string }> = [];
-  if (receipt.deltas.currency !== 0) rows.push({ label: 'Currency', value: formatDelta(receipt.deltas.currency) });
-  if (receipt.deltas.provisions !== 0) rows.push({ label: 'Provisions', value: formatDelta(receipt.deltas.provisions) });
-  if (receipt.deltas.careerXp !== 0) rows.push({ label: 'Career XP', value: formatDelta(receipt.deltas.careerXp) });
+  if (receipt.deltas.currency !== undefined && receipt.deltas.currency !== 0) rows.push({ label: 'Currency', value: formatDelta(receipt.deltas.currency) });
+  if (receipt.deltas.provisions !== undefined && receipt.deltas.provisions !== 0) rows.push({ label: 'Provisions', value: formatDelta(receipt.deltas.provisions) });
+  if (receipt.deltas.careerXp !== undefined) rows.push({ label: 'Career XP', value: formatDelta(receipt.deltas.careerXp) });
   rows.push({ label: 'Judgment', value: receipt.deltas.judgment > 0 ? `+${receipt.deltas.judgment}` : receipt.deltas.judgment < 0 ? String(receipt.deltas.judgment) : '0 · unchanged' });
-  if (receipt.institutionName) rows.push({ label: `Institutional Standing · ${receipt.institutionName}`, value: receipt.deltas.institutionalStanding > 0 ? `+${receipt.deltas.institutionalStanding}` : receipt.deltas.institutionalStanding < 0 ? String(receipt.deltas.institutionalStanding) : '0 · unchanged' });
-  if (receipt.receiverName) {
+  if (receipt.institutionName && receipt.deltas.institutionalStanding !== undefined) rows.push({ label: `Institutional Standing · ${receipt.institutionName}`, value: receipt.deltas.institutionalStanding > 0 ? `+${receipt.deltas.institutionalStanding}` : receipt.deltas.institutionalStanding < 0 ? String(receipt.deltas.institutionalStanding) : '0 · unchanged' });
+  if (receipt.receiverName && receipt.deltas.trust !== undefined && receipt.deltas.respect !== undefined) {
     rows.push({ label: `Trust · ${receipt.receiverName}`, value: receipt.deltas.trust > 0 ? `+${receipt.deltas.trust}` : receipt.deltas.trust < 0 ? String(receipt.deltas.trust) : '0 · unchanged' });
     rows.push({ label: `Respect · ${receipt.receiverName}`, value: receipt.deltas.respect > 0 ? `+${receipt.deltas.respect}` : receipt.deltas.respect < 0 ? String(receipt.deltas.respect) : '0 · unchanged' });
   }

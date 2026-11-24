@@ -94,13 +94,12 @@ export function applyClosingAssessment(state: GameState, input: {
     ...(input.institutionId && state.world.institutions[input.institutionId] ? { institutionName: state.world.institutions[input.institutionId].name } : {}),
     reaction: input.reaction,
     deltas: {
-      currency: input.currencyDelta ?? 0,
-      provisions: input.provisionsDelta ?? 0,
-      careerXp,
+      ...(input.currencyDelta ? { currency: input.currencyDelta } : {}),
+      ...(input.provisionsDelta ? { provisions: input.provisionsDelta } : {}),
+      ...(input.baseCareerXp > 0 ? { careerXp } : {}),
       judgment: judgmentDelta,
-      institutionalStanding: standingDelta,
-      trust: trustDelta,
-      respect: respectDelta,
+      ...(input.institutionId && state.world.institutions[input.institutionId] ? { institutionalStanding: standingDelta } : {}),
+      ...(receiver && receiver.id !== person.id ? { trust: trustDelta, respect: respectDelta } : {}),
     },
     ...(input.compensationTiming ? { compensationTiming: input.compensationTiming } : {}),
   };

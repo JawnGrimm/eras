@@ -36,8 +36,8 @@ function isClosingReceipt(value: unknown): boolean {
     && (value.receiverName === undefined || nonEmptyString(value.receiverName))
     && (value.institutionName === undefined || nonEmptyString(value.institutionName))
     && (value.compensationTiming === undefined || nonEmptyString(value.compensationTiming))
-    && isObject(value.deltas)
-    && ['currency','provisions','careerXp','judgment','institutionalStanding','trust','respect'].every((key) => finiteNumber(value.deltas[key]));
+    && isObject(value.deltas) && finiteNumber(value.deltas.judgment)
+    && ['currency','provisions','careerXp','institutionalStanding','trust','respect'].every((key) => value.deltas[key] === undefined || finiteNumber(value.deltas[key]));
 }
 function score(value: unknown): value is number { return finiteNonNegative(value) && value <= 100; }
 function stringArray(value: unknown): value is string[] {

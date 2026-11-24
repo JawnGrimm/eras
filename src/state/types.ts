@@ -294,8 +294,8 @@ export interface OpportunityConsequences {
 }
 export type AssignmentAssessmentCategory = 'Thorough' | 'Defensible' | 'Incomplete' | 'Overreached';
 export interface ClosingReceiptDeltas {
-  currency: number; provisions: number; careerXp: number; judgment: number;
-  institutionalStanding: number; trust: number; respect: number;
+  currency?: number; provisions?: number; careerXp?: number; judgment: number;
+  institutionalStanding?: number; trust?: number; respect?: number;
 }
 export interface ClosingReceiptPayload {
   dayNumber: number;
