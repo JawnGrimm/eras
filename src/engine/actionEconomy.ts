@@ -65,7 +65,8 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
   const person = state.world.people[state.player.currentCharacterId];
   const scribal = getInitializedScribal(person);
   if (!person || !scribal) return { state, feedback: feedback('error', 'missing-active-character', 'The current character is unavailable.') };
-  const interludeAction = action.type === 'BUY_PROVISIONS' || action.type === 'BEGIN_WORKDAY';
+  const interludeAction = action.type === 'BUY_PROVISIONS' || action.type === 'BEGIN_WORKDAY'
+    || action.type === 'ACKNOWLEDGE_ASSIGNMENT_RECEIPT' || action.type === 'ACKNOWLEDGE_CHALLENGE_RECEIPT';
   if (state.dayClose.phase === 'interlude_open' && !interludeAction) {
     return { state, feedback: feedback('error', 'evening-interlude-open', 'The Workday is closed. Only an eligible provisions exchange or Begin Workday is available.') };
   }
