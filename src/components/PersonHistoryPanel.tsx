@@ -8,13 +8,14 @@ const STAGE_LABELS = {
   transition_to_scribal_work: 'Transition to scribal work',
 } as const;
 
-export function PersonHistoryPanel({ person, people }: {
+export function PersonHistoryPanel({ person, people, compact = false }: {
   person: Person;
   people: Readonly<Record<string, Person>>;
+  compact?: boolean;
 }) {
   const history = selectPersonHistory(person, people);
-  return <section className="mt-4 rounded-lg border border-stone-200 bg-[#fbf9f4] p-4">
-    <h4 className="text-sm font-semibold">Personal history</h4>
+  return <section className={compact ? 'mt-3' : 'mt-4 rounded-lg border border-stone-200 bg-[#fbf9f4] p-4'}>
+    {!compact && <h4 className="text-sm font-semibold">Personal history</h4>}
     {!history.hasHistory
       ? <p className="mt-1 text-sm text-stone-500">{history.emptyMessage}</p>
       : <ol className="mt-3 space-y-3">
@@ -31,7 +32,8 @@ export function PersonHistoryPanel({ person, people }: {
         </li>)}
       </ol>}
     {history.familiarities.length > 0 && <div className="mt-4 border-t border-stone-200 pt-3">
-      <h5 className="text-xs font-semibold uppercase tracking-wide text-stone-500">Recorded familiarity</h5>
+      <h5 className="text-xs font-semibold uppercase tracking-wide text-stone-500">Recorded domain familiarity</h5>
+      <p className="mt-1 text-xs text-stone-500">Prior exposure by domain; not a personal relationship score.</p>
       <ul className="mt-2 space-y-1 text-xs text-stone-700">
         {history.familiarities.map((item) => <li key={item.id}>
           <span className="font-medium">{item.domainId}</span> · {item.scopeId.replace(/_/g, ' ')} · {item.exposure.replace(/_/g, ' ')}
