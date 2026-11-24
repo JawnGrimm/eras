@@ -251,7 +251,7 @@ export function submitRubricAssignmentActivity(
           history: [...(current?.history ?? []), {
             id: `assignment-receipt-${offer.id}-day-${state.calendar.dayNumber}:relationship-${affectedPersonId}`,
             dayNumber: state.calendar.dayNumber,
-            summary: `After ${person.name} submitted "${record.title}" on Day ${record.createdDay}, ${affectedPerson.name}'s trust toward ${person.name} ${trustChange} and respect ${respectChange}.`,
+            summary: `After ${person.name} submitted "${record.title}" on Day ${record.createdDay}, ${affectedPerson.name}'s trust toward ${person.name} ${trustChange} and respect toward ${person.name} ${respectChange}.`,
           }],
         },
       },
