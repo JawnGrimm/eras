@@ -123,13 +123,7 @@ export function createNewGameState(input: EraICharacterCreationInput): GameState
     careerPath: input.careerPath,
     choices: input.choices,
   }, occupied);
-  const history = resolveEraICharacterHistory({
-    personId,
-    people: npcFixture.world.people,
-    choices: input.choices,
-  });
-  const starting = resolveEraICharacterStartingState(input.choices, input.careerPath);
-  const player: Person = {
+  const initialPlayer: Person = {
     id: personId,
     name: nameResult.name,
     alive: true,
@@ -139,6 +133,17 @@ export function createNewGameState(input: EraICharacterCreationInput): GameState
       occupation: 'Scribal apprentice',
       summary: 'An apprentice beginning professional instruction in Uruk.',
     },
+  };
+  // Register the new Person before resolving player-dependent history and opening content.
+  const registeredWorld = createInitialGameState(initialPlayer);
+  const history = resolveEraICharacterHistory({
+    personId,
+    people: registeredWorld.world.people,
+    choices: input.choices,
+  });
+  const starting = resolveEraICharacterStartingState(input.choices, input.careerPath);
+  const player: Person = {
+    ...initialPlayer,
     characterCreation: history.characterCreation,
     lifeEvents: history.lifeEvents,
     familiarities: history.familiarities,
