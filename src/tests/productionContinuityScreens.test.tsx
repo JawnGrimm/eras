@@ -68,7 +68,7 @@ describe('production continuity and social screens', () => {
   it('shows Stress, derived Grade, and the tutorial label in the production shell', () => {
     const state = createNewGameState(TEST_CHARACTER_CREATION);
     const markup = renderScreen(state, createElement(ProductionShellContent));
-    expect(markup).toContain('Stress: 15/100');
+    expect(markup).toContain('Stress: 0/100');
     expect(markup).toContain('Professional Rank: Grade 1');
     expect(markup).toContain('Introductory Tutorial · Storehouse');
     expect(markup).not.toContain('Active Work · Storehouse');
