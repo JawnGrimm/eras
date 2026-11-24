@@ -244,6 +244,11 @@ describe('P2-2 authored Uruk Assignment activities', () => {
     expect(record?.assertions.some((assertion) => assertion.classification === 'disputed')).toBe(false);
     expect(state.world.matters[MATTER_IDS.southCourtDelivery]?.status).toBe('active');
     expect(state.world.matters[MATTER_IDS.southCourtDelivery]?.provenance?.some((source) => source.kind === 'record_copy')).toBe(true);
+    const regenerated = generateDailyAssignments(state);
+    expect(Object.values(regenerated.opportunities.assignments).filter((item) =>
+      item.activityId === southCourtDeliveryReconciliation.id && item.originMatterId === MATTER_IDS.southCourtDelivery)).toHaveLength(1);
+    expect(regenerated.opportunities.occurrenceLedger.filter((entry) =>
+      entry.scenarioId === southCourtDeliveryReconciliation.id && entry.matterId === MATTER_IDS.southCourtDelivery)).toHaveLength(1);
     expect(state.world.matters['matter-south-court-delivery-discrepancy' as MatterId]).toBeUndefined();
     expect(state.world.relationships[state.player.currentCharacterId]?.['person-enlil-kisu' as never]?.dimensions).toMatchObject({ trust: 53, respect: 56 });
     expect(state.world.relationships['person-enlil-kisu' as never]?.[state.player.currentCharacterId]?.dimensions).toMatchObject({ trust: 57, respect: 53 });
