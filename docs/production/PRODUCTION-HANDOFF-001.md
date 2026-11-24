@@ -10,15 +10,15 @@
 
 ### Workstream A — Issue #82 QA corrections (may start immediately)
 
-Production may investigate and implement QA-82-1 through QA-82-5 independently, without waiting for GD-OPPORTUNITY-001's broader runtime work or the Evening Interlude UI. Current execution status is tracked in `dev/QA-ISSUE-82-TRIAGE.md`: Draft PR #88 implements QA-82-1, -2, -4, and -5 with passing latest-head CI; QA-82-3 remains blocked on Game Director direction. Issue #82 remains open and is still the runtime sequencing gate for overlapping opportunity/UI files. In particular:
+Production may investigate and implement QA-82-1 through QA-82-5 independently, without waiting for GD-OPPORTUNITY-001's broader runtime work or the Evening Interlude UI. Current execution status is tracked in `dev/QA-ISSUE-82-TRIAGE.md`: Draft PR #88 implements QA-82-1, -2, -4, and -5 with passing latest-head CI; QA-82-3 is now unblocked by the Game Director's 24 November ruling approving temporary withholding of curated options containing raw sign-catalog notation. Issue #82 remains open and is still the runtime sequencing gate for overlapping opportunity/UI files. In particular:
 
 - QA-82-1 cross-Assignment text bleed: isolate the active option's authored content.
 - QA-82-2 raw `intake_issue` alert key: restore player-facing tutorial copy.
-- QA-82-3 curated sign-catalog notation in protagonist header: **BLOCKED pending Game Director direction** because the approved character-creation spec requires the curated transliteration to be displayed as written and supplies no alternate player-readable form. Do not invent pronunciation or rename saved identities.
+- QA-82-3 curated sign-catalog notation: **UNBLOCKED — temporarily withhold affected curated options from the Character Creator picker.** If fewer than approximately four choices remain, Design HQ may provide clean readable names from the verified Uruk pool or strip only a suffix whose remainder is a source-supported standalone display form. No speculative pronunciations; existing saves untouched.
 - QA-82-4 “The Apprentice's Copy”: remove fresh-game Day 1 pre-seeding/bypass; enforce the approved post-TSR gate and narrative outcome feedback.
 - QA-82-5 replace player-facing **Silver** with **Currency** across existing surfaces now. Do not wait for Evening Interlude UI. This is a presentation correction to the existing abstract Money balance, not a new balance or save migration.
 
-Use `dev/QA-ISSUE-82-TRIAGE.md` for per-finding acceptance and regression criteria. Production should report exact source locations, root causes, files, tests actually executed, and save compatibility. The QA package does not require a broad localization, content, or Challenge rewrite. Keep the five findings separately traceable; Issue #82 remains open until the fixes are verified and accepted.
+Use `dev/QA-ISSUE-82-TRIAGE.md` for per-finding acceptance and regression criteria. Production should report exact source locations, root causes, files, tests actually executed, and save compatibility. The QA package does not require a broad localization, content, or Challenge rewrite. Keep the five findings separately traceable; Issue #82 remains open until the fixes are verified and accepted. The QA-82-3 owner decision is no longer a blocker.
 
 ### Workstream B — GD-OPPORTUNITY-001 runtime implementation
 
@@ -65,7 +65,7 @@ Production is **not** responsible for inventing the five historical scenario scr
 
 ## 5. Required implementation / QA sequence
 
-1. **Land and verify Issue #82 first.** PR #88 currently implements QA-82-1, -2, -4, and -5 with passing latest-head CI. Resolve QA-82-3 through Game Director direction, then complete targeted and integrated regression, review, merge, deployment, and acceptance reporting.
+1. **Land and verify Issue #82 first.** PR #88 currently implements QA-82-1, -2, -4, and -5 with passing latest-head CI. Implement the approved QA-82-3 temporary picker filter, then complete targeted and integrated regression for QA-82-1 through QA-82-5, review, merge, deployment, and acceptance reporting.
 2. **Continue non-overlapping Issue #85 preparation.** Review the technical note in PR #87, complete producer/consumer and persistence audits, and prepare the executable content schema without editing runtime opportunity/UI surfaces that overlap #82.
 3. **Use the authored anchor source.** The five scripts in `dev/GD-ERA1-ANCHORS-001.md` are merged through PR #86. Production may use fixtures during engine work, but shipping definitions must implement the real playable Assignment schema and preserve the authored semantic constraints.
 4. **Implement Assignment Supply.** Shared pool, approved soft ~8 AP/day target, five approved Era I anchors, bounded recurrence data, deterministic occurrence identity, and supported delivery/access semantics.
