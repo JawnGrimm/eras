@@ -140,7 +140,7 @@ describe('Challenge character ownership', () => {
     state = transitionGame(state, { type: 'BEGIN_CHARACTER_DEPARTURE', departureKind: 'departure' }).state;
     state = transitionGame(state, { type: 'SELECT_SUCCESSOR', nextCharacterId: 'person-uruk-nin-aya' as PersonId }).state;
     expect(state.player.currentCharacterId).toBe('person-uruk-nin-aya');
-    expect(state.opportunities.challenges[id].assigneePersonId).toBe(INITIAL_PERSON_ID);
+    expect(state.opportunities.challenges[id].assigneePersonId).toBe(originalPlayerId);
     const resolution = transitionGame(state, { type: 'RESOLVE_CHALLENGE', challengeId: id, choiceId: 'preserve-uncertain-reading' });
     expect(resolution.feedback?.code).toBe('challenge-not-active');
   });
@@ -156,10 +156,11 @@ describe('Challenge character ownership', () => {
   it('archives the resolving character on the permanent Challenge outcome', () => {
     let state = createNewGameState(TEST_CHARACTER_CREATION);
     const id = Object.keys(state.opportunities.challenges)[0] as ChallengeId;
+    const originalPlayerId = state.player.currentCharacterId;
     state = transitionGame(state, { type: 'ACCEPT_CHALLENGE', challengeId: id }).state;
     const result = transitionGame(state, { type: 'RESOLVE_CHALLENGE', challengeId: id, choiceId: 'preserve-uncertain-reading' });
     expect(result.feedback?.code).toBe('challenge-resolved');
-    expect(result.state.opportunities.challengeOutcomes[0].assigneePersonId).toBe(INITIAL_PERSON_ID);
+    expect(result.state.opportunities.challengeOutcomes[0].assigneePersonId).toBe(originalPlayerId);
     expect(result.state.historicalProgression.historicalXp).toBe(0);
   });
 });
