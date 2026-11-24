@@ -194,6 +194,7 @@ describe('P2-2 authored Uruk Assignment activities', () => {
     expect(completed.status).toBe('completed');
     const record = Object.values(state.records.entries).find((entry) => entry.title === 'Held-Barley Finding and Recommendation');
     expect(record).toBeDefined();
+    expect(record && state.records.entries[record.id]).toEqual(record);
     expect(record?.assertions.some((assertion) => assertion.text.includes('not a release order'))).toBe(true);
     expect(record?.uncertaintyLimits.join(' ')).toContain('capacity tally');
     expect(record?.uncertaintyLimits.join(' ')).toContain('internal grain soundness');
@@ -231,6 +232,8 @@ describe('P2-2 authored Uruk Assignment activities', () => {
       limitations: [], recommendations: ['retain_both_request_origin'],
     });
     state = submit(state, offer.id);
+    expect(state.opportunities.recentActivity.some((activity) =>
+      activity.assignmentId === offer.id && activity.kind === 'completed')).toBe(true);
     const record = Object.values(state.records.entries).find((entry) => entry.title === 'South-Court Delivery Reconciliation');
     expect(record?.assertions.some((assertion) => assertion.text.includes('24') && assertion.text.includes('23'))).toBe(true);
     expect(record?.assertions.some((assertion) => assertion.classification === 'disputed')).toBe(false);

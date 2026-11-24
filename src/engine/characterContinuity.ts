@@ -157,11 +157,15 @@ export function transitionCharacterContinuity(state: GameState, action: Continui
       opportunities: { ...state.opportunities, assignments },
     };
     const candidates = rankSuccessorCandidates(departed);
+    let status: 'awaiting_selection' | 'no_successor' = 'awaiting_selection';
+    if (candidates.length === 0) {
+      status = 'no_successor';
+    }
     const pending = {
       formerCharacterId: formerId,
       departureKind: action.departureKind,
       dayNumber: state.calendar.dayNumber,
-      status: candidates.length ? 'awaiting_selection' as const : 'no_successor' as const,
+      status,
       candidateIds: candidates.map((candidate) => candidate.personId),
     };
     return continuitySuccess({ ...departed, pendingSuccession: pending },
