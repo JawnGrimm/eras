@@ -4,6 +4,18 @@
 **Source:** Game Director's manual smoke test of the deployed Character Creation → Workday 1 → Storehouse Reckoning build, 24 November 2026; Issue #82 and its source follow-up.  
 **Authority:** Issue #82 records observed defects. The Game Director approved this triage package on 24 November 2026; Production is authorized to begin the five independent QA corrections under `docs/production/PRODUCTION-HANDOFF-001.md`.
 
+## Current execution status — 24 November 2026
+
+This status note tracks the authorized QA handoff; it does not change the acceptance criteria below.
+
+- **QA-82-1:** Implemented in Draft PR #88; latest-head CI passed. Assignment-specific guidance no longer bleeds into unrelated Assignment screens.
+- **QA-82-2:** Implemented in Draft PR #88; latest-head CI passed. Tutorial action feedback uses authored player-facing messages rather than the raw `intake_issue` key.
+- **QA-82-3:** **BLOCKED — GAME DIRECTOR INPUT REQUIRED.** The curated transliteration is required by `GD-CHARACTER-START-001` §8 to be displayed as written, while this triage requires a player-readable form and prohibits invented pronunciation. No alternate forms are supplied by the approved source. Production must not invent a pronunciation or silently rename existing saved characters.
+- **QA-82-4:** Implemented in Draft PR #88; latest-head CI passed. Fresh-game Day 1 pre-seeding is removed, the post-TSR gate is enforced, and resolution feedback reports the authored outcome.
+- **QA-82-5:** Implemented in Draft PR #88; latest-head CI passed. Player-facing Era I Money wording uses **Currency**, including the Ur-gir advance. Persisted Money values and internal compatibility identifiers remain unchanged.
+
+**PR #88:** OPEN / DRAFT / UNMERGED at `16ae78c8a4f40ea5bd3ef16839fbba86a07f598e`. GitHub `validate`, `Analyze (javascript-typescript)`, and `CodeQL` checks passed on this exact head. The CI report records 29 test files / 221 tests, TypeScript validation, and production build passing. No local execution, merge, deployment, or acceptance verification is claimed. Issue #82 remains OPEN until QA-82-3 is resolved and all five findings are accepted.
+
 ## 1. Scope and disposition
 
 Issue #82 contains five independent findings. Keep them separately traceable; do not fold them into the Assignment/Challenge generator implementation or treat this triage as permission to reprioritize Production.
