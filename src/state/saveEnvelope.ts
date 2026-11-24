@@ -579,8 +579,12 @@ function isValidV3GameState(value: unknown, workCatalog: Readonly<Record<string,
       || occurrenceKeys.has(raw.occurrenceKey)
       || !['offered','accepted','declined','lapsed','cancelled','completed'].includes(String(raw.lifecycle))
       || !Array.isArray(raw.requiredSourceFactIds)
-      || raw.requiredSourceFactIds.some((id) => !nonEmptyString(id))
+      || raw.requiredSourceFactIds.some((id, index, ids) => !nonEmptyString(id) || (index > 0 && ids[index - 1].localeCompare(id) > 0))
       || new Set(raw.requiredSourceFactIds).size !== raw.requiredSourceFactIds.length
+      || (raw.presentedDay !== undefined && (!Number.isInteger(raw.presentedDay) || (raw.presentedDay as number) < 1 || (raw.presentedDay as number) > value.calendar.dayNumber))
+      || (raw.deliveryChannels !== undefined && (!Array.isArray(raw.deliveryChannels) || !raw.deliveryChannels.length
+        || raw.deliveryChannels.some((channel) => !isObject(channel) || typeof channel.explanation !== 'string' || !channel.explanation
+          || !['baseline_reach','relationship','specialization','appointment','reputation'].includes(String(channel.kind)))))
       || (raw.matterId !== undefined && (typeof raw.matterId !== 'string' || !isObject(value.world.matters[raw.matterId])))
       || (raw.assigneePersonId !== undefined && (typeof raw.assigneePersonId !== 'string' || !isObject(value.world.people[raw.assigneePersonId])))
       || (raw.legacy !== undefined && raw.legacy !== true)) return false;
@@ -591,6 +595,7 @@ function isValidV3GameState(value: unknown, workCatalog: Readonly<Record<string,
         || (raw.primarySourceFact.kind === 'event' && !isObject(value.world.events[raw.primarySourceFact.id]))
         || (raw.primarySourceFact.kind === 'record' && !isObject(value.records.entries[raw.primarySourceFact.id]))) return false;
     } else if (raw.legacy !== true) return false;
+    if (raw.legacy !== true && (!Array.isArray(raw.deliveryChannels) || !raw.deliveryChannels.length || !Number.isInteger(raw.presentedDay))) return false;
   }
   return true;
 }
@@ -627,6 +632,8 @@ function migrateV2Envelope(value: Record<string, unknown>, raw: string): SaveEnv
       occurrenceKey: `legacy:challenge-instance:${String(challenge.id)}`,
       lifecycle: challenge.status,
       requiredSourceFactIds: [],
+      deliveryChannels: challenge.deliveryChannels,
+      presentedDay: challenge.presentedDay,
       ...(challenge.assigneePersonId ? { assigneePersonId: challenge.assigneePersonId } : {}),
       legacy: true as const,
     })),
@@ -663,7 +670,7 @@ function migrateV2Envelope(value: Record<string, unknown>, raw: string): SaveEnv
 }
 
 export function isLegacyV2Save(raw: string): boolean {
-  try { return isObject(JSON.parse(raw)) && (JSON.parse(raw) as Record<string, unknown>).schemaVersion === 2; }
+  try { const parsed: unknown = JSON.parse(raw); return isObject(parsed) && parsed.schemaVersion === 2; }
   catch { return false; }
 }
 function normalizeNorthBayWorldBaseline(parsed: unknown): unknown {
