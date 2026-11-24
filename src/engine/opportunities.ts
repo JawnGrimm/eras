@@ -4,13 +4,14 @@ import { ASSIGNMENT_ACTIVITY_CATALOG, NORTH_BAY_POST_EXECUTION_ACTIVITY_ID, vali
 import { resolveOpportunityDatePolicies, validateOpportunityConsequences } from '../state/opportunityValidation';
 import { validateWorkDefinition } from '../works/workDefinition';
 import { queueSettlementCredit } from './dayClose';
+import { applyClosingAssessment } from './closingReceipt';
 import type { WorkDefinition } from '../works/workDefinition';
 import type {
   AssignmentActivityAggregate, AssignmentOffer, ChallengeInstance, ChallengeOutcome, ChallengeTriggerRule,
   GameAction, GameState, OpportunityActivity, OpportunityConsequences, OpportunityDeliveryChannel, TransitionResult,
 } from '../state/types';
 
-type OpportunityAction = Extract<GameAction, { type: 'PRESENT_ASSIGNMENT' | 'ACCEPT_ASSIGNMENT' | 'DECLINE_ASSIGNMENT' | 'CANCEL_ASSIGNMENT' | 'COMPLETE_ASSIGNMENT' | 'PRESENT_CHALLENGE' | 'ACCEPT_CHALLENGE' | 'DECLINE_CHALLENGE' | 'RESOLVE_CHALLENGE' }>;
+type OpportunityAction = Extract<GameAction, { type: 'PRESENT_ASSIGNMENT' | 'ACCEPT_ASSIGNMENT' | 'DECLINE_ASSIGNMENT' | 'CANCEL_ASSIGNMENT' | 'COMPLETE_ASSIGNMENT' | 'PRESENT_CHALLENGE' | 'ACCEPT_CHALLENGE' | 'DECLINE_CHALLENGE' | 'RESOLVE_CHALLENGE' | 'ACKNOWLEDGE_ASSIGNMENT_RECEIPT' | 'ACKNOWLEDGE_CHALLENGE_RECEIPT' }>;
 const fail = (state: GameState, code: string, message: string): TransitionResult => ({ state, feedback: { kind: 'error', code, message } });
 const succeed = (state: GameState, code: string, message: string): TransitionResult => ({ state, feedback: { kind: 'success', code, message } });
 const finiteNonNegative = (n: number) => Number.isFinite(n) && n >= 0;
@@ -270,6 +271,10 @@ export function transitionOpportunityAction(state: GameState, action: Opportunit
         || !c.context.purpose || !validChannels(c.deliveryChannels, state) || !Number.isInteger(c.apCost) || c.apCost < 1 || c.apCost > 6
         || !Array.isArray(c.choices) || !c.choices.length
         || new Set(c.choices.map((x) => x.id)).size !== c.choices.length || c.choices.some((x) => !x.id || !x.label || !x.description || !x.consequences || typeof x.consequences !== 'object' || Array.isArray(x.consequences) || !!validateOpportunityConsequences(x.consequences, state, 'authoring'))
+        || c.choices.some((choice) => choice.evaluation && (!choice.evaluation.rationale.trim() || !choice.evaluation.reaction.trim()
+          || (choice.evaluation.receiverPersonId && !state.world.people[choice.evaluation.receiverPersonId])
+          || (choice.evaluation.institutionId && !state.world.institutions[choice.evaluation.institutionId])
+          || !['Thorough','Defensible','Incomplete','Overreached'].includes(choice.evaluation.assessment)))
         || (c.employer && (c.employer.kind === 'person' ? !state.world.people[c.employer.id as PersonId] : !state.world.institutions[c.employer.id as InstitutionId]))) {
         return fail(state, 'challenge-invalid', 'A Challenge needs contextual grounding, a delivery reason, and distinct authored resolution choices.');
       }
@@ -294,15 +299,57 @@ export function transitionOpportunityAction(state: GameState, action: Opportunit
       const choice = challenge.choices.find((x) => x.id === action.choiceId);
       if (!choice) return fail(state, 'challenge-choice-invalid', 'Select one of the authored Challenge rulings.');
       if (state.actionEconomy.apRemaining < challenge.apCost) return fail(state, 'insufficient-ap', `Resolving this Challenge costs ${challenge.apCost} AP.`);
-      const effected = applyConsequences(state, choice.consequences);
+      const effects = choice.evaluation ? { ...choice.consequences, careerXp: 0 } : choice.consequences;
+      const effected = applyConsequences(state, effects);
       if (!effected) return fail(state, 'challenge-outcome-invalid', 'The selected ruling contains invalid resource, relationship, institution, event, record, or knowledge effects.');
+      let dispositionState = effected;
+      let closingReceipt: ChallengeOutcome['closingReceipt'];
+      if (choice.evaluation) {
+        const before = getInitializedScribal(state.world.people[state.player.currentCharacterId]);
+        const after = getInitializedScribal(effected.world.people[state.player.currentCharacterId]);
+        const evaluated = applyClosingAssessment(effected, {
+          receiptId: `challenge-receipt-${challenge.id}-day-${state.calendar.dayNumber}`,
+          title: challenge.title,
+          disposition: choice.label,
+          assessment: choice.evaluation.assessment,
+          rationale: choice.evaluation.rationale,
+          reaction: choice.evaluation.reaction,
+          baseCareerXp: choice.consequences.careerXp ?? 0,
+          institutionId: choice.evaluation.institutionId,
+          receiverPersonId: choice.evaluation.receiverPersonId,
+          currencyDelta: after && before ? after.wallet.money - before.wallet.money : 0,
+          provisionsDelta: after && before ? after.wallet.provisions - before.wallet.provisions : 0,
+        });
+        if (!evaluated) return fail(state, 'challenge-receipt-invalid', 'The selected Challenge disposition could not be recorded.');
+        dispositionState = evaluated.state;
+        closingReceipt = evaluated.receipt;
+      }
       const outcome: ChallengeOutcome = { challengeId: challenge.id, title: challenge.title, category: challenge.category,
-        resolvedDay: state.calendar.dayNumber, choiceId: choice.id, choiceLabel: choice.label, summary: choice.description, assigneePersonId: challenge.assigneePersonId };
-      const { [challenge.id]: _removed, ...active } = effected.opportunities.challenges;
-      const next = { ...effected, actionEconomy: { ...effected.actionEconomy, apRemaining: effected.actionEconomy.apRemaining - challenge.apCost },
-        opportunities: { ...effected.opportunities, challenges: active,
-        challengeOutcomes: [...effected.opportunities.challengeOutcomes, outcome] } };
-      return succeed(next, 'challenge-resolved', `${challenge.title}: ${choice.label}. ${choice.description}`);
+        resolvedDay: state.calendar.dayNumber, choiceId: choice.id, choiceLabel: choice.label, summary: choice.description,
+        assigneePersonId: challenge.assigneePersonId,
+        ...(closingReceipt ? { closingReceipt, receiptAcknowledged: false } : {}) };
+      const { [challenge.id]: _removed, ...active } = dispositionState.opportunities.challenges;
+      const next = { ...dispositionState, actionEconomy: { ...dispositionState.actionEconomy, apRemaining: dispositionState.actionEconomy.apRemaining - challenge.apCost },
+        opportunities: { ...dispositionState.opportunities, challenges: active,
+        challengeOutcomes: [...dispositionState.opportunities.challengeOutcomes, outcome] } };
+      return succeed(next, 'challenge-resolved', closingReceipt
+        ? `${challenge.title}: ${choice.label}. A ${closingReceipt.assessment} Closing Receipt is ready for review.`
+        : `${challenge.title}: ${choice.label}. ${choice.description}`);
+    }
+    case 'ACKNOWLEDGE_ASSIGNMENT_RECEIPT': {
+      const offer = opportunities.assignments[action.assignmentId];
+      if (!offer || offer.status !== 'completed' || !offer.closingReceipt || offer.receiptAcknowledged) return fail(state, 'assignment-receipt-unavailable', 'This Assignment has no pending Closing Receipt.');
+      return succeed({ ...state, opportunities: { ...opportunities, assignments: {
+        ...opportunities.assignments, [offer.id]: { ...offer, receiptAcknowledged: true },
+      } } }, 'assignment-receipt-acknowledged', 'Returned to the Assignment Board.');
+    }
+    case 'ACKNOWLEDGE_CHALLENGE_RECEIPT': {
+      const index = opportunities.challengeOutcomes.findIndex((outcome) => outcome.challengeId === action.challengeId);
+      const outcome = opportunities.challengeOutcomes[index];
+      if (!outcome || !outcome.closingReceipt || outcome.receiptAcknowledged) return fail(state, 'challenge-receipt-unavailable', 'This Challenge has no pending Closing Receipt.');
+      const challengeOutcomes = [...opportunities.challengeOutcomes];
+      challengeOutcomes[index] = { ...outcome, receiptAcknowledged: true };
+      return succeed({ ...state, opportunities: { ...opportunities, challengeOutcomes } }, 'challenge-receipt-acknowledged', 'Returned to the Challenge Journal.');
     }
   }
 }
