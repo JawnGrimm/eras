@@ -167,7 +167,7 @@ describe('Era I Martial F01-F04 causal matter pipeline', () => {
 
     const restored = restoreSave(JSON.stringify(createSaveEnvelope(state, 1)))?.state;
     expect(restored).toBeDefined();
-    for (const matter of Object.values(state.world.matters).filter((item) => martialKinds.includes(item.kind))) {
+    for (const matter of Object.values(state.world.matters).filter((item) => martialKinds.has(item.kind))) {
       expect(restored!.world.matters[matter.id]).toEqual(matter);
       expect(restored!.world.events[matter.sourceEventId!]).toEqual(state.world.events[matter.sourceEventId!]);
       expect(restored!.world.institutions[matter.institutionId].activeMatters).toContain(matter.id);
