@@ -34,11 +34,24 @@ export interface AssignmentActivityReportSchema {
   responsibilityClaims: Array<{ id: string; label: string }>;
   recommendations: Array<{ id: string; label: string }>;
   limitationsLabel: string;
+  limitationOptions?: Array<{ id: string; label: string }>;
+}
+export interface AssignmentActivityEvaluation {
+  requiredEvidenceIds: string[];
+  requiredLimitationIds: string[];
+  relevantEvidenceIds: string[];
+  relevantLimitationIds: string[];
+  unsupportedFindingIds: string[];
+  unsupportedResponsibilityClaimIds: string[];
+  receiverPersonId?: PersonId;
+  rationales: Record<import('../../state/types').AssignmentAssessmentCategory, string>;
+  reactions: Record<import('../../state/types').AssignmentAssessmentCategory, string>;
 }
 export interface AssignmentActivityDefinition {
   id: string; title: string; submissionApCost: number; participants: PersonId[];
   actions: AssignmentActivityActionDefinition[]; discoveries: AssignmentActivityDiscoveryDefinition[];
   interpretationRules: InterpretationRule[]; reportSchema: AssignmentActivityReportSchema; submissionNote?: string;
+  evaluation?: AssignmentActivityEvaluation;
   createInitialProgress(): AssignmentActivityProgress;
 }
 const interpretationRules: InterpretationRule[] = [
@@ -207,7 +220,9 @@ export function validateAssignmentActivityDefinition(definition: AssignmentActiv
   }
   return issues;
 }
-export const ASSIGNMENT_ACTIVITY_CATALOG = { [NORTH_BAY_ACTIVITY_ID]: northBayRoofInspection, [NORTH_BAY_POST_EXECUTION_ACTIVITY_ID]: northBayPostExecutionInspection, ...URUK_ASSIGNMENT_ACTIVITY_CATALOG } as const;
+import { ERA_I_ANCHOR_ACTIVITY_CATALOG } from './eraIAnchors';
+
+export const ASSIGNMENT_ACTIVITY_CATALOG = { [NORTH_BAY_ACTIVITY_ID]: northBayRoofInspection, [NORTH_BAY_POST_EXECUTION_ACTIVITY_ID]: northBayPostExecutionInspection, ...URUK_ASSIGNMENT_ACTIVITY_CATALOG, ...ERA_I_ANCHOR_ACTIVITY_CATALOG } as const;
 
 export function validateAssignmentActivityProgress(definition: AssignmentActivityDefinition, value: unknown): value is AssignmentActivityProgress {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
