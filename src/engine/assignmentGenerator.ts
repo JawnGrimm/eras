@@ -1,4 +1,4 @@
-import type { AssignmentId } from '../state/ids';
+import type { AssignmentId, EventId, RecordId } from '../state/ids';
 import type { AssignmentOffer, GameState, TransitionResult, WorldEvent, InstitutionalMatter } from '../state/types';
 import { ASSIGNMENT_ACTIVITY_CATALOG, NORTH_BAY_POST_EXECUTION_ACTIVITY_ID } from '../content/assignments/northBayRoofInspection';
 import { URUK_ASSIGNMENT_OPPORTUNITY_DEFINITIONS } from '../content/assignments/opportunityDefinitions';
@@ -6,10 +6,17 @@ import { ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS } from '../content/assignments/era
 import { transitionOpportunityAction } from './opportunities';
 
 function occurrenceSourceFacts(state: GameState, matter: InstitutionalMatter): string[] {
+  // A report filed in response to a matter is derivative evidence, not a new
+  // causal development. Exclude record_copy sources before considering either
+  // the direct sourceRecordId field or the broader provenance list.
+  const derivativeRecordIds = new Set((matter.provenance ?? [])
+    .filter((source) => source.kind === 'record_copy' && source.sourceId)
+    .map((source) => source.sourceId!));
   return [...new Set([
     ...(matter.sourceEventId && state.world.events[matter.sourceEventId] ? [matter.sourceEventId] : []),
-    ...(matter.sourceRecordId && state.records.entries[matter.sourceRecordId] ? [matter.sourceRecordId] : []),
-    ...(matter.provenance ?? []).flatMap((source) => source.sourceId
+    ...(matter.sourceRecordId && !derivativeRecordIds.has(matter.sourceRecordId)
+      && state.records.entries[matter.sourceRecordId] ? [matter.sourceRecordId] : []),
+    ...(matter.provenance ?? []).flatMap((source) => source.kind !== 'record_copy' && source.sourceId
       && (state.world.events[source.sourceId as keyof typeof state.world.events] || state.records.entries[source.sourceId as keyof typeof state.records.entries])
       ? [source.sourceId] : []),
   ])].sort();
@@ -48,8 +55,12 @@ export function generateDailyAssignments(state: GameState): GameState {
       || response.assigneePersonId === next.player.currentCharacterId
       || !next.records.entries[response.recordId]) continue;
     const requiredSourceFactIds = [executionEvent.id, response.recordId].sort();
-    const occurrenceKey = `${NORTH_BAY_POST_EXECUTION_ACTIVITY_ID}|${requiredSourceFactIds.join('|')}`;
-    if (next.opportunities.occurrenceLedger.some((entry) => entry.occurrenceKey === occurrenceKey)) continue;
+    const occurrenceKey = `${NORTH_BAY_POST_EXECUTION_ACTIVITY_ID}|${matter.id}|event:${executionEvent.id}|${requiredSourceFactIds.join('|')}`;
+    if (next.opportunities.occurrenceLedger.some((entry) => entry.scenarioId === NORTH_BAY_POST_EXECUTION_ACTIVITY_ID
+      && entry.matterId === matter.id && entry.primarySourceFact?.kind === 'event'
+      && entry.primarySourceFact.id === executionEvent.id
+      && entry.requiredSourceFactIds.length === requiredSourceFactIds.length
+      && entry.requiredSourceFactIds.every((id, index) => id === requiredSourceFactIds[index]))) continue;
     const id = `assignment-auto-post-execution-${executionEvent.id}` as AssignmentId;
     if (next.opportunities.assignments[id]) continue;
     if (Object.values(next.world.events).some((event) => event.institutionalResponse?.stage === 'verification'
@@ -121,8 +132,20 @@ export function generateDailyAssignments(state: GameState): GameState {
       if (sourceMatter.status !== 'active' || !sourceInstitution?.activeMatters.includes(sourceMatter.id)) continue;
       const requiredSourceFactIds = occurrenceSourceFacts(next, sourceMatter);
       if (requiredSourceFactIds.length === 0) continue;
-      const occurrenceKey = `${definition.offer.activityId}|${requiredSourceFactIds.join('|')}`;
-      if (next.opportunities.occurrenceLedger.some((entry) => entry.occurrenceKey === occurrenceKey)) continue;
+      const primaryEventId = requiredSourceFactIds.find((factId) => next.world.events[factId as EventId]);
+      const primaryRecordId = requiredSourceFactIds.find((factId) => next.records.entries[factId as RecordId]);
+      const primarySourceFact = primaryEventId
+        ? { kind: 'event' as const, id: primaryEventId as EventId }
+        : primaryRecordId ? { kind: 'record' as const, id: primaryRecordId as RecordId } : undefined;
+      if (!primarySourceFact) continue;
+      const occurrenceKey = `${definition.offer.activityId}|${sourceMatter.id}|${primarySourceFact.kind}:${primarySourceFact.id}|${requiredSourceFactIds.join('|')}`;
+      const alreadyRecorded = next.opportunities.occurrenceLedger.some((entry) =>
+        entry.scenarioId === definition.offer.activityId && entry.matterId === sourceMatter.id
+        && entry.primarySourceFact?.kind === primarySourceFact.kind
+        && entry.primarySourceFact.id === primarySourceFact.id
+        && entry.requiredSourceFactIds.length === requiredSourceFactIds.length
+        && entry.requiredSourceFactIds.every((id, index) => id === requiredSourceFactIds[index]));
+      if (alreadyRecorded) continue;
       const existingOfferForOccurrence = Object.values(next.opportunities.assignments).some((offer) =>
         offer.activityId === definition.offer.activityId && offer.originMatterId === sourceMatter.id
         && (offer.occurrenceKey === occurrenceKey || (!offer.occurrenceKey
@@ -152,9 +175,7 @@ export function generateDailyAssignments(state: GameState): GameState {
             occurrenceKey,
             lifecycle: 'offered' as const,
             matterId: sourceMatter.id,
-            ...(requiredSourceFactIds.find((factId) => next.world.events[factId as EventId])
-              ? { primarySourceFact: { kind: 'event' as const, id: requiredSourceFactIds.find((factId) => next.world.events[factId as EventId]) as EventId } }
-              : { primarySourceFact: { kind: 'record' as const, id: requiredSourceFactIds.find((factId) => next.records.entries[factId as RecordId]) as RecordId } }),
+            primarySourceFact,
             requiredSourceFactIds,
             deliveryChannels: definition.offer.deliveryChannels,
             presentedDay: next.calendar.dayNumber,
