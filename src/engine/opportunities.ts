@@ -74,6 +74,26 @@ function validChannels(channels: OpportunityDeliveryChannel[], state: GameState)
     return c.kind === 'baseline_reach';
   });
 }
+function updateChallengeOccurrenceLifecycle(
+  state: GameState,
+  challenge: ChallengeInstance,
+  lifecycle: OpportunityOccurrenceLifecycle,
+): GameState {
+  let changed = false;
+  const occurrenceLedger = state.opportunities.occurrenceLedger.map((entry) => {
+    if (entry.occurrenceKey !== challenge.id) return entry;
+    changed = true;
+    return {
+      ...entry,
+      lifecycle,
+      ...(lifecycle === 'accepted' && challenge.assigneePersonId
+        ? { assigneePersonId: challenge.assigneePersonId }
+        : {}),
+    };
+  });
+  return changed ? { ...state, opportunities: { ...state.opportunities, occurrenceLedger } } : state;
+}
+
 function applyConsequences(state: GameState, effects: OpportunityConsequences | undefined): GameState | null {
   if (!effects) return state;
   if (validateOpportunityConsequences(effects, state, 'runtime')) return null;
@@ -272,6 +292,12 @@ export function transitionOpportunityAction(state: GameState, action: Opportunit
     }
     case 'PRESENT_CHALLENGE': {
       const c = action.challenge;
+      const unresolvedChallenges = Object.values(opportunities.challenges)
+        .filter((challenge) => challenge.status === 'offered' || challenge.status === 'accepted').length;
+      if (unresolvedChallenges >= 2) return fail(state, 'challenge-cap-reached', 'No more than two Challenges may remain unresolved at once.');
+      if (opportunities.occurrenceLedger.some((entry) => entry.occurrenceKey === c.id)) {
+        return fail(state, 'challenge-occurrence-duplicate', 'This Challenge occurrence has already been presented.');
+      }
       if (!c.id || opportunities.challenges[c.id] || !c.title || !c.description || !c.category || !c.context.what
         || !c.context.purpose || !validChannels(c.deliveryChannels, state) || !Number.isInteger(c.apCost) || c.apCost < 1 || c.apCost > 6
         || !Array.isArray(c.choices) || !c.choices.length
@@ -290,13 +316,15 @@ export function transitionOpportunityAction(state: GameState, action: Opportunit
       const challenge = opportunities.challenges[action.challengeId];
       if (!challenge || challenge.status !== 'offered') return fail(state, 'challenge-not-offered', 'Only an offered Challenge can be accepted.');
       const accepted = { ...challenge, status: 'accepted' as const, assigneePersonId: state.player.currentCharacterId };
-      return succeed({ ...state, opportunities: { ...opportunities, challenges: { ...opportunities.challenges, [challenge.id]: accepted } } }, 'challenge-accepted', 'The Challenge was accepted by the current character without spending AP.');
+      const next = { ...state, opportunities: { ...opportunities, challenges: { ...opportunities.challenges, [challenge.id]: accepted } } };
+      return succeed(updateChallengeOccurrenceLifecycle(next, accepted, 'accepted'), 'challenge-accepted', 'The Challenge was accepted by the current character without spending AP.');
     }
     case 'DECLINE_CHALLENGE': {
       const challenge = opportunities.challenges[action.challengeId];
       if (!challenge || challenge.status !== 'offered') return fail(state, 'challenge-not-offered', 'Only an offered Challenge can be declined.');
       const declined = { ...challenge, status: 'declined' as const };
-      return succeed({ ...state, opportunities: { ...opportunities, challenges: { ...opportunities.challenges, [challenge.id]: declined } } }, 'challenge-declined', 'The Challenge was declined.');
+      const next = { ...state, opportunities: { ...opportunities, challenges: { ...opportunities.challenges, [challenge.id]: declined } } };
+      return succeed(updateChallengeOccurrenceLifecycle(next, declined, 'declined'), 'challenge-declined', 'The Challenge was declined.');
     }
     case 'RESOLVE_CHALLENGE': {
       const challenge = opportunities.challenges[action.challengeId];
@@ -337,7 +365,8 @@ export function transitionOpportunityAction(state: GameState, action: Opportunit
       const next = { ...dispositionState, actionEconomy: { ...dispositionState.actionEconomy, apRemaining: dispositionState.actionEconomy.apRemaining - challenge.apCost },
         opportunities: { ...dispositionState.opportunities, challenges: active,
         challengeOutcomes: [...dispositionState.opportunities.challengeOutcomes, outcome] } };
-      return succeed(next, 'challenge-resolved', closingReceipt
+      const archived = updateChallengeOccurrenceLifecycle(next, challenge, 'completed');
+      return succeed(archived, 'challenge-resolved', closingReceipt
         ? `${challenge.title}: ${choice.label}. A ${closingReceipt.assessment} Closing Receipt is ready for review.`
         : `${challenge.title}: ${choice.label}. ${choice.description}`);
     }
