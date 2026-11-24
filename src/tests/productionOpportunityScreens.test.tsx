@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { ProductionAssignmentBoard } from '../components/ProductionAssignmentBoard';
 import { AssignmentActivityScreen } from '../components/AssignmentActivityScreen';
 import { ProductionChallengeJournal } from '../components/ProductionChallengeJournal';
+import { ProductionWorkdayHub } from '../components/ProductionWorkdayHub';
 import { GameProvider } from '../state/GameProvider';
 import { createNewGameState } from '../state/newGameState';
 import { transitionGame } from '../engine/actionEconomy';
@@ -27,6 +28,36 @@ describe('production opportunity screens', () => {
     expect(markup).toContain('South Loading-Awning Inspection');
     expect(markup).toContain('Expires Day 4');
     expect(markup).toContain('3 days remaining');
+  });
+
+  it('discloses authored Provision compensation on the pre-acceptance Workday offer card', () => {
+    const state = createNewGameState(TEST_CHARACTER_CREATION);
+    const southCourtOffer = Object.values(state.opportunities.assignments)
+      .find((offer) => offer.activityId === 'activity-south-court-delivery-reconciliation');
+    expect(southCourtOffer).toBeDefined();
+    const stateWithProvisionContract = {
+      ...state,
+      opportunities: {
+        ...state.opportunities,
+        assignments: {
+          ...state.opportunities.assignments,
+          [southCourtOffer!.id]: {
+            ...southCourtOffer!,
+            compensation: { ...southCourtOffer!.compensation, provisions: 1 },
+          },
+        },
+      },
+    };
+    const markup = renderToStaticMarkup(createElement(GameProvider, { initialState: stateWithProvisionContract },
+      createElement(ProductionWorkdayHub)));
+    const assignmentSection = markup.indexOf('Assignments / Commissions');
+    const southCourtTitle = markup.indexOf('South-Court Delivery Reconciliation', assignmentSection);
+    const southCourtCard = markup.slice(southCourtTitle, markup.indexOf('</article>', southCourtTitle));
+
+    expect(southCourtTitle).toBeGreaterThan(assignmentSection);
+    expect(southCourtCard).toContain('+1 Provision in kind');
+    expect(southCourtCard).toContain(`${southCourtOffer!.compensation.money} Currency`);
+    expect(southCourtCard).toContain('Career XP');
   });
 
   it('shows responsibility guidance only on the Assignment that authors it', () => {
