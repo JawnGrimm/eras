@@ -220,6 +220,33 @@ export interface KnowledgeEntry {
 
 export interface CalendarState { eraId: EraId; dayNumber: number; displayDate: string; }
 export interface ActionEconomyState { dailyApAllocation: 5 | 6; apRemaining: number; overtimeUsedToday: boolean; nextDayApPenalty: boolean; recoveryLaborUsedToday: boolean; }
+export type DayClosePhase = 'workday_open' | 'interlude_open';
+export interface PendingSettlementCredit {
+  id: string;
+  source: { kind: 'assignment' | 'work'; id: string };
+  earnedDay: number;
+  money: number;
+  provisions: number;
+  status: 'pending' | 'credited';
+  creditedBySettlementId?: string;
+}
+export interface DayCloseState {
+  phase: DayClosePhase;
+  pendingSettlementId: string | null;
+  lastFinalizedSettlementId: string | null;
+  pendingCredits: PendingSettlementCredit[];
+}
+export type OpportunityOccurrenceLifecycle = 'offered' | 'accepted' | 'declined' | 'lapsed' | 'cancelled' | 'completed';
+export interface OpportunityOccurrenceLedgerEntry {
+  scenarioId: string;
+  occurrenceKey: string;
+  lifecycle: OpportunityOccurrenceLifecycle;
+  matterId?: MatterId;
+  primarySourceFact?: { kind: 'event'; id: EventId } | { kind: 'record'; id: RecordId };
+  requiredSourceFactIds: string[];
+  assigneePersonId?: PersonId;
+  legacy?: true;
+}
 export interface DurableNotice { id: string; dayNumber: number; category: 'settlement' | 'opportunity' | 'relationship' | 'work' | 'world'; message: string; read: boolean; }
 
 
@@ -365,7 +392,8 @@ export interface GameState {
     matters: Record<MatterId, InstitutionalMatter>;
   };
   historicalProgression: { historicalXp: number; completedWorks: WorkId[] };
-  opportunities: { assignments: Record<AssignmentId, AssignmentOffer>; challenges: Record<ChallengeId, ChallengeInstance>; challengeOutcomes: ChallengeOutcome[]; assignmentAggregates: Record<string, AssignmentActivityAggregate>; recentActivity: OpportunityActivity[]; assignmentGeneratorLedger?: { sequence: number; lastPresentedDayByActivity: Record<string, number> } };
+  dayClose: DayCloseState;
+  opportunities: { assignments: Record<AssignmentId, AssignmentOffer>; challenges: Record<ChallengeId, ChallengeInstance>; challengeOutcomes: ChallengeOutcome[]; assignmentAggregates: Record<string, AssignmentActivityAggregate>; recentActivity: OpportunityActivity[]; selectionSeed: string; occurrenceLedger: OpportunityOccurrenceLedgerEntry[]; assignmentGeneratorLedger?: { sequence: number; lastPresentedDayByActivity: Record<string, number> } };
   works: { activeWorkId: WorkId | null; progress: Record<WorkId, WorkProgress> };
   records: {
     entries: Record<RecordId, RecordEntry>;
@@ -374,7 +402,8 @@ export interface GameState {
   };
   journal: { notices: DurableNotice[] };
 }
-export interface SaveEnvelope { schemaVersion: 2; gameVersion: string; revision: number; savedAt: string; state: GameState; }
+export interface SaveEnvelope { schemaVersion: 3; gameVersion: string; revision: number; savedAt: string; state: GameState; }
+export interface LegacySaveEnvelopeV2 { schemaVersion: 2; gameVersion: string; revision: number; savedAt: string; state: GameState; }
 export interface SkillAdvancementRule { requiredSkillXp: number; careerXpCost: number; }
 export type TargetSkillLevel = 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 export interface CareerProgressionPolicy { skillAdvancementByTargetLevel: Partial<Record<TargetSkillLevel, SkillAdvancementRule>>; }
@@ -393,6 +422,7 @@ export type GameAction =
   | { type: 'RECORD_WORK_ASSESSMENT'; workId: WorkId; outcome: 'accepted' | 'revise' | 'rejected'; summary: string; historicalXpReward: number }
   | { type: 'ACTIVATE_OVERTIME' }
   | { type: 'END_DAY'; expectedDayNumber: number }
+  | { type: 'BEGIN_WORKDAY'; expectedSettlementId: string }
   | { type: 'PERFORM_RECOVERY_LABOR' }
   | { type: 'REQUEST_CONTACT_ADVANCE'; contactId: PersonId }
   | { type: 'MARK_NOTICE_READ'; noticeId: string }
