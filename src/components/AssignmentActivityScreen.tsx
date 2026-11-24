@@ -81,7 +81,7 @@ export function AssignmentActivityScreen({ assignmentId, onBack }: { assignmentI
         <select value={draft.responsibilityClaim} onChange={(e) => dispatchDraft({ ...draft, responsibilityClaim: e.target.value as typeof draft.responsibilityClaim })} className="mt-1 block w-full rounded border border-stone-300 bg-white p-2">
           {definition.reportSchema.responsibilityClaims.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}
         </select>
-        <span className="mt-1 block text-xs font-normal text-stone-500">Dudu’s contract covered the mid-bay patch only. The remaining work was outside the recorded fee.</span>
+        {definition.reportSchema.responsibilityHint && <span className="mt-1 block text-xs font-normal text-stone-500">{definition.reportSchema.responsibilityHint}</span>}
       </label>
       <fieldset className="mt-4"><legend className="text-sm font-medium">Cite discoveries</legend>
         {definition.discoveries.filter((item) => progress.discoveryIds.includes(item.id)).map((item) => <label key={item.id} className="mt-2 flex gap-2 text-sm">

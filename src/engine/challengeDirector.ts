@@ -2,6 +2,7 @@ import type { ChallengeId } from '../state/ids';
 import type { ChallengeInstance, ChallengeTriggerRule, GameState, OpportunityConsequences } from '../state/types';
 import { evaluateChallengeTriggers, transitionOpportunityAction } from './opportunities';
 import { MATTER_IDS } from './institutionalMatters';
+import { STOREHOUSE_WORK_ID } from '../works/storehouseReckoning';
 
 const STOREHOUSE = 'institution-uruk-temple-storehouse';
 const STEWARD = 'person-ur-nanna' as const;
@@ -125,5 +126,8 @@ function missingMeasure(state: GameState): GameState {
 }
 
 export function runChallengeDirector(state: GameState): GameState {
+  // These authored scenarios belong to Era I. The supervised tutorial is an onboarding gate,
+  // not a queued Challenge trigger; other eras must not inherit this Uruk content gate.
+  if (state.calendar.eraId !== 'era-1' || state.works.progress[STOREHOUSE_WORK_ID]?.status !== 'completed') return state;
   return missingMeasure(sevenSacks(state));
 }

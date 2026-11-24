@@ -57,7 +57,7 @@ export function ProductionChallengeJournal() {
         ['Assignments presented', data.totals.presented],
         ['Assignments completed', data.totals.completed],
         ['Challenges resolved', data.challengeArchive.length],
-        ['Assignment rewards', `${data.totals.silverEarned} silver · ${data.totals.careerXpEarned.toLocaleString()} XP`],
+        ['Assignment rewards', `${data.totals.silverEarned} Currency · ${data.totals.careerXpEarned.toLocaleString()} XP`],
       ].map(([label, value]) => <div key={String(label)} className="rounded-xl border border-stone-300 bg-white p-4">
         <p className="text-xs text-stone-500">{label}</p><p className="mt-1 font-serif text-2xl font-semibold text-stone-900">{value}</p>
       </div>)}

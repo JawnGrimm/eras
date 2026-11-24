@@ -5,6 +5,7 @@ import {
   ERA_I_CHARACTER_HISTORY_DEPENDENCY_VERSION,
   ERA_I_CHARACTER_STARTING_STATE_VERSION,
   ERA_I_CURATED_SAMPLE_NAMES,
+  ERA_I_AVAILABLE_SAMPLE_NAMES,
   resolveEraICharacterStartingState,
   validateEraICharacterName,
 } from './eraICharacterStartingState';
@@ -92,6 +93,14 @@ describe('Era I character name policy', () => {
     expect(validateEraICharacterName('   ').valid).toBe(false);
     expect(validateEraICharacterName('Aru\u202eName').valid).toBe(false);
     expect(validateEraICharacterName('Aru / Šamaš! 𒀭').valid).toBe(true);
+  });
+
+  it('withholds raw catalog-notation names from the player picker without changing source provenance', () => {
+    expect(ERA_I_CURATED_SAMPLE_NAMES).toHaveLength(8);
+    expect(ERA_I_CURATED_SAMPLE_NAMES.some((item) => item.name === 'Šubur-e₂a×1N57')).toBe(true);
+    expect(ERA_I_AVAILABLE_SAMPLE_NAMES).toHaveLength(7);
+    expect(ERA_I_AVAILABLE_SAMPLE_NAMES.map((item) => item.name)).not.toContain('Šubur-e₂a×1N57');
+    expect(ERA_I_AVAILABLE_SAMPLE_NAMES.every((item) => !item.name.includes('×'))).toBe(true);
   });
 
   it('provides exactly the eight approved curated names without active Day 1 NPC names', () => {

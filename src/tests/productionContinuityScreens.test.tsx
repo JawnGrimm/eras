@@ -15,6 +15,9 @@ import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState
 import { GameProvider } from '../state/GameProvider';
 import type { AppointmentId, EventId, KnowledgeEntryId, PersonId, RecordId } from '../state/ids';
 import type { GameState, RecordEntry } from '../state/types';
+import { getInitializedScribal } from '../state/scribalState';
+import { createSaveEnvelope, restoreSave } from '../state/saveEnvelope';
+import { INITIAL_WORK_CATALOG } from '../state/newGameState';
 import { STOREHOUSE_WORK_ID } from '../works/storehouseReckoning';
 
 function renderScreen(state: GameState, screen: React.ReactElement) {
@@ -35,7 +38,8 @@ describe('production continuity and social screens', () => {
     expect(markup).toContain('Derived professional rank: Grade');
     expect(markup).toContain('Connection priority: Direct personal connection');
     expect(markup).toContain('Reading scripts');
-    expect(markup).toContain('Silver');
+    expect(markup).toContain('Currency');
+    expect(markup).not.toContain('Silver');
     expect(markup).toContain('Enlil-barni → Nin-aya');
     expect(markup).toContain('Ur-gir → Enlil-barni');
     expect(markup).toContain('Relationship history');
@@ -71,7 +75,47 @@ describe('production continuity and social screens', () => {
     expect(markup).toContain('Stress: 0/100');
     expect(markup).toContain('Professional Rank: Grade 1');
     expect(markup).toContain('Introductory Tutorial · Storehouse');
+    expect(markup).toContain('Currency');
+    expect(markup).not.toContain('Silver');
     expect(markup).not.toContain('Active Work · Storehouse');
+  });
+
+  it('restores a legacy schema-v2 obligation and balance unchanged while presenting Currency copy', () => {
+    const fresh = createNewGameState(TEST_CHARACTER_CREATION);
+    const playerId = fresh.player.currentCharacterId;
+    const person = fresh.world.people[playerId];
+    const scribal = getInitializedScribal(person)!;
+    const legacyObligation = {
+      id: 'obligation-legacy-ur-gir',
+      creditorPersonId: 'person-uruk-ur-gir' as PersonId,
+      createdDay: 1,
+      kind: 'repayment_or_service' as const,
+      description: 'Repay one silver or provide one day of scribal assistance to Ur-gir, by mutual arrangement.',
+      status: 'outstanding' as const,
+    };
+    const legacyState: GameState = {
+      ...fresh,
+      world: { ...fresh.world, people: { ...fresh.world.people, [playerId]: {
+        ...person, scribal: { ...scribal, wallet: { ...scribal.wallet, money: 7, provisions: 3 }, obligations: [legacyObligation] },
+      } } },
+    };
+    const restored = restoreSave(JSON.stringify(createSaveEnvelope(legacyState, 2)), INITIAL_WORK_CATALOG);
+    expect(restored).not.toBeNull();
+    const restoredScribal = getInitializedScribal(restored!.state.world.people[playerId])!;
+    expect(restoredScribal.wallet).toMatchObject({ money: 7, provisions: 3 });
+    expect(restoredScribal.obligations[0].description).toContain('one silver');
+    const markup = renderScreen(restored!.state, createElement(ProductionWorkdayHub, {
+      onOpenWork: () => undefined, onOpenActivity: () => undefined, settlement: null, onSettlement: () => undefined,
+    }));
+    expect(markup).toContain('one unit of Currency');
+    expect(markup).not.toContain('silver');
+  });
+
+  it('renders authored tutorial action labels without exposing internal action IDs', () => {
+    const state = createNewGameState(TEST_CHARACTER_CREATION);
+    const markup = renderScreen(state, createElement(StorehouseWorkScreen, { onBack: () => undefined }));
+    expect(markup).toContain('Examine intake inspection and issue records');
+    expect(markup).not.toContain('intake_issue');
   });
 
   it('hides submission controls after the Storehouse tutorial is completed', () => {
@@ -117,6 +161,10 @@ describe('production continuity and social screens', () => {
     expect(unqualifiedMarkup).toContain('Current skills do not meet the stated requirements.');
     expect(unqualifiedMarkup).toMatch(/disabled=""[^>]*>Accept</);
     expect(journalMarkup).toContain('Assignment rewards');
+    expect(journalMarkup).toContain('Currency');
+    expect(journalMarkup).not.toContain('silver');
+    expect(expiredMarkup).toContain('Currency');
+    expect(expiredMarkup).not.toContain('silver');
     expect(journalMarkup).not.toContain('Career rewards');
   });
 

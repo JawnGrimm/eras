@@ -55,6 +55,14 @@ describe('Storehouse Reckoning introductory tutorial', () => {
     expect(storehouseReckoning.historicalXpReward).toBe(STOREHOUSE_PROVISIONAL_HISTORICAL_XP);
   });
 
+  it('shows authored player-facing feedback when intake_issue records are acquired', () => {
+    const result = transitionGame(start(), {
+      type: 'ACQUIRE_WORK_EVIDENCE', workId: STOREHOUSE_WORK_ID, actionId: 'intake_issue',
+    }, undefined, catalog);
+    expect(result.feedback?.message).toBe('The intake inspection and issue records have been added to your evidence packet.');
+    expect(result.feedback?.message).not.toContain('intake_issue');
+  });
+
   it('allows the minimum path and keeps custody evidence optional', () => {
     let state = acquireMinimum(start());
     expect(state.actionEconomy.apRemaining).toBe(2);
