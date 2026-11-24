@@ -1,149 +1,230 @@
-# GD-OPPORTUNITY-001 — Assignment Supply and Challenge Arrival
+# GD-OPPORTUNITY-001 — Assignment Supply and Challenge Director
 
-**Status:** PROPOSED — DESIGN DIRECTION PARTIALLY APPROVED; BEHAVIORAL CONTRACT IN DEVELOPMENT  
-**Owner:** Game Design, with Historical Research and Production/QA dependencies  
-**Authority:** Canonical GDD §§5.1–5.2, 6.3; World Simulation Specification §§15.4–15.5  
-**Purpose:** Replace the narrow prototype-era opportunity loop with a sustainable, historically grounded system.
+**Status:** PROPOSED — OWNER-APPROVED DIRECTION; BEHAVIORAL CONTRACT FOR REVIEW  
+**Owners:** Game Design; Historical Research  
+**Authority:** GDD §§5.1–5.2, 6.3; approved Assignment Orientation and Institutional Context Specification; Game Director direction, 24 November 2026  
+**Implementation status:** Not ready for implementation. No runtime or save-state change is authorized by this document.
 
-## 1. Approved direction
+## 1. Decision maturity
 
-The Game Director approved a **soft daily Assignment supply expectation, not a hard quota**.
+### Approved direction
 
-The canonical GDD §6.3 already sets the initial content target at roughly **8 AP worth of newly presented Assignments per Workday**. This is a tuning target, not a guarantee, fixed slot count, or requirement to manufacture work. Low rank must not systematically reduce the baseline volume of ordinary playable work.
+- Assignment supply follows the GDD §6.3 soft target: normally about **8 AP worth of newly presented eligible Assignments per Workday**. This is not a quota, fixed offer count, or guarantee.
+- Quiet days remain possible when no plausible eligible source exists, but should be exceptional rather than the routine result of a narrow content pool.
+- All four orientations use **one shared world pool**. They are professional emphases, not classes or exclusive queues. Cross-institutional access remains possible through supported contacts, matters, and institutional reach.
+- The next Era I authoring pass targets roughly **8–9 distinct, richer institution-anchored Assignment definitions overall**, aiming for about two credible anchor opportunities in each orientation's institutional context. This is a portfolio target, not a daily count or a requirement for equal queues.
+- Sustain the daily supply target through two tiers: bespoke anchor Assignments plus recurring, deterministically parameterized institutional occurrences grounded in active world matters.
+- Replace the two-scenario Challenge special case with a general authored scenario pool, causal triggers, and weighted deterministic selection among eligible scenarios.
 
-A quiet Workday remains possible when no plausible eligible opportunity exists. It should be an exception caused by the actual world and eligibility state, not the routine result of exhausting a tiny prototype catalog.
+### Still open
 
-Assignments and Challenges remain distinct optional layers. Neither awards Historical Progress XP or gates mandatory Works.
+Exact content count and distribution; which existing activities are retained or revised; recurrence conditions and parameter domains; generator weights and presentation safeguards; Challenge weights, cooldowns, active limits, and arrival pacing; evaluation-boundary details; technical state, persistence, and seed implementation. These require evidence, playtesting, and/or a separate owner decision. None is silently fixed here.
 
-## 2. Live implementation audit
+## 2. GDD alignment and invariants
 
-Inspected live repository source on `main` at commit `e78def30e3ce732c001a70943a7cedd4314f0024`, alongside the canonical GDD and supporting specifications.
+- Assignments are ordinary optional professional work; Challenges are separate optional situations, not commissions or ordinary paid employment.
+- Both remain distinct from Works. Neither awards Historical Progress XP or gates a mandatory Work.
+- The six-AP Workday remains the shared economy. Assignment lifecycle and Challenge AP behavior continue to follow the GDD unless a separate proposal is approved.
+- No runtime generative AI creates Assignments or Challenges, validates records, or determines outcomes.
+- Preserve the distinctions among access, qualification, knowledge, interpretation, and authority. Orientation does not grant skill, appointment, authority, or a relationship.
+- Preserve Event, Record, and Knowledge as distinct. Every generated situation needs credible provenance and a truthful delivery explanation.
+- NPC and institutional developments may resolve without involving the player. Not every need becomes a player opportunity.
+- Generation and presentation may pace an eligible opportunity; they may not fabricate its cause, rewrite history, conceal or invent a deadline, or erase an unresolved matter.
 
-### Assignment generation
+## 3. Track 1 — Assignment Supply
 
-Current `generateDailyAssignments()`:
+### 3.1 One shared pool; institutionally distinct anchors
 
-- Discovers a small set of authored Uruk opportunity definitions by matching active institutional matters.
-- Has a special post-execution North-Bay inspection path.
-- Caps each pass at 8 estimated AP of new offers and four open offers.
-- Rotates definition order using a persisted sequence.
-- Requires an active matter still listed by its institution.
-- Prevents a second offer from the same matter, regardless of the first offer's eventual status.
-- Writes `lastPresentedDayByActivity`, but does not read it to enforce the three-day interval described in the P2-2 development reference.
-- Does not itself create recurring institutional needs or replenish the matter pool.
+The generator discovers from one shared pool of authored opportunities. It does not create Civic, Martial, Religious, or Commercial queues, class locks, or four-way variants of every job.
 
-The current initial-state test expects exactly two offers. This proves the narrow opening fixture works; it does not test a sustainable career supply. The current three Uruk activities are a prototype content cluster, not a sufficient long-term opportunity portfolio.
+Weights and eligibility may reflect:
+- the character's actual contacts and supported delivery routes;
+- active matters and the people/institutions involved;
+- institutional reach and relevant appointments or responsibilities;
+- the character's orientation as a professional emphasis;
+- rank-based reach, separately from task-specific skill qualification and formal authority.
 
-### Challenge generation
+Eligibility is evaluated before presentation weighting. Weighting may influence which eligible opportunity is surfaced first or more often; it must not bypass access, invent a relationship, or grant authority.
 
-Current `runChallengeDirector()`:
+### 3.2 Era I anchor portfolio
 
-- Is called during END_DAY settlement.
-- Evaluates two hard-coded, one-shot Uruk scenarios.
-- Uses a held-stock matter age / qualified-incomplete report condition for one scenario.
-- Uses delivery-reconciliation completion and compact Assignment aggregates for the other.
-- Uses Assignment aggregates and at most five recent Assignment activity entries as its general trigger context.
-- Has no general authored Challenge candidate pool, weighted selection among eligible scenarios, or broad trigger vocabulary for player decisions, relationship developments, and world events.
-- Does not implement general ambient/random Challenge arrival.
+Plan for roughly 8–9 distinct, richer bespoke Assignment definitions across the Era I shared pool. Aim for about two credible anchors in each orientation's institutional context, allowing genuine overlap where the same institution or responsibility serves more than one orientation.
 
-The GDD §5.2 already describes a broader intended trigger domain: professional patterns, neglected opportunities, encountered institutions/commodities/locations/people, relationships/rivalries/favors/prior decisions, and historical events. The current two-scenario director is not that system.
+The portfolio should:
+- **Civic:** make institutional administration, land/labor, production, storage, redistribution, collective work, or public/monumental responsibilities legible.
+- **Religious:** make cultic responsibilities—offerings, ritual goods, ceremonial provisioning, sacred property, or cultic maintenance—legible without inventing a separate modern church bureaucracy.
+- **Commercial:** establish a genuine exchange, procurement, counterparty, delivery, custody, or transport setting; do not assume later private merchant houses or a standardized merchant profession.
+- **Martial:** establish a historically restrained security, mobilization, organized-movement, logistics, custody, or accountability setting; do not invent a standing army, military scribal corps, quartermaster office, standardized muster system, or later defensive infrastructure.
 
-## 3. Assignment behavioral direction
+Civic and Religious contexts overlap historically. Their distinction must emerge from the actual purpose, people, evidence, responsibilities, authority, and consequences—not a secular-versus-religious label. Likewise, transport alone does not make an Assignment Martial, and the presence of a carrier alone does not establish a distinct Commercial setting.
 
-The generator should maintain a **soft supply target** by discovering and presenting eligible authored opportunities from a sufficiently broad set of sources.
+The existing three Temple Storehouse activities remain the baseline cluster for content review. They do not, by themselves, demonstrate four-orientation coverage. Review them for retention, correction, and sharper Civic/Religious responsibility; do not multiply them into cosmetic variants.
 
-Potential sources include:
+### 3.3 Two-tier supply
 
-1. Active institutional matters with a suitable authored activity.
-2. Newly created matters arising from world events, NPC actions, or institutional developments.
-3. Recurring institutional needs represented as distinct, authored occurrences (for example, periodic inspection, reconciliation, procurement, or record preparation where historically plausible).
-4. Scheduled professional duties or seasonal activity.
-5. Referrals, requests, or introductions with a factual and supported delivery route.
+**Tier A — Bespoke anchors.** Richer, institution-specific Assignments with their own human situation, evidence, procedure, authority boundaries, and consequences. They establish the distinctive settings and professional identity of the Era I portfolio.
 
-Every offer must have a traceable source and a truthful explanation of why it reached this character. A recurring need must represent a new occurrence or explicitly authored recurrence, not silently re-open a completed matter.
+**Tier B — Recurring institutional occurrences.** Reusable authored activity structures instantiated from active world matters and their supported developments. These provide ordinary work between anchor scenarios without requiring dozens of hand-authored one-offs.
 
-Eligibility must account for supported orientation/context, access, rank-based reach, specific skill qualification, required authority, character knowledge, NPC knowledge and willingness, and conflicting commitments. Keep access, qualification, and authority distinct. Do not infer them from unsupported relationship scores or fabricate relationships to make an offer appear.
+Tier B occurrences are still normal Assignments: they use the same offer lifecycle, AP economy, evidence/judgment standards, and Career XP rules. They are not a third activity layer or a shortcut that turns AP directly into a completed result.
 
-The generator should prefer variety across institutions, kinds of work, and orientations when eligible content exists. It must not force four orientation variants of every activity. Shared work is appropriate where the institution and situation genuinely support it.
+### 3.4 Deterministic parameterization and occurrence identity
 
-A declined, expired, cancelled, or completed offer must not be duplicated for the same source occurrence. A later recurrence may be offered only when a new occurrence or materially new circumstance exists and the authored definition permits it.
+A recurring occurrence may vary by counterparty, commodity and its appropriate units, discrepancy or other concrete problem, and setting—only where those facts are supported by the active matter, source records, events, and authored parameter rules.
 
-The soft target is measured in newly presented estimated AP, not offer count. Do not add fixed daily slots. Existing caps are implementation safeguards to review, not design goals. A quiet day is acceptable when eligible source supply is genuinely absent; the system should not invent a matter, false deadline, or fictitious referral to fill the target.
+Requirements:
+1. Each parameter set must be a historically and operationally coherent combination. Do not form arbitrary cross-products of incompatible people, commodities, units, institutions, or locations.
+2. A discrepancy must arise from identifiable conflicting or incomplete evidence; do not invent a missing quantity merely to create work.
+3. Parameter values must be drawn deterministically from supported world facts and authored options. The same source state and evaluation point must not produce a different occurrence because of ambient randomness.
+4. Each occurrence must have a stable identity and traceable provenance to its source matter and relevant record/event/need.
+5. A recurrence is a new occurrence only when its authored recurrence condition is met and a materially new instance exists. Do not silently reopen a completed, declined, lapsed, or cancelled offer or re-present the same occurrence under a new title.
+6. Variation must change the actual situation enough to matter to the player—who is involved, what is being accounted for, where custody or responsibility lies, what evidence exists, or what decision follows. Name-swapping alone is not meaningful variation.
+7. Not every active matter is recurring, and not every recurring institutional need is suitable player work. Authored content decides whether the situation becomes an Assignment, Challenge, conversation, institutional action, or background development.
 
-## 4. Challenge behavioral direction
+### 3.5 Supply pacing and lifecycle
 
-Challenges should emerge through two complementary paths:
+- Measure supply in estimated AP represented by **newly presented eligible offers**, not offer count.
+- The ~8 AP target applies to the overall mix of new offers across the shared pool. It is assessed as a soft pacing target over multiple Workdays, not a per-day pass/fail quota.
+- The mix may include both anchor and recurring occurrences. No fixed daily slots or guaranteed orientation-specific allocation.
+- A quiet day is acceptable when eligible source supply is genuinely absent; it is not an acceptable routine consequence of exhausting a tiny prototype catalog.
+- Existing implementation caps are safeguards, not design. Rework or remove any cap that systematically prevents the approved supply target; retain only safeguards shown not to suppress healthy supply or create a flood.
+- Preserve the GDD's visible expiry, accepted-commitment, cancellation, and AP rules unless separately reviewed and approved. The open-design item for offer caps and commitment balance remains subject to playtesting.
+- Declined, expired, cancelled, and completed offers remain distinguishable. Mandatory-Work lapses must not be interpreted as neglect.
 
-### A. Causal triggers
+## 4. Track 2 — General Challenge Director
 
-Authored scenarios may become eligible through meaningful developments, including:
+### 4.1 Authored scenario pool
 
-- Player decisions and outcomes in Assignments, Works, records, institutional responses, and commitments.
-- Patterns in opportunities presented, accepted, declined, lapsed without mandatory-work conflict, and completed.
-- Significant changes in relationships, favors, rivalry, trust, resentment, or obligation.
-- NPC actions and institutional developments.
-- Historical events that alter local circumstances.
-- Encounters with particular people, institutions, commodities, or places.
+Replace the two hard-coded Uruk functions with a general pool of authored Challenge scenarios. Each scenario must define its own:
+- eligibility conditions and required causal trigger(s);
+- trigger provenance and relevant source facts;
+- delivery route and why the situation reaches this character;
+- people, institution, setting, evidence, knowledge limits, and authority boundaries;
+- choices, AP cost, consequences, and outcome record;
+- repeatability and any scenario-specific cooldown or recurrence condition;
+- relative selection weight.
 
-A trigger must identify the actual event, state, or pattern that makes the scenario relevant. Merely displaying an offer is not evidence that the player ignored it. Lapses during mandatory Works remain excluded from neglect-based interpretation.
+The director evaluates and selects authored content. It does not invent a dispute, NPC motive, historical event, evidence, or outcome.
 
-### B. Unpredictable arrival among eligible authored scenarios
+### 4.2 Causal trigger vocabulary
 
-The player should not be able to predict every Challenge from a fixed daily checklist. The director may use weighted, seeded selection to choose **which eligible authored situation arrives and when**.
+Authored scenarios may become eligible through one or more of these supported causal domains:
 
-Randomness selects among situations whose authored eligibility conditions are already satisfied; it does not invent an uncaused dispute, NPC motive, historical event, or arbitrary daily busywork. The same state, seed, and evaluation point must produce the same result. No runtime generative AI creates scenarios or determines outcomes.
+1. **Player decisions and outcomes:** Assignment and Challenge rulings, Work actions/dispositions where relevant, submitted records, institutional responses, commitments accepted or released, and other consequential choices.
+2. **Professional behavior patterns:** offers presented, accepted, declined, non-Work-lapsed, and completed, with employer/category/commodity context. A presented offer is not automatically an ignored offer.
+3. **Relationships:** significant directional changes in trust, respect, affection, resentment, rivalry, familiarity, or obligation, with the actual interaction/event as provenance. Do not infer a relationship change from mere contact or factual Life Event participation.
+4. **NPC actions:** an authored action by a person whose motivation, knowledge, capacity, relationships, and authority make the action plausible.
+5. **Institutional developments:** a matter's creation, development, escalation, resolution, changed responsibility, resource pressure, or institutional response.
+6. **Historical/world events:** an authored event that changes relevant local circumstances.
+7. **Encounters:** meaningful contact with a particular person, institution, commodity, location, or network, where the scenario's authored conditions explain why the encounter matters.
 
-Challenge content owns its eligibility, trigger provenance, delivery route, repeatability, cooldown, and consequences. The director owns bounded evaluation, candidate selection, duplicate prevention, and presentation pacing.
+A trigger must identify what happened or what supported state changed. Passage of time may satisfy an authored date/condition, but time alone is not a cause and must not create arbitrary daily busywork. Offers that lapse during mandatory Work remain excluded from neglect-based interpretation.
 
-The system must avoid flooding the player. Arrival pacing and simultaneous active-Challenge limits require playtesting; no new numeric values are approved by this document.
+### 4.3 Bounded trigger context
 
-## 5. Shared invariants
+The GDD's compact-data boundary remains in force:
+- Assignment-pattern rules consume compact aggregates by employer/category/commodity and no more than the five most recent Assignment activity entries.
+- Other causal domains use relevant, bounded trigger facts or direct checks against specifically referenced active state. Do not scan an unbounded world-event archive, every relationship history, or the entire career record on each settlement.
+- Trigger facts retain enough provenance to explain the scenario and prevent duplicate consumption.
+- The trigger system must distinguish an event from a record of it and from what the player/NPC/institution knows about it.
+- The production design must audit every producer and consumer of relationship changes, world events, institutional matters/responses, commitments, and opportunity outcomes before selecting a technical event-capture architecture.
 
-- Assignments are optional professional jobs; Challenges are optional situations, not ordinary employment.
-- Both use the shared six-AP Workday economy when substantive player action is required.
-- Neither awards Historical Progress XP or becomes a hidden prerequisite for Works.
-- Authored content determines context, evidence, choices, consequences, and historical framing.
-- The player-facing explanation must state why the situation reached the character and what they are being asked to do.
-- Evidence, event, record, knowledge, interpretation, and authority remain distinct.
-- Unresolved institutional matters persist even when they do not produce an Assignment.
-- NPC developments may resolve without involving the player.
-- Generation is deterministic and bounded; it must not scan an unbounded career archive every day.
-- Save/load and succession must preserve the distinction between the former character's personal opportunities and the successor's new access, knowledge, and commitments.
+### 4.4 Weighted deterministic selection
 
-## 6. Required audit and acceptance coverage
+Selection is two-stage:
+1. Determine which authored scenarios are eligible from their causal conditions, access/delivery route, repeatability, and current state.
+2. Select among those eligible candidates using authored relative weights and a deterministic seeded process.
 
-Production/QA should establish:
+Weights influence selection among eligible scenarios; they never make an ineligible scenario eligible. The same saved state, seed, and evaluation point must yield the same candidate selection. Candidate ordering and tie behavior must be stable. No ambient nondeterministic random source.
 
-1. Multi-Workday Assignment supply from a fresh game, including what happens after the initial prototype matters are exhausted.
-2. Supply from multiple institutions and distinct authored activity types.
-3. Commercial, Martial, Religious, and Civic characters each receive plausible opportunities; no orientation is artificially locked out of shared work.
-4. Low rank does not systematically starve the board of ordinary work.
-5. Every offer has valid source provenance, delivery route, eligibility, and no duplicate for the same occurrence.
-6. Recurring opportunities create distinct occurrences and cannot be farmed by re-presenting the same matter.
-7. A genuinely quiet day remains valid when no eligible source exists.
-8. Challenge triggers respond correctly to player decisions, Assignment behavior, relationship changes, NPC/institutional events, and historical events.
-9. Unpredictable selection is reproducible for the same state and seed, chooses only eligible authored scenarios, and respects scenario-specific repeatability/cooldown.
-10. No Challenge arrives solely because a day passed when no eligible situation exists.
-11. Challenge arrival does not flood the player, bypass AP rules, award Historical Progress XP, or gate a Work.
-12. Save/load, fresh-game reset, and succession do not duplicate, erase, or misattribute opportunities and triggers.
+Exact weights, modifiers, seed ownership, and persistence representation remain open for the technical proposal and playtesting. Do not add a new save field or schema migration without a separate compatibility review.
 
-Tests must exercise multiple days and changing state. A test asserting exactly two initial Uruk offers is not sufficient evidence of generator health.
+### 4.5 Evaluation and arrival pacing
 
-## 7. Dependencies and exclusions
+**Recommended initial boundary for owner review:** evaluate once during END_DAY settlement, after authored world/institutional developments and Assignment generation, then surface any selected Challenge in the next Morning Report. This avoids interrupting an AP action and gives one predictable evaluation point while allowing the player to experience an unpredictable arrival schedule.
 
-**Historical Research:** Author and review a broader institutional opportunity portfolio, beginning with the known Era I Commercial and Martial coverage gaps. Distinguish attested context from designed reconstruction.
+A candidate may be eligible and not arrive on that pass. If no candidate is eligible, no Challenge arrives. Random selection changes which eligible situation arrives and when; it does not manufacture the cause.
 
-**Game Design:** Set scenario-level repeatability and trigger provenance; playtest arrival pacing. The soft daily Assignment expectation is approved; exact balancing beyond the GDD's initial 8-AP target remains tunable.
+No numeric daily arrival quota, active-Challenge cap, or universal cooldown is approved. For initial playtesting, Game Design recommends testing a zero-or-one arrival per settlement pass, then tuning from observed player load and scenario density. This is a pacing proposal, not a locked rule.
 
-**Engineering/Production:** Own technical architecture, exact state types, persistence, migration, deterministic seed handling, and transition APIs. Audit all consumers before changing persistent state. No schema change is authorized by this document.
+### 4.6 Challenge lifecycle
 
-**Production/QA:** Build lifecycle and regression coverage described above.
+- Challenges remain optional situations, not paid Assignments.
+- They use the GDD's AP commitment and resolution model; show cost and consequences before commitment.
+- A presented/declined/resolved Challenge must not duplicate the same causal occurrence.
+- A scenario may recur only when its authored repeatability rule is satisfied by a new occurrence or materially new circumstance.
+- Scenario-specific cooldowns are authored and testable; there is no assumed universal cooldown.
+- Completed outcomes remain in the Challenge outcome archive; offers/declines remain operational only as needed for trigger and duplicate control.
+- Challenges do not award Historical Progress XP or gate Works.
 
-This document does not prescribe TypeScript interfaces, module placement, save schemas, or migration strategy. It does not authorize changes to runtime code, the canonical GDD, or the Decision Register. Those require the appropriate approval and production handoff.
+## 5. Live implementation findings
 
-## 8. Next work
+Inspected the live repository after PR #79 merged, on main at 783528cfb832ad251b50b0b43a5d4034b8d466c0, plus the canonical GDD, approved orientation specification, Era I orientation audit, institutional responsibility matrix, and relevant source/tests.
 
-1. Reconcile the supporting World Simulation and Decision Register wording with the approved soft daily supply expectation.
-2. Complete the Assignment source/content coverage audit, including recurring authored needs and orientation coverage.
-3. Develop the general Challenge trigger and candidate-selection contract.
-4. Submit the completed behavioral contract for Game Director approval before runtime implementation.
+### Assignment generator
+
+- Fresh-game initialization and END_DAY settlement call generateDailyAssignments().
+- The generator currently discovers only the three authored Uruk opportunity definitions by matching active institutional matters, plus a special post-execution North-Bay inspection path.
+- It has an 8-AP pass cap and a four-open-offer cap. The latter can prevent the soft target from being reached even when additional eligible source matters exist.
+- It rotates definition order, checks active matter/institution linkage, and prevents another offer from the same matter.
+- It writes lastPresentedDayByActivity, but does not read it as a cooldown.
+- It does not create recurring occurrences or replenish its matter pool.
+- The current opening test expects two offers totaling 7 AP and verifies same-day idempotence. It does not establish multi-day supply.
+- All three authored recurring definitions are anchored in the Temple Storehouse under Ur-Nanna. The current orientation audit identifies Commercial as partial and Martial as absent; Civic and Religious need clearer differentiation.
+
+### Challenge Director and trigger producers
+
+- runChallengeDirector() currently runs during END_DAY settlement after Assignment generation.
+- It evaluates two hard-coded, one-shot Uruk scenarios: held-stock age/incomplete inspection and delivery-reconciliation completion/aggregate activity.
+- Assignment aggregates are keyed by employer/category/commodity; recent Assignment activity is bounded to five entries.
+- Current world-event producers include explicit world-event creation, scheduled institutional-matter development, institutional response lifecycle events, and authored opportunity consequences.
+- Relationship changes are written through world-social actions, Assignment activity/submission, and authored opportunity consequences. Factual participation alone does not create a relationship.
+- The current institutional world update is a narrow deterministic matter/response pipeline, not a general autonomous NPC-action scheduler. Person objectives, circumstances, and commitments exist as state, but their existence alone does not mean a general NPC agency loop is implemented.
+- The current director does not consume general relationship, NPC-action, institutional-event, or historical-event candidates from an authored pool.
+
+These are source findings, not a claim that the full world simulation is implemented. Production must repeat the consumer/producer audit against the exact approved contract before changing runtime architecture.
+
+## 6. Acceptance and playtest coverage
+
+### Track 1
+
+1. Multi-Workday supply from a fresh character through and beyond the initial Storehouse cluster.
+2. Report new estimated AP offered per Workday and over a multi-day window; assess the soft target as a trend, not a daily quota.
+3. Exercise all four orientations against the same shared pool; verify plausible access, cross-institution routes, and meaningful differences in circumstances.
+4. Validate the ~8–9 anchor portfolio and approximately two credible institutional contexts per orientation without forcing equal queues or cosmetic variants.
+5. Verify recurring occurrences vary through coherent, supported counterparties, commodities/units, discrepancies, and settings.
+6. Same state and seed produce the same occurrence; reload does not duplicate it.
+7. A recurrence has a new occurrence identity and source facts; completed/declined/lapsed/cancelled occurrences do not silently reopen.
+8. No fabricated matter, false discrepancy, deadline, relationship, authority, or delivery route.
+9. Low rank does not systematically starve ordinary work; skill qualification and authority remain separate.
+10. A genuinely quiet day remains possible when no eligible source exists.
+
+### Track 2
+
+1. Each trigger domain has positive, negative, and provenance tests.
+2. A scenario is selected only when its authored eligibility conditions and access route are satisfied.
+3. Weighted selection is deterministic for the same saved state, seed, and evaluation point.
+4. Changing a relevant trigger or weight can change the selected eligible candidate; ineligible candidates are never selected.
+5. No candidate means no arrival; passage of a day alone does not create a Challenge.
+6. Mandatory-Work lapses are excluded from neglect interpretation.
+7. Repeatability, cooldown, and duplicate prevention work across save/load and succession.
+8. No Challenge flood, hidden Work prerequisite, AP bypass, or Historical Progress XP award.
+9. Player-facing delivery identifies the actual cause and source without exposing information the character does not know.
+10. The director remains bounded and does not scan unbounded archives.
+
+## 7. Cross-department dependencies
+
+- **Game Design:** Own the anchor portfolio, recurrence semantics, trigger vocabulary, candidate weighting policy, and pacing playtests.
+- **Historical Research:** Deliver the Era I anchor research brief and validate parameter domains; see dev/ERA_I_ASSIGNMENT_HISTORICAL_RESEARCH_BRIEF.md.
+- **Engineering/Architecture:** After behavioral approval, propose deterministic bounded trigger capture, occurrence identity, and persistence compatibility. Production owns exact types, module placement, serialization, and APIs.
+- **Production/QA:** No immediate implementation work. The Character Creation → Storehouse Reckoning milestone is already reported complete under Issue #69; do not divert Production to this proposal. After approval and handoff, test multi-day supply, trigger coverage, determinism, save/load, and succession.
+- **Art/UI/UX:** No immediate change. Distinct settings may later need differentiated scene/context presentation; preserve accessibility and readability.
+- **Audio:** No material impact at this stage.
+
+## 8. Owner review items
+
+1. Confirm the proposed END_DAY evaluation boundary and next-Morning-Report delivery.
+2. Confirm whether zero-or-one Challenge arrival per settlement pass is the preferred initial playtest default, or leave the first pacing test unconstrained.
+3. Confirm the approximate 8–9 anchor portfolio target as an authoring target, with overlap allowed and no orientation queues.
+
+Until these are resolved, the document remains a proposed behavioral contract, not READY FOR IMPLEMENTATION.
