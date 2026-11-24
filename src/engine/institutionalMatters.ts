@@ -631,7 +631,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
     };
     changed = true;
   }
-  if (nextDay >= 12 && martialRepairNeedOpen && !matters['matter-era1-mar-f02-party-returns-short' as MatterId]
+  if (nextDay >= 12 && !matters['matter-era1-mar-f02-party-returns-short' as MatterId]
     && events['event-era1-mar-f02-party-issue' as EventId]
     && events['event-era1-mar-f02-party-issue' as EventId].dayNumber < nextDay) {
     records[ERA1_MAR_F02_RECORD_IDS.returnCount] = createAuthoredSourceRecord({
@@ -697,7 +697,9 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
 
   // Martial F03: dispatch first, then a late/turned-aside event after the
   // expected arrival passes without a receiving entry.
-  if (nextDay >= 11 && !events['event-era1-mar-f03-dispatch' as EventId]
+  const martialMovementNeedOpen = people[ERA1_MAR_PEOPLE.gemeInana]?.objectives?.some((objective) =>
+    objective.id === 'objective-geme-inana-exchange' && objective.status === 'active');
+  if (nextDay >= 11 && martialMovementNeedOpen && !events['event-era1-mar-f03-dispatch' as EventId]
     && people[ERA1_MAR_PEOPLE.gemeInana] && institutions[TEXTILE_HOUSEHOLD_INSTITUTION_ID]) {
     records[ERA1_MAR_F03_RECORD_IDS.dispatch] = createAuthoredSourceRecord({
       id: ERA1_MAR_F03_RECORD_IDS.dispatch, createdDay: nextDay,
