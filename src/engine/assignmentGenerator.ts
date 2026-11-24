@@ -132,7 +132,8 @@ export function generateDailyAssignments(state: GameState): GameState {
       if (sourceMatter.status !== 'active' || !sourceInstitution?.activeMatters.includes(sourceMatter.id)) continue;
       const requiredSourceFactIds = occurrenceSourceFacts(next, sourceMatter);
       if (requiredSourceFactIds.length === 0) continue;
-      const primaryEventId = requiredSourceFactIds.find((factId) => next.world.events[factId as EventId]);
+      const primaryEventId = sourceMatter.sourceEventId && next.world.events[sourceMatter.sourceEventId]
+        ? sourceMatter.sourceEventId : requiredSourceFactIds.find((factId) => next.world.events[factId as EventId]);
       const primaryRecordId = requiredSourceFactIds.find((factId) => next.records.entries[factId as RecordId]);
       const primarySourceFact = primaryEventId
         ? { kind: 'event' as const, id: primaryEventId as EventId }
