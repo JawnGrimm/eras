@@ -1,4 +1,5 @@
 import React, { createElement } from 'react';
+import { TEST_CHARACTER_CREATION } from './fixtures/newGameCharacter';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { ProductionAssignmentBoard } from '../components/ProductionAssignmentBoard';
@@ -9,7 +10,7 @@ import type { ChallengeId } from '../state/ids';
 
 describe('production opportunity screens', () => {
   it('renders Assignment delivery reasons and visible calendar expiry', () => {
-    const state = createNewGameState();
+    const state = createNewGameState(TEST_CHARACTER_CREATION);
     const markup = renderToStaticMarkup(createElement(GameProvider, { initialState: state },
       createElement(ProductionAssignmentBoard)));
 
@@ -25,7 +26,7 @@ describe('production opportunity screens', () => {
   });
 
   it('renders completed Challenge outcome and character attribution without operational declined state', () => {
-    const state = createNewGameState();
+    const state = createNewGameState(TEST_CHARACTER_CREATION);
     const outcome = {
       challengeId: 'archived-challenge' as ChallengeId,
       title: 'The Disputed Copy',
@@ -43,7 +44,7 @@ describe('production opportunity screens', () => {
     expect(markup).toContain('Challenge Journal');
     expect(markup).toContain('Completed Challenge archive');
     expect(markup).toContain('The Disputed Copy');
-    expect(markup).toContain('Resolved by Enlil-barni');
+    expect(markup).toContain('Resolved by Test Scribe');
     expect(markup).not.toContain('Declined challenges archive');
   });
 });
