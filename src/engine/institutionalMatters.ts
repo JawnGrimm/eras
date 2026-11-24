@@ -1,5 +1,5 @@
 import type { EventId, InstitutionId, LocationId, MatterId, PersonId, RecordId } from '../state/ids';
-import type { GameState, InstitutionalMatter, RecordEntry } from '../state/types';
+import type { GameState, InstitutionalMatter, Person, RecordEntry } from '../state/types';
 import { ERA1_COM_F02_F04_PEOPLE, ERA1_COM_F02_RECORD_IDS, ERA1_COM_F03_RECORD_IDS, ERA1_COM_F04_RECORD_IDS } from '../content/assignments/eraICommercialFamilies';
 
 export const STOREHOUSE_INSTITUTION_ID = 'institution-uruk-temple-storehouse' as InstitutionId;
@@ -191,14 +191,69 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
   const events = { ...state.world.events };
   const institutions = { ...state.world.institutions };
   const locations = { ...state.world.locations };
+  const people = { ...state.world.people };
   const records = { ...state.records.entries };
   let changed = false;
+
+  // New authored participants and their social context are added lazily to
+  // older saves when their first approved content event becomes eligible.
+  if (nextDay >= 8 && !people[ERA1_COM_F02_F04_PEOPLE.gemeInana]) {
+    people[ERA1_COM_F02_F04_PEOPLE.gemeInana] = {
+      id: ERA1_COM_F02_F04_PEOPLE.gemeInana, name: 'Geme-Inana', alive: true,
+      affiliations: [TEXTILE_HOUSEHOLD_INSTITUTION_ID], currentLocationId: TEXTILE_HOUSEHOLD_LOCATION_ID,
+      lifeStage: 'craft_practitioner',
+      socialIdentity: { occupation: 'Textile household organizer', summary: 'A provisional authored participant who coordinates textile work and exchange obligations within her household.' },
+      objectives: [
+        { id: 'objective-geme-inana-workframes', horizon: 'immediate', summary: 'Secure timber for household work-frames.', motivation: 'The household has work waiting that depends on the timber request.', createdDay: 1, status: 'active', visibility: 'public' },
+        { id: 'objective-geme-inana-exchange', horizon: 'immediate', summary: 'Receive the goods expected from an earlier outbound exchange.', motivation: 'People in the household are waiting on the return before the next dispatch is sent.', createdDay: 1, status: 'active', visibility: 'public' },
+      ],
+      circumstances: [
+        { id: 'circumstance-geme-inana-workframes', kind: 'work', summary: 'A household work-frame task is waiting on timber.', sinceDay: 1, status: 'active', visibility: 'public' },
+        { id: 'circumstance-geme-inana-exchange', kind: 'dispute', summary: 'An earlier outbound exchange has not yet been fully returned.', sinceDay: 1, status: 'active', visibility: 'public' },
+      ],
+    } satisfies Person;
+    changed = true;
+  }
+  if (nextDay >= 10 && !people[ERA1_COM_F02_F04_PEOPLE.amaGi]) {
+    people[ERA1_COM_F02_F04_PEOPLE.amaGi] = {
+      id: ERA1_COM_F02_F04_PEOPLE.amaGi, name: 'Ama-gi', alive: true, affiliations: [],
+      currentLocationId: RIVER_LANDING_LOCATION_ID, lifeStage: 'craft_practitioner',
+      socialIdentity: { occupation: 'Landing agent (provisional)', summary: 'A provisional authored participant associated with a consignment handover at the river landing.' },
+    } satisfies Person;
+    changed = true;
+  }
+  if (nextDay >= 10 && !people[ERA1_COM_F02_F04_PEOPLE.sigAna]) {
+    people[ERA1_COM_F02_F04_PEOPLE.sigAna] = {
+      id: ERA1_COM_F02_F04_PEOPLE.sigAna, name: 'Sig-ana', alive: true, affiliations: [],
+      currentLocationId: RIVER_LANDING_LOCATION_ID, lifeStage: 'craft_practitioner',
+      socialIdentity: { occupation: 'Witness (provisional)', summary: 'A provisional authored participant who observed part of a consignment handover.' },
+    } satisfies Person;
+    changed = true;
+  }
+  if (nextDay >= 8 && !institutions[TEXTILE_HOUSEHOLD_INSTITUTION_ID]) {
+    institutions[TEXTILE_HOUSEHOLD_INSTITUTION_ID] = {
+      id: TEXTILE_HOUSEHOLD_INSTITUTION_ID, name: 'Geme-Inana’s Textile Household',
+      locationId: TEXTILE_HOUSEHOLD_LOCATION_ID,
+      responsibilities: ['Coordinate household textile work and its associated exchange obligations'],
+      authority: ['Decide whether to wait for an exchange return, send word, or withhold a later dispatch'],
+      standing: 50, activeMatters: [],
+    };
+    changed = true;
+  }
+  if (nextDay >= 8 && !locations[TEXTILE_HOUSEHOLD_LOCATION_ID]) {
+    locations[TEXTILE_HOUSEHOLD_LOCATION_ID] = { id: TEXTILE_HOUSEHOLD_LOCATION_ID, name: 'Textile household work space, Uruk' };
+    changed = true;
+  }
+  if (nextDay >= 10 && !locations[RIVER_LANDING_LOCATION_ID]) {
+    locations[RIVER_LANDING_LOCATION_ID] = { id: RIVER_LANDING_LOCATION_ID, name: 'River landing, Uruk' };
+    changed = true;
+  }
 
 
 
   // Commercial F02: a new timber delivery becomes an Assignment only while
   // both the Storehouse repair need and the household work-frame need remain open.
-  if (nextDay === 8 && !matters['matter-era1-com-f02-two-claims' as MatterId]) {
+  if (nextDay >= 8 && !matters['matter-era1-com-f02-two-claims' as MatterId]) {
     const storehouseNeedOpen = Object.values(matters).some((matter) =>
       matter.status === 'active' && (matter.kind === 'roof_repair_verification' || matter.kind === 'north_bay_water_ingress'));
     const household = state.world.people[ERA1_COM_F02_F04_PEOPLE.gemeInana];
@@ -274,7 +329,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
 
   // Commercial F03 begins with a distinct outbound dispatch. The Assignment
   // is not offered until a later, separate partial-return event exists.
-  if (nextDay === 8 && !events['event-era1-com-f03-outbound-dispatch' as EventId]) {
+  if (nextDay >= 8 && !events['event-era1-com-f03-outbound-dispatch' as EventId]) {
     const household = state.world.people[ERA1_COM_F02_F04_PEOPLE.gemeInana];
     const exchangeOpen = household?.objectives?.some((objective) =>
       objective.id === 'objective-geme-inana-exchange' && objective.status === 'active');
@@ -296,8 +351,9 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
     }
   }
 
-  if (nextDay === 9 && !matters['matter-era1-com-f03-partial-return' as MatterId]
-    && events['event-era1-com-f03-outbound-dispatch' as EventId]) {
+  if (nextDay >= 9 && !matters['matter-era1-com-f03-partial-return' as MatterId]
+    && events['event-era1-com-f03-outbound-dispatch' as EventId]
+    && events['event-era1-com-f03-outbound-dispatch' as EventId].dayNumber < nextDay) {
     const eventId = 'event-era1-com-f03-partial-return' as EventId;
     records[ERA1_COM_F03_RECORD_IDS.partialReturn] = createAuthoredSourceRecord({
       id: ERA1_COM_F03_RECORD_IDS.partialReturn, createdDay: nextDay,
@@ -338,7 +394,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
 
   // Commercial F04 is a separate finite consignment with three independent
   // tallies; the first recorded difference is visible, but the cause is not.
-  if (nextDay === 10 && !matters['matter-era1-com-f04-custody-chain' as MatterId]) {
+  if (nextDay >= 10 && !matters['matter-era1-com-f04-custody-chain' as MatterId]) {
     const eventId = 'event-era1-com-f04-custody-chain' as EventId;
     records[ERA1_COM_F04_RECORD_IDS.dispatchTally] = createAuthoredSourceRecord({
       id: ERA1_COM_F04_RECORD_IDS.dispatchTally, createdDay: nextDay,
@@ -510,7 +566,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
     changed = true;
   }
 
-  return changed ? { ...state, world: { ...state.world, matters, events, institutions, locations }, records: { ...state.records, entries: records } } : state;
+  return changed ? { ...state, world: { ...state.world, matters, events, institutions, locations, people }, records: { ...state.records, entries: records } } : state;
 }
 
 export function createMaterialNotAsDescribedMatter(dayNumber: number): InstitutionalMatter {
