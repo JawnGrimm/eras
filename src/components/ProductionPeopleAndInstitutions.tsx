@@ -180,7 +180,7 @@ function MatterSources({ matter, records, people, events }: {
       const label = source.kind === 'record_copy' ? (sourceId ? records[sourceId]?.title ?? sourceId : 'Record not identified')
         : source.kind === 'event' ? (sourceId ? events[sourceId]?.summary ?? sourceId : 'Event not identified')
           : source.kind === 'testimony' ? (sourceId ? people[sourceId]?.name ?? sourceId : 'Person not identified')
-            : sourceId ?? 'Source not identified';
+            : `${source.kind.replace(/_/g, ' ')}${sourceId ? ` · ${sourceId}` : ''}`;
       return <li key={source.id}><span className="font-medium">{label}</span> · {source.description}</li>;
     })}</ul>
   </details>;
