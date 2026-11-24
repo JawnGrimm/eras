@@ -3,8 +3,7 @@ import type { PropsWithChildren } from 'react';
 import { transitionGame } from '../engine/actionEconomy';
 import type { ActionFeedback, CareerProgressionPolicy, GameAction, GameState, TransitionResult } from './types';
 import type { WorkDefinition } from '../works/workDefinition';
-import { createNewGameState, INITIAL_WORK_CATALOG, type EraICharacterCreationInput } from './newGameState';
-import { createInitialGameState } from './initialState';
+import { createCharacterCreationPreviewState, createNewGameState, INITIAL_WORK_CATALOG, type EraICharacterCreationInput } from './newGameState';
 import { createSaveEnvelope, restoreSave, SAVE_KEY } from './saveEnvelope';
 
 export type ProductionLoadStatus = 'ready' | 'corrupt_save' | 'read_error';
@@ -44,7 +43,7 @@ export function initializeProductionSession(
   storage: ProductionStorage | null,
   workCatalog: Readonly<Record<string, WorkDefinition<any>>> = INITIAL_WORK_CATALOG,
 ): ProductionSession {
-  const placeholderState = () => createInitialGameState();
+  const placeholderState = () => createCharacterCreationPreviewState();
   if (!storage) {
     return {
       state: placeholderState(), loadStatus: 'ready', revision: 0,
@@ -167,7 +166,7 @@ export function GameProvider({
   }, [careerPolicy, resolvedCatalog, resolvedStorage]);
 
   const startFreshProductionSave = useCallback((): boolean => {
-    const placeholder = createInitialGameState();
+    const placeholder = createCharacterCreationPreviewState();
     stateRef.current = placeholder;
     loadStatusRef.current = 'ready';
     setSession({
