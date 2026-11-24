@@ -104,6 +104,8 @@ Requirements:
 
 ### 3.6 Provisions compensation and END_DAY survival
 
+**Era I money presentation:** Issue #80 / Era I presentation review must explicitly assess the current use of “Silver” in c. 3200 BCE Uruk. Do not present silver as an attested medium of payment for Late Uruk on the current evidence. The underlying Money balance may remain an abstract game resource, but its player-facing label, transaction language, and replenishment presentation must not imply coinage or a silver-currency economy without period-specific evidence.
+
 Assignment compensation must support historically plausible payment in money, provisions, or both. The offer must show the amount, duration, and conditions before acceptance. Provisions may be the primary compensation for an institutionally anchored task; do not assume every institution pays silver/value or that every scribe receives a universal daily ration.
 
 The parameter/reward model must leave room for:
@@ -119,7 +121,9 @@ Preserve the GDD and Economy, Stress, and Ethical Consequences Specification:
 - The character cannot die or enter an unavoidable game-over state from depleted Provisions.
 - At least two recovery categories must be implemented when shortage consequences ship, with at least one viable route guaranteed in the character's actual circumstances. Existing approved categories are provisions-paid quick labor, conditional personal help/advance carrying a real obligation, and selling/pawning a possession. Assistance may create a repayment/service obligation; it must not create a third balance or an unlimited negative balance.
 
-Track 1 acceptance must exercise Assignment compensation and END_DAY settlement together, including a character who finishes a Workday at zero Provisions, receives provisions-in-kind, and avoids or recovers from shortage according to the actual settlement order. It must also test the no-work/no-contract path so no free ration is introduced.
+**Player-legible acquisition requirement (release gate):** The opening economy must not depend on the player discovering a recovery option only after shortage begins. Starting from the five Provisions in the approved Creator package, the player must be shown at least one viable way to replenish before an END_DAY settlement would consume the final unit. By the first Morning Report after the initial Storehouse Reckoning is completed—and again whenever the current balance/known commitments put the character on course to exhaust Provisions—the actual board or interface must expose a usable route. At least one route must be available in the character's actual circumstances: (a) an eligible, clearly priced Assignment or service contract paying Provisions in kind, or (b) an explicit, visible exchange/replenishment action converting the existing Money balance into Provisions at stated terms. A route may be conditional on a real contract, service, or exchange; it may not be hidden, retroactive, or represented as an automatic ration. If the player has no Money, the design must still provide a viable provisions-paid service/recovery route before an unavoidable zero-balance trap. The player must be able to understand the route, amount, timing, and conditions before committing. This does not guarantee free resources or require every Assignment to pay Provisions.
+
+Track 1 acceptance must exercise Assignment compensation and END_DAY settlement together, including a character who finishes a Workday with one Provisions, receives provisions-in-kind or completes a visible replenishment action, and avoids depletion through the actual settlement order. Test that the replenishment route appears before the final unit is consumed; test a zero-Money case with a viable provisions-paid route; and test the no-work/no-contract path so no free ration is introduced.
 
 ## 4. Track 2 — General Challenge Director
 
