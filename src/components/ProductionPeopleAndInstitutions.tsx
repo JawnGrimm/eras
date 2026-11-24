@@ -130,7 +130,7 @@ function PersonDetail({ person, people, institutions, relationships, appointment
         <ul className="mt-2 space-y-2">{circumstances.map((item) => <li key={item.id} className="rounded bg-white p-3 text-sm text-stone-700">{item.summary}</li>)}</ul>
       </details>}
       {commitments.length > 0 && <details className="rounded-lg border border-stone-200 bg-stone-50 p-3">
-        <summary className="cursor-pointer text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-700">Declared responsibilities ({commitments.length})</summary>
+        <summary className="cursor-pointer text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-700">Declared responsibilities and commitments ({commitments.length})</summary>
         <ul className="mt-2 space-y-2">{commitments.map((item) => <li key={item.id} className="rounded bg-white p-3 text-sm text-stone-700">{item.summary}</li>)}</ul>
       </details>}
     </div>}
@@ -290,7 +290,7 @@ function InstitutionDetail({ institution, people, matters, records, events, appo
   </article>;
 }
 
-export function ProductionPeopleAndInstitutions({ initialSection = 'people' }: { initialSection?: PeopleInstitutionSection }) {
+export function ProductionPeopleAndInstitutions({ initialSection = 'people', initialPersonId }: { initialSection?: PeopleInstitutionSection; initialPersonId?: PersonId }) {
   const { state } = useGame();
   const people = Object.values(state.world.people).sort((a, b) => a.name.localeCompare(b.name));
   const institutions = Object.values(state.world.institutions).sort((a, b) => a.name.localeCompare(b.name));
@@ -298,7 +298,7 @@ export function ProductionPeopleAndInstitutions({ initialSection = 'people' }: {
   const [personQuery, setPersonQuery] = useState('');
   const [personLifeFilter, setPersonLifeFilter] = useState<PersonLifeFilter>('all');
   const [institutionQuery, setInstitutionQuery] = useState('');
-  const [selectedPersonId, setSelectedPersonId] = useState<PersonId>(state.player.currentCharacterId);
+  const [selectedPersonId, setSelectedPersonId] = useState<PersonId>(initialPersonId ?? state.player.currentCharacterId);
   const initialInstitution = institutions.find((item) => Object.values(state.world.matters).some((matter) => matter.institutionId === item.id && matter.status === 'active')) ?? institutions[0];
   const [selectedInstitutionId, setSelectedInstitutionId] = useState<InstitutionId | null>(initialInstitution?.id ?? null);
 
