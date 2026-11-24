@@ -153,8 +153,6 @@ The professional opportunity board follows the soft daily supply expectation in 
 
 Not every NPC need or institutional matter should be converted into player work. Some developments should resolve between NPCs, remain outside the player's knowledge, alter an institution or relationship, or become visible only through later evidence or conversation. Assignments and Challenges remain optional and must never become hidden prerequisites for mandatory Works.
 
-Not every NPC need or institutional matter should be converted into player work. Some developments should resolve between NPCs, remain outside the player's knowledge, alter an institution or relationship, or become visible only through later evidence or conversation. Assignments and Challenges remain optional and must never become hidden prerequisites for mandatory Works.
-
 ---
 
 
