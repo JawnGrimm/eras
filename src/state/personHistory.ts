@@ -33,7 +33,7 @@ export function selectPersonHistory(
   if (persistedEvents.length === 0) {
     return {
       hasHistory: false,
-      emptyMessage: 'No personal history has been recorded.',
+      emptyMessage: 'No Life Events are recorded.',
       events: [],
       familiarities: person.familiarities ?? [],
     };
