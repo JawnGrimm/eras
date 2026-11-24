@@ -201,7 +201,7 @@ describe('P2-2 authored Uruk Assignment activities', () => {
     expect(record).toBeDefined();
     expect(record && state.records.entries[record.id]).toEqual(record);
     expect(record?.uncertaintyLimits.join(' ').toLowerCase()).toContain('does not authorize release');
-    expect(record?.assertions.map((assertion) => assertion.text).join(' ')).toContain('Capacity measures and physical jar count');
+    expect(record?.assertions.map((assertion) => assertion.text).join(' ')).toContain('does not record a physical container count');
     expect(record?.assertions.map((assertion) => assertion.text).join(' ')).toContain('internal grain soundness');
     expect(record?.assertions.map((assertion) => assertion.text).join(' ')).toContain('sealed pottery storage jars');
     expect(record?.uncertaintyLimits.join(' ')).not.toMatch(/\bsacks?\b/i);
@@ -247,7 +247,7 @@ describe('P2-2 authored Uruk Assignment activities', () => {
     expect(state.world.matters['matter-south-court-delivery-discrepancy' as MatterId]).toBeUndefined();
     expect(state.world.relationships[state.player.currentCharacterId]?.['person-enlil-kisu' as never]?.dimensions).toMatchObject({ trust: 53, respect: 56 });
     expect(state.world.relationships['person-enlil-kisu' as never]?.[state.player.currentCharacterId]?.dimensions).toMatchObject({ trust: 57, respect: 53 });
-    expect(state.world.relationships['person-shuruppak-ilu' as never]?.[state.player.currentCharacterId]?.dimensions.trust).toBe(51);
+    expect(state.world.relationships['person-shuruppak-ilu' as never]?.[state.player.currentCharacterId]).toBeUndefined();
     const directed = runChallengeDirector(withCompletedTutorial(state));
     expect(directed.opportunities.challenges['challenge-missing-measure' as never]?.title).toBe('The Missing Measure');
     expect(directed.historicalProgression.historicalXp).toBe(state.historicalProgression.historicalXp);
