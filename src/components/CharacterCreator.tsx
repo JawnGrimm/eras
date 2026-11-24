@@ -63,6 +63,7 @@ function SelectField({ label, value, onChange, options }: {
     <span className="mb-1 block text-sm font-semibold text-stone-800">{label}</span>
     <select value={value} onChange={(event) => onChange(event.target.value)}
       className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-900 focus:outline-2 focus:outline-offset-2 focus:outline-stone-800">
+      {value === '' && <option value="" disabled>Choose a replacement…</option>}
       {options.map(([id, title]) => <option key={id} value={id}>{title}</option>)}
     </select>
   </label>;
@@ -219,7 +220,7 @@ export function CharacterCreator() {
           </ol>
           <h3 className="mt-6 font-semibold">Familiarities</h3>
           <ul className="mt-2 space-y-1 text-sm">
-            {history.familiarities.map((item) => <li key={item.id}>{item.domainId} · {item.scopeId.replace(/_/g, ' ')} · {item.exposure.replace(/_/g, ' ')} · Life Event {item.basisLifeEventIds.map((id) => id.slice(-1)).join(', ')}</li>)}
+            {history.familiarities.map((item) => <li key={item.id}>{item.domainId} · {item.scopeId.replace(/_/g, ' ')} · {item.exposure.replace(/_/g, ' ')} · Supporting Life Event(s): {item.basisLifeEventIds.map((id) => history.lifeEvents.find((event) => event.id === id)?.chronology.order + 1 ?? 'recorded').join(', ')}</li>)}
           </ul>
           <h3 className="mt-6 font-semibold">Attributes</h3>
           <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
