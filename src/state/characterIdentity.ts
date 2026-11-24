@@ -1,6 +1,6 @@
 import type { CareerPathId, PersonId } from './ids';
+import { ERA_I_CHARACTER_CREATION_CONTENT_VERSION, validateEraICharacterName } from './eraICharacterStartingState';
 import {
-  ERA_I_CHARACTER_HISTORY_CONTENT_VERSION,
   validateEraICharacterHistoryChoices,
   type EraICharacterHistoryChoices,
 } from '../content/characterCreation/eraICharacterHistory';
@@ -13,7 +13,7 @@ const UINT64_MASK = 0xffffffffffffffffn;
 export interface EraIPlayerIdentityInput {
   /** Caller-supplied seed. The same seed and character inputs always produce the same Person ID. */
   seed: string;
-  /** Exact player-entered name; only the documented non-empty minimum is enforced here. */
+  /** Display name after the approved trim, Unicode code-point, and invisible-control hygiene. */
   name: string;
   careerPath: CareerPathId;
   choices: EraICharacterHistoryChoices;
@@ -31,7 +31,7 @@ function hashIdentity(value: string): string {
 /**
  * Builds a deterministic, collision-checked Person ID from the complete authored
  * creation input. This is an identity primitive only; it does not create or
- * initialize the Person and does not impose a naming catalogue or formatting policy.
+ * initialize the Person and does not impose a curated catalogue or historical naming policy.
  */
 export function createEraIPlayerPersonId(
   input: EraIPlayerIdentityInput,
@@ -40,9 +40,8 @@ export function createEraIPlayerPersonId(
   if (typeof input.seed !== 'string' || input.seed.trim().length === 0) {
     throw new Error('A non-empty deterministic character seed is required.');
   }
-  if (typeof input.name !== 'string' || input.name.trim().length === 0) {
-    throw new Error('A non-empty character name is required.');
-  }
+  const nameValidation = validateEraICharacterName(input.name);
+  if (!nameValidation.valid) throw new Error(nameValidation.error);
   if (!CAREER_PATHS.includes(input.careerPath)) {
     throw new Error('Unsupported professional orientation.');
   }
@@ -50,9 +49,9 @@ export function createEraIPlayerPersonId(
   if (choiceErrors.length > 0) throw new Error(choiceErrors.join(' '));
 
   const canonicalInput = JSON.stringify([
-    ERA_I_CHARACTER_HISTORY_CONTENT_VERSION,
+    ERA_I_CHARACTER_CREATION_CONTENT_VERSION,
     input.seed,
-    input.name,
+    nameValidation.name,
     input.careerPath,
     input.choices.originId,
     input.choices.responsibilityId,

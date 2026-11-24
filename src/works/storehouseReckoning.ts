@@ -218,7 +218,7 @@ function finalize(context: WorkSubmissionContext<StorehouseScenarioData>, dispos
         category: 'building_inspection', commodity: 'barley',
         context: {
           what: 'Inspect the north-bay roof repair and report whether the bay is suitable for continued storage.',
-          who: ['Ur-Nanna, Storehouse Steward', 'Dudu, contracted roof repairer', 'Shuruppak-ilu, Senior Scribe', 'Enlil-barni, junior scribe'],
+          who: ['Ur-Nanna, Storehouse Steward', 'Dudu, contracted roof repairer', 'Shuruppak-ilu, Senior Scribe', 'Current scribe'],
           quantity: 'One repaired roof section, one runoff channel, one beam socket, and seven sealed pottery storage jars containing held barley, observed in segregation only.',
           when: 'Following the storm and reported mid-bay repair, c. 3200 BCE.',
           where: 'North storage bay, Temple Storehouse, Uruk',

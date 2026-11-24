@@ -75,7 +75,7 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
         : item.id === 'repairer-scope' || item.id === 'scope-comparison' ? NORTH_BAY_PEOPLE.repairer
         : item.id === 'intake-boundary' ? NORTH_BAY_PEOPLE.receivingOfficial : undefined;
       const primary = { id: `source-${item.id}`, kind: personId ? 'person' as const : 'other' as const,
-        ...(personId ? { sourceId: personId } : {}), description: item.id === 'roof-inspection' ? 'Direct physical inspection by Enlil-barni' : item.title };
+        ...(personId ? { sourceId: personId } : {}), description: item.id === 'roof-inspection' ? `Direct physical inspection by ${state.world.people[state.player.currentCharacterId]?.name ?? 'the current scribe'}` : item.title };
       return item.id === 'scope-comparison' ? [primary, { id: 'source-steward-maintenance-note', kind: 'person' as const,
         sourceId: NORTH_BAY_PEOPLE.steward, description: 'Ur-Nanna’s storehouse maintenance note describing the bay as repaired' }] : [primary];
     }),

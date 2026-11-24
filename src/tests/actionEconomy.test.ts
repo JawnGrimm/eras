@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { TEST_CHARACTER_CREATION } from './fixtures/newGameCharacter';
 import { getInitializedScribal } from '../state/scribalState';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
 import { transitionGame } from '../engine/actionEconomy';
@@ -76,7 +77,7 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
 
 
   it('reports a qualified Work provision, overtime stress, and tomorrow AP from the engine', async () => {
-    let state = createNewGameState();
+    let state = createNewGameState(TEST_CHARACTER_CREATION);
     const activeProgress = state.works.progress[STOREHOUSE_WORK_ID];
     const priorWorkId = 'work-prior-completed' as typeof STOREHOUSE_WORK_ID;
     state = { ...state, works: { ...state.works, progress: {
@@ -99,7 +100,7 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
 
 
   it('honors a qualified completed Work even when a later active Work has not met its AP threshold', () => {
-    const state = createNewGameState();
+    const state = createNewGameState(TEST_CHARACTER_CREATION);
     const activeProgress = state.works.progress[STOREHOUSE_WORK_ID];
     const priorWorkId = 'work-qualified-earlier-today' as typeof STOREHOUSE_WORK_ID;
     const priorDefinition = {
@@ -122,7 +123,7 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
   });
 
   it('ignores a legacy provision-contract snapshot on the Storehouse tutorial in v2 saves', () => {
-    const state = createNewGameState();
+    const state = createNewGameState(TEST_CHARACTER_CREATION);
     const progress = state.works.progress[STOREHOUSE_WORK_ID];
     const legacyState = {
       ...state,
@@ -133,7 +134,7 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
     const result = transitionGame(legacyState, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber }, undefined, INITIAL_WORK_CATALOG);
     expect(result.settlement?.workContractProvisionReason).toBe('no_active_work_contract');
     expect(result.settlement?.workContractProvisionEarned).toBe(0);
-    expect(getInitializedScribal(result.state.world.people[INITIAL_PERSON_ID])?.wallet.provisions).toBe(4);
+    expect(getInitializedScribal(result.state.world.people[state.player.currentCharacterId])?.wallet.provisions).toBe(4);
   });
 
   it('emits shortage notices only on grace and shortage-entry transitions', () => {

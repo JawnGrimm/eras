@@ -1,4 +1,5 @@
 import React, { createElement } from 'react';
+import { TEST_CHARACTER_CREATION } from './fixtures/newGameCharacter';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 import { GameProvider } from '../state/GameProvider';
@@ -27,7 +28,7 @@ describe('StorehouseWorkScreen numeric draft field', () => {
   });
 
   it('renders the production Storehouse screen with its authored account fields', () => {
-    const state = createNewGameState();
+    const state = createNewGameState(TEST_CHARACTER_CREATION);
     const markup = renderToStaticMarkup(
       createElement(GameProvider, { initialState: state },
         createElement(StorehouseWorkScreen, { onBack: () => undefined }),

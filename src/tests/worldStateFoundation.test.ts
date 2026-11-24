@@ -1,4 +1,5 @@
 import { createElement } from 'react';
+import { TEST_CHARACTER_CREATION } from './fixtures/newGameCharacter';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { ProductionPeopleAndInstitutions } from '../components/ProductionPeopleAndInstitutions';
@@ -56,7 +57,7 @@ describe('Phase 2 Uruk world-state foundation', () => {
   });
 
   it('shows public circumstances and duties without revealing private NPC objectives', () => {
-    const state = createNewGameState();
+    const state = createNewGameState(TEST_CHARACTER_CREATION);
     const markup = renderToStaticMarkup(createElement(GameProvider, { initialState: state }, createElement(ProductionPeopleAndInstitutions)));
     expect(markup).toContain('Current circumstances');
     expect(markup).toContain('Declared responsibilities and commitments');
@@ -66,7 +67,7 @@ describe('Phase 2 Uruk world-state foundation', () => {
   });
 
   it('preserves the new profile and matter data through a schema-v2 save round trip', () => {
-    const state = createNewGameState();
+    const state = createNewGameState(TEST_CHARACTER_CREATION);
     const envelope = createSaveEnvelope(state, 3, '2026-11-22T12:00:00.000Z');
     expect(isValidSaveEnvelope(envelope, INITIAL_WORK_CATALOG)).toBe(true);
     const restored = restoreSave(JSON.stringify(envelope), INITIAL_WORK_CATALOG);

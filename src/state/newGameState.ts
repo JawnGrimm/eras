@@ -1,10 +1,20 @@
 import { transitionGame } from '../engine/actionEconomy';
 import { generateDailyAssignments } from '../engine/assignmentGenerator';
-import { INITIAL_PERSON_ID, createInitialGameState } from './initialState';
-import type { ChallengeInstance, GameState } from './types';
-import type { ChallengeId, PersonId } from './ids';
+import { createInitialGameState } from './initialState';
+import type { ChallengeInstance, GameState, Person } from './types';
+import type { ChallengeId, PersonId, CareerPathId } from './ids';
 import { STOREHOUSE_WORK_ID, STOREHOUSE_PEOPLE, storehouseReckoning } from '../works/storehouseReckoning';
 import { ASSIGNMENT_ACTIVITY_CATALOG } from '../content/assignments/northBayRoofInspection';
+import {
+  resolveEraICharacterHistory,
+  validateEraICharacterHistoryChoices,
+  type EraICharacterHistoryChoices,
+} from '../content/characterCreation/eraICharacterHistory';
+import {
+  resolveEraICharacterStartingState,
+  validateEraICharacterName,
+} from './eraICharacterStartingState';
+import { createEraIPlayerPersonId } from './characterIdentity';
 
 /** The production Work catalog is supplied to every bootstrap transition. */
 export const INITIAL_ASSIGNMENT_ACTIVITY_CATALOG = ASSIGNMENT_ACTIVITY_CATALOG;
@@ -13,7 +23,27 @@ export const INITIAL_WORK_CATALOG = {
   [STOREHOUSE_WORK_ID]: storehouseReckoning,
 } as const;
 
-function starterChallenge(): Omit<ChallengeInstance, 'status' | 'assigneePersonId'> {
+const CHARACTER_CREATION_PREVIEW_PERSON: Person = {
+  id: 'person-character-creator-preview' as PersonId,
+  name: 'New character',
+  alive: true,
+  affiliations: [],
+};
+
+/** Non-persistent Creator context containing the authored NPC roster, not a legacy protagonist. */
+export function createCharacterCreationPreviewState(): GameState {
+  return createInitialGameState(CHARACTER_CREATION_PREVIEW_PERSON);
+}
+
+export interface EraICharacterCreationInput {
+  /** Caller-supplied deterministic seed; no clock or random source is consulted. */
+  seed: string;
+  name: string;
+  choices: EraICharacterHistoryChoices;
+  careerPath: CareerPathId;
+}
+
+function starterChallenge(player: Person): Omit<ChallengeInstance, 'status' | 'assigneePersonId'> {
   return {
     id: 'challenge-apprentice-copy-dispute' as ChallengeId,
     title: 'The Apprentice’s Copy',
@@ -22,7 +52,7 @@ function starterChallenge(): Omit<ChallengeInstance, 'status' | 'assigneePersonI
     employer: { kind: 'person', id: STOREHOUSE_PEOPLE.seniorScribe },
     context: {
       what: 'Decide how to handle one uncertain line in an apprentice practice copy.',
-      who: ['Nin-aya, apprentice', 'Enlil-barni, assisting scribe', 'Shuruppak-ilu, Senior Scribe'],
+      who: ['Nin-aya, apprentice', `${player.name}, assisting scribe`, 'Shuruppak-ilu, Senior Scribe'],
       quantity: 'One disputed line in a practice tablet.',
       when: 'Day 1, during instruction.',
       where: 'Temple scribal room, Uruk',
@@ -34,9 +64,8 @@ function starterChallenge(): Omit<ChallengeInstance, 'status' | 'assigneePersonI
       provenance: ['The apprentice’s practice copy and her report of the oral instruction.'],
     },
     deliveryChannels: [{
-      kind: 'relationship',
-      personId: STOREHOUSE_PEOPLE.seniorScribe,
-      explanation: 'The Senior Scribe has involved the current scribe in routine instruction.',
+      kind: 'baseline_reach',
+      explanation: 'The newly instructed apprentice is included in routine practice-copy instruction.',
     }],
     presentedDay: 1,
     apCost: 1,
@@ -48,7 +77,7 @@ function starterChallenge(): Omit<ChallengeInstance, 'status' | 'assigneePersonI
         consequences: {
           careerXp: 5,
           relationships: [{
-            fromId: INITIAL_PERSON_ID,
+            fromId: player.id,
             toId: 'person-uruk-nin-aya' as PersonId,
             changes: { respect: 3, familiarity: 2 },
             summary: 'The apprentice’s uncertainty was preserved rather than erased.',
@@ -62,7 +91,7 @@ function starterChallenge(): Omit<ChallengeInstance, 'status' | 'assigneePersonI
         consequences: {
           moneyDelta: -1,
           relationships: [{
-            fromId: INITIAL_PERSON_ID,
+            fromId: player.id,
             toId: 'person-uruk-nin-aya' as PersonId,
             changes: { trust: 3, familiarity: 1 },
             summary: 'The apprentice was asked to wait for a fresh recitation before correcting the line.',
@@ -74,18 +103,76 @@ function starterChallenge(): Omit<ChallengeInstance, 'status' | 'assigneePersonI
 }
 
 /**
- * Creates a complete first-day production state by applying authored engine actions.
- * IDs and authored content are stable; no random or wall-clock values enter transitions.
+ * Creates a complete first-day production state from the approved creation payload.
+ * All player-dependent opening content is initialized only after the new Person
+ * has been registered in the world.
  */
-export function createNewGameState(): GameState {
-  let state = createInitialGameState();
-  const catalog = INITIAL_WORK_CATALOG;
+export function createNewGameState(input: EraICharacterCreationInput): GameState {
+  const nameResult = validateEraICharacterName(input.name);
+  if (!nameResult.valid) throw new Error(nameResult.error);
+  const choiceErrors = validateEraICharacterHistoryChoices(input.choices);
+  if (choiceErrors.length > 0) throw new Error(choiceErrors.join(' '));
+
+  // Build the authored NPC roster from a non-persistent preview Person; the preview
+  // identity is excluded from collision checks and never enters the playable state.
+  const npcFixture = createCharacterCreationPreviewState();
+  const occupied = new Set(Object.keys(npcFixture.world.people).filter((id) => id !== CHARACTER_CREATION_PREVIEW_PERSON.id));
+  const personId = createEraIPlayerPersonId({
+    seed: input.seed,
+    name: nameResult.name,
+    careerPath: input.careerPath,
+    choices: input.choices,
+  }, occupied);
+  const initialPlayer: Person = {
+    id: personId,
+    name: nameResult.name,
+    alive: true,
+    affiliations: [],
+    lifeStage: 'apprentice',
+    socialIdentity: {
+      occupation: 'Scribal apprentice',
+      summary: 'An apprentice beginning professional instruction in Uruk.',
+    },
+  };
+  // Register the new Person before resolving player-dependent history and opening content.
+  const registeredWorld = createInitialGameState(initialPlayer);
+  const history = resolveEraICharacterHistory({
+    personId,
+    people: registeredWorld.world.people,
+    choices: input.choices,
+  });
+  const starting = resolveEraICharacterStartingState(input.choices, input.careerPath);
+  const player: Person = {
+    ...initialPlayer,
+    characterCreation: history.characterCreation,
+    lifeEvents: history.lifeEvents,
+    familiarities: history.familiarities,
+    scribal: {
+      stage: 'initialized',
+      careerXp: 0,
+      cumulativeShortageStress: 0,
+      obligations: [],
+      careerPath: starting.careerPath,
+      wallet: { money: 0, provisions: 5, shortageWorkdays: 0 },
+      skills: starting.skills,
+      attributes: starting.attributes,
+      specializations: [],
+      traits: [],
+      conditions: [],
+      equipment: [],
+      stress: 0,
+      professionalReputation: starting.professionalReputation,
+      institutionalStanding: {},
+    },
+  };
+
+  let state = createInitialGameState(player);
   const actions = [
     { type: 'START_WORK', workId: STOREHOUSE_WORK_ID } as const,
-    { type: 'PRESENT_CHALLENGE', challenge: starterChallenge() } as const,
+    { type: 'PRESENT_CHALLENGE', challenge: starterChallenge(player) } as const,
   ];
   for (const action of actions) {
-    const result = transitionGame(state, action, undefined, catalog);
+    const result = transitionGame(state, action, undefined, INITIAL_WORK_CATALOG);
     if (result.feedback?.kind === 'error') {
       throw new Error(`Initial Uruk content failed (${result.feedback.code}): ${result.feedback.message}`);
     }

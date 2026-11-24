@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { TEST_CHARACTER_CREATION } from './fixtures/newGameCharacter';
 import { createNewGameState } from '../state/newGameState';
 import { selectCharacterOpportunities } from '../state/opportunitySelectors';
 import type { AssignmentId, ChallengeId, PersonId } from '../state/ids';
@@ -6,7 +7,7 @@ import type { AssignmentOffer, OpportunityActivity } from '../state/types';
 
 describe('character opportunity selectors', () => {
   it('scopes accepted commitments to the active character and keeps offered items visible', () => {
-    const base = createNewGameState();
+    const base = createNewGameState(TEST_CHARACTER_CREATION);
     const currentId = base.player.currentCharacterId;
     const otherId = 'person-uruk-ur-gir' as PersonId;
     const starter = Object.values(base.opportunities.assignments)[0];
@@ -36,7 +37,7 @@ describe('character opportunity selectors', () => {
   });
 
   it('keeps only completed outcomes in the archive and retains resolver attribution', () => {
-    const base = createNewGameState();
+    const base = createNewGameState(TEST_CHARACTER_CREATION);
     const outcome = {
       challengeId: 'resolved-challenge' as ChallengeId,
       title: 'A resolved matter',
@@ -55,7 +56,7 @@ describe('character opportunity selectors', () => {
   });
 
   it('bounds recent Assignment activity to five and derives compact totals from aggregates', () => {
-    const base = createNewGameState();
+    const base = createNewGameState(TEST_CHARACTER_CREATION);
     const recentActivity = Array.from({ length: 7 }, (_, index) => ({
       dayNumber: index + 1, kind: 'presented' as const, employerKey: 'person|employer|records|',
       category: 'records', assignmentId: `recent-${index}` as AssignmentId,

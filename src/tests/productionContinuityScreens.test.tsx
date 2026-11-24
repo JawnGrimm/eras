@@ -1,4 +1,5 @@
 import React, { createElement } from 'react';
+import { TEST_CHARACTER_CREATION } from './fixtures/newGameCharacter';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { ProductionShellContent } from '../components/ProductionShell';
@@ -65,16 +66,16 @@ describe('production continuity and social screens', () => {
   });
 
   it('shows Stress, derived Grade, and the tutorial label in the production shell', () => {
-    const state = createNewGameState();
+    const state = createNewGameState(TEST_CHARACTER_CREATION);
     const markup = renderScreen(state, createElement(ProductionShellContent));
-    expect(markup).toContain('Stress: 15/100');
+    expect(markup).toContain('Stress: 0/100');
     expect(markup).toContain('Professional Rank: Grade 1');
     expect(markup).toContain('Introductory Tutorial · Storehouse');
     expect(markup).not.toContain('Active Work · Storehouse');
   });
 
   it('hides submission controls after the Storehouse tutorial is completed', () => {
-    const fresh = createNewGameState();
+    const fresh = createNewGameState(TEST_CHARACTER_CREATION);
     const progress = fresh.works.progress[STOREHOUSE_WORK_ID];
     const completed: GameState = {
       ...fresh,
@@ -92,7 +93,7 @@ describe('production continuity and social screens', () => {
   });
 
   it('keeps Workday quick Accept disabled for expired or unqualified offers and labels Assignment-only rewards accurately', () => {
-    const fresh = createNewGameState();
+    const fresh = createNewGameState(TEST_CHARACTER_CREATION);
     const first = Object.values(fresh.opportunities.assignments)[0];
     const expiredState: GameState = {
       ...fresh,

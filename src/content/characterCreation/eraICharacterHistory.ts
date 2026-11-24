@@ -1,4 +1,5 @@
 import type { PersonId } from '../../state/ids';
+import { ERA_I_CHARACTER_CREATION_CONTENT_VERSION, ERA_I_CHARACTER_HISTORY_DEPENDENCY_VERSION } from '../../state/eraICharacterStartingState';
 import type {
   CharacterCreationRecord,
   FamiliarityExposure,
@@ -7,7 +8,7 @@ import type {
   PersonLifeEvent,
 } from '../../state/types';
 
-export const ERA_I_CHARACTER_HISTORY_CONTENT_VERSION = 'era1-character-history-v1' as const;
+export const ERA_I_CHARACTER_HISTORY_CONTENT_VERSION = ERA_I_CHARACTER_HISTORY_DEPENDENCY_VERSION;
 
 export type EraIOriginId = 'OR-01' | 'OR-02' | 'OR-03' | 'OR-04';
 export type EraIResponsibilityId = 'RS-01' | 'RS-02' | 'RS-03' | 'RS-04';
@@ -318,7 +319,7 @@ export function resolveEraICharacterHistory(input: ResolveEraICharacterHistoryIn
 
   return {
     characterCreation: {
-      contentVersion: ERA_I_CHARACTER_HISTORY_CONTENT_VERSION,
+      contentVersion: ERA_I_CHARACTER_CREATION_CONTENT_VERSION,
       originId: choices.originId,
       responsibilityId: choices.responsibilityId,
       formativeExperienceId: choices.formativeExperienceId,
