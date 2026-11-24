@@ -3,9 +3,11 @@ import { TEST_CHARACTER_CREATION } from './fixtures/newGameCharacter';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { ProductionAssignmentBoard } from '../components/ProductionAssignmentBoard';
+import { AssignmentActivityScreen } from '../components/AssignmentActivityScreen';
 import { ProductionChallengeJournal } from '../components/ProductionChallengeJournal';
 import { GameProvider } from '../state/GameProvider';
 import { createNewGameState } from '../state/newGameState';
+import { transitionGame } from '../engine/actionEconomy';
 import type { ChallengeId } from '../state/ids';
 
 describe('production opportunity screens', () => {
@@ -23,6 +25,21 @@ describe('production opportunity screens', () => {
     expect(markup).toContain('South Loading-Awning Inspection');
     expect(markup).toContain('Expires Day 4');
     expect(markup).toContain('3 days remaining');
+  });
+
+  it('shows responsibility guidance only on the Assignment that authors it', () => {
+    const fresh = createNewGameState(TEST_CHARACTER_CREATION);
+    const southCourt = Object.values(fresh.opportunities.assignments).find((offer) => offer.title === 'South-Court Delivery Reconciliation')!;
+    const southCourtAccepted = transitionGame(fresh, { type: 'ACCEPT_ASSIGNMENT', assignmentId: southCourt.id });
+    const southCourtMarkup = renderToStaticMarkup(createElement(GameProvider, { initialState: southCourtAccepted.state },
+      createElement(AssignmentActivityScreen, { assignmentId: southCourt.id, onBack: () => undefined })));
+    expect(southCourtMarkup).not.toContain('Dudu’s recorded contract');
+
+    const awning = Object.values(fresh.opportunities.assignments).find((offer) => offer.title === 'South Loading-Awning Inspection')!;
+    const awningAccepted = transitionGame(fresh, { type: 'ACCEPT_ASSIGNMENT', assignmentId: awning.id });
+    const awningMarkup = renderToStaticMarkup(createElement(GameProvider, { initialState: awningAccepted.state },
+      createElement(AssignmentActivityScreen, { assignmentId: awning.id, onBack: () => undefined })));
+    expect(awningMarkup).toContain('Dudu’s recorded contract');
   });
 
   it('renders completed Challenge outcome and character attribution without operational declined state', () => {
