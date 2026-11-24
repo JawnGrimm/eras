@@ -259,6 +259,27 @@ describe('P2-2 authored Uruk Assignment activities', () => {
     expect(directed.historicalProgression.historicalXp).toBe(state.historicalProgression.historicalXp);
   });
 
+  it('presents at most one Challenge when both authored candidates are eligible', () => {
+    let state = generateDailyAssignments(withHeldMatter(createInitialGameState(), 1));
+    const offer = Object.values(state.opportunities.assignments)
+      .find((item) => item.activityId === southCourtDeliveryReconciliation.id)!;
+    state = accept(state, offer);
+    state = perform(state, offer.id, 'delivery-compare-tablets');
+    state = perform(state, offer.id, 'delivery-consult-enlil');
+    state = draft(state, offer.id, {
+      finding: 'unlocated_discrepancy', responsibilityClaim: 'none',
+      citedDiscoveryIds: ['delivery-dispatch-copy','delivery-arrival-tally','delivery-enlil-testimony'],
+      limitations: [], recommendations: ['retain_both_request_origin'], selectedLimitationIds: ['cause_unlocated','no_individual_blame','no_amend_authority'],
+    });
+    state = submit(state, offer.id);
+    state = { ...state, calendar: { ...state.calendar, dayNumber: 3 } };
+
+    const directed = runChallengeDirector(withCompletedTutorial(state));
+    expect(Object.values(directed.opportunities.challenges)).toHaveLength(1);
+    expect(directed.opportunities.occurrenceLedger.filter((entry) =>
+      entry.scenarioId === 'challenge-seven-sacks' || entry.scenarioId === 'challenge-missing-measure')).toHaveLength(1);
+  });
+
   it('triggers The Seven Sacks after an open held-stock matter reaches two days and never reoffers after decline', () => {
     let state = withHeldMatter(createInitialGameState(), 1);
     state = { ...state, calendar: { ...state.calendar, dayNumber: 3 } };
