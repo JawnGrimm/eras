@@ -15,6 +15,9 @@ export const EANNA_TABLET_ROOM_LOCATION_ID = 'location-uruk-eanna-tablet-room' a
 export const TEXTILE_HOUSEHOLD_INSTITUTION_ID = 'institution-uruk-textile-household-provisional' as InstitutionId;
 export const TEXTILE_HOUSEHOLD_LOCATION_ID = 'location-uruk-textile-household-provisional' as LocationId;
 export const RIVER_LANDING_LOCATION_ID = 'location-uruk-river-landing-provisional' as LocationId;
+/** Provisional household setting for the authored strongroom access incident. */
+export const HOUSEHOLD_STRONGROOM_INSTITUTION_ID = 'institution-uruk-household-strongroom-provisional' as InstitutionId;
+export const HOUSEHOLD_STRONGROOM_LOCATION_ID = 'location-uruk-household-strongroom-provisional' as LocationId;
 
 
 
