@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createInitialGameState } from '../../state/initialState';
+import { ERA_I_CHARACTER_CREATION_CONTENT_VERSION } from '../../state/eraICharacterStartingState';
 import type { Person } from '../../state/types';
 import type { PersonId } from '../../state/ids';
 import {
@@ -53,7 +54,7 @@ describe('Era I deterministic character-history resolver', () => {
   it('resolves the approved content package into exactly five ordered events and a five-choice record', () => {
     const result = resolve();
     expect(result.characterCreation).toEqual({
-      contentVersion: ERA_I_CHARACTER_HISTORY_CONTENT_VERSION,
+      contentVersion: ERA_I_CHARACTER_CREATION_CONTENT_VERSION,
       originId: 'OR-01',
       responsibilityId: 'RS-01',
       formativeExperienceId: 'FE-01',
