@@ -128,6 +128,7 @@ export function CharacterCreator() {
         <h1 className="mt-2 font-serif text-3xl font-semibold">Create your character</h1>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-stone-700">Your early experiences establish what you have encountered and practiced—not automatic competence, authority, or personal relationships. Starting values marked provisional are for playtest calibration.</p>
       </header>
+      {game.storageError && <p role="status" className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">{game.storageError} You can still begin a session, but it will not persist between visits.</p>}
 
       {!review ? <>
         <section className="rounded-xl border border-stone-300 bg-[#fbf9f4] p-5">
