@@ -8,7 +8,6 @@ import {
   resolveEraICharacterStartingState,
   validateEraICharacterName,
 } from './eraICharacterStartingState';
-import type { EraICharacterHistoryChoices } from '../content/characterCreation/eraICharacterHistory';
 
 const base: EraICharacterHistoryChoices = {
   originId: 'OR-01',
