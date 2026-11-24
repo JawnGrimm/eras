@@ -6,7 +6,7 @@ import { createSaveEnvelope, restoreSave } from '../state/saveEnvelope';
 import { era1ComF02TwoClaims, era1ComF03PartialReturn, ERA1_COM_F02_F04_PEOPLE } from '../content/assignments/eraICommercialFamilies';
 import { submitRubricAssignmentActivity } from '../engine/eraIAnchorSubmission';
 import type { InstitutionalMatter } from '../state/types';
-import type { EventId, MatterId, RecordId } from '../state/ids';
+import type { EventId, InstitutionId, MatterId, RecordId } from '../state/ids';
 
 function withOpenNorthBayRepairNeed() {
   const base = createInitialGameState();
@@ -46,7 +46,7 @@ describe('Era I Commercial F02-F04 causal matter pipeline', () => {
   it('adds provisional participants and their institutions lazily when continuing a save predating these families', () => {
     const base = withOpenNorthBayRepairNeed();
     const people = { ...base.world.people };
-    const institutions = { ...base.world.institutions };
+    const institutions = { ...base.world.institutions } as Record<InstitutionId, typeof base.world.institutions[keyof typeof base.world.institutions]>;
     const locations = { ...base.world.locations };
     delete people[ERA1_COM_F02_F04_PEOPLE.gemeInana];
     delete people[ERA1_COM_F02_F04_PEOPLE.amaGi];
