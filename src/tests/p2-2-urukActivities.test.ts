@@ -219,8 +219,8 @@ describe('P2-2 authored Uruk Assignment activities', () => {
     const beforeTutorial = runChallengeDirector(state);
     expect(beforeTutorial.opportunities.challenges).toEqual({});
 
-    const afterTutorial = runChallengeDirector(withCompletedTutorial(state));
-    expect(afterTutorial.opportunities.challenges['challenge-seven-sacks' as never]?.title).toBe('The Seven Sealed Jars');
+    const afterTutorial = runChallengeDirector(generateDailyAssignments(withCompletedTutorial(state)));
+    expect(Object.values(afterTutorial.opportunities.challenges).some((challenge) => challenge.title === 'The Seven Sealed Jars')).toBe(true);
 
     const noCause = runChallengeDirector(withCompletedTutorial(createInitialGameState()));
     expect(noCause.opportunities.challenges).toEqual({});
@@ -255,22 +255,22 @@ describe('P2-2 authored Uruk Assignment activities', () => {
     expect(state.world.relationships['person-enlil-kisu' as never]?.[state.player.currentCharacterId]?.dimensions).toMatchObject({ trust: 57, respect: 53 });
     expect(state.world.relationships['person-shuruppak-ilu' as never]?.[state.player.currentCharacterId]).toBeUndefined();
     const directed = runChallengeDirector(withCompletedTutorial(state));
-    expect(directed.opportunities.challenges['challenge-missing-measure' as never]?.title).toBe('The Missing Measure');
+    expect(Object.values(directed.opportunities.challenges).some((challenge) => challenge.title === 'The Missing Measure')).toBe(true);
     expect(directed.historicalProgression.historicalXp).toBe(state.historicalProgression.historicalXp);
   });
 
   it('triggers The Seven Sacks after an open held-stock matter reaches two days and never reoffers after decline', () => {
     let state = withHeldMatter(createInitialGameState(), 1);
     state = { ...state, calendar: { ...state.calendar, dayNumber: 3 } };
-    const directed = runChallengeDirector(withCompletedTutorial(state));
-    const challenge = directed.opportunities.challenges['challenge-seven-sacks' as never];
+    const directed = runChallengeDirector(generateDailyAssignments(withCompletedTutorial(state)));
+    const challenge = Object.values(directed.opportunities.challenges).find((item) => item.title === 'The Seven Sealed Jars');
     expect(challenge?.title).toBe('The Seven Sealed Jars');
     expect(challenge?.description).toContain('sealed pottery storage jars');
     expect(challenge?.description).not.toMatch(/\bsacks?\b/i);
     expect(challenge?.context.quantity).toContain('sealed pottery storage jars');
     const declined = transitionOpportunityAction(directed, { type: 'DECLINE_CHALLENGE', challengeId: challenge!.id }).state;
     const again = runChallengeDirector(withCompletedTutorial(declined));
-    expect(again.opportunities.challenges['challenge-seven-sacks' as never]?.status).toBe('declined');
+    expect(again.opportunities.challenges[challenge!.id]?.status).toBe('declined');
     expect(again.historicalProgression.historicalXp).toBe(state.historicalProgression.historicalXp);
   });
   it('includes a newly selected Challenge in the same Workday Morning Report', () => {
