@@ -6,7 +6,7 @@ import { transitionGame } from '../engine/actionEconomy';
 import { createSaveEnvelope, isValidSaveEnvelope, restoreSave } from '../state/saveEnvelope';
 import { createNewGameState, INITIAL_WORK_CATALOG } from '../state/newGameState';
 import { STOREHOUSE_WORK_ID, storehouseReckoning } from '../works/storehouseReckoning';
-import { getOvertimeApForfeitPrompt } from '../components/ProductionWorkdayHub';
+import { getOvertimeApForfeitPrompt } from '../components/overtimeApForfeit';
 
 const endDay = (state: ReturnType<typeof createInitialGameState>) => {
   const opened = transitionGame(state, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber });
