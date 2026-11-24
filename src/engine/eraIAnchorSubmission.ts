@@ -3,7 +3,7 @@ import type { EventId, InstitutionId, KnowledgeEntryId, PersonId, RecordId } fro
 import { ERA1_COM_F01_ACTIVITY_ID, ERA1_COM_F01_PEOPLE } from '../content/assignments/eraICommercialMartial';
 import type { AssignmentActivityDefinition } from '../content/assignments/northBayRoofInspection';
 import { getInitializedScribal } from '../state/scribalState';
-import { applyClosingAssessment } from './closingReceipt';
+import { applyClosingAssessment, CLOSING_RECEIPT_SCHEDULE } from './closingReceipt';
 import { addActivity } from './opportunities';
 import { queueSettlementCredit } from './dayClose';
 
@@ -60,7 +60,11 @@ export function submitRubricAssignmentActivity(
     ...(matter?.sourceRecordId ? [{ id: 'source-matter-record', kind: 'other' as const, sourceId: matter.sourceRecordId, description: 'Original source record linked to the active institutional matter.' }] : []),
     { id: 'source-player-report', kind: 'other', description: 'Submitted report by the current scribe; selected limitations and notes are player-authored content.' },
     ...citedDiscoveries.map((item) => ({
-      id: `source-${item.id}`, kind: 'other' as const,
+      id: `source-${item.id}`,
+      kind: item.sourcePersonId ? 'person' as const : item.sourceEventId ? 'event' as const : 'other' as const,
+      ...(item.sourcePersonId ? { sourceId: item.sourcePersonId }
+        : item.sourceEventId ? { sourceId: item.sourceEventId }
+        : item.sourceRecordId ? { sourceId: item.sourceRecordId } : {}),
       description: `${item.title}: ${item.text}`,
     })),
   ];
@@ -207,6 +211,32 @@ export function submitRubricAssignmentActivity(
             summary: assessment === 'Thorough'
               ? 'Ur-Lamma regards the scribe as reliable after a thorough report supports the documented description difference.'
               : 'Ur-Lamma regards the scribe as reliable after a defensible report supports the documented description difference.',
+          }],
+        },
+      },
+    };
+  }
+  let outcomeRelationships = evaluated.state.world.relationships;
+  for (const affectedPersonId of rubric.relationshipPersonIds ?? []) {
+    if (affectedPersonId === receiverId || affectedPersonId === person.id) continue;
+    const affectedPerson = state.world.people[affectedPersonId];
+    if (!affectedPerson) continue;
+    const current = outcomeRelationships[affectedPersonId]?.[person.id];
+    const dimensions = { trust: 50, respect: 50, affection: 50, resentment: 0, rivalry: 0, familiarity: 0, ...current?.dimensions };
+    const schedule = CLOSING_RECEIPT_SCHEDULE[assessment];
+    const trust = Math.max(0, Math.min(100, dimensions.trust + schedule.trust));
+    const respect = Math.max(0, Math.min(100, dimensions.respect + schedule.respect));
+    if (trust === dimensions.trust && respect === dimensions.respect) continue;
+    outcomeRelationships = {
+      ...outcomeRelationships,
+      [affectedPersonId]: {
+        ...outcomeRelationships[affectedPersonId],
+        [person.id]: {
+          dimensions: { ...dimensions, trust, respect },
+          history: [...(current?.history ?? []), {
+            id: `assignment-receipt-${offer.id}-day-${state.calendar.dayNumber}:relationship-${affectedPersonId}`,
+            dayNumber: state.calendar.dayNumber,
+            summary: reaction,
           }],
         },
       },
