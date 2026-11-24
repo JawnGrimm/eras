@@ -162,9 +162,12 @@ describe('North-Bay Roof Inspection activity definition and engine', () => {
     expect(result.feedback?.code).toBe('assignment-activity-submitted');
     const record = result.state.records.entries['record-assignment-north-bay-roof-inspection-day-1' as never];
     expect(record.assertions.some((assertion) => assertion.classification === 'disputed' && assertion.id === 'assertion-unsupported-certification')).toBe(true);
-    expect(result.state.world.relationships['person-enlil-barni' as never]?.['person-dudu' as never]?.dimensions.trust).toBe(46);
-    expect(result.state.world.relationships['person-enlil-barni' as never]?.['person-ur-nanna' as never]?.dimensions.trust).toBe(45);
-    expect(getInitializedScribal(result.state.world.people['person-enlil-barni' as never])?.professionalReputation.judgment).toBe(44);
+    expect(result.state.world.relationships['person-enlil-barni' as never]?.['person-dudu' as never]).toBeUndefined();
+    expect(result.state.world.relationships['person-ur-nanna' as never]?.['person-enlil-barni' as never]?.dimensions.trust).toBe(46);
+    expect(getInitializedScribal(result.state.world.people['person-enlil-barni' as never])?.professionalReputation.judgment).toBe(46);
+    expect(getInitializedScribal(result.state.world.people['person-enlil-barni' as never])?.institutionalStanding['institution-uruk-temple-storehouse' as never]).toBe(48);
+    expect(result.state.opportunities.assignments[NORTH_BAY_ASSIGNMENT_ID].closingReceipt?.assessment).toBe('Overreached');
+    expect(result.state.opportunities.assignments[NORTH_BAY_ASSIGNMENT_ID].receiptAcknowledged).toBe(false);
     expect(result.state.world.knowledge['knowledge-assignment-north-bay-roof-inspection-day-1-person-person-dudu' as never]).toBeDefined();
     expect(result.state.world.institutions['institution-uruk-temple-storehouse' as never].activeMatters.some((matterId) => result.state.world.matters[matterId]?.summary.includes('certified without sufficient supporting inspection'))).toBe(true);
   });
