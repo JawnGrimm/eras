@@ -63,6 +63,14 @@ describe('Era I Assignment anchor semantic catalog', () => {
     ];
     expect(validateEraIAssignmentAnchorPortfolio(duplicate)).toContain('Anchor IDs must be unique.');
 
+    const extra = [
+      ...ERA_I_ASSIGNMENT_ANCHOR_SCRIPTS,
+      { ...ERA_I_ASSIGNMENT_ANCHOR_SCRIPTS[0], id: 'ERA1-EXTRA-01' },
+    ];
+    expect(validateEraIAssignmentAnchorPortfolio(extra)).toContain(
+      'Era I anchor portfolio must contain exactly 5 anchors.',
+    );
+
     const incomplete = ERA_I_ASSIGNMENT_ANCHOR_SCRIPTS.map((script, index) => index === 0
       ? { ...script, pool: 'orientation_locked' as unknown as EraIAnchorScript['pool'] }
       : script);
