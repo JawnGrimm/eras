@@ -259,3 +259,70 @@ Local test/build execution was not performed in this environment. These results 
 - Issue #85 remains **OPEN / IN PROGRESS**. The Challenge Director runtime slices are **IMPLEMENTED / TESTED / MERGED**; integrated acceptance is **NOT VERIFIED**; deployment is **NOT VERIFIED / NOT RECORDED**.
 
 This addendum supplements the earlier dated snapshots. It does not close Issue #85, amend the GDD, or claim deployment or manual acceptance.
+
+
+## GD-STATE-INTEGRITY-001 — Production implementation status — 24 November 2026
+
+**Specification:** GD-STATE-INTEGRITY-001  
+**Authorization:** PR #106 merged as `53ddc2b07d1a9fbf1d05aad81231c9318845cc73`; Issue #107 remains OPEN / IN PROGRESS.  
+**Verified main baseline:** `main` at `cc067da72a2c6d07d62a8eb7cafab3743f5de576`. A direct comparison confirms the branch's final implementation merge is identical to current `main`.
+
+### Completed production slices
+
+- **WP0 — IMPLEMENTED / MERGED:** PR #108, merge `01d8bb12d54d98553a2e16d4f499a1b77bbe95dc`. Added `docs/production/GD-STATE-INTEGRITY-001-WP0-AUDIT.md`, mapping the live source/state model, Day-13 fields, relationship writers, matter lifecycle, and People & Institutions presentation baseline. The audit did not change runtime code or design documents.
+- **WP1 — IMPLEMENTED / TESTED / MERGED:** PR #109, merge `919e1e5c06bef32557520a8f9edcadb74663558e`. Corrected F02/F04 secondary relationship-history summaries: receiver dialogue remains on the receiver's directional edge; secondary recipients retain the authored trust/respect changes but receive neutral summaries identifying the submitting scribe, report title/day, and affected perspective. No NPC speech, relationship formula, or save field was invented.
+- **WP2 task feedback — IMPLEMENTED / TESTED / MERGED:** PR #110, merge `3d1555b4de0dbeb37dfbee57c48c69431bf3ce78`. South-Court comparison feedback now reports 24 dispatched / 23 received, leaves cause/responsibility unresolved, and states that the storehouse matter remains open. The action still does not resolve or mutate the institutional matter.
+- **WP3/WP4 — IMPLEMENTED / TESTED / MERGED:** PR #111, merge `131c58ea834a48c11d5ca6e6d27b10436f3b9f44`. Added searchable People and Institution directories, selected-profile detail, directional relationship disclosures, compact sparse-state presentation, current/historical matter separation, full linked institutional-record detail, and a repeatable Day-13 snapshot display-projection fixture.
+- **WP2 lifecycle presentation — IMPLEMENTED / TESTED / MERGED:** PR #112, merge `cc067da72a2c6d07d62a8eb7cafab3743f5de576`. Institution matter detail now displays existing institutional-response stage events with actor, appointment, decision, linked Record, scope, execution, verification, resolution, and event references.
+
+### Existing matter lifecycle mapping
+
+No new matter status or transition was added.
+
+- `InstitutionalMatter.status === 'active'` is presented as active/open.
+- Evidence/activity updates are represented by Records, provenance, and activity history while the matter remains active.
+- Assessment, authorization, commitment, execution, verification, and resolution are existing `InstitutionalResponse.stage` events. The UI displays recorded stages and does not infer an unrecorded “awaiting decision/authority” status.
+- `developed` remains distinct from `resolved`; it is retained as a predecessor/follow-up matter.
+- `resolved` remains the explicit resolved status.
+- No distinct closed/archived matter status exists; historical matter and Record objects remain retained.
+
+The People & Institutions UI derives current matter display from matter status and institution ID, rather than relying solely on the denormalized `Institution.activeMatters` index. This is read-only and does not repair state. The save validator still checks listed index entries but does not enforce the reverse invariant; no migration or persistent-state repair was introduced. The audited matter writers update status/index together, but a future validator/normalization change requires a separate compatibility review.
+
+### Relationship familiarity — BLOCKED / DESIGN HQ DECISION REQUIRED
+
+- `docs/design/WORLD_SIMULATION_SPEC.md` describes gradual personal familiarity from repeated meaningful interactions.
+- Runtime directional `relationship.dimensions.familiarity` is initialized at 0, but the audited consequence writers do not accrue that numeric dimension.
+- `PersonFamiliarity` is a separate domain-exposure record and is not a substitute for personal relationship familiarity.
+- The approved contract does not specify which interactions count or the deterministic increment/threshold rule. Production changed no familiarity values, thresholds, formulas, or save fields.
+- The question is escalated on Issue #107 for Design HQ to define the behavioral contract before Production implements it.
+
+### Day-13 reconciliation — PARTIALLY IMPLEMENTED / NOT VERIFIED
+
+- The merged Day-13 display fixture seeds the approved final observed values (AP 3/6, Currency 77, Provisions 9, Career XP 631, Professional Rank Grade 1, Historical Progress XP 0, Stress 5) and verifies that the UI projects those values from their respective state fields.
+- The fixture is explicitly a **display-projection fixture**, not a reconstructed gameplay save or transaction trace. It does not prove how the balances or Stress were produced.
+- The archived-record count is read from the actual Record collection; the exact Day-13 archived-record count and its transaction/history source remain unreconciled.
+- Exact balance/source reconciliation requires the actual Day-13 save/export and its available event/Record history.
+
+### Validation actually executed
+
+GitHub Actions on the exact PR heads:
+
+| PR | TypeScript | Unit tests | Production build | CodeQL |
+|---|---|---:|---|---|
+| #108 | Passed | 37 files / 276 tests | Passed | Passed |
+| #109 | Passed | 37 files / 277 tests | Passed | Passed |
+| #110 | Passed | 37 files / 276 tests | Passed | Passed |
+| #111 | Passed | 38 files / 279 tests | Passed | Passed |
+| #112 | Passed | 38 files / 279 tests | Passed | Passed |
+
+These are GitHub Actions results on the respective PR heads. Local test/build execution was not performed in this environment.
+
+### Outstanding work and limitations
+
+- **BLOCKED — Design HQ:** define the numeric personal relationship-familiarity accrual contract (meaningful interaction types and deterministic behavior). No production formula may be inferred.
+- **BLOCKED — Day-13 evidence:** obtain the actual Day-13 save/export to reconcile balances, Stress, transaction/event sources, and archived-record count.
+- **NOT TESTED — UI accessibility:** manual browser interaction, keyboard-only operation, screen-reader announcements, 200% zoom, and narrow viewport checks remain outstanding. Static render captures are not a substitute for these checks.
+- **NOT VERIFIED — Deployment:** no deployment workflow result was returned for the merged main commit. Deployment is not claimed.
+- **Historical research:** no new specific historical claim requiring external verification was identified in this work package; no new historical content was authored.
+
+**Issue #107 status:** OPEN / IN PROGRESS. WP0 audit, WP1 relationship attribution, WP2 comparison feedback and lifecycle presentation, WP3 information architecture, WP4 sparse-state presentation, and the Day-13 display fixture are IMPLEMENTED / TESTED / MERGED. Full Day-13 reconciliation, familiarity design decision, manual accessibility checks, and deployment verification remain outstanding. Issue #107 is not VERIFIED or closed.
