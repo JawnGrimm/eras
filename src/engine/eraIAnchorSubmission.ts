@@ -59,14 +59,25 @@ export function submitRubricAssignmentActivity(
     ...(matter?.sourceEventId ? [{ id: 'source-matter-event', kind: 'event' as const, sourceId: matter.sourceEventId, description: matter.summary }] : []),
     ...(matter?.sourceRecordId ? [{ id: 'source-matter-record', kind: 'other' as const, sourceId: matter.sourceRecordId, description: 'Original source record linked to the active institutional matter.' }] : []),
     { id: 'source-player-report', kind: 'other', description: 'Submitted report by the current scribe; selected limitations and notes are player-authored content.' },
-    ...citedDiscoveries.map((item) => ({
-      id: `source-${item.id}`,
-      kind: item.sourcePersonId ? 'person' as const : item.sourceEventId ? 'event' as const : 'other' as const,
-      ...(item.sourcePersonId ? { sourceId: item.sourcePersonId }
-        : item.sourceEventId ? { sourceId: item.sourceEventId }
-        : item.sourceRecordId ? { sourceId: item.sourceRecordId } : {}),
-      description: `${item.title}: ${item.text}`,
-    })),
+    ...citedDiscoveries.map((item) => {
+      const linkedProvenance = item.sourceProvenanceId
+        ? matter?.provenance?.find((source) => source.id === item.sourceProvenanceId)
+        : undefined;
+      const sourcePersonId = item.sourcePersonId
+        ?? (linkedProvenance?.kind === 'testimony' ? linkedProvenance.sourceId as PersonId : undefined);
+      const sourceEventId = item.sourceEventId
+        ?? (linkedProvenance?.kind === 'event' ? linkedProvenance.sourceId as EventId : undefined);
+      const sourceRecordId = item.sourceRecordId
+        ?? (linkedProvenance?.kind === 'record_copy' ? linkedProvenance.sourceId as RecordId : undefined);
+      return {
+        id: `source-${item.id}`,
+        kind: sourcePersonId ? 'person' as const : sourceEventId ? 'event' as const : 'other' as const,
+        ...(sourcePersonId ? { sourceId: sourcePersonId }
+          : sourceEventId ? { sourceId: sourceEventId }
+          : sourceRecordId ? { sourceId: sourceRecordId } : {}),
+        description: `${item.title}: ${item.text}`,
+      };
+    }),
   ];
   const reportSourceIds = ['source-player-report'];
   const assertions: RecordAssertion[] = [
