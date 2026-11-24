@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { getInitializedScribal } from '../state/scribalState';
 import { useGame } from '../state/GameProvider';
-import type { InstitutionId, PersonId, MatterId, RecordId } from '../state/ids';
+import type { InstitutionId, PersonId, RecordId } from '../state/ids';
 import type { Appointment, Institution, InstitutionalMatter, Person, PersonRelationship, RecordEntry } from '../state/types';
 import { PersonHistoryPanel } from './PersonHistoryPanel';
 
@@ -185,10 +185,9 @@ function MatterSources({ matter, records, people, events }: {
   </details>;
 }
 
-function InstitutionDetail({ institution, people, institutions, matters, records, events, appointments }: {
+function InstitutionDetail({ institution, people, matters, records, events, appointments }: {
   institution: Institution;
   people: Readonly<Record<string, Person>>;
-  institutions: Readonly<Record<string, { name: string }>>;
   matters: InstitutionalMatter[];
   records: Readonly<Record<string, RecordEntry>>;
   events: Readonly<Record<string, { summary: string }>>;
@@ -321,7 +320,7 @@ export function ProductionPeopleAndInstitutions() {
     ? Object.values(state.world.appointments).filter((item) => item.institutionId === selectedInstitution.id)
     : [];
   const linkedRecordIds = new Set(selectedInstitutionMatters.flatMap((matter) =>
-    (matter.provenance ?? []).filter((source) => source.kind === 'record_copy').map((source) => source.sourceId as RecordId)));
+    (matter.provenance ?? []).filter((source) => source.kind === 'record_copy' && source.sourceId).map((source) => source.sourceId as RecordId)));
   const selectedInstitutionRecords = selectedInstitution
     ? Object.values(state.records.entries).filter((record) => record.institutionId === selectedInstitution.id || linkedRecordIds.has(record.id))
     : [];
@@ -386,7 +385,7 @@ export function ProductionPeopleAndInstitutions() {
               aria-pressed={selectedInstitution?.id === institution.id}
               className={`w-full rounded-lg border px-3 py-3 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-700 ${selectedInstitution?.id === institution.id ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-200 bg-white text-stone-900 hover:bg-stone-50'}`}>
               <span className="block font-semibold">{institution.name}</span>
-              <span className={`mt-1 block text-xs ${selectedInstitution?.id === institution.id ? 'text-stone-200' : 'text-stone-500'}`}>{institution.activeMatters.length} indexed active matters · Standing {institution.standing}/100</span>
+              <span className={`mt-1 block text-xs ${selectedInstitution?.id === institution.id ? 'text-stone-200' : 'text-stone-500'}`}>{Object.values(state.world.matters).filter((matter) => matter.institutionId === institution.id && matter.status === 'active').length} active matters · Standing {institution.standing}/100</span>
             </button>)}
             {matchingInstitutions.length === 0 && <p className="rounded-lg border border-stone-300 bg-white p-3 text-sm text-stone-500">No institutions match this search.</p>}
           </div>
