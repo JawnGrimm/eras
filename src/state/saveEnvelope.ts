@@ -557,6 +557,8 @@ function isValidV3GameState(value: unknown, workCatalog: Readonly<Record<string,
   if ((dayClose.phase === 'interlude_open' && dayClose.pendingSettlementId !== expectedPendingId)
     || (dayClose.phase === 'workday_open' && dayClose.pendingSettlementId !== null)) return false;
   const creditIds = new Set<string>();
+  const assignments = opportunities.assignments as unknown as Record<string, unknown>;
+  const workProgress = value.works.progress as unknown as Record<string, unknown>;
   for (const raw of dayClose.pendingCredits) {
     if (!isObject(raw) || !nonEmptyString(raw.id) || creditIds.has(raw.id)
       || !isObject(raw.source) || !['assignment','work'].includes(String(raw.source.kind))
@@ -568,8 +570,8 @@ function isValidV3GameState(value: unknown, workCatalog: Readonly<Record<string,
       || (raw.status === 'pending' && raw.creditedBySettlementId !== undefined)
       || (raw.status === 'credited' && !nonEmptyString(raw.creditedBySettlementId))) return false;
     creditIds.add(raw.id);
-    if (raw.source.kind === 'assignment' && !isObject(opportunities.assignments[raw.source.id])) return false;
-    if (raw.source.kind === 'work' && !isObject(value.works.progress[raw.source.id])) return false;
+    if (raw.source.kind === 'assignment' && !isObject(assignments[raw.source.id])) return false;
+    if (raw.source.kind === 'work' && !isObject(workProgress[raw.source.id])) return false;
   }
   const occurrenceKeys = new Set<string>();
   for (const raw of opportunities.occurrenceLedger) {
