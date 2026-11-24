@@ -1,6 +1,8 @@
 import type { EventId, InstitutionId, LocationId, MatterId, PersonId, RecordId } from '../state/ids';
 import type { GameState, InstitutionalMatter, Person, RecordEntry } from '../state/types';
 import { ERA1_COM_F02_F04_PEOPLE, ERA1_COM_F02_RECORD_IDS, ERA1_COM_F03_RECORD_IDS, ERA1_COM_F04_RECORD_IDS } from '../content/assignments/eraICommercialFamilies';
+import { ERA1_MAR_PEOPLE, ERA1_MAR_F01_RECORD_IDS, ERA1_MAR_F02_RECORD_IDS, ERA1_MAR_F03_RECORD_IDS, ERA1_MAR_F04_RECORD_IDS } from '../content/assignments/eraIMartialFamilies';
+import { NORTH_BAY_LOCATION_ID } from '../content/assignments/northBayRoofInspection';
 
 export const STOREHOUSE_INSTITUTION_ID = 'institution-uruk-temple-storehouse' as InstitutionId;
 export const NORTH_BAY_LOCATION_ID = 'location-uruk-temple-storehouse' as LocationId;
