@@ -134,7 +134,7 @@ describe('production foundation: AP, overtime, settlement and saves', () => {
     const result = transitionGame(legacyState, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber }, undefined, INITIAL_WORK_CATALOG);
     expect(result.settlement?.workContractProvisionReason).toBe('no_active_work_contract');
     expect(result.settlement?.workContractProvisionEarned).toBe(0);
-    expect(getInitializedScribal(result.state.world.people[INITIAL_PERSON_ID])?.wallet.provisions).toBe(4);
+    expect(getInitializedScribal(result.state.world.people[state.player.currentCharacterId])?.wallet.provisions).toBe(4);
   });
 
   it('emits shortage notices only on grace and shortage-entry transitions', () => {
