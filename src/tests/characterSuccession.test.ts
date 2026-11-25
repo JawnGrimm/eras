@@ -188,6 +188,9 @@ describe('character departure and succession lifecycle', () => {
     expect(accepted.state.works.handoffHistory).toHaveLength(1);
     expect(accepted.state.works.contributionSegments).toContainEqual(expect.objectContaining({ workId: EANNA_PROVISIONING_WORK_ID,
       personId: apprenticeId, status: 'open', startedDay: initial.calendar.dayNumber }));
+    const restored = restoreSave(JSON.stringify(createSaveEnvelope(accepted.state, 1)), { [EANNA_PROVISIONING_WORK_ID]: eannaProvisioningWork });
+    expect(restored?.state.works.handoffHistory).toHaveLength(1);
+    expect(restored?.state.works.contributionSegments).toHaveLength(2);
   });
 
   it('discovers connected scribes, persists a pending death, selects without inheritance, and round-trips the save', () => {
