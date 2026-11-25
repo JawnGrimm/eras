@@ -38,10 +38,10 @@ export const sealedVesselTextileConsignment = activity({
   participants: [people.steward, people.receiver, people.carrier, people.senior],
   discoveries: [
     { id: 'com01-request', title: 'The receiving request', text: 'Utu-mansum asks for the consignment to be checked before the receiving court closes. Enlil-kisu wants the goods accepted so his crew can leave; the receiving official wants the tag and custody note kept together.' },
-    { id: 'com01-tag', title: 'Tag transcription', text: 'PROVISIONAL gameplay transcription: the tag identifies vessel lot V-17 and textile lot T-04. The two commodity groups remain separately identified; no conversion between their counts is implied.' },
-    { id: 'com01-seal', title: 'Seal and custody observation', text: 'PROVISIONAL authored observation: the seal impression on one vessel container is incomplete. The observation does not establish when the seal was damaged, whether the contents changed, or who was responsible.' },
-    { id: 'com01-quantity', title: 'Quantity record', text: 'PROVISIONAL gameplay transcription: the dispatch account lists 8 vessels and 3 textile bundles under their separate identifiers.' },
-    { id: 'com01-receipt', title: 'Receiving entry', text: 'PROVISIONAL gameplay transcription: the receiving entry lists 7 vessels and 3 textile bundles. The vessel count differs by one; the textile count agrees.' },
+    { id: 'com01-tag', title: 'Tag transcription', text: 'The tag identifies vessel lot V-17 and textile lot T-04. Keep the vessel and textile counts on separate lines; they are different goods.' },
+    { id: 'com01-seal', title: 'Seal and custody observation', text: 'The seal impression on one vessel container is incomplete. No one can tell from the damaged impression when it happened, whether the contents changed, or who handled the vessel afterward.' },
+    { id: 'com01-quantity', title: 'Quantity record', text: 'The dispatch account lists 8 vessels and 3 textile bundles under their separate identifiers.' },
+    { id: 'com01-receipt', title: 'Receiving entry', text: 'The receiving entry lists 7 vessels and 3 textile bundles. The vessel count differs by one; the textile count agrees.' },
   ],
   actions: [
     { id: 'com01-consult-receiver', family: 'consult', label: 'Ask Utu-mansum what crossed the threshold', description: 'Hear what the receiving official actually counted before the court closes.', apCost: 1, discoveryIds: ['com01-request'], consultedPersonId: people.receiver },
@@ -69,9 +69,9 @@ export const sealedVesselTextileConsignment = activity({
     ],
     limitationsLabel: 'What the evidence cannot establish',
     limitationOptions: [
-      { id: 'seal_timing_unknown', label: 'The incomplete seal does not establish when or by whom it was damaged' },
-      { id: 'count_difference_unlocated', label: 'The one-vessel difference is not located by the available records' },
-      { id: 'no_release_authority', label: 'This report does not authorize release or establish ownership' },
+      { id: 'seal_timing_unknown', label: 'The receiving official still cannot tell when the seal was damaged or who handled the vessel afterward' },
+      { id: 'count_difference_unlocated', label: 'Dispatch lists eight vessels; receipt lists seven. Neither copy shows where the missing vessel went' },
+      { id: 'no_release_authority', label: 'Utu-mansum must decide whether the goods are released; this report carries the comparison' },
     ],
   },
   evaluation: {
@@ -98,9 +98,9 @@ export const brewingIngredientAccount = activity({
   participants: [people.senior, people.steward],
   discoveries: [
     { id: 'com02-request', title: 'The recorder’s request', text: 'The brewer is worried that an apparent shortfall will reduce the quantity credited to his work. Shuruppak-ilu wants the arithmetic checked before the account is closed; neither concern decides what the signs mean.' },
-    { id: 'com02-groats', title: 'Grain-product entries', text: 'PROVISIONAL gameplay transcription: three groats entries are 4, 3, and 2 capacity units. Their recalculated subtotal is 9; the working copy writes 8.' },
-    { id: 'com02-malt', title: 'Malt entries', text: 'PROVISIONAL gameplay transcription: the separate malt entries total 7 in their own notation. Do not combine this total with the groats subtotal.' },
-    { id: 'com02-reading', title: 'Reading and carry-forward note', text: 'The copied account marks one sign as uncertain. The supplied transcription permits a check of the displayed arithmetic but does not settle the uncertain destination or use of the goods.' },
+    { id: 'com02-groats', title: 'Grain-product entries', text: 'Three groats entries are 4, 3, and 2 capacity units. Their recalculated subtotal is 9; the working copy writes 8.' },
+    { id: 'com02-malt', title: 'Malt entries', text: 'The separate malt entries total 7 in their own notation. Do not combine this total with the groats subtotal.' },
+    { id: 'com02-reading', title: 'Reading and carry-forward note', text: 'The copied account marks one sign as uncertain. The arithmetic can be checked, but the brewer still needs another source before the destination can be settled.' },
   ],
   actions: [
     { id: 'com02-review-copy', family: 'observe', label: 'Review the account copy', description: 'Identify the grain-product and malt sections before calculating.', apCost: 1, discoveryIds: ['com02-request','com02-reading'] },
@@ -128,8 +128,8 @@ export const brewingIngredientAccount = activity({
     limitationsLabel: 'Reading and category limits',
     limitationOptions: [
       { id: 'no_shared_unit', label: 'Groats and malt totals are not combined or converted' },
-      { id: 'uncertain_destination', label: 'The uncertain sign does not establish the goods’ destination' },
-      { id: 'no_authority_to_amend', label: 'The apprentice cannot alter the authoritative account' },
+      { id: 'uncertain_destination', label: 'The brewer still needs the destination checked; the uncertain sign cannot settle it' },
+      { id: 'no_authority_to_amend', label: 'Only the responsible recorder can change the account; the apprentice’s report leaves the original entry intact' },
     ],
   },
   evaluation: {
@@ -155,13 +155,13 @@ export const fieldMeasurementReconciliation = activity({
   submissionApCost: 1,
   participants: [people.senior, people.steward],
   discoveries: [
-    { id: 'civ01-provenance', title: 'Record identity and provenance', text: 'The source is catalogued Uruk III and often attributed to Jemdet Nasr; its precise provenience is uncertain. This qualification remains attached to the record.' },
-    { id: 'civ01-working-copy', title: 'Readable working transcription', text: 'PROVISIONAL gameplay transcription in simplified standard measures: parcel areas are 2, 3, and 4 units. These are teaching values, not a claim that the ancient tablet used modern notation.' },
+    { id: 'civ01-provenance', title: 'The older field-area copy', text: 'This is an older field-area copy; where it was found and when it was made are not recorded.' },
+    { id: 'civ01-working-copy', title: 'Readable working transcription', text: 'The readable working copy gives parcel areas 2, 3, and 4 units. These figures are the values to add; they do not establish a boundary.' },
     { id: 'civ01-subtotal', title: 'Written area subtotal', text: 'The working summary writes a total of 8 units. The displayed parcel values add to 9.' },
   ],
   actions: [
-    { id: 'civ01-review-source', family: 'observe', label: 'Review the source note', description: 'Retain the chronology and provenience qualification.', apCost: 1, discoveryIds: ['civ01-provenance'] },
-    { id: 'civ01-read-copy', family: 'observe', label: 'Read the parcel transcription', description: 'Use the clearly labelled gameplay values rather than specialist metrology.', apCost: 1, prerequisites: ['civ01-review-source'], discoveryIds: ['civ01-working-copy'] },
+    { id: 'civ01-review-source', family: 'observe', label: 'Review the source note', description: 'Check the copy’s date and origin note before carrying the figures forward.', apCost: 1, discoveryIds: ['civ01-provenance'] },
+    { id: 'civ01-read-copy', family: 'observe', label: 'Read the parcel transcription', description: 'Read the working figures in the copy; keep the original notation note beside them.', apCost: 1, prerequisites: ['civ01-review-source'], discoveryIds: ['civ01-working-copy'] },
     { id: 'civ01-recalculate', family: 'compare', label: 'Recalculate the area subtotal', description: 'Add the three displayed parcel areas and compare the written total.', apCost: 1, discoveryIds: ['civ01-subtotal'] },
   ],
   interpretationRules: [],
@@ -184,9 +184,9 @@ export const fieldMeasurementReconciliation = activity({
     ],
     limitationsLabel: 'Source and authority limits',
     limitationOptions: [
-      { id: 'provenance_uncertain', label: 'Chronology and provenience remain qualified' },
-      { id: 'transcription_simplified', label: 'The standard-measure display is a gameplay transcription' },
-      { id: 'no_land_authority', label: 'The arithmetic does not establish boundary, ownership, or yield rights' },
+      { id: 'provenance_uncertain', label: 'The copy gives no clear date or place; keep that uncertainty with the figures' },
+      { id: 'transcription_simplified', label: 'The parcel figures are shown in a readable working measure; keep the source notation beside them' },
+      { id: 'no_land_authority', label: 'The people waiting on the field summary still need an authorized measurement before any boundary or allocation is decided' },
     ],
   },
   evaluation: {
@@ -212,16 +212,16 @@ export const laborGroupDisbursement = activity({
   submissionApCost: 1,
   participants: [people.senior, people.steward],
   discoveries: [
-    { id: 'civ02-request', title: 'The reviewer’s request', text: 'The group leader wants the figures settled so people can leave. Shuruppak-ilu asks for two separate checks; he does not claim the grain record belongs to this group.' },
-    { id: 'civ02-labor-account', title: 'Labor-group account', text: 'PROVISIONAL gameplay transcription of W 9827: the group entries are 6, 8, and 5; the written total is 19. The displayed values reconcile.' },
-    { id: 'civ02-disbursement', title: 'Separate grain-disbursement record', text: 'W 15897,c8 records grain disbursed to or consumed as rations by high-ranking officials. This record is separate from W 9827; no shared people, institution, workflow, date, or labor-group entitlement is established.' },
-    { id: 'civ02-provenance', title: 'Separate provenance notes', text: 'W 9827 and W 15897,c8 retain separate identities and source qualifications. Their pairing in this review is a PROVISIONAL gameplay reconstruction, not an attested shared transaction.' },
+    { id: 'civ02-request', title: 'The reviewer’s request', text: 'The group leader wants the figures settled so people can leave. Shuruppak-ilu asks for two separate checks and keeps the grain copy apart from their tally.' },
+    { id: 'civ02-labor-account', title: 'Labor-group account', text: 'The labor-group tally gives entries 6, 8, and 5; they add to the written total of 19.' },
+    { id: 'civ02-disbursement', title: 'Separate grain-disbursement record', text: 'The group leader points to the grain entry and asks whether it covers his people. The names belong to officials in another account; his own group still needs its tally checked.' },
+    { id: 'civ02-provenance', title: 'Two copies, two questions', text: 'The group leader wants the grain included before the tally is closed. The names in that copy belong to a different account; he still needs his own total checked.' },
   ],
   actions: [
     { id: 'civ02-review-request', family: 'consult', label: 'Consult the reviewer', description: 'Clarify the two-part report and the group’s need for a timely answer.', apCost: 1, discoveryIds: ['civ02-request'], consultedPersonId: people.senior },
     { id: 'civ02-check-labor', family: 'compare', label: 'Check the labor-group total', description: 'Recalculate the displayed group entries without assuming a ration link.', apCost: 1, prerequisites: ['civ02-review-request'], discoveryIds: ['civ02-labor-account'] },
     { id: 'civ02-review-disbursement', family: 'compare', label: 'Summarize the separate disbursement', description: 'Identify the recorded recipient/category without linking it to the labor group.', apCost: 1, discoveryIds: ['civ02-disbursement'] },
-    { id: 'civ02-compare-provenance', family: 'compare', label: 'Compare the provenance notes', description: 'State why the two records cannot be treated as one transaction.', apCost: 1, discoveryIds: ['civ02-provenance'] },
+    { id: 'civ02-compare-provenance', family: 'compare', label: 'Compare the source notes', description: 'Explain why the two entries cannot be carried as one transaction.', apCost: 1, discoveryIds: ['civ02-provenance'] },
   ],
   interpretationRules: [],
   reportSchema: {
@@ -245,7 +245,7 @@ export const laborGroupDisbursement = activity({
     limitationOptions: [
       { id: 'no_group_link', label: 'The grain-disbursement record is not linked to this labor group' },
       { id: 'source_records_separate', label: 'The two source records have separate provenance' },
-      { id: 'no_redistribution_authority', label: 'The apprentice cannot authorize redistribution or assign liability' },
+      { id: 'no_redistribution_authority', label: 'This report cannot reassign the grain; the officials named in the separate copy retain their own account' },
     ],
   },
   evaluation: {
@@ -262,7 +262,7 @@ export const laborGroupDisbursement = activity({
       'The report invents a shared transaction or entitlement and attributes diversion without evidence.'),
     reactions: humanReactions('Shuruppak-ilu', 'He tells the group leader that a quick answer is not the same as a supported one.'),
   },
-  submissionNote: 'PROVISIONAL contract: one Provision is payable for filing this two-part account check. The records themselves do not document the apprentice’s compensation.',
+  submissionNote: 'For this commission, one Provision is paid when the two-part account check is filed. The group’s grain record is separate from this payment.',
 });
 
 export const inanaOfferingRecords = activity({
@@ -271,10 +271,10 @@ export const inanaOfferingRecords = activity({
   submissionApCost: 1,
   participants: [people.offeringParticipant, people.senior],
   discoveries: [
-    { id: 'rel01-request', title: 'A request before preparations', text: 'Nin-kasi asks for the entries to be checked before preparations continue. She would rather not reopen the account late in the day; the senior recorder wants the source distinction preserved.' },
-    { id: 'rel01-offering-record', title: 'Inana-associated offering record', text: 'The cited archaic Uruk offering record is associated with Inana. PROVISIONAL gameplay transcription: the supplied copy contains two same-category offering entries and a copied summary that omits one entry.' },
-    { id: 'rel01-commodity-record', title: 'Separate commodity record', text: 'A separate broader-corpus record contains a fish-category entry. It is not asserted to belong to the offering record, the same kitchen, or the same supply schedule.' },
-    { id: 'rel01-provenance', title: 'Provenance and category note', text: 'The offering record and broader commodity record have separate provenance. Fish categories such as KU6 and SUḪUR remain distinct; no shared unit or direct link is supplied.' },
+    { id: 'rel01-request', title: 'A request before preparations', text: 'Nin-kasi asks for the entries checked before preparations continue. She would rather not reopen the account late in the day; the senior recorder wants each copy kept with its own entries.' },
+    { id: 'rel01-offering-record', title: 'Inana-associated offering record', text: 'The offering record is associated with Inana. The copy before you contains two same-category entries; its summary leaves one out.' },
+    { id: 'rel01-commodity-record', title: 'Separate commodity record', text: 'A separate copy contains a fish-category entry. Nin-kasi asks whether it can fill the missing offering entry; the copies give her no way to connect them.' },
+    { id: 'rel01-provenance', title: 'Separate source and category note', text: 'Nin-kasi needs an answer before preparations continue. The copies use different fish categories, and neither tells her whether the separate entry can fill the gap.' },
   ],
   actions: [
     { id: 'rel01-consult-participant', family: 'consult', label: 'Consult Nin-kasi', description: 'Establish which offering entries she is asking to have checked.', apCost: 1, discoveryIds: ['rel01-request'], consultedPersonId: people.offeringParticipant },

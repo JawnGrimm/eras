@@ -68,6 +68,17 @@ describe('matter-driven Assignment discovery', () => {
     expect(liveTierBOffers.length).toBeLessThanOrEqual(2);
     expect(liveTierBOffers.every((offer) => offer.estimatedTotalAp === 4)).toBe(true);
     expect(new Set(recurringMatters.map((matter) => matter.institutionId)).size).toBeGreaterThan(1);
+    for (const matter of recurringMatters) {
+      const occurrence = matter.tierBRecurring!;
+      const event = state.world.events[matter.sourceEventId!]!;
+      expect(event.personIds).toHaveLength(3);
+      expect(new Set(event.personIds).size).toBe(3);
+      expect(event.personIds[0]).toBe(occurrence.counterpartyPersonId);
+      expect(['person-utu-mansum', 'person-ur-nanna', 'person-geme-inana-provisional'])
+        .not.toContain(occurrence.counterpartyPersonId);
+      expect(['person-shuruppak-ilu', 'person-lu-nanshe'])
+        .not.toContain(occurrence.counterpartyPersonId);
+    }
   });
 
   it('authors the approved Dairy and Field Measurement Tier B domains deterministically', () => {

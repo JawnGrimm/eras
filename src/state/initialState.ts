@@ -147,7 +147,7 @@ export function createInitialGameState(player?: Person, opportunitySeed = 'era1-
       id: ERA1_COM_F02_F04_PEOPLE.gemeInana, name: 'Geme-Inana', alive: true,
       affiliations: [TEXTILE_HOUSEHOLD_INSTITUTION_ID], currentLocationId: TEXTILE_HOUSEHOLD_LOCATION_ID,
       lifeStage: 'craft_practitioner' as const,
-      socialIdentity: { occupation: 'Textile household organizer', summary: 'A provisional authored participant who coordinates textile work and exchange obligations within her household.' },
+      socialIdentity: { occupation: 'Textile household organizer', summary: 'A household member who coordinates textile work and exchange obligations.' },
       objectives: [
         { id: 'objective-geme-inana-workframes', horizon: 'immediate' as const, summary: 'Secure timber for household work-frames.', motivation: 'The household has work waiting that depends on the timber request.', createdDay: 1, status: 'active' as const, visibility: 'public' as const },
         { id: 'objective-geme-inana-exchange', horizon: 'immediate' as const, summary: 'Receive the goods expected from an earlier outbound exchange.', motivation: 'People in the household are waiting on the return before the next dispatch is sent.', createdDay: 1, status: 'active' as const, visibility: 'public' as const },
@@ -160,12 +160,12 @@ export function createInitialGameState(player?: Person, opportunitySeed = 'era1-
     {
       id: ERA1_COM_F02_F04_PEOPLE.amaGi, name: 'Ama-gi', alive: true, affiliations: [],
       currentLocationId: RIVER_LANDING_LOCATION_ID, lifeStage: 'craft_practitioner' as const,
-      socialIdentity: { occupation: 'Landing agent (provisional)', summary: 'A provisional authored participant associated with a consignment handover at the river landing.' },
+      socialIdentity: { occupation: 'Landing worker', summary: 'A participant in a consignment handover at the river landing.' },
     },
     {
       id: ERA1_COM_F02_F04_PEOPLE.sigAna, name: 'Sig-ana', alive: true, affiliations: [],
       currentLocationId: RIVER_LANDING_LOCATION_ID, lifeStage: 'craft_practitioner' as const,
-      socialIdentity: { occupation: 'Witness (provisional)', summary: 'A provisional authored participant who observed part of a consignment handover.' },
+      socialIdentity: { occupation: 'Witness', summary: 'A witness who observed part of a consignment handover.' },
     },
   ];
   const people: Record<PersonId, Person> = {

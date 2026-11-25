@@ -49,7 +49,7 @@ const ERA_I_ANCHOR_MATTER_SEEDS = [
     eventId: 'event-era1-com-01-consignment-source' as EventId,
     kind: 'era1_com_01_consignment' as const,
     summary: 'A consignment is presented for comparison before its receiving entry is accepted.',
-    eventSummary: 'A vessel and textile consignment is presented at the Eanna receiving court. Its tag, custody observation, dispatch account, and receiving entry are available for a bounded comparison; the authored occurrence does not establish loss or responsibility.',
+    eventSummary: 'A vessel and textile consignment is presented at the Eanna receiving court. The tag and custody note are beside the dispatch and receiving entries; Utu-mansum needs the figures compared before closing the receipt.',
     personIds: [PEOPLE.receivingOfficial, PEOPLE.carrierForeman, PEOPLE.steward, PEOPLE.seniorScribe],
     locationId: ERA1_COM_F01_LOCATION_ID,
     provenance: [
@@ -62,7 +62,7 @@ const ERA_I_ANCHOR_MATTER_SEEDS = [
     eventId: 'event-era1-com-02-brewing-account-source' as EventId,
     kind: 'era1_com_02_brewing_account' as const,
     summary: 'A grain-product and malt account is submitted for a second arithmetic check.',
-    eventSummary: 'A working account containing separate grain-product/groats and malt entries is brought for review before it is copied forward. The displayed gameplay transcription and its uncertain reading remain qualified.',
+    eventSummary: 'The brewer worries that a short total will reduce his credit. The senior recorder asks for the groats and malt figures checked separately; one sign remains uncertain.',
     personIds: [PEOPLE.seniorScribe, PEOPLE.steward],
     locationId: EANNA_TABLET_ROOM_LOCATION_ID,
     provenance: [
@@ -75,7 +75,7 @@ const ERA_I_ANCHOR_MATTER_SEEDS = [
     eventId: 'event-era1-civ-01-field-measurement-source' as EventId,
     kind: 'era1_civ_01_field_measurement' as const,
     summary: 'A readable field-measurement transcription is submitted for arithmetic review.',
-    eventSummary: 'A responsible recorder asks for a second check of a field-measurement working copy. Its source chronology and provenience remain qualified; the simplified values are a gameplay transcription, not ancient notation.',
+    eventSummary: 'A recorder wants the parcel figures checked before the summary is copied. The source copy gives no clear date or place, and the figures are a readable working copy.',
     personIds: [PEOPLE.seniorScribe, PEOPLE.steward],
     locationId: EANNA_TABLET_ROOM_LOCATION_ID,
     provenance: [
@@ -88,7 +88,7 @@ const ERA_I_ANCHOR_MATTER_SEEDS = [
     eventId: 'event-era1-civ-02-labor-disbursement-source' as EventId,
     kind: 'era1_civ_02_labor_disbursement' as const,
     summary: 'A labor-group account and a separate grain-disbursement record are submitted for a bounded review.',
-    eventSummary: 'A labor-group account is brought for checking alongside a separately sourced grain-disbursement record. Their pairing is a provisional accountability exercise; no shared group, institution, workflow, date, or entitlement is established.',
+    eventSummary: 'A labor-group account is brought for checking alongside a separately sourced grain-disbursement record. The two copies are being checked side by side; neither names the same group or establishes an entitlement.',
     personIds: [PEOPLE.seniorScribe, PEOPLE.steward],
     locationId: EANNA_TABLET_ROOM_LOCATION_ID,
     provenance: [
@@ -101,12 +101,12 @@ const ERA_I_ANCHOR_MATTER_SEEDS = [
     eventId: 'event-era1-rel-01-inana-offering-source' as EventId,
     kind: 'era1_rel_01_inana_offering' as const,
     summary: 'Inana-associated offering entries and a separate commodity record are submitted for review.',
-    eventSummary: 'A participant in offering preparations asks for an Inana-associated offering copy and a separate commodity record to be reviewed before preparations continue. Their combined use as one supply schedule is provisional gameplay fiction.',
+    eventSummary: 'A participant in offering preparations asks for the Inana-associated copy and a separate commodity record to be checked before work continues. She needs to know whether the missing entry can be found; the records do not link the two copies.',
     personIds: [PEOPLE.seniorScribe, 'person-nin-kasi' as PersonId],
     locationId: EANNA_TABLET_ROOM_LOCATION_ID,
     provenance: [
       { id: 'rel01-request', kind: 'instruction' as const, description: 'A participant in offering preparations requests a bounded review of the entries.' },
-      { id: 'rel01-event', kind: 'event' as const, sourceId: 'event-era1-rel-01-inana-offering-source', description: 'A distinct offering-record review is initiated; no ritual outcome is implied.' },
+      { id: 'rel01-event', kind: 'event' as const, sourceId: 'event-era1-rel-01-inana-offering-source', description: 'Nin-kasi asks for the missing entry to be found before preparations continue.' },
     ],
   },
 ] as const;
@@ -212,7 +212,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
       id: ERA1_COM_F02_F04_PEOPLE.gemeInana, name: 'Geme-Inana', alive: true,
       affiliations: [TEXTILE_HOUSEHOLD_INSTITUTION_ID], currentLocationId: TEXTILE_HOUSEHOLD_LOCATION_ID,
       lifeStage: 'craft_practitioner',
-      socialIdentity: { occupation: 'Textile household organizer', summary: 'A provisional authored participant who coordinates textile work and exchange obligations within her household.' },
+      socialIdentity: { occupation: 'Textile household organizer', summary: 'A household member who coordinates textile work and exchange obligations.' },
       objectives: [
         { id: 'objective-geme-inana-workframes', horizon: 'immediate', summary: 'Secure timber for household work-frames.', motivation: 'The household has work waiting that depends on the timber request.', createdDay: nextDay, status: 'active', visibility: 'public' },
         { id: 'objective-geme-inana-exchange', horizon: 'immediate', summary: 'Receive the goods expected from an earlier outbound exchange.', motivation: 'People in the household are waiting on the return before the next dispatch is sent.', createdDay: nextDay, status: 'active', visibility: 'public' },
@@ -228,7 +228,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
     people[ERA1_COM_F02_F04_PEOPLE.amaGi] = {
       id: ERA1_COM_F02_F04_PEOPLE.amaGi, name: 'Ama-gi', alive: true, affiliations: [],
       currentLocationId: RIVER_LANDING_LOCATION_ID, lifeStage: 'craft_practitioner',
-      socialIdentity: { occupation: 'Landing agent (provisional)', summary: 'A provisional authored participant associated with a consignment handover at the river landing.' },
+      socialIdentity: { occupation: 'Landing worker', summary: 'A participant in a consignment handover at the river landing.' },
     } satisfies Person;
     changed = true;
   }
@@ -236,7 +236,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
     people[ERA1_COM_F02_F04_PEOPLE.sigAna] = {
       id: ERA1_COM_F02_F04_PEOPLE.sigAna, name: 'Sig-ana', alive: true, affiliations: [],
       currentLocationId: RIVER_LANDING_LOCATION_ID, lifeStage: 'craft_practitioner',
-      socialIdentity: { occupation: 'Witness (provisional)', summary: 'A provisional authored participant who observed part of a consignment handover.' },
+      socialIdentity: { occupation: 'Witness', summary: 'A witness who observed part of a consignment handover.' },
     } satisfies Person;
     changed = true;
   }
@@ -299,7 +299,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
         id: ERA1_COM_F02_RECORD_IDS.storehouseRequest, createdDay: nextDay,
         authorPersonId: ERA1_COM_F02_F04_PEOPLE.shuruppak, reportedByPersonId: ERA1_COM_F02_F04_PEOPLE.urNanna, institutionId: STOREHOUSE_INSTITUTION_ID,
         title: 'Storehouse request for timber', assertion: 'The Storehouse requests timber for the north-bay repair.',
-        uncertaintyLimit: 'The request records the Storehouse need; it does not establish priority over another claimant.',
+        uncertaintyLimit: 'The Storehouse needs the timber for repair, while the household has work waiting; Lu-Nanshe must decide which request takes priority.',
       });
       records[ERA1_COM_F02_RECORD_IDS.householdRequest] = createAuthoredSourceRecord({
         id: ERA1_COM_F02_RECORD_IDS.householdRequest, createdDay: nextDay,
@@ -317,7 +317,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
         id: ERA1_COM_F02_RECORD_IDS.carrierAccount, createdDay: nextDay,
         authorPersonId: ERA1_COM_F02_F04_PEOPLE.shuruppak, reportedByPersonId: ERA1_COM_F02_F04_PEOPLE.kuli, institutionId: EANNA_INSTITUTION_ID,
         title: 'Carrier account of delivery instruction', assertion: 'Kuli gives his account of the instruction he received for the delivery.',
-        uncertaintyLimit: 'The carrier account is attributed testimony and does not establish either claimant’s authority or good faith.',
+        uncertaintyLimit: 'Kuli can say what instruction he heard, but both claimants still need their own accounts compared.',
       });
       events[eventId] = {
         id: eventId, dayNumber: nextDay,
@@ -386,7 +386,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
       id: ERA1_COM_F03_RECORD_IDS.partialReturn, createdDay: nextDay,
       authorPersonId: ERA1_COM_F02_F04_PEOPLE.utuMansum, institutionId: EANNA_INSTITUTION_ID,
       title: 'Partial return receipt', assertion: 'The first return is received and recorded as partial against the earlier outbound dispatch.',
-      uncertaintyLimit: 'The receipt establishes what arrived; it does not establish what the counterparty owes under the spoken understanding.',
+      uncertaintyLimit: 'The receipt shows what came back; Geme-Inana still needs the earlier agreement checked before deciding what is owed.',
     });
     events[eventId] = {
       id: eventId, dayNumber: nextDay,
@@ -533,7 +533,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
     events[eventId] = {
       id: eventId,
       dayNumber: nextDay,
-      summary: 'A provisional procurement request calls for worked timber; the sender’s tag describes the load as worked, while the receiving observation describes the visible pieces as unworked. The difference is documented but not explained.',
+      summary: 'The craft worker needs timber described as worked. The tag says worked; the receiving list describes the visible pieces as unworked. The difference is recorded, but its cause is not known.',
       personIds: [PEOPLE.receivingOfficial, PEOPLE.workshopOverseer, PEOPLE.responsibleAuthority, PEOPLE.carrier],
       institutionIds: [STOREHOUSE_INSTITUTION_ID],
       locationId: ERA1_COM_F01_LOCATION_ID,
@@ -577,7 +577,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
     if (!institutions[HOUSEHOLD_STRONGROOM_INSTITUTION_ID]) {
       institutions[HOUSEHOLD_STRONGROOM_INSTITUTION_ID] = {
         id: HOUSEHOLD_STRONGROOM_INSTITUTION_ID,
-        name: 'Household strongroom (provisional authored context)',
+        name: 'Household strongroom',
         locationId: HOUSEHOLD_STRONGROOM_LOCATION_ID,
         responsibilities: ['Maintain household custody of a sealed storage space'],
         authority: ['Household members determine access and authorize any inquiry'],
@@ -587,7 +587,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
       changed = true;
     }
     if (!locations[HOUSEHOLD_STRONGROOM_LOCATION_ID]) {
-      locations[HOUSEHOLD_STRONGROOM_LOCATION_ID] = { id: HOUSEHOLD_STRONGROOM_LOCATION_ID, name: 'Household strongroom, Uruk (provisional authored context)' };
+      locations[HOUSEHOLD_STRONGROOM_LOCATION_ID] = { id: HOUSEHOLD_STRONGROOM_LOCATION_ID, name: 'Household strongroom, Uruk' };
       changed = true;
     }
   }
@@ -603,33 +603,33 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
       id: ERA1_MAR_F01_RECORD_IDS.closureImpression, createdDay: nextDay, authorPersonId: author,
       institutionId: HOUSEHOLD_STRONGROOM_INSTITUTION_ID, title: 'Present strongroom closure impression',
       assertion: 'The present closure bears an impression different from the household sealing available for comparison.',
-      uncertaintyLimit: 'The impression identifies the seal used; it does not establish who was authorized to open the strongroom.',
+      uncertaintyLimit: 'The household knows which seal was pressed, but still needs to ask who gave permission to open the room.',
     });
     records[ERA1_MAR_F01_RECORD_IDS.inventory] = createAuthoredSourceRecord({
       id: ERA1_MAR_F01_RECORD_IDS.inventory, createdDay: nextDay, authorPersonId: author,
       institutionId: HOUSEHOLD_STRONGROOM_INSTITUTION_ID, title: 'Strongroom contents inventory',
       assertion: 'The contents checked are present and match the listed inventory.',
-      uncertaintyLimit: 'The inventory does not identify who entered the room or when the opening occurred.',
+      uncertaintyLimit: 'The contents are present; the household still needs the accounts to learn who entered and when.',
     });
     records[ERA1_MAR_F01_RECORD_IDS.ninDaraAccount] = createAuthoredSourceRecord({
       id: ERA1_MAR_F01_RECORD_IDS.ninDaraAccount, createdDay: nextDay, authorPersonId: author,
       reportedByPersonId: ERA1_MAR_PEOPLE.ninDara, institutionId: HOUSEHOLD_STRONGROOM_INSTITUTION_ID,
       title: 'Nin-dara account of the opening',
       assertion: 'Nin-dara says she opened the door for a man who showed a sealing.',
-      uncertaintyLimit: 'This is an attributed account; it does not establish the identity or authority of the person who showed the sealing.',
+      uncertaintyLimit: 'Nin-dara describes the man and sealing she saw, but not who sent him.',
     });
     records[ERA1_MAR_F01_RECORD_IDS.ownerAccount] = createAuthoredSourceRecord({
       id: ERA1_MAR_F01_RECORD_IDS.ownerAccount, createdDay: nextDay, authorPersonId: author,
       reportedByPersonId: ERA1_MAR_PEOPLE.sealingOwner, institutionId: HOUSEHOLD_STRONGROOM_INSTITUTION_ID,
       title: 'Sealing owner account',
       assertion: 'The sealing owner says no one was sent to open the strongroom.',
-      uncertaintyLimit: 'The owner’s statement is attributed testimony and does not by itself establish who entered.',
+      uncertaintyLimit: 'The owner says no one was sent; the household must compare that account with Nin-dara’s.',
     });
     records[ERA1_MAR_F01_RECORD_IDS.authorizationSearch] = createAuthoredSourceRecord({
       id: ERA1_MAR_F01_RECORD_IDS.authorizationSearch, createdDay: nextDay, authorPersonId: author,
       institutionId: HOUSEHOLD_STRONGROOM_INSTITUTION_ID, title: 'Search for an earlier authorization record',
       assertion: 'No earlier authorization record is linked to this opening in the records examined.',
-      uncertaintyLimit: 'The absence of a linked record does not prove that no authorization was given.',
+      uncertaintyLimit: 'No earlier copy was found; Lu-Nanshe must ask the people involved before deciding whether permission was given.',
     });
     events[eventId] = {
       id: eventId, dayNumber: nextDay,
@@ -679,7 +679,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
       });
       events[mar02IssueEventId] = {
         id: mar02IssueEventId, dayNumber: nextDay,
-        summary: 'A sponsor-gathered task party receives tools and provisions for the active north-bay repair need. The issue list records the handover; no standing unit or formal muster is implied.',
+        summary: 'Lu-Nanshe gathered a group for the north-bay repair. Tools and provisions were handed out against an issue list; the count must be settled before the group disperses.',
         personIds: [ERA1_MAR_PEOPLE.luNanshe, ERA1_MAR_PEOPLE.luKala, ERA1_MAR_PEOPLE.partyMember, ERA1_MAR_PEOPLE.dudu, ERA1_MAR_PEOPLE.urAb],
         institutionIds: [STOREHOUSE_INSTITUTION_ID], locationId: NORTH_BAY_LOCATION_ID,
       };
@@ -693,38 +693,38 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
       id: ERA1_MAR_F02_RECORD_IDS.returnCount, createdDay: nextDay, authorPersonId: ERA1_MAR_PEOPLE.shuruppak,
       institutionId: STOREHOUSE_INSTITUTION_ID, title: 'Task-party return count',
       assertion: 'The return count lists tools returned and tools not yet accounted for.',
-      uncertaintyLimit: 'The count records a gap but does not establish whether tools were lost, left at the site, or retained for another workday.',
+      uncertaintyLimit: 'The tools missing from the count may be at the site or kept for tomorrow; someone needs to check before closing it.',
     });
     records[ERA1_MAR_F02_RECORD_IDS.luKalaAccount] = createAuthoredSourceRecord({
       id: ERA1_MAR_F02_RECORD_IDS.luKalaAccount, createdDay: nextDay, authorPersonId: ERA1_MAR_PEOPLE.shuruppak,
       reportedByPersonId: ERA1_MAR_PEOPLE.luKala, institutionId: STOREHOUSE_INSTITUTION_ID,
       title: 'Lu-kala account of the task-party return',
       assertion: 'Lu-kala says some tools were left at the work site for the next day and one person has not yet returned.',
-      uncertaintyLimit: 'This is an attributed account and does not prove deliberate retention or neglect.',
+      uncertaintyLimit: 'Lu-kala says tools were left for tomorrow; the return count still needs the site checked.',
     });
     records[ERA1_MAR_F02_RECORD_IDS.partyMemberAccount] = createAuthoredSourceRecord({
       id: ERA1_MAR_F02_RECORD_IDS.partyMemberAccount, createdDay: nextDay, authorPersonId: ERA1_MAR_PEOPLE.shuruppak,
       reportedByPersonId: ERA1_MAR_PEOPLE.partyMember, institutionId: STOREHOUSE_INSTITUTION_ID,
       title: 'Task-party member account',
       assertion: 'A returning party member gives a different account of one missing tool and the person still away.',
-      uncertaintyLimit: 'This is attributed testimony, not a disciplinary finding or independently verified count.',
+      uncertaintyLimit: 'The party member gives a different account; the missing tool’s location remains unsettled.',
     });
     records[ERA1_MAR_F02_RECORD_IDS.siteObservation] = createAuthoredSourceRecord({
       id: ERA1_MAR_F02_RECORD_IDS.siteObservation, createdDay: nextDay, authorPersonId: ERA1_MAR_PEOPLE.shuruppak,
       reportedByPersonId: ERA1_MAR_PEOPLE.urAb, institutionId: STOREHOUSE_INSTITUTION_ID,
       title: 'Work-site observation',
       assertion: 'A watcher reports that tools may have been left at the repair site.',
-      uncertaintyLimit: 'The observation is a lead for a site visit, not proof of the final count or anyone’s conduct.',
+      uncertaintyLimit: 'The watcher thinks tools may be at the site; a visit is needed before the count is closed.',
     });
     events[eventId] = {
       id: eventId, dayNumber: nextDay,
-      summary: 'The sponsor-gathered party returns from the repair task with tools not yet accounted for and one person still away. The issue list, return count, and attributed accounts remain distinct.',
+      summary: 'The repair group returns with tools not yet accounted for and one person still away. Lu-Nanshe needs the return count settled before the group disperses.',
       personIds: [ERA1_MAR_PEOPLE.luNanshe, ERA1_MAR_PEOPLE.luKala, ERA1_MAR_PEOPLE.partyMember, ERA1_MAR_PEOPLE.dudu, ERA1_MAR_PEOPLE.urAb],
       institutionIds: [STOREHOUSE_INSTITUTION_ID], locationId: NORTH_BAY_LOCATION_ID,
     };
     const matter: InstitutionalMatter = {
       id: mar02MatterId, institutionId: STOREHOUSE_INSTITUTION_ID, kind: 'era1_mar_f02_party_returns_short',
-      summary: 'A sponsor-gathered task party has returned with tools not yet accounted for and one person still away; the reason remains unresolved.',
+      summary: 'The repair group has returned with tools not yet accounted for and one person still away. The reason remains unsettled.',
       status: 'active', createdDay: nextDay, sourceEventId: eventId,
       sourceRecordId: ERA1_MAR_F02_RECORD_IDS.returnCount, locationId: NORTH_BAY_LOCATION_ID,
       involvedPersonIds: [ERA1_MAR_PEOPLE.luNanshe, ERA1_MAR_PEOPLE.luKala, ERA1_MAR_PEOPLE.partyMember, ERA1_MAR_PEOPLE.dudu, ERA1_MAR_PEOPLE.urAb],
@@ -755,7 +755,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
       reportedByPersonId: ERA1_MAR_PEOPLE.gemeInana, institutionId: TEXTILE_HOUSEHOLD_INSTITUTION_ID,
       title: 'Household outbound dispatch and expected arrival',
       assertion: 'A valued load is dispatched with an expected arrival recorded.',
-      uncertaintyLimit: 'The dispatch establishes the plan, not arrival at the destination or the cause of any later delay.',
+      uncertaintyLimit: 'The load was expected; the recipient has no arrival tally yet.',
     });
     events[mar03DispatchEventId] = {
       id: mar03DispatchEventId, dayNumber: nextDay,
@@ -773,7 +773,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
       reportedByPersonId: ERA1_MAR_PEOPLE.enlilKisu, institutionId: TEXTILE_HOUSEHOLD_INSTITUTION_ID,
       title: 'Carrier account of the halt',
       assertion: 'Enlil-kisu says the carrying party halted at a landing because the approach route was unsafe.',
-      uncertaintyLimit: 'The carrier’s account does not independently establish danger on the route or the cause of the delay.',
+      uncertaintyLimit: 'Enlil-kisu says the route was unsafe; the delay remains unexplained until the receiving side is heard.',
     });
     records[ERA1_MAR_F03_RECORD_IDS.landingObservation] = createAuthoredSourceRecord({
       id: ERA1_MAR_F03_RECORD_IDS.landingObservation, createdDay: nextDay, authorPersonId: ERA1_MAR_PEOPLE.shuruppak,
@@ -797,7 +797,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
     };
     const matter: InstitutionalMatter = {
       id: mar03MatterId, institutionId: TEXTILE_HOUSEHOLD_INSTITUTION_ID, kind: 'era1_mar_f03_late_turned_aside',
-      summary: 'A valued load has not arrived by its expected day; the carrier account, landing observation, and claimed message do not establish the cause of delay.',
+      summary: 'A valued load is late. The carrier, landing witness, and message claim give different parts of the story, but no one has confirmed why it stopped.',
       status: 'active', createdDay: nextDay, sourceEventId: eventId,
       sourceRecordId: ERA1_MAR_F03_RECORD_IDS.dispatch, locationId: RIVER_LANDING_LOCATION_ID,
       involvedPersonIds: [ERA1_MAR_PEOPLE.gemeInana, ERA1_MAR_PEOPLE.enlilKisu, ERA1_MAR_PEOPLE.amaGi, ERA1_MAR_PEOPLE.sigAna, ERA1_MAR_PEOPLE.kuli],
@@ -834,7 +834,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
       reportedByPersonId: ERA1_MAR_PEOPLE.urLamma, institutionId: EANNA_INSTITUTION_ID,
       title: 'Workshop receipt for valued object',
       assertion: 'The workshop receipt records the object arriving with Ur-Lamma for repair or cleaning.',
-      uncertaintyLimit: 'The receipt establishes workshop arrival, not a later return handover.',
+      uncertaintyLimit: 'The workshop received the object; the Storehouse has no later return line.',
     });
     events[mar04RemovalEventId] = {
       id: mar04RemovalEventId, dayNumber: nextDay,
@@ -851,21 +851,21 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
       id: ERA1_MAR_F04_RECORD_IDS.storehouseSearch, createdDay: nextDay, authorPersonId: ERA1_MAR_PEOPLE.shuruppak,
       institutionId: STOREHOUSE_INSTITUTION_ID, title: 'Storehouse return-entry search',
       assertion: 'No return handover entry is located in the Storehouse record examined.',
-      uncertaintyLimit: 'The absence of a located entry does not prove that a spoken handover did not occur.',
+      uncertaintyLimit: 'No return line was found; Lu-Nanshe must ask the custodians before calling it missing.',
     });
     records[ERA1_MAR_F04_RECORD_IDS.enlilAccount] = createAuthoredSourceRecord({
       id: ERA1_MAR_F04_RECORD_IDS.enlilAccount, createdDay: nextDay, authorPersonId: ERA1_MAR_PEOPLE.shuruppak,
       reportedByPersonId: ERA1_MAR_PEOPLE.enlilKisu, institutionId: EANNA_INSTITUTION_ID,
       title: 'Enlil-kisu account of the object movement',
       assertion: 'Enlil-kisu gives an account of carrying the object between locations.',
-      uncertaintyLimit: 'The account may identify an interval to check but does not establish where the object is now.',
+      uncertaintyLimit: 'Enlil-kisu’s account gives an interval to check, but not where the vessel is now.',
     });
     records[ERA1_MAR_F04_RECORD_IDS.urAbAccount] = createAuthoredSourceRecord({
       id: ERA1_MAR_F04_RECORD_IDS.urAbAccount, createdDay: nextDay, authorPersonId: ERA1_MAR_PEOPLE.shuruppak,
       reportedByPersonId: ERA1_MAR_PEOPLE.urAb, institutionId: EANNA_INSTITUTION_ID,
       title: 'Ur-ab observation near the yard',
       assertion: 'Ur-ab reports seeing part of the movement near the yard.',
-      uncertaintyLimit: 'This attributed observation does not establish the complete custody chain or individual fault.',
+      uncertaintyLimit: 'Ur-ab saw part of the movement; the rest of the route still needs a custodian’s account.',
     });
     events[eventId] = {
       id: eventId, dayNumber: nextDay,
@@ -956,8 +956,8 @@ export function createMaterialNotAsDescribedMatter(dayNumber: number): Instituti
       PEOPLE.carrier,
     ],
     provenance: [
-      { id: 'comf01-procurement-request', kind: 'instruction', description: 'A provisional request calls for worked timber for a precinct craft commission.' },
-      { id: 'comf01-sender-tag', kind: 'record_copy', description: 'A provisional sender tag describes the delivered load as worked timber.' },
+      { id: 'comf01-procurement-request', kind: 'instruction', description: 'A craft worker requests timber described as worked for a precinct commission.' },
+      { id: 'comf01-sender-tag', kind: 'record_copy', description: 'The sender’s tag describes the delivered load as worked timber.' },
       { id: 'comf01-receiving-observation', kind: 'observation', description: 'The receiving observation describes the visible pieces as unworked without identifying species or origin.' },
       { id: 'comf01-carrier-account', kind: 'testimony', description: 'Kuli gives a separate account of carrying the covered load to the receiving court.' },
       { id: 'comf01-authority-boundary', kind: 'other', description: 'The scribe reports; the receiving official records, the responsible authority decides acceptance, and the workshop overseer judges suitability.' },

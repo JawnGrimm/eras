@@ -9,6 +9,17 @@ import { ProductionWorkdayHub } from '../components/ProductionWorkdayHub';
 import { GameProvider } from '../state/GameProvider';
 import { createNewGameState } from '../state/newGameState';
 import { transitionGame } from '../engine/actionEconomy';
+import { generateDailyAssignments } from '../engine/assignmentGenerator';
+import { createInitialGameState } from '../state/initialState';
+import { transitionAssignmentActivityAction } from '../engine/assignmentActivity';
+import { advanceInstitutionalMatters } from '../engine/institutionalMatters';
+import { ASSIGNMENT_ACTIVITY_CATALOG } from '../content/assignments/northBayRoofInspection';
+import { ERA_I_ANCHOR_ACTIVITY_CATALOG } from '../content/assignments/eraIAnchors';
+import { ERA_I_MARTIAL_FAMILY_ACTIVITY_CATALOG } from '../content/assignments/eraIMartialFamilies';
+import { materialNotAsDescribed } from '../content/assignments/eraICommercialMartial';
+import { ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS } from '../content/assignments/eraIAnchorOpportunities';
+import { ERA_I_COMMERCIAL_MARTIAL_OPPORTUNITY_DEFINITIONS } from '../content/assignments/eraICommercialMartial';
+import { URUK_ASSIGNMENT_OPPORTUNITY_DEFINITIONS } from '../content/assignments/opportunityDefinitions';
 import type { ChallengeId } from '../state/ids';
 
 describe('production opportunity screens', () => {
@@ -61,6 +72,126 @@ describe('production opportunity screens', () => {
     const awningMarkup = renderToStaticMarkup(createElement(GameProvider, { initialState: awningAccepted.state },
       createElement(AssignmentActivityScreen, { assignmentId: awning.id, onBack: () => undefined })));
     expect(awningMarkup).toContain('Dudu’s recorded contract');
+  });
+
+  it('renders the actual Tier B commodity, unit, counterparty, figures, and linked records', () => {
+    const base = createInitialGameState();
+    const atDay14 = { ...base, calendar: { ...base.calendar, dayNumber: 14 } };
+    const generated = generateDailyAssignments(atDay14);
+    const offer = Object.values(generated.opportunities.assignments).find((item) =>
+      item.activityId === 'activity-tierb-recurring-institutional-check'
+      && item.originMatterId === 'matter-tierb-recurring-day-14');
+    expect(offer).toBeDefined();
+    const occurrence = generated.world.matters[offer!.originMatterId!]!.tierBRecurring!;
+    const accepted = transitionGame(generated, { type: 'ACCEPT_ASSIGNMENT', assignmentId: offer!.id });
+    expect(accepted.feedback?.kind).toBe('success');
+    const markup = renderToStaticMarkup(createElement(GameProvider, { initialState: accepted.state },
+      createElement(AssignmentActivityScreen, { assignmentId: offer!.id, onBack: () => undefined })));
+    expect(markup).toContain('Occurrence particulars');
+    expect(markup).toContain(occurrence.commodity);
+    expect(markup).toContain(occurrence.unit);
+    expect(markup).toContain(generated.world.people[occurrence.counterpartyPersonId]?.name);
+    expect(markup).toContain(occurrence.quantitySummary);
+    expect(markup).toContain(occurrence.sourceSummary);
+    expect(markup).toContain('Dated source records');
+    expect(markup).toContain(occurrence.quantitySummary);
+  });
+
+  it('rejects a Tier B finding that contradicts the dated outcome and files a Closing Receipt when corrected', () => {
+    for (const [day, expectedFinding, wrongFinding] of [
+      [14, 'records_reconcile', 'bounded_difference'],
+      [16, 'bounded_difference', 'records_reconcile'],
+    ] as const) {
+      const base = createInitialGameState();
+      const generated = generateDailyAssignments({
+        ...base, calendar: { ...base.calendar, dayNumber: day },
+      });
+      const offer = Object.values(generated.opportunities.assignments).find((item) =>
+        item.activityId === 'activity-tierb-recurring-institutional-check'
+        && item.originMatterId === `matter-tierb-recurring-day-${day}`);
+      expect(offer).toBeDefined();
+      const accepted = transitionGame(generated, { type: 'ACCEPT_ASSIGNMENT', assignmentId: offer!.id });
+      expect(accepted.feedback?.kind).toBe('success');
+      let state = accepted.state;
+      for (const actionId of ['tierb-compare-records', 'tierb-review-account', 'tierb-confirm-authority']) {
+        const action = transitionAssignmentActivityAction(state, {
+          type: 'PERFORM_ASSIGNMENT_ACTIVITY_ACTION', assignmentId: offer!.id, actionId,
+        });
+        expect(action.feedback?.kind).toBe('success');
+        state = action.state;
+      }
+      const draft = {
+        finding: wrongFinding, responsibilityClaim: 'none',
+        citedDiscoveryIds: ['tierb-source-records', 'tierb-authority-boundary', 'tierb-counterparty-account'],
+        limitations: [], recommendations: ['retain_sources'],
+        selectedLimitationIds: ['source_scope', 'no_individual_blame', 'cause_unlocated'],
+      };
+      const draftUpdate = transitionAssignmentActivityAction(state, {
+        type: 'UPDATE_ASSIGNMENT_ACTIVITY_DRAFT', assignmentId: offer!.id, draft,
+      });
+      expect(draftUpdate.feedback?.kind).toBe('success');
+      state = draftUpdate.state;
+      const rejected = transitionAssignmentActivityAction(state, {
+        type: 'SUBMIT_ASSIGNMENT_ACTIVITY', assignmentId: offer!.id,
+      });
+      expect(rejected.feedback?.code).toBe('tierb-finding-outcome-mismatch');
+      expect(rejected.state).toBe(state);
+      const corrected = transitionAssignmentActivityAction(state, {
+        type: 'UPDATE_ASSIGNMENT_ACTIVITY_DRAFT', assignmentId: offer!.id,
+        draft: { ...draft, finding: expectedFinding },
+      });
+      expect(corrected.feedback?.kind).toBe('success');
+      const submitted = transitionAssignmentActivityAction(corrected.state, {
+        type: 'SUBMIT_ASSIGNMENT_ACTIVITY', assignmentId: offer!.id,
+      });
+      expect(submitted.feedback?.kind).toBe('success');
+      const completed = submitted.state.opportunities.assignments[offer!.id];
+      expect(completed.status).toBe('completed');
+      expect(completed.closingReceipt).toBeDefined();
+      expect(completed.closingReceipt?.assessment).toBe('Thorough');
+      expect(completed.closingReceipt?.title).toBeTruthy();
+      const report = Object.values(submitted.state.records.entries).find((record) => record.id === `record-${offer!.id}-day-${day}`);
+      expect(report?.assertions.some((assertion) => assertion.text === `Finding: ${expectedFinding === 'records_reconcile'
+        ? 'The figures agree when each commodity and unit is kept separate'
+        : 'The records differ or show a condition that needs follow-up; the cause is still unknown'}`)).toBe(true);
+    }
+  });
+
+  it('keeps player-facing assignment and NPC text free of research/meta labels and museum identifiers', () => {
+    const base = createInitialGameState();
+    const day20 = { ...base, calendar: { ...base.calendar, dayNumber: 20 } };
+    const populated = advanceInstitutionalMatters(day20, 20);
+    const generated = generateDailyAssignments(populated);
+    const collectStrings = (value: unknown): string[] => {
+      if (typeof value === 'string') return [value];
+      if (Array.isArray(value)) return value.flatMap(collectStrings);
+      if (value && typeof value === 'object') return Object.values(value as Record<string, unknown>).flatMap(collectStrings);
+      return [];
+    };
+    const authoredOffers = [
+      ...ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS.map((definition) => definition.offer),
+      ...ERA_I_COMMERCIAL_MARTIAL_OPPORTUNITY_DEFINITIONS.map((definition) => definition.offer),
+      ...URUK_ASSIGNMENT_OPPORTUNITY_DEFINITIONS.map((definition) => definition.offer),
+      ...Object.values(generated.opportunities.assignments),
+    ];
+    const offerText = authoredOffers.flatMap((offer) => [
+      offer.title, offer.description, ...collectStrings(offer.context),
+    ]);
+    const activityDefinitions = [
+      ...Object.values(ASSIGNMENT_ACTIVITY_CATALOG),
+      ...Object.values(ERA_I_ANCHOR_ACTIVITY_CATALOG),
+      ...Object.values(ERA_I_MARTIAL_FAMILY_ACTIVITY_CATALOG),
+      materialNotAsDescribed,
+    ];
+    const activityText = activityDefinitions.flatMap((definition) => [
+      definition.title, ...definition.discoveries.map((discovery) => discovery.text),
+      ...(definition.reportSchema.limitationOptions ?? []).map((option) => option.label),
+    ]);
+    const socialIdentityText = Object.values(generated.world.people).flatMap((person) =>
+      collectStrings(person.socialIdentity));
+    const playerFacing = [...offerText, ...activityText, ...socialIdentityText].join('\n');
+    expect(playerFacing).not.toMatch(/tier\s*b|provisional|authored gameplay fiction|authored reconstruction|authored participant|gameplay fiction/i);
+    expect(playerFacing).not.toMatch(/W\s*9827|W\s*15897|MSVO|catalogued Uruk III and often attributed to Jemdet Nasr/i);
   });
 
   it('renders completed Challenge outcome and character attribution without operational declined state', () => {

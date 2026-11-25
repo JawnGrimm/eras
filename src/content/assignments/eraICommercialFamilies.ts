@@ -4,7 +4,7 @@ import type { AssignmentActivityDefinition } from './northBayRoofInspection';
 import type { AssignmentOpportunityDefinition } from './opportunityDefinitions';
 import { ERA_I_ASSIGNMENT_PARAMETERS } from './eraIParameters';
 
-/** New NPC identities are provisional authored reconstructions and remain replaceable. */
+/** Fictional participants for the authored Era I scenarios. */
 export const ERA1_COM_F02_F04_PEOPLE = {
   luNanshe: 'person-lu-nanshe' as PersonId,
   urNanna: 'person-ur-nanna' as PersonId,
@@ -78,13 +78,13 @@ export const era1ComF02TwoClaims = activity({
       text: 'The Temple Storehouse request names timber for the north-bay repair. It establishes the Storehouse’s stated need and the wording recorded in that request, not priority over another claimant.',
       sourceProvenanceId: 'comf02-storehouse-request' },
     { id: 'f02-household-request', title: 'Textile household request and sealing',
-      text: 'Geme-Inana’s household request names timber for work-frames and bears a sealing. The sealing establishes that a seal was impressed; it does not by itself establish that its holder had authority to commit this load.',
+      text: 'Geme-Inana’s household request names timber for work-frames and bears a sealing. The seal shows that an impression was made. Lu-Nanshe still needs to decide whether either claimant was authorized to commit the load.',
       sourceProvenanceId: 'comf02-household-request' },
     { id: 'f02-delivery-record', title: 'Delivery receipt and tag',
       text: 'The delivery receipt records a small load of timber arriving at the receiving court. The tag and receipt establish what was recorded about the delivered load; neither chooses which request is entitled to it.',
       sourceProvenanceId: 'comf02-delivery-receipt' },
     { id: 'f02-carrier-account', title: 'Kuli’s account',
-      text: 'Kuli gives an account of the delivery instruction he received. His testimony is separately attributed and does not establish either claimant’s authority or good faith.',
+      text: 'Kuli says what instruction he received. The two claimants still need their own accounts compared before Lu-Nanshe decides priority.',
       sourceProvenanceId: 'comf02-carrier-account' },
   ],
   actions: [
@@ -127,9 +127,9 @@ export const era1ComF02TwoClaims = activity({
     ],
     limitationsLabel: 'Evidence and authority limits',
     limitationOptions: [
-      { id: 'sealing_not_authority', label: 'The sealing proves an impression, not the holder’s authority to commit the load' },
-      { id: 'records_not_entitlement', label: 'The requests and delivery record do not themselves establish entitlement' },
-      { id: 'no_allocation_authority', label: 'The scribe does not allocate the load or decide priority' },
+      { id: 'sealing_not_authority', label: 'The seal impression is clear, but Lu-Nanshe still needs to know whether the person carrying it was sent' },
+      { id: 'records_not_entitlement', label: 'Both claims are recorded; Lu-Nanshe must decide priority after hearing each claimant' },
+      { id: 'no_allocation_authority', label: 'Lu-Nanshe decides which claimant receives the load; the apprentice summarizes both claims' },
     ],
   },
   evaluation: {
@@ -173,10 +173,10 @@ export const era1ComF03PartialReturn = activity({
       text: 'Geme-Inana says the goods went out on the understanding that goods of another kind would come back. The agreement is present in her spoken account; no written equivalence is available.',
       sourceProvenanceId: 'comf03-geme-account' },
     { id: 'f03-kuli-account', title: 'Kuli’s account of the next trip',
-      text: 'Kuli says the remainder will follow on the next trip. This is an attributed statement, not a written promise or proof that a default has occurred.',
+      text: 'Kuli says the remainder will follow on the next trip. Geme-Inana is still waiting; the next receipt will show whether it arrives.',
       sourceProvenanceId: 'comf03-kuli-account' },
     { id: 'f03-enlil-recollection', title: 'Enlil-kisu’s recollection',
-      text: 'Enlil-kisu recalls the outbound carrying and can speak to what he carried. His recollection does not establish the terms of the oral exchange.',
+      text: 'Enlil-kisu remembers carrying the goods out. He cannot settle what was promised in the exchange; the two parties must compare their accounts.',
       sourceProvenanceId: 'comf03-enlil-recollection' },
   ],
   actions: [
@@ -215,9 +215,9 @@ export const era1ComF03PartialReturn = activity({
     ],
     limitationsLabel: 'Written, spoken, and authority limits',
     limitationOptions: [
-      { id: 'no_written_equivalence', label: 'No written equivalence between sent and returned goods is available' },
-      { id: 'oral_agreement_unverified', label: 'The agreement is described orally and is not independently established by a record' },
-      { id: 'no_default_or_liability', label: 'The partial return does not establish default or individual liability' },
+      { id: 'no_written_equivalence', label: 'The outbound and return tallies record different goods; neither copy gives a conversion between them' },
+      { id: 'oral_agreement_unverified', label: 'Geme-Inana and Kuli describe the promise differently; no copy of the agreement is available' },
+      { id: 'no_default_or_liability', label: 'The partial return is recorded; Geme-Inana decides her next step, and the account does not name a person at fault' },
     ],
   },
   evaluation: {
@@ -263,7 +263,7 @@ export const era1ComF04CustodyChain = activity({
       text: 'The receiving record notes that one vessel arrived cracked. The condition note exists at receipt; it does not establish when or how the damage occurred.',
       sourceProvenanceId: 'comf04-receiving-tally' },
     { id: 'f04-sig-ana-account', title: 'Sig-ana’s account',
-      text: 'Sig-ana says she saw part of the landing handover. Her account may guide a further check, but it does not establish the exact contents or condition of every vessel.',
+      text: 'Sig-ana says she saw part of the landing handover. Her account gives the next check a place to begin, but not the condition of every vessel.',
       sourceProvenanceId: 'comf04-sig-ana-account' },
   ],
   actions: [
@@ -305,9 +305,9 @@ export const era1ComF04CustodyChain = activity({
     ],
     limitationsLabel: 'Custody and condition limits',
     limitationOptions: [
-      { id: 'tallies_show_counts_only', label: 'The tallies show what was counted at each handover, not what happened between them' },
-      { id: 'condition_not_cause', label: 'The receiving condition note does not establish when or how the vessel cracked' },
-      { id: 'no_individual_fault', label: 'The available sources do not establish individual fault or negligence' },
+      { id: 'tallies_show_counts_only', label: 'The three counts are 12, 12, and 11; the records do not show when the vessel was cracked or where the count changed' },
+      { id: 'condition_not_cause', label: 'The vessel was cracked when received; the record gives no earlier condition to compare' },
+      { id: 'no_individual_fault', label: 'Utu-mansum records the cracked vessel at receipt; the tallies do not name who caused the damage' },
     ],
   },
   evaluation: {
@@ -384,7 +384,7 @@ export const ERA1_COM_F02_OPPORTUNITY_DEFINITION = opportunity(
     purpose:'State what each claim and source establishes, what the sealing does not establish, and whether the recorded quantities could support a partial division.',
     responsibility:['The apprentice summarizes only; Lu-Nanshe decides priority; each claimant remains responsible for their own account.'],
     authority:'The Assignment grants no authority to allocate the load, decide entitlement, accuse a claimant, or assign carrier liability.',
-    provenance:['Plausible reconstruction: the specific competing timber claims and delivery are provisional authored gameplay fiction. The sealing establishes an impression, not authority to commit the load.'],
+    provenance:['Two people give competing accounts of a timber load. The sealing is an impression, not permission to commit the load.'],
   },
   f02Ap,tierA.currency,tierA.baseCareerXp,
   'Lu-Nanshe has requested a neutral summary before making the priority decision.',
@@ -405,7 +405,7 @@ export const ERA1_COM_F03_OPPORTUNITY_DEFINITION = opportunity(
     purpose:'Keep sent, returned, and claimed outstanding goods distinct, marking each statement as written or spoken only.',
     responsibility:['The apprentice records the exchange statement; Geme-Inana decides her next step; the counterparty’s obligation is not adjudicated.'],
     authority:'The Assignment grants no authority to declare default, set exchange terms, or determine what the counterparty owes.',
-    provenance:['Exchange with outlying communities is attested in general; the reciprocal arrangement, partial return, and spoken promise are provisional authored reconstruction.'],
+    provenance:['Exchange with outlying communities is known. In this case, the partial return and spoken promise are reported by the people involved, not established by a separate record.'],
   },
   f03Ap,tierB.currency,tierB.baseCareerXp,
   'Geme-Inana has requested a statement of the partial return before deciding what to do with the next dispatch.',
@@ -421,12 +421,12 @@ export const ERA1_COM_F04_OPPORTUNITY_DEFINITION = opportunity(
     quantity:'Twelve sealed vessels at dispatch and landing; eleven at receipt, with one vessel noted as cracked.',
     when:'After the receiving tally records the shortage and condition note.',
     where:'The river landing and Eanna receiving court, Uruk.',
-    from:'Three separately authored tallies, the receiving condition note, and Sig-ana’s account.',
+    from:'Three separate tallies, the receiving condition note, and Sig-ana’s account.',
     to:'Utu-mansum for the receiving exception and any decision to recount or inquire.',
     purpose:'Set the counts in sequence, locate the first recorded difference, and distinguish the interval from the cause.',
     responsibility:['Each custodian accounts for their own interval; the apprentice reports the chain; Utu-mansum decides the receiving follow-up.'],
     authority:'The Assignment grants no authority to assign fault, determine negligence, or decide where loss or damage occurred.',
-    provenance:['Tags, sealings, and vessel movement are attested broadly; the specific river-landing chain and shortage are provisional authored gameplay reconstruction.'],
+    provenance:['Tags and sealings accompany the movement of vessels. The landing accounts disagree about this load; the shortage is not located by the available records.'],
   },
   f04Ap,tierA.currency,tierA.baseCareerXp,
   'Utu-mansum has requested a custody-chain report after the receiving tally recorded a difference.',

@@ -97,7 +97,7 @@ export function submitUrukAssignmentActivity(
     const sourceIndex = sources.findIndex((item) => item.id === 'source-tierb-counterparty-account');
     if (counterpartyId && sourceIndex >= 0) sources[sourceIndex] = {
       ...sources[sourceIndex], kind: 'person', sourceId: counterpartyId,
-      description: 'The actual counterparty named in this dated Tier B occurrence.',
+      description: 'The counterparty named in this dated tally check.',
     };
   }
   const assertions: RecordAssertion[] = discoveries.filter((item) => cited.has(item.id)).map((item) => ({

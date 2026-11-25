@@ -26,7 +26,7 @@ function activity(definition: Omit<AssignmentActivityDefinition, 'createInitialP
   };
 }
 
-/** Plausible authored reconstruction; sources establish descriptions and observations, not identity, origin, or liability. */
+/** The records establish descriptions and observations, not identity, origin, or liability. */
 export const materialNotAsDescribed: AssignmentActivityDefinition = activity({
   id: ERA1_COM_F01_ACTIVITY_ID,
   title: 'Material Not As Described',
@@ -34,13 +34,13 @@ export const materialNotAsDescribed: AssignmentActivityDefinition = activity({
   participants: Object.values(ERA1_COM_F01_PEOPLE),
   discoveries: [
     { id: 'comf01-request', title: 'The procurement request',
-      text: 'PROVISIONAL authored record: the request asks for worked timber for a precinct craft commission. It does not specify a species or establish the origin of the material eventually delivered.' },
+      text: 'The craft worker needs timber described as worked before the commission can proceed. The request names no species or origin.' },
     { id: 'comf01-tag', title: 'The sender’s tag',
-      text: 'PROVISIONAL authored transcription: the tag describes the load as worked timber. This establishes the sender’s written description, not the material’s actual species, origin, or suitability.' },
+      text: 'The sender’s tag calls the load worked timber. It records the sender’s description, not the species, origin, or suitability.' },
     { id: 'comf01-observation', title: 'The receiving observation',
-      text: 'PROVISIONAL authored observation: the receiving list describes the visible pieces as unworked. It records their observable state only; it does not identify the timber species, origin, or suitability for the intended work.' },
+      text: 'At intake, the visible pieces are described as unworked. The receiving official can describe what arrived, but the craft worker still needs a separate judgment of species, origin, and suitability.' },
     { id: 'comf01-carrier-account', title: 'Kuli’s account',
-      text: 'Kuli says he carried the covered load from the outlying counterparty to the receiving court. His account is testimony about his part in the movement; it does not independently establish the load’s contents or the custody of every earlier stage.' },
+      text: 'Kuli says he carried the covered load from the outlying counterparty to the receiving court. His account covers his part of the journey; the receiving note cannot confirm what was under cover or who held it earlier.' },
   ],
   actions: [
     { id: 'comf01-consult-receiver', family: 'consult', label: 'Consult Utu-mansum',
@@ -78,9 +78,9 @@ export const materialNotAsDescribed: AssignmentActivityDefinition = activity({
     ],
     limitationsLabel: 'Description, evidence, and authority limits',
     limitationOptions: [
-      { id: 'material_not_identified', label: 'The available sources do not identify the material’s species or origin' },
-      { id: 'no_intent_or_liability', label: 'The discrepancy does not establish deliberate substitution or individual responsibility' },
-      { id: 'no_acceptance_authority', label: 'The scribe may report the difference but cannot accept, reject, or request replacement' },
+      { id: 'material_not_identified', label: 'The tag and receiving note describe the timber differently; the craft worker still needs an inspection before deciding whether it will serve' },
+      { id: 'no_intent_or_liability', label: 'The receiving official has a difference to record, but no account names who caused it' },
+      { id: 'no_acceptance_authority', label: 'The scribe can report the difference; Utu-mansum records receipt and Lu-Nanshe decides acceptance or replacement' },
     ],
   },
   evaluation: {
@@ -119,10 +119,10 @@ export const ERA1_COM_F01_OPPORTUNITY_DEFINITION: AssignmentOpportunityDefinitio
     context: {
       what: 'Compare the procurement request, sender’s tag, receiving observation, and carrier account for one delivered load.',
       who: ['Utu-mansum, Receiving Official','Ur-Lamma, precinct workshop overseer','Lu-Nanshe, responsible authority','Kuli, carrier'],
-      quantity: 'PROVISIONAL authored occurrence: one load of timber; the sender’s tag describes it as worked, while the receiving observation describes the visible pieces as unworked.',
+      quantity: 'One load of timber; the sender’s tag describes it as worked, while the receiving observation describes the visible pieces as unworked.',
       when: 'After delivery and before the receiving entry is accepted.',
       where: 'Eanna receiving court, Uruk; the related craft work is at a precinct workshop yard.',
-      from: 'A provisional procurement request, the sender’s tag, the receiving observation, and Kuli’s separately attributed account.',
+      from: 'The request, sender’s tag, receiving observation, and Kuli’s separately attributed account.',
       to: 'Utu-mansum for the receiving entry; Lu-Nanshe retains the acceptance decision.',
       purpose: 'State exactly where the descriptions agree or differ and whether a craft examination or further record is needed.',
       responsibility: [
@@ -130,11 +130,11 @@ export const ERA1_COM_F01_OPPORTUNITY_DEFINITION: AssignmentOpportunityDefinitio
         'Utu-mansum owns the receiving entry.',
         'Lu-Nanshe decides acceptance or a replacement request.',
         'Ur-Lamma judges whether the material is suitable for the workshop.',
-        'Kuli supplies testimony about his part in the movement, not proof of earlier custody.',
+        'Kuli can describe his part of the journey; the earlier custody still needs its own record.',
       ],
       authority: 'The Assignment authorizes comparison and reporting only. It does not authorize acceptance, rejection, replacement, material identification, or assignment of liability.',
       provenance: [
-        'Plausible reconstruction: imported timber reached Uruk; the specific request, tag, delivery, people, and discrepancy are provisional authored gameplay fiction.',
+        'Timber reached Uruk for a craft commission. The tag and receiving observation describe it differently; the specific load and people belong to this case.',
         'The tag establishes the sender’s description; the receiving list establishes the receiver’s observation. Neither independently identifies species or origin.',
       ],
     },
