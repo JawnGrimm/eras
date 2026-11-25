@@ -203,7 +203,7 @@ export const era1MarF02PartyReturnsShort = activity({
       { id: 'visit_site', label: 'Recommend a visit to the work site' },
       { id: 'ask_party_member', label: 'Ask the returning party member for clarification' },
       { id: 'check_tools_with_dudu', label: 'Ask Dudu to identify tools that may need repair or remain at the site' },
-      { id: 'accept_provisional_account', label: 'Accept the account provisionally and keep the gap open' },
+      { id: 'accept_provisional_account', label: 'Accept the account as reported and keep the gap open' },
     ],
     limitationsLabel: 'Task and accountability limits',
     limitationOptions: [
@@ -486,7 +486,7 @@ export const ERA1_MAR_F03_OPPORTUNITY_DEFINITION = opportunity(
     who:['Geme-Inana, sponsor','Enlil-kisu, carrier','Ama-gi, landing observer','Sig-ana, claimed message carrier','Kuli, connected carrier'],
     quantity:'One valued load and one unresolved lateness episode.',
     when:'After the expected arrival passes without a receipt.',
-    where:'Uruk and the approach routes; the specific route and incident are provisional authored gameplay fiction.',
+    where:'The route runs from Uruk toward the outlying work site. The carrier’s account describes why the party halted; the exact path is not recorded.',
     from:'The dispatch record, Enlil-kisu’s account, landing observation, and claimed message.',
     to:'Geme-Inana for a decision to wait, send someone, or hold the carrier’s credit.',
     purpose:'Record what was dispatched, what was expected, and what is and is not known about the delay and claimed change of plan.',
