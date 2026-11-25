@@ -208,7 +208,9 @@ The v2 migration must not become a second, divergent route that guesses at episo
 
 ### 4.4 Newly created relationships and saves
 
-Schema-v4 `RelationshipDimensions` contains only trust, respect, affection, resentment, and rivalry. New relationship creation cannot accept a familiarity score. A new relationship with no qualifying episode has no derived familiarity stage. New saves are written as schema v4 after implementation is separately authorized and deployed.
+Until the v4 migration ships, the v3 runtime needs an explicit compatibility interval: keep the required numeric property solely to satisfy v3 validation, preserve an existing edge's legacy value unchanged when `SET_RELATIONSHIP` updates other dimensions, initialize a genuinely new v3 edge with `familiarity: 0`, and reject authored `familiarity` deltas in `opportunityValidation.ts`. Scenario writers must not replace an existing legacy value with a default. Hide the legacy number from active relationship and succession UI; it is not a stage, eligibility input, or gameplay effect. These are implementation requirements for the later authorized runtime slice, not changes made by this proposal.
+
+After the schema-v4 transition, `RelationshipDimensions` contains only trust, respect, affection, resentment, and rivalry. New relationship creation cannot accept a familiarity score. A new relationship with no qualifying episode has no derived familiarity stage. New saves are written as schema v4 after implementation is separately authorized and deployed.
 
 ### 4.5 Missing, malformed, and dangling data
 
