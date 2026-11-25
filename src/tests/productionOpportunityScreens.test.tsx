@@ -96,7 +96,7 @@ describe('production opportunity screens', () => {
   it('rejects a Tier B finding that contradicts the dated outcome and files a Closing Receipt when corrected', () => {
     for (const [day, expectedFinding, wrongFinding] of [
       [14, 'records_reconcile', 'bounded_difference'],
-      [15, 'bounded_difference', 'records_reconcile'],
+      [16, 'bounded_difference', 'records_reconcile'],
     ] as const) {
       const base = createInitialGameState();
       const generated = generateDailyAssignments({
