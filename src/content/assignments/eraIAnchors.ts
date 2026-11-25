@@ -37,11 +37,11 @@ export const legacySealedVesselTextileConsignment = activity({
   submissionApCost: 1,
   participants: [people.steward, people.receiver, people.carrier, people.senior],
   discoveries: [
-    { id: 'com01-request', title: 'The receiving request', text: 'Utu-mansum asks for the consignment to be checked before the receiving court closes. Enlil-kisu wants the goods accepted so his crew can leave; the receiving official wants the tag and custody note kept together.' },
-    { id: 'com01-tag', title: 'Tag transcription', text: 'The tag identifies vessel lot V-17 and textile lot T-04. Keep the vessel and textile counts on separate lines; they are different goods.' },
-    { id: 'com01-seal', title: 'Seal and custody observation', text: 'The seal impression on one vessel container is incomplete. No one can tell from the damaged impression when it happened, whether the contents changed, or who handled the vessel afterward.' },
-    { id: 'com01-quantity', title: 'Quantity record', text: 'The dispatch account lists 8 vessels and 3 textile bundles under their separate identifiers.' },
-    { id: 'com01-receipt', title: 'Receiving entry', text: 'The receiving entry lists 7 vessels and 3 textile bundles. The vessel count differs by one; the textile count agrees.' },
+    { id: 'com01-request', title: 'The receiving request', text: 'Utu-mansum asks for the consignment to be checked before the receiving court closes. Enlil-kisu wants the goods accepted so his crew can leave; the receiving official wants the tag and custody note kept together.', provenance: { classification: 'REPORTED', explanation: 'The receiving official and carrier describe their requests and positions; this is not a direct observation of the handover.' } },
+    { id: 'com01-tag', title: 'Tag transcription', text: 'The tag identifies vessel lot V-17 and textile lot T-04. Keep the vessel and textile counts on separate lines; they are different goods.', provenance: { classification: 'COPIED', explanation: 'A transcription of the tag is examined; the physical tag itself is not directly available in this legacy packet.' } },
+    { id: 'com01-seal', title: 'Seal and custody observation', text: 'The seal impression on one vessel container is incomplete. No one can tell from the damaged impression when it happened, whether the contents changed, or who handled the vessel afterward.', provenance: { classification: 'PHYSICAL', explanation: 'The seal impression on the container is directly observed; its history and cause remain unknown.' } },
+    { id: 'com01-quantity', title: 'Quantity record', text: 'The dispatch account lists 8 vessels and 3 textile bundles under their separate identifiers.', provenance: { classification: 'COPIED', explanation: 'Dispatch account copy examined; the original record is not directly available in this legacy packet.' } },
+    { id: 'com01-receipt', title: 'Receiving entry', text: 'The receiving entry lists 7 vessels and 3 textile bundles. The vessel count differs by one; the textile count agrees.', provenance: { classification: 'COPIED', explanation: 'Receiving-entry copy examined; the original record is not directly available in this legacy packet.' } },
   ],
   actions: [
     { id: 'com01-consult-receiver', family: 'consult', label: 'Ask Utu-mansum what crossed the threshold', description: 'Hear what the receiving official actually counted before the court closes.', apCost: 1, discoveryIds: ['com01-request'], consultedPersonId: people.receiver },
@@ -88,6 +88,8 @@ export const legacySealedVesselTextileConsignment = activity({
       'The report certifies clearance or assigns responsibility beyond what the tag, seal, and counts establish.'),
     reactions: humanReactions('Utu-mansum', 'He keeps the receiving tally beside the dispatch copy.'),
   },
+  provenanceDisclosureRequired: true,
+  historicalContextNote: 'Legacy COM-01 content retained only for assignments already offered or accepted before the provenance revision. Its specific counts and discrepancy are fictional teaching content, not a transcription of one attested Uruk delivery. The source classifications describe how the player accesses these items, not their reliability.',
   submissionNote: 'The receiving official decides whether to recount or proceed. The report itself does not release the goods.',
 });
 
