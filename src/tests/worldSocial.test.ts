@@ -40,7 +40,7 @@ const base = (): GameState => {
 describe('world, relationships, institutions and records', () => {
   it('stores personal relationships by ordered person pair and keeps dimensions separate', () => {
     const state = base();
-    const relationship = { dimensions: { trust: 75, respect: 60, affection: 20, resentment: 5, rivalry: 10, familiarity: 40 }, history: [] };
+    const relationship = { dimensions: { trust: 75, respect: 60, affection: 20, resentment: 5, rivalry: 10 }, history: [] };
     const result = transitionGame(state, { type: 'SET_RELATIONSHIP', fromId: INITIAL_PERSON_ID, toId: otherId, relationship });
     expect(result.feedback?.code).toBe('relationship-updated');
     expect(result.state.world.relationships[INITIAL_PERSON_ID]?.[otherId]?.dimensions.trust).toBe(75);
@@ -48,7 +48,7 @@ describe('world, relationships, institutions and records', () => {
     expect(getInitializedScribal(result.state.world.people[INITIAL_PERSON_ID])?.professionalReputation).toEqual(getInitializedScribal(state.world.people[INITIAL_PERSON_ID])?.professionalReputation);
     expect(getInitializedScribal(result.state.world.people[INITIAL_PERSON_ID])?.institutionalStanding).toEqual({});
     const reverse = transitionGame(result.state, { type: 'SET_RELATIONSHIP', fromId: otherId, toId: INITIAL_PERSON_ID,
-      relationship: { dimensions: { trust: 15, respect: 25, affection: 0, resentment: 70, rivalry: 55, familiarity: 10 }, history: [] } });
+      relationship: { dimensions: { trust: 15, respect: 25, affection: 0, resentment: 70, rivalry: 55 }, history: [] } });
     expect(reverse.state.world.relationships[otherId]?.[INITIAL_PERSON_ID]?.dimensions.trust).toBe(15);
     expect(reverse.state.world.relationships[INITIAL_PERSON_ID]?.[otherId]?.dimensions.trust).toBe(75);
   });
@@ -104,7 +104,7 @@ describe('world, relationships, institutions and records', () => {
   it('rejects invalid relationship scores, dangling institutional references, and unsupported knowledge', () => {
     const state = base();
     const invalidRelationship = transitionGame(state, { type: 'SET_RELATIONSHIP', fromId: INITIAL_PERSON_ID, toId: otherId,
-      relationship: { dimensions: { trust: 101, respect: 0, affection: 0, resentment: 0, rivalry: 0, familiarity: 0 }, history: [] } });
+      relationship: { dimensions: { trust: 101, respect: 0, affection: 0, resentment: 0, rivalry: 0 }, history: [] } });
     expect(invalidRelationship.state).toBe(state);
     expect(invalidRelationship.feedback?.code).toBe('relationship-invalid');
     const invalidKnowledge = transitionGame(state, { type: 'GRANT_KNOWLEDGE', knowledge: {
@@ -114,7 +114,7 @@ describe('world, relationships, institutions and records', () => {
     expect(invalidKnowledge.state).toBe(state);
     expect(invalidKnowledge.feedback?.code).toBe('knowledge-invalid');
     const malformed = structuredClone(state);
-    malformed.world.relationships[INITIAL_PERSON_ID] = { [otherId]: { dimensions: { trust: 101, respect: 0, affection: 0, resentment: 0, rivalry: 0, familiarity: 0 }, history: [] } };
+    malformed.world.relationships[INITIAL_PERSON_ID] = { [otherId]: { dimensions: { trust: 101, respect: 0, affection: 0, resentment: 0, rivalry: 0 }, history: [] } };
     expect(isValidGameState(malformed)).toBe(false);
   });
 
