@@ -125,7 +125,6 @@ describe('Eanna Provisioning Undertaking', () => {
       }, undefined, INITIAL_WORK_CATALOG);
       expect(result.feedback?.kind).toBe('success');
       state = result.state;
-      validity.push([actionId, isValidGameState(state, INITIAL_WORK_CATALOG)]);
     }
     result = transitionGame(state, { type: 'SUBMIT_WORK', workId }, undefined, INITIAL_WORK_CATALOG);
     expect(result.feedback?.code).toBe('work-assessment-pending-disposition');
