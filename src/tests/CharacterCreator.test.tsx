@@ -1,7 +1,7 @@
 import React, { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import { ProductionShellContent } from '../components/ProductionShell';
+import { ProductionSaveResetConfirmation, ProductionShellContent } from '../components/ProductionShell';
 import { GameProvider } from '../state/GameProvider';
 import type { ProductionStorage } from '../state/GameProvider';
 
@@ -19,5 +19,21 @@ describe('Era I Character Creator entry flow', () => {
     expect(markup).toContain('Review character');
     expect(markup).not.toContain('Workday Hub');
     expect(markup).not.toContain('Enlil-barni');
+  });
+});
+
+
+describe('Production save reset confirmation', () => {
+  it('uses an accessible in-app dialog and explains that the current save is preserved until character confirmation', () => {
+    const markup = renderToStaticMarkup(createElement(ProductionSaveResetConfirmation, {
+      onCancel: () => {},
+      onConfirm: () => {},
+    }));
+    expect(markup).toContain('role="dialog"');
+    expect(markup).toContain('aria-modal="true"');
+    expect(markup).toContain('aria-labelledby="production-reset-confirmation-title"');
+    expect(markup).toContain('Cancel');
+    expect(markup).toContain('Open Character Creator');
+    expect(markup).toContain('Your existing production save will remain untouched');
   });
 });
