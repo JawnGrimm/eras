@@ -146,9 +146,7 @@ export function prepareTierBRecurringOccurrences(input: GameState): GameState {
     const counterpartyPersonId = [CARRIER, KULI, AMA_GI, DUDU, ARU][day % 5] as PersonId;
     const counterpartyName = operationalNames[counterpartyPersonId];
     const receivingPersonId = [RECEIVER, STEWARD, GEME_INANA][day % 3] as PersonId;
-    const receivingName = receivingNames[receivingPersonId];
     const reviewerPersonId = [SENIOR, LU_NANSHE][day % 2] as PersonId;
-    const reviewerName = reviewerNames[reviewerPersonId];
     if (!events[eventId] && !matters[matterId] && institution) {
       const occurrence = authoredOccurrence(day, counterpartyPersonId, counterpartyName);
       const dispatchId = `record-tierb-recurring-day-${day}-dispatch` as RecordId;
