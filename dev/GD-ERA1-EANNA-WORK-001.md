@@ -10,7 +10,7 @@
 
 The Eanna Work is the required Era I milestone Work, **The Eanna Provisioning Undertaking**. Its complete scope is the four-stage compilation and official disposition of one Consolidated Summary Tablet: separate household/precinct source tallies on the obverse, compatible category totals and shortfall allocation on the reverse, then Lu-Nanshe's authorized disposition.
 
-It is not a longer stock audit. The Work asks the apprentice to make a reliable account out of material that does not all have the same status: written tallies, copied entries, a labor count, and spoken requests or assurances. The player must decide what can be carried onto the tablet, what must remain separate, and what cannot yet be counted. The official—not the apprentice—decides the allocation.
+It is not a longer stock audit. The Work asks the apprentice to make a reliable account out of material that does not all have the same status: written tallies, physical counts, and spoken requests or expectations. The player must decide what can be carried onto the tablet, what must remain separate, and what cannot yet be counted. The official—not the apprentice—decides the allocation.
 
 The approaching Eanna gathering gives the work consequence. Its game-calendar window is Days 35–38, with the gathering on Day 39; this timing and gathering are explicitly **authored reconstruction**, not an attested festival date.
 
@@ -42,7 +42,7 @@ A seasonal gathering is approaching. Several activities have legitimate needs, b
 | **Ur-Nanna** | Storehouse Steward; stock custody, access, and maintenance records | Supplies the storehouse-side tally and explains what is physically available or held, where the source supports it | Does not decide a cross-household priority merely by being Storehouse Steward |
 | **Nin-kasi** | Brewing-House Representative; associated with an issue receipt and brewing preparation | Explains the brewing-house need and the consequence of an incorrect or delayed account | Her request is not proof of an entitlement or proof that all goods were received |
 | **Enlil-kisu** | Carrier Foreman; dispatch and delivery context | Gives the carrier-side account of what was dispatched or expected and when | A reported delivery or assurance is not a witnessed receipt or physical count |
-| **Geme-Inana** | Textile-household organizer; household work-frame and exchange obligations | Explains the household's timber/work-frame need and the cost of delay | A household request and its sealing do not themselves establish priority or authority over a load |
+| **Geme-Inana** | Textile-household organizer; household work-frame and exchange obligations | Explains the household work group's barley request and the cost of receiving a reduced share | A household request and its sealing do not themselves establish priority or authority over a load |
 | **Lu-Nanshe** | Household overseer / responsible authority in the existing two-claims scenario | Retains the final priority/allocation decision and institutional disposition | The apprentice and Shuruppak-ilu do not decide in her place |
 
 The named characters are existing authored NPCs, not claims that these exact individuals are historically attested. Their roles and motivations are drawn from the current Era I content. The gathering-specific dialogue below is authored voice, not recovered speech.
@@ -55,7 +55,7 @@ These are short playable lines to establish voice and pressure. They are not tab
 - **Ur-Nanna:** “I can tell you what the storehouse count says. I cannot make a spoken promise take the place of what is here.”
 - **Nin-kasi:** “If the account is carried forward short, my people will be asked why the work is not ready. I need the figures checked before that happens.”
 - **Enlil-kisu:** “I can give you the dispatch account and what I was told about the return. I did not count what has not arrived.”
-- **Geme-Inana:** “The frames are waiting for timber. If the load goes elsewhere, the work in our household waits too.”
+- **Geme-Inana:** “The work group has its own need. If our share is cut again, fewer hands can stay at the task.”
 - **Lu-Nanshe:** “Show me the claims separately. I will decide what is given priority.”
 
 Keep dialogue reactive and non-blocking. No mandatory witness interviews, culprit hunt, or new investigation branch is created by these exchanges.
@@ -136,7 +136,7 @@ Each player entry visibly adds a mark or lightweight visual motif to the clay su
 **Dialogue:**
 - Nin-kasi may correct how a category is described, but her statement does not silently change the source tally.
 - Enlil-kisu may clarify whether he is describing dispatch, expectation, or receipt.
-- Geme-Inana may press for the timber need to be considered; the request remains separate unless a Work-specific quantity record supports it.
+- Geme-Inana may press for her household work group's barley share; the spoken argument does not change the written request tally.
 
 **Stage output:** Obverse/front entries show 12, 9, and 8 barley capacity measures as three separate claims, plus the separate request for 6 beer vessels and count of 4 prepared vessels. No unlike category is combined.
 
@@ -159,7 +159,7 @@ Each player entry visibly adds a mark or lightweight visual motif to the clay su
 
 **Dialogue:**
 - Nin-kasi argues that a late or reduced allocation will affect the work already underway.
-- Geme-Inana points out that timber delayed beyond the seasonal window leaves the work-frames idle.
+- Geme-Inana points out that a reduced barley share leaves fewer people provisioned for the household work.
 - Ur-Nanna states what is available under the storehouse record, without treating a request as an entitlement.
 - Lu-Nanshe asks for the shortfall to remain visible rather than hidden in a total.
 
