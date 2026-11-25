@@ -337,7 +337,7 @@ These are GitHub Actions results on the respective PR heads. Local test/build ex
 
 - **Issue #85 — GD-OPPORTUNITY-001:** remains the active implementation priority. Faithful Recall does not interrupt, reorder, or broaden Issue #85.
 - **Issue #107 — GD-STATE-INTEGRITY-001:** continues within its existing approved audit scope. Existing WP1 relationship-provenance and familiarity findings may be noted as constraints where relevant, but no recall work package is added to Issue #107.
-- **GD-FAITHFUL-RECALL-001:** placed in the post-Issue-#85 design/architecture queue. No overlapping implementation branch is to be created, and no speculative persistence changes are authorized.
+- **GD-FAITHFUL-RECALL-001:** Design HQ may develop the supporting behavioral contract and conduct independent research in parallel with Issue #85 implementation and the Issue #107 audit. Production architecture review remains gated on receipt of that complete contract, not on Issue #85 completion; only a demonstrated technical conflict may require sequencing. Runtime implementation remains unauthorized, and no speculative persistence changes or overlapping runtime branch are permitted.
 
 ### Documentation readiness
 
@@ -357,29 +357,26 @@ Production will not infer these rules from the principle wording.
 
 ### Architecture review status and coverage
 
-- **Architecture review:** **NOT STARTED — gated on the supporting behavioral contract and a later queue opening after Issue #85.**
+- **Architecture review:** **NOT STARTED — gated on the supporting behavioral contract. It does not require Issue #85 to finish; Production will not assess the architecture against incomplete behavioral assumptions.**
 - **Existing implementation coverage:** **NOT ASSESSED for Faithful Recall.** Existing Event, Record, Knowledge, history, journal, character-access, persistence, and succession systems have not yet been reviewed against a complete Faithful Recall contract. The Issue #107 source audit is not a substitute for that review.
 - **Known adjacent implementation fact:** Issue #107's WP1 audit distinguishes numeric directional relationship familiarity from the separate `PersonFamiliarity` domain-exposure record. Neither is to be conflated with Knowledge, Record, or personal recall. This observation does not authorize familiarity changes or recall implementation.
 - **Technical decisions:** none made. No data model, serialization, persistence, migration, correction API, or UI contract is proposed as settled.
 - **Save compatibility / migration risk:** **UNKNOWN — NOT ASSESSED.** Any persistent-state proposal will require a reviewed plan covering migration, rollback, determinism, and legacy-save compatibility before implementation authorization.
 - **Determinism:** the principle prohibits runtime generative AI for recall, record validation, or outcome determination. Detailed deterministic contracts remain for Design HQ and subsequent technical review to define within their respective authorities.
 
-### Recommended post-contract architecture-review work packages
+### Planned architecture-assessment outputs after contract delivery
 
-These are estimates for the bounded assessment only, not runtime implementation estimates:
+Once Design HQ delivers the complete behavioral contract, Production will assess:
+- **FR-A — Domain model inventory:** Event, Record, Knowledge representations and relationships.
+- **FR-B — Provenance and lifecycle trace:** record creation, contemporaneous conclusions, amendments, verification links, and chronology.
+- **FR-C — Access and succession trace:** character knowledge acquisition, personal/institutional records, successor access, and non-inheritance.
+- **FR-D — Presentation and persistence review:** history/journal/recall surfaces, UI distinctions, save/load, and compatibility implications.
+- **FR-E — Technical assessment and validation strategy:** existing coverage, actual gaps, proposed technical contracts, migration risks, deterministic tests, dependencies, and recommended implementation slices.
 
-| Work package | Scope | Estimate |
-|---|---|---:|
-| FR-A — Domain model inventory | Event, Record, Knowledge representations and relationships | 0.5–1 engineer-day |
-| FR-B — Provenance and lifecycle trace | Record creation, contemporaneous conclusions, amendments, verification links, chronology | 1–2 engineer-days |
-| FR-C — Access and succession trace | Character knowledge acquisition, personal/institutional records, successor access and non-inheritance | 1–1.5 engineer-days |
-| FR-D — Presentation and persistence review | History/journal/recall surfaces, UI distinctions, save/load and compatibility implications | 1–1.5 engineer-days |
-| FR-E — Technical assessment and test strategy | Coverage/gap matrix, technical contracts, migration risks, deterministic tests, dependencies and recommended slices | 0.5–1 engineer-day |
-
-**Assessment estimate:** approximately **3.5–7 engineer-days**, after the behavioral contract is complete and the queue is opened. This estimate excludes implementation, migrations, authored content, and manual UX/accessibility validation. Runtime implementation effort is **NOT ESTIMATED** until the review identifies actual gaps and Design HQ issues a complete handoff.
+These are assessment outputs, not runtime implementation authorization. Findings will distinguish verified existing capabilities from assumptions and recommendations. Any persistent-state proposal will receive a separate compatibility, migration, rollback, and determinism review.
 
 ### Required authorization boundary
 
 This record is queue planning only. It does not mark Faithful Recall implemented, tested, verified, or ready for implementation. No runtime files, GDD, Decision Register, Open Design Register, save schema, migration, or existing record semantics were changed by this entry.
 
-**Next action:** Design HQ completes and reconciles the supporting behavioral contract. After Issue #85 priority protection and contract readiness, Production conducts FR-A through FR-E and returns the technical assessment to Design HQ. A separate approved **READY FOR IMPLEMENTATION** handoff is required before runtime work.
+**Next action:** Design HQ completes and reconciles the supporting behavioral contract in parallel with independent work on Issues #85 and #107. Once the contract is delivered, Production conducts FR-A through FR-E without requiring Issue #85 completion, then returns the technical assessment to Design HQ. A separate approved **READY FOR IMPLEMENTATION** handoff is required before runtime work.
