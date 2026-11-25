@@ -120,7 +120,7 @@ export const URUK_ASSIGNMENT_OPPORTUNITY_DEFINITIONS: readonly AssignmentOpportu
     slug: 'tierb-recurring',
     offer: {
       activityId: 'activity-tierb-recurring-institutional-check',
-      title: 'Recurring Institutional Check',
+      title: 'Dated Tally Check',
       description: 'The steward needs the next tally ready before work continues. Compare the dated source and receiving records, then report what agrees and what remains unsettled.',
       employer: { kind: 'institution', id: 'institution-uruk-temple-storehouse' as import('../../state/ids').InstitutionId },
       category: 'tier_b_institutional_check',
