@@ -51,7 +51,7 @@ export const EANNA_SOURCE_PACKET = [
   { id: EANNA_SOURCE_IDS[6], title: 'Enlil-kisu’s spoken account', source: 'Spoken statement; not a written tally', text: 'Enlil-kisu expects 3 further barley capacity measures later. They have not arrived and are not part of present stock.', classification: 'spoken_claim' as const, obverse: false },
 ] as const;
 
-const WRITTEN_OBVERSE_IDS = EANNA_SOURCE_PACKET.filter((item) => item.obverse).map((item) => item.id);
+const WRITTEN_OBVERSE_IDS: readonly EannaSourceId[] = EANNA_SOURCE_PACKET.filter((item) => item.obverse).map((item) => item.id);
 const REQUESTS = { ninKasi: 12, gemeInana: 9, breadGroup: 8, offeringVessels: 6 } as const;
 const AVAILABLE = { barley: 18, beerVessels: 4 } as const;
 const DEFAULT_ALLOCATION = { ninKasiBarley: 10, gemeInanaBarley: 3, breadGroupBarley: 5, offeringBeerVessels: 4 } as const;
