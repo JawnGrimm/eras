@@ -227,10 +227,12 @@ describe('P2-2 authored Uruk Assignment activities', () => {
     expect(noCause.opportunities.challenges).toEqual({});
   });
 
-  it('records a neutral 24/23 reconciliation and triggers The Missing Measure without blaming Enlil-kisu', () => {
+  it('records a neutral 24/23 reconciliation and settles the authored one-Provision South-Court contract exactly once', () => {
     let state = generateDailyAssignments(createInitialGameState());
     const offer = Object.values(state.opportunities.assignments).find((item) => item.activityId === southCourtDeliveryReconciliation.id)!;
+    expect(offer.compensation).toMatchObject({ money: 5, provisions: 1 });
     state = accept(state, offer);
+    expect(state.opportunities.assignments[offer.id].compensation.provisions).toBe(1);
     const comparison = transitionAssignmentActivityAction(state, {
       type: 'PERFORM_ASSIGNMENT_ACTIVITY_ACTION', assignmentId: offer.id, actionId: 'delivery-compare-tablets',
     });
@@ -248,6 +250,26 @@ describe('P2-2 authored Uruk Assignment activities', () => {
       limitations: [], recommendations: ['retain_both_request_origin'], selectedLimitationIds: ['cause_unlocated','no_individual_blame','no_amend_authority'],
     });
     state = submit(state, offer.id);
+    const pendingCredits = state.dayClose.pendingCredits.filter((credit) =>
+      credit.source.kind === 'assignment' && credit.source.id === offer.id);
+    expect(pendingCredits).toHaveLength(1);
+    expect(pendingCredits[0]).toMatchObject({ money: 5, provisions: 1, status: 'pending' });
+    const closed = transitionGame(state, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber });
+    expect(closed.feedback?.code).toBe('evening-interlude-opened');
+    expect(closed.settlement?.assignmentProvisionsEarned).toBe(1);
+    const settlementId = closed.state.dayClose.pendingSettlementId!;
+    const begun = transitionGame(closed.state, { type: 'BEGIN_WORKDAY', expectedSettlementId: settlementId });
+    expect(begun.feedback?.code).toBe('workday-begun');
+    const credited = begun.state.dayClose.pendingCredits.filter((credit) =>
+      credit.source.kind === 'assignment' && credit.source.id === offer.id);
+    expect(credited).toHaveLength(1);
+    expect(credited[0]).toMatchObject({ money: 5, provisions: 1, status: 'credited', creditedBySettlementId: settlementId });
+    const duplicateBegin = transitionGame(begun.state, { type: 'BEGIN_WORKDAY', expectedSettlementId: settlementId });
+    expect(duplicateBegin.state).toBe(begun.state);
+    expect(getInitializedScribal(duplicateBegin.state.world.people[duplicateBegin.state.player.currentCharacterId])?.wallet.provisions)
+      .toBe(getInitializedScribal(begun.state.world.people[begun.state.player.currentCharacterId])?.wallet.provisions);
+    expect(getInitializedScribal(begun.state.world.people[begun.state.player.currentCharacterId])?.wallet.provisions).toBe(5);
+    state = begun.state;
     expect(state.opportunities.recentActivity.some((activity) =>
       activity.assignmentId === offer.id && activity.kind === 'completed')).toBe(true);
     const record = Object.values(state.records.entries).find((entry) => entry.title === 'South-Court Delivery Reconciliation');
