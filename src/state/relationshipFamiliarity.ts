@@ -95,6 +95,17 @@ export type AddFamiliarityEpisodeResult =
   | { ok: true; episodes: RelationshipFamiliarityEpisodeMap; inserted: boolean }
   | { ok: false; code: 'episode-invalid' | 'episode-conflict' };
 
+function canonicalEpisodePayload(episode: RelationshipFamiliarityEpisode): string {
+  const provenance = [...episode.provenance]
+    .map((source) => [source.kind, source.id])
+    .sort((a, b) => String(a[0]).localeCompare(String(b[0])) || String(a[1]).localeCompare(String(b[1])));
+  return JSON.stringify([
+    episode.observerPersonId, episode.subjectPersonId, episode.acquisitionMode, episode.interactionKind,
+    episode.occasionId, episode.matterId ?? null, episode.contextId, episode.stageContribution,
+    episode.dayNumber, provenance,
+  ]);
+}
+
 export function addRelationshipFamiliarityEpisode(
   episodes: RelationshipFamiliarityEpisodeMap,
   episode: RelationshipFamiliarityEpisode,
@@ -103,7 +114,7 @@ export function addRelationshipFamiliarityEpisode(
   if (!isRelationshipFamiliarityEpisode(episode, refs)) return { ok: false, code: 'episode-invalid' };
   const existing = episodes[episode.id];
   if (existing) {
-    return JSON.stringify(existing) === JSON.stringify(episode)
+    return canonicalEpisodePayload(existing) === canonicalEpisodePayload(episode)
       ? { ok: true, episodes, inserted: false }
       : { ok: false, code: 'episode-conflict' };
   }
