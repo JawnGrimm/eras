@@ -26,7 +26,13 @@ export interface AssignmentActivityActionDefinition {
   id: string; family: 'consult' | 'observe' | 'compare'; label: string; description: string;
   apCost: number; prerequisites?: string[]; discoveryIds: string[]; consultedPersonId?: PersonId; successMessage?: string;
 }
-export interface AssignmentActivityDiscoveryDefinition { id: string; title: string; text: string; sourcePersonId?: PersonId; sourceRecordId?: import('../../state/ids').RecordId; sourceEventId?: import('../../state/ids').EventId; sourceProvenanceId?: string; }
+export interface AssignmentActivityDiscoveryDefinition {
+  id: string; title: string; text: string;
+  /** Explicit point-of-examination provenance; labels describe access, never reliability. */
+  provenance?: { classification: 'PHYSICAL' | 'COPIED' | 'REPORTED'; explanation: string };
+  sourcePersonId?: PersonId; sourceRecordId?: import('../../state/ids').RecordId;
+  sourceEventId?: import('../../state/ids').EventId; sourceProvenanceId?: string;
+}
 export interface AssignmentActivityReportSchema {
   title: string;
   responsibilityLabel: string;
@@ -43,6 +49,7 @@ export interface AssignmentActivityEvaluation {
   relevantEvidenceIds: string[];
   relevantLimitationIds: string[];
   unsupportedFindingIds: string[];
+  incompleteFindingIds?: string[];
   unsupportedResponsibilityClaimIds: string[];
   unsupportedRecommendationIds?: string[];
   unsupportedFindingConditions?: Array<{ findingId: string; requiredEvidenceIds: string[] }>;
@@ -57,6 +64,8 @@ export interface AssignmentActivityDefinition {
   actions: AssignmentActivityActionDefinition[]; discoveries: AssignmentActivityDiscoveryDefinition[];
   interpretationRules: InterpretationRule[]; reportSchema: AssignmentActivityReportSchema; submissionNote?: string;
   evaluation?: AssignmentActivityEvaluation;
+  /** Modern editorial/reconstruction note; displayed separately from ancient evidence. */
+  historicalContextNote?: string;
   createInitialProgress(): AssignmentActivityProgress;
 }
 const interpretationRules: InterpretationRule[] = [
@@ -240,6 +249,9 @@ export function validateAssignmentActivityDefinition(definition: AssignmentActiv
   const discoveryIds = new Set<string>(definition.discoveries.map((item) => item.id));
   if (actionIds.size !== definition.actions.length) issues.push('Action IDs must be unique.');
   if (discoveryIds.size !== definition.discoveries.length) issues.push('Discovery IDs must be unique.');
+  if (definition.discoveries.some((item) => item.provenance && (!['PHYSICAL','COPIED','REPORTED'].includes(item.provenance.classification)
+    || !item.provenance.explanation.trim()))) issues.push('Discovery provenance must use a supported classification and non-empty explanation.');
+  if (definition.historicalContextNote !== undefined && !definition.historicalContextNote.trim()) issues.push('Historical context note must be non-empty when supplied.');
   if (definition.discoveries.some((item) => item.sourcePersonId && !definition.participants.includes(item.sourcePersonId))) issues.push('Discovery source PersonId must be an activity participant.');
   if (definition.discoveries.some((item) => item.sourceProvenanceId !== undefined && !item.sourceProvenanceId.trim())) issues.push('Discovery source provenance ID must be non-empty.');
   if (!definition.id || !definition.title || !Number.isInteger(definition.submissionApCost) || definition.submissionApCost < 1 || definition.submissionApCost > 6) issues.push('Activity identity and submission AP (1..6) are required.');
