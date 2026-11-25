@@ -120,6 +120,19 @@ The report becomes a Record that can inform subsequent institutional work. A lat
 
 ## 6. Historical and authoring controls
 
+### 6.1 Current COM-01 content mismatch — resolve before acceptance
+
+The current live definition in `src/content/assignments/eraIAnchors.ts` does not yet match the approved instructional packet:
+
+- The discovery is titled **“Tag transcription”**, not a physical receiving tag examined directly.
+- The current packet contains authored vessel and textile quantities and a numerical discrepancy. These do not satisfy the approved constraint against authored quantities or numeral-system assumptions.
+- The current packet does not present the distinct handover account as REPORTED information in the requested sequence.
+
+These are content/behavioral mismatches, not merely missing UI labels. Production must not treat the existing discoveries as a completed implementation of GD-ERA1-COM-01. Design HQ and Historical Research must align the authored packet with the approved sequence: a physical tag, a copied receiving entry, and a separately identified reported handover account; compare only identifying information supported by those sources. Remove the authored quantities from this instructional evidence packet. Do not invent replacement numbers, readings, dates, or a numerical discrepancy.
+
+This audit note does not authorize Production to fabricate a physical artifact, source history, or historical procedure. The historical status of each represented item and the exact wording of the handover account must be reviewed before the content is accepted.
+
+
 - Historical Research validates the terms used for tags, receiving entries, handover accounts, copies, and any contextual reconstruction.
 - Do not imply that modern documentary categories were named or administered exactly this way in Uruk. These are player-facing provenance labels describing the player's access to evidence.
 - Distinguish attested evidence, historical interpretation, reconstruction, and fictional scenario details.
