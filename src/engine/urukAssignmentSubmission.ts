@@ -50,7 +50,7 @@ function relationship(
   summary: string,
 ): GameState['world']['relationships'] {
   const current = state.world.relationships[fromId]?.[toId];
-  const dimensions = { trust: 50, respect: 50, affection: 50, resentment: 0, rivalry: 0, familiarity: 0, ...current?.dimensions };
+  const dimensions = { trust: 50, respect: 50, affection: 50, resentment: 0, rivalry: 0, ...current?.dimensions };
   dimensions.trust = Math.max(0, Math.min(100, dimensions.trust + trust));
   dimensions.respect = Math.max(0, Math.min(100, dimensions.respect + respect));
   return {
