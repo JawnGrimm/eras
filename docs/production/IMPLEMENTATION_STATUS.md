@@ -431,7 +431,7 @@ The South-Court +1 Provision correction is merged. Responsibility claims remain 
 - No Relationship Familiarity runtime code, schema-v4 migration, or save rewrite has been committed yet.
 
 
-## Production execution update — 25 November 2026
+## Production execution update — 24 November 2026
 
 ### GD-RELATIONSHIP-FAMILIARITY-001 — runtime implementation in review
 
