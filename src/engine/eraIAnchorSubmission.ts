@@ -83,7 +83,7 @@ export function submitRubricAssignmentActivity(
         ...(sourcePersonId ? { sourceId: sourcePersonId }
           : sourceEventId ? { sourceId: sourceEventId }
           : sourceRecordId ? { sourceId: sourceRecordId } : {}),
-        description: `${item.title}: ${item.text}`,
+        description: `${item.title}${item.provenance ? ` [${item.provenance.classification}]` : ''}: ${item.text}${item.provenance ? ` Provenance: ${item.provenance.explanation}` : ''}`,
       };
     }),
   ];
