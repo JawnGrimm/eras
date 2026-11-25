@@ -12,4 +12,9 @@ describe('authored responsibility-claim preview', () => {
     expect(responsibilityClaimPreviewLabel(options, 'none')).toBe('No individual responsibility assigned');
     expect(responsibilityClaimPreviewLabel(options, 'carrier_blame')).toBe('Assign the discrepancy to the carrier');
   });
+
+  it('falls back to an authored neutral label when a saved selection is unavailable', () => {
+    expect(responsibilityClaimPreviewLabel(options, 'removed_legacy_claim')).toBe('No individual responsibility assigned');
+    expect(responsibilityClaimPreviewLabel([], 'removed_legacy_claim')).toBe('No responsibility claim recorded');
+  });
 });
