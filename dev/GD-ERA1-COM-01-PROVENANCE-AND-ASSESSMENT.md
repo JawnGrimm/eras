@@ -1,7 +1,7 @@
 # GD-ERA1-COM-01 — Provenance Disclosure and Supervisory Assessment
 
-**Provenance disclosure:** APPROVED · Design direction by Game Director  
-**Supervisory assessment:** APPROVED · READY FOR IMPLEMENTATION · Game Director approval, 25 Nov 2026  
+**Provenance disclosure:** APPROVED · IMPLEMENTED · TESTED · DEPLOYED  
+**Supervisory assessment:** APPROVED · IMPLEMENTED · TESTED · DEPLOYED · Game Director approval, 25 Nov 2026  
 **Scope:** First Assignment instructional sequence; Utu-mansum's assessment of the submitted comparison  
 **Authority:** Game Director direction supplied 25 November 2026; canonical boundaries in `docs/GDD.md`, especially §§2.9, 3.5, 5, and 22  
 **Handoff:** Production owns the evidence metadata schema, UI implementation, deterministic evaluation integration, persistence, and tests. This document does not prescribe TypeScript interfaces or save structure.
@@ -120,7 +120,7 @@ The report becomes a Record that can inform subsequent institutional work. A lat
 
 ## 6. Historical and authoring controls
 
-### 6.1 COM-01 content alignment — IMPLEMENTED IN BRANCH; historical review recorded
+### 6.1 COM-01 content alignment — IMPLEMENTED · TESTED · DEPLOYED; manual playtest pending
 
 The initial COM-01 packet has been reauthored in `src/content/assignments/eraIAnchors.ts` to match the approved instructional sequence:
 
@@ -138,7 +138,7 @@ Sources:
 
 The scenario remains fictional and does not reproduce a named excavated object or tablet. The historical/context note is not another ancient evidence item. The COM-01 activity now requires explicit provenance metadata on every discovery; the shared UI renders each classification and explanation at examination.
 
-**Historical Research review — COMPLETED for this content slice:** the physical tag's general form is supported by published Late Chalcolithic/Uruk IV–III evidence. The specific tag, copied receiving entry, carrier's statement, participants' interaction, and custody relationship are explicitly fictional. “Receiving tag” is player-facing wording only; no attested Uruk category, standardized receiving procedure, or historical transaction is claimed. The Assignment still requires implementation CI and normal in-game/manual playtesting before it can be marked VERIFIED.
+**Historical Research review — COMPLETED for this content slice:** the physical tag's general form is supported by published Late Chalcolithic/Uruk IV–III evidence. The specific tag, copied receiving entry, carrier's statement, participants' interaction, and custody relationship are explicitly fictional. “Receiving tag” is player-facing wording only; no attested Uruk category, standardized receiving procedure, or historical transaction is claimed. Implementation CI and post-merge deployment succeeded. Normal in-game/manual playtesting remains before the Assignment can be marked VERIFIED.
 
 
 - Historical Research validates the terms used for tags, receiving entries, handover accounts, copies, and any contextual reconstruction.
@@ -174,7 +174,7 @@ The scenario remains fictional and does not reproduce a named excavated object o
 
 ## 8. Production handoff boundary
 
-### 8.1 Provenance disclosure — APPROVED · IMPLEMENTED IN PR #131
+### 8.1 Provenance disclosure — APPROVED · IMPLEMENTED · TESTED · DEPLOYED
 
 The Game Director approved provenance disclosure independently of the supervisory-assessment decision. Production has implemented explicit PHYSICAL, COPIED, and REPORTED metadata and point-of-examination explanations for the new COM-01 activity and its compatibility-only legacy definition. Reconstructed context is displayed separately. Provenance is also retained in submitted Record source descriptions and shown alongside cited evidence content in the Closing Receipt.
 
@@ -184,7 +184,7 @@ Production implementation decisions:
 - No persisted state or save-envelope schema change. The old activity definition remains registered under its original ID for existing offers/saves; new offers use the revised activity ID. No migration is required.
 - Automated coverage for provenance completeness, classification neutrality, reconstructed-context separation, closeout disclosure, and legacy-save validation.
 
-### 8.2 Supervisory assessment — APPROVED · IMPLEMENTED IN PR #131
+### 8.2 Supervisory assessment — APPROVED · IMPLEMENTED · TESTED · DEPLOYED
 
 The Game Director approved the supervisory-assessment behavior on 25 November 2026, including the material-completeness clarification: a complete, correctly bounded comparison is Thorough; a correct bounded comparison with a non-material secondary omission is Defensible; an omission that prevents a usable comparison or loses a material limitation is Incomplete. Production has integrated these thresholds with the existing deterministic assessment and Closing Receipt. Focused tests cover all four categories, the Thorough/Defensible/Incomplete boundary, provenance neutrality, and the official's authority limits.
 
