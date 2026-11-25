@@ -307,12 +307,14 @@ describe('Storehouse Reckoning introductory tutorial', () => {
     };
     const legacyEnvelope = JSON.parse(JSON.stringify(createSaveEnvelope(legacyState, 7, '2026-11-22T12:00:00.000Z')));
     legacyEnvelope.schemaVersion = 2;
+    delete legacyEnvelope.state.world.relationshipFamiliarityEpisodes;
+    for (const targets of Object.values(legacyEnvelope.state.world.relationships)) for (const relationship of Object.values(targets) as any[]) relationship.dimensions.familiarity = 0;
     delete legacyEnvelope.state.dayClose;
     delete legacyEnvelope.state.opportunities.selectionSeed;
     delete legacyEnvelope.state.opportunities.occurrenceLedger;
     const restored = restoreSave(JSON.stringify(legacyEnvelope), catalog);
     expect(restored).not.toBeNull();
-    expect(restored?.schemaVersion).toBe(3);
+    expect(restored?.schemaVersion).toBe(4);
     expect(restored?.state.historicalProgression.historicalXp).toBe(0);
     expect(restored?.state.historicalProgression.completedWorks).toEqual([]);
     expect(restored?.state.calendar.displayDate).toBe('Day 47 · Uruk (c. 3200 BCE)');
