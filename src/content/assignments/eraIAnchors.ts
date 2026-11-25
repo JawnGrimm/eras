@@ -33,7 +33,7 @@ const rationales = (complete: string, defensible: string, incomplete: string, ov
 });
 export const sealedVesselTextileConsignment = activity({
   id: 'activity-era1-com-01-sealed-consignment',
-  title: 'Sealed Vessel and Textile Consignment',
+  title: 'Receiving-Tag and Handover Comparison',
   submissionApCost: 1,
   participants: [people.steward, people.receiver, people.carrier, people.senior],
   discoveries: [
@@ -41,10 +41,10 @@ export const sealedVesselTextileConsignment = activity({
       text: 'Utu-mansum asks for a careful comparison before the receiving work moves on. He wants the tag, the receiving entry, and any account of the handover kept distinct.',
       provenance: { classification: 'REPORTED', explanation: 'The receiving official explains what he needs; this is his request, not an observation of the handover.' } },
     { id: 'com01-tag', title: 'Physical receiving tag',
-      text: 'A small baked-clay tag, pierced lengthwise, is present for direct examination. It bears a small number of signs. The marks are not transcribed or interpreted in this exercise; do not infer a commodity, quantity, or transaction from them.',
+      text: 'A small baked-clay tag, pierced lengthwise, is present for direct examination. It bears signs. The marks are not transcribed or interpreted in this exercise; do not infer a commodity, quantity, or transaction from them.',
       provenance: { classification: 'PHYSICAL', explanation: 'The clay object itself is available for direct examination.' } },
     { id: 'com01-receipt', title: 'Copied receiving entry',
-      text: 'This documentary copy describes an accompanying tag as a pierced clay piece bearing a small number of signs. The original entry is not available for direct examination. The copy records that description; it does not establish what happened after the entry was made.',
+      text: 'This documentary copy describes an accompanying tag as a pierced clay piece bearing signs. The original entry is not available for direct examination. The copy records that description; it does not establish what happened after the entry was made.',
       provenance: { classification: 'COPIED', explanation: 'Documentary copy examined; the original receiving entry is not directly available.' } },
     { id: 'com01-handover-account', title: 'Carrier’s handover account',
       text: 'Enlil-kisu says the tag remained with the consignment until it reached the receiving court. He gives the carrier’s account of the handover; the player did not witness it, and his statement alone does not independently establish whether the tag remained attached at receipt.',
