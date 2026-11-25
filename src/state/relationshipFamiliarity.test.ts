@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { EventId, PersonId } from './ids';
+import type { EventId, PersonId, RecordId } from './ids';
 import {
   addRelationshipFamiliarityEpisode,
   deriveRelationshipFamiliarityStage,
@@ -69,6 +69,22 @@ describe('relationship familiarity episodes', () => {
   it('requires a typed Event or Record source and rejects self-pairs', () => {
     expect(addRelationshipFamiliarityEpisode({}, episode({ provenance: [] }))).toEqual({ ok: false, code: 'episode-invalid' });
     expect(addRelationshipFamiliarityEpisode({}, episode({ subjectPersonId: observer }))).toEqual({ ok: false, code: 'episode-invalid' });
+  });
+
+  it('accepts a Record whose author and typed person source support the named pair', () => {
+    const recordId = 'record-shared-observation' as RecordId;
+    const first = episode({ provenance: [{ kind: 'record', id: recordId }] });
+    const result = addRelationshipFamiliarityEpisode({}, first, {
+      people: { [observer]: {}, [subject]: {} },
+      records: {
+        [recordId]: {
+          createdDay: first.dayNumber, authorPersonId: observer,
+          sources: [{ kind: 'person', sourceId: subject }], amendments: [],
+        },
+      },
+      currentDay: first.dayNumber,
+    });
+    expect(result.ok).toBe(true);
   });
 
   it('rejects an Event that does not evidence both named people', () => {
