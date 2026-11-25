@@ -78,13 +78,13 @@ export const era1ComF02TwoClaims = activity({
       text: 'The Temple Storehouse request names timber for the north-bay repair. It establishes the Storehouse’s stated need and the wording recorded in that request, not priority over another claimant.',
       sourceProvenanceId: 'comf02-storehouse-request' },
     { id: 'f02-household-request', title: 'Textile household request and sealing',
-      text: 'Geme-Inana’s household request names timber for work-frames and bears a sealing. The sealing establishes that a seal was impressed; it does not by itself establish that its holder had authority to commit this load.',
+      text: 'Geme-Inana’s household request names timber for work-frames and bears a sealing. The seal shows that an impression was made. Lu-Nanshe still needs to decide whether either claimant was authorized to commit the load.',
       sourceProvenanceId: 'comf02-household-request' },
     { id: 'f02-delivery-record', title: 'Delivery receipt and tag',
       text: 'The delivery receipt records a small load of timber arriving at the receiving court. The tag and receipt establish what was recorded about the delivered load; neither chooses which request is entitled to it.',
       sourceProvenanceId: 'comf02-delivery-receipt' },
     { id: 'f02-carrier-account', title: 'Kuli’s account',
-      text: 'Kuli gives an account of the delivery instruction he received. His testimony is separately attributed and does not establish either claimant’s authority or good faith.',
+      text: 'Kuli says what instruction he received. The two claimants still need their own accounts compared before Lu-Nanshe decides priority.',
       sourceProvenanceId: 'comf02-carrier-account' },
   ],
   actions: [
@@ -129,7 +129,7 @@ export const era1ComF02TwoClaims = activity({
     limitationOptions: [
       { id: 'sealing_not_authority', label: 'The sealing proves an impression, not the holder’s authority to commit the load' },
       { id: 'records_not_entitlement', label: 'The requests and delivery record do not themselves establish entitlement' },
-      { id: 'no_allocation_authority', label: 'The scribe does not allocate the load or decide priority' },
+      { id: 'no_allocation_authority', label: 'Lu-Nanshe decides which claimant receives the load; the apprentice summarizes both claims' },
     ],
   },
   evaluation: {
@@ -173,10 +173,10 @@ export const era1ComF03PartialReturn = activity({
       text: 'Geme-Inana says the goods went out on the understanding that goods of another kind would come back. The agreement is present in her spoken account; no written equivalence is available.',
       sourceProvenanceId: 'comf03-geme-account' },
     { id: 'f03-kuli-account', title: 'Kuli’s account of the next trip',
-      text: 'Kuli says the remainder will follow on the next trip. This is an attributed statement, not a written promise or proof that a default has occurred.',
+      text: 'Kuli says the remainder will follow on the next trip. Geme-Inana is still waiting; the next receipt will show whether it arrives.',
       sourceProvenanceId: 'comf03-kuli-account' },
     { id: 'f03-enlil-recollection', title: 'Enlil-kisu’s recollection',
-      text: 'Enlil-kisu recalls the outbound carrying and can speak to what he carried. His recollection does not establish the terms of the oral exchange.',
+      text: 'Enlil-kisu remembers carrying the goods out. He cannot settle what was promised in the exchange; the two parties must compare their accounts.',
       sourceProvenanceId: 'comf03-enlil-recollection' },
   ],
   actions: [
@@ -217,7 +217,7 @@ export const era1ComF03PartialReturn = activity({
     limitationOptions: [
       { id: 'no_written_equivalence', label: 'No written equivalence between sent and returned goods is available' },
       { id: 'oral_agreement_unverified', label: 'The agreement is described orally and is not independently established by a record' },
-      { id: 'no_default_or_liability', label: 'The partial return does not establish default or individual liability' },
+      { id: 'no_default_or_liability', label: 'The partial return is recorded; Geme-Inana decides her next step, and the account does not name a person at fault' },
     ],
   },
   evaluation: {
@@ -263,7 +263,7 @@ export const era1ComF04CustodyChain = activity({
       text: 'The receiving record notes that one vessel arrived cracked. The condition note exists at receipt; it does not establish when or how the damage occurred.',
       sourceProvenanceId: 'comf04-receiving-tally' },
     { id: 'f04-sig-ana-account', title: 'Sig-ana’s account',
-      text: 'Sig-ana says she saw part of the landing handover. Her account may guide a further check, but it does not establish the exact contents or condition of every vessel.',
+      text: 'Sig-ana says she saw part of the landing handover. Her account gives the next check a place to begin, but not the condition of every vessel.',
       sourceProvenanceId: 'comf04-sig-ana-account' },
   ],
   actions: [
@@ -306,7 +306,7 @@ export const era1ComF04CustodyChain = activity({
     limitationsLabel: 'Custody and condition limits',
     limitationOptions: [
       { id: 'tallies_show_counts_only', label: 'The tallies show what was counted at each handover, not what happened between them' },
-      { id: 'condition_not_cause', label: 'The receiving condition note does not establish when or how the vessel cracked' },
+      { id: 'condition_not_cause', label: 'The vessel was cracked when received; the record gives no earlier condition to compare' },
       { id: 'no_individual_fault', label: 'The available sources do not establish individual fault or negligence' },
     ],
   },
