@@ -165,7 +165,7 @@ export function createInitialGameState(player?: Person, opportunitySeed = 'era1-
     {
       id: ERA1_COM_F02_F04_PEOPLE.sigAna, name: 'Sig-ana', alive: true, affiliations: [],
       currentLocationId: RIVER_LANDING_LOCATION_ID, lifeStage: 'craft_practitioner' as const,
-      socialIdentity: { occupation: 'Witness (provisional)', summary: 'A witness who observed part of a consignment handover.' },
+      socialIdentity: { occupation: 'Witness', summary: 'A witness who observed part of a consignment handover.' },
     },
   ];
   const people: Record<PersonId, Person> = {
