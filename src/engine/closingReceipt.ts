@@ -102,6 +102,7 @@ export function applyClosingAssessment(state: GameState, input: {
               id: input.receiptId + ':receiver-relationship',
               dayNumber: state.calendar.dayNumber,
               summary: input.reaction,
+              eventId,
             }],
           },
         },
