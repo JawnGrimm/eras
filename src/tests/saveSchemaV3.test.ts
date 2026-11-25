@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
-import { isValidSaveEnvelope, isValidV2SaveEnvelope, restoreSave } from '../state/saveEnvelope';
+import { isValidSaveEnvelope, isValidV2SaveEnvelope, isValidV3SaveEnvelope, restoreSave } from '../state/saveEnvelope';
 import type { ChallengeId } from '../state/ids';
 import type { ChallengeInstance, GameState } from '../state/types';
 
@@ -46,6 +46,8 @@ function legacyV2State(): GameState {
 
 function asV2Envelope(state: GameState, revision = 4) {
   const legacyState = structuredClone(state) as unknown as Record<string, any>;
+  for (const targets of Object.values(legacyState.world.relationships) as any[]) for (const relationship of Object.values(targets) as any[]) relationship.dimensions.familiarity = 0;
+  delete legacyState.world.relationshipFamiliarityEpisodes;
   delete legacyState.dayClose;
   delete legacyState.opportunities.selectionSeed;
   delete legacyState.opportunities.occurrenceLedger;
@@ -58,7 +60,7 @@ function asV2Envelope(state: GameState, revision = 4) {
   };
 }
 
-describe('schema v3 migration and state validation', () => {
+describe('schema v4 migration and state validation', () => {
   it('migrates a valid v2 save without changing its saved career data', () => {
     const legacy = asV2Envelope(legacyV2State());
     expect(isValidV2SaveEnvelope(legacy)).toBe(true);
@@ -67,7 +69,7 @@ describe('schema v3 migration and state validation', () => {
     const restored = restoreSave(raw);
 
     expect(restored).not.toBeNull();
-    expect(restored?.schemaVersion).toBe(3);
+    expect(restored?.schemaVersion).toBe(4);
     expect(restored?.revision).toBe(4);
     expect(restored?.state.player.currentCharacterId).toBe(INITIAL_PERSON_ID);
     expect(restored?.state.calendar.dayNumber).toBe(1);
@@ -100,6 +102,28 @@ describe('schema v3 migration and state validation', () => {
     expect(isValidV2SaveEnvelope(restored)).toBe(false);
   });
 
+  it('migrates a valid v3 save to v4 without deriving episodes from legacy familiarity or history', () => {
+    const state = createInitialGameState();
+    const fromId = Object.keys(state.world.relationships)[0] as keyof typeof state.world.relationships;
+    const toId = Object.keys(state.world.relationships[fromId] ?? {})[0] as keyof typeof state.world.people;
+    const relationship = state.world.relationships[fromId]?.[toId];
+    expect(relationship).toBeDefined();
+    const legacyState = structuredClone(state) as unknown as Record<string, any>;
+    legacyState.world.relationships[fromId][toId].dimensions.familiarity = 73;
+    delete legacyState.world.relationshipFamiliarityEpisodes;
+    const legacy = {
+      schemaVersion: 3, gameVersion: '0.1.0', revision: 9,
+      savedAt: '2026-11-24T12:00:00.000Z', state: legacyState,
+    };
+    expect(isValidV3SaveEnvelope(legacy)).toBe(true);
+    const restored = restoreSave(JSON.stringify(legacy));
+    expect(restored?.schemaVersion).toBe(4);
+    expect(restored?.state.world.relationshipFamiliarityEpisodes).toEqual({});
+    expect(restored?.state.world.relationships[fromId]?.[toId]?.dimensions).not.toHaveProperty('familiarity');
+    expect(restored?.state.world.relationships[fromId]?.[toId]?.history).toEqual(relationship?.history ?? []);
+    expect(isValidSaveEnvelope(restored)).toBe(true);
+  });
+
   it('derives the same migration seed from the exact same v2 bytes and a different seed from different bytes', () => {
     const firstRaw = JSON.stringify(asV2Envelope(createInitialGameState(), 1));
     const secondRaw = JSON.stringify(asV2Envelope(createInitialGameState(), 2));
@@ -130,7 +154,7 @@ describe('schema v3 migration and state validation', () => {
         dayClose: { ...state.dayClose, phase: 'interlude_open', pendingSettlementId: 'era-1:2' },
       },
     };
-    expect(isValidSaveEnvelope(envelope)).toBe(false);
+    expect(isValidV3SaveEnvelope(envelope)).toBe(false);
 
     const invalidOccurrence = {
       ...envelope,
@@ -147,6 +171,6 @@ describe('schema v3 migration and state validation', () => {
         },
       },
     };
-    expect(isValidSaveEnvelope(invalidOccurrence)).toBe(false);
+    expect(isValidV3SaveEnvelope(invalidOccurrence)).toBe(false);
   });
 });
