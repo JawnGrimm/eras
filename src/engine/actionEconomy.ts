@@ -7,6 +7,7 @@ import { transitionWorldAction } from './worldSocial';
 import { settleAssignmentOffers, transitionOpportunityAction } from './opportunities';
 import { transitionAssignmentActivityAction } from './assignmentActivity';
 import { validateWorkDefinition } from '../works/workDefinition';
+import { evaluateCharacterPredicate } from '../works/evidenceInterpretation';
 import { transitionCharacterContinuity } from './characterContinuity';
 import { advanceInstitutionalMatters } from './institutionalMatters';
 import { advanceInstitutionalResponses } from './institutionalResponseLifecycle';
@@ -43,6 +44,39 @@ function progressMatchesDefinition(definition: WorkDefinition<any>, progress: Wo
     && progress.completedActionIds.every((id) => definition.actions.some((item) => item.id === id));
 }
 
+function handoffPreservedWork(state: GameState, workId: WorkId, workCatalog: Readonly<Record<string, WorkDefinition<any>>>, acceptingInvitation = false): TransitionResult {
+  const person = state.world.people[state.player.currentCharacterId];
+  const preserved = (state.works.preservedUndertakings ?? []).find((item) => item.workId === workId && item.status === 'waiting');
+  const definition = workCatalog[workId];
+  const progress = state.works.progress[workId];
+  const institutionId = preserved?.institutionId;
+  const scribal = getInitializedScribal(person);
+  if (!person || !scribal || !preserved || preserved.successorCharacterId !== person.id
+    || !institutionId || !state.world.institutions[institutionId]
+    || !definition || definition.kind !== 'work' || !isValidWorkDefinition(definition)
+    || !progress || progress.status !== 'active' || state.works.activeWorkId !== null
+    || (preserved.invitation && !acceptingInvitation)
+    || (preserved.invitationResponse === 'declined')
+    || (acceptingInvitation && (!preserved.invitation || preserved.invitationResponse !== undefined))) {
+    return { state, feedback: feedback('error', 'preserved-work-handoff-invalid', 'This preserved undertaking cannot be taken up until its Work, institutional custody, saved progress, and required invitation response are valid.') };
+  }
+  const eventId = `event-work-handoff-${state.calendar.dayNumber}-${String(workId)}-${String(person.id)}` as EventId;
+  if (state.world.events[eventId]) return { state, feedback: feedback('error', 'preserved-work-handoff-recorded', 'This explicit handoff has already been recorded.') };
+  const institution = state.world.institutions[institutionId];
+  const handoff = { workId, institutionId, formerCharacterId: preserved.deceasedCharacterId,
+    successorCharacterId: person.id, dayNumber: state.calendar.dayNumber, eventId };
+  const event = { id: eventId, dayNumber: state.calendar.dayNumber,
+    summary: `${institution.name} explicitly entrusted ${definition.title} to ${person.name} after the successor chose to take up the preserved undertaking. Earlier contribution remains attributed to ${state.world.people[preserved.deceasedCharacterId]?.name ?? 'the former contributor'}.`,
+    personIds: [preserved.deceasedCharacterId, person.id], institutionIds: [institutionId] };
+  const preservedUndertakings = (state.works.preservedUndertakings ?? []).map((item) => item.workId === workId
+    ? { ...item, status: 'taken_up' as const, takenUpDay: state.calendar.dayNumber,
+        ...(item.invitation ? { invitationResponse: 'accepted' as const } : {}) } : item);
+  return { state: { ...state, works: { ...state.works, activeWorkId: workId, preservedUndertakings,
+      handoffHistory: [...(state.works.handoffHistory ?? []), handoff] },
+      world: { ...state.world, events: { ...state.world.events, [eventId]: event } } },
+    feedback: feedback('success', 'preserved-work-taken-up', `${definition.title} is now an explicit undertaking of ${person.name}.`) };
+}
+
 function displayDate(dayNumber: number): string {
   return `Day ${dayNumber} · Uruk (c. 3200 BCE)`;
 }
@@ -75,30 +109,44 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
   }
 
   switch (action.type) {
-    case 'TAKE_UP_PRESERVED_WORK': {
+    case 'TAKE_UP_PRESERVED_WORK':
+      return handoffPreservedWork(state, action.workId, workCatalog);
+    case 'RESPOND_PRESERVED_WORK_INVITATION': {
       const preserved = (state.works.preservedUndertakings ?? []).find((item) => item.workId === action.workId && item.status === 'waiting');
       const definition = workCatalog[action.workId];
-      const progress = state.works.progress[action.workId];
+      const invitation = definition?.successionInvitation;
+      const person = state.world.people[state.player.currentCharacterId];
+      const scribal = getInitializedScribal(person);
       const institutionId = preserved?.institutionId;
-      if (!preserved || !institutionId || !state.world.institutions[institutionId]
-        || !definition || definition.kind !== 'work' || !isValidWorkDefinition(definition)
-        || !progress || progress.status !== 'active' || state.works.activeWorkId !== null) {
-        return { state, feedback: feedback('error', 'preserved-work-handoff-invalid', 'This preserved undertaking cannot be taken up until its Work, institutional custody, and saved progress are available.') };
+      const institution = institutionId ? state.world.institutions[institutionId] : undefined;
+      if (!preserved || !preserved.invitation || !definition || definition.kind !== 'work'
+        || !invitation || !person || !scribal || preserved.successorCharacterId !== person.id
+        || preserved.invitationResponse !== undefined || !institution || !institutionId
+        || !invitation.connectionTiers.includes(preserved.invitation.connectionTier)) {
+        return { state, feedback: feedback('error', 'work-succession-invitation-unavailable', 'There is no valid pending institutional invitation for this character.') };
       }
-      const eventId = `event-work-handoff-${state.calendar.dayNumber}-${String(action.workId)}-${String(person.id)}` as EventId;
-      if (state.world.events[eventId]) return { state, feedback: feedback('error', 'preserved-work-handoff-recorded', 'This explicit handoff has already been recorded.') };
-      const institution = state.world.institutions[institutionId];
-      const handoff = { workId: action.workId, institutionId, formerCharacterId: preserved.deceasedCharacterId,
-        successorCharacterId: person.id, dayNumber: state.calendar.dayNumber, eventId };
-      const event = { id: eventId, dayNumber: state.calendar.dayNumber,
-        summary: `${institution.name} explicitly entrusted ${definition.title} to ${person.name} after the successor chose to take up the preserved undertaking. Earlier contribution remains attributed to ${state.world.people[preserved.deceasedCharacterId]?.name ?? 'the former contributor'}.`,
-        personIds: [preserved.deceasedCharacterId, person.id], institutionIds: [institutionId] };
-      const preservedUndertakings = (state.works.preservedUndertakings ?? []).map((item) => item.workId === action.workId
-        ? { ...item, status: 'taken_up' as const, takenUpDay: state.calendar.dayNumber } : item);
-      return { state: { ...state, works: { ...state.works, activeWorkId: action.workId, preservedUndertakings,
-        handoffHistory: [...(state.works.handoffHistory ?? []), handoff] },
-        world: { ...state.world, events: { ...state.world.events, [eventId]: event } } },
-        feedback: feedback('success', 'preserved-work-taken-up', `${definition.title} is now an explicit undertaking of ${person.name}.`) };
+      if (action.response === 'decline') {
+        const preservedUndertakings = (state.works.preservedUndertakings ?? []).map((item) => item.workId === action.workId
+          ? { ...item, invitationResponse: 'declined' as const } : item);
+        const notice = { id: `notice-work-invitation-declined-${String(action.workId)}-${state.calendar.dayNumber}`,
+          dayNumber: state.calendar.dayNumber, category: 'work' as const,
+          message: `${person.name} declined ${institution.name}'s invitation to take up ${definition.title}. The undertaking and its progress remain preserved; no handoff occurred.`, read: false };
+        return { state: { ...state, works: { ...state.works, preservedUndertakings },
+          journal: { ...state.journal, notices: [...state.journal.notices, notice] } },
+          feedback: feedback('success', 'work-succession-invitation-declined', 'The invitation was declined. The undertaking and its progress remain preserved.') };
+      }
+      const appointments = Object.values(state.world.appointments).filter((appointment) =>
+        appointment.personId === person.id && appointment.institutionId === institutionId
+          && appointment.startDay <= state.calendar.dayNumber
+          && (appointment.endDay === undefined || appointment.endDay >= state.calendar.dayNumber));
+      const hasAccess = person.affiliations.includes(institutionId) || appointments.length > 0;
+      const hasAuthority = institution.authority.includes(invitation.authorityScope)
+        || appointments.some((appointment) => appointment.authorityScope.includes(invitation.authorityScope));
+      const stillQualified = evaluateCharacterPredicate(invitation.qualification, scribal);
+      if (!hasAccess || !hasAuthority || !stillQualified) {
+        return { state, feedback: feedback('error', 'work-succession-invitation-requirements-changed', 'The successor no longer meets the documented qualification, access, or authority basis. The invitation remains pending and no handoff occurred.') };
+      }
+      return handoffPreservedWork(state, action.workId, workCatalog, true);
     }
     case 'AWARD_SKILL_XP':
     case 'AWARD_CAREER_XP':
