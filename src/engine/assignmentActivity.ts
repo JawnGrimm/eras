@@ -101,7 +101,7 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
     return submitNorthBayPostExecutionInspection(state, offer, definition, progress)
       ?? fail(state, 'assignment-activity-resolver-missing', 'No post-execution inspection resolver is registered.');
   }
-  if (definition.evaluation && offer.activityId?.startsWith('activity-era1-')) {
+  if (definition.evaluation && (offer.activityId?.startsWith('activity-era1-') || offer.activityId === 'activity-tierb-recurring-institutional-check')) {
     return submitRubricAssignmentActivity(state, offer, definition, progress)
       ?? fail(state, 'assignment-activity-resolver-missing', 'No rubric-based report resolver is registered.');
   }
