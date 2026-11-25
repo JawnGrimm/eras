@@ -18,7 +18,6 @@ const PEOPLE = {
   gemeInana: ERA1_COM_F02_F04_PEOPLE.gemeInana,
   enlilKisu: ERA1_COM_F02_F04_PEOPLE.enlilKisu,
   ninKasi: STOREHOUSE_PEOPLE.brewingRepresentative,
-  player: undefined as PersonId | undefined,
 } as const;
 
 export const EANNA_SOURCE_IDS = [
@@ -83,6 +82,8 @@ export function validateEannaScenario(value: unknown): value is EannaScenarioDat
     !Number.isSafeInteger(proposal[key]) || (proposal[key] as number) < 0)) return false;
   return true;
 }
+
+interface EannaEvaluation { sourceSorting: boolean; obverse: boolean; allocation: boolean; finalCheck: boolean; retrospective: boolean; }
 
 function proposalIsWithinAvailable(progress: EannaScenarioData): boolean {
   const p = progress.proposal;
@@ -224,7 +225,7 @@ export const eannaProvisioningWork = defineWork<EannaScenarioData>({
     retrospective: dayNumber > 38,
   }),
   assessSubmission: (submission) => {
-    const result = submission as ReturnType<typeof eannaProvisioningWork['evaluateSubmission']>;
+    const result = submission as EannaEvaluation;
     const sorting = result.sourceSorting;
     const obverse = result.obverse;
     const allocation = result.allocation;
