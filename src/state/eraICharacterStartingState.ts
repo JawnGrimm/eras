@@ -22,13 +22,14 @@ export const ERA_I_CURATED_SAMPLE_NAMES = [
 ] as const;
 
 /**
- * QA-82-3: keep source-authored sign/catalog notation in provenance, not in the
- * player-facing sample picker. The multiplication sign is the catalog
- * notation marker in the current curated set; this does not rename or delete
- * the underlying source entry.
+ * Keep source-authored sign/catalog notation in provenance, not in the player
+ * picker. Active NPC names are also excluded from player-character samples.
+ * This does not rename or delete any underlying source entry.
  */
+export const ERA_I_ACTIVE_NPC_NAME_FORMS = ['Ena-an-ru', 'DIMₐ'] as const;
+
 export const ERA_I_AVAILABLE_SAMPLE_NAMES = ERA_I_CURATED_SAMPLE_NAMES.filter(
-  (item) => !item.name.includes('×'),
+  (item) => !item.name.includes('×') && !ERA_I_ACTIVE_NPC_NAME_FORMS.includes(item.name as typeof ERA_I_ACTIVE_NPC_NAME_FORMS[number]),
 );
 
 const INVISIBLE_CONTROL_CHARACTERS = /[\u0000-\u001F\u007F-\u009F\u202A-\u202E\u2066-\u2069]/u;

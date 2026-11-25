@@ -6,6 +6,7 @@ import {
   ERA_I_CHARACTER_STARTING_STATE_VERSION,
   ERA_I_CURATED_SAMPLE_NAMES,
   ERA_I_AVAILABLE_SAMPLE_NAMES,
+  ERA_I_ACTIVE_NPC_NAME_FORMS,
   resolveEraICharacterStartingState,
   validateEraICharacterName,
 } from './eraICharacterStartingState';
@@ -98,18 +99,19 @@ describe('Era I character name policy', () => {
   it('withholds raw catalog-notation names from the player picker without changing source provenance', () => {
     expect(ERA_I_CURATED_SAMPLE_NAMES).toHaveLength(8);
     expect(ERA_I_CURATED_SAMPLE_NAMES.some((item) => item.name === 'Šubur-e₂a×1N57')).toBe(true);
-    expect(ERA_I_AVAILABLE_SAMPLE_NAMES).toHaveLength(7);
+    expect(ERA_I_AVAILABLE_SAMPLE_NAMES).toHaveLength(5);
     expect(ERA_I_AVAILABLE_SAMPLE_NAMES.map((item) => item.name)).not.toContain('Šubur-e₂a×1N57');
     expect(ERA_I_AVAILABLE_SAMPLE_NAMES.every((item) => !item.name.includes('×'))).toBe(true);
   });
 
-  it('provides exactly the eight approved curated names without active Day 1 NPC names', () => {
+  it('keeps active NPC name-forms out of the player picker while preserving the source list', () => {
     expect(ERA_I_CURATED_SAMPLE_NAMES.map((item) => item.name)).toEqual([
       'En-Unug-du10', 'Ena-an-ru', 'Šubur-e₂a×1N57', 'BUₐ GI', 'DIMₐ',
       'ENₐ U₂ᵦ DU', 'EZENᵦ ENₐ', 'NIₐ GIR₃c',
     ]);
-    expect(ERA_I_CURATED_SAMPLE_NAMES.map((item) => item.name)).not.toEqual(expect.arrayContaining([
-      'Ur-Nanna', 'Enlil-kisu', 'Utu-mansum', 'Ur-gir', 'Nin-kasi',
+    expect(ERA_I_ACTIVE_NPC_NAME_FORMS).toEqual(['Ena-an-ru', 'DIMₐ']);
+    expect(ERA_I_AVAILABLE_SAMPLE_NAMES.map((item) => item.name)).not.toEqual(expect.arrayContaining([
+      'Ur-Nanna', 'Enlil-kisu', 'Utu-mansum', 'Ur-gir', 'Nin-kasi', 'Ena-an-ru', 'DIMₐ',
     ]));
   });
 });

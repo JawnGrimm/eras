@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { advanceInstitutionalMatters, createRoofRepairMatter, MATTER_IDS, STOREHOUSE_INSTITUTION_ID } from '../engine/institutionalMatters';
+import { ERA1_MAR_PEOPLE } from '../content/assignments/eraIMartialFamilies';
 import { createInitialGameState } from '../state/initialState';
 import { createSaveEnvelope, restoreSave } from '../state/saveEnvelope';
 import type { GameState } from '../state/types';
@@ -73,6 +74,35 @@ describe('typed institutional matters and bounded world tick', () => {
     } } as GameState;
     const restored = restoreSave(JSON.stringify(createSaveEnvelope(state, 1)));
     expect(restored?.state.world.matters[unrelatedMatterId].summary).toBe(legacySummary);
+  });
+
+  it('uses stable source-grounded display names for the two martial participants and upgrades legacy role labels', () => {
+    const base = createInitialGameState();
+    const seeded = advanceInstitutionalMatters(base, 11);
+    const sealingOwnerId = ERA1_MAR_PEOPLE.sealingOwner;
+    const partyMemberId = ERA1_MAR_PEOPLE.partyMember;
+
+    expect(seeded.world.people[sealingOwnerId]?.name).toBe('Ena-an-ru');
+    expect(seeded.world.people[partyMemberId]?.name).toBe('DIMₐ');
+    expect(seeded.world.people[sealingOwnerId]?.socialIdentity?.occupation).toBe('Household sealing holder');
+    expect(seeded.world.people[partyMemberId]?.socialIdentity?.occupation).toBe('Member of the repair party');
+
+    const legacyState: GameState = {
+      ...seeded,
+      world: {
+        ...seeded.world,
+        people: {
+          ...seeded.world.people,
+          [sealingOwnerId]: { ...seeded.world.people[sealingOwnerId], name: 'The sealing owner' },
+          [partyMemberId]: { ...seeded.world.people[partyMemberId], name: 'A task-party member' },
+        },
+      },
+    };
+    const upgraded = advanceInstitutionalMatters(legacyState, 12);
+    expect(upgraded.world.people[sealingOwnerId]?.name).toBe('Ena-an-ru');
+    expect(upgraded.world.people[partyMemberId]?.name).toBe('DIMₐ');
+    expect(upgraded.world.people[sealingOwnerId]?.id).toBe(sealingOwnerId);
+    expect(upgraded.world.people[partyMemberId]?.id).toBe(partyMemberId);
   });
 
   it('advances an unresolved roof matter once when its scheduled rain arrives', () => {

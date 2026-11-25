@@ -4,6 +4,7 @@ import { useGame } from '../state/GameProvider';
 import type { InstitutionId, PersonId, RecordId } from '../state/ids';
 import type { Appointment, Institution, InstitutionalMatter, Person, PersonRelationship, RecordEntry, WorldEvent } from '../state/types';
 import { PersonHistoryPanel } from './PersonHistoryPanel';
+import { ASSIGNMENT_ACTIVITY_CATALOG } from '../content/assignments/northBayRoofInspection';
 import { deriveRelationshipFamiliarityStage, relationshipFamiliarityEpisodesFor, type RelationshipFamiliarityEpisodeMap } from '../state/relationshipFamiliarity';
 
 export type PeopleInstitutionSection = 'people' | 'institutions';
@@ -14,22 +15,38 @@ function matchesQuery(values: Array<string | undefined>, query: string): boolean
   return !normalized || values.some((value) => value?.toLocaleLowerCase().includes(normalized));
 }
 
-function RelationshipCard({ fromName, toName, relationship, familiarityStage, familiarityEpisodes }: {
+function humanizeContextKey(value: string): string {
+  const activity = ASSIGNMENT_ACTIVITY_CATALOG[value];
+  if (activity) return activity.title;
+  return value.replace(/^activity-/, '').replace(/[-_]+/g, ' ')
+    .replace(/\b\w/g, (character) => character.toLocaleUpperCase());
+}
+
+function familiaritySourceLabel(source: { kind: 'event' | 'record'; id: string },
+  events: Readonly<Record<string, WorldEvent>>, records: Readonly<Record<string, RecordEntry>>): string {
+  return source.kind === 'event'
+    ? events[source.id]?.summary ?? 'Related event recorded'
+    : records[source.id]?.title ?? 'Related record recorded';
+}
+
+function RelationshipCard({ fromName, toName, relationship, familiarityStage, familiarityEpisodes, events, records }: {
   fromName: string; toName: string; relationship: PersonRelationship | null;
   familiarityStage: 'recognized' | 'acquainted' | 'familiar' | null;
   familiarityEpisodes: ReturnType<typeof relationshipFamiliarityEpisodesFor>;
+  events: Readonly<Record<string, WorldEvent>>;
+  records: Readonly<Record<string, RecordEntry>>;
 }) {
   return <details className="rounded-lg border border-stone-200 bg-stone-50 p-3">
     <summary className="cursor-pointer rounded text-sm font-semibold text-stone-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-700">
       {fromName} → {toName}
-      <span className="ml-2 text-xs font-normal text-stone-500">{relationship?.history.length ?? 0} history entries</span>
+      <span className="ml-2 text-xs font-normal text-stone-500">{relationship?.history.length ?? 0} {relationship?.history.length === 1 ? 'history entry' : 'history entries'}</span>
     </summary>
     <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
       {relationship && Object.entries(relationship.dimensions).map(([dimension, score]) => <div key={dimension}>
         <dt className="text-xs capitalize text-stone-500">{dimension}</dt>
         <dd className="font-mono text-base">{score}<span className="text-xs text-stone-400">/100</span></dd>
       </div>)}
-      {!relationship && <p className="col-span-full text-xs text-stone-600">No separate trust, respect, affection, resentment, or rivalry dimensions are recorded for this direction.</p>}
+      {!relationship && <p className="col-span-full text-xs text-stone-600">No sentiment scores are recorded in this direction.</p>}
       {familiarityStage && <div>
         <dt className="text-xs text-stone-500">Personal familiarity</dt>
         <dd className="text-sm font-semibold capitalize">{familiarityStage}</dd>
@@ -38,9 +55,9 @@ function RelationshipCard({ fromName, toName, relationship, familiarityStage, fa
     {familiarityEpisodes.length > 0 && <details className="mt-3 border-t border-stone-200 pt-3">
       <summary className="cursor-pointer text-xs font-semibold text-stone-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-700">Familiarity evidence ({familiarityEpisodes.length} qualifying {familiarityEpisodes.length === 1 ? 'episode' : 'episodes'})</summary>
       <ol className="mt-2 space-y-2">{familiarityEpisodes.map((episode) => <li key={episode.id} className="text-xs text-stone-700">
-        <p className="font-medium">Day {episode.dayNumber} · {episode.stageContribution} · {episode.acquisitionMode.replace(/_/g, ' ')}</p>
-        <p>{episode.contextId.replace(/[-_]/g, ' ')} · {episode.interactionKind.replace(/[-_]/g, ' ')}</p>
-        <p className="text-stone-600">Source: {episode.provenance.map((source) => `${source.kind} ${source.id}`).join('; ')}</p>
+        <p className="font-medium">Day {episode.dayNumber} · {episode.stageContribution} · {humanizeContextKey(episode.acquisitionMode)}</p>
+        <p>{humanizeContextKey(episode.contextId)} · {humanizeContextKey(episode.interactionKind)}</p>
+        <p className="text-stone-600">Source: {episode.provenance.map((source) => familiaritySourceLabel(source, events, records)).join('; ')}</p>
       </li>)}</ol>
     </details>}
     {relationship && relationship.history.length > 0 && <details className="mt-3 border-t border-stone-200 pt-3">
@@ -51,7 +68,7 @@ function RelationshipCard({ fromName, toName, relationship, familiarityStage, fa
         ? <p className="mt-2 text-xs text-stone-500">No relationship history recorded.</p>
         : <ol className="mt-2 space-y-2">{relationship.history.map((entry) => <li key={entry.id} className="text-sm text-stone-700">
           <span className="mr-2 font-mono text-xs text-stone-500">Day {entry.dayNumber}</span>{entry.summary}
-          {entry.eventId && <span className="ml-1 text-xs text-stone-500">(Event: {entry.eventId})</span>}
+          {entry.eventId && <span className="ml-1 text-xs text-stone-500">· {events[entry.eventId]?.summary ?? 'Related event recorded'}</span>}
         </li>)}</ol>}
     </details>}
   </details>;
@@ -60,11 +77,10 @@ function RelationshipCard({ fromName, toName, relationship, familiarityStage, fa
 function PersonIndexRow({ person, context, selected, onSelect }: {
   person: Person; context?: string; selected: boolean; onSelect: () => void;
 }) {
-  return <button type="button" onClick={onSelect} aria-pressed={selected}
+  return <button type="button" onClick={onSelect} aria-pressed={selected} aria-label={selected ? person.name : undefined}
     className={`w-full rounded-lg border px-3 py-3 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-700 ${selected ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-200 bg-white text-stone-900 hover:bg-stone-50'}`}>
     <span className="flex items-center justify-between gap-2">
-      <span className="font-semibold">{person.name}</span>
-      {selected && <span className="text-[10px] font-semibold uppercase tracking-wide">Selected</span>}
+      {selected ? <span className="font-semibold">Selected person</span> : <span className="font-semibold">{person.name}</span>}
     </span>
     <span className={`mt-1 block text-xs ${selected ? 'text-stone-200' : 'text-stone-500'}`}>
       {person.alive ? 'Living' : 'Deceased'}{person.lifeStage ? ` · ${person.lifeStage.replace(/_/g, ' ')}` : ''}
@@ -73,10 +89,12 @@ function PersonIndexRow({ person, context, selected, onSelect }: {
   </button>;
 }
 
-function PersonDetail({ person, people, institutions, relationships, appointments, familiarityEpisodes, isCurrentCharacter }: {
+function PersonDetail({ person, people, institutions, relationships, appointments, familiarityEpisodes, events, records, isCurrentCharacter }: {
   person: Person;
   people: Readonly<Record<string, Person>>;
   institutions: Readonly<Record<InstitutionId, Institution>>;
+  events: Readonly<Record<string, WorldEvent>>;
+  records: Readonly<Record<string, RecordEntry>>;
   relationships: Array<{ from: Person; to: Person; relationship: PersonRelationship | null }>;
   appointments: Appointment[];
   familiarityEpisodes: Readonly<RelationshipFamiliarityEpisodeMap>;
@@ -136,7 +154,7 @@ function PersonDetail({ person, people, institutions, relationships, appointment
 
     <details className="mt-3 rounded-lg border border-stone-200 bg-white p-3">
       <summary className="cursor-pointer text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-700">
-        Personal history ({historyCount} Life Events · {familiarityCount} domain familiarity entries)
+        Personal history ({historyCount} {historyCount === 1 ? 'life event' : 'life events'} · {familiarityCount} {familiarityCount === 1 ? 'domain familiarity entry' : 'domain familiarity entries'})
       </summary>
       <PersonHistoryPanel person={person} people={people} compact />
     </details>
@@ -176,7 +194,7 @@ function PersonDetail({ person, people, institutions, relationships, appointment
         ? <div className="mt-2 space-y-2">{relationships.map(({ from, to, relationship }) =>
           <RelationshipCard key={`${from.id}-${to.id}`} fromName={from.name} toName={to.name} relationship={relationship}
               familiarityStage={deriveRelationshipFamiliarityStage(familiarityEpisodes, from.id, to.id)}
-              familiarityEpisodes={relationshipFamiliarityEpisodesFor(familiarityEpisodes, from.id, to.id)} />)}</div>
+              familiarityEpisodes={relationshipFamiliarityEpisodesFor(familiarityEpisodes, from.id, to.id)} events={events} records={records} />)}</div>
         : <p className="mt-2 text-xs text-stone-500">No directional relationship entries are recorded for this person.</p>}
     </section>
   </article>;
@@ -458,6 +476,7 @@ export function ProductionPeopleAndInstitutions({ initialSection = 'people', ini
           {selectedPerson
             ? <PersonDetail person={selectedPerson} people={state.world.people} institutions={state.world.institutions}
               relationships={relationshipRows} appointments={selectedPersonAppointments}
+              events={state.world.events} records={state.records.entries}
               familiarityEpisodes={state.world.relationshipFamiliarityEpisodes ?? {}}
               isCurrentCharacter={selectedPerson.id === state.player.currentCharacterId} />
             : <p className="rounded-lg border border-stone-300 bg-white p-4 text-sm text-stone-500">Select a person to view recorded detail.</p>}
