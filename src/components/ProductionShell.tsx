@@ -123,6 +123,13 @@ export function ProductionShellContent() {
       <ProductionHeader />
       <div className="mx-auto max-w-[1100px] px-4 py-6 lg:px-6">
         <ClosingReceiptScreen receipt={pendingAssignmentReceipt.closingReceipt} kind="assignment"
+          assignment={pendingAssignmentReceipt}
+          employerName={pendingAssignmentReceipt.employer.kind === 'institution'
+            ? game.state.world.institutions[pendingAssignmentReceipt.employer.id]?.name
+            : game.state.world.people[pendingAssignmentReceipt.employer.id]?.name}
+          matter={pendingAssignmentReceipt.originMatterId
+            ? game.state.world.matters[pendingAssignmentReceipt.originMatterId]
+            : undefined}
           onReturn={() => {
             const result = game.dispatch({ type: 'ACKNOWLEDGE_ASSIGNMENT_RECEIPT', assignmentId: pendingAssignmentReceipt.id });
             if (result.feedback?.kind !== 'error') { setActiveActivityId(null); setScreen('assignments'); }
