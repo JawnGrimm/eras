@@ -87,7 +87,8 @@ interface EannaEvaluation { sourceSorting: boolean; obverse: boolean; allocation
 
 function proposalIsWithinAvailable(progress: EannaScenarioData): boolean {
   const p = progress.proposal;
-  return p.ninKasiBarley <= REQUESTS.ninKasi
+  return p.ninKasiBarley + p.gemeInanaBarley + p.breadGroupBarley > 0
+    && p.ninKasiBarley <= REQUESTS.ninKasi
     && p.gemeInanaBarley <= REQUESTS.gemeInana
     && p.breadGroupBarley <= REQUESTS.breadGroup
     && p.ninKasiBarley + p.gemeInanaBarley + p.breadGroupBarley <= AVAILABLE.barley
@@ -151,6 +152,7 @@ function buildFinalization(context: WorkSubmissionContext<EannaScenarioData>, di
       { id: 'eanna-apprentice-proposal', text: 'Apprentice proposal: ' + p.ninKasiBarley + ' barley measures to Nin-kasi; ' + p.gemeInanaBarley + ' to Geme-Inana; ' + p.breadGroupBarley + ' to bread preparation; ' + p.offeringBeerVessels + ' beer vessels to the offering preparation.', classification: 'reported', sourceIds: ['eanna-source-household-tallies', 'eanna-source-physical-counts'] },
       { id: 'eanna-official-allocation', text: 'Official allocation decided by Lu-Nanshe: ' + allocation.ninKasiBarley + ' barley measures to Nin-kasi; ' + allocation.breadGroupBarley + ' to bread preparation; ' + allocation.gemeInanaBarley + ' to Geme-Inana; ' + allocation.offeringBeerVessels + ' beer vessels to the offering preparation. Remaining unmet requests: ' + (REQUESTS.ninKasi - allocation.ninKasiBarley) + ' barley measures for Nin-kasi; ' + (REQUESTS.breadGroup - allocation.breadGroupBarley) + ' for bread preparation; ' + (REQUESTS.gemeInana - allocation.gemeInanaBarley) + ' for Geme-Inana; ' + (REQUESTS.offeringVessels - allocation.offeringBeerVessels) + ' beer vessels.', classification: 'observed', sourceIds: ['eanna-official-disposition', 'eanna-source-household-tallies', 'eanna-source-physical-counts'] },
       { id: 'eanna-lunanshe-disposition', text: 'Lu-Nanshe’s official disposition: ' + disposition + '. The record preserves her allocation decision; it does not establish physical distribution or delivery.', classification: 'observed', sourceIds: ['eanna-official-disposition'] },
+      { id: 'eanna-official-seal', text: 'Institutional seal impression applied by Lu-Nanshe at official closeout.', classification: 'observed', sourceIds: ['eanna-official-disposition'] },
       ...(retrospective ? [{ id: 'eanna-retrospective-window', text: 'The compilation was completed after Day 38. The gathering proceeded at reduced scope on Day 39; this retrospective record does not claim that the full request was supplied.', classification: 'reported' as const, sourceIds: ['eanna-source-household-tallies'] }] : []),
       ...(officialReview ? [{ id: 'eanna-post-window-review', text: 'After Day 42, Lu-Nanshe reviewed the surviving source records and accepted this qualified retrospective account. The compilation date is not backdated.', classification: 'reported' as const, sourceIds: ['eanna-official-disposition'] }] : []),
     ],
@@ -168,7 +170,7 @@ function buildFinalization(context: WorkSubmissionContext<EannaScenarioData>, di
   const event: WorldEvent = {
     id: EANNA_ALLOCATION_EVENT_ID,
     dayNumber: context.dayNumber,
-    summary: (officialReview ? 'After Day 42, Lu-Nanshe reviews the surviving source records and records ' : 'Lu-Nanshe records ') + disposition + ': ' + allocation.ninKasiBarley + ' barley measures for Nin-kasi, ' + allocation.breadGroupBarley + ' for bread preparation, ' + allocation.gemeInanaBarley + ' for Geme-Inana, and ' + allocation.offeringBeerVessels + ' beer vessels for the offering preparation. This is an official decision; no physical distribution or delivery is inferred.',
+    summary: (officialReview ? 'After Day 42, Lu-Nanshe reviews the surviving source records and records ' : 'Lu-Nanshe records ') + disposition + ': ' + allocation.ninKasiBarley + ' barley measures for Nin-kasi, ' + allocation.breadGroupBarley + ' for bread preparation, ' + allocation.gemeInanaBarley + ' for Geme-Inana, and ' + allocation.offeringBeerVessels + ' beer vessels for the offering preparation. This is an official decision; no physical distribution or delivery is inferred. Lu-Nanshe applies the institutional seal at closeout.',
     personIds: [context.personId, PEOPLE.luNanshe, PEOPLE.shuruppak, PEOPLE.ninKasi, PEOPLE.gemeInana, PEOPLE.enlilKisu],
     institutionIds: [EANNA_INSTITUTION_ID],
     locationId: EANNA_TABLET_ROOM_LOCATION_ID,
@@ -240,7 +242,7 @@ export const eannaProvisioningWork = defineWork<EannaScenarioData>({
       { dimension: 'accuracy', status: sorting && allocation ? 'meets' : 'fails', summary: sorting ? 'The three source classes remain distinct; the spoken expectation is not counted as stock.' : 'Sort each source as a written tally, physical count, or spoken claim before submission.' },
       { dimension: 'completeness', status: obverse ? 'meets' : 'fails', summary: obverse ? 'All separate written household and offering requests appear on the obverse.' : 'The obverse is missing one or more separate written requests.' },
       { dimension: 'traceability', status: obverse && sorting ? 'meets' : 'fails', summary: 'Each tablet entry remains tied to its source and unit.' },
-      { dimension: 'procedure', status: finalCheck ? (result.retrospective ? 'partial' : 'meets') : 'fails', summary: finalCheck ? (result.officialReview ? 'Lu-Nanshe reviewed the surviving source records after Day 42 and accepted a qualified retrospective account; the original compilation date is not backdated.' : result.retrospective ? 'The compilation is accepted retrospectively during Days 39–42; the Day 39 gathering proceeded at reduced scope.' : 'The tablet was checked and submitted within the full gathering window.') : 'Complete the final tablet check before submission.' },
+      { dimension: 'procedure', status: finalCheck ? (result.retrospective ? 'partial' : 'meets') : 'fails', summary: finalCheck ? (result.officialReview ? 'After Day 42, the account is recoverable through Lu-Nanshe’s official review of surviving source records; record the review date and do not backdate the compilation.' : result.retrospective ? 'The compilation is accepted retrospectively during Days 39–42; the Day 39 gathering proceeded at reduced scope.' : 'The tablet was checked and submitted within the full gathering window.') : 'Complete the final tablet check before submission.' },
       { dimension: 'responsibility', status: allocation ? 'meets' : 'fails', summary: allocation ? 'The proposed allocation stays within the counted quantities and does not treat expected barley as present stock.' : 'The proposed allocation exceeds a request or the physically counted supply.' },
     ];
     return { outcome: accepted ? 'accepted' : 'revise', summary: dimensions.map((item) => item.summary).join(' '), dimensions };
