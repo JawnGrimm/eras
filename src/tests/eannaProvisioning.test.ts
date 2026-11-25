@@ -90,11 +90,15 @@ describe('Eanna Provisioning Undertaking', () => {
   it('persists the Work lifecycle, provisions, official decision, record, event, XP, and save compatibility', () => {
     const workId = eannaProvisioningWork.id;
     let state = createInitialGameState();
+    const validity: Array<[string, boolean]> = [];
+    validity.push(['initial', isValidGameState(state, INITIAL_WORK_CATALOG)]);
     state = { ...state, calendar: { ...state.calendar, dayNumber: 35 } };
+    validity.push(['day35', isValidGameState(state, INITIAL_WORK_CATALOG)]);
 
     let result = transitionGame(state, { type: 'START_WORK', workId }, undefined, INITIAL_WORK_CATALOG);
     expect(result.feedback?.code).toBe('work-started');
     state = result.state;
+    validity.push(['start', isValidGameState(state, INITIAL_WORK_CATALOG)]);
     expect(state.world.matters[EANNA_PROVISIONING_MATTER_ID]?.status).toBe('active');
     const originMatter = state.world.matters[EANNA_PROVISIONING_MATTER_ID];
     expect(state.world.institutions[originMatter.institutionId].activeMatters).toContain(EANNA_PROVISIONING_MATTER_ID);
@@ -108,14 +112,17 @@ describe('Eanna Provisioning Undertaking', () => {
       }, undefined, INITIAL_WORK_CATALOG);
       expect(result.feedback?.kind).toBe('success');
       state = result.state;
+      validity.push([actionId, isValidGameState(state, INITIAL_WORK_CATALOG)]);
     }
 
     const closed = transitionGame(state, { type: 'END_DAY', expectedDayNumber: 35 }, undefined, INITIAL_WORK_CATALOG);
     expect(closed.settlement?.workContractProvisionEarned).toBe(1);
+    validity.push(['end-day', isValidGameState(closed.state, INITIAL_WORK_CATALOG)]);
     const settlementId = closed.state.dayClose.pendingSettlementId;
     expect(settlementId).toBeTruthy();
     state = transitionGame(closed.state, { type: 'BEGIN_WORKDAY', expectedSettlementId: settlementId! }, undefined, INITIAL_WORK_CATALOG).state;
     expect(state.calendar.dayNumber).toBe(36);
+    validity.push(['begin-day36', isValidGameState(state, INITIAL_WORK_CATALOG)]);
 
     for (const [actionId, stage] of [
       ['consolidate-reverse', 3], ['final-check', 4],
@@ -125,13 +132,17 @@ describe('Eanna Provisioning Undertaking', () => {
       }, undefined, INITIAL_WORK_CATALOG);
       expect(result.feedback?.kind).toBe('success');
       state = result.state;
+      validity.push([actionId, isValidGameState(state, INITIAL_WORK_CATALOG)]);
     }
     result = transitionGame(state, { type: 'SUBMIT_WORK', workId }, undefined, INITIAL_WORK_CATALOG);
     expect(result.feedback?.code).toBe('work-assessment-pending-disposition');
     state = result.state;
+    validity.push(['submit', isValidGameState(state, INITIAL_WORK_CATALOG)]);
     result = transitionGame(state, { type: 'DISPOSE_WORK', workId, disposition: 'adjust_to_default' }, undefined, INITIAL_WORK_CATALOG);
     expect(result.feedback?.code).toBe('work-completed');
     state = result.state;
+    validity.push(['disposition', isValidGameState(state, INITIAL_WORK_CATALOG)]);
+    console.log('EANNA_VALIDITY_STAGES', validity);
 
     expect(state.records.entries[EANNA_SUMMARY_RECORD_ID]).toBeDefined();
     const assertions = state.records.entries[EANNA_SUMMARY_RECORD_ID].assertions;
