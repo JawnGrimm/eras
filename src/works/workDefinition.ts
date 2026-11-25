@@ -50,6 +50,8 @@ export interface WorkDefinition<TProgress extends Record<string, unknown> = Reco
   legacyCompletionCleanup?: { retireInstitutionMatters?: Array<{ institutionId: InstitutionId; matterId: MatterId }> };
   id: WorkId;
   title: string;
+  /** Responsible institution for formal custody and succession correspondence. */
+  institutionId?: InstitutionId;
   startingEvidence: EvidenceId[];
   evidence: WorkEvidenceDefinition[];
   actions: WorkActionDefinition[];
