@@ -85,7 +85,7 @@ describe('production opportunity screens', () => {
     expect(markup).toContain('Occurrence particulars');
     expect(markup).toContain(occurrence.commodity);
     expect(markup).toContain(occurrence.unit);
-    expect(markup).toContain(occurrence.counterpartyName);
+    expect(markup).toContain(generated.world.people[occurrence.counterpartyPersonId]?.name);
     expect(markup).toContain(occurrence.quantitySummary);
     expect(markup).toContain(occurrence.sourceSummary);
     expect(markup).toContain('Dated source records');
@@ -117,9 +117,9 @@ describe('production opportunity screens', () => {
       }
       const draft = {
         finding: wrongFinding, responsibilityClaim: 'none',
-        citedDiscoveryIds: ['tierb-source-records', 'tierb-authority-boundary'],
+        citedDiscoveryIds: ['tierb-source-records', 'tierb-authority-boundary', 'tierb-counterparty-account'],
         limitations: [], recommendations: ['retain_sources'],
-        selectedLimitationIds: ['source_scope', 'no_individual_blame'],
+        selectedLimitationIds: ['source_scope', 'no_individual_blame', 'cause_unlocated'],
       };
       const draftUpdate = transitionAssignmentActivityAction(state, {
         type: 'UPDATE_ASSIGNMENT_ACTIVITY_DRAFT', assignmentId: offer!.id, draft,
@@ -177,9 +177,9 @@ describe('production opportunity screens', () => {
     ]);
     const socialIdentityText = Object.values(generated.world.people).flatMap((person) =>
       collectStrings(person.socialIdentity));
-    const playerFacing = [...offerText, ...activityText, ...socialIdentityText].join('\\n');
-    expect(playerFacing).not.toMatch(/tier\\s*b|provisional|authored gameplay fiction|authored reconstruction|authored participant|gameplay fiction/i);
-    expect(playerFacing).not.toMatch(/W\\s*9827|W\\s*15897|MSVO|catalogued Uruk III and often attributed to Jemdet Nasr/i);
+    const playerFacing = [...offerText, ...activityText, ...socialIdentityText].join('\n');
+    expect(playerFacing).not.toMatch(/tier\s*b|provisional|authored gameplay fiction|authored reconstruction|authored participant|gameplay fiction/i);
+    expect(playerFacing).not.toMatch(/W\s*9827|W\s*15897|MSVO|catalogued Uruk III and often attributed to Jemdet Nasr/i);
   });
 
   it('renders completed Challenge outcome and character attribution without operational declined state', () => {
