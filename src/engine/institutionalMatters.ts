@@ -49,7 +49,7 @@ const ERA_I_ANCHOR_MATTER_SEEDS = [
     eventId: 'event-era1-com-01-consignment-source' as EventId,
     kind: 'era1_com_01_consignment' as const,
     summary: 'A physical tag, a receiving-entry copy, and a carrier’s handover account are brought together for comparison.',
-    eventSummary: 'A pierced clay tag is presented with a copy of a receiving entry that describes a tag of that form. Enlil-kisu says it remained with the goods through handover; Utu-mansum asks for the sources to be compared without treating the account as witnessed.'
+    eventSummary: 'A pierced clay tag is presented with a copy of a receiving entry that describes a tag of that form. Enlil-kisu says it remained with the goods through handover; Utu-mansum asks for the sources to be compared without treating the account as witnessed.',
     personIds: [PEOPLE.receivingOfficial, PEOPLE.carrierForeman, PEOPLE.steward, PEOPLE.seniorScribe],
     locationId: ERA1_COM_F01_LOCATION_ID,
     provenance: [
