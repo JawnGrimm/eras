@@ -80,7 +80,7 @@ describe('Eanna Provisioning Undertaking', () => {
 
   it('unlocks the next career-scale Work choice only after Eanna is in completedWorks', () => {
     expect(isEraICareerScaleWorkChoiceEligible([])).toBe(false);
-    expect(isEraICareerScaleWorkChoiceEligible([EANNA_PROVISIONING_MATTER_ID as never])).toBe(false);
+    expect(isEraICareerScaleWorkChoiceEligible(['work-other' as typeof eannaProvisioningWork.id])).toBe(false);
     expect(isEraICareerScaleWorkChoiceEligible([eannaProvisioningWork.id])).toBe(true);
   });
 

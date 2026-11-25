@@ -6,7 +6,7 @@ import type { DaySettlement } from '../state/types';
 import type { InstitutionId, PersonId } from '../state/ids';
 import { UR_GIR_PERSON_ID } from '../state/ids';
 import { STOREHOUSE_WORK_ID } from '../works/storehouseReckoning';
-import { EANNA_PROVISIONING_WORK_ID } from '../works/eannaProvisioning';
+import { EANNA_PROVISIONING_WORK_ID, isEraICareerScaleWorkChoiceEligible } from '../works/eannaProvisioning';
 import { selectCharacterOpportunities } from '../state/opportunitySelectors';
 import { characterQualifiesForAssignment } from '../engine/opportunities';
 import { getOvertimeApForfeitPrompt } from './overtimeApForfeit';
