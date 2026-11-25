@@ -85,8 +85,14 @@ export function isRelationshipFamiliarityEpisode(
     const key = `${item.kind}:${item.id}`;
     if (seen.has(key)) return false;
     seen.add(key);
-    if (item.kind === 'event' && refs?.events && !refs.events[item.id]) return false;
-    if (item.kind === 'record' && refs?.records && !refs.records[item.id]) return false;
+    if (item.kind === 'event' && refs?.events) {
+      const event = refs.events[item.id] as { dayNumber?: number } | undefined;
+      if (!event || typeof event.dayNumber !== 'number' || event.dayNumber > (episode.dayNumber as number)) return false;
+    }
+    if (item.kind === 'record' && refs?.records) {
+      const record = refs.records[item.id] as { createdDay?: number } | undefined;
+      if (!record || typeof record.createdDay !== 'number' || record.createdDay > (episode.dayNumber as number)) return false;
+    }
   }
   return true;
 }
