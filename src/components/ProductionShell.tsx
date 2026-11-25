@@ -9,6 +9,7 @@ import type { WorkDefinition } from '../works/workDefinition';
 import { INITIAL_WORK_CATALOG } from '../state/newGameState';
 import { ProductionWorkdayHub } from './ProductionWorkdayHub';
 import { StorehouseWorkScreen } from './StorehouseWorkScreen';
+import { EannaWorkScreen } from './EannaWorkScreen';
 import { ProductionAssignmentBoard } from './ProductionAssignmentBoard';
 import { AssignmentActivityScreen } from './AssignmentActivityScreen';
 import { ProductionChallengeJournal } from './ProductionChallengeJournal';
@@ -20,7 +21,7 @@ import { CharacterCreator } from './CharacterCreator';
 import { EveningInterlude } from './EveningInterlude';
 import { ClosingReceiptScreen } from './ClosingReceiptScreen';
 
-type Screen = 'workday' | 'storehouse' | 'assignments' | 'activity' | 'challenges' | 'people' | 'records' | 'help';
+type Screen = 'workday' | 'storehouse' | 'eanna' | 'assignments' | 'activity' | 'challenges' | 'people' | 'records' | 'help';
 
 export function ProductionSaveResetConfirmation({
   onCancel,
@@ -223,9 +224,11 @@ export function ProductionShellContent() {
       <main className="min-w-0 space-y-4">
         {alerts}
         {screen === 'workday'
-          ? <ProductionWorkdayHub onOpenWork={() => setScreen('storehouse')} onOpenActivity={openActivity} settlement={settlement} onSettlement={setSettlement} />
+          ? <ProductionWorkdayHub onOpenWork={() => setScreen('storehouse')} onOpenEannaWork={() => setScreen('eanna')} onOpenActivity={openActivity} settlement={settlement} onSettlement={setSettlement} />
           : screen === 'storehouse'
             ? <StorehouseWorkScreen onBack={() => setScreen('workday')} />
+            : screen === 'eanna'
+              ? <EannaWorkScreen onBack={() => setScreen('workday')} />
             : screen === 'assignments'
               ? <ProductionAssignmentBoard onOpenActivity={openActivity} />
                : screen === 'activity' && activeActivityId
