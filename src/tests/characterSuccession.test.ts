@@ -182,6 +182,12 @@ describe('character departure and succession lifecycle', () => {
       personId: INITIAL_PERSON_ID, startedDay: initial.calendar.dayNumber, status: 'closed', endedDay: initial.calendar.dayNumber, closureReason: 'death' });
     expect(preserved?.invitation).toMatchObject({ authorityScope, connectionTier: 'direct_personal' });
     expect(selected.state.journal.notices.at(-1)?.message).toContain('invites you to take up the remaining remit');
+    const declined = transitionGame(selected.state, { type: 'RESPOND_PRESERVED_WORK_INVITATION', workId: EANNA_PROVISIONING_WORK_ID, response: 'decline' }, undefined, catalog);
+    expect(declined.feedback?.code).toBe('work-succession-invitation-declined');
+    expect(declined.state.works.preservedUndertakings?.[0]).toMatchObject({ status: 'waiting', invitationResponse: 'declined' });
+    expect(declined.state.works.activeWorkId).toBeNull();
+    expect(declined.state.works.handoffHistory ?? []).toHaveLength(0);
+    expect(declined.state.works.progress[EANNA_PROVISIONING_WORK_ID].status).toBe('active');
     const accepted = transitionGame(selected.state, { type: 'RESPOND_PRESERVED_WORK_INVITATION', workId: EANNA_PROVISIONING_WORK_ID, response: 'accept' }, undefined, catalog);
     expect(accepted.feedback?.code).toBe('preserved-work-taken-up');
     expect(accepted.state.works.activeWorkId).toBe(EANNA_PROVISIONING_WORK_ID);
