@@ -308,7 +308,7 @@ describe('Storehouse Reckoning introductory tutorial', () => {
     const legacyEnvelope = JSON.parse(JSON.stringify(createSaveEnvelope(legacyState, 7, '2026-11-22T12:00:00.000Z')));
     legacyEnvelope.schemaVersion = 2;
     delete legacyEnvelope.state.world.relationshipFamiliarityEpisodes;
-    for (const targets of Object.values(legacyEnvelope.state.world.relationships)) for (const relationship of Object.values(targets) as any[]) relationship.dimensions.familiarity = 0;
+    for (const targets of Object.values(legacyEnvelope.state.world.relationships as Record<string, any>)) for (const relationship of Object.values(targets as Record<string, any>) as any[]) relationship.dimensions.familiarity = 0;
     delete legacyEnvelope.state.dayClose;
     delete legacyEnvelope.state.opportunities.selectionSeed;
     delete legacyEnvelope.state.opportunities.occurrenceLedger;
