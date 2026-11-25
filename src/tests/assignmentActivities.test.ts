@@ -233,6 +233,8 @@ describe('North-Bay Roof Inspection activity definition and engine', () => {
   it('preserves the legacy COM-01 activity definition for already accepted saves', () => {
     const legacy = legacySealedVesselTextileConsignment;
     expect(ASSIGNMENT_ACTIVITY_CATALOG[legacy.id]).toBe(legacy);
+    expect(legacy.provenanceDisclosureRequired).toBe(true);
+    expect(validateAssignmentActivityDefinition(legacy)).toEqual([]);
     const progress = legacy.createInitialProgress();
     progress.completedActionIds = ['com01-consult-receiver'];
     progress.discoveryIds = ['com01-request'];
