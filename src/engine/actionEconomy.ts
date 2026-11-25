@@ -138,7 +138,32 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
         workApSpentToday: 0, rewardGranted: false, completedActionIds: [],
         provisionContract: definition.kind === 'work' ? definition.provisionsContract : undefined, scenarioData, submissionCount: 0,
       };
-      return { state: { ...baseState, works: { activeWorkId: action.workId, progress: { ...baseState.works.progress, [action.workId]: progress } } },
+      let startedState = baseState;
+      let initialMatters;
+      try { initialMatters = definition.createInitialMatters?.({ personId: person.id, dayNumber: state.calendar.dayNumber }) ?? []; }
+      catch { return { state, feedback: feedback('error', 'work-initial-matter-error', 'The Work could not establish its institutional matter; no progress was started.') }; }
+      for (const matter of initialMatters) {
+        const institution = startedState.world.institutions[matter.institutionId];
+        const existing = startedState.world.matters[matter.id];
+        if (!institution || (existing && existing.status !== 'active') || !matter.summary.trim()
+          || matter.createdDay !== state.calendar.dayNumber
+          || (matter.locationId && !startedState.world.locations[matter.locationId])
+          || (matter.involvedPersonIds ?? []).some((id) => !startedState.world.people[id])) {
+          return { state, feedback: feedback('error', 'work-initial-matter-invalid', 'The Work returned an invalid institutional matter; no progress was started.') };
+        }
+        if (!existing) {
+          startedState = { ...startedState, world: { ...startedState.world,
+            matters: { ...startedState.world.matters, [matter.id]: matter } } };
+        }
+        const currentInstitution = startedState.world.institutions[matter.institutionId];
+        if (!currentInstitution.activeMatters.includes(matter.id)) {
+          startedState = { ...startedState, world: { ...startedState.world, institutions: {
+            ...startedState.world.institutions,
+            [matter.institutionId]: { ...currentInstitution, activeMatters: [...currentInstitution.activeMatters, matter.id] },
+          } } };
+        }
+      }
+      return { state: { ...startedState, works: { activeWorkId: action.workId, progress: { ...startedState.works.progress, [action.workId]: progress } } },
         feedback: feedback('success', 'work-started', definition.title) };
     }
     case 'ACQUIRE_WORK_EVIDENCE':
@@ -288,10 +313,16 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
       if (!finalization || (finalization.careerXpReward !== undefined && (!Number.isFinite(finalization.careerXpReward) || finalization.careerXpReward < 0)) || (finalization.knowledge !== undefined && !Array.isArray(finalization.knowledge))
         || (finalization.retireInstitutionMatters !== undefined && (!Array.isArray(finalization.retireInstitutionMatters) || finalization.retireInstitutionMatters.some((item) => !item || typeof item.institutionId !== 'string' || !item.institutionId || typeof item.matterId !== 'string' || !item.matterId)))
         || (finalization.addInstitutionMatters !== undefined && (!Array.isArray(finalization.addInstitutionMatters) || finalization.addInstitutionMatters.some((item) => !item || typeof item.id !== 'string' || !item.id || !state.world.institutions[item.institutionId] || !item.summary || !Number.isInteger(item.createdDay) || item.createdDay < 1 || item.createdDay > state.calendar.dayNumber)))
+        || (finalization.events !== undefined && (!Array.isArray(finalization.events) || finalization.events.some((event) => !event || typeof event.id !== 'string' || !event.id || !Number.isInteger(event.dayNumber) || event.dayNumber < 1 || event.dayNumber > state.calendar.dayNumber)))
         || (finalization.presentAssignments !== undefined && !Array.isArray(finalization.presentAssignments))) {
-        return { state, feedback: feedback('error', 'work-finalization-invalid', 'The Work finalizer returned invalid rewards.') };
+        return { state, feedback: feedback('error', 'work-finalization-invalid', 'The Work finalizer returned invalid rewards or world effects.') };
       }
       let next = state;
+      for (const event of finalization.events ?? []) {
+        const result = transitionWorldAction(next, { type: 'CREATE_EVENT', event });
+        if (result.feedback?.kind === 'error') return { state, feedback: feedback('error', 'work-event-invalid', result.feedback.message) };
+        next = result.state;
+      }
       if (finalization.record) {
         const result = transitionWorldAction(next, { type: 'CREATE_RECORD', record: finalization.record });
         if (result.feedback?.kind === 'error') return { state, feedback: feedback('error', 'work-record-invalid', result.feedback.message) };
