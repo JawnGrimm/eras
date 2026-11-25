@@ -460,8 +460,8 @@ export interface GameState {
     appointments: Record<AppointmentId, Appointment>;
     events: Record<EventId, WorldEvent>;
     knowledge: Record<KnowledgeEntryId, KnowledgeEntry>;
-    /** Typed directional experience; optional only in pre-v4 in-memory fixtures and legacy envelopes. */
-    relationshipFamiliarityEpisodes?: Record<string, RelationshipFamiliarityEpisode>;
+    /** Current-schema directional experience; legacy v2/v3 envelopes have no episode map. */
+    relationshipFamiliarityEpisodes: Record<string, RelationshipFamiliarityEpisode>;
     matters: Record<MatterId, InstitutionalMatter>;
   };
   historicalProgression: { historicalXp: number; completedWorks: WorkId[] };
