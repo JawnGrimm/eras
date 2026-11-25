@@ -135,7 +135,10 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenEannaWork, onOpenActivi
               className="rounded-md border border-stone-300 px-3 py-2 text-sm font-medium">Decline invitation</button>
           </div>
         </div>}
-        {item.invitationResponse === 'declined' && <p className="mt-3 text-sm text-stone-700">The invitation was declined. The undertaking and progress remain preserved; no handoff occurred.</p>}
+        {item.invitationResponse === 'declined' && <><p className="mt-3 text-sm text-stone-700">The invitation was declined. The undertaking and progress remain preserved; no handoff occurred. If your circumstances have changed, you may ask to take it up later, provided the institution's original qualification and authority basis still holds.</p>
+          {state.calendar.dayNumber > item.deathDay && <button disabled={state.works.activeWorkId !== null}
+            onClick={() => game.dispatch({ type: 'TAKE_UP_PRESERVED_WORK', workId: item.workId })}
+            className="mt-3 rounded-md bg-stone-900 px-3 py-2 text-sm font-semibold text-white disabled:opacity-40">Take up preserved Work later</button>}</>}
         {!item.invitation && <><p className="mt-2 text-sm text-stone-700">The Work and its completed progress will be waiting if you later choose to take it up. No handoff has occurred.</p>
           <button disabled={state.works.activeWorkId !== null || !item.institutionId || !state.works.progress[item.workId]}
             onClick={() => game.dispatch({ type: 'TAKE_UP_PRESERVED_WORK', workId: item.workId })}
