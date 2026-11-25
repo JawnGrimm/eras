@@ -45,8 +45,8 @@ describe('Assignment closeout report summary', () => {
       finding: 'The present impression differs from the household’s known sealing',
       responsibility: 'No accusation or individual fault assigned',
       citedEvidence: [
-        { id: 'mar01-closure-impression', title: 'Present closure impression', content: '', provenance: undefined },
-        { id: 'mar01-owner-account', title: 'Sealing owner’s account', content: '', provenance: undefined },
+        { id: 'mar01-closure-impression', title: 'Present closure impression', content: 'The household closure bears a different seal impression. The mark shows which seal was pressed, but not who was permitted to open the room.', provenance: undefined },
+        { id: 'mar01-owner-account', title: 'Sealing owner’s account', content: 'The sealing owner says no one was sent. Nin-dara remembers opening for a man who showed a sealing; neither account identifies who authorized him.', provenance: undefined },
       ],
       limitations: [
         'The household recognizes the seal, but still needs to ask whether the person who showed it was sent',
