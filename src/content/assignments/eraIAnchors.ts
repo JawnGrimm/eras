@@ -109,7 +109,7 @@ export const sealedVesselTextileConsignment = activity({
       text: 'This documentary copy describes an accompanying tag as a pierced clay piece bearing signs. The original entry is not available for direct examination. The copy records that description; it does not establish what happened after the entry was made.',
       provenance: { classification: 'COPIED', explanation: 'Documentary copy examined; the original receiving entry is not directly available.' } },
     { id: 'com01-handover-account', title: 'Carrier’s handover account',
-      text: 'Enlil-kisu says the tag remained with the consignment until it reached the receiving court. He gives the carrier’s account of the handover; the player did not witness it, and his statement alone does not independently establish whether the tag remained attached at receipt.',
+      text: 'Enlil-kisu says the tag remained with the consignment until it reached the receiving place. He gives the carrier’s account of the handover; the player did not witness it, and his statement alone does not independently establish whether the tag remained attached at receipt.',
       sourcePersonId: people.carrier,
       provenance: { classification: 'REPORTED', explanation: 'Information supplied by the carrier; not independently witnessed by the player.' } },
   ],
