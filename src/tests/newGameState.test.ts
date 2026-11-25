@@ -141,7 +141,7 @@ describe('Challenge character ownership', () => {
       fromId: originalPlayerId,
       toId: 'person-uruk-nin-aya' as PersonId,
       relationship: {
-        dimensions: { trust: 60, respect: 55, affection: 20, resentment: 0, rivalry: 0, familiarity: 50 },
+        dimensions: { trust: 60, respect: 55, affection: 20, resentment: 0, rivalry: 0 },
         history: [{ id: 'relationship-apprentice-help', dayNumber: 1, summary: 'The apprentice and scribe completed a meaningful task together.' }],
       },
     }).state;
