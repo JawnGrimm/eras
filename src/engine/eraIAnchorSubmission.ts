@@ -158,6 +158,8 @@ export function submitRubricAssignmentActivity(
     baseCareerXp: offer.careerXpReward,
     institutionId: institution.id,
     receiverPersonId: receiverId,
+    contextId: offer.activityId ?? offer.category, occasionId: offer.id,
+    ...(offer.originMatterId && state.world.matters[offer.originMatterId] ? { matterId: offer.originMatterId } : {}),
     currencyDelta: offer.compensation.money,
     provisionsDelta: offer.compensation.provisions,
     ...(offer.compensation.money || offer.compensation.provisions
