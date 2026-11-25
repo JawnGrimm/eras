@@ -385,7 +385,7 @@ This record is queue planning only. It does not mark Faithful Recall implemented
 **Next action:** Design HQ completes and reconciles the supporting behavioral contract. After Issue #85 priority protection and contract readiness, Production conducts FR-A through FR-E and returns the technical assessment to Design HQ. A separate approved **READY FOR IMPLEMENTATION** handoff is required before runtime work.
 
 
-## GD-RELATIONSHIP-FAMILIARITY-001 — compatibility and migration technical proposal — 25 November 2026
+## GD-RELATIONSHIP-FAMILIARITY-001 — compatibility and migration technical proposal — 24 November 2026
 
 **Authority:** Game Director handoff; approved behavioral contract.  
 **Audited baseline:** `main` at `f7a10849d890c4367cbb352dbdac815545a8a15b`.  
@@ -399,6 +399,7 @@ This record is queue planning only. It does not mark Faithful Recall implemented
 - `PersonFamiliarity` semantics and consumers remain unchanged.
 - QA coverage is specified in the proposal. No tests were written or executed for this documentation-only task.
 - **Next gate:** Design HQ review of episode authoring vocabulary, stage-contribution mapping, no-episode presentation, situation-key ownership, and legacy Knowledge presentation. A separate implementation authorization is required before runtime or migration work.
+- This approved contract supersedes the earlier **BLOCKED — DESIGN HQ DECISION REQUIRED** familiarity-design status under GD-STATE-INTEGRITY-001. The earlier WP1 source audit and relationship-history attribution correction remain valid; the familiarity compatibility/migration work is now tracked independently under GD-RELATIONSHIP-FAMILIARITY-001. Issue #107 remains open for its other acceptance criteria.
 
 ### South-Court Responsibility — CLOSED / NO CHANGE AUTHORIZED
 
