@@ -94,12 +94,11 @@ export function submitUrukAssignmentActivity(
   ];
   if (id === 'activity-tierb-recurring-institutional-check' && offer.originMatterId && cited.has('tierb-counterparty-account')) {
     const counterpartyId = state.world.matters[offer.originMatterId]?.tierBRecurring?.counterpartyPersonId;
-    const source = sources.find((item) => item.id === 'source-tierb-counterparty-account');
-    if (counterpartyId && source) {
-      source.kind = 'person';
-      source.sourceId = counterpartyId;
-      source.description = 'The actual counterparty named in this dated Tier B occurrence.';
-    }
+    const sourceIndex = sources.findIndex((item) => item.id === 'source-tierb-counterparty-account');
+    if (counterpartyId && sourceIndex >= 0) sources[sourceIndex] = {
+      ...sources[sourceIndex], kind: 'person', sourceId: counterpartyId,
+      description: 'The actual counterparty named in this dated Tier B occurrence.',
+    };
   }
   const assertions: RecordAssertion[] = discoveries.filter((item) => cited.has(item.id)).map((item) => ({
     id: `assertion-${item.id}`,
