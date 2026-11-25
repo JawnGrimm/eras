@@ -78,7 +78,7 @@ describe('shared Closing Receipt assessment schedule', () => {
         } } },
         relationships: {
           ...base.world.relationships,
-          [receiverId]: { [INITIAL_PERSON_ID]: { dimensions: { trust: 1, respect: 2, affection: 50, resentment: 0, rivalry: 0, familiarity: 0 }, history: [] } },
+          [receiverId]: { [INITIAL_PERSON_ID]: { dimensions: { trust: 1, respect: 2, affection: 50, resentment: 0, rivalry: 0 }, history: [] } },
         },
       },
     };
