@@ -1,7 +1,8 @@
 import type { InstitutionId, PersonId } from '../state/ids';
 import type { WorkDefinition } from '../works/workDefinition';
 import { getInitializedScribal, isInitializedScribalState } from '../state/scribalState';
-import type { GameAction, GameState, TransitionResult } from '../state/types';
+import type { GameAction, GameState, PreservedWorkInvitationSnapshot, TransitionResult } from '../state/types';
+import { evaluateCharacterPredicate } from '../works/evidenceInterpretation';
 
 export type SuccessorConnectionTier = 'direct_personal' | 'direct_professional' | 'wider_network';
 
@@ -197,6 +198,27 @@ export function transitionCharacterContinuity(state: GameState, action: Continui
     ?? (activeInstitutionalMatters.length === 1 ? activeInstitutionalMatters[0].institutionId : undefined);
   const preserveWork = pending.departureKind === 'death' && !!activeWorkId && activeDefinition?.kind === 'work'
     && !!activeProgress && activeProgress.status === 'active';
+  const successorRanked = rankSuccessorCandidates(state).find((candidate) => candidate.personId === nextId);
+  const successorScribal = getInitializedScribal(nextPerson);
+  const invitationDefinition = activeDefinition?.successionInvitation;
+  const invitationInstitution = institutionId ? state.world.institutions[institutionId] : undefined;
+  const activeAppointments = Object.values(state.world.appointments).filter((appointment) =>
+    appointment.personId === nextId && appointment.institutionId === institutionId
+      && appointment.startDay <= state.calendar.dayNumber
+      && (appointment.endDay === undefined || appointment.endDay >= state.calendar.dayNumber));
+  const hasInstitutionalAccess = !!institutionId && (nextPerson.affiliations.includes(institutionId) || activeAppointments.length > 0);
+  const hasAuthority = !!invitationDefinition && !!invitationInstitution
+    && (invitationInstitution.authority.includes(invitationDefinition.authorityScope)
+      || activeAppointments.some((appointment) => appointment.authorityScope.includes(invitationDefinition.authorityScope)));
+  const invitationEligible = !!preserveWork && !!invitationDefinition && !!institutionId
+    && !!successorRanked && invitationDefinition.connectionTiers.includes(successorRanked.tier)
+    && !!successorScribal && evaluateCharacterPredicate(invitationDefinition.qualification, successorScribal)
+    && hasInstitutionalAccess && hasAuthority;
+  const invitationSnapshot: PreservedWorkInvitationSnapshot | undefined = invitationEligible && invitationDefinition && successorRanked
+    ? { connectionTier: successorRanked.tier, basis: invitationDefinition.basis,
+        remainingRemit: invitationDefinition.remainingRemit, availableRecords: [...invitationDefinition.availableRecords],
+        authorityScope: invitationDefinition.authorityScope, limits: [...invitationDefinition.limits] }
+    : undefined;
   const preservedUndertaking = preserveWork && activeWorkId && activeDefinition ? {
     workId: activeWorkId,
     title: activeDefinition.title,
@@ -205,13 +227,14 @@ export function transitionCharacterContinuity(state: GameState, action: Continui
     successorCharacterId: nextId,
     deathDay: pending.dayNumber,
     status: 'waiting' as const,
+    ...(invitationSnapshot ? { invitation: invitationSnapshot } : {}),
   } : undefined;
   const workNotice = preservedUndertaking
     ? {
         id: `notice-work-succession-${String(activeWorkId)}-${pending.dayNumber}-${String(nextId)}`,
         dayNumber: pending.dayNumber,
         category: 'work' as const,
-        message: `${institutionId ? state.world.institutions[institutionId]?.name ?? 'The responsible institution' : 'The institution responsible for the undertaking'} sends condolences for ${state.world.people[pending.formerCharacterId]?.name ?? 'the deceased'}. ${activeDefinition!.title} and its completed progress will be waiting if you later choose to take it up. No handoff has occurred.`,
+        message: `${institutionId ? state.world.institutions[institutionId]?.name ?? 'The responsible institution' : 'The institution responsible for the undertaking'} sends condolences for ${state.world.people[pending.formerCharacterId]?.name ?? 'the deceased'}. ${invitationSnapshot ? `It invites you to take up the remaining remit: ${invitationSnapshot.remainingRemit}. Basis: ${invitationSnapshot.basis}. Records: ${invitationSnapshot.availableRecords.join('; ')}. Authority: ${invitationSnapshot.authorityScope}. Limits: ${invitationSnapshot.limits.join('; ')}. Please accept or decline; no handoff has occurred yet.` : `${activeDefinition!.title} and its completed progress will be waiting if you later choose to take it up. No handoff has occurred.`}`,
         read: false,
       }
     : undefined;
