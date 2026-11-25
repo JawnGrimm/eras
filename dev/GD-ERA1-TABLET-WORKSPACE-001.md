@@ -1,10 +1,10 @@
 # GD-ERA1-TABLET-WORKSPACE-001 — Era I Physical Tablet Workspace
 
-**Status:** PROPOSED — DESIGN SPECIFICATION FOR GAME DIRECTOR REVIEW  
-**Approval:** Core interaction principles approved in conversation, 25 November 2026; artifact layout and detailed behavior remain proposed.  
+**Status:** APPROVED DESIGN GUIDANCE — GAME DIRECTOR REVIEW INCORPORATED  
+**Approval:** Game Director review, 25 November 2026. The decisions in §2.2 supersede conflicting proposals below.  
 **Owner:** Design HQ — Game Design, Historical Research, Art & UI/UX  
 **Scope:** Era I tablet-centered document interaction, prototyped through the Eanna Consolidated Summary Tablet.  
-**Implementation status:** No runtime changes. NOT READY FOR IMPLEMENTATION.
+**Implementation status:** Documentation guidance only. This document does not authorize a new tablet renderer, sign-decoding engine, or bespoke art dependency.
 
 ## 1. Purpose
 
@@ -34,9 +34,17 @@ The player may accept an authorized person's verbal assurance or carry-forward e
 
 ### 2.2 Design proposals in this document
 
-The exact tablet layout, obverse/reverse organization, entry controls, correction behavior, visual sign library, seal presentation, and Eanna scenario sequence remain proposed pending Game Director review and historical validation.
+The exact entry controls, correction behavior, and scenario-specific historical details remain subject to content authoring and appropriate validation. The obverse/reverse layout, Work-only scope, institutional sealing rule, and lightweight visual treatment are approved in §2.2.
 
-The character having a distinctive personal seal is an approved creative direction in principle. Its historical function, relation to profession or institution, acquisition, and use on particular record types remain to be researched and specified.
+A personal seal is not part of the apprentice's starting state. Any later personal seal is a career-earned feature and requires a separate approved design decision.
+
+### 2.3 Game Director decisions — 25 November 2026
+
+1. **Obverse/reverse layout approved for The Eanna Work:** the front (obverse) holds individual precinct/household tallies in their distinct units; the back (reverse) holds consolidated category totals and the shortfall/allocation disposition.
+2. **Work-specific scope:** reserve this two-view Summary Tablet workspace for **The Eanna Work**. Routine Assignments remain lightweight and snappy; do not propagate this bespoke workspace into the general Assignment flow.
+3. **Institutional custody and sealing:** a Day 1 apprentice has no office, formal authority, or personal seal, consistent with GD-CHARACTER-START-001 §2 and the Era I institutional historical audit §8. The apprentice compiles, checks, and submits the tablet; the authored record may identify who compiled it. The authorized official (Lu-Nanshe / Shuruppak-ilu, as determined by the scenario's established roles) accepts or disposes of the Work and applies the **institutional** seal impression. The gameplay **Seal** action remains the transaction-completion verb/state; it is not an apprentice applying a personal seal.
+4. **Implementation restraint:** use a clean, accessible two-view React panel with existing clay UI tokens --surface-card and --surface-pressed. Do not make the interaction canvas-only. Do not create a bespoke sign-decoding engine, custom font/editor, or blocked art dependency. Lightweight SVG/visual motifs may accompany clear, readable, accessible text. The marks are an aesthetic/interaction aid, not a symbol quiz or prerequisite to understanding the record.
+5. **Scenario production:** do not block the Eanna scenario sheet on wireframes or a new research cycle. Use the existing Era I research (Nissen, Benati, Monaco, DCCLT) with the existing confidence labels and qualifications. New research may refine later content but is not a gate for this scenario sheet.
 
 ## 3. GDD alignment and existing repository constraints
 
@@ -86,7 +94,7 @@ The player selects **Seal** only when the required work is complete enough to co
 - The record becomes committed and is no longer silently editable.
 - The player receives clear feedback that the transaction is closed.
 - Sealing does not guarantee factual accuracy, prove a verbal assurance, resolve an outstanding physical shortage, assign guilt, or authorize an action outside the PC's authority.
-- Where the scenario's historically reviewed practice supports a personal seal impression, the action should visibly press the PC's distinctive seal into the clay. The system must not imply that every Uruk tablet historically received a personal cylinder-seal impression. If a particular record should not bear one, the finalization action must still communicate closure without inventing a sealing practice.
+- For The Eanna Work, the apprentice submits the compiled tablet. The authorized official's acceptance/disposition applies the institutional seal impression. Do not animate or imply that the Day 1 apprentice personally seals the tablet. The gameplay Seal state records transaction completion separately from the official's authority and physical institutional impression.
 
 ## 5. Eanna prototype artifact
 
@@ -100,20 +108,20 @@ The human explanations, disagreement, pressure, and uncertainty are conveyed ora
 
 ### 5.2 Proposed physical organization
 
-The proposed design uses one tablet with two faces:
+The approved design uses one tablet with two views:
 
-**Obverse — source entries**
-- The relevant household or administrative categories.
-- The commodity categories being counted.
-- The quantities entered from the separate source counts.
-- Any concise grouping or subtotal that historical review supports.
+**Front / Obverse — individual tallies**
+- Individual precinct/household tallies, kept distinct.
+- The commodity/category entries and quantities from each source tally.
+- Each tally retains its own historically appropriate unit; do not normalize unlike units into one apparent common measure.
+- A clear accessible text label accompanies any decorative or schematic mark.
 
-**Reverse — consolidation**
+**Back / Reverse — consolidated disposition**
 - The combined totals for the relevant categories.
 - The amount available for allocation, if supported by the scenario.
 - A concise allocation entry or quantity distribution when available supplies are insufficient.
 
-This obverse/reverse arrangement is a design proposal derived from the requested play experience. It must not be presented as a universal or attested Uruk tablet convention until the exact layout is researched against period examples.
+This two-view arrangement is an approved game design for The Eanna Work. It is a playable reconstruction, not a claim that this exact standardized tablet form is attested at Uruk.
 
 ### 5.3 The shortfall decision
 
@@ -159,34 +167,21 @@ Dialogue overlays should:
 
 The PC is not automatically responsible for interviewing witnesses, investigating a work site, determining intent, recovering goods, assigning blame, or authorizing a follow-up. Those are separate duties unless the assignment explicitly and credibly grants them.
 
-## 7. Personal seal and historical representation
+## 7. Institutional seal, authority, and historical representation
 
-The PC should have a distinctive personal seal whose design can be recognized across their career. The design may be informed by professional context, affiliation, personal history, or authored character choices.
+The Day 1 apprentice has no personal seal and no authority to apply an institutional seal. The apprentice compiles, checks, and submits the tablet; the record may identify the compiler in the appropriate concise manner. The authorized official accepts or disposes of the Work and applies the institutional seal impression. Lu-Nanshe / Shuruppak-ilu are the authorized officials for this scenario only to the extent established by the authored scenario and current character/institution content. A personal seal may be earned later in the character's career, but its acquisition and use require a separate design decision.
 
-Historical research must determine:
-- whether the seal is a cylinder seal, stamp seal, or another form in the specific period/context;
-- whether a personal, institutional, or process-associated impression is appropriate for this record;
-- what the impression can legitimately establish;
-- whether the PC plausibly possesses and may use it at this career stage.
+Historical context must constrain the official's seal impression: its form, institutional association, and what it can legitimately establish. The existing Era I research is sufficient to author this Work without commissioning a new research cycle; do not overstate the precise meaning of an individual impression.
 
 Do not treat a seal as a modern signature by default. An impression may relate to identity, institution, custody, access, authorization, or process depending on context. Do not imply that every scribe had an individually owned seal or that every tablet was sealed.
 
-The game's **Seal** command is the player-facing verb for committing the transaction. The physical impression is a separate historical/material presentation decision governed by the particular record type.
+The game's **Seal** action/state is the player-facing transaction-completion concept. In The Eanna Work, institutional acceptance/disposition and the official's physical institutional seal impression are represented as the authorized closeout. Keep the apprentice's submission distinct from the official's acceptance.
 
 ## 8. Script and sign rendering
 
 Do not rely on the player's operating-system fonts or browser support for ancient Unicode characters.
 
-The proposed approach is a game-owned asset library:
-- verified graphical assets for the exact signs and numerical notations needed by authored Era I content;
-- deterministic placement and scaling on the tablet surface;
-- consistent rendering independent of installed fonts;
-- modern-language explanatory labels outside the clay artifact;
-- historical source and confidence metadata maintained with the authored asset/content package.
-
-Until a sign or numerical notation is verified for the intended period, commodity, and metrological system, use a clearly identified development placeholder in internal prototypes. Do not ship decorative pseudo-signs as if they were historical writing.
-
-The player should not need to know the full sign inventory. Teach only the small working repertoire required by the current task.
+Use lightweight SVG/visual motifs where useful, paired with clear, readable, accessible text. Reuse the existing interface and clay UI tokens (--surface-card, --surface-pressed). Do not require a custom font, editor, decoding engine, comprehensive sign inventory, or dedicated art pipeline. The player must never need to decipher a symbol to understand the accounting entry. Do not label invented decorative motifs as verified Proto-Cuneiform; accessible text carries the operative information.
 
 ## 9. Error, correction, and commitment behavior
 
@@ -274,20 +269,12 @@ Use the existing historical audit and responsibility matrix as constraints, not 
 - **Audio:** Optional, semantically triggered stylus and seal feedback may support the physical action; visual state changes remain mandatory. No new audio system is required.
 - **Production & QA:** No implementation authorized by this proposal. Later QA must test historical content boundaries, deterministic rendering, corrections, commit behavior, and accessible operation.
 
-## 15. Outstanding Game Director decisions
+## 15. Remaining design work
 
-The following remain OPEN and require owner review:
+The Game Director's decisions on layout, Work-only scope, institutional custody, and lightweight accessible presentation are incorporated above. Remaining work is scenario-level: author the actual Eanna stages, establish the exact source tallies and category/unit relationships from the existing authored content/research, and preserve the current character/official authority boundaries. Detailed correction behavior can be handled within the Work's authored flow; it must not block the scenario sheet.
 
-1. Approve or revise the proposed one-tablet obverse/source-entry and reverse/consolidation layout.
-2. Confirm whether the shortfall allocation is always entered on the reverse or placed in a distinct closing area determined by historical research.
-3. Decide whether the personal seal should be selected/commissioned during character creation or received through an initial professional appointment. The historical and narrative implications should inform this choice.
-4. Approve the correction model after historical research presents viable options.
-5. Confirm whether the Eanna Consolidated Summary Tablet should be authored as an Assignment deliverable, a Work-stage artifact, or another already-approved activity context. Do not let the interface proposal silently decide the gameplay layer.
-
-**Current recommendation:** Continue with the obverse/reverse concept as a prototype layout, but keep its historical status provisional. Do not lock exact signs, quantities, seal placement, or correction behavior yet.
+No new bespoke sign system, wireframe, or research cycle is a prerequisite.
 
 ## 16. Next action
 
-Design HQ should prepare a visual/interaction wireframe using clearly marked placeholder assets, alongside a Historical Research brief for the exact tablet conventions. The wireframe must show the tablet as the persistent workspace, player-created marks, dialogue overlays, the reverse/consolidation view, the shortfall decision, and the final Seal action.
-
-Only after the artifact's content and behavior are approved should Design HQ prepare the detailed behavioral contract and Production handoff. This document is PROPOSED and NOT READY FOR IMPLEMENTATION.
+Design HQ should deliver the 3–4 stage Eanna Work scenario sheet using existing Era I research and the approved constraints. The sheet is content guidance, not a technical implementation handoff. Any later implementation contract must use the existing React/clay UI system and must not introduce a bespoke sign-decoding engine or canvas-only interaction.
