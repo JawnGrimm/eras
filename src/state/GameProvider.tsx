@@ -4,7 +4,7 @@ import { transitionGame } from '../engine/actionEconomy';
 import type { ActionFeedback, CareerProgressionPolicy, GameAction, GameState, TransitionResult } from './types';
 import type { WorkDefinition } from '../works/workDefinition';
 import { createCharacterCreationPreviewState, createNewGameState, INITIAL_WORK_CATALOG, type EraICharacterCreationInput } from './newGameState';
-import { createSaveEnvelope, isLegacyV2Save, restoreSave, ROLLBACK_SAVE_KEY, SAVE_KEY } from './saveEnvelope';
+import { createSaveEnvelope, isLegacyV2Save, isLegacyV3Save, restoreSave, ROLLBACK_SAVE_KEY, SAVE_KEY } from './saveEnvelope';
 
 export type ProductionLoadStatus = 'ready' | 'corrupt_save' | 'read_error';
 
@@ -36,8 +36,8 @@ function storageFeedback(code: string, message: string): ActionFeedback {
 }
 
 /**
- * Reads the stable production save slot. A v2 envelope is validated, backed up,
- * migrated, and durably rewritten as v3 before the session becomes playable.
+ * Reads the stable production save slot. A v2 or v3 envelope is validated, backed up,
+ * migrated, and durably rewritten as v4 before the session becomes playable.
  */
 export function initializeProductionSession(
   storage: ProductionStorage | null,
@@ -73,16 +73,16 @@ export function initializeProductionSession(
         needsCharacterCreation: false,
       };
     }
-    if (isLegacyV2Save(raw)) {
+    if (isLegacyV2Save(raw) || isLegacyV3Save(raw)) {
       try {
-        // Preserve the exact validated v2 bytes before replacing the primary slot.
+        // Preserve the exact validated original bytes before replacing the primary slot.
         storage.setItem(ROLLBACK_SAVE_KEY, raw);
         storage.setItem(SAVE_KEY, JSON.stringify(restored));
       } catch {
         return {
           state: placeholderState(), loadStatus: 'read_error', revision: restored.revision,
-          feedback: storageFeedback('save-migration-failed', 'The v2 save was validated and migrated in memory, but its rollback copy or v3 write could not be confirmed. The original save remains the recovery source; play is paused.'),
-          hasUnsavedChanges: false, storageError: 'The v2-to-v3 migration could not be durably committed.',
+          feedback: storageFeedback('save-migration-failed', 'The legacy save was validated and migrated in memory, but its exact rollback copy or v4 write could not be confirmed. The original save remains the recovery source; play is paused.'),
+          hasUnsavedChanges: false, storageError: 'The legacy-save-to-v4 migration could not be durably committed.',
           needsCharacterCreation: false,
         };
       }
