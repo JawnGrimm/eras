@@ -700,6 +700,15 @@ function isValidV4GameState(value: unknown, workCatalog: Readonly<Record<string,
       || !value.world.people[item.deceasedCharacterId] || !value.world.people[item.successorCharacterId]
       || !Number.isInteger(item.deathDay) || item.deathDay < 1 || item.deathDay > value.calendar.dayNumber
       || (item.institutionId !== undefined && !value.world.institutions[item.institutionId])
+      || (item.invitation !== undefined && (!['direct_personal','direct_professional','wider_network'].includes(item.invitation.connectionTier)
+        || !nonEmptyString(item.invitation.basis) || !nonEmptyString(item.invitation.remainingRemit)
+        || !Array.isArray(item.invitation.availableRecords) || !item.invitation.availableRecords.length
+        || item.invitation.availableRecords.some((record) => !nonEmptyString(record))
+        || !nonEmptyString(item.invitation.authorityScope) || !Array.isArray(item.invitation.limits)
+        || !item.invitation.limits.length || item.invitation.limits.some((limit) => !nonEmptyString(limit))))
+      || (item.invitationResponse !== undefined && (!item.invitation || !['accepted','declined'].includes(item.invitationResponse)))
+      || (item.invitationResponse === 'accepted' && item.status !== 'taken_up')
+      || (item.invitationResponse === 'declined' && item.status !== 'waiting')
       || (item.status === 'taken_up' && (!Number.isInteger(item.takenUpDay) || item.takenUpDay! < item.deathDay || item.takenUpDay! > value.calendar.dayNumber))
       || (item.status === 'waiting' && item.takenUpDay !== undefined)) return false;
   }
