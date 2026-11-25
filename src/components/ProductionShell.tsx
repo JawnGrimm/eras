@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { getInitializedScribal } from '../state/scribalState';
 import { Volume2, VolumeX } from 'lucide-react';
 import { isAudioMuted, setAudioMuted } from '../engine/audio';
@@ -21,6 +21,59 @@ import { EveningInterlude } from './EveningInterlude';
 import { ClosingReceiptScreen } from './ClosingReceiptScreen';
 
 type Screen = 'workday' | 'storehouse' | 'assignments' | 'activity' | 'challenges' | 'people' | 'records' | 'help';
+
+export function ProductionSaveResetConfirmation({
+  onCancel,
+  onConfirm,
+}: {
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  const dialogRef = useRef<HTMLElement>(null);
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      onCancel();
+      return;
+    }
+    if (event.key !== 'Tab') return;
+    const buttons = dialogRef.current?.querySelectorAll<HTMLButtonElement>('button:not([disabled])');
+    if (!buttons?.length) return;
+    const first = buttons[0];
+    const last = buttons[buttons.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  };
+
+  return <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <section ref={dialogRef} role="dialog" aria-modal="true"
+      aria-labelledby="production-reset-confirmation-title"
+      aria-describedby="production-reset-confirmation-description"
+      onKeyDown={handleKeyDown}
+      className="w-full max-w-lg rounded-xl border border-stone-300 bg-[#fbf9f4] p-5 shadow-2xl sm:p-7">
+      <p className="text-xs font-semibold uppercase tracking-wider text-red-800">Save recovery</p>
+      <h2 id="production-reset-confirmation-title" className="mt-1 font-serif text-xl font-semibold text-stone-900">Open the Character Creator?</h2>
+      <p id="production-reset-confirmation-description" className="mt-3 text-sm leading-6 text-stone-700">
+        This opens a new character setup. Your existing production save will remain untouched unless and until you create and confirm a new character.
+      </p>
+      <div className="mt-5 flex flex-wrap justify-end gap-3">
+        <button type="button" autoFocus onClick={onCancel}
+          className="min-h-10 rounded-lg border border-stone-400 bg-white px-4 py-2 text-sm font-semibold text-stone-800 hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900">
+          Cancel
+        </button>
+        <button type="button" onClick={onConfirm}
+          className="min-h-10 rounded-lg bg-red-900 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900">
+          Open Character Creator
+        </button>
+      </div>
+    </section>
+  </div>;
+}
 
 function ProductionHeader() {
   const { state } = useGame();
@@ -50,6 +103,13 @@ export function ProductionShellContent() {
   const [screen, setScreen] = useState<Screen>('workday');
   const [settlement, setSettlement] = useState<DaySettlement | null>(null);
   const [activeActivityId, setActiveActivityId] = useState<string | null>(null);
+  const [resetConfirmationOpen, setResetConfirmationOpen] = useState(false);
+  const resetTriggerRef = useRef<HTMLButtonElement>(null);
+  const resetDialogWasOpen = useRef(false);
+  useEffect(() => {
+    if (resetDialogWasOpen.current && !resetConfirmationOpen) resetTriggerRef.current?.focus();
+    resetDialogWasOpen.current = resetConfirmationOpen;
+  }, [resetConfirmationOpen]);
   const openActivity = (assignmentId: string) => { setActiveActivityId(assignmentId); setScreen('activity'); };
   const person = game.state.world.people[game.state.player.currentCharacterId];
   const scribal = getInitializedScribal(person);
@@ -90,7 +150,7 @@ export function ProductionShellContent() {
       <h2 className="font-semibold text-red-950">{game.loadStatus === 'corrupt_save' ? 'Production save needs recovery' : 'Production save could not be read'}</h2>
       <p className="mt-1 text-sm text-red-900">{game.storageError ?? 'The existing save has not been replaced. Ordinary actions are paused.'}</p>
       <p className="mt-1 text-sm text-red-900">Starting fresh opens the Character Creator. The production save is replaced only after you confirm the new character. Legacy prototype saves are left untouched.</p>
-      <button onClick={() => { if (window.confirm('Open the Character Creator? The current production save will not be replaced until you confirm a new character.')) { if (game.startFreshProductionSave()) { setSettlement(null); setScreen('workday'); } } }} className="mt-3 rounded-lg bg-red-900 px-4 py-2 text-sm font-semibold text-white">Start Fresh Production Save</button>
+      <button ref={resetTriggerRef} type="button" onClick={() => setResetConfirmationOpen(true)} className="mt-3 rounded-lg bg-red-900 px-4 py-2 text-sm font-semibold text-white">Start Fresh Production Save</button>
     </section>}
     {game.hasUnsavedChanges && <section role="status" className="rounded-xl border border-amber-400 bg-amber-50 px-4 py-3">
       <p className="text-sm font-semibold text-amber-950">This session has unsaved changes</p>
@@ -99,6 +159,16 @@ export function ProductionShellContent() {
     {game.feedback && <section role="status" className={`flex items-start justify-between gap-3 rounded-lg border px-4 py-3 text-sm ${game.feedback.kind === 'error' ? 'border-red-200 bg-red-50 text-red-900' : 'border-stone-300 bg-white text-stone-700'}`}>
       <p>{game.feedback.message}</p><button onClick={game.clearFeedback} aria-label="Dismiss message" className="text-xs underline">Dismiss</button>
     </section>}
+    {resetConfirmationOpen && <ProductionSaveResetConfirmation
+      onCancel={() => setResetConfirmationOpen(false)}
+      onConfirm={() => {
+        if (game.startFreshProductionSave()) {
+          setResetConfirmationOpen(false);
+          setSettlement(null);
+          setScreen('workday');
+        }
+      }}
+    />}
   </>;
 
   if (game.state.pendingSuccession) {
@@ -172,7 +242,7 @@ export function ProductionShellContent() {
                         <section className="rounded-lg border border-red-200 bg-red-50 p-4">
                           <h2 className="font-semibold text-red-950">Start a new character</h2>
                           <p className="mt-1 text-sm leading-6 text-red-900">This opens the Character Creator. The current production save is replaced only when you confirm the new character. Legacy <code>scribe_*</code> keys are not read, migrated, or deleted.</p>
-                          <button onClick={() => { if (window.confirm('Open the Character Creator? The current production save will not be replaced until you confirm a new character.')) { if (game.startFreshProductionSave()) { setSettlement(null); setScreen('workday'); } } }} className="mt-3 rounded-lg bg-red-900 px-4 py-2 text-sm font-semibold text-white">Start New Character</button>
+                          <button ref={resetTriggerRef} type="button" onClick={() => setResetConfirmationOpen(true)} className="mt-3 rounded-lg bg-red-900 px-4 py-2 text-sm font-semibold text-white">Start New Character</button>
                         </section>
                       </section>}
       </main>
