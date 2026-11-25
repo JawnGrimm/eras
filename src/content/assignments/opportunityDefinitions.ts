@@ -139,7 +139,7 @@ export const URUK_ASSIGNMENT_OPPORTUNITY_DEFINITIONS: readonly AssignmentOpportu
       },
       requiredSkills: {},
       difficulty: 'routine',
-      estimatedTotalAp: ERA_I_ASSIGNMENT_PARAMETERS.tierB.estimatedTotalAp.southCourtDelivery,
+      estimatedTotalAp: 4,
       compensation: { money: ERA_I_ASSIGNMENT_PARAMETERS.tierB.currency, provisions: ERA_I_ASSIGNMENT_PARAMETERS.tierB.defaultProvisions },
       careerXpReward: ERA_I_ASSIGNMENT_PARAMETERS.tierB.baseCareerXp,
       deliveryChannels: [{ kind: 'baseline_reach', explanation: 'The Storehouse has a dated source occurrence requiring a bounded comparison; this is ordinary shared-pool institutional work.' }],
