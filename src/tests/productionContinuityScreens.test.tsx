@@ -48,7 +48,9 @@ describe('production continuity and social screens', () => {
 
   it('shows a provenanced familiarity-only direction without fabricating sentiment dimensions', () => {
     const base = createInitialGameState();
-    const subjectId = Object.keys(base.world.people).find((id) => id !== INITIAL_PERSON_ID)! as PersonId;
+    const subjectId = Object.keys(base.world.people).find((id) => id !== INITIAL_PERSON_ID
+      && !base.world.relationships[INITIAL_PERSON_ID]?.[id as PersonId]
+      && !base.world.relationships[id as PersonId]?.[INITIAL_PERSON_ID])! as PersonId;
     const eventId = 'event-familiarity-ui' as EventId;
     const event: WorldEvent = {
       id: eventId, dayNumber: 1, summary: 'A substantive response was returned.',
