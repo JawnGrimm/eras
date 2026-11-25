@@ -15,6 +15,7 @@ import { transitionAssignmentActivityAction } from '../engine/assignmentActivity
 import { ASSIGNMENT_ACTIVITY_CATALOG } from '../content/assignments/northBayRoofInspection';
 import { ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS } from '../content/assignments/eraIAnchorOpportunities';
 import { ERA_I_COMMERCIAL_MARTIAL_OPPORTUNITY_DEFINITIONS } from '../content/assignments/eraICommercialMartial';
+import { URUK_ASSIGNMENT_OPPORTUNITY_DEFINITIONS } from '../content/assignments/opportunityDefinitions';
 import type { ChallengeId } from '../state/ids';
 
 describe('production opportunity screens', () => {
@@ -166,6 +167,7 @@ describe('production opportunity screens', () => {
     const authoredOffers = [
       ...ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS.map((definition) => definition.offer),
       ...ERA_I_COMMERCIAL_MARTIAL_OPPORTUNITY_DEFINITIONS.map((definition) => definition.offer),
+      ...URUK_ASSIGNMENT_OPPORTUNITY_DEFINITIONS.map((definition) => definition.offer),
       ...Object.values(generated.opportunities.assignments),
     ];
     const offerText = authoredOffers.flatMap((offer) => [
