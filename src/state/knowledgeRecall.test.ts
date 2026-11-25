@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import type { EventId, KnowledgeEntryId, PersonId } from './ids';
-import type { KnowledgeEntry } from './types';
+import type { CurrentKnowledgeEntry, KnowledgeEntry } from './types';
 import { deriveKnowledgeStatus, resolveRememberedTendencyCues } from './knowledgeRecall';
 
 const holder = 'person-scribe' as PersonId;
 const subject = 'person-estimator' as PersonId;
 
-function tendency(id: string, status?: 'verified' | 'contradicted' | 'obsolete'): KnowledgeEntry {
+function tendency(id: string, status?: 'verified' | 'contradicted' | 'obsolete'): CurrentKnowledgeEntry {
   return {
     id: id as KnowledgeEntryId,
     holder: { kind: 'person', id: holder },
