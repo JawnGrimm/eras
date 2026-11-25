@@ -494,7 +494,10 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
     const subject = k.subject.kind === 'event' ? typeof k.subject.id === 'string' && isObject(events[k.subject.id])
       : k.subject.kind === 'record' && typeof k.subject.id === 'string' && isObject(records[k.subject.id]);
     if (!holder || !subject) return false;
-    if (schemaVersion < 4) continue;
+    if (schemaVersion < 4) {
+      if (k.legacy !== undefined || k.assertion !== undefined || k.assessments !== undefined) return false;
+      continue;
+    }
     if (k.legacy === true) {
       if (k.assertion !== undefined || k.assessments !== undefined) return false;
       continue;
