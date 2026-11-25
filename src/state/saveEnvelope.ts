@@ -767,7 +767,7 @@ function migrateV2Envelope(value: Record<string, unknown>, raw: string): import(
   };
 }
 
-function migrateV3Envelope(value: Record<string, unknown>): SaveEnvelope {
+function migrateV3Envelope(value: import('./types').LegacySaveEnvelopeV3): SaveEnvelope {
   const legacyState = value.state as GameState;
   const relationships = Object.fromEntries(Object.entries(legacyState.world.relationships).map(([fromId, targets]) => [
     fromId,
@@ -1081,7 +1081,7 @@ export function restoreSave(raw: string | null, workCatalog: Readonly<Record<str
     }
     if (parsed.schemaVersion === 3) {
       if (!isValidV3SaveEnvelope(parsed, workCatalog)) return null;
-      const migratedV4 = migrateV3Envelope(parsed);
+      const migratedV4 = migrateV3Envelope(parsed as import('./types').LegacySaveEnvelopeV3);
       return isValidSaveEnvelope(migratedV4, workCatalog) ? migratedV4 : null;
     }
     return isValidSaveEnvelope(parsed, workCatalog) ? parsed : null;
