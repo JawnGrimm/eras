@@ -1,5 +1,5 @@
 import type { EvidenceId, InstitutionId, MatterId, PersonId, WorkId, SkillId, AttributeId } from '../state/ids';
-import type { AssignmentOffer, InstitutionalMatter, KnowledgeEntry, RecordEntry, ScribalCharacterState, WorkAssessmentDimensionResult } from '../state/types';
+import type { AssignmentOffer, InstitutionalMatter, KnowledgeEntry, RecordEntry, ScribalCharacterState, WorkAssessmentDimensionResult, WorldEvent } from '../state/types';
 import type { InterpretationRule, Predicate } from './evidenceInterpretation';
 
 export interface WorkEvidenceDefinition {
@@ -32,6 +32,7 @@ export interface WorkAssessment {
 export interface WorkFinalization {
   careerXpReward?: number;
   record?: RecordEntry;
+  events?: WorldEvent[];
   knowledge?: KnowledgeEntry[];
   /** Institutional matters that are explicitly resolved by this final disposition. */
   retireInstitutionMatters?: Array<{ institutionId: InstitutionId; matterId: MatterId }>;
@@ -61,6 +62,7 @@ export interface WorkDefinition<TProgress extends Record<string, unknown> = Reco
   dispositions?: readonly string[];
   finalizeDisposition?(context: WorkSubmissionContext<TProgress>, disposition: string): WorkFinalization;
   createInitialProgress(): TProgress;
+  createInitialMatters?(context: Pick<WorkSubmissionContext<TProgress>, 'personId' | 'dayNumber'>): InstitutionalMatter[];
   provisionsContract?: { provisionsPerQualifiedWorkday: number; minimumWorkApPerDay: number };
   validateScenarioData(value: unknown): value is TProgress;
   evaluateSubmission(context: WorkSubmissionContext<TProgress>): unknown;

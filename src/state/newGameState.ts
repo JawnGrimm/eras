@@ -4,6 +4,7 @@ import { createInitialGameState } from './initialState';
 import type { GameState, Person } from './types';
 import type { PersonId, CareerPathId } from './ids';
 import { STOREHOUSE_WORK_ID, storehouseReckoning } from '../works/storehouseReckoning';
+import { EANNA_PROVISIONING_WORK_ID, eannaProvisioningWork } from '../works/eannaProvisioning';
 import { ASSIGNMENT_ACTIVITY_CATALOG } from '../content/assignments/northBayRoofInspection';
 import {
   resolveEraICharacterHistory,
@@ -21,6 +22,7 @@ export const INITIAL_ASSIGNMENT_ACTIVITY_CATALOG = ASSIGNMENT_ACTIVITY_CATALOG;
 
 export const INITIAL_WORK_CATALOG = {
   [STOREHOUSE_WORK_ID]: storehouseReckoning,
+  [EANNA_PROVISIONING_WORK_ID]: eannaProvisioningWork,
 } as const;
 
 const CHARACTER_CREATION_PREVIEW_PERSON: Person = {

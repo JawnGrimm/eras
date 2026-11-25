@@ -6,6 +6,7 @@ import type { DaySettlement } from '../state/types';
 import type { InstitutionId, PersonId } from '../state/ids';
 import { UR_GIR_PERSON_ID } from '../state/ids';
 import { STOREHOUSE_WORK_ID } from '../works/storehouseReckoning';
+import { EANNA_PROVISIONING_WORK_ID, isEraICareerScaleWorkChoiceEligible } from '../works/eannaProvisioning';
 import { selectCharacterOpportunities } from '../state/opportunitySelectors';
 import { characterQualifiesForAssignment } from '../engine/opportunities';
 import { getOvertimeApForfeitPrompt } from './overtimeApForfeit';
@@ -47,8 +48,8 @@ function SettlementSummary({ settlement }: { settlement: DaySettlement }) {
   </section>;
 }
 
-export function ProductionWorkdayHub({ onOpenWork, onOpenActivity, settlement, onSettlement }: {
-  onOpenWork: () => void; onOpenActivity: (assignmentId: string) => void; settlement: DaySettlement | null; onSettlement: (settlement: DaySettlement) => void;
+export function ProductionWorkdayHub({ onOpenWork, onOpenEannaWork, onOpenActivity, settlement, onSettlement }: {
+  onOpenWork: () => void; onOpenEannaWork: () => void; onOpenActivity: (assignmentId: string) => void; settlement: DaySettlement | null; onSettlement: (settlement: DaySettlement) => void;
 }) {
   const game = useGame();
   const state = game.state;
@@ -66,6 +67,9 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenActivity, settlement, o
   const unavailableWorks = Object.entries(state.works.progress).filter(([, progress]) => progress.status === 'suspended');
   const shortageActive = wallet.shortageWorkdays >= 3;
   const tutorialComplete = state.works.progress[STOREHOUSE_WORK_ID]?.status === 'completed';
+  const eannaProgress = state.works.progress[EANNA_PROVISIONING_WORK_ID];
+  const eannaAvailable = tutorialComplete && (state.calendar.dayNumber >= 35 || !!eannaProgress);
+  const careerScaleChoiceUnlocked = isEraICareerScaleWorkChoiceEligible(state.historicalProgression.completedWorks);
   const hardshipVisible = tutorialComplete || wallet.provisions <= 1 || wallet.shortageWorkdays >= 1;
   const storehouse = state.world.institutions['institution-uruk-temple-storehouse' as InstitutionId];
   const laborAvailable = !!storehouse?.locationId && !!state.world.locations[storehouse.locationId];
@@ -173,6 +177,21 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenActivity, settlement, o
       </div>
     </section>
 
+    {eannaAvailable && <section className="rounded-xl border border-amber-300 bg-[#fbf9f4] p-5 shadow-sm">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div><p className="text-xs font-semibold uppercase tracking-wider text-amber-800">Era I · Career-scale Work</p>
+          <h2 className="mt-1 font-serif text-2xl font-semibold text-stone-900">The Eanna Provisioning Undertaking</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-stone-600">Compile separate household and offering requests onto one Consolidated Summary Tablet. The full window is Days 35–38; retrospective compilation is available through Day 42; after that, Lu-Nanshe may review surviving source records.</p>
+          <p className="mt-2 text-xs text-stone-500">{eannaProgress?.status === 'completed' ? 'Completed · +100 Historical Progress XP' : eannaProgress?.status === 'active' ? 'In progress' : state.calendar.dayNumber > 38 ? 'Retrospective compilation available' : 'Available now'} · 9 AP normal path · 2 AP/day earns +1 Provision</p>
+        </div>
+        <button onClick={onOpenEannaWork} className="rounded-lg bg-stone-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-amber-800">{eannaProgress?.status === 'completed' ? 'Review Work' : eannaProgress ? 'Resume Work' : 'Open Work'}</button>
+      </div>
+    </section>}
+    {careerScaleChoiceUnlocked && <section role="status" className="rounded-xl border border-emerald-300 bg-emerald-50 p-5">
+      <p className="text-xs font-semibold uppercase tracking-wider text-emerald-800">Era I progression · Unlocked</p>
+      <h2 className="mt-1 font-serif text-xl font-semibold text-stone-900">Your next career-scale Work choice is eligible</h2>
+      <p className="mt-2 text-sm leading-6 text-stone-700">The Eanna milestone has been accepted. The next required Work will be chosen from the Era I career-scale portfolio when its approved alternatives are registered. The unchosen alternative will not count as a declined obligation.</p>
+    </section>}
     <div className="grid gap-5 lg:grid-cols-2">
       <section className="rounded-xl border border-stone-300 bg-white p-5">
         <div className="flex items-center justify-between"><h2 className="font-serif text-xl font-semibold text-stone-900">Assignments / Commissions</h2><span className="text-xs text-stone-500">{activeAssignments.length}/2 active</span></div>
