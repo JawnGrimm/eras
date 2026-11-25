@@ -141,7 +141,7 @@ export function prepareTierBRecurringOccurrences(input: GameState): GameState {
       const occurrence = authoredOccurrence(day, counterpartyPersonId, counterpartyName);
       const dispatchId = `record-tierb-recurring-day-${day}-dispatch` as RecordId;
       const receivingId = `record-tierb-recurring-day-${day}-receiving` as RecordId;
-      const summary = `Tier B ${occurrence.domain.replaceAll('_', ' ')} at ${institution.name}: ${occurrence.commodity}; ${occurrence.outcomeShape === 'reconciled' ? 'the cited figures reconcile' : 'a bounded difference or condition is recorded'}.`;
+      const summary = `Institutional check at ${institution.name}: ${occurrence.commodity}; ${occurrence.outcomeShape === 'reconciled' ? 'the cited figures reconcile' : 'a bounded difference or condition is recorded'}.`;
       const participants = [counterpartyPersonId, receivingPersonId, reviewerPersonId];
       const event: WorldEvent = {
         id: eventId, dayNumber: day, summary, personIds: participants,
