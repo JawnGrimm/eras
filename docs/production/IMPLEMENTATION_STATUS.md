@@ -510,3 +510,19 @@ The two production issues remain open for acceptance rather than implementation:
 - **Issue #107:** actual Day-13 save/transaction trace for balance and archived-record reconciliation, plus manual browser, keyboard-only, screen-reader, 200% zoom, and narrow-viewport checks.
 
 No additional historical research is required by the completed source audit. No GDD or Decision Register changes were made.
+
+
+## Assignment consultation and Challenge provenance update — 24 November 2026
+
+**PR #122 merged:** `3848e2dd47fbffae273ae3e85fe206ea9cd7cbc6`  
+**Validated PR head:** `e13cd14e97e005ac4956d95394fee2922c22efff`
+
+- Pull Request Validation #676: TypeScript passed; 42 test files / 308 tests passed; production build passed.
+- PR CodeQL #572 passed on the exact PR head.
+- Main CodeQL #573 passed on the merge commit.
+- Build and Deploy #202 passed; GitHub Pages deployment succeeded.
+- Current main at this snapshot: `3848e2dd47fbffae273ae3e85fe206ea9cd7cbc6`.
+
+Authored Assignment consultation actions now create objective consultation Events and directional player → consulted-person familiarity episodes. Repeated consultations in the same matter/context do not create additional familiarity episodes. Anchor relationship-history entries link only to an existing disposition Event or a consultation Event when that person was explicitly consulted. The regression confirms the Event-backed relationship update resolves through the Challenge Director. Entries without supporting Events remain unlinked; no synthetic Events are created.
+
+The remaining Issue #85 and #107 acceptance items are unchanged: manual integrated playthrough and succession/Challenge smoke testing; actual Day-13 save/transaction reconciliation; and manual browser/accessibility checks. WP5 remains “No material research required.” No GDD or Decision Register changes.
