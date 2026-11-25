@@ -128,6 +128,63 @@ describe('character departure and succession lifecycle', () => {
     expect(result.state.works.progress[EANNA_PROVISIONING_WORK_ID].workApSpentToday).toBe(2);
   });
 
+  it('offers a Work-authored succession invitation only when qualification, connection, access, and authority are documented', () => {
+    const initial = createInitialGameState();
+    const institutionId = eannaProvisioningWork.institutionId!;
+    const authorityScope = 'Compile and submit the remaining consolidated account';
+    const institution = { id: institutionId, name: 'Eanna Precinct', responsibilities: [], authority: [authorityScope], standing: 50, activeMatters: [] };
+    const former = initial.world.people[INITIAL_PERSON_ID];
+    const candidate = initial.world.people[apprenticeId];
+    const formerScribal = getInitializedScribal(former)!;
+    const candidateScribal = getInitializedScribal(candidate)!;
+    const people = {
+      ...initial.world.people,
+      [INITIAL_PERSON_ID]: { ...former, affiliations: [...former.affiliations, institutionId] },
+      [apprenticeId]: { ...candidate, affiliations: [...candidate.affiliations, institutionId],
+        scribal: { ...candidateScribal, skills: { ...candidateScribal.skills, recordkeeping_accounts: { level: 5, skillXp: 0 } } } },
+    };
+    const authoredWork = {
+      ...eannaProvisioningWork,
+      successionInvitation: {
+        qualification: { kind: 'skillAtLeast' as const, skillId: 'recordkeeping_accounts' as const, level: 3 },
+        connectionTiers: ['direct_professional' as const],
+        basis: 'The successor is affiliated with the responsible precinct and has the required account skill.',
+        remainingRemit: 'Complete the remaining consolidated account and submit it for senior disposition.',
+        availableRecords: ['The originating household tallies and physical count packet.'],
+        authorityScope,
+        limits: ['No authority to alter the senior scribe’s allocation decision.'],
+      },
+    };
+    const scenarioData = authoredWork.createInitialProgress();
+    const progress = {
+      status: 'active' as const,
+      definitionCompatibilityKey: authoredWork.progressCompatibilityKey,
+      acquiredEvidence: [...authoredWork.startingEvidence],
+      examinedEvidence: [],
+      workApSpentToday: 1,
+      rewardGranted: false,
+      completedActionIds: [],
+      provisionContract: authoredWork.provisionsContract,
+      scenarioData,
+      submissionCount: 0,
+    };
+    const state: GameState = {
+      ...initial,
+      world: { ...initial.world, people, institutions: { ...initial.world.institutions, [institutionId]: institution } },
+      works: { activeWorkId: EANNA_PROVISIONING_WORK_ID, progress: { [EANNA_PROVISIONING_WORK_ID]: progress } },
+    };
+    const catalog = { [EANNA_PROVISIONING_WORK_ID]: authoredWork };
+    const death = transitionGame(state, { type: 'BEGIN_CHARACTER_DEPARTURE', departureKind: 'death' }, undefined, catalog);
+    const selected = transitionGame(death.state, { type: 'SELECT_SUCCESSOR', nextCharacterId: apprenticeId }, undefined, catalog);
+    const preserved = selected.state.works.preservedUndertakings?.[0];
+    expect(preserved?.invitation).toMatchObject({ authorityScope, connectionTier: 'direct_professional' });
+    expect(selected.state.journal.notices.at(-1)?.message).toContain('invites you to take up the remaining remit');
+    const accepted = transitionGame(selected.state, { type: 'RESPOND_PRESERVED_WORK_INVITATION', workId: EANNA_PROVISIONING_WORK_ID, response: 'accept' }, undefined, catalog);
+    expect(accepted.feedback?.code).toBe('preserved-work-taken-up');
+    expect(accepted.state.works.activeWorkId).toBe(EANNA_PROVISIONING_WORK_ID);
+    expect(accepted.state.works.handoffHistory).toHaveLength(1);
+  });
+
   it('discovers connected scribes, persists a pending death, selects without inheritance, and round-trips the save', () => {
     let state = withPriorHistory(createInitialGameState());
     expect(rankSuccessorCandidates(state).map((candidate) => candidate.personId)).toEqual([apprenticeId, colleagueId]);
