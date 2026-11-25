@@ -45,9 +45,13 @@ export function AssignmentActivityScreen({ assignmentId, onBack }: { assignmentI
     rules: definition.interpretationRules,
   }));
   const draft = progress.draft;
-  const tierBLinkedRecords = offer.activityId === 'activity-tierb-recurring-institutional-check' && offer.originMatterId
+  const tierBMatter = offer.activityId === 'activity-tierb-recurring-institutional-check' && offer.originMatterId
+    ? game.state.world.matters[offer.originMatterId]
+    : undefined;
+  const tierBOccurrence = tierBMatter?.tierBRecurring;
+  const tierBLinkedRecords = tierBMatter
     ? (() => {
-      const matter = game.state.world.matters[offer.originMatterId];
+      const matter = tierBMatter;
       const recordIds = [...new Set([
         matter?.sourceRecordId,
         ...(matter?.provenance ?? []).filter((source) => source.kind === 'other').map((source) => source.sourceId),
@@ -66,6 +70,16 @@ export function AssignmentActivityScreen({ assignmentId, onBack }: { assignmentI
       <p className="mt-2 text-sm leading-6 text-stone-600">{offer.description}</p>
       <p className="mt-3 text-sm"><strong>{game.state.actionEconomy.apRemaining} AP</strong> remaining today · estimated {offer.estimatedTotalAp} AP total · submission {definition.submissionApCost} AP</p>
     </header>
+    {tierBOccurrence && <section className="rounded-xl border border-stone-300 bg-white p-5">
+      <h2 className="font-serif text-xl font-semibold">Occurrence particulars</h2>
+      <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
+        <div><dt className="font-semibold text-stone-600">Commodity</dt><dd>{tierBOccurrence.commodity}</dd></div>
+        <div><dt className="font-semibold text-stone-600">Recorded unit</dt><dd>{tierBOccurrence.unit}</dd></div>
+        <div><dt className="font-semibold text-stone-600">Counterparty</dt><dd>{game.state.world.people[tierBOccurrence.counterpartyPersonId]?.name ?? tierBOccurrence.counterpartyName}</dd></div>
+      </dl>
+      <p className="mt-3 text-sm leading-6">{tierBOccurrence.quantitySummary}</p>
+      <p className="mt-2 text-sm leading-6 text-stone-600">{tierBOccurrence.sourceSummary}</p>
+    </section>}
     {tierBLinkedRecords.length > 0 && <section className="rounded-xl border border-stone-300 bg-white p-5">
       <h2 className="font-serif text-xl font-semibold">Dated source records</h2>
       <p className="mt-1 text-sm text-stone-600">Read the actual assertions in each linked record. Keep the source copy and receiving/check copy distinct; each records only what its source establishes.</p>
