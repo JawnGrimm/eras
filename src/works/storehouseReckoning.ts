@@ -198,7 +198,7 @@ function finalize(context: WorkSubmissionContext<StorehouseScenarioData>, dispos
     amendments: [],
   };
   const knowledge = [
-    { id: `knowledge-storehouse-record-senior-${dayNumber}` as KnowledgeEntryId, holder: { kind: 'person' as const, id: STOREHOUSE_PEOPLE.seniorScribe }, subject: { kind: 'record' as const, id: record.id }, basis: 'consulted-record' as const, learnedDay: dayNumber, sourcePersonId: personId },
+    { id: `knowledge-storehouse-record-senior-${dayNumber}` as KnowledgeEntryId, holder: { kind: 'person' as const, id: STOREHOUSE_PEOPLE.seniorScribe }, subject: { kind: 'record' as const, id: record.id }, basis: 'consulted-record' as const, learnedDay: dayNumber, sourcePersonId: personId, assertion: { kind: 'fact' as const, text: 'Received a copy of the Storehouse Reckoning report.' }, assessments: [] },
     { id: `knowledge-storehouse-record-steward-${dayNumber}` as KnowledgeEntryId, holder: { kind: 'person' as const, id: STOREHOUSE_PEOPLE.steward }, subject: { kind: 'record' as const, id: record.id }, basis: 'received-copy' as const, learnedDay: dayNumber, sourcePersonId: personId },
     { id: `knowledge-storehouse-record-institution-${dayNumber}` as KnowledgeEntryId, holder: { kind: 'institution' as const, id: STOREHOUSE_INSTITUTION_ID }, subject: { kind: 'record' as const, id: record.id }, basis: 'received-copy' as const, learnedDay: dayNumber, sourcePersonId: personId },
   ];
