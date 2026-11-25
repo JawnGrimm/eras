@@ -204,8 +204,9 @@ export function transitionCharacterContinuity(state: GameState, action: Continui
   const activeProgress = activeWorkId ? state.works.progress[activeWorkId] : undefined;
   const activeInstitutionalMatters = Object.values(state.world.matters).filter((matter) =>
     matter.status === 'active' && (matter.involvedPersonIds ?? []).includes(pending.formerCharacterId));
+  const activeInstitutionIds = [...new Set(activeInstitutionalMatters.map((matter) => matter.institutionId))];
   const institutionId = activeDefinition?.institutionId
-    ?? (activeInstitutionalMatters.length === 1 ? activeInstitutionalMatters[0].institutionId : undefined);
+    ?? (activeInstitutionIds.length === 1 ? activeInstitutionIds[0] : undefined);
   const preserveWork = pending.departureKind === 'death' && !!activeWorkId && activeDefinition?.kind === 'work'
     && !!activeProgress && activeProgress.status === 'active';
   const successorRanked = rankSuccessorCandidates(state).find((candidate) => candidate.personId === nextId);
