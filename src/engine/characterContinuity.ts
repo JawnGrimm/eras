@@ -1,6 +1,8 @@
 import type { InstitutionId, PersonId } from '../state/ids';
+import type { WorkDefinition } from '../works/workDefinition';
 import { getInitializedScribal, isInitializedScribalState } from '../state/scribalState';
-import type { GameAction, GameState, TransitionResult } from '../state/types';
+import type { GameAction, GameState, PreservedWorkInvitationSnapshot, TransitionResult } from '../state/types';
+import { evaluateCharacterPredicate } from '../works/evidenceInterpretation';
 
 export type SuccessorConnectionTier = 'direct_personal' | 'direct_professional' | 'wider_network';
 
@@ -128,7 +130,7 @@ const continuitySuccess = (state: GameState, code: string, message: string): Tra
 });
 
 /** Handles persisted departure and successor selection without inheriting character state. */
-export function transitionCharacterContinuity(state: GameState, action: ContinuityAction): TransitionResult {
+export function transitionCharacterContinuity(state: GameState, action: ContinuityAction, workCatalog: Readonly<Record<string, WorkDefinition<any>>> = {}): TransitionResult {
   if (action.type === 'BEGIN_CHARACTER_DEPARTURE') {
     if (state.pendingSuccession) {
       return continuityFailure(state, 'succession-already-pending', 'A character transition is already awaiting resolution.');
@@ -151,10 +153,20 @@ export function transitionCharacterContinuity(state: GameState, action: Continui
         ? { ...offer, assigneePersonId: formerId }
         : offer,
     ]));
+    const activeWorkId = state.works.activeWorkId;
+    const activeWorkDefinition = activeWorkId ? workCatalog[activeWorkId] : undefined;
+    const activeWorkProgress = activeWorkId ? state.works.progress[activeWorkId] : undefined;
+    const closesPersonalWorkSegment = action.departureKind === 'death' && !!activeWorkId
+      && activeWorkDefinition?.kind === 'work' && activeWorkProgress?.status === 'active';
     const departed: GameState = {
       ...state,
       world: { ...state.world, people },
       opportunities: { ...state.opportunities, assignments },
+      works: closesPersonalWorkSegment ? { ...state.works,
+        contributionSegments: (state.works.contributionSegments ?? []).map((segment) =>
+          segment.workId === activeWorkId && segment.personId === formerId && segment.status === 'open'
+            ? { ...segment, status: 'closed' as const, endedDay: state.calendar.dayNumber, closureReason: 'death' as const } : segment) }
+        : state.works,
     };
     const candidates = rankSuccessorCandidates(departed);
     let status: 'awaiting_selection' | 'no_successor' = 'awaiting_selection';
@@ -187,6 +199,56 @@ export function transitionCharacterContinuity(state: GameState, action: Continui
     return continuityFailure(state, 'successor-ineligible', 'The selected successor must be a living, existing scribal NPC in the connected candidate list.');
   }
 
+  const activeWorkId = state.works.activeWorkId;
+  const activeDefinition = activeWorkId ? workCatalog[activeWorkId] : undefined;
+  const activeProgress = activeWorkId ? state.works.progress[activeWorkId] : undefined;
+  const activeInstitutionalMatters = Object.values(state.world.matters).filter((matter) =>
+    matter.status === 'active' && (matter.involvedPersonIds ?? []).includes(pending.formerCharacterId));
+  const activeInstitutionIds = [...new Set(activeInstitutionalMatters.map((matter) => matter.institutionId))];
+  const institutionId = activeDefinition?.institutionId
+    ?? (activeInstitutionIds.length === 1 ? activeInstitutionIds[0] : undefined);
+  const preserveWork = pending.departureKind === 'death' && !!activeWorkId && activeDefinition?.kind === 'work'
+    && !!activeProgress && activeProgress.status === 'active';
+  const successorRanked = rankSuccessorCandidates(state).find((candidate) => candidate.personId === nextId);
+  const successorScribal = getInitializedScribal(nextPerson);
+  const invitationDefinition = activeDefinition?.successionInvitation;
+  const invitationInstitution = institutionId ? state.world.institutions[institutionId] : undefined;
+  const activeAppointments = Object.values(state.world.appointments).filter((appointment) =>
+    appointment.personId === nextId && appointment.institutionId === institutionId
+      && appointment.startDay <= state.calendar.dayNumber
+      && (appointment.endDay === undefined || appointment.endDay >= state.calendar.dayNumber));
+  const hasInstitutionalAccess = !!institutionId && (nextPerson.affiliations.includes(institutionId) || activeAppointments.length > 0);
+  const hasAuthority = !!invitationDefinition && !!invitationInstitution
+    && (invitationInstitution.authority.includes(invitationDefinition.authorityScope)
+      || activeAppointments.some((appointment) => appointment.authorityScope.includes(invitationDefinition.authorityScope)));
+  const invitationEligible = !!preserveWork && !!invitationDefinition && !!institutionId
+    && !!successorRanked && invitationDefinition.connectionTiers.includes(successorRanked.tier)
+    && !!successorScribal && evaluateCharacterPredicate(invitationDefinition.qualification, successorScribal)
+    && hasInstitutionalAccess && hasAuthority;
+  const invitationSnapshot: PreservedWorkInvitationSnapshot | undefined = invitationEligible && invitationDefinition && successorRanked
+    ? { connectionTier: successorRanked.tier, basis: invitationDefinition.basis,
+        remainingRemit: invitationDefinition.remainingRemit, availableRecords: [...invitationDefinition.availableRecords],
+        authorityScope: invitationDefinition.authorityScope, limits: [...invitationDefinition.limits] }
+    : undefined;
+  const preservedUndertaking = preserveWork && activeWorkId && activeDefinition ? {
+    workId: activeWorkId,
+    title: activeDefinition.title,
+    ...(institutionId ? { institutionId } : {}),
+    deceasedCharacterId: pending.formerCharacterId,
+    successorCharacterId: nextId,
+    deathDay: pending.dayNumber,
+    status: 'waiting' as const,
+    ...(invitationSnapshot ? { invitation: invitationSnapshot } : {}),
+  } : undefined;
+  const workNotice = preservedUndertaking
+    ? {
+        id: `notice-work-succession-${String(activeWorkId)}-${pending.dayNumber}-${String(nextId)}`,
+        dayNumber: pending.dayNumber,
+        category: 'work' as const,
+        message: `${institutionId ? state.world.institutions[institutionId]?.name ?? 'The responsible institution' : 'The institution responsible for the undertaking'} sends condolences for ${state.world.people[pending.formerCharacterId]?.name ?? 'the deceased'}. ${invitationSnapshot ? `It invites you to take up the remaining remit: ${invitationSnapshot.remainingRemit}. Basis: ${invitationSnapshot.basis}. Records: ${invitationSnapshot.availableRecords.join('; ')}. Authority: ${invitationSnapshot.authorityScope}. Limits: ${invitationSnapshot.limits.join('; ')}. Please accept or decline; no handoff has occurred yet.` : `${activeDefinition!.title} and its completed progress will be waiting if you later choose to take it up. No handoff has occurred.`}`,
+        read: false,
+      }
+    : undefined;
   const nextState: GameState = {
     ...state,
     player: { currentCharacterId: nextId },
@@ -209,10 +271,20 @@ export function transitionCharacterContinuity(state: GameState, action: Continui
     },
     works: {
       ...state.works,
+      activeWorkId: preserveWork ? null : state.works.activeWorkId,
+      preservedUndertakings: preservedUndertaking
+        ? [...(state.works.preservedUndertakings ?? []), preservedUndertaking]
+        : state.works.preservedUndertakings ?? [],
+      contributionSegments: preserveWork
+        ? (state.works.contributionSegments ?? []).map((segment) => segment.workId === activeWorkId
+            && segment.personId === pending.formerCharacterId && segment.status === 'open'
+            ? { ...segment, status: 'closed' as const, endedDay: pending.dayNumber, closureReason: 'death' as const } : segment)
+        : state.works.contributionSegments ?? [],
       progress: Object.fromEntries(Object.entries(state.works.progress).map(([id, progress]) => [
         id, { ...progress, workApSpentToday: 0 },
       ])),
     },
+    journal: workNotice ? { ...state.journal, notices: [...state.journal.notices, workNotice] } : state.journal,
   };
   return continuitySuccess(nextState, 'successor-selected',
     'Control passed to the selected character. Their own skills, resources, relationships, and circumstances remain unchanged; the world and calendar continue.');

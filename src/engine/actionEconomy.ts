@@ -1,12 +1,13 @@
 import type { CareerProgressionPolicy, GameAction, GameState, TransitionResult, WorkProgress } from '../state/types';
 import { getInitializedScribal } from '../state/scribalState';
-import type { ConditionId, InstitutionId } from '../state/ids';
+import type { ConditionId, EventId, InstitutionId, WorkId } from '../state/ids';
 import { UR_GIR_PERSON_ID } from '../state/ids';
 import { transitionCareerAction } from './careerProgression';
 import { transitionWorldAction } from './worldSocial';
 import { settleAssignmentOffers, transitionOpportunityAction } from './opportunities';
 import { transitionAssignmentActivityAction } from './assignmentActivity';
 import { validateWorkDefinition } from '../works/workDefinition';
+import { evaluateCharacterPredicate } from '../works/evidenceInterpretation';
 import { transitionCharacterContinuity } from './characterContinuity';
 import { advanceInstitutionalMatters } from './institutionalMatters';
 import { advanceInstitutionalResponses } from './institutionalResponseLifecycle';
@@ -35,12 +36,54 @@ function isValidWorkDefinition(definition: WorkDefinition<any> | undefined): def
     && validateWorkDefinition(definition).length === 0;
 }
 
+function closeContributionSegments(segments: GameState['works']['contributionSegments'] = [], workId: WorkId, personId: string, dayNumber: number, reason: 'death' | 'handoff' | 'completed' | 'abandoned') {
+  return segments.map((segment) => segment.workId === workId && segment.personId === personId && segment.status === 'open'
+    ? { ...segment, status: 'closed' as const, endedDay: dayNumber, closureReason: reason } : segment);
+}
+
 function progressMatchesDefinition(definition: WorkDefinition<any>, progress: WorkProgress | undefined): boolean {
   return !!progress && progress.status !== 'suspended'
     && progress.definitionCompatibilityKey === definition.progressCompatibilityKey
     && definition.validateScenarioData(progress.scenarioData)
     && progress.acquiredEvidence.every((id) => definition.evidence.some((item) => item.id === id))
     && progress.completedActionIds.every((id) => definition.actions.some((item) => item.id === id));
+}
+
+function handoffPreservedWork(state: GameState, workId: WorkId, workCatalog: Readonly<Record<string, WorkDefinition<any>>>, acceptingInvitation = false): TransitionResult {
+  const person = state.world.people[state.player.currentCharacterId];
+  const preserved = (state.works.preservedUndertakings ?? []).find((item) => item.workId === workId && item.status === 'waiting');
+  const definition = workCatalog[workId];
+  const progress = state.works.progress[workId];
+  const institutionId = preserved?.institutionId;
+  const scribal = getInitializedScribal(person);
+  if (!person || !scribal || !preserved || preserved.successorCharacterId !== person.id
+    || !institutionId || !state.world.institutions[institutionId]
+    || !definition || definition.kind !== 'work' || !isValidWorkDefinition(definition)
+    || (definition.institutionId !== undefined && definition.institutionId !== institutionId)
+    || !progress || progress.status !== 'active' || state.works.activeWorkId !== null
+    || (preserved.invitation && !acceptingInvitation)
+    || (preserved.invitationResponse === 'declined' && (!acceptingInvitation || state.calendar.dayNumber <= preserved.deathDay))
+    || (acceptingInvitation && (!preserved.invitation || preserved.invitationResponse === 'accepted'))) {
+    return { state, feedback: feedback('error', 'preserved-work-handoff-invalid', 'This preserved undertaking cannot be taken up until its Work, institutional custody, saved progress, and required invitation response are valid.') };
+  }
+  const eventId = `event-work-handoff-${state.calendar.dayNumber}-${String(workId)}-${String(person.id)}` as EventId;
+  if (state.world.events[eventId]) return { state, feedback: feedback('error', 'preserved-work-handoff-recorded', 'This explicit handoff has already been recorded.') };
+  const institution = state.world.institutions[institutionId];
+  const handoff = { workId, institutionId, formerCharacterId: preserved.deceasedCharacterId,
+    successorCharacterId: person.id, dayNumber: state.calendar.dayNumber, eventId };
+  const event = { id: eventId, dayNumber: state.calendar.dayNumber,
+    summary: `${institution.name} explicitly entrusted ${definition.title} to ${person.name} after the successor chose to take up the preserved undertaking. Earlier contribution remains attributed to ${state.world.people[preserved.deceasedCharacterId]?.name ?? 'the former contributor'}.`,
+    personIds: [preserved.deceasedCharacterId, person.id], institutionIds: [institutionId] };
+  const preservedUndertakings = (state.works.preservedUndertakings ?? []).map((item) => item.workId === workId
+    ? { ...item, status: 'taken_up' as const, takenUpDay: state.calendar.dayNumber,
+        ...(item.invitation ? { invitationResponse: 'accepted' as const } : {}) } : item);
+  const contributionSegments = closeContributionSegments(state.works.contributionSegments, workId, preserved.deceasedCharacterId, state.calendar.dayNumber, 'handoff');
+  contributionSegments.push({ id: `work-contribution-${String(workId)}-${String(person.id)}-${state.calendar.dayNumber}-${contributionSegments.length + 1}`,
+    workId, personId: person.id, startedDay: state.calendar.dayNumber, status: 'open' });
+  return { state: { ...state, works: { ...state.works, activeWorkId: workId, preservedUndertakings,
+      contributionSegments, handoffHistory: [...(state.works.handoffHistory ?? []), handoff] },
+      world: { ...state.world, events: { ...state.world.events, [eventId]: event } } },
+    feedback: feedback('success', 'preserved-work-taken-up', `${definition.title} is now an explicit undertaking of ${person.name}.`) };
 }
 
 function displayDate(dayNumber: number): string {
@@ -60,7 +103,7 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
     return { state, feedback: feedback('error', 'succession-pending', 'Ordinary actions are paused until the pending character transition is resolved.') };
   }
   if (action.type === 'BEGIN_CHARACTER_DEPARTURE' || action.type === 'SELECT_SUCCESSOR') {
-    return transitionCharacterContinuity(state, action);
+    return transitionCharacterContinuity(state, action, workCatalog);
   }
   const person = state.world.people[state.player.currentCharacterId];
   const scribal = getInitializedScribal(person);
@@ -75,6 +118,77 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
   }
 
   switch (action.type) {
+    case 'TAKE_UP_PRESERVED_WORK': {
+      const preserved = (state.works.preservedUndertakings ?? []).find((item) => item.workId === action.workId && item.status === 'waiting');
+      if (preserved?.invitationResponse === 'declined' && preserved.invitation) {
+        const definition = workCatalog[action.workId];
+        const invitation = definition?.successionInvitation;
+        const person = state.world.people[state.player.currentCharacterId];
+        const scribal = getInitializedScribal(person);
+        const institutionId = preserved.institutionId;
+        const institution = institutionId ? state.world.institutions[institutionId] : undefined;
+        const appointments = Object.values(state.world.appointments).filter((appointment) =>
+          appointment.personId === person?.id && appointment.institutionId === institutionId
+            && appointment.startDay <= state.calendar.dayNumber
+            && (appointment.endDay === undefined || appointment.endDay >= state.calendar.dayNumber));
+        const hasAccess = !!person && !!institutionId && (person.affiliations.includes(institutionId) || appointments.length > 0);
+        const hasAuthority = !!institution && !!invitation
+          && (institution.authority.includes(invitation.authorityScope)
+            || appointments.some((appointment) => appointment.authorityScope.includes(invitation.authorityScope)));
+        const stillQualified = !!invitation && !!scribal && evaluateCharacterPredicate(invitation.qualification, scribal);
+        if (state.calendar.dayNumber <= preserved.deathDay || !definition || definition.kind !== 'work'
+          || !isValidWorkDefinition(definition) || !invitation || !person || !scribal || !institution
+          || (definition.institutionId !== undefined && definition.institutionId !== institutionId)
+          || invitation.authorityScope !== preserved.invitation.authorityScope
+          || invitation.basis !== preserved.invitation.basis || invitation.remainingRemit !== preserved.invitation.remainingRemit
+          || !invitation.connectionTiers.includes(preserved.invitation.connectionTier)
+          || !hasAccess || !hasAuthority || !stillQualified) {
+          return { state, feedback: feedback('error', 'preserved-work-later-takeup-invalid', 'A later take-up requires a new explicit choice after the decline and the original institutional qualification, access, and authority basis to remain valid.') };
+        }
+        return handoffPreservedWork(state, action.workId, workCatalog, true);
+      }
+      return handoffPreservedWork(state, action.workId, workCatalog);
+    }
+    case 'RESPOND_PRESERVED_WORK_INVITATION': {
+      const preserved = (state.works.preservedUndertakings ?? []).find((item) => item.workId === action.workId && item.status === 'waiting');
+      const definition = workCatalog[action.workId];
+      const invitation = definition?.successionInvitation;
+      const person = state.world.people[state.player.currentCharacterId];
+      const scribal = getInitializedScribal(person);
+      const institutionId = preserved?.institutionId;
+      const institution = institutionId ? state.world.institutions[institutionId] : undefined;
+      if (!preserved || !preserved.invitation || !definition || definition.kind !== 'work' || !isValidWorkDefinition(definition)
+        || !invitation || !person || !scribal || preserved.successorCharacterId !== person.id
+        || preserved.invitationResponse !== undefined || !institution || !institutionId
+        || (definition.institutionId !== undefined && definition.institutionId !== institutionId)
+        || invitation.authorityScope !== preserved.invitation.authorityScope
+        || invitation.basis !== preserved.invitation.basis || invitation.remainingRemit !== preserved.invitation.remainingRemit
+        || !invitation.connectionTiers.includes(preserved.invitation.connectionTier)) {
+        return { state, feedback: feedback('error', 'work-succession-invitation-unavailable', 'There is no valid pending institutional invitation for this character.') };
+      }
+      if (action.response === 'decline') {
+        const preservedUndertakings = (state.works.preservedUndertakings ?? []).map((item) => item.workId === action.workId
+          ? { ...item, invitationResponse: 'declined' as const } : item);
+        const notice = { id: `notice-work-invitation-declined-${String(action.workId)}-${state.calendar.dayNumber}`,
+          dayNumber: state.calendar.dayNumber, category: 'work' as const,
+          message: `${person.name} declined ${institution.name}'s invitation to take up ${definition.title}. The undertaking and its progress remain preserved; no handoff occurred.`, read: false };
+        return { state: { ...state, works: { ...state.works, preservedUndertakings },
+          journal: { ...state.journal, notices: [...state.journal.notices, notice] } },
+          feedback: feedback('success', 'work-succession-invitation-declined', 'The invitation was declined. The undertaking and its progress remain preserved.') };
+      }
+      const appointments = Object.values(state.world.appointments).filter((appointment) =>
+        appointment.personId === person.id && appointment.institutionId === institutionId
+          && appointment.startDay <= state.calendar.dayNumber
+          && (appointment.endDay === undefined || appointment.endDay >= state.calendar.dayNumber));
+      const hasAccess = person.affiliations.includes(institutionId) || appointments.length > 0;
+      const hasAuthority = institution.authority.includes(invitation.authorityScope)
+        || appointments.some((appointment) => appointment.authorityScope.includes(invitation.authorityScope));
+      const stillQualified = evaluateCharacterPredicate(invitation.qualification, scribal);
+      if (!hasAccess || !hasAuthority || !stillQualified) {
+        return { state, feedback: feedback('error', 'work-succession-invitation-requirements-changed', 'The successor no longer meets the documented qualification, access, or authority basis. The invitation remains pending and no handoff occurred.') };
+      }
+      return handoffPreservedWork(state, action.workId, workCatalog, true);
+    }
     case 'AWARD_SKILL_XP':
     case 'AWARD_CAREER_XP':
     case 'PURCHASE_SKILL_LEVEL':
@@ -163,7 +277,11 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
           } } };
         }
       }
-      return { state: { ...startedState, works: { activeWorkId: action.workId, progress: { ...startedState.works.progress, [action.workId]: progress } } },
+      const contributionSegments = definition.kind === 'work'
+        ? [...(startedState.works.contributionSegments ?? []), { id: `work-contribution-${String(action.workId)}-${String(person.id)}-${state.calendar.dayNumber}-${(startedState.works.contributionSegments ?? []).length + 1}`,
+            workId: action.workId, personId: person.id, startedDay: state.calendar.dayNumber, status: 'open' as const }]
+        : startedState.works.contributionSegments ?? [];
+      return { state: { ...startedState, works: { ...startedState.works, activeWorkId: action.workId, contributionSegments, progress: { ...startedState.works.progress, [action.workId]: progress } } },
         feedback: feedback('success', 'work-started', definition.title) };
     }
     case 'ACQUIRE_WORK_EVIDENCE':
@@ -260,7 +378,9 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
         const grantReward = !progress.rewardGranted;
         const nextProgress = { ...progress, status: 'completed' as const, rewardGranted: true, pendingDisposition: false, submissionCount, workApSpentToday: apSpentAfterSubmission,
           lastAssessment: { ...assessment, assessedDay: state.calendar.dayNumber } };
-        return { state: { ...state, actionEconomy: { ...economy, apRemaining: apAfterSubmission }, works: { activeWorkId: null, progress: { ...state.works.progress, [action.workId]: nextProgress } },
+        return { state: { ...state, actionEconomy: { ...economy, apRemaining: apAfterSubmission }, works: { ...state.works, activeWorkId: null,
+          contributionSegments: closeContributionSegments(state.works.contributionSegments, action.workId, person.id, state.calendar.dayNumber, 'completed'),
+          progress: { ...state.works.progress, [action.workId]: nextProgress } },
           historicalProgression: { historicalXp: state.historicalProgression.historicalXp + (grantReward && definition.kind === 'work' ? definition.historicalXpReward : 0),
             completedWorks: definition.kind !== 'work' || state.historicalProgression.completedWorks.includes(action.workId) ? state.historicalProgression.completedWorks
               : [...state.historicalProgression.completedWorks, action.workId] } },
@@ -362,7 +482,9 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
         rewarded = careerResult.state;
       }
       return { state: { ...rewarded, actionEconomy: { ...economy, apRemaining: economy.apRemaining - cost },
-        works: { activeWorkId: null, progress: { ...rewarded.works.progress, [action.workId]: finalProgress } },
+        works: { ...rewarded.works, activeWorkId: null,
+          contributionSegments: closeContributionSegments(rewarded.works.contributionSegments, action.workId, person.id, state.calendar.dayNumber, 'completed'),
+          progress: { ...rewarded.works.progress, [action.workId]: finalProgress } },
         historicalProgression: { historicalXp: next.historicalProgression.historicalXp + (grantReward && definition.kind === 'work' ? definition.historicalXpReward : 0),
           completedWorks: definition.kind !== 'work' || next.historicalProgression.completedWorks.includes(action.workId) ? next.historicalProgression.completedWorks : [...next.historicalProgression.completedWorks, action.workId] } },
         feedback: feedback('success', 'work-completed', progress.lastAssessment.summary) };

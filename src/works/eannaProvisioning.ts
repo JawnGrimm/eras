@@ -203,6 +203,7 @@ export const eannaProvisioningWork = defineWork<EannaScenarioData>({
   progressCompatibilityKey: 'eanna-provisioning-four-stage-v1',
   id: EANNA_PROVISIONING_WORK_ID,
   title: 'The Eanna Provisioning Undertaking',
+  institutionId: EANNA_INSTITUTION_ID,
   startingEvidence: EANNA_SOURCE_IDS as unknown as EvidenceId[],
   evidence: EANNA_SOURCE_PACKET.map((item) => ({
     id: item.id as EvidenceId, title: item.title, source: item.source, objectiveText: item.text,

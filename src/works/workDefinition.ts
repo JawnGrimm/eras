@@ -39,6 +39,18 @@ export interface WorkFinalization {
   addInstitutionMatters?: InstitutionalMatter[];
   presentAssignments?: Array<Omit<AssignmentOffer, 'offeredDay' | 'expiresDay' | 'status' | 'lapsedDuringMandatoryWork'>>;
 }
+export type WorkSuccessionConnectionTier = 'direct_personal' | 'direct_professional' | 'wider_network';
+export interface WorkSuccessionInvitationDefinition {
+  /** Character-only, deterministic eligibility; evidence-examination predicates are not permitted. */
+  qualification: Predicate;
+  connectionTiers: WorkSuccessionConnectionTier[];
+  basis: string;
+  remainingRemit: string;
+  availableRecords: string[];
+  authorityScope: string;
+  limits: string[];
+}
+
 export interface WorkDefinition<TProgress extends Record<string, unknown> = Record<string, unknown>> {
   /** Tutorials use the Work engine's interaction machinery but are not historical Works. */
   kind: 'work' | 'tutorial';
@@ -50,6 +62,10 @@ export interface WorkDefinition<TProgress extends Record<string, unknown> = Reco
   legacyCompletionCleanup?: { retireInstitutionMatters?: Array<{ institutionId: InstitutionId; matterId: MatterId }> };
   id: WorkId;
   title: string;
+  /** Responsible institution for formal custody and succession correspondence. */
+  institutionId?: InstitutionId;
+  /** Optional authored qualification/access/remit basis for a conditional succession invitation. */
+  successionInvitation?: WorkSuccessionInvitationDefinition;
   startingEvidence: EvidenceId[];
   evidence: WorkEvidenceDefinition[];
   actions: WorkActionDefinition[];
@@ -193,5 +209,21 @@ export function validateWorkDefinition<TProgress extends Record<string, unknown>
     else if (predicate.kind === 'not') checkEvidenceRefs(predicate.predicate);
   };
   work.interpretationRules.forEach((rule) => checkEvidenceRefs(rule.when));
+  const invitation = work.successionInvitation;
+  if (invitation) {
+    if (!work.institutionId || !invitation.connectionTiers.length
+      || invitation.connectionTiers.some((tier) => !['direct_personal','direct_professional','wider_network'].includes(tier))
+      || !invitation.basis.trim() || !invitation.remainingRemit.trim() || !invitation.authorityScope.trim()
+      || !invitation.availableRecords.length || invitation.availableRecords.some((item) => !item.trim())
+      || !invitation.limits.length || invitation.limits.some((item) => !item.trim())) {
+      issues.push({ code: 'invalid-work-succession-invitation', message: 'A succession invitation requires an institution, allowed connection tier, documented basis, remaining remit, available records, authority scope, and limits.' });
+    }
+    validatePredicate(invitation.qualification, issues);
+    const hasEvidencePredicate = (predicate: Predicate): boolean => predicate.kind === 'examinedAll' || predicate.kind === 'examinedNone'
+      || ((predicate.kind === 'all' || predicate.kind === 'any') && predicate.predicates.some(hasEvidencePredicate))
+      || (predicate.kind === 'not' && hasEvidencePredicate(predicate.predicate));
+    if (hasEvidencePredicate(invitation.qualification)) issues.push({ code: 'work-succession-character-only-qualification', message: 'Succession qualification must depend on the successor character, not the predecessor’s examined-evidence state.' });
+    checkEvidenceRefs(invitation.qualification);
+  }
   return issues;
 }

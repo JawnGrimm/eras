@@ -692,7 +692,45 @@ function isValidV3GameState(value: unknown, workCatalog: Readonly<Record<string,
 }
 
 function isValidV4GameState(value: unknown, workCatalog: Readonly<Record<string, WorkDefinition<any>>>): value is GameState {
-  return isValidV3GameState(value, workCatalog, 4);
+  if (!isValidV3GameState(value, workCatalog, 4)) return false;
+  const works = value.works;
+  for (const item of works.preservedUndertakings ?? []) {
+    if (!nonEmptyString(item.workId) || !nonEmptyString(item.title)
+      || !nonEmptyString(item.deceasedCharacterId) || !nonEmptyString(item.successorCharacterId)
+      || !value.world.people[item.deceasedCharacterId] || !value.world.people[item.successorCharacterId]
+      || !Number.isInteger(item.deathDay) || item.deathDay < 1 || item.deathDay > value.calendar.dayNumber
+      || (item.institutionId !== undefined && !value.world.institutions[item.institutionId])
+      || (item.invitation !== undefined && (!['direct_personal','direct_professional','wider_network'].includes(item.invitation.connectionTier)
+        || !nonEmptyString(item.invitation.basis) || !nonEmptyString(item.invitation.remainingRemit)
+        || !Array.isArray(item.invitation.availableRecords) || !item.invitation.availableRecords.length
+        || item.invitation.availableRecords.some((record) => !nonEmptyString(record))
+        || !nonEmptyString(item.invitation.authorityScope) || !Array.isArray(item.invitation.limits)
+        || !item.invitation.limits.length || item.invitation.limits.some((limit) => !nonEmptyString(limit))))
+      || (item.invitationResponse !== undefined && (!item.invitation || !['accepted','declined'].includes(item.invitationResponse)))
+      || (item.invitationResponse === 'accepted' && item.status !== 'taken_up')
+      || (item.invitationResponse === 'declined' && item.status !== 'waiting')
+      || (item.status === 'taken_up' && (!Number.isInteger(item.takenUpDay) || item.takenUpDay! < item.deathDay || item.takenUpDay! > value.calendar.dayNumber))
+      || (item.status === 'waiting' && item.takenUpDay !== undefined)) return false;
+  }
+  for (const item of works.handoffHistory ?? []) {
+    if (!nonEmptyString(item.workId) || !nonEmptyString(item.institutionId)
+      || !nonEmptyString(item.formerCharacterId) || !nonEmptyString(item.successorCharacterId)
+      || !nonEmptyString(item.eventId) || !value.world.events[item.eventId]
+      || !value.world.institutions[item.institutionId]
+      || !Number.isInteger(item.dayNumber) || item.dayNumber < 1 || item.dayNumber > value.calendar.dayNumber) return false;
+  }
+  const segmentIds = new Set<string>();
+  for (const segment of works.contributionSegments ?? []) {
+    if (!nonEmptyString(segment.id) || segmentIds.has(segment.id) || !nonEmptyString(segment.workId)
+      || !nonEmptyString(segment.personId) || !value.world.people[segment.personId]
+      || !Number.isInteger(segment.startedDay) || segment.startedDay < 1 || segment.startedDay > value.calendar.dayNumber
+      || !['open','closed'].includes(segment.status)) return false;
+    segmentIds.add(segment.id);
+    if (segment.status === 'open' && (segment.endedDay !== undefined || segment.closureReason !== undefined)) return false;
+    if (segment.status === 'closed' && (!Number.isInteger(segment.endedDay) || segment.endedDay! < segment.startedDay
+      || segment.endedDay! > value.calendar.dayNumber || !['death','handoff','completed','abandoned'].includes(String(segment.closureReason)))) return false;
+  }
+  return true;
 }
 
 export function createSaveEnvelope(state: GameState, revision: number, savedAt = new Date().toISOString()): SaveEnvelope {

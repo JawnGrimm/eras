@@ -68,6 +68,11 @@ function matches(predicate: Predicate, character: ScribalCharacterState, examine
   }
 }
 
+/** Deterministic character predicate evaluation for authored qualification contracts. */
+export function evaluateCharacterPredicate(predicate: Predicate, character: ScribalCharacterState): boolean {
+  return matches(predicate, character, new Set<EvidenceId>());
+}
+
 /** Pure interpretation only: objective evidence/source text is never modified or filtered. */
 export function evaluateEvidenceInterpretation(input: EvaluateEvidenceInterpretationInput): InterpretationAnnotation[] {
   const examined = new Set(input.examinedEvidence);

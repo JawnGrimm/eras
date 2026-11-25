@@ -4,10 +4,11 @@ import { transitionGame } from '../engine/actionEconomy';
 import { rankSuccessorCandidates } from '../engine/characterContinuity';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
 import { createSaveEnvelope, restoreSave } from '../state/saveEnvelope';
-import type { AssignmentId, PersonId, RecordId, WorkId } from '../state/ids';
+import type { AssignmentId, InstitutionId, PersonId, RecordId, WorkId } from '../state/ids';
 import type { Person } from '../state/types';
 import type { GameState } from '../state/types';
 import type { WorkDefinition } from '../works/workDefinition';
+import { eannaProvisioningWork, EANNA_PROVISIONING_WORK_ID } from '../works/eannaProvisioning';
 
 const apprenticeId = 'person-uruk-nin-aya' as PersonId;
 const colleagueId = 'person-uruk-ur-gir' as PersonId;
@@ -67,6 +68,141 @@ function offer(id: string, state: GameState) {
 }
 
 describe('character departure and succession lifecycle', () => {
+  it('preserves an unfinished personal Work in institutional custody after death and requires an explicit later take-up', () => {
+    const preservationWorkCatalog = { ...priorWorkCatalog, [priorWorkId]: { ...priorWorkCatalog[priorWorkId], kind: 'work' as const, title: 'Earlier institutional account', institutionId: 'institution-uruk-temple-storehouse' as InstitutionId } };
+    let state = withPriorHistory(createInitialGameState());
+    state = { ...state, works: { activeWorkId: priorWorkId, progress: { [priorWorkId]: {
+      status: 'active', acquiredEvidence: [], examinedEvidence: [], workApSpentToday: 1,
+      rewardGranted: false, completedActionIds: [], scenarioData: {}, submissionCount: 0,
+    } } } };
+    const death = transitionGame(state, { type: 'BEGIN_CHARACTER_DEPARTURE', departureKind: 'death' }, undefined, preservationWorkCatalog);
+    const selected = transitionGame(death.state, { type: 'SELECT_SUCCESSOR', nextCharacterId: apprenticeId }, undefined, preservationWorkCatalog);
+    expect(selected.state.works.activeWorkId).toBeNull();
+    expect(selected.state.works.progress[priorWorkId].status).toBe('active');
+    expect(selected.state.works.preservedUndertakings).toMatchObject([{ workId: priorWorkId, status: 'waiting', successorCharacterId: apprenticeId }]);
+    expect(selected.state.journal.notices.at(-1)?.message).toContain('will be waiting if you later choose to take it up');
+  });
+
+  it('requires explicit take-up to resume a preserved institutional Work and records the handoff', () => {
+    const initial = createInitialGameState();
+    const institutionId = eannaProvisioningWork.institutionId!;
+    const institution = { id: institutionId, name: 'Eanna Precinct', responsibilities: [], authority: [], standing: 50, activeMatters: [] };
+    const initialWithInstitution: GameState = { ...initial, world: { ...initial.world, institutions: { ...initial.world.institutions, [institutionId]: institution } } };
+    const scenarioData = eannaProvisioningWork.createInitialProgress();
+    const progress = {
+      status: 'active' as const,
+      definitionCompatibilityKey: eannaProvisioningWork.progressCompatibilityKey,
+      acquiredEvidence: [...eannaProvisioningWork.startingEvidence],
+      examinedEvidence: [],
+      workApSpentToday: 2,
+      rewardGranted: false,
+      completedActionIds: [],
+      provisionContract: eannaProvisioningWork.provisionsContract,
+      scenarioData,
+      submissionCount: 0,
+    };
+    const state: GameState = {
+      ...initialWithInstitution,
+      player: { currentCharacterId: apprenticeId },
+      works: {
+        activeWorkId: null,
+        progress: { [EANNA_PROVISIONING_WORK_ID]: progress },
+        preservedUndertakings: [{
+          workId: EANNA_PROVISIONING_WORK_ID,
+          title: eannaProvisioningWork.title,
+          institutionId: eannaProvisioningWork.institutionId,
+          deceasedCharacterId: INITIAL_PERSON_ID,
+          successorCharacterId: apprenticeId,
+          deathDay: initial.calendar.dayNumber,
+          status: 'waiting',
+        }],
+      },
+    };
+    const result = transitionGame(state, { type: 'TAKE_UP_PRESERVED_WORK', workId: EANNA_PROVISIONING_WORK_ID },
+      undefined, { [EANNA_PROVISIONING_WORK_ID]: eannaProvisioningWork });
+    expect(result.feedback?.code).toBe('preserved-work-taken-up');
+    expect(result.state.works.activeWorkId).toBe(EANNA_PROVISIONING_WORK_ID);
+    expect(result.state.works.preservedUndertakings?.[0]).toMatchObject({ status: 'taken_up', takenUpDay: initial.calendar.dayNumber });
+    expect(result.state.works.handoffHistory).toHaveLength(1);
+    expect(result.state.world.events[result.state.works.handoffHistory![0].eventId]).toBeDefined();
+    expect(result.state.works.progress[EANNA_PROVISIONING_WORK_ID].workApSpentToday).toBe(2);
+  });
+
+  it('offers a Work-authored succession invitation only when qualification, connection, access, and authority are documented', () => {
+    const initial = createInitialGameState();
+    const institutionId = eannaProvisioningWork.institutionId!;
+    const authorityScope = 'Compile and submit the remaining consolidated account';
+    const institution = { id: institutionId, name: 'Eanna Precinct', responsibilities: [], authority: [authorityScope], standing: 50, activeMatters: [] };
+    const former = initial.world.people[INITIAL_PERSON_ID];
+    const candidate = initial.world.people[apprenticeId];
+    const candidateScribal = getInitializedScribal(candidate)!;
+    const people = {
+      ...initial.world.people,
+      [INITIAL_PERSON_ID]: { ...former, affiliations: [...former.affiliations, institutionId] },
+      [apprenticeId]: { ...candidate, affiliations: [...candidate.affiliations, institutionId],
+        scribal: { ...candidateScribal, skills: { ...candidateScribal.skills, recordkeeping_accounts: { level: 5, skillXp: 0 } } } },
+    };
+    const authoredWork = {
+      ...eannaProvisioningWork,
+      successionInvitation: {
+        qualification: { kind: 'skillAtLeast' as const, skillId: 'recordkeeping_accounts' as const, level: 3 },
+        connectionTiers: ['direct_personal' as const, 'direct_professional' as const],
+        basis: 'The successor is affiliated with the responsible precinct and has the required account skill.',
+        remainingRemit: 'Complete the remaining consolidated account and submit it for senior disposition.',
+        availableRecords: ['The originating household tallies and physical count packet.'],
+        authorityScope,
+        limits: ['No authority to alter the senior scribe’s allocation decision.'],
+      },
+    };
+    const scenarioData = authoredWork.createInitialProgress();
+    const progress = {
+      status: 'active' as const,
+      definitionCompatibilityKey: authoredWork.progressCompatibilityKey,
+      acquiredEvidence: [...authoredWork.startingEvidence],
+      examinedEvidence: [],
+      workApSpentToday: 1,
+      rewardGranted: false,
+      completedActionIds: [],
+      provisionContract: authoredWork.provisionsContract,
+      scenarioData,
+      submissionCount: 0,
+    };
+    const state: GameState = {
+      ...initial,
+      world: { ...initial.world, people, institutions: { ...initial.world.institutions, [institutionId]: institution } },
+      works: { activeWorkId: EANNA_PROVISIONING_WORK_ID, progress: { [EANNA_PROVISIONING_WORK_ID]: progress },
+        contributionSegments: [{ id: 'eanna-segment-predecessor', workId: EANNA_PROVISIONING_WORK_ID, personId: INITIAL_PERSON_ID,
+          startedDay: initial.calendar.dayNumber, status: 'open' }] },
+    };
+    const catalog = { [EANNA_PROVISIONING_WORK_ID]: authoredWork };
+    const death = transitionGame(state, { type: 'BEGIN_CHARACTER_DEPARTURE', departureKind: 'death' }, undefined, catalog);
+    const selected = transitionGame(death.state, { type: 'SELECT_SUCCESSOR', nextCharacterId: apprenticeId }, undefined, catalog);
+    const preserved = selected.state.works.preservedUndertakings?.[0];
+    expect(selected.state.works.contributionSegments).toContainEqual({ id: 'eanna-segment-predecessor', workId: EANNA_PROVISIONING_WORK_ID,
+      personId: INITIAL_PERSON_ID, startedDay: initial.calendar.dayNumber, status: 'closed', endedDay: initial.calendar.dayNumber, closureReason: 'death' });
+    expect(preserved?.invitation).toMatchObject({ authorityScope, connectionTier: 'direct_personal' });
+    expect(selected.state.journal.notices.at(-1)?.message).toContain('invites you to take up the remaining remit');
+    const declined = transitionGame(selected.state, { type: 'RESPOND_PRESERVED_WORK_INVITATION', workId: EANNA_PROVISIONING_WORK_ID, response: 'decline' }, undefined, catalog);
+    expect(declined.feedback?.code).toBe('work-succession-invitation-declined');
+    expect(declined.state.works.preservedUndertakings?.[0]).toMatchObject({ status: 'waiting', invitationResponse: 'declined' });
+    expect(declined.state.works.activeWorkId).toBeNull();
+    expect(declined.state.works.handoffHistory ?? []).toHaveLength(0);
+    expect(declined.state.works.progress[EANNA_PROVISIONING_WORK_ID].status).toBe('active');
+    const laterState: GameState = { ...declined.state, calendar: { ...declined.state.calendar, dayNumber: initial.calendar.dayNumber + 1 } };
+    const laterTakeup = transitionGame(laterState, { type: 'TAKE_UP_PRESERVED_WORK', workId: EANNA_PROVISIONING_WORK_ID }, undefined, catalog);
+    expect(laterTakeup.feedback?.code).toBe('preserved-work-taken-up');
+    expect(laterTakeup.state.works.handoffHistory).toHaveLength(1);
+    const accepted = transitionGame(selected.state, { type: 'RESPOND_PRESERVED_WORK_INVITATION', workId: EANNA_PROVISIONING_WORK_ID, response: 'accept' }, undefined, catalog);
+    expect(accepted.feedback?.code).toBe('preserved-work-taken-up');
+    expect(accepted.state.works.activeWorkId).toBe(EANNA_PROVISIONING_WORK_ID);
+    expect(accepted.state.works.handoffHistory).toHaveLength(1);
+    expect(accepted.state.works.contributionSegments).toContainEqual(expect.objectContaining({ workId: EANNA_PROVISIONING_WORK_ID,
+      personId: apprenticeId, status: 'open', startedDay: initial.calendar.dayNumber }));
+    const restored = restoreSave(JSON.stringify(createSaveEnvelope(accepted.state, 1)), { [EANNA_PROVISIONING_WORK_ID]: eannaProvisioningWork });
+    expect(restored?.state.works.handoffHistory).toHaveLength(1);
+    expect(restored?.state.works.contributionSegments).toHaveLength(2);
+  });
+
   it('discovers connected scribes, persists a pending death, selects without inheritance, and round-trips the save', () => {
     let state = withPriorHistory(createInitialGameState());
     expect(rankSuccessorCandidates(state).map((candidate) => candidate.personId)).toEqual([apprenticeId, colleagueId]);
