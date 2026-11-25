@@ -46,12 +46,24 @@ describe('Eanna Provisioning Undertaking', () => {
     expect(assessment.dimensions.every((dimension) => dimension.status === 'meets')).toBe(true);
   });
 
-  it('accepts retrospective compilation without pretending the full window was met', () => {
-    const ctx = context(39);
+  it('accepts retrospective compilation through Day 42 without pretending the full window was met', () => {
+    for (const day of [39, 42]) {
+      const ctx = context(day);
+      const assessment = eannaProvisioningWork.assessSubmission(eannaProvisioningWork.evaluateSubmission(ctx), ctx);
+      expect(assessment.outcome).toBe('accepted');
+      expect(assessment.dimensions.find((dimension) => dimension.dimension === 'procedure')?.status).toBe('partial');
+      expect(assessment.summary).toContain('reduced scope');
+    }
+  });
+
+  it('uses official review of surviving records after Day 42 without backdating', () => {
+    const ctx = context(43);
     const assessment = eannaProvisioningWork.assessSubmission(eannaProvisioningWork.evaluateSubmission(ctx), ctx);
     expect(assessment.outcome).toBe('accepted');
-    expect(assessment.dimensions.find((dimension) => dimension.dimension === 'procedure')?.status).toBe('partial');
-    expect(assessment.summary).toContain('reduced scope');
+    expect(assessment.dimensions.find((dimension) => dimension.dimension === 'procedure')?.summary).toContain('reviewed the surviving source records');
+    const finalization = eannaProvisioningWork.finalizeDisposition?.(ctx, 'adjust_to_default');
+    expect(finalization?.record?.createdDay).toBe(43);
+    expect(finalization?.record?.assertions.some((assertion) => assertion.id === 'eanna-post-window-review')).toBe(true);
   });
 
   it('creates a separate official event, immutable summary record, and conditional carry-forward matter', () => {

@@ -83,7 +83,7 @@ export function validateEannaScenario(value: unknown): value is EannaScenarioDat
   return true;
 }
 
-interface EannaEvaluation { sourceSorting: boolean; obverse: boolean; allocation: boolean; finalCheck: boolean; retrospective: boolean; }
+interface EannaEvaluation { sourceSorting: boolean; obverse: boolean; allocation: boolean; finalCheck: boolean; retrospective: boolean; officialReview: boolean; }
 
 function proposalIsWithinAvailable(progress: EannaScenarioData): boolean {
   const p = progress.proposal;
@@ -127,6 +127,7 @@ function buildFinalization(context: WorkSubmissionContext<EannaScenarioData>, di
     ? { ...DEFAULT_ALLOCATION }
     : { ...p };
   const retrospective = context.dayNumber > 38;
+  const officialReview = context.dayNumber > 42;
   const record: RecordEntry = {
     id: EANNA_SUMMARY_RECORD_ID,
     createdDay: context.dayNumber,
@@ -158,6 +159,7 @@ function buildFinalization(context: WorkSubmissionContext<EannaScenarioData>, di
       'The apprentice prepares a proposal; Lu-Nanshe alone makes the institutional allocation decision.',
       'The allocation disposition does not prove that goods were physically distributed, delivered, or received.',
       ...(retrospective ? ['The compilation was retrospective; the gathering had already proceeded at reduced scope.'] : []),
+      ...(officialReview ? ['The account was accepted through official review of surviving source records after Day 42; no missing delivery or distribution is inferred.'] : []),
     ],
     amendments: [],
   };
@@ -223,6 +225,7 @@ export const eannaProvisioningWork = defineWork<EannaScenarioData>({
     allocation: proposalIsWithinAvailable(progress),
     finalCheck: progress.stage >= 4,
     retrospective: dayNumber > 38,
+    officialReview: dayNumber > 42,
   }),
   assessSubmission: (submission) => {
     const result = submission as EannaEvaluation;
@@ -235,7 +238,7 @@ export const eannaProvisioningWork = defineWork<EannaScenarioData>({
       { dimension: 'accuracy', status: sorting && allocation ? 'meets' : 'fails', summary: sorting ? 'The three source classes remain distinct; the spoken expectation is not counted as stock.' : 'Sort each source as a written tally, physical count, or spoken claim before submission.' },
       { dimension: 'completeness', status: obverse ? 'meets' : 'fails', summary: obverse ? 'All separate written household and offering requests appear on the obverse.' : 'The obverse is missing one or more separate written requests.' },
       { dimension: 'traceability', status: obverse && sorting ? 'meets' : 'fails', summary: 'Each tablet entry remains tied to its source and unit.' },
-      { dimension: 'procedure', status: finalCheck ? (result.retrospective ? 'partial' : 'meets') : 'fails', summary: finalCheck ? (result.retrospective ? 'The compilation is accepted retrospectively; the Day 39 gathering proceeded at reduced scope.' : 'The tablet was checked and submitted within the full gathering window.') : 'Complete the final tablet check before submission.' },
+      { dimension: 'procedure', status: finalCheck ? (result.retrospective ? 'partial' : 'meets') : 'fails', summary: finalCheck ? (result.officialReview ? 'Lu-Nanshe reviewed the surviving source records after Day 42 and accepted a qualified retrospective account; the original compilation date is not backdated.' : result.retrospective ? 'The compilation is accepted retrospectively during Days 39–42; the Day 39 gathering proceeded at reduced scope.' : 'The tablet was checked and submitted within the full gathering window.') : 'Complete the final tablet check before submission.' },
       { dimension: 'responsibility', status: allocation ? 'meets' : 'fails', summary: allocation ? 'The proposed allocation stays within the counted quantities and does not treat expected barley as present stock.' : 'The proposed allocation exceeds a request or the physically counted supply.' },
     ];
     return { outcome: accepted ? 'accepted' : 'revise', summary: dimensions.map((item) => item.summary).join(' '), dimensions };

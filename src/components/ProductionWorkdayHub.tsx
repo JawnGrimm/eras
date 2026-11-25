@@ -180,7 +180,7 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenEannaWork, onOpenActivi
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div><p className="text-xs font-semibold uppercase tracking-wider text-amber-800">Era I · Career-scale Work</p>
           <h2 className="mt-1 font-serif text-2xl font-semibold text-stone-900">The Eanna Provisioning Undertaking</h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-stone-600">Compile separate household and offering requests onto one Consolidated Summary Tablet. The full window is Days 35–38; retrospective compilation remains possible after the gathering.</p>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-stone-600">Compile separate household and offering requests onto one Consolidated Summary Tablet. The full window is Days 35–38; retrospective compilation is available through Day 42; after that, Lu-Nanshe may review surviving source records.</p>
           <p className="mt-2 text-xs text-stone-500">{eannaProgress?.status === 'completed' ? 'Completed · +100 Historical Progress XP' : eannaProgress?.status === 'active' ? 'In progress' : state.calendar.dayNumber > 38 ? 'Retrospective compilation available' : 'Available now'} · 9 AP normal path · 2 AP/day earns +1 Provision</p>
         </div>
         <button onClick={onOpenEannaWork} className="rounded-lg bg-stone-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-amber-800">{eannaProgress?.status === 'completed' ? 'Review Work' : eannaProgress ? 'Resume Work' : 'Open Work'}</button>
