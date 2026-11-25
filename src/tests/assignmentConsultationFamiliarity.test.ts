@@ -4,6 +4,7 @@ import { ASSIGNMENT_ACTIVITY_CATALOG } from '../content/assignments/northBayRoof
 import { advanceInstitutionalMatters } from '../engine/institutionalMatters';
 import { generateDailyAssignments } from '../engine/assignmentGenerator';
 import { transitionAssignmentActivityAction } from '../engine/assignmentActivity';
+import { resolveChallengeTrigger } from '../engine/challengeDirector';
 import { createInitialGameState } from '../state/initialState';
 import { createSaveEnvelope, isValidSaveEnvelope } from '../state/saveEnvelope';
 import { deriveRelationshipFamiliarityStage } from '../state/relationshipFamiliarity';
@@ -89,6 +90,11 @@ describe('assignment consultation familiarity', () => {
     );
     expect(dispositionEvent).toBeDefined();
     expect(relationship?.history.at(-1)?.eventId).toBe(dispositionEvent?.id);
+    const trigger = resolveChallengeTrigger(submitted.state, {
+      domain: 'relationship_update', fromId: ERA1_COM_F01_PEOPLE.workshopOverseer, toId: playerId,
+      deliveryChannels: [{ kind: 'baseline_reach', explanation: 'A recorded institutional disposition entered the scribe’s professional history.' }],
+    });
+    expect(trigger?.primarySourceFact).toEqual({ kind: 'event', id: dispositionEvent?.id });
     expect(isValidSaveEnvelope(createSaveEnvelope(submitted.state, 1))).toBe(true);
   });
 
