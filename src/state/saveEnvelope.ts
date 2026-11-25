@@ -222,6 +222,13 @@ function isAssertion(value: unknown, sourceIds: Set<string>): boolean {
     && RECORD_CLASSES.includes(value.classification as typeof RECORD_CLASSES[number])
     && Array.isArray(value.sourceIds) && value.sourceIds.every((id) => typeof id === 'string' && sourceIds.has(id));
 }
+function hasRecordAssertion(records: Record<string, unknown>, recordId: string, assertionId: string): boolean {
+  const record = records[recordId];
+  if (!isObject(record) || !Array.isArray(record.assertions) || !Array.isArray(record.amendments)) return false;
+  if (record.assertions.some((item) => isObject(item) && item.id === assertionId)) return true;
+  return record.amendments.some((amendment) => isObject(amendment) && Array.isArray(amendment.assertionsAdded)
+    && amendment.assertionsAdded.some((item) => isObject(item) && item.id === assertionId));
+}
 
 function isWorkAssessmentDimensions(value: unknown): boolean {
   if (!Array.isArray(value) || value.length === 0) return false;
@@ -499,9 +506,9 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
       || (assertion.situationKey !== undefined && !nonEmptyString(assertion.situationKey))
       || (assertion.kind === 'remembered_tendency' && (!assertion.aboutPersonId || !assertion.situationKey))
       || (assertion.recordAssertion !== undefined && (!isObject(assertion.recordAssertion)
-        || typeof assertion.recordAssertion.recordId !== 'string' || !isObject(records[assertion.recordAssertion.recordId])
+        || typeof assertion.recordAssertion.recordId !== 'string'
         || typeof assertion.recordAssertion.assertionId !== 'string'
-        || ![...(records[assertion.recordAssertion.recordId] as any).assertions, ...((records[assertion.recordAssertion.recordId] as any).amendments ?? []).flatMap((amendment: any) => amendment.assertionsAdded ?? [])].some((item: any) => item.id === assertion.recordAssertion.assertionId))))
+        || !hasRecordAssertion(records, assertion.recordAssertion.recordId, assertion.recordAssertion.assertionId)))
       || !Array.isArray(k.assessments)) return false;
     let priorAssessmentDay = k.learnedDay as number;
     for (const assessment of k.assessments) {
