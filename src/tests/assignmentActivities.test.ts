@@ -231,16 +231,16 @@ describe('North-Bay Roof Inspection activity definition and engine', () => {
   it('grades COM-01 by material completeness, not by the expansiveness of the conclusion', () => {
     const activity = sealedVesselTextileConsignment;
     const complete = activity.createInitialProgress();
-    complete.discoveryIds = ['com01-tag','com01-receipt'];
+    complete.discoveryIds = ['com01-tag','com01-receipt','com01-handover-account'];
     complete.draft.finding = 'bounded_tag_comparison';
-    complete.draft.citedDiscoveryIds = ['com01-tag','com01-receipt'];
+    complete.draft.citedDiscoveryIds = ['com01-tag','com01-receipt','com01-handover-account'];
     complete.draft.selectedLimitationIds = ['original_entry_unavailable','handover_not_witnessed','no_release_authority'];
     expect(evaluateAssignmentAssessment(activity, complete)).toBe('Thorough');
 
     const secondaryOmission = {
       ...complete,
-      discoveryIds: [...complete.discoveryIds,'com01-handover-account'],
-      draft: { ...complete.draft, citedDiscoveryIds: [...complete.draft.citedDiscoveryIds] },
+      discoveryIds: [...complete.discoveryIds],
+      draft: { ...complete.draft, citedDiscoveryIds: ['com01-tag','com01-receipt'] },
     };
     expect(evaluateAssignmentAssessment(activity, secondaryOmission)).toBe('Defensible');
 
