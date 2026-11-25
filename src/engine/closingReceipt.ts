@@ -54,12 +54,14 @@ export function applyClosingAssessment(state: GameState, input: {
     const responseEvent = {
       id: eventId,
       dayNumber: state.calendar.dayNumber,
-      summary: `A Closing Receipt was returned by ${receiver.name} for the submitted report.`,
+      summary: `A Closing Receipt was returned by ${receiver.name} for ${input.title}.`,
       personIds: [person.id, receiver.id],
       institutionIds: input.institutionId && state.world.institutions[input.institutionId] ? [input.institutionId] : [],
       ...(receiver.currentLocationId ? { locationId: receiver.currentLocationId } : {}),
     };
     events = { ...events, [eventId]: responseEvent };
+    // The player directly receives the receiver's substantive assessment. Record only this evidenced direction;
+    // the receiver's familiarity with the player is not inferred from shared Event participation.
     const episode = {
       id: relationshipFamiliarityEpisodeId(person.id, receiver.id, input.occasionId ?? input.receiptId, 'closing_receipt_assessment'),
       observerPersonId: person.id,
