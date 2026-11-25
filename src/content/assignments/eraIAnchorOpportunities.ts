@@ -80,7 +80,7 @@ export const ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS: readonly AssignmentOpportunit
       purpose:'Identify a simple arithmetic omission without turning the calculation into a claim about land rights.',
       responsibility:['The apprentice checks the transcription; any new measurement or land decision remains with an appropriately situated official.'],
       authority:'The report cannot establish a boundary, ownership, yield, or allocation.',
-      provenance:['The copy's date and origin are uncertain. The parcel figures shown here are a readable working copy, not a claim about a surveyed boundary.'],
+      provenance:['The copy’s date and origin are uncertain. The parcel figures shown here are a readable working copy, not a claim about a surveyed boundary.'],
     },
     requiredSkills:{},difficulty:'routine',
     estimatedTotalAp:tierA.estimatedTotalAp['ERA1-CIV-01'],
