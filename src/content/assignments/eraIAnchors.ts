@@ -38,10 +38,10 @@ export const sealedVesselTextileConsignment = activity({
   participants: [people.steward, people.receiver, people.carrier, people.senior],
   discoveries: [
     { id: 'com01-request', title: 'The receiving request', text: 'Utu-mansum asks for the consignment to be checked before the receiving court closes. Enlil-kisu wants the goods accepted so his crew can leave; the receiving official wants the tag and custody note kept together.' },
-    { id: 'com01-tag', title: 'Tag transcription', text: 'the tag identifies vessel lot V-17 and textile lot T-04. The two commodity groups remain separately identified; no conversion between their counts is implied.' },
-    { id: 'com01-seal', title: 'Seal and custody observation', text: 'the seal impression on one vessel container is incomplete. The observation does not establish when the seal was damaged, whether the contents changed, or who was responsible.' },
-    { id: 'com01-quantity', title: 'Quantity record', text: 'the dispatch account lists 8 vessels and 3 textile bundles under their separate identifiers.' },
-    { id: 'com01-receipt', title: 'Receiving entry', text: 'the receiving entry lists 7 vessels and 3 textile bundles. The vessel count differs by one; the textile count agrees.' },
+    { id: 'com01-tag', title: 'Tag transcription', text: 'The tag identifies vessel lot V-17 and textile lot T-04. The two commodity groups remain separately identified; no conversion between their counts is implied.' },
+    { id: 'com01-seal', title: 'Seal and custody observation', text: 'The seal impression on one vessel container is incomplete. The observation does not establish when the seal was damaged, whether the contents changed, or who was responsible.' },
+    { id: 'com01-quantity', title: 'Quantity record', text: 'The dispatch account lists 8 vessels and 3 textile bundles under their separate identifiers.' },
+    { id: 'com01-receipt', title: 'Receiving entry', text: 'The receiving entry lists 7 vessels and 3 textile bundles. The vessel count differs by one; the textile count agrees.' },
   ],
   actions: [
     { id: 'com01-consult-receiver', family: 'consult', label: 'Ask Utu-mansum what crossed the threshold', description: 'Hear what the receiving official actually counted before the court closes.', apCost: 1, discoveryIds: ['com01-request'], consultedPersonId: people.receiver },
@@ -98,8 +98,8 @@ export const brewingIngredientAccount = activity({
   participants: [people.senior, people.steward],
   discoveries: [
     { id: 'com02-request', title: 'The recorder’s request', text: 'The brewer is worried that an apparent shortfall will reduce the quantity credited to his work. Shuruppak-ilu wants the arithmetic checked before the account is closed; neither concern decides what the signs mean.' },
-    { id: 'com02-groats', title: 'Grain-product entries', text: 'three groats entries are 4, 3, and 2 capacity units. Their recalculated subtotal is 9; the working copy writes 8.' },
-    { id: 'com02-malt', title: 'Malt entries', text: 'the separate malt entries total 7 in their own notation. Do not combine this total with the groats subtotal.' },
+    { id: 'com02-groats', title: 'Grain-product entries', text: 'Three groats entries are 4, 3, and 2 capacity units. Their recalculated subtotal is 9; the working copy writes 8.' },
+    { id: 'com02-malt', title: 'Malt entries', text: 'The separate malt entries total 7 in their own notation. Do not combine this total with the groats subtotal.' },
     { id: 'com02-reading', title: 'Reading and carry-forward note', text: 'The copied account marks one sign as uncertain. The supplied transcription permits a check of the displayed arithmetic but does not settle the uncertain destination or use of the goods.' },
   ],
   actions: [
@@ -156,7 +156,7 @@ export const fieldMeasurementReconciliation = activity({
   participants: [people.senior, people.steward],
   discoveries: [
     { id: 'civ01-provenance', title: 'Record identity and provenance', text: 'This is an older field-area copy; where it was found and when it was made are not recorded.' },
-    { id: 'civ01-working-copy', title: 'Readable working transcription', text: 'The readable working copy gives parcel areas parcel areas are 2, 3, and 4 units. These figures are the values to add; they do not establish a boundary.' },
+    { id: 'civ01-working-copy', title: 'Readable working transcription', text: 'The readable working copy gives parcel areas 2, 3, and 4 units. These figures are the values to add; they do not establish a boundary.' },
     { id: 'civ01-subtotal', title: 'Written area subtotal', text: 'The working summary writes a total of 8 units. The displayed parcel values add to 9.' },
   ],
   actions: [
@@ -213,7 +213,7 @@ export const laborGroupDisbursement = activity({
   participants: [people.senior, people.steward],
   discoveries: [
     { id: 'civ02-request', title: 'The reviewer’s request', text: 'The group leader wants the figures settled so people can leave. Shuruppak-ilu asks for two separate checks; he does not claim the grain record belongs to this group.' },
-    { id: 'civ02-labor-account', title: 'Labor-group account', text: 'The labor-group tally gives the group entries are 6, 8, and 5; the written total is 19. The displayed values reconcile.' },
+    { id: 'civ02-labor-account', title: 'Labor-group account', text: 'The labor-group tally gives entries 6, 8, and 5; the written total is 19. The displayed values reconcile.' },
     { id: 'civ02-disbursement', title: 'Separate grain-disbursement record', text: 'A separate grain-disbursement copy records grain for high-ranking officials. It is not a record of this work group or its entitlement.' },
     { id: 'civ02-provenance', title: 'Separate provenance notes', text: 'The two copies remain separate. They have been brought together for this check, but no shared transaction is recorded.' },
   ],
