@@ -234,6 +234,71 @@ export const southLoadingAwningInspection = activity({
   submissionNote: 'This is a condition report, not a repair order or proof that the existing north-bay commission covered the awning.',
 });
 
+
+export const tierBRecurringInstitutionalCheck = activity({
+  id: 'activity-tierb-recurring-institutional-check',
+  title: 'Recurring Institutional Check',
+  submissionApCost: 1,
+  participants: [people.steward, people.receiver, people.senior, people.carrier],
+  discoveries: [
+    { id: 'tierb-source-records', title: 'Dated source copies', text: 'Compare the dated source/dispatch and receiving/check records identified in this Assignment dossier. Preserve their actual commodity, unit, category, and recorded outcome; do not substitute a familiar measure.' },
+    { id: 'tierb-counterparty-account', title: 'Attributed account', text: 'The counterparty’s account is attributed testimony. It may explain what that person recorded or observed, but it does not independently locate a discrepancy or establish responsibility.' },
+    { id: 'tierb-authority-boundary', title: 'Institutional review boundary', text: 'The scribe may compare, document, and recommend a bounded follow-up. The receiving official or Storehouse Steward retains authority to amend an institutional account, alter custody, or authorize disposition.' },
+  ],
+  actions: [
+    { id: 'tierb-compare-records', family: 'compare', label: 'Compare the dated records', description: 'Set the source copy and receiving/check record beside one another.', apCost: 1, discoveryIds: ['tierb-source-records'] },
+    { id: 'tierb-review-account', family: 'consult', label: 'Review the attributed account', description: 'Keep the counterparty’s statement distinct from the written tally.', apCost: 1, discoveryIds: ['tierb-counterparty-account'] },
+    { id: 'tierb-confirm-authority', family: 'consult', label: 'Confirm the reporting boundary', description: 'Establish what the scribe may report and what remains with the responsible official.', apCost: 1, discoveryIds: ['tierb-authority-boundary'] },
+  ],
+  interpretationRules: [],
+  reportSchema: {
+    title: 'Recurring institutional check',
+    responsibilityLabel: 'Responsibility claim',
+    findings: [
+      { id: 'records_reconcile', label: 'The cited records reconcile within their stated categories and units' },
+      { id: 'bounded_difference', label: 'A bounded difference or condition is recorded; its cause is not established' },
+      { id: 'qualified_incomplete', label: 'Qualified report; further source checking is required' },
+      { id: 'assign_responsibility', label: 'Assign responsibility to the counterparty' },
+    ],
+    responsibilityClaims: [
+      { id: 'none', label: 'No individual responsibility assigned' },
+      { id: 'assign_responsibility', label: 'Assign responsibility to the counterparty' },
+    ],
+    recommendations: [
+      { id: 'retain_sources', label: 'Retain both source records and carry the result forward with its limits' },
+      { id: 'request_followup', label: 'Request a further source copy, recount, or authorized physical check' },
+    ],
+    limitationsLabel: 'Source and responsibility limits',
+    limitationOptions: [
+      { id: 'source_scope', label: 'Each source establishes only its own recorded count or observation' },
+      { id: 'cause_unlocated', label: 'The available records do not locate the cause of a difference' },
+      { id: 'no_individual_blame', label: 'No individual responsibility is established by the source facts' },
+    ],
+  },
+  evaluation: {
+    requiredEvidenceIds: ['tierb-source-records', 'tierb-authority-boundary'],
+    requiredLimitationIds: ['source_scope', 'no_individual_blame'],
+    relevantEvidenceIds: ['tierb-counterparty-account'],
+    relevantLimitationIds: ['cause_unlocated'],
+    unsupportedFindingIds: ['assign_responsibility'],
+    unsupportedResponsibilityClaimIds: ['assign_responsibility'],
+    receiverPersonId: people.senior,
+    rationales: {
+      Thorough: 'The dated records are compared, the source scope and authority boundary are preserved, and the result is carried forward without unsupported blame.',
+      Defensible: 'The report retains the actual recorded result and avoids extending it into a claim about cause or responsibility.',
+      Incomplete: 'A source comparison or required limitation is missing, so the account cannot safely be carried forward.',
+      Overreached: 'The report assigns individual responsibility beyond what the dated records establish.',
+    },
+    reactions: {
+      Thorough: 'Shuruppak-ilu checks the source copies. “Good. The next tally can use this without pretending we know more than the records say.”',
+      Defensible: 'Shuruppak-ilu nods. “Keep the figures and the limits together. That is enough to proceed with a qualified account.”',
+      Incomplete: 'Shuruppak-ilu returns the note. “The source boundary needs to be written plainly before this is copied.”',
+      Overreached: 'Shuruppak-ilu sets the note aside. “The records do not name a culprit. We will not write one into them.”',
+    },
+  },
+  submissionNote: 'A Tier B recurring check records a dated institutional occurrence. It does not turn a recurring cadence into a quota or grant executive authority.',
+});
+
 export const URUK_ASSIGNMENT_ACTIVITY_CATALOG = {
   [heldBarleyInspection.id]: heldBarleyInspection,
   [southCourtDeliveryReconciliation.id]: southCourtDeliveryReconciliation,
