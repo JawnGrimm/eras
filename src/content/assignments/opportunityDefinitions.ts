@@ -121,7 +121,7 @@ export const URUK_ASSIGNMENT_OPPORTUNITY_DEFINITIONS: readonly AssignmentOpportu
     offer: {
       activityId: 'activity-tierb-recurring-institutional-check',
       title: 'Recurring Institutional Check',
-      description: 'Compare a newly dated institutional occurrence with its source and receiving records. Preserve the actual commodity, unit, and result; do not assume a discrepancy or assign responsibility.',
+      description: 'The steward needs the next tally ready before work continues. Compare the dated source and receiving records, then report what agrees and what remains unsettled.',
       employer: { kind: 'institution', id: 'institution-uruk-temple-storehouse' as import('../../state/ids').InstitutionId },
       category: 'tier_b_institutional_check',
       context: {
@@ -132,9 +132,9 @@ export const URUK_ASSIGNMENT_OPPORTUNITY_DEFINITIONS: readonly AssignmentOpportu
         where: 'At the storehouse work area where the two copies were brought together.',
         from: 'The dated dispatch/source copy and receiving/check record that prompted the comparison.',
         to: 'Shuruppak-ilu for review before the next tally.',
-        purpose: 'Reconcile clean records or document a bounded difference/condition without inventing a cause.',
-        responsibility: ['The scribe compares and reports; institutional officials retain account, custody, and disposition authority.'],
-        authority: 'Reporting and recommendation only. No authority to amend the institutional account, alter custody, or assign liability.',
+        purpose: 'Give the next tally a reliable comparison, whether the figures agree or leave a difference to check.',
+        responsibility: ['The scribe compares and reports; Ur-Nanna or the receiving official decides whether to change the account or move the goods.'],
+        authority: 'You may compare the entries and recommend a follow-up. The steward or receiving official decides whether to amend the account, change custody, or release goods.',
         provenance: ['The dated dispatch and receiving copies are kept together for this comparison.'],
       },
       requiredSkills: {},
