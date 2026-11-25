@@ -93,7 +93,8 @@ describe('world, relationships, institutions and records', () => {
     expect(amended.state.records.entries[record.id].amendments).toHaveLength(1);
     state = amended.state;
     const knowledge = { id: 'knowledge-enlil' as KnowledgeEntryId, holder: { kind: 'person' as const, id: INITIAL_PERSON_ID },
-      subject: { kind: 'record' as const, id: record.id }, basis: 'received-copy' as const, learnedDay: 1, sourcePersonId: otherId };
+      subject: { kind: 'record' as const, id: record.id }, basis: 'received-copy' as const, learnedDay: 1, sourcePersonId: otherId,
+      assertion: { kind: 'fact' as const, text: 'Received a copy of the delivery account.' }, assessments: [] };
     const informed = transitionGame(state, { type: 'GRANT_KNOWLEDGE', knowledge });
     expect(informed.feedback?.code).toBe('knowledge-granted');
     expect(informed.state.world.knowledge[knowledge.id]).toEqual(knowledge);
