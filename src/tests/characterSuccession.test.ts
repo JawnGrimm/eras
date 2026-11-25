@@ -4,7 +4,7 @@ import { transitionGame } from '../engine/actionEconomy';
 import { rankSuccessorCandidates } from '../engine/characterContinuity';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
 import { createSaveEnvelope, restoreSave } from '../state/saveEnvelope';
-import type { AssignmentId, PersonId, RecordId, WorkId } from '../state/ids';
+import type { AssignmentId, InstitutionId, PersonId, RecordId, WorkId } from '../state/ids';
 import type { Person } from '../state/types';
 import type { GameState } from '../state/types';
 import type { WorkDefinition } from '../works/workDefinition';
@@ -69,7 +69,7 @@ function offer(id: string, state: GameState) {
 
 describe('character departure and succession lifecycle', () => {
   it('preserves an unfinished personal Work in institutional custody after death and requires an explicit later take-up', () => {
-    const preservationWorkCatalog = { ...priorWorkCatalog, [priorWorkId]: { ...priorWorkCatalog[priorWorkId], kind: 'work' as const, title: 'Earlier institutional account', institutionId: 'institution-uruk-temple-storehouse' as any } };
+    const preservationWorkCatalog = { ...priorWorkCatalog, [priorWorkId]: { ...priorWorkCatalog[priorWorkId], kind: 'work' as const, title: 'Earlier institutional account', institutionId: 'institution-uruk-temple-storehouse' as InstitutionId } };
     let state = withPriorHistory(createInitialGameState());
     state = { ...state, works: { activeWorkId: priorWorkId, progress: { [priorWorkId]: {
       status: 'active', acquiredEvidence: [], examinedEvidence: [], workApSpentToday: 1,
