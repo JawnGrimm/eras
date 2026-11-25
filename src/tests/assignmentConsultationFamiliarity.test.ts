@@ -104,6 +104,7 @@ describe('assignment consultation familiarity', () => {
     let state = createInitialGameState();
     state = advanceInstitutionalMatters(state, 13);
     state = { ...state, calendar: { ...state.calendar, dayNumber: 13 } };
+    state = generateDailyAssignments(state);
     const activityId = ERA1_MAR_F03_OPPORTUNITY_DEFINITION.offer.activityId;
     const definition = ASSIGNMENT_ACTIVITY_CATALOG[activityId];
     expect(state.world.people[ERA1_MAR_PEOPLE.sigAna]).toBeDefined();
