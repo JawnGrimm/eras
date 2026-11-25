@@ -26,7 +26,7 @@ function activity(definition: Omit<AssignmentActivityDefinition, 'createInitialP
   };
 }
 
-/** Plausible authored reconstruction; sources establish descriptions and observations, not identity, origin, or liability. */
+/** The records establish descriptions and observations, not identity, origin, or liability. */
 export const materialNotAsDescribed: AssignmentActivityDefinition = activity({
   id: ERA1_COM_F01_ACTIVITY_ID,
   title: 'Material Not As Described',
