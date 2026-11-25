@@ -120,7 +120,7 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
   switch (action.type) {
     case 'TAKE_UP_PRESERVED_WORK': {
       const preserved = (state.works.preservedUndertakings ?? []).find((item) => item.workId === action.workId && item.status === 'waiting');
-      if (preserved?.invitationResponse === 'declined') {
+      if (preserved?.invitationResponse === 'declined' && preserved.invitation) {
         const definition = workCatalog[action.workId];
         const invitation = definition?.successionInvitation;
         const person = state.world.people[state.player.currentCharacterId];
