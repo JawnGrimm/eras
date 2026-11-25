@@ -78,9 +78,8 @@ describe('matter-driven Assignment discovery', () => {
     });
     const dairy = dairyState.world.matters['matter-tierb-recurring-day-14' as MatterId];
     expect(dairy?.tierBRecurring?.domain).toBe('dairy_entry');
-    expect(dairy?.tierBRecurring?.commodity).toContain('DUGb');
-    expect(dairy?.institutionId).toBe('institution-uruk-household-strongroom-provisional'
-      === dairy?.institutionId ? dairy?.institutionId : 'institution-uruk-textile-household-provisional');
+    expect(['DUGb dairy category', 'cheese category']).toContain(dairy?.tierBRecurring?.commodity);
+    expect(dairy?.institutionId).toBe('institution-uruk-textile-household-provisional');
 
     const fieldState = prepareTierBRecurringOccurrences({
       ...base, calendar: { ...base.calendar, dayNumber: 15 }, opportunities: emptyAssignments,
