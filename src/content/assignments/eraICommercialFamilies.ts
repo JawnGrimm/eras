@@ -4,7 +4,7 @@ import type { AssignmentActivityDefinition } from './northBayRoofInspection';
 import type { AssignmentOpportunityDefinition } from './opportunityDefinitions';
 import { ERA_I_ASSIGNMENT_PARAMETERS } from './eraIParameters';
 
-/** New NPC identities are provisional authored reconstructions and remain replaceable. */
+/** Fictional participants for the authored Era I scenarios. */
 export const ERA1_COM_F02_F04_PEOPLE = {
   luNanshe: 'person-lu-nanshe' as PersonId,
   urNanna: 'person-ur-nanna' as PersonId,
