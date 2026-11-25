@@ -32,6 +32,8 @@ export function EannaWorkScreen({ onBack }: { onBack: () => void }) {
   const active = progress?.status === 'active' && state.works.activeWorkId === workId;
   const scenario = progress?.scenarioData as EannaScenarioData | undefined;
   const done = (id: string) => progress?.completedActionIds.includes(id) ?? false;
+  const revisionMode = !!progress && progress.submissionCount > 0
+    && !(progress.pendingDisposition && progress.lastAssessment?.outcome === 'accepted');
   const setData = (next: EannaScenarioData) => game.dispatch({ type: 'SET_WORK_SCENARIO_DATA', workId, scenarioData: next });
   const finishStage = (actionId: string, stage: number) => scenario && game.dispatch({
     type: 'COMPLETE_WORK_ACTION', workId, actionId, scenarioData: { ...scenario, stage },
@@ -112,7 +114,7 @@ export function EannaWorkScreen({ onBack }: { onBack: () => void }) {
       <p className="mt-1 text-sm text-stone-600">Distinguish written tallies, physical counts, and spoken expectations before transcription.</p>
       <div className="mt-3 space-y-2">{EANNA_SOURCE_PACKET.map((item) => <label key={item.id} className="grid gap-2 rounded-lg bg-stone-50 p-3 md:grid-cols-[1fr_190px] md:items-center">
         <span><strong className="block text-sm text-stone-800">{item.title}</strong><span className="text-sm text-stone-700">{item.text}</span><span className="block text-xs text-stone-500">{item.source}</span></span>
-        <span className="text-xs text-stone-600">Source class<select aria-label={`Source class for ${item.title}`} disabled={!active} value={scenario.sourceClassifications[item.id] ?? ''} onChange={(e) => setClass(item.id, e.target.value as EannaSourceClass)} className="mt-1 w-full rounded border border-stone-300 bg-white p-2 text-sm">
+        <span className="text-xs text-stone-600">Source class<select aria-label={`Source class for ${item.title}`} disabled={!active || (done('sort-sources') && !revisionMode)} value={scenario.sourceClassifications[item.id] ?? ''} onChange={(e) => setClass(item.id, e.target.value as EannaSourceClass)} className="mt-1 w-full rounded border border-stone-300 bg-white p-2 text-sm">
           <option value="">Choose</option>{Object.entries(classNames).map(([value,label]) => <option key={value} value={value}>{label}</option>)}</select></span>
       </label>)}</div>
       <button disabled={!active || done('sort-sources') || !sortingComplete || state.actionEconomy.apRemaining < 1} onClick={() => finishStage('sort-sources',1)} className="mt-3 rounded-lg bg-stone-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40">{done('sort-sources') ? 'Sources sorted' : 'Complete sorting · 1 AP'}</button>
@@ -122,7 +124,7 @@ export function EannaWorkScreen({ onBack }: { onBack: () => void }) {
       <h2 className="font-serif text-xl font-semibold">Stage 2 · Compile the obverse <span className="text-xs font-sans text-stone-500">{done('compile-obverse') ? 'Complete' : '· 2 AP'}</span></h2>
       <p className="mt-1 text-sm text-stone-600">Keep each written request on its own line and in its own unit.</p>
       <div className="mt-3 space-y-2">{EANNA_SOURCE_PACKET.filter((item) => item.obverse).map((item) => <label key={item.id} className="flex gap-2 rounded-lg bg-stone-50 p-3 text-sm text-stone-700">
-        <input type="checkbox" disabled={!active || !done('sort-sources')} checked={scenario.obverseEntries.includes(item.id)} onChange={() => toggleObverse(item.id)} />
+        <input type="checkbox" disabled={!active || !done('sort-sources') || (done('compile-obverse') && !revisionMode)} checked={scenario.obverseEntries.includes(item.id)} onChange={() => toggleObverse(item.id)} />
         {obverseLines[item.id]}
       </label>)}</div>
       <button disabled={!active || done('compile-obverse') || !done('sort-sources') || !obverseComplete || state.actionEconomy.apRemaining < 2} onClick={() => finishStage('compile-obverse',2)} className="mt-3 rounded-lg bg-stone-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40">{done('compile-obverse') ? 'Obverse compiled' : 'Compile obverse · 2 AP'}</button>
@@ -133,11 +135,11 @@ export function EannaWorkScreen({ onBack }: { onBack: () => void }) {
       <p className="mt-1 text-sm text-stone-600">Barley: 29 requested against 18 counted. Beer vessels: 6 requested, 4 prepared. These units remain separate.</p>
       <div className="mt-3 grid gap-3 md:grid-cols-2">
         <div className="rounded-lg bg-stone-50 p-3"><h3 className="font-semibold">Barley allocation · capacity measures</h3>
-          {([['ninKasiBarley','Nin-kasi · request 12'],['breadGroupBarley','Bread preparation · request 8'],['gemeInanaBarley','Geme-Inana · request 9']] as const).map(([key,label]) => <label key={key} className="mt-2 flex items-center justify-between gap-2 text-sm">{label}<input type="number" min="0" max="18" disabled={!active || !done('compile-obverse')} value={p[key]} onChange={(e) => setNumber(key,Number(e.target.value))} className="w-20 rounded border border-stone-300 bg-white p-1.5 text-right font-mono" /></label>)}
+          {([['ninKasiBarley','Nin-kasi · request 12'],['breadGroupBarley','Bread preparation · request 8'],['gemeInanaBarley','Geme-Inana · request 9']] as const).map(([key,label]) => <label key={key} className="mt-2 flex items-center justify-between gap-2 text-sm">{label}<input type="number" min="0" max="18" disabled={!active || !done('compile-obverse') || (done('consolidate-reverse') && !revisionMode)} value={p[key]} onChange={(e) => setNumber(key,Number(e.target.value))} className="w-20 rounded border border-stone-300 bg-white p-1.5 text-right font-mono" /></label>)}
           <p className="mt-3 text-sm font-semibold">Proposed {barleyTotal} / 18 · {18-barleyTotal} unallocated</p>
         </div>
         <div className="rounded-lg bg-stone-50 p-3"><h3 className="font-semibold">Offering · discrete beer vessels</h3><p className="mt-1 text-sm text-stone-600">6 requested · 4 prepared</p>
-          <label className="mt-3 flex items-center justify-between gap-2 text-sm">Proposed allocation<input type="number" min="0" max="4" disabled={!active || !done('compile-obverse')} value={p.offeringBeerVessels} onChange={(e) => setNumber('offeringBeerVessels',Number(e.target.value))} className="w-20 rounded border border-stone-300 bg-white p-1.5 text-right font-mono" /></label>
+          <label className="mt-3 flex items-center justify-between gap-2 text-sm">Proposed allocation<input type="number" min="0" max="4" disabled={!active || !done('compile-obverse') || (done('consolidate-reverse') && !revisionMode)} value={p.offeringBeerVessels} onChange={(e) => setNumber('offeringBeerVessels',Number(e.target.value))} className="w-20 rounded border border-stone-300 bg-white p-1.5 text-right font-mono" /></label>
           <p className="mt-3 text-sm font-semibold">Unmet request: {6-p.offeringBeerVessels} vessels</p>
         </div>
       </div>
