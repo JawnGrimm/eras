@@ -210,9 +210,11 @@ The exact sign shapes, numerical notation, categories, units, source names, and 
 **Durable world effects proposed for this Work:**
 - One immutable **Consolidated Summary Tablet Record** preserving the source references, obverse entries, reverse totals, compiler, submission, and official disposition.
 - One objective **Work disposition Event** identifying the official action and the people/institution who received it.
-- The originating Eanna provisioning matter is updated according to the official disposition.
-- If an allocation remains outstanding or a carry-forward is authorized, a linked follow-up matter remains active. A later Assignment may be offered to verify an actual arrival/receipt or report on the deferred need; it must not be generated merely because someone made an unsupported promise.
-- The next required career-scale Work invitation becomes eligible only after the milestone reaches its accepted completion or authored recoverable closure, consistent with the approved Era I Works portfolio brief.
+- The originating **Eanna Provisioning** matter records the official's disposition and is resolved only to the extent the approved gathering allocation is complete.
+- If Lu-Nanshe approves a reduced allocation with no expected later delivery, the Summary Tablet records the shortfall and the affected request remains an unresolved institutional matter; no investigation Assignment is spawned automatically.
+- If Lu-Nanshe explicitly authorizes a carry-forward against an identified expected delivery, an **Outstanding Eanna Allocation** follow-up matter remains active. A later optional Assignment may compare the actual arrival/receipt with that specific commitment, but only after a real arrival Event or source record exists. An unsupported spoken assurance alone does not create that Assignment.
+- If the gathering window passes, the Work records whether the gathering proceeded at reduced scope or whether the outstanding allocation was deferred. The original date is not erased and the original tablet is not rewritten.
+- The next required career-scale Work invitation becomes eligible only after the milestone reaches accepted completion or an authored recoverable closure, consistent with the approved Era I Works portfolio brief. The follow-up matter/optional Assignment does not gate that invitation.
 
 These are domain-level outcome requirements, not a technical schema or authorization to modify runtime code. Stage effects must be committed when they occur, with actor and source provenance; final submission must not retroactively invent earlier events.
 
