@@ -101,7 +101,7 @@ const ERA_I_ANCHOR_MATTER_SEEDS = [
     eventId: 'event-era1-rel-01-inana-offering-source' as EventId,
     kind: 'era1_rel_01_inana_offering' as const,
     summary: 'Inana-associated offering entries and a separate commodity record are submitted for review.',
-    eventSummary: 'A participant in offering preparations asks for an Inana-associated offering copy and a separate commodity record to be reviewed before preparations continue. She wants the two entries checked before preparations continue; the records do not say they belong to one supply schedule.',
+    eventSummary: 'A participant in offering preparations asks for the Inana-associated copy and a separate commodity record to be checked before work continues. She needs to know whether the missing entry can be found; the records do not link the two copies.',
     personIds: [PEOPLE.seniorScribe, 'person-nin-kasi' as PersonId],
     locationId: EANNA_TABLET_ROOM_LOCATION_ID,
     provenance: [
