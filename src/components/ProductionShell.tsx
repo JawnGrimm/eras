@@ -150,7 +150,7 @@ export function ProductionShellContent() {
       <h2 className="font-semibold text-red-950">{game.loadStatus === 'corrupt_save' ? 'Production save needs recovery' : 'Production save could not be read'}</h2>
       <p className="mt-1 text-sm text-red-900">{game.storageError ?? 'The existing save has not been replaced. Ordinary actions are paused.'}</p>
       <p className="mt-1 text-sm text-red-900">Starting fresh opens the Character Creator. The production save is replaced only after you confirm the new character. Legacy prototype saves are left untouched.</p>
-      <button ref={resetTriggerRef} type="button" onClick={() => setResetConfirmationOpen(true)} className="mt-3 rounded-lg bg-red-900 px-4 py-2 text-sm font-semibold text-white">Start Fresh Production Save</button>
+      <button type="button" onClick={(event) => { resetTriggerRef.current = event.currentTarget; setResetConfirmationOpen(true); }} className="mt-3 min-h-10 rounded-lg bg-red-900 px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900">Start Fresh Production Save</button>
     </section>}
     {game.hasUnsavedChanges && <section role="status" className="rounded-xl border border-amber-400 bg-amber-50 px-4 py-3">
       <p className="text-sm font-semibold text-amber-950">This session has unsaved changes</p>
@@ -242,7 +242,7 @@ export function ProductionShellContent() {
                         <section className="rounded-lg border border-red-200 bg-red-50 p-4">
                           <h2 className="font-semibold text-red-950">Start a new character</h2>
                           <p className="mt-1 text-sm leading-6 text-red-900">This opens the Character Creator. The current production save is replaced only when you confirm the new character. Legacy <code>scribe_*</code> keys are not read, migrated, or deleted.</p>
-                          <button ref={resetTriggerRef} type="button" onClick={() => setResetConfirmationOpen(true)} className="mt-3 rounded-lg bg-red-900 px-4 py-2 text-sm font-semibold text-white">Start New Character</button>
+                          <button type="button" onClick={(event) => { resetTriggerRef.current = event.currentTarget; setResetConfirmationOpen(true); }} className="mt-3 min-h-10 rounded-lg bg-red-900 px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900">Start New Character</button>
                         </section>
                       </section>}
       </main>
