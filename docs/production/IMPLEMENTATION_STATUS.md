@@ -397,7 +397,7 @@ This record is queue planning only. It does not mark Faithful Recall implemented
 - Knowledge remains separate. Preserve legacy Knowledge entries as source references without inventing assertions; require new entries to carry a specific assertion and append-only verification/contradiction/obsolescence assessments.
 - Existing v2→v3 migration remains the first leg of a v2→v3→v4 chain. Preserve exact raw v2/v3 bytes before a validated v4 write. Do not synthesize episodes from numeric values, relationship summaries, biography, Life Events, PersonFamiliarity, or Event participant lists.
 - `PersonFamiliarity` semantics and consumers remain unchanged.
-- QA coverage is specified in the proposal. No tests were written or executed for this documentation-only task.
+- QA coverage is specified in the proposal. No new tests were added. Standard CI TypeScript check, unit-test suite, and production build passed on head `ed052e0c564564a427d8f4118af3360bf256f185` (Pull Request Validation #601); CodeQL #485 was in progress at last check.
 - **Next gate:** Design HQ review of episode authoring vocabulary, stage-contribution mapping, no-episode presentation, situation-key ownership, and legacy Knowledge presentation. A separate implementation authorization is required before runtime or migration work.
 - This approved contract supersedes the earlier **BLOCKED — DESIGN HQ DECISION REQUIRED** familiarity-design status under GD-STATE-INTEGRITY-001. The earlier WP1 source audit and relationship-history attribution correction remain valid; the familiarity compatibility/migration work is now tracked independently under GD-RELATIONSHIP-FAMILIARITY-001. Issue #107 remains open for its other acceptance criteria.
 
