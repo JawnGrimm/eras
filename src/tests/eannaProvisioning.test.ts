@@ -4,7 +4,7 @@ import { getInitializedScribal } from '../state/scribalState';
 import { validateWorkDefinition } from '../works/workDefinition';
 import { transitionGame } from '../engine/actionEconomy';
 import { INITIAL_WORK_CATALOG } from '../state/newGameState';
-import { createSaveEnvelope, isValidSaveEnvelope, restoreSave } from '../state/saveEnvelope';
+import { createSaveEnvelope, isValidGameState, isValidSaveEnvelope, restoreSave } from '../state/saveEnvelope';
 import {
   EANNA_ALLOCATION_EVENT_ID, EANNA_ALLOCATION_FOLLOWUP_MATTER_ID,
   EANNA_PROVISIONING_MATTER_ID, EANNA_SOURCE_PACKET, EANNA_SUMMARY_RECORD_ID,
@@ -149,6 +149,19 @@ describe('Eanna Provisioning Undertaking', () => {
     expect(repeated.state.historicalProgression.historicalXp).toBe(100);
     expect(Object.keys(repeated.state.world.events).filter((id) => id === EANNA_ALLOCATION_EVENT_ID)).toHaveLength(1);
 
+    const withoutRecord = { ...state, records: { ...state.records, entries: {} } };
+    const withoutEventAndRecord = { ...withoutRecord, world: { ...state.world, events: Object.fromEntries(Object.entries(state.world.events).filter(([id]) => id !== EANNA_ALLOCATION_EVENT_ID)) } };
+    const origin = state.world.matters[EANNA_PROVISIONING_MATTER_ID];
+    const withoutMatter = { ...state, world: { ...state.world,
+      matters: Object.fromEntries(Object.entries(state.world.matters).filter(([id]) => id !== EANNA_PROVISIONING_MATTER_ID)),
+      institutions: { ...state.world.institutions, [origin.institutionId]: { ...state.world.institutions[origin.institutionId], activeMatters: state.world.institutions[origin.institutionId].activeMatters.filter((id) => id !== EANNA_PROVISIONING_MATTER_ID) } },
+    } };
+    console.log('EANNA_SAVE_DIAGNOSTIC', {
+      full: isValidGameState(state, INITIAL_WORK_CATALOG),
+      withoutRecord: isValidGameState(withoutRecord, INITIAL_WORK_CATALOG),
+      withoutEventAndRecord: isValidGameState(withoutEventAndRecord, INITIAL_WORK_CATALOG),
+      withoutMatter: isValidGameState(withoutMatter, INITIAL_WORK_CATALOG),
+    });
     const envelope = createSaveEnvelope(state, 1);
     expect(isValidSaveEnvelope(envelope, INITIAL_WORK_CATALOG)).toBe(true);
     const restored = restoreSave(JSON.stringify(envelope), INITIAL_WORK_CATALOG);
