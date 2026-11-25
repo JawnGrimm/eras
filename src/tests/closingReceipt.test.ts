@@ -71,8 +71,8 @@ describe('shared Closing Receipt assessment schedule', () => {
     });
     expect(second).not.toBeNull();
     expect(Object.keys(second!.state.world.relationshipFamiliarityEpisodes ?? {})).toHaveLength(1);
-    expect(second!.state.world.events['event-closing-receipt-receipt-matter-first']).toBeDefined();
-    expect(second!.state.world.events['event-closing-receipt-receipt-matter-second']).toBeDefined();
+    expect(Object.values(second!.state.world.events).some((event) => event.id === 'event-closing-receipt-receipt-matter-first')).toBe(true);
+    expect(Object.values(second!.state.world.events).some((event) => event.id === 'event-closing-receipt-receipt-matter-second')).toBe(true);
   });
 
   it('keeps sentiment unchanged for an Incomplete assessment while recording the substantive interaction', () => {
