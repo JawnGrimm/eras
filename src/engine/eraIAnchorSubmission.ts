@@ -49,7 +49,7 @@ export function submitRubricAssignmentActivity(
   const finding = definition.reportSchema.findings.find((option) => option.id === progress.draft.finding);
   if (matter?.tierBRecurring && progress.draft.finding !== 'qualified_incomplete') {
     const expectedFinding = matter.tierBRecurring.outcomeShape === 'reconciled' ? 'records_reconcile' : 'bounded_difference';
-    if (progress.draft.finding !== expectedFinding) return fail(state, 'tierb-finding-outcome-mismatch', 'The selected finding does not match the dated source records. Recheck the figures or submit a qualified incomplete report.');
+    if (progress.draft.finding !== expectedFinding && progress.draft.finding !== 'assign_responsibility') return fail(state, 'tierb-finding-outcome-mismatch', 'The selected finding does not match the dated source records. Recheck the figures or submit a qualified incomplete report; unsupported responsibility claims remain subject to rubric assessment.');
   }
   const responsibility = definition.reportSchema.responsibilityClaims.find((option) => option.id === progress.draft.responsibilityClaim);
   const selectedLimitations = (progress.draft.selectedLimitationIds ?? []).flatMap((id) => {
