@@ -350,6 +350,7 @@ export function transitionOpportunityAction(state: GameState, action: Opportunit
           baseCareerXp: choice.consequences.careerXp ?? 0,
           institutionId: choice.evaluation.institutionId,
           receiverPersonId: choice.evaluation.receiverPersonId,
+          contextId: challenge.category, occasionId: challenge.id,
           currencyDelta: after && before ? after.wallet.money - before.wallet.money : 0,
           provisionsDelta: after && before ? after.wallet.provisions - before.wallet.provisions : 0,
         });
