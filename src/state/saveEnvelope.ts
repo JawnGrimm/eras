@@ -605,8 +605,8 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
     && Array.isArray(value.records.permanentOutcomes)
     && Array.isArray(value.journal.notices);
 }
-function isValidV3GameState(value: unknown, workCatalog: Readonly<Record<string, WorkDefinition<any>>>): value is GameState {
-  if (!isValidGameState(value, workCatalog, 3) || !isObject(value)) return false;
+function isValidV3GameState(value: unknown, workCatalog: Readonly<Record<string, WorkDefinition<any>>>, schemaVersion: 3 | 4 = 3): value is GameState {
+  if (!isValidGameState(value, workCatalog, schemaVersion) || !isObject(value)) return false;
   const dayClose = value.dayClose;
   const opportunities = value.opportunities;
   if (!isObject(dayClose) || !['workday_open','interlude_open'].includes(String(dayClose.phase))
@@ -683,7 +683,7 @@ function isValidV3GameState(value: unknown, workCatalog: Readonly<Record<string,
 
 function isValidV4GameState(value: unknown, workCatalog: Readonly<Record<string, WorkDefinition<any>>>): value is GameState {
   if (!isValidGameState(value, workCatalog, 4) || !isObject(value)) return false;
-  return isValidV3GameState(value, workCatalog);
+  return isValidV3GameState(value, workCatalog, 4);
 }
 
 export function createSaveEnvelope(state: GameState, revision: number, savedAt = new Date().toISOString()): SaveEnvelope {
