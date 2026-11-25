@@ -35,20 +35,8 @@ describe('production opportunity screens', () => {
     const southCourtOffer = Object.values(state.opportunities.assignments)
       .find((offer) => offer.activityId === 'activity-south-court-delivery-reconciliation');
     expect(southCourtOffer).toBeDefined();
-    const stateWithProvisionContract = {
-      ...state,
-      opportunities: {
-        ...state.opportunities,
-        assignments: {
-          ...state.opportunities.assignments,
-          [southCourtOffer!.id]: {
-            ...southCourtOffer!,
-            compensation: { ...southCourtOffer!.compensation, provisions: 1 },
-          },
-        },
-      },
-    };
-    const markup = renderToStaticMarkup(createElement(GameProvider, { initialState: stateWithProvisionContract },
+    expect(southCourtOffer!.compensation.provisions).toBe(1);
+    const markup = renderToStaticMarkup(createElement(GameProvider, { initialState: state },
       createElement(ProductionWorkdayHub)));
     const assignmentSection = markup.indexOf('Assignments / Commissions');
     const southCourtTitle = markup.indexOf('South-Court Delivery Reconciliation', assignmentSection);
