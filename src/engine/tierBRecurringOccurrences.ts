@@ -23,16 +23,6 @@ const operationalNames: Record<string, string> = {
   [DUDU]: 'Dudu, Repairer',
   [ARU]: 'Aru, Maintenance Worker',
 };
-const receivingNames: Record<string, string> = {
-  [RECEIVER]: 'Utu-mansum, Receiving Official',
-  [STEWARD]: 'Ur-Nanna, Storehouse Steward',
-  [GEME_INANA]: 'Geme-Inana, Household Participant',
-};
-const reviewerNames: Record<string, string> = {
-  [SENIOR]: 'Shuruppak-ilu, Senior Scribe',
-  [LU_NANSHE]: 'Lu-Nanshe, Responsible Authority',
-};
-
 function authoredOccurrence(day: number, counterpartyPersonId: PersonId, counterpartyName: string): TierBRecurringOccurrence {
   const n = day;
   const patterns: TierBRecurringOccurrence[] = [
