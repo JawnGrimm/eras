@@ -303,4 +303,5 @@ export const URUK_ASSIGNMENT_ACTIVITY_CATALOG = {
   [heldBarleyInspection.id]: heldBarleyInspection,
   [southCourtDeliveryReconciliation.id]: southCourtDeliveryReconciliation,
   [southLoadingAwningInspection.id]: southLoadingAwningInspection,
+  [tierBRecurringInstitutionalCheck.id]: tierBRecurringInstitutionalCheck,
 } as const;
