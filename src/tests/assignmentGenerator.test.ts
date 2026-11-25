@@ -1,11 +1,22 @@
 import { describe, expect, it } from 'vitest';
 import { generateDailyAssignments } from '../engine/assignmentGenerator';
 import { transitionOpportunityAction } from '../engine/opportunities';
+import { selectCharacterOpportunities } from '../state/opportunitySelectors';
 import { createInitialGameState } from '../state/initialState';
 import type { GameState } from '../state/types';
 import type { EventId, MatterId } from '../state/ids';
 
 describe('matter-driven Assignment discovery', () => {
+  it('exposes newly generated offers through the character opportunity selector', () => {
+    const generated = generateDailyAssignments(createInitialGameState());
+    const offers = Object.values(generated.opportunities.assignments)
+      .filter((offer) => offer.status === 'offered');
+
+    expect(offers.length).toBeGreaterThan(0);
+    expect(selectCharacterOpportunities(generated).offeredAssignments.map((offer) => offer.id))
+      .toEqual(offers.map((offer) => offer.id));
+  });
+
   it('discovers authored activities only from active matters listed by their institution', () => {
     const state = createInitialGameState();
     const generated = generateDailyAssignments(state);
