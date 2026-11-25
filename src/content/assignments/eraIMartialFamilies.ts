@@ -88,11 +88,11 @@ export const era1MarF01DoorOpened = activity({
   submissionApCost: 1,
   participants: [p.luNanshe,p.shuruppak,p.urNanna,p.ninDara,p.sealingOwner],
   discoveries: [
-    { id: 'mar01-closure-impression', title: 'Present closure impression', text: 'The strongroom closure is re-sealed with an impression that differs from the household’s known sealing. The impression establishes which seal was used, not who was authorized to open the room.', sourceProvenanceId: 'mar01-closure-impression' },
-    { id: 'mar01-inventory', title: 'Inventory of contents', text: 'The inventory lists what should be inside the strongroom; the current check finds the listed contents present. The contents match the inventory, but this does not identify who entered or when.', sourceProvenanceId: 'mar01-inventory' },
+    { id: 'mar01-closure-impression', title: 'Present closure impression', text: 'The household closure bears a different seal impression. The mark shows which seal was pressed, but not who was permitted to open the room.', sourceProvenanceId: 'mar01-closure-impression' },
+    { id: 'mar01-inventory', title: 'Inventory of contents', text: 'All listed contents are present. The household still wants to know who entered and when.', sourceProvenanceId: 'mar01-inventory' },
     { id: 'mar01-nin-dara-account', title: 'Nin-dara’s account', text: 'Nin-dara says she opened the door for a man who showed a sealing. She was trusted with access that day; her account does not identify the man or establish who sent him.', sourceProvenanceId: 'mar01-nin-dara-account' },
-    { id: 'mar01-owner-account', title: 'Sealing owner’s account', text: 'The sealing owner says no one was sent to open the strongroom. This is an attributed account and does not by itself prove who entered.', sourceProvenanceId: 'mar01-owner-account' },
-    { id: 'mar01-authorization-search', title: 'Earlier authorization search', text: 'No earlier authorization record has been linked to this opening in the records examined. The absence of a linked record does not prove that no authorization was given.', sourceProvenanceId: 'mar01-authorization-search' },
+    { id: 'mar01-owner-account', title: 'Sealing owner’s account', text: 'The sealing owner says no one was sent. Nin-dara remembers opening for a man who showed a sealing; neither account identifies who authorized him.', sourceProvenanceId: 'mar01-owner-account' },
+    { id: 'mar01-authorization-search', title: 'Earlier authorization search', text: 'No earlier authorization copy is found among the records brought for review. Lu-Nanshe cannot settle the question from that absence alone.', sourceProvenanceId: 'mar01-authorization-search' },
   ],
   actions: [
     { id: 'mar01-review-closure-inventory', family: 'compare', label: 'Compare closure and inventory',
@@ -166,9 +166,9 @@ export const era1MarF02PartyReturnsShort = activity({
   participants: [p.luNanshe,p.shuruppak,p.luKala,p.partyMember,p.dudu,p.urAb,p.enlilKisu],
   discoveries: [
     { id: 'mar02-issue-list', title: 'Task issue list', text: 'The issue list records tools and provisions handed to a party gathered for a repair. The leader needs the count settled before they disperse; the list says nothing about a standing unit.', sourceProvenanceId: 'mar02-issue-list' },
-    { id: 'mar02-return-count', title: 'Return count', text: 'The return count lists tools returned and tools not yet accounted for. It does not establish whether an item was lost, left at the site, or retained for the next day.', sourceProvenanceId: 'mar02-return-count' },
-    { id: 'mar02-lu-kala-account', title: 'Lu-kala’s account', text: 'Lu-kala says some tools were left at the work site for the next day and one person has not yet returned. His account is attributed and is not proof of deliberate retention or neglect.', sourceProvenanceId: 'mar02-lu-kala-account' },
-    { id: 'mar02-party-member-account', title: 'Party member’s account', text: 'A member of the task party gives a different account of one missing tool and the person still away. This is an attributed statement, not a formal disciplinary finding.', sourceProvenanceId: 'mar02-party-member-account' },
+    { id: 'mar02-return-count', title: 'Return count', text: 'The count lists tools returned and tools still missing. The group wants to leave, but the list cannot say whether they were lost, left at the site, or kept for tomorrow.', sourceProvenanceId: 'mar02-return-count' },
+    { id: 'mar02-lu-kala-account', title: 'Lu-kala’s account', text: 'Lu-kala says some tools were left at the work site for tomorrow and one person has not yet returned. The leader wants the count cleared, but his account alone cannot settle what happened.', sourceProvenanceId: 'mar02-lu-kala-account' },
+    { id: 'mar02-party-member-account', title: 'Party member’s account', text: 'A member of the task party gives a different account of one missing tool and the person still away. The two accounts leave the return count unsettled.', sourceProvenanceId: 'mar02-party-member-account' },
     { id: 'mar02-site-observation', title: 'Work-site observation', text: 'A watcher reports that tools may have been left at the site. The observation is a lead for a visit, not proof of the final count or of anyone’s conduct.', sourceProvenanceId: 'mar02-site-observation' },
   ],
   actions: [
@@ -244,10 +244,10 @@ export const era1MarF03LateTurnedAside = activity({
   submissionApCost: 1,
   participants: [p.gemeInana,p.enlilKisu,p.amaGi,p.sigAna,p.kuli],
   discoveries: [
-    { id: 'mar03-dispatch', title: 'Dispatch and expected arrival', text: 'The dispatch records a valued load and an expected arrival. It establishes the plan, not that the load reached the destination.', sourceProvenanceId: 'mar03-dispatch' },
-    { id: 'mar03-enlil-account', title: 'Enlil-kisu’s account of the halt', text: 'Enlil-kisu says the carrying party halted at a landing because the approach route was unsafe. This is his account; the evidence does not independently establish danger on the road.', sourceProvenanceId: 'mar03-enlil-account' },
-    { id: 'mar03-landing-observation', title: 'Landing observation', text: 'Ama-gi reports that the party was at the landing later than expected. The observation establishes presence and delay, not the reason for the halt or what happened to the load.', sourceProvenanceId: 'mar03-landing-observation' },
-    { id: 'mar03-message-claim', title: 'Claimed change-of-plan message', text: 'Sig-ana says word of a change was sent. No record confirms who carried the message or whether Geme-Inana received it.', sourceProvenanceId: 'mar03-message-claim' },
+    { id: 'mar03-dispatch', title: 'Dispatch and expected arrival', text: 'The dispatch names the valued load and expected arrival. The recipient is still waiting; the plan is not a receipt.', sourceProvenanceId: 'mar03-dispatch' },
+    { id: 'mar03-enlil-account', title: 'Enlil-kisu’s account of the halt', text: 'Enlil-kisu says the carrying party halted because the route was unsafe. The recipient still has no arrival record, so the reason for the delay remains his account.', sourceProvenanceId: 'mar03-enlil-account' },
+    { id: 'mar03-landing-observation', title: 'Landing observation', text: 'Ama-gi saw the party at the landing later than expected. The delay is recorded; what caused the halt and what happened to the load remain unsettled.', sourceProvenanceId: 'mar03-landing-observation' },
+    { id: 'mar03-message-claim', title: 'Claimed change-of-plan message', text: 'Sig-ana says word of a change was sent. Geme-Inana is still waiting; no copy shows who carried the message or whether it reached her.', sourceProvenanceId: 'mar03-message-claim' },
   ],
   actions: [
     { id: 'mar03-review-dispatch', family: 'observe', label: 'Review dispatch and expected arrival',
@@ -325,9 +325,9 @@ export const era1MarF04ValuedObjectTrail = activity({
   discoveries: [
     { id: 'mar04-removal-note', title: 'Removal note', text: 'The removal note records a carved stone vessel taken from storage for repair or cleaning. The household wants it returned before the next ceremony; the note does not establish its exact use.', sourceProvenanceId: 'mar04-removal-note' },
     { id: 'mar04-workshop-receipt', title: 'Workshop receipt', text: 'The workshop receipt records the object arriving with Ur-Lamma for repair or cleaning. It establishes receipt at the workshop, not a later return handover.', sourceProvenanceId: 'mar04-workshop-receipt' },
-    { id: 'mar04-storehouse-search', title: 'Storehouse return-entry search', text: 'No return handover entry is located in the Storehouse record examined. The absence of an entry does not prove that a spoken handover did not occur.', sourceProvenanceId: 'mar04-storehouse-search' },
-    { id: 'mar04-enlil-account', title: 'Enlil-kisu’s account', text: 'Enlil-kisu gives an account of carrying the object between locations. His statement may identify an interval to check but does not establish where the object is now.', sourceProvenanceId: 'mar04-enlil-account' },
-    { id: 'mar04-ur-ab-account', title: 'Ur-ab’s observation', text: 'Ur-ab reports seeing part of the movement near the yard. This is an attributed observation, not proof of the complete custody chain or individual fault.', sourceProvenanceId: 'mar04-ur-ab-account' },
+    { id: 'mar04-storehouse-search', title: 'Storehouse return-entry search', text: 'The Storehouse copy has no return handover. Lu-Nanshe must ask the custodians before calling the object missing.', sourceProvenanceId: 'mar04-storehouse-search' },
+    { id: 'mar04-enlil-account', title: 'Enlil-kisu’s account', text: 'Enlil-kisu says he carried the object between locations. His account gives Lu-Nanshe an interval to check, but not its present location.', sourceProvenanceId: 'mar04-enlil-account' },
+    { id: 'mar04-ur-ab-account', title: 'Ur-ab’s observation', text: 'Ur-ab saw part of the movement near the yard. His observation gives the next search a starting point, not the full path or a person to blame.', sourceProvenanceId: 'mar04-ur-ab-account' },
   ],
   actions: [
     { id: 'mar04-review-removal', family: 'observe', label: 'Review removal note',
