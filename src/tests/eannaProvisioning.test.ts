@@ -156,7 +156,19 @@ describe('Eanna Provisioning Undertaking', () => {
       matters: Object.fromEntries(Object.entries(state.world.matters).filter(([id]) => id !== EANNA_PROVISIONING_MATTER_ID)),
       institutions: { ...state.world.institutions, [origin.institutionId]: { ...state.world.institutions[origin.institutionId], activeMatters: state.world.institutions[origin.institutionId].activeMatters.filter((id) => id !== EANNA_PROVISIONING_MATTER_ID) } },
     } };
+    const withoutWork = { ...state,
+      works: { activeWorkId: null, progress: Object.fromEntries(Object.entries(state.works.progress).filter(([id]) => id !== workId)) },
+      historicalProgression: { historicalXp: 0, completedWorks: [] },
+      dayClose: { ...state.dayClose, pendingCredits: state.dayClose.pendingCredits.filter((credit) => credit.source.id !== workId) },
+    };
+    const withoutAllEanna = { ...withoutWork, world: { ...withoutWork.world,
+      events: Object.fromEntries(Object.entries(withoutWork.world.events).filter(([id]) => id !== EANNA_ALLOCATION_EVENT_ID)),
+      matters: Object.fromEntries(Object.entries(withoutWork.world.matters).filter(([id]) => id !== EANNA_PROVISIONING_MATTER_ID)),
+      institutions: Object.fromEntries(Object.entries(withoutWork.world.institutions).map(([id, institution]) => [id, { ...institution, activeMatters: institution.activeMatters.filter((matterId) => matterId !== EANNA_PROVISIONING_MATTER_ID) }])),
+    }), records: { ...withoutWork.records, entries: Object.fromEntries(Object.entries(withoutWork.records.entries).filter(([id]) => id !== EANNA_SUMMARY_RECORD_ID)) } };
     console.log('EANNA_SAVE_DIAGNOSTIC', {
+      withoutWork: isValidGameState(withoutWork, INITIAL_WORK_CATALOG),
+      withoutAllEanna: isValidGameState(withoutAllEanna, INITIAL_WORK_CATALOG),
       full: isValidGameState(state, INITIAL_WORK_CATALOG),
       withoutRecord: isValidGameState(withoutRecord, INITIAL_WORK_CATALOG),
       withoutEventAndRecord: isValidGameState(withoutEventAndRecord, INITIAL_WORK_CATALOG),
