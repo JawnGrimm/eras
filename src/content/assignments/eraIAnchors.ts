@@ -160,8 +160,8 @@ export const fieldMeasurementReconciliation = activity({
     { id: 'civ01-subtotal', title: 'Written area subtotal', text: 'The working summary writes a total of 8 units. The displayed parcel values add to 9.' },
   ],
   actions: [
-    { id: 'civ01-review-source', family: 'observe', label: 'Review the source note', description: 'Retain the chronology and provenience qualification.', apCost: 1, discoveryIds: ['civ01-provenance'] },
-    { id: 'civ01-read-copy', family: 'observe', label: 'Read the parcel transcription', description: 'Use the clearly labelled gameplay values rather than specialist metrology.', apCost: 1, prerequisites: ['civ01-review-source'], discoveryIds: ['civ01-working-copy'] },
+    { id: 'civ01-review-source', family: 'observe', label: 'Review the source note', description: 'Check the copy’s date and origin note before carrying the figures forward.', apCost: 1, discoveryIds: ['civ01-provenance'] },
+    { id: 'civ01-read-copy', family: 'observe', label: 'Read the parcel transcription', description: 'Read the working figures in the copy; keep the original notation note beside them.', apCost: 1, prerequisites: ['civ01-review-source'], discoveryIds: ['civ01-working-copy'] },
     { id: 'civ01-recalculate', family: 'compare', label: 'Recalculate the area subtotal', description: 'Add the three displayed parcel areas and compare the written total.', apCost: 1, discoveryIds: ['civ01-subtotal'] },
   ],
   interpretationRules: [],
@@ -184,8 +184,8 @@ export const fieldMeasurementReconciliation = activity({
     ],
     limitationsLabel: 'Source and authority limits',
     limitationOptions: [
-      { id: 'provenance_uncertain', label: 'Chronology and provenience remain qualified' },
-      { id: 'transcription_simplified', label: 'The standard-measure display is a gameplay transcription' },
+      { id: 'provenance_uncertain', label: 'The copy gives no clear date or place; keep that uncertainty with the figures' },
+      { id: 'transcription_simplified', label: 'The parcel figures are shown in a readable working measure; keep the source notation beside them' },
       { id: 'no_land_authority', label: 'The people waiting on the field summary still need an authorized measurement before any boundary or allocation is decided' },
     ],
   },
