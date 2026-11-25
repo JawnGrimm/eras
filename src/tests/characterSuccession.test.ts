@@ -170,18 +170,24 @@ describe('character departure and succession lifecycle', () => {
     const state: GameState = {
       ...initial,
       world: { ...initial.world, people, institutions: { ...initial.world.institutions, [institutionId]: institution } },
-      works: { activeWorkId: EANNA_PROVISIONING_WORK_ID, progress: { [EANNA_PROVISIONING_WORK_ID]: progress } },
+      works: { activeWorkId: EANNA_PROVISIONING_WORK_ID, progress: { [EANNA_PROVISIONING_WORK_ID]: progress },
+        contributionSegments: [{ id: 'eanna-segment-predecessor', workId: EANNA_PROVISIONING_WORK_ID, personId: INITIAL_PERSON_ID,
+          startedDay: initial.calendar.dayNumber, status: 'open' }] },
     };
     const catalog = { [EANNA_PROVISIONING_WORK_ID]: authoredWork };
     const death = transitionGame(state, { type: 'BEGIN_CHARACTER_DEPARTURE', departureKind: 'death' }, undefined, catalog);
     const selected = transitionGame(death.state, { type: 'SELECT_SUCCESSOR', nextCharacterId: apprenticeId }, undefined, catalog);
     const preserved = selected.state.works.preservedUndertakings?.[0];
+    expect(selected.state.works.contributionSegments).toContainEqual({ id: 'eanna-segment-predecessor', workId: EANNA_PROVISIONING_WORK_ID,
+      personId: INITIAL_PERSON_ID, startedDay: initial.calendar.dayNumber, status: 'closed', endedDay: initial.calendar.dayNumber, closureReason: 'death' });
     expect(preserved?.invitation).toMatchObject({ authorityScope, connectionTier: 'direct_professional' });
     expect(selected.state.journal.notices.at(-1)?.message).toContain('invites you to take up the remaining remit');
     const accepted = transitionGame(selected.state, { type: 'RESPOND_PRESERVED_WORK_INVITATION', workId: EANNA_PROVISIONING_WORK_ID, response: 'accept' }, undefined, catalog);
     expect(accepted.feedback?.code).toBe('preserved-work-taken-up');
     expect(accepted.state.works.activeWorkId).toBe(EANNA_PROVISIONING_WORK_ID);
     expect(accepted.state.works.handoffHistory).toHaveLength(1);
+    expect(accepted.state.works.contributionSegments).toContainEqual(expect.objectContaining({ workId: EANNA_PROVISIONING_WORK_ID,
+      personId: apprenticeId, status: 'open', startedDay: initial.calendar.dayNumber }));
   });
 
   it('discovers connected scribes, persists a pending death, selects without inheritance, and round-trips the save', () => {
