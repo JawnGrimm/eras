@@ -264,6 +264,11 @@ export function transitionCharacterContinuity(state: GameState, action: Continui
       preservedUndertakings: preservedUndertaking
         ? [...(state.works.preservedUndertakings ?? []), preservedUndertaking]
         : state.works.preservedUndertakings ?? [],
+      contributionSegments: preserveWork
+        ? (state.works.contributionSegments ?? []).map((segment) => segment.workId === activeWorkId
+            && segment.personId === pending.formerCharacterId && segment.status === 'open'
+            ? { ...segment, status: 'closed' as const, endedDay: pending.dayNumber, closureReason: 'death' as const } : segment)
+        : state.works.contributionSegments ?? [],
       progress: Object.fromEntries(Object.entries(state.works.progress).map(([id, progress]) => [
         id, { ...progress, workApSpentToday: 0 },
       ])),
