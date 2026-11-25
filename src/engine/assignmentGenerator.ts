@@ -168,6 +168,8 @@ export function generateDailyAssignments(state: GameState): GameState {
         container_check: 'Storage-Container Check',
         grain_account: 'Groats Account Reconciliation',
         fish_entry: 'Fish-Category Account Check',
+        dairy_entry: 'Dairy-Category Account Check',
+        field_measurement: 'Field-Measurement Recalculation',
       } as const)[recurring.domain] : undefined;
       const authoredOffer = recurring ? {
         ...definition.offer,
