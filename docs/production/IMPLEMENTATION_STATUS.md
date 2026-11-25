@@ -466,3 +466,29 @@ Issue #85 remains OPEN / IN PROGRESS. The integrated browser playthrough, manual
 WP0–WP4 implementation remains merged on main. WP5 requires no material historical research based on the completed source audit. WP6 still requires the actual Day-13 save/transaction trace and manual accessibility/browser acceptance. The Day-13 display-projection fixture is not a substitute for the missing save-level reconciliation.
 
 The earlier queue-cleanup and pre-implementation status statements above are historical snapshots; this dated addendum records the current authorized runtime implementation and verification state.
+
+
+## Merge and verification update — 24 November 2026
+
+### GD-RELATIONSHIP-FAMILIARITY-001
+
+**PR #121 merged:** `95b38ed2e94b185f162e44d4e34bc1e053ec42ea`  
+**Validated PR head:** `f120958eedbbee6f0cb4ef69c40da8dd46edb7f5`
+
+- Pull Request Validation #669 (`45535332413`) passed: TypeScript, 41 test files / 305 tests, production build.
+- CodeQL #562 (`45535332648`) passed on the exact PR head.
+- Main CodeQL #563 (`45535502497`) and Build and Deploy #199 (`45535502569`) were in progress at this status update.
+- PR is merged; deployment and deployed-build verification are not yet claimed.
+- Manual browser, keyboard-only, screen-reader, 200% zoom, and narrow-viewport acceptance remain outstanding.
+
+### GD-OPPORTUNITY-001 / Issue #85
+
+The four-orientation, three-day Day-Close / Evening Interlude / save-load regression is now merged in PR #121. Existing Challenge Director tests continue to cover deterministic selection, trigger domains, recurrence identity, decline handling, unresolved caps, and lifecycle behavior. Issue #85 remains OPEN / IN PROGRESS pending the integrated manual playthrough, actual multi-day Challenge/succession smoke test, and deployed-build verification.
+
+South-Court Responsibility remains CLOSED — NO CHANGE AUTHORIZED. The separate +1 Provision compensation correction remains merged.
+
+### GD-STATE-INTEGRITY-001 / Issue #107
+
+The familiarity runtime slice is merged. WP0–WP4 remain implemented. WP5 remains “No material research required.” WP6 is still open: the actual Day-13 save/transaction trace has not been supplied, so balances and archived-record count are not reconciled to a real save; the display-projection fixture remains projection-only. Manual browser and accessibility acceptance are also outstanding.
+
+This update supersedes the earlier draft-PR and pending-CodeQL snapshots above.
