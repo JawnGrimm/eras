@@ -101,6 +101,7 @@ export const sealedVesselTextileConsignment = activity({
       Overreached: 'Utu-mansum goes quiet at the unsupported claim. “You have written more than these sources can carry. We will correct that before it travels.”',
     },
   },
+  provenanceDisclosureRequired: true,
   historicalContextNote: 'Reconstructed historical context: perforated clay tags are attested in Uruk IV–III contexts. Published Uruk examples include small tags with a limited number of signs and may have been attached to goods; one published Uruk IV example contains an administrator’s name. This assignment’s tag, copied entry, and handover account are a fictional teaching reconstruction, not a transcription or claim about a specific excavated object. No sign reading, commodity, quantity, or historical transaction is reproduced here.',
   submissionNote: 'The report records a bounded comparison. Utu-mansum may arrange a further check; the report itself does not accept or release goods, settle the delivery, or assign responsibility.',
 });
