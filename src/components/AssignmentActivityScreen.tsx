@@ -9,7 +9,10 @@ import { evaluateEvidenceInterpretation } from '../works/evidenceInterpretation'
 export function responsibilityClaimPreviewLabel(
   options: readonly { id: string; label: string }[], selectedId: string,
 ): string {
-  return options.find((option) => option.id === selectedId)?.label ?? selectedId;
+  return options.find((option) => option.id === selectedId)?.label
+    ?? options.find((option) => option.id === 'none')?.label
+    ?? options[0]?.label
+    ?? 'No responsibility claim recorded';
 }
 
 export function AssignmentActivityScreen({ assignmentId, onBack }: { assignmentId: AssignmentId; onBack: () => void }) {
