@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import type { ChallengeId, EventId, PersonId } from '../state/ids';
+import type { ChallengeId, EventId, PersonId, RecordId } from '../state/ids';
 import type { ChallengeInstance, GameState } from '../state/types';
 import { createInitialGameState } from '../state/initialState';
 import { isValidSaveEnvelope, createSaveEnvelope } from '../state/saveEnvelope';
-import { resolveChallengeTrigger, selectWeightedChallengeCandidate } from '../engine/challengeDirector';
-import { transitionOpportunityAction } from '../engine/opportunities';
+import { CHALLENGE_TRIGGER_RULES, resolveChallengeTrigger, selectWeightedChallengeCandidate } from '../engine/challengeDirector';
+import type { ChallengeTriggerDescriptor } from '../engine/challengeDirector';
+import { addActivity, transitionOpportunityAction } from '../engine/opportunities';
 import { generateDailyAssignments } from '../engine/assignmentGenerator';
 import { MATTER_IDS } from '../engine/institutionalMatters';
 
@@ -62,6 +63,23 @@ describe('Challenge candidate selection and occurrence lifecycle', () => {
     expect(matterOccurrence?.matterId).toBe(MATTER_IDS.southCourtDelivery);
     expect(matterOccurrence?.primarySourceFact.kind).toBe('event');
 
+    const southCourtMatter = generated.world.matters[MATTER_IDS.southCourtDelivery];
+    const matterWithoutSource = {
+      ...generated,
+      world: {
+        ...generated.world,
+        matters: { ...generated.world.matters, [southCourtMatter.id]: { ...southCourtMatter, sourceEventId: undefined } },
+      },
+    };
+    expect(resolveChallengeTrigger(matterWithoutSource, {
+      domain: 'institutional_matter_update',
+      matterId: MATTER_IDS.southCourtDelivery,
+      statuses: ['active'],
+      minimumAgeDays: 0,
+      deliveryActivityId: 'activity-south-court-delivery-reconciliation',
+      deliveryKinds: ['presented'],
+    })).toBeNull();
+
     const eventId = Object.keys(base.world.events)[0] as EventId;
     const eventOccurrence = resolveChallengeTrigger(base, {
       domain: 'authored_world_event',
@@ -69,6 +87,16 @@ describe('Challenge candidate selection and occurrence lifecycle', () => {
       deliveryChannels: channels,
     });
     expect(eventOccurrence?.primarySourceFact).toEqual({ kind: 'event', id: eventId });
+    expect(resolveChallengeTrigger(base, {
+      domain: 'authored_world_event',
+      eventId: 'event-not-present' as EventId,
+      deliveryChannels: channels,
+    })).toBeNull();
+    expect(resolveChallengeTrigger(base, {
+      domain: 'authored_world_event',
+      eventId,
+      deliveryChannels: [],
+    })).toBeNull();
 
     const people = Object.keys(base.world.people);
     const fromId = people[0] as PersonId;
@@ -119,6 +147,106 @@ describe('Challenge candidate selection and occurrence lifecycle', () => {
       toId,
       deliveryChannels: channels,
     })).toBeNull();
+  });
+
+  it('resolves player-action outcomes only from a completed Assignment with a valid causal matter event', () => {
+    const generated = generateDailyAssignments(createInitialGameState());
+    const offer = Object.values(generated.opportunities.assignments)
+      .find((item) => item.activityId === 'activity-south-court-delivery-reconciliation')!;
+    const completedOffer = { ...offer, status: 'completed' as const };
+    const withCompletedOffer = {
+      ...generated,
+      opportunities: {
+        ...generated.opportunities,
+        assignments: { ...generated.opportunities.assignments, [offer.id]: completedOffer },
+      },
+    };
+    const state = addActivity(withCompletedOffer, completedOffer, 'completed');
+    const trigger: ChallengeTriggerDescriptor = {
+      domain: 'player_action_outcome',
+      activityId: 'activity-south-court-delivery-reconciliation',
+      matterId: MATTER_IDS.southCourtDelivery,
+      activityKinds: ['completed'],
+    };
+
+    const resolved = resolveChallengeTrigger(state, trigger);
+    expect(resolved?.primarySourceFact).toEqual({
+      kind: 'event',
+      id: state.world.matters[MATTER_IDS.southCourtDelivery].sourceEventId,
+    });
+
+    const noActivity = {
+      ...state,
+      opportunities: { ...state.opportunities, recentActivity: [] },
+    };
+    expect(resolveChallengeTrigger(noActivity, trigger)).toBeNull();
+
+    const matter = state.world.matters[MATTER_IDS.southCourtDelivery];
+    const noSourceEvent = {
+      ...state,
+      world: {
+        ...state.world,
+        matters: { ...state.world.matters, [matter.id]: { ...matter, sourceEventId: undefined } },
+      },
+    };
+    expect(resolveChallengeTrigger(noSourceEvent, trigger)).toBeNull();
+  });
+
+  it('resolves professional-behavior patterns only when the aggregate, recent activity, report, and source facts agree', () => {
+    const generated = generateDailyAssignments(createInitialGameState());
+    const offer = Object.values(generated.opportunities.assignments)
+      .find((item) => item.activityId === 'activity-south-court-delivery-reconciliation')!;
+    const completedOffer = { ...offer, status: 'completed' as const };
+    const withCompletedOffer = {
+      ...generated,
+      opportunities: {
+        ...generated.opportunities,
+        assignments: { ...generated.opportunities.assignments, [offer.id]: completedOffer },
+      },
+    };
+    const state = addActivity(withCompletedOffer, completedOffer, 'completed');
+    const activity = state.opportunities.recentActivity[state.opportunities.recentActivity.length - 1];
+    const recordId = `record-${offer.id}-day-${activity.dayNumber}` as RecordId;
+    const report = {
+      id: recordId,
+      createdDay: activity.dayNumber,
+      authorPersonId: state.player.currentCharacterId,
+      title: 'South-Court Delivery Reconciliation',
+      sources: [],
+      assertions: [],
+      uncertaintyLimits: [],
+      amendments: [],
+    };
+    const withReport = {
+      ...state,
+      records: {
+        ...state.records,
+        entries: { ...state.records.entries, [recordId]: report },
+      },
+    };
+    const trigger: ChallengeTriggerDescriptor = {
+      domain: 'professional_behavior_pattern',
+      rule: CHALLENGE_TRIGGER_RULES[0],
+      activityId: 'activity-south-court-delivery-reconciliation',
+      matterId: MATTER_IDS.southCourtDelivery,
+      activityKinds: ['completed'],
+      reportTitle: report.title,
+    };
+
+    const resolved = resolveChallengeTrigger(withReport, trigger);
+    expect(resolved?.primarySourceFact).toEqual({ kind: 'record', id: recordId });
+
+    expect(resolveChallengeTrigger(state, trigger)).toBeNull();
+
+    const noPattern = {
+      ...withReport,
+      opportunities: {
+        ...withReport.opportunities,
+        assignmentAggregates: {},
+        recentActivity: [],
+      },
+    };
+    expect(resolveChallengeTrigger(noPattern, trigger)).toBeNull();
   });
 
   it('rejects invalid candidate weights rather than falling back to nondeterministic choice', () => {
