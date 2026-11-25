@@ -253,6 +253,7 @@ export function validateAssignmentActivityDefinition(definition: AssignmentActiv
   if (discoveryIds.size !== definition.discoveries.length) issues.push('Discovery IDs must be unique.');
   if (definition.discoveries.some((item) => item.provenance && (!['PHYSICAL','COPIED','REPORTED'].includes(item.provenance.classification)
     || !item.provenance.explanation.trim()))) issues.push('Discovery provenance must use a supported classification and non-empty explanation.');
+  if ((definition.evaluation?.incompleteFindingIds ?? []).some((id) => !definition.reportSchema.findings.some((finding) => finding.id === id))) issues.push('Evaluation references an unknown incomplete finding.');
   if (definition.historicalContextNote !== undefined && !definition.historicalContextNote.trim()) issues.push('Historical context note must be non-empty when supplied.');
   if (definition.provenanceDisclosureRequired && definition.discoveries.some((item) => !item.provenance)) issues.push('Every discovery in this activity requires explicit provenance disclosure.');
   if (definition.discoveries.some((item) => item.sourcePersonId && !definition.participants.includes(item.sourcePersonId))) issues.push('Discovery source PersonId must be an activity participant.');
