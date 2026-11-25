@@ -92,8 +92,8 @@ describe('Eanna Provisioning Undertaking', () => {
     let state = createInitialGameState();
     const validity: Array<[string, boolean]> = [];
     validity.push(['initial', isValidGameState(state, INITIAL_WORK_CATALOG)]);
-    state = { ...state, calendar: { ...state.calendar, dayNumber: 35 } };
-    validity.push(['day35', isValidGameState(state, INITIAL_WORK_CATALOG)]);
+    state = { ...state, calendar: { ...state.calendar, dayNumber: 1 } };
+    validity.push(['day1', isValidGameState(state, INITIAL_WORK_CATALOG)]);
 
     let result = transitionGame(state, { type: 'START_WORK', workId }, undefined, INITIAL_WORK_CATALOG);
     expect(result.feedback?.code).toBe('work-started');
@@ -115,14 +115,14 @@ describe('Eanna Provisioning Undertaking', () => {
       validity.push([actionId, isValidGameState(state, INITIAL_WORK_CATALOG)]);
     }
 
-    const closed = transitionGame(state, { type: 'END_DAY', expectedDayNumber: 35 }, undefined, INITIAL_WORK_CATALOG);
+    const closed = transitionGame(state, { type: 'END_DAY', expectedDayNumber: 1 }, undefined, INITIAL_WORK_CATALOG);
     expect(closed.settlement?.workContractProvisionEarned).toBe(1);
     validity.push(['end-day', isValidGameState(closed.state, INITIAL_WORK_CATALOG)]);
     const settlementId = closed.state.dayClose.pendingSettlementId;
     expect(settlementId).toBeTruthy();
     state = transitionGame(closed.state, { type: 'BEGIN_WORKDAY', expectedSettlementId: settlementId! }, undefined, INITIAL_WORK_CATALOG).state;
-    expect(state.calendar.dayNumber).toBe(36);
-    validity.push(['begin-day36', isValidGameState(state, INITIAL_WORK_CATALOG)]);
+    expect(state.calendar.dayNumber).toBe(2);
+    validity.push(['begin-day2', isValidGameState(state, INITIAL_WORK_CATALOG)]);
 
     for (const [actionId, stage] of [
       ['consolidate-reverse', 3], ['final-check', 4],
