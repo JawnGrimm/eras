@@ -4,7 +4,7 @@ import { getInitializedScribal } from '../state/scribalState';
 import { validateWorkDefinition } from '../works/workDefinition';
 import { transitionGame } from '../engine/actionEconomy';
 import { INITIAL_WORK_CATALOG } from '../state/newGameState';
-import { createSaveEnvelope, isValidGameState, isValidSaveEnvelope, restoreSave } from '../state/saveEnvelope';
+import { createSaveEnvelope, isValidSaveEnvelope, restoreSave } from '../state/saveEnvelope';
 import {
   EANNA_ALLOCATION_EVENT_ID, EANNA_ALLOCATION_FOLLOWUP_MATTER_ID,
   EANNA_PROVISIONING_MATTER_ID, EANNA_SOURCE_PACKET, EANNA_SUMMARY_RECORD_ID,
@@ -63,7 +63,7 @@ describe('Eanna Provisioning Undertaking', () => {
     const ctx = context(43);
     const assessment = eannaProvisioningWork.assessSubmission(eannaProvisioningWork.evaluateSubmission(ctx), ctx);
     expect(assessment.outcome).toBe('accepted');
-    expect(assessment.dimensions.find((dimension) => dimension.dimension === 'procedure')?.summary).toContain('reviewed the surviving source records');
+    expect(assessment.dimensions.find((dimension) => dimension.dimension === 'procedure')?.summary).toContain('official review of surviving source records');
     const finalization = eannaProvisioningWork.finalizeDisposition?.(ctx, 'adjust_to_default');
     expect(finalization?.record?.createdDay).toBe(43);
     expect(finalization?.record?.assertions.some((assertion) => assertion.id === 'eanna-post-window-review')).toBe(true);
@@ -90,15 +90,11 @@ describe('Eanna Provisioning Undertaking', () => {
   it('persists the Work lifecycle, provisions, official decision, record, event, XP, and save compatibility', () => {
     const workId = eannaProvisioningWork.id;
     let state = createInitialGameState();
-    const validity: Array<[string, boolean]> = [];
-    validity.push(['initial', isValidGameState(state, INITIAL_WORK_CATALOG)]);
     state = { ...state, calendar: { ...state.calendar, dayNumber: 1 } };
-    validity.push(['day1', isValidGameState(state, INITIAL_WORK_CATALOG)]);
 
     let result = transitionGame(state, { type: 'START_WORK', workId }, undefined, INITIAL_WORK_CATALOG);
     expect(result.feedback?.code).toBe('work-started');
     state = result.state;
-    validity.push(['start', isValidGameState(state, INITIAL_WORK_CATALOG)]);
     expect(state.world.matters[EANNA_PROVISIONING_MATTER_ID]?.status).toBe('active');
     const originMatter = state.world.matters[EANNA_PROVISIONING_MATTER_ID];
     expect(state.world.institutions[originMatter.institutionId].activeMatters).toContain(EANNA_PROVISIONING_MATTER_ID);
@@ -112,17 +108,14 @@ describe('Eanna Provisioning Undertaking', () => {
       }, undefined, INITIAL_WORK_CATALOG);
       expect(result.feedback?.kind).toBe('success');
       state = result.state;
-      validity.push([actionId, isValidGameState(state, INITIAL_WORK_CATALOG)]);
     }
 
     const closed = transitionGame(state, { type: 'END_DAY', expectedDayNumber: 1 }, undefined, INITIAL_WORK_CATALOG);
     expect(closed.settlement?.workContractProvisionEarned).toBe(1);
-    validity.push(['end-day', isValidGameState(closed.state, INITIAL_WORK_CATALOG)]);
     const settlementId = closed.state.dayClose.pendingSettlementId;
     expect(settlementId).toBeTruthy();
     state = transitionGame(closed.state, { type: 'BEGIN_WORKDAY', expectedSettlementId: settlementId! }, undefined, INITIAL_WORK_CATALOG).state;
     expect(state.calendar.dayNumber).toBe(2);
-    validity.push(['begin-day2', isValidGameState(state, INITIAL_WORK_CATALOG)]);
 
     for (const [actionId, stage] of [
       ['consolidate-reverse', 3], ['final-check', 4],
@@ -137,19 +130,18 @@ describe('Eanna Provisioning Undertaking', () => {
     result = transitionGame(state, { type: 'SUBMIT_WORK', workId }, undefined, INITIAL_WORK_CATALOG);
     expect(result.feedback?.code).toBe('work-assessment-pending-disposition');
     state = result.state;
-    validity.push(['submit', isValidGameState(state, INITIAL_WORK_CATALOG)]);
     result = transitionGame(state, { type: 'DISPOSE_WORK', workId, disposition: 'adjust_to_default' }, undefined, INITIAL_WORK_CATALOG);
     expect(result.feedback?.code).toBe('work-completed');
     state = result.state;
-    validity.push(['disposition', isValidGameState(state, INITIAL_WORK_CATALOG)]);
-    console.log('EANNA_VALIDITY_STAGES', validity);
 
     expect(state.records.entries[EANNA_SUMMARY_RECORD_ID]).toBeDefined();
     const assertions = state.records.entries[EANNA_SUMMARY_RECORD_ID].assertions;
     expect(assertions.find((item) => item.id === 'eanna-apprentice-proposal')?.text).toContain('8 barley measures to Nin-kasi');
     expect(assertions.find((item) => item.id === 'eanna-official-allocation')?.text).toContain('10 barley measures to Nin-kasi');
+    expect(assertions.find((item) => item.id === 'eanna-official-seal')?.text).toContain('seal impression applied by Lu-Nanshe');
     expect(state.world.events[EANNA_ALLOCATION_EVENT_ID]).toBeDefined();
     expect(state.world.matters[EANNA_PROVISIONING_MATTER_ID]?.status).toBe('resolved');
+    expect(state.world.institutions[originMatter.institutionId].activeMatters).not.toContain(EANNA_PROVISIONING_MATTER_ID);
     expect(state.world.matters[EANNA_ALLOCATION_FOLLOWUP_MATTER_ID]).toBeUndefined();
     expect(state.historicalProgression.historicalXp).toBe(100);
     expect(state.historicalProgression.completedWorks).toContain(workId);
@@ -160,31 +152,6 @@ describe('Eanna Provisioning Undertaking', () => {
     expect(repeated.state.historicalProgression.historicalXp).toBe(100);
     expect(Object.keys(repeated.state.world.events).filter((id) => id === EANNA_ALLOCATION_EVENT_ID)).toHaveLength(1);
 
-    const withoutRecord = { ...state, records: { ...state.records, entries: {} } };
-    const withoutEventAndRecord = { ...withoutRecord, world: { ...state.world, events: Object.fromEntries(Object.entries(state.world.events).filter(([id]) => id !== EANNA_ALLOCATION_EVENT_ID)) } };
-    const origin = state.world.matters[EANNA_PROVISIONING_MATTER_ID];
-    const withoutMatter = { ...state, world: { ...state.world,
-      matters: Object.fromEntries(Object.entries(state.world.matters).filter(([id]) => id !== EANNA_PROVISIONING_MATTER_ID)),
-      institutions: { ...state.world.institutions, [origin.institutionId]: { ...state.world.institutions[origin.institutionId], activeMatters: state.world.institutions[origin.institutionId].activeMatters.filter((id) => id !== EANNA_PROVISIONING_MATTER_ID) } },
-    } };
-    const withoutWork = { ...state,
-      works: { activeWorkId: null, progress: Object.fromEntries(Object.entries(state.works.progress).filter(([id]) => id !== workId)) },
-      historicalProgression: { historicalXp: 0, completedWorks: [] },
-      dayClose: { ...state.dayClose, pendingCredits: state.dayClose.pendingCredits.filter((credit) => credit.source.id !== workId) },
-    };
-    const withoutAllEanna = { ...withoutWork, world: { ...withoutWork.world,
-      events: Object.fromEntries(Object.entries(withoutWork.world.events).filter(([id]) => id !== EANNA_ALLOCATION_EVENT_ID)),
-      matters: Object.fromEntries(Object.entries(withoutWork.world.matters).filter(([id]) => id !== EANNA_PROVISIONING_MATTER_ID)),
-      institutions: Object.fromEntries(Object.entries(withoutWork.world.institutions).map(([id, institution]) => [id, { ...institution, activeMatters: institution.activeMatters.filter((matterId) => matterId !== EANNA_PROVISIONING_MATTER_ID) }])),
-    }, records: { ...withoutWork.records, entries: Object.fromEntries(Object.entries(withoutWork.records.entries).filter(([id]) => id !== EANNA_SUMMARY_RECORD_ID)) } };
-    console.log('EANNA_SAVE_DIAGNOSTIC', {
-      withoutWork: isValidGameState(withoutWork, INITIAL_WORK_CATALOG),
-      withoutAllEanna: isValidGameState(withoutAllEanna, INITIAL_WORK_CATALOG),
-      full: isValidGameState(state, INITIAL_WORK_CATALOG),
-      withoutRecord: isValidGameState(withoutRecord, INITIAL_WORK_CATALOG),
-      withoutEventAndRecord: isValidGameState(withoutEventAndRecord, INITIAL_WORK_CATALOG),
-      withoutMatter: isValidGameState(withoutMatter, INITIAL_WORK_CATALOG),
-    });
     const envelope = createSaveEnvelope(state, 1);
     expect(isValidSaveEnvelope(envelope, INITIAL_WORK_CATALOG)).toBe(true);
     const restored = restoreSave(JSON.stringify(envelope), INITIAL_WORK_CATALOG);
