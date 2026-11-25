@@ -4,7 +4,6 @@ import { ASSIGNMENT_ACTIVITY_CATALOG } from '../content/assignments/northBayRoof
 import { advanceInstitutionalMatters } from '../engine/institutionalMatters';
 import { generateDailyAssignments } from '../engine/assignmentGenerator';
 import { transitionAssignmentActivityAction } from '../engine/assignmentActivity';
-import { ERA1_COM_F01_PEOPLE } from '../content/assignments/eraICommercialMartial';
 import { createInitialGameState } from '../state/initialState';
 import { createSaveEnvelope, isValidSaveEnvelope } from '../state/saveEnvelope';
 import { deriveRelationshipFamiliarityStage } from '../state/relationshipFamiliarity';
