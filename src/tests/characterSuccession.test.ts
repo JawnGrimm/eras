@@ -48,7 +48,7 @@ function withPriorHistory(state: GameState): GameState {
 
 const priorWorkCatalog = {
   [priorWorkId]: {
-    id: priorWorkId, kind: 'work', title: 'Earlier institutional account', institutionId: 'institution-uruk-temple-storehouse', evidence: [], actions: [],
+    id: priorWorkId, evidence: [], actions: [],
     validateScenarioData: (value: unknown): value is Record<string, unknown> =>
       typeof value === 'object' && value !== null && !Array.isArray(value),
   },
@@ -69,13 +69,14 @@ function offer(id: string, state: GameState) {
 
 describe('character departure and succession lifecycle', () => {
   it('preserves an unfinished personal Work in institutional custody after death and requires an explicit later take-up', () => {
+    const preservationWorkCatalog = { ...priorWorkCatalog, [priorWorkId]: { ...priorWorkCatalog[priorWorkId], kind: 'work' as const, title: 'Earlier institutional account', institutionId: 'institution-uruk-temple-storehouse' as any } };
     let state = withPriorHistory(createInitialGameState());
     state = { ...state, works: { activeWorkId: priorWorkId, progress: { [priorWorkId]: {
       status: 'active', acquiredEvidence: [], examinedEvidence: [], workApSpentToday: 1,
       rewardGranted: false, completedActionIds: [], scenarioData: {}, submissionCount: 0,
     } } } };
-    const death = transitionGame(state, { type: 'BEGIN_CHARACTER_DEPARTURE', departureKind: 'death' }, undefined, priorWorkCatalog);
-    const selected = transitionGame(death.state, { type: 'SELECT_SUCCESSOR', nextCharacterId: apprenticeId }, undefined, priorWorkCatalog);
+    const death = transitionGame(state, { type: 'BEGIN_CHARACTER_DEPARTURE', departureKind: 'death' }, undefined, preservationWorkCatalog);
+    const selected = transitionGame(death.state, { type: 'SELECT_SUCCESSOR', nextCharacterId: apprenticeId }, undefined, preservationWorkCatalog);
     expect(selected.state.works.activeWorkId).toBeNull();
     expect(selected.state.works.progress[priorWorkId].status).toBe('active');
     expect(selected.state.works.preservedUndertakings).toMatchObject([{ workId: priorWorkId, status: 'waiting', successorCharacterId: apprenticeId }]);
