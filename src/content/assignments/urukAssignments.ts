@@ -241,7 +241,7 @@ export const tierBRecurringInstitutionalCheck = activity({
   submissionApCost: 1,
   participants: [people.steward, people.receiver, people.senior, people.carrier],
   discoveries: [
-    { id: 'tierb-source-records', title: 'Dated source copies', text: 'Compare the dated source/dispatch and receiving/check records identified in this Assignment dossier. Preserve their actual commodity, unit, category, and recorded outcome; do not substitute a familiar measure.' },
+    { id: 'tierb-source-records', title: 'Dated source copies', text: 'Compare the dated source and receiving records. Keep each commodity, unit, category, and figure as recorded; the people waiting on the tally need an answer that does not change what the records say.' },
     { id: 'tierb-counterparty-account', title: 'Attributed account', text: 'The counterparty’s account is attributed testimony. It may explain what that person recorded or observed, but it does not independently locate a discrepancy or establish responsibility.' },
     { id: 'tierb-authority-boundary', title: 'Institutional review boundary', text: 'The scribe may compare, document, and recommend a bounded follow-up. The receiving official or Storehouse Steward retains authority to amend an institutional account, alter custody, or authorize disposition.' },
   ],
@@ -296,7 +296,7 @@ export const tierBRecurringInstitutionalCheck = activity({
       Overreached: 'Shuruppak-ilu sets the note aside. “The records do not name a culprit. We will not write one into them.”',
     },
   },
-  submissionNote: 'A Tier B recurring check records a dated institutional occurrence. It does not turn a recurring cadence into a quota or grant executive authority.',
+  submissionNote: 'This dated check concerns one institutional occurrence. The apprentice compares and reports; the responsible official decides whether to change an account or the custody of goods.',
 });
 
 export const URUK_ASSIGNMENT_ACTIVITY_CATALOG = {
