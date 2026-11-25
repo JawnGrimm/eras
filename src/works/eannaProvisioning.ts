@@ -167,7 +167,7 @@ function buildFinalization(context: WorkSubmissionContext<EannaScenarioData>, di
   const event: WorldEvent = {
     id: EANNA_ALLOCATION_EVENT_ID,
     dayNumber: context.dayNumber,
-    summary: 'Lu-Nanshe records ' + disposition + ': ' + allocation.ninKasiBarley + ' barley measures for Nin-kasi, ' + allocation.breadGroupBarley + ' for bread preparation, ' + allocation.gemeInanaBarley + ' for Geme-Inana, and ' + allocation.offeringBeerVessels + ' beer vessels for the offering preparation. This is an official decision; no physical distribution or delivery is inferred.',
+    summary: (officialReview ? 'After Day 42, Lu-Nanshe reviews the surviving source records and records ' : 'Lu-Nanshe records ') + disposition + ': ' + allocation.ninKasiBarley + ' barley measures for Nin-kasi, ' + allocation.breadGroupBarley + ' for bread preparation, ' + allocation.gemeInanaBarley + ' for Geme-Inana, and ' + allocation.offeringBeerVessels + ' beer vessels for the offering preparation. This is an official decision; no physical distribution or delivery is inferred.',
     personIds: [context.personId, PEOPLE.luNanshe, PEOPLE.shuruppak, PEOPLE.ninKasi, PEOPLE.gemeInana, PEOPLE.enlilKisu],
     institutionIds: [EANNA_INSTITUTION_ID],
     locationId: EANNA_TABLET_ROOM_LOCATION_ID,
