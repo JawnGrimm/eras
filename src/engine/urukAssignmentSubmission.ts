@@ -20,7 +20,7 @@ type ScenarioId = 'activity-held-barley-inspection' | 'activity-south-court-deli
 
 function sourceFor(activityId: ScenarioId, discoveryId: string): RecordSource {
   const personSources: Record<string, PersonId> = {
-    'tierb-counterparty-account': SENIOR, 'tierb-authority-boundary': SENIOR,
+    'tierb-authority-boundary': SENIOR,
     'held-steward-briefing': STEWARD, 'held-senior-authority': SENIOR,
     'delivery-dispatch-copy': CARRIER, 'delivery-arrival-tally': RECEIVER,
     'delivery-utu-testimony': RECEIVER, 'delivery-enlil-testimony': CARRIER,
@@ -92,6 +92,15 @@ export function submitUrukAssignmentActivity(
     { id: 'source-player-report', kind: 'other', description: 'Submitted finding and recommendation by the current scribe' },
     ...discoveries.filter((item) => cited.has(item.id)).map((item) => sourceFor(id, item.id)),
   ];
+  if (id === 'activity-tierb-recurring-institutional-check' && offer.originMatterId && cited.has('tierb-counterparty-account')) {
+    const counterpartyId = state.world.matters[offer.originMatterId]?.tierBRecurring?.counterpartyPersonId;
+    const source = sources.find((item) => item.id === 'source-tierb-counterparty-account');
+    if (counterpartyId && source) {
+      source.kind = 'person';
+      source.sourceId = counterpartyId;
+      source.description = 'The actual counterparty named in this dated Tier B occurrence.';
+    }
+  }
   const assertions: RecordAssertion[] = discoveries.filter((item) => cited.has(item.id)).map((item) => ({
     id: `assertion-${item.id}`,
     text: item.text,
