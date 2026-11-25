@@ -398,3 +398,32 @@ This record is queue planning only. It does not mark Faithful Recall implemented
 - **Review / merge / deployment:** no review recorded; PR not merged; deployment not performed or verified. Issue #85 remains OPEN / IN PROGRESS and integrated acceptance remains outstanding.
 
 **Next:** review PR #118 against its exact validated head. Keep the approved Responsibility hypothesis separate: if/when separately authorized for implementation, it must remain a qualified request for independent origin-side verification, not a finding that an error occurred or an attribution of blame. No Dudu option, default Enlil-kisu or Utu-mansum blame, invented evidence, institutional matter resolution, or account adjustment is introduced by this compensation correction.
+
+
+## Production execution reset — 24 November 2026
+
+**Game Director directive:** approved behavior is to be implemented without repeated Design HQ approval. Routine technical decisions, compatibility work, migrations, tests, and integration belong to Production within approved behavior. See [Production Execution Rules](PRODUCTION-EXECUTION-RULES.md).
+
+### Landed since the previous status entry
+
+| PR | Scope | Merge commit | Exact-head CI |
+|---|---|---|---|
+| #115 | Neutral fallback for stale Responsibility preview selections; no claim/evaluation change | `7b3b98a4f92c4c934cc9dd54b1190008c635d8b4` | Pull Request Validation #591 and CodeQL #475 passed |
+| #117 | Challenge Director trigger-domain regression coverage | `eac80944b3461343db87c6bcfb67b6f3cfc06f02` | Pull Request Validation #595 and CodeQL #479 passed |
+| #118 | South-Court explicit +1 Provision offer, disclosure, and exactly-once settlement | `4f91c614fe3e093fa4fbe3278db4cd89b3fd6cdf` | Pull Request Validation #599 and CodeQL #483 passed |
+| #119 | Approved Relationship Familiarity behavioral contract | `c306f0e4218d973fc5b3e9e86808061a71a988f1` | Pull Request Validation #598 and CodeQL #482 passed |
+
+The South-Court +1 Provision correction is merged. Responsibility claims remain unchanged: no origin-side or receiver-side claim was added, and the existing Enlil-kisu claim/evaluation was not revised.
+
+### Queue cleanup
+
+- PR #114 closed without merge: its Open Design Register snapshot was stale against current rulings and merged work. Reconcile the register against current `main`; do not revive that branch as authority.
+- PR #116 closed without merge: its status-only branch conflicted with current `main`. Faithful Recall design work remains independent; closure does not cancel it.
+- PR #120 remains open as the Relationship Familiarity technical plan. Its earlier review/authorization gate is superseded by the Game Director's explicit BUILD directive. Production is authorized to implement the approved contract; runtime implementation is not yet recorded as started or complete.
+- Use existing `feat/relationship-familiarity-episodes` branch if viable. Do not create a duplicate branch.
+
+### Current verified state
+
+- Production execution rules are committed on `main` at `262d429d4cbec11dbafbcae39d647dfec4e9f376`; the production documentation index links to them at `17505239ced6cc1da083a462f25665e574cf6e30`.
+- PR #120's documentation-only head passed Pull Request Validation #603 and CodeQL #487. These results do not validate future runtime implementation.
+- No Relationship Familiarity runtime code, schema-v4 migration, or save rewrite has been committed by this update.
