@@ -32,7 +32,7 @@ const rationales = (complete: string, defensible: string, incomplete: string, ov
   Thorough: complete, Defensible: defensible, Incomplete: incomplete, Overreached: overreach,
 });
 export const legacySealedVesselTextileConsignment = activity({
-  id: 'activity-era1-com-01-provenance-v2',
+  id: 'activity-era1-com-01-sealed-consignment',
   title: 'Sealed Vessel and Textile Consignment',
   submissionApCost: 1,
   participants: [people.steward, people.receiver, people.carrier, people.senior],
@@ -92,7 +92,7 @@ export const legacySealedVesselTextileConsignment = activity({
 });
 
 export const sealedVesselTextileConsignment = activity({
-  id: 'activity-era1-com-01-sealed-consignment',
+  id: 'activity-era1-com-01-provenance-v2',
   title: 'Receiving-Tag and Handover Comparison',
   submissionApCost: 1,
   participants: [people.steward, people.receiver, people.carrier, people.senior],
