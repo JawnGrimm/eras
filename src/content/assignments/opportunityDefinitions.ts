@@ -79,7 +79,7 @@ export const URUK_ASSIGNMENT_OPPORTUNITY_DEFINITIONS: readonly AssignmentOpportu
       requiredSkills: {},
       difficulty: 'demanding',
       estimatedTotalAp: ERA_I_ASSIGNMENT_PARAMETERS.tierB.estimatedTotalAp.southCourtDelivery,
-      compensation: { money: ERA_I_ASSIGNMENT_PARAMETERS.tierB.currency, provisions: ERA_I_ASSIGNMENT_PARAMETERS.tierB.defaultProvisions },
+      compensation: { money: ERA_I_ASSIGNMENT_PARAMETERS.tierB.currency, provisions: ERA_I_ASSIGNMENT_PARAMETERS.explicitProvisionContract.provisions },
       careerXpReward: ERA_I_ASSIGNMENT_PARAMETERS.tierB.baseCareerXp,
       deliveryChannels: [{ kind: 'relationship', personId: carrier, explanation: 'Enlil-kisu’s dispatch copy is being compared with the Temple Storehouse receiving tally.' }],
     },
