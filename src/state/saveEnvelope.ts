@@ -1,7 +1,7 @@
 import { CORE_SKILL_IDS } from './ids';
 import { MATTER_IDS, SOUTH_COURT_LOCATION_ID, SOUTH_LOADING_LOCATION_ID, STOREHOUSE_INSTITUTION_ID } from '../engine/institutionalMatters';
 import type { AttributeId, SkillId } from './ids';
-import type { ClosingReceiptPayload, GameState, Institution, OpportunityConsequences, SaveEnvelope, PersonScribalState, WorkProgress } from './types';
+import type { ClosingReceiptPayload, GameState, Institution, LegacyGameStateV3, LegacySaveEnvelopeV3, OpportunityConsequences, SaveEnvelope, PersonScribalState, WorkProgress } from './types';
 import { validateOpportunityConsequences } from './opportunityValidation';
 import type { WorkDefinition } from '../works/workDefinition';
 import { validateWorkDefinition } from '../works/workDefinition';
@@ -766,12 +766,12 @@ function migrateV2Envelope(value: Record<string, unknown>, raw: string): import(
     gameVersion: String(value.gameVersion),
     revision: Number(value.revision),
     savedAt: String(value.savedAt),
-    state,
+    state: state as unknown as LegacyGameStateV3,
   };
 }
 
-function migrateV3Envelope(value: import('./types').LegacySaveEnvelopeV3): SaveEnvelope {
-  const legacyState = value.state as GameState;
+function migrateV3Envelope(value: LegacySaveEnvelopeV3): SaveEnvelope {
+  const legacyState = value.state;
   const relationships = Object.fromEntries(Object.entries(legacyState.world.relationships).map(([fromId, targets]) => [
     fromId,
     Object.fromEntries(Object.entries(targets).map(([toId, relationship]) => {
@@ -1083,7 +1083,7 @@ export function restoreSave(raw: string | null, workCatalog: Readonly<Record<str
     }
     if (parsed.schemaVersion === 3) {
       if (!isValidV3SaveEnvelope(parsed, workCatalog)) return null;
-      const migratedV4 = migrateV3Envelope(parsed as unknown as import('./types').LegacySaveEnvelopeV3);
+      const migratedV4 = migrateV3Envelope(parsed as unknown as LegacySaveEnvelopeV3);
       return isValidSaveEnvelope(migratedV4, workCatalog) ? migratedV4 : null;
     }
     return isValidSaveEnvelope(parsed, workCatalog) ? parsed : null;
