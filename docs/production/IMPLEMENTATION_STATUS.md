@@ -393,7 +393,7 @@ This record is queue planning only. It does not mark Faithful Recall implemented
 **Authorization boundary:** No runtime implementation, persistent-state change, migration, or save rewrite is authorized.
 
 - Deliverable: `docs/production/GD-RELATIONSHIP-FAMILIARITY-001-TECHNICAL-PROPOSAL.md`.
-- Recommendation: retain numeric relationship familiarity only as inert v3 compatibility data; remove it from the active relationship shape in schema v4. Add typed, directional, deduplicated familiarity episodes with explicit observer/subject and Event/Record provenance. Derive qualitative stages from authored episode contributions, not counts or numeric thresholds.
+- Recommendation: retain numeric relationship familiarity only as inert v3 compatibility data (preserve old values, use zero for new v3 edges, reject authored deltas, and hide the field from active UI); remove it from the active relationship shape in schema v4. Add typed, directional, deduplicated familiarity episodes with explicit observer/subject and Event/Record provenance. Derive qualitative stages from authored episode contributions, not counts or numeric thresholds.
 - Knowledge remains separate. Preserve legacy Knowledge entries as source references without inventing assertions; require new entries to carry a specific assertion and append-only verification/contradiction/obsolescence assessments.
 - Existing v2→v3 migration remains the first leg of a v2→v3→v4 chain. Preserve exact raw v2/v3 bytes before a validated v4 write. Do not synthesize episodes from numeric values, relationship summaries, biography, Life Events, PersonFamiliarity, or Event participant lists.
 - `PersonFamiliarity` semantics and consumers remain unchanged.
