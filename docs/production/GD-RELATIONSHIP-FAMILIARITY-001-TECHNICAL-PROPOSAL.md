@@ -239,7 +239,7 @@ Do not modify the GDD or Decision Register as part of implementation unless Desi
 
 ## 6. QA plan (proposed; not executed)
 
-The following tests are required for the later implementation. **No tests were written or executed as part of this documentation-only proposal.**
+The following tests are required for the later implementation. **No new test cases were added for this documentation-only proposal.** Standard GitHub Actions Pull Request Validation #601 on head `ed052e0c564564a427d8f4118af3360bf256f185` executed the repository TypeScript check, unit-test suite, and production build; all three steps passed. The retrieved workflow metadata did not expose the unit-test count. CodeQL #485 was still in progress at the time of this status check. The specific acceptance tests listed below remain proposed and have not been exercised against an implementation because runtime work is not authorized.
 
 | Test | Required assertion |
 |---|---|
@@ -304,7 +304,7 @@ A derived stage read model, cue matching, UI changes, and new producer APIs are 
 - **Technical recommendation:** schema v4; typed world-level directional episodes; explicit qualitative stage contribution; assertion-bearing Knowledge with legacy preservation; exact-byte rollback.
 - **Runtime changes:** none.
 - **Persistent-state changes / migration:** none.
-- **Tests:** plan specified; not written or executed.
+- **Tests:** no new tests added; standard CI TypeScript check, unit-test suite, and production build passed on head `ed052e0c564564a427d8f4118af3360bf256f185` (Pull Request Validation #601). CodeQL #485 was in progress at last check. The proposal-specific acceptance cases remain proposed, not implementation-tested.
 - **Design HQ review:** requested.
 - **Implementation authorization:** NOT GRANTED by this handoff.
 
