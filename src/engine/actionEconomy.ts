@@ -127,7 +127,7 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
       const scribal = getInitializedScribal(person);
       const institutionId = preserved?.institutionId;
       const institution = institutionId ? state.world.institutions[institutionId] : undefined;
-      if (!preserved || !preserved.invitation || !definition || definition.kind !== 'work'
+      if (!preserved || !preserved.invitation || !definition || definition.kind !== 'work' || !isValidWorkDefinition(definition)
         || !invitation || !person || !scribal || preserved.successorCharacterId !== person.id
         || preserved.invitationResponse !== undefined || !institution || !institutionId
         || !invitation.connectionTiers.includes(preserved.invitation.connectionTier)) {
