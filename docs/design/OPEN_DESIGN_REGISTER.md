@@ -2,7 +2,7 @@
 
 **Authority:** Working inventory subordinate to the [canonical GDD](../GDD.md). It does not approve proposals or change locked decisions.  
 **Owner:** Game Director / Lead Designer retains approval over design decisions, formulas, thresholds, creative/scope trade-offs, and MVP.  
-**Last triaged:** 24 November 2026.
+**Last triaged:** 25 November 2026.
 
 ## How to use this register
 
@@ -54,6 +54,8 @@ Priority is a working triage, not a design decision. Reassess when the milestone
 
 | **Future** | 23. Family desk upgrade economy and cross-era treatment | The desk's continuity role is established; upgrade details are not needed for the current opening. |
 | **Future** | 26. Household, market, desk, and item model | Assess known household obligations and whether a minimal Desk & Household Supplies / Items model is justified. The finite Day-Close / Evening Interlude and its provisions-replenishment boundary are already approved under item 3 / GD-OPPORTUNITY-001 §3.7; this future item does not reopen them. No RPG backpack, generic loot, free evening labor, or new tracked balance. |
+**Game Director approval — 25 November 2026:** `GD-ERA1-COM-01` provenance disclosure is **APPROVED · DESIGN DIRECTION**. Evidence must be visibly classified at examination as PHYSICAL, COPIED, or REPORTED; RECONSTRUCTED material belongs in a separate historical/context note. Classification is provenance, not reliability. Design HQ has prepared the first Assignment supervisory-assessment proposal, including Utu-mansum's response to a correct bounded finding; that assessment remains **PROPOSED** pending Game Director review. See `dev/GD-ERA1-COM-01-PROVENANCE-AND-ASSESSMENT.md`. Production's metadata schema and UI implementation remain its responsibility after the behavioral contract is ready.
+
 ## Original open-design inventory
 
 The numbered items below preserve the substance and numbering of the prior GDD Section 23. The priority table adds milestone triage; it does not close or rewrite these questions.
