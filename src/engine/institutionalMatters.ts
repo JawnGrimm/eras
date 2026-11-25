@@ -62,7 +62,7 @@ const ERA_I_ANCHOR_MATTER_SEEDS = [
     eventId: 'event-era1-com-02-brewing-account-source' as EventId,
     kind: 'era1_com_02_brewing_account' as const,
     summary: 'A grain-product and malt account is submitted for a second arithmetic check.',
-    eventSummary: 'A working account containing separate grain-product/groats and malt entries is brought for review before it is copied forward. The displayed gameplay transcription and its uncertain reading remain qualified.',
+    eventSummary: 'The brewer worries that a short total will reduce his credit. The senior recorder asks for the groats and malt figures checked separately; one sign remains uncertain.',
     personIds: [PEOPLE.seniorScribe, PEOPLE.steward],
     locationId: EANNA_TABLET_ROOM_LOCATION_ID,
     provenance: [
@@ -75,7 +75,7 @@ const ERA_I_ANCHOR_MATTER_SEEDS = [
     eventId: 'event-era1-civ-01-field-measurement-source' as EventId,
     kind: 'era1_civ_01_field_measurement' as const,
     summary: 'A readable field-measurement transcription is submitted for arithmetic review.',
-    eventSummary: 'A responsible recorder asks for a second check of a field-measurement working copy. Its source chronology and provenience remain qualified; the simplified values are a gameplay transcription, not ancient notation.',
+    eventSummary: 'A recorder wants the parcel figures checked before the summary is copied. The source copy gives no clear date or place, and the figures are a readable working copy.',
     personIds: [PEOPLE.seniorScribe, PEOPLE.steward],
     locationId: EANNA_TABLET_ROOM_LOCATION_ID,
     provenance: [
@@ -679,7 +679,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
       });
       events[mar02IssueEventId] = {
         id: mar02IssueEventId, dayNumber: nextDay,
-        summary: 'A sponsor-gathered task party receives tools and provisions for the active north-bay repair need. The issue list records the handover; no standing unit or formal muster is implied.',
+        summary: 'Lu-Nanshe gathered a group for the north-bay repair. Tools and provisions were handed out against an issue list; the count must be settled before the group disperses.',
         personIds: [ERA1_MAR_PEOPLE.luNanshe, ERA1_MAR_PEOPLE.luKala, ERA1_MAR_PEOPLE.partyMember, ERA1_MAR_PEOPLE.dudu, ERA1_MAR_PEOPLE.urAb],
         institutionIds: [STOREHOUSE_INSTITUTION_ID], locationId: NORTH_BAY_LOCATION_ID,
       };
@@ -718,13 +718,13 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
     });
     events[eventId] = {
       id: eventId, dayNumber: nextDay,
-      summary: 'The sponsor-gathered party returns from the repair task with tools not yet accounted for and one person still away. The issue list, return count, and attributed accounts remain distinct.',
+      summary: 'The repair group returns with tools not yet accounted for and one person still away. Lu-Nanshe needs the return count settled before the group disperses.',
       personIds: [ERA1_MAR_PEOPLE.luNanshe, ERA1_MAR_PEOPLE.luKala, ERA1_MAR_PEOPLE.partyMember, ERA1_MAR_PEOPLE.dudu, ERA1_MAR_PEOPLE.urAb],
       institutionIds: [STOREHOUSE_INSTITUTION_ID], locationId: NORTH_BAY_LOCATION_ID,
     };
     const matter: InstitutionalMatter = {
       id: mar02MatterId, institutionId: STOREHOUSE_INSTITUTION_ID, kind: 'era1_mar_f02_party_returns_short',
-      summary: 'A sponsor-gathered task party has returned with tools not yet accounted for and one person still away; the reason remains unresolved.',
+      summary: 'The repair group has returned with tools not yet accounted for and one person still away. The reason remains unsettled.',
       status: 'active', createdDay: nextDay, sourceEventId: eventId,
       sourceRecordId: ERA1_MAR_F02_RECORD_IDS.returnCount, locationId: NORTH_BAY_LOCATION_ID,
       involvedPersonIds: [ERA1_MAR_PEOPLE.luNanshe, ERA1_MAR_PEOPLE.luKala, ERA1_MAR_PEOPLE.partyMember, ERA1_MAR_PEOPLE.dudu, ERA1_MAR_PEOPLE.urAb],
