@@ -62,24 +62,29 @@ export function applyClosingAssessment(state: GameState, input: {
     events = { ...events, [eventId]: responseEvent };
     // The player directly receives the receiver's substantive assessment. Record only this evidenced direction;
     // the receiver's familiarity with the player is not inferred from shared Event participation.
-    const episode = {
-      id: relationshipFamiliarityEpisodeId(person.id, receiver.id, input.occasionId ?? input.receiptId, 'closing_receipt_assessment'),
-      observerPersonId: person.id,
-      subjectPersonId: receiver.id,
-      acquisitionMode: 'direct_interaction' as const,
-      interactionKind: 'closing_receipt_assessment',
-      occasionId: input.occasionId ?? input.receiptId,
-      ...(input.matterId ? { matterId: input.matterId } : {}),
-      contextId: input.contextId ?? 'closing_receipt',
-      stageContribution: 'acquainted' as const,
-      dayNumber: state.calendar.dayNumber,
-      provenance: [{ kind: 'event' as const, id: eventId }],
-    };
-    const recordedEpisode = addRelationshipFamiliarityEpisode(familiarityEpisodes, episode, {
-      people: state.world.people, events, records: state.records.entries, matters: state.world.matters, currentDay: state.calendar.dayNumber,
-    });
-    if (!recordedEpisode.ok) return null;
-    familiarityEpisodes = recordedEpisode.episodes;
+    const occasionId = input.occasionId ?? input.receiptId;
+    const episodeId = relationshipFamiliarityEpisodeId(person.id, receiver.id, occasionId, 'closing_receipt_assessment');
+    // A later receipt on the same authored matter is still an Event, but it is not a second familiarity occasion.
+    if (!familiarityEpisodes[episodeId]) {
+      const episode = {
+        id: episodeId,
+        observerPersonId: person.id,
+        subjectPersonId: receiver.id,
+        acquisitionMode: 'direct_interaction' as const,
+        interactionKind: 'closing_receipt_assessment',
+        occasionId,
+        ...(input.matterId ? { matterId: input.matterId } : {}),
+        contextId: input.contextId ?? 'closing_receipt',
+        stageContribution: 'acquainted' as const,
+        dayNumber: state.calendar.dayNumber,
+        provenance: [{ kind: 'event' as const, id: eventId }],
+      };
+      const recordedEpisode = addRelationshipFamiliarityEpisode(familiarityEpisodes, episode, {
+        people: state.world.people, events, records: state.records.entries, matters: state.world.matters, currentDay: state.calendar.dayNumber,
+      });
+      if (!recordedEpisode.ok) return null;
+      familiarityEpisodes = recordedEpisode.episodes;
+    }
     const current = relationships[receiver.id]?.[person.id];
     const dimensions = { trust: 50, respect: 50, affection: 50, resentment: 0, rivalry: 0, ...current?.dimensions };
     const nextTrust = clamp(dimensions.trust + schedule.trust);
