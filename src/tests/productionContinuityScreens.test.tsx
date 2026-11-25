@@ -279,7 +279,7 @@ describe('production continuity and social screens', () => {
         knowledge: {
           ['knowledge-ledger' as KnowledgeEntryId]: { id: 'knowledge-ledger' as KnowledgeEntryId,
             holder: { kind: 'person', id: INITIAL_PERSON_ID }, subject: { kind: 'record', id: recordId },
-            basis: 'received-copy', learnedDay: 2 },
+            basis: 'received-copy', learnedDay: 2, legacy: true },
         },
       },
       records: { ...base.records, entries: { [recordId]: record } },
