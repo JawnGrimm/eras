@@ -78,7 +78,7 @@ export const materialNotAsDescribed: AssignmentActivityDefinition = activity({
     ],
     limitationsLabel: 'Description, evidence, and authority limits',
     limitationOptions: [
-      { id: 'material_not_identified', label: 'The available sources do not identify the material’s species or origin' },
+      { id: 'material_not_identified', label: 'The tag and receiving note describe the timber differently; the craft worker still needs an inspection before deciding whether it will serve' },
       { id: 'no_intent_or_liability', label: 'The receiving official has a difference to record, but no account names who caused it' },
       { id: 'no_acceptance_authority', label: 'The scribe can report the difference; Utu-mansum records receipt and Lu-Nanshe decides acceptance or replacement' },
     ],
