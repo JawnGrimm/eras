@@ -149,8 +149,8 @@ describe('production opportunity screens', () => {
       expect(completed.closingReceipt?.title).toBeTruthy();
       const report = Object.values(submitted.state.records.entries).find((record) => record.id === `record-${offer!.id}-day-${day}`);
       expect(report?.assertions.some((assertion) => assertion.text === `Finding: ${expectedFinding === 'records_reconcile'
-        ? 'The cited records reconcile within their stated categories and units'
-        : 'A bounded difference or condition is recorded; its cause is not established'}`)).toBe(true);
+        ? 'The figures agree when each commodity and unit is kept separate'
+        : 'The records differ or show a condition that needs follow-up; the cause is still unknown'}`)).toBe(true);
     }
   });
 
