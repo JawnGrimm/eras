@@ -138,7 +138,7 @@ Sources:
 
 The scenario remains fictional and does not reproduce a named excavated object or tablet. The historical/context note is not another ancient evidence item. The COM-01 activity now requires explicit provenance metadata on every discovery; the shared UI renders each classification and explanation at examination.
 
-**Remaining content review:** historical terminology and the fictional handover scenario should receive the normal Historical Research content review before the Assignment is considered fully VERIFIED.
+**Historical Research review — COMPLETED for this content slice:** the physical tag's general form is supported by published Late Chalcolithic/Uruk IV–III evidence. The specific tag, copied receiving entry, carrier's statement, participants' interaction, and custody relationship are explicitly fictional. “Receiving tag” is player-facing wording only; no attested Uruk category, standardized receiving procedure, or historical transaction is claimed. The Assignment still requires implementation CI and normal in-game/manual playtesting before it can be marked VERIFIED.
 
 
 - Historical Research validates the terms used for tags, receiving entries, handover accounts, copies, and any contextual reconstruction.
