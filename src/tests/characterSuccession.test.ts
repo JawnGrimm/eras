@@ -8,7 +8,7 @@ import type { AssignmentId, PersonId, RecordId, WorkId } from '../state/ids';
 import type { Person } from '../state/types';
 import type { GameState } from '../state/types';
 import type { WorkDefinition } from '../works/workDefinition';
-import { EANNA_PROVISIONING_WORK, EANNA_PROVISIONING_WORK_ID } from '../works/eannaProvisioning';
+import { eannaProvisioningWork, eannaProvisioningWork_ID } from '../works/eannaProvisioning';
 
 const apprenticeId = 'person-uruk-nin-aya' as PersonId;
 const colleagueId = 'person-uruk-ur-gir' as PersonId;
@@ -84,16 +84,16 @@ describe('character departure and succession lifecycle', () => {
 
   it('requires explicit take-up to resume a preserved institutional Work and records the handoff', () => {
     const initial = createInitialGameState();
-    const scenarioData = EANNA_PROVISIONING_WORK.createInitialProgress();
+    const scenarioData = eannaProvisioningWork.createInitialProgress();
     const progress = {
       status: 'active' as const,
-      definitionCompatibilityKey: EANNA_PROVISIONING_WORK.progressCompatibilityKey,
-      acquiredEvidence: [...EANNA_PROVISIONING_WORK.startingEvidence],
+      definitionCompatibilityKey: eannaProvisioningWork.progressCompatibilityKey,
+      acquiredEvidence: [...eannaProvisioningWork.startingEvidence],
       examinedEvidence: [],
       workApSpentToday: 2,
       rewardGranted: false,
       completedActionIds: [],
-      provisionContract: EANNA_PROVISIONING_WORK.provisionsContract,
+      provisionContract: eannaProvisioningWork.provisionsContract,
       scenarioData,
       submissionCount: 0,
     };
@@ -102,11 +102,11 @@ describe('character departure and succession lifecycle', () => {
       player: { currentCharacterId: apprenticeId },
       works: {
         activeWorkId: null,
-        progress: { [EANNA_PROVISIONING_WORK_ID]: progress },
+        progress: { [eannaProvisioningWork_ID]: progress },
         preservedUndertakings: [{
-          workId: EANNA_PROVISIONING_WORK_ID,
-          title: EANNA_PROVISIONING_WORK.title,
-          institutionId: EANNA_PROVISIONING_WORK.institutionId,
+          workId: eannaProvisioningWork_ID,
+          title: eannaProvisioningWork.title,
+          institutionId: eannaProvisioningWork.institutionId,
           deceasedCharacterId: INITIAL_PERSON_ID,
           successorCharacterId: apprenticeId,
           deathDay: initial.calendar.dayNumber,
@@ -114,14 +114,14 @@ describe('character departure and succession lifecycle', () => {
         }],
       },
     };
-    const result = transitionGame(state, { type: 'TAKE_UP_PRESERVED_WORK', workId: EANNA_PROVISIONING_WORK_ID },
-      undefined, { [EANNA_PROVISIONING_WORK_ID]: EANNA_PROVISIONING_WORK });
+    const result = transitionGame(state, { type: 'TAKE_UP_PRESERVED_WORK', workId: eannaProvisioningWork_ID },
+      undefined, { [eannaProvisioningWork_ID]: eannaProvisioningWork });
     expect(result.feedback?.code).toBe('preserved-work-taken-up');
-    expect(result.state.works.activeWorkId).toBe(EANNA_PROVISIONING_WORK_ID);
+    expect(result.state.works.activeWorkId).toBe(eannaProvisioningWork_ID);
     expect(result.state.works.preservedUndertakings?.[0]).toMatchObject({ status: 'taken_up', takenUpDay: initial.calendar.dayNumber });
     expect(result.state.works.handoffHistory).toHaveLength(1);
     expect(result.state.world.events[result.state.works.handoffHistory![0].eventId]).toBeDefined();
-    expect(result.state.works.progress[EANNA_PROVISIONING_WORK_ID].workApSpentToday).toBe(2);
+    expect(result.state.works.progress[eannaProvisioningWork_ID].workApSpentToday).toBe(2);
   });
 
   it('discovers connected scribes, persists a pending death, selects without inheritance, and round-trips the save', () => {
