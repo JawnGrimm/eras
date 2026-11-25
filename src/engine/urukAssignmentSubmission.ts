@@ -191,6 +191,7 @@ export function submitUrukAssignmentActivity(
     holder: holder === STOREHOUSE ? { kind: 'institution' as const, id: STOREHOUSE } : { kind: 'person' as const, id: holder as PersonId },
     subject: { kind: 'record' as const, id: recordId }, basis: 'received-copy' as const,
     learnedDay: state.calendar.dayNumber, sourcePersonId: person.id,
+    assertion: { kind: 'fact' as const, text: 'Received a copy of the submitted storehouse report.' }, assessments: [],
   }));
 
   let relationships = state.world.relationships;
