@@ -85,13 +85,18 @@ export function validateOpportunityConsequences(
     const subjectExists = entry.subject.kind === 'event' ? !!context.world.events[entry.subject.id] || createdEvents.has(entry.subject.id)
       : entry.subject.kind === 'record' ? !!context.records.entries[entry.subject.id] || createdRecords.has(entry.subject.id) : false;
     const assertion = entry.assertion;
+    const assertionRecord = assertion?.recordAssertion
+      ? (effects.record?.id === assertion.recordAssertion.recordId ? effects.record : context.records.entries[assertion.recordAssertion.recordId])
+      : undefined;
+    const assertionRecordExists = !!assertionRecord && !!assertion.recordAssertion
+      && [...assertionRecord.assertions, ...assertionRecord.amendments.flatMap((amendment) => amendment.assertionsAdded)]
+        .some((item) => item.id === assertion.recordAssertion?.assertionId);
     const validAssertion = !!assertion && ['fact','observation','remembered_tendency'].includes(assertion.kind)
       && typeof assertion.text === 'string' && !!assertion.text.trim()
       && (assertion.aboutPersonId === undefined || !!context.world.people[assertion.aboutPersonId])
       && (assertion.situationKey === undefined || !!assertion.situationKey.trim())
       && (assertion.kind !== 'remembered_tendency' || (!!assertion.aboutPersonId && !!assertion.situationKey))
-      && (assertion.recordAssertion === undefined || (createdRecords.has(assertion.recordAssertion.recordId)
-        || !!context.records.entries[assertion.recordAssertion.recordId]));
+      && (assertion.recordAssertion === undefined || assertionRecordExists);
     if (!holderExists || !subjectExists || (entry.sourcePersonId && !context.world.people[entry.sourcePersonId])
       || !['direct-involvement','testimony','received-copy','consulted-record','public-disclosure','other'].includes(entry.basis)
       || entry.legacy === true || !validAssertion || !Array.isArray(entry.assessments) || entry.assessments.length !== 0) {
