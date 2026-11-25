@@ -223,16 +223,16 @@ export const era1MarF02PartyReturnsShort = activity({
     receiverPersonId: p.luNanshe,
     relationshipPersonIds: [p.luKala],
     rationales: {
-      Thorough: 'The issue list, return count, and each account remain distinct. The report does not turn an unresolved gap into a finding of neglect or deliberate retention.',
-      Defensible: 'The report identifies the outstanding items and the accounts given while preserving the limits of a task-specific party.',
+      Thorough: 'The issue list, return count, and each account remain distinct. Lu-Nanshe can see what is still missing without blaming the workers before the site is checked.',
+      Defensible: 'The report shows what was handed out, what came back, and what the workers say remains at the site. Lu-Nanshe can decide what to check next.',
       Incomplete: 'A required issue, return, account, or limitation is missing.',
-      Overreached: 'The report declares neglect, deliberate retention, or a formal muster obligation without evidence.',
+      Overreached: 'The report blames the workers before the missing person has returned or anyone has checked the site.',
     },
     reactions: {
       Thorough: 'Lu-Nanshe reads the account. “I can ask what remains at the site without accusing the party of abandoning it.”',
       Defensible: 'Lu-Nanshe nods. “The shortfall is recorded. I will decide whether to visit the site or ask further questions.”',
       Incomplete: 'Lu-Nanshe sets the tablet aside. “I need the issue and return counts together before I act.”',
-      Overreached: 'Lu-Nanshe frowns. “A task party is not a standing unit, and a missing tool is not proof of neglect.”',
+      Overreached: 'Lu-Nanshe frowns. “The men were gathered for one repair. One is still away and the tools have not been checked at the site. Do not write blame before we know where they are.”',
     },
   },
   submissionNote: 'Lu-Nanshe decides whether to ask questions, send someone to the site, or accept the account. The scribe does not find fault or recover tools.',
@@ -458,7 +458,7 @@ export const ERA1_MAR_F01_OPPORTUNITY_DEFINITION = opportunity(
 
 export const ERA1_MAR_F02_OPPORTUNITY_DEFINITION = opportunity(
   'era1_mar_f02_party_returns_short','era1-mar-f02-party-returns-short',era1MarF02PartyReturnsShort.id,'The Gathered Party Returns Short',
-  'A sponsor-gathered task party returns with tools not yet accounted for and one person still away. Compare the issue list, return count, and attributed accounts without treating the party as a formal muster or standing unit.',
+  'A repair party returns before all its tools are accounted for, and one worker is still away. Lu-Nanshe needs the issue list and return count checked before the others disperse.',
   p.luNanshe,'task_party_return_account',
   {
     what:'Write a return account for a task-specific party and the tools and provisions issued to it.',
