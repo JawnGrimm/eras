@@ -506,6 +506,8 @@ export type GameAction =
   | { type: 'CREATE_RECORD'; record: RecordEntry }
   | { type: 'AMEND_RECORD'; recordId: RecordId; amendment: RecordAmendment }
   | { type: 'GRANT_KNOWLEDGE'; knowledge: KnowledgeEntry }
+  | { type: 'ASSESS_KNOWLEDGE'; knowledgeId: KnowledgeEntryId; assessment: KnowledgeAssessment }
+  | { type: 'RECORD_RELATIONSHIP_FAMILIARITY_EPISODE'; episode: RelationshipFamiliarityEpisode }
   | { type: 'PRESENT_ASSIGNMENT'; offer: Omit<AssignmentOffer, 'offeredDay' | 'expiresDay' | 'status' | 'lapsedDuringMandatoryWork'> & { expiresDay?: number } }
   | { type: 'ACCEPT_ASSIGNMENT'; assignmentId: AssignmentId }
   | { type: 'DECLINE_ASSIGNMENT'; assignmentId: AssignmentId }
