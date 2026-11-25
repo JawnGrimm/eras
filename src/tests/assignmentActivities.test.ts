@@ -7,8 +7,8 @@ import { INITIAL_WORK_CATALOG } from '../state/newGameState';
 import { ERA1_COM_F02_F04_PEOPLE } from '../content/assignments/eraICommercialFamilies';
 import type { AssignmentOffer, GameState } from '../state/types';
 import type { AssignmentId } from '../state/ids';
-import { NORTH_BAY_ACTIVITY_ID, NORTH_BAY_ASSIGNMENT_ID, NORTH_BAY_DISCOVERIES, northBayRoofInspection, validateAssignmentActivityDefinition } from '../content/assignments/northBayRoofInspection';
-import { ERA_I_ANCHOR_ACTIVITY_CATALOG, sealedVesselTextileConsignment } from '../content/assignments/eraIAnchors';
+import { NORTH_BAY_ACTIVITY_ID, NORTH_BAY_ASSIGNMENT_ID, NORTH_BAY_DISCOVERIES, northBayRoofInspection, validateAssignmentActivityDefinition, validateAssignmentActivityProgress, ASSIGNMENT_ACTIVITY_CATALOG } from '../content/assignments/northBayRoofInspection';
+import { ERA_I_ANCHOR_ACTIVITY_CATALOG, sealedVesselTextileConsignment, legacySealedVesselTextileConsignment } from '../content/assignments/eraIAnchors';
 import { evaluateAssignmentAssessment } from '../engine/eraIAnchorSubmission';
 import { ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS } from '../content/assignments/eraIAnchorOpportunities';
 
@@ -228,6 +228,31 @@ describe('North-Bay Roof Inspection activity definition and engine', () => {
     expect(validateAssignmentActivityDefinition(activity)).toEqual([]);
     const invalidRubric = { ...activity, evaluation: { ...activity.evaluation!, incompleteFindingIds: ['missing-finding'] } };
     expect(validateAssignmentActivityDefinition(invalidRubric).some((issue) => issue.includes('unknown incomplete finding'))).toBe(true);
+  });
+
+  it('preserves the legacy COM-01 activity definition for already accepted saves', () => {
+    const legacy = legacySealedVesselTextileConsignment;
+    expect(ASSIGNMENT_ACTIVITY_CATALOG[legacy.id]).toBe(legacy);
+    const progress = legacy.createInitialProgress();
+    progress.completedActionIds = ['com01-consult-receiver'];
+    progress.discoveryIds = ['com01-request'];
+    progress.consultedPersonIds = ['person-utu-mansum' as never];
+    expect(validateAssignmentActivityProgress(legacy, progress)).toBe(true);
+
+    const base = createInitialGameState();
+    const offer = {
+      ...ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS[0].offer,
+      id: 'assignment-legacy-com01' as AssignmentId,
+      activityId: legacy.id,
+      offeredDay: 1,
+      expiresDay: 4,
+      status: 'accepted' as const,
+      assigneePersonId: base.player.currentCharacterId,
+      activityProgress: progress,
+    };
+    const state = { ...base, opportunities: { ...base.opportunities,
+      assignments: { ...base.opportunities.assignments, [offer.id]: offer } } };
+    expect(isValidSaveEnvelope(createSaveEnvelope(state, 1), INITIAL_WORK_CATALOG)).toBe(true);
   });
 
   it('grades COM-01 by material completeness, not by the expansiveness of the conclusion', () => {
