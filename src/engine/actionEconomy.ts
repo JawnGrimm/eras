@@ -62,8 +62,8 @@ function handoffPreservedWork(state: GameState, workId: WorkId, workCatalog: Rea
     || (definition.institutionId !== undefined && definition.institutionId !== institutionId)
     || !progress || progress.status !== 'active' || state.works.activeWorkId !== null
     || (preserved.invitation && !acceptingInvitation)
-    || (preserved.invitationResponse === 'declined')
-    || (acceptingInvitation && (!preserved.invitation || preserved.invitationResponse !== undefined))) {
+    || (preserved.invitationResponse === 'declined' && (!acceptingInvitation || state.calendar.dayNumber <= preserved.deathDay))
+    || (acceptingInvitation && (!preserved.invitation || preserved.invitationResponse === 'accepted'))) {
     return { state, feedback: feedback('error', 'preserved-work-handoff-invalid', 'This preserved undertaking cannot be taken up until its Work, institutional custody, saved progress, and required invitation response are valid.') };
   }
   const eventId = `event-work-handoff-${state.calendar.dayNumber}-${String(workId)}-${String(person.id)}` as EventId;
@@ -118,8 +118,37 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
   }
 
   switch (action.type) {
-    case 'TAKE_UP_PRESERVED_WORK':
+    case 'TAKE_UP_PRESERVED_WORK': {
+      const preserved = (state.works.preservedUndertakings ?? []).find((item) => item.workId === action.workId && item.status === 'waiting');
+      if (preserved?.invitationResponse === 'declined') {
+        const definition = workCatalog[action.workId];
+        const invitation = definition?.successionInvitation;
+        const person = state.world.people[state.player.currentCharacterId];
+        const scribal = getInitializedScribal(person);
+        const institutionId = preserved.institutionId;
+        const institution = institutionId ? state.world.institutions[institutionId] : undefined;
+        const appointments = Object.values(state.world.appointments).filter((appointment) =>
+          appointment.personId === person?.id && appointment.institutionId === institutionId
+            && appointment.startDay <= state.calendar.dayNumber
+            && (appointment.endDay === undefined || appointment.endDay >= state.calendar.dayNumber));
+        const hasAccess = !!person && !!institutionId && (person.affiliations.includes(institutionId) || appointments.length > 0);
+        const hasAuthority = !!institution && !!invitation
+          && (institution.authority.includes(invitation.authorityScope)
+            || appointments.some((appointment) => appointment.authorityScope.includes(invitation.authorityScope)));
+        const stillQualified = !!invitation && !!scribal && evaluateCharacterPredicate(invitation.qualification, scribal);
+        if (state.calendar.dayNumber <= preserved.deathDay || !definition || definition.kind !== 'work'
+          || !isValidWorkDefinition(definition) || !invitation || !person || !scribal || !institution
+          || (definition.institutionId !== undefined && definition.institutionId !== institutionId)
+          || invitation.authorityScope !== preserved.invitation.authorityScope
+          || invitation.basis !== preserved.invitation.basis || invitation.remainingRemit !== preserved.invitation.remainingRemit
+          || !invitation.connectionTiers.includes(preserved.invitation.connectionTier)
+          || !hasAccess || !hasAuthority || !stillQualified) {
+          return { state, feedback: feedback('error', 'preserved-work-later-takeup-invalid', 'A later take-up requires a new explicit choice after the decline and the original institutional qualification, access, and authority basis to remain valid.') };
+        }
+        return handoffPreservedWork(state, action.workId, workCatalog, true);
+      }
       return handoffPreservedWork(state, action.workId, workCatalog);
+    }
     case 'RESPOND_PRESERVED_WORK_INVITATION': {
       const preserved = (state.works.preservedUndertakings ?? []).find((item) => item.workId === action.workId && item.status === 'waiting');
       const definition = workCatalog[action.workId];
