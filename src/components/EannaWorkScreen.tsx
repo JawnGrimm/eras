@@ -19,7 +19,8 @@ const SOURCE_ROWS: Array<{ id: EannaSourceId; label: string; note: string }> = [
   { id: 'gemeInanaRequest', label: 'Geme-Inana’s household request', note: '9 barley capacity measures' },
   { id: 'breadPreparationRequest', label: 'Gathering bread-preparation tally', note: '8 barley capacity measures' },
   { id: 'storehouseBarleyCount', label: 'Ur-Nanna’s storehouse count', note: '18 barley capacity measures available' },
-  { id: 'offeringVesselCount', label: 'Offering vessel count', note: '6 requested · 4 prepared' },
+  { id: 'offeringVesselRequest', label: 'Offering vessel request', note: '6 discrete beer vessels requested' },
+  { id: 'offeringVesselCount', label: 'Prepared vessel count', note: '4 beer vessels counted as prepared' },
   { id: 'enlilKisuExpectation', label: 'Enlil-kisu’s spoken expectation', note: '3 barley capacity measures may arrive after Day 39' },
 ];
 

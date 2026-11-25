@@ -24,7 +24,7 @@ export const EANNA_PEOPLE = {
 
 export type EannaSourceId =
   | 'ninKasiRequest' | 'gemeInanaRequest' | 'breadPreparationRequest'
-  | 'storehouseBarleyCount' | 'offeringVesselCount' | 'enlilKisuExpectation';
+  | 'storehouseBarleyCount' | 'offeringVesselRequest' | 'offeringVesselCount' | 'enlilKisuExpectation';
 export type EannaSourceClassification = 'written_tally' | 'physical_count' | 'spoken_expectation';
 export type EannaObverseField =
   | 'ninKasiBarley' | 'gemeInanaBarley' | 'breadPreparationBarley'
@@ -42,6 +42,7 @@ export const EANNA_SOURCE_CLASSIFICATIONS: Record<EannaSourceId, EannaSourceClas
   gemeInanaRequest: 'written_tally',
   breadPreparationRequest: 'written_tally',
   storehouseBarleyCount: 'physical_count',
+  offeringVesselRequest: 'written_tally',
   offeringVesselCount: 'physical_count',
   enlilKisuExpectation: 'spoken_expectation',
 };
@@ -61,7 +62,8 @@ const evidence = [
   { id: 'eanna-ninkasi-request' as EvidenceId, title: 'Nin-kasi’s barley request', source: 'Nin-kasi, brewing-house representative', objectiveText: 'The written request records 12 barley capacity measures for brewing-house work.' },
   { id: 'eanna-geme-request' as EvidenceId, title: 'Geme-Inana’s household request', source: 'Geme-Inana, textile-household organizer', objectiveText: 'The written request records 9 barley capacity measures for her household work group.' },
   { id: 'eanna-bread-request' as EvidenceId, title: 'Gathering bread-preparation tally', source: 'Tally supplied under Lu-Nanshe’s instruction', objectiveText: 'The written tally records 8 barley capacity measures requested for gathering bread preparation.' },
-  { id: 'eanna-offering-vessels' as EvidenceId, title: 'Offering vessel count', source: 'Inana-associated offering preparation at Eanna', objectiveText: 'The separate count records 6 beer vessels requested and 4 prepared.' },
+  { id: 'eanna-offering-request' as EvidenceId, title: 'Offering vessel request', source: 'Inana-associated offering preparation at Eanna', objectiveText: 'The written request records 6 discrete beer vessels for the offering preparation.' },
+  { id: 'eanna-offering-vessels' as EvidenceId, title: 'Prepared vessel count', source: 'Inana-associated offering preparation at Eanna', objectiveText: 'The separate physical count records 4 beer vessels prepared.' },
   { id: 'eanna-enlilkisu-report' as EvidenceId, title: 'Enlil-kisu’s spoken expectation', source: 'Enlil-kisu, carrier foreman', objectiveText: 'Enlil-kisu says 3 further barley capacity measures may arrive after Day 39. No arrival count or receipt is available.' },
   { id: 'eanna-obverse' as EvidenceId, title: 'Consolidated obverse', source: 'The apprentice’s source-linked tablet entries', objectiveText: 'The obverse keeps the three barley requests, storehouse count, and separate beer-vessel count in their own categories.' },
   { id: 'eanna-reverse' as EvidenceId, title: 'Consolidated reverse', source: 'The apprentice’s compatible totals and provisional allocation', objectiveText: 'The reverse records 29 barley capacity measures requested against 18 available, the proposed barley allocation, and the separate vessel shortfall.' },
@@ -125,7 +127,7 @@ function assess(context: WorkSubmissionContext<EannaProvisioningScenario>): {
     obverse: obverseComplete(context.progress),
     allocation: allocationComplete(context.progress),
     allStages: ['eanna-storehouse-count','eanna-ninkasi-request','eanna-geme-request','eanna-bread-request',
-      'eanna-offering-vessels','eanna-enlilkisu-report','eanna-obverse','eanna-reverse','eanna-final-check']
+      'eanna-offering-request','eanna-offering-vessels','eanna-enlilkisu-report','eanna-obverse','eanna-reverse','eanna-final-check']
       .every((id) => examined.has(id as EvidenceId)),
   };
 }
@@ -153,7 +155,8 @@ function finalize(context: WorkSubmissionContext<EannaProvisioningScenario>, dis
     { id: 'source-eanna-ninkasi-request', kind: 'person', sourceId: EANNA_PEOPLE.ninKasi, description: 'Nin-kasi’s written barley request.' },
     { id: 'source-eanna-geme-request', kind: 'person', sourceId: EANNA_PEOPLE.gemeInana, description: 'Geme-Inana’s written household barley request.' },
     { id: 'source-eanna-bread-request', kind: 'person', sourceId: EANNA_PEOPLE.luNanshe, description: 'Gathering bread-preparation tally supplied under Lu-Nanshe’s instruction.' },
-    { id: 'source-eanna-offering-vessels', kind: 'institution', sourceId: EANNA_INSTITUTION_ID, description: 'Separate Inana-associated offering vessel count.' },
+    { id: 'source-eanna-offering-request', kind: 'institution', sourceId: EANNA_INSTITUTION_ID, description: 'Written request for 6 discrete beer vessels for the Inana-associated offering preparation.' },
+    { id: 'source-eanna-offering-vessels', kind: 'institution', sourceId: EANNA_INSTITUTION_ID, description: 'Physical count of 4 prepared beer vessels for the offering.' },
     { id: 'source-eanna-enlilkisu-expectation', kind: 'person', sourceId: EANNA_PEOPLE.enlilKisu, description: 'Enlil-kisu’s spoken expectation of a later barley arrival; not a receipt.' },
     { id: 'source-eanna-disposition', kind: 'event', sourceId: EANNA_DISPOSITION_EVENT_ID, description: 'Lu-Nanshe’s official allocation disposition and seal.' },
   ];
@@ -169,7 +172,7 @@ function finalize(context: WorkSubmissionContext<EannaProvisioningScenario>, dis
       { id: 'eanna-obverse-geme', text: `Barley · Geme-Inana · ${progress.obverse.gemeInanaBarley} capacity measures`, classification: 'observed', sourceIds: ['source-eanna-geme-request'] },
       { id: 'eanna-obverse-bread', text: `Barley · Bread preparation · ${progress.obverse.breadPreparationBarley} capacity measures`, classification: 'observed', sourceIds: ['source-eanna-bread-request'] },
       { id: 'eanna-obverse-stock', text: `Barley · Available · ${progress.obverse.availableBarley} capacity measures`, classification: 'observed', sourceIds: ['source-eanna-storehouse-count'] },
-      { id: 'eanna-obverse-vessels', text: `Beer vessels · Requested ${progress.obverse.offeringVesselsRequested} · Prepared ${progress.obverse.offeringVesselsPrepared}`, classification: 'observed', sourceIds: ['source-eanna-offering-vessels'] },
+      { id: 'eanna-obverse-vessels', text: `Beer vessels · Requested ${progress.obverse.offeringVesselsRequested} · Prepared ${progress.obverse.offeringVesselsPrepared}`, classification: 'observed', sourceIds: ['source-eanna-offering-request','source-eanna-offering-vessels'] },
       { id: 'eanna-reverse-barley-total', text: 'Barley · Requested total · 29 capacity measures', classification: 'inferred', sourceIds: ['source-eanna-ninkasi-request','source-eanna-geme-request','source-eanna-bread-request'] },
       { id: 'eanna-reverse-barley-allocation', text: `Barley · Allocated · Nin-kasi ${nin} · Bread preparation ${bread} · Geme-Inana ${geme} capacity measures`, classification: 'observed', sourceIds: ['source-eanna-disposition'] },
       { id: 'eanna-reverse-barley-shortfall', text: 'Barley · Available 18 · Requested 29 · Shortfall 11 capacity measures', classification: 'inferred', sourceIds: ['source-eanna-storehouse-count','source-eanna-ninkasi-request','source-eanna-geme-request','source-eanna-bread-request'] },
@@ -221,7 +224,7 @@ export const eannaProvisioningWork = defineWork<EannaProvisioningScenario>({
   startingEvidence: [],
   evidence: [...evidence],
   actions: [
-    { id: 'sort-source-packet', successMessage: 'The written tallies, physical counts, and spoken expectation have been sorted by source status.', apCost: 1, grantsEvidence: evidence.slice(0, 6).map((item) => item.id), autoExamine: true },
+    { id: 'sort-source-packet', successMessage: 'The written tallies, physical counts, and spoken expectation have been sorted by source status.', apCost: 1, grantsEvidence: evidence.slice(0, 7).map((item) => item.id), autoExamine: true },
     { id: 'compile-obverse', successMessage: 'The source-linked entries have been placed on the obverse.', apCost: 2, prerequisites: ['sort-source-packet'], grantsEvidence: ['eanna-obverse' as EvidenceId], autoExamine: true },
     { id: 'consolidate-reverse', successMessage: 'Compatible barley totals and the separate vessel count have been placed on the reverse.', apCost: 3, prerequisites: ['compile-obverse'], grantsEvidence: ['eanna-reverse' as EvidenceId], autoExamine: true },
     { id: 'final-check', successMessage: 'The two tablet faces are ready for Lu-Nanshe’s review.', apCost: 1, prerequisites: ['consolidate-reverse'], grantsEvidence: ['eanna-final-check' as EvidenceId], autoExamine: true },

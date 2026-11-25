@@ -284,7 +284,8 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
   if (nextDay >= 35 && !matters[eannaProvisioningMatterId]
     && institutions[EANNA_INSTITUTION_ID] && locations[EANNA_TABLET_ROOM_LOCATION_ID]
     && people[PEOPLE.responsibleAuthority] && people[PEOPLE.seniorScribe]
-    && people[PEOPLE.steward] && people[ERA1_COM_F02_F04_PEOPLE.gemeInana]) {
+    && people[PEOPLE.steward] && people[PEOPLE.carrierForeman]
+    && people['person-nin-kasi' as PersonId] && people[ERA1_COM_F02_F04_PEOPLE.gemeInana]) {
     if (!events[eannaProvisioningEventId]) {
       events[eannaProvisioningEventId] = {
         id: eannaProvisioningEventId, dayNumber: 35,
