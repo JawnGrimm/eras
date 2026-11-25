@@ -19,7 +19,7 @@ export const EANNA_PEOPLE = {
   urNanna: 'person-ur-nanna' as PersonId,
   ninKasi: 'person-nin-kasi' as PersonId,
   enlilKisu: 'person-enlil-kisu' as PersonId,
-  gemeInana: 'person-geme-inana' as PersonId,
+  gemeInana: 'person-geme-inana-provisional' as PersonId,
 } as const;
 
 export type EannaSourceId =
