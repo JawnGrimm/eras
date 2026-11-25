@@ -176,7 +176,7 @@ function finalize(context: WorkSubmissionContext<EannaProvisioningScenario>, dis
       { id: 'eanna-reverse-barley-total', text: 'Barley · Requested total · 29 capacity measures', classification: 'inferred', sourceIds: ['source-eanna-ninkasi-request','source-eanna-geme-request','source-eanna-bread-request'] },
       { id: 'eanna-reverse-barley-allocation', text: `Barley · Allocated · Nin-kasi ${nin} · Bread preparation ${bread} · Geme-Inana ${geme} capacity measures`, classification: 'observed', sourceIds: ['source-eanna-disposition'] },
       { id: 'eanna-reverse-barley-shortfall', text: 'Barley · Available 18 · Requested 29 · Shortfall 11 capacity measures', classification: 'inferred', sourceIds: ['source-eanna-storehouse-count','source-eanna-ninkasi-request','source-eanna-geme-request','source-eanna-bread-request'] },
-      { id: 'eanna-reverse-vessel-shortfall', text: 'Beer vessels · Requested 6 · Prepared 4 · Unmet 2', classification: 'observed', sourceIds: ['source-eanna-offering-vessels'] },
+      { id: 'eanna-reverse-vessel-shortfall', text: 'Beer vessels · Requested 6 · Prepared 4 · Unmet 2', classification: 'observed', sourceIds: ['source-eanna-offering-request','source-eanna-offering-vessels'] },
       { id: 'eanna-later-supply-report', text: 'Barley · 3 capacity measures expected after Day 39; not counted as present stock', classification: 'reported', sourceIds: ['source-eanna-enlilkisu-expectation'] },
       { id: 'eanna-official-disposition', text: 'Allocation disposition authorized and sealed by Lu-Nanshe', classification: 'observed', sourceIds: ['source-eanna-disposition'] },
     ],
