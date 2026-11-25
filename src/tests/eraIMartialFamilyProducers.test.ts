@@ -80,7 +80,7 @@ describe('Era I Martial F01-F04 causal matter pipeline', () => {
     expect(matter!.provenance?.filter((source) => source.kind === 'record_copy')).toHaveLength(5);
     expect(state.world.institutions[HOUSEHOLD_STRONGROOM_INSTITUTION_ID].activeMatters).toContain(matter!.id);
     expect(state.records.entries['record-era1-mar-f01-authorization-search' as never]?.uncertaintyLimits[0])
-      .toContain('does not prove');
+      .toContain('must ask the people involved before deciding whether permission was given');
     expect(Object.values(state.opportunities.assignments).some((offer) =>
       offer.activityId === 'activity-era1-mar-f01-door-opened' && offer.originMatterId === matter!.id,
     )).toBe(true);
