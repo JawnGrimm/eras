@@ -2,7 +2,7 @@ import React from 'react';
 import { useGame } from '../state/GameProvider';
 import { STOREHOUSE_WORK_ID } from '../works/storehouseReckoning';
 import {
-  EANNA_PROVISIONING_WORK_ID, EANNA_SOURCE_PACKET,
+  EANNA_PROVISIONING_WORK_ID, EANNA_SOURCE_PACKET, EANNA_SUMMARY_RECORD_ID,
   type EannaScenarioData, type EannaSourceId, type EannaSourceClass,
 } from '../works/eannaProvisioning';
 
@@ -37,6 +37,8 @@ export function EannaWorkScreen({ onBack }: { onBack: () => void }) {
     type: 'COMPLETE_WORK_ACTION', workId, actionId, scenarioData: { ...scenario, stage },
   });
   const late = state.calendar.dayNumber > 38;
+  const officialReview = state.calendar.dayNumber > 42;
+  const summaryRecord = state.records.entries[EANNA_SUMMARY_RECORD_ID];
 
   if (!progress) return <div className="mx-auto max-w-5xl space-y-4">
     <button onClick={onBack} className="text-sm text-amber-800 hover:underline">← Workday</button>
@@ -44,7 +46,7 @@ export function EannaWorkScreen({ onBack }: { onBack: () => void }) {
       <p className="text-xs font-semibold uppercase tracking-wider text-amber-800">Era I · Career-scale Work</p>
       <h1 className="mt-1 font-serif text-3xl font-semibold text-stone-900">The Eanna Provisioning Undertaking</h1>
       <p className="mt-3 max-w-3xl text-sm leading-6 text-stone-700">Compile Eanna’s separate household and offering requests onto one Consolidated Summary Tablet. Keep the obverse entries distinct, consolidate only compatible totals on the reverse, and prepare an allocation for Lu-Nanshe’s decision.</p>
-      <p className="mt-3 text-sm text-stone-600">The full compilation window is Days 35–38. The gathering is scheduled for Day 39. A later compilation remains possible, but the gathering will have proceeded at reduced scope.</p>
+      <p className="mt-3 text-sm text-stone-600">The full compilation window is Days 35–38. The gathering is scheduled for Day 39. Retrospective compilation is available through Day 42; after that, Lu-Nanshe may review surviving source records.</p>
       {!tutorialComplete ? <p className="mt-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">Complete the Storehouse Reckoning tutorial first.</p>
         : !canStart ? <p className="mt-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">Available from Day 35. Current day: {state.calendar.dayNumber}.</p>
           : <button onClick={() => game.dispatch({ type: 'START_WORK', workId })} className="mt-5 rounded-lg bg-stone-900 px-4 py-2.5 text-sm font-semibold text-white">Begin Work · no AP cost</button>}
@@ -94,7 +96,7 @@ export function EannaWorkScreen({ onBack }: { onBack: () => void }) {
         <p className="text-xs text-stone-500">2 AP on this Workday earns +1 Provision at settlement</p>
       </div>
     </header>
-    {late && <p role="status" className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950">The full window has passed. The gathering proceeded at reduced scope on Day 39. Continue with a retrospective compilation; do not backdate the tablet.</p>}
+    {late && <p role="status" className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950">{officialReview ? 'The retrospective window (Days 39–42) has passed. Lu-Nanshe can now review the surviving source records and accept a qualified retrospective account. Record today’s review; do not backdate the tablet or imply that the full gathering was supplied.' : 'The full window has passed. The gathering proceeded at reduced scope on Day 39. Complete the retrospective compilation by Day 42; do not backdate the tablet or imply that the full gathering was supplied.'}</p>}
     <section className="rounded-xl border border-stone-300 bg-white p-4">
       <h2 className="font-serif text-xl font-semibold">The people around the work</h2>
       <div className="mt-3 grid gap-2 md:grid-cols-2 text-sm text-stone-700">
@@ -170,7 +172,7 @@ export function EannaWorkScreen({ onBack }: { onBack: () => void }) {
       </div>}
     </section>}
     {progress.status === 'completed' && <section role="status" className="rounded-xl border border-emerald-300 bg-emerald-50 p-5">
-      <h2 className="font-serif text-xl font-semibold">Work accepted</h2><p className="mt-2 text-sm">Lu-Nanshe’s disposition is recorded. The originating compilation matter is closed; any authorized carry-forward remains separate.</p><p className="mt-2 font-semibold">+100 Historical Progress XP · awarded once</p>
+      <h2 className="font-serif text-xl font-semibold">Work accepted</h2><p className="mt-2 text-sm">Lu-Nanshe’s disposition is recorded. The originating compilation matter is closed; any authorized carry-forward remains separate.</p>{summaryRecord?.assertions.filter((assertion) => assertion.id === 'eanna-official-allocation' || assertion.id === 'eanna-apprentice-proposal').map((assertion) => <p key={assertion.id} className="mt-2 text-sm">{assertion.text}</p>)}<p className="mt-2 font-semibold">+100 Historical Progress XP · awarded once</p>
     </section>}
   </div>;
 }
