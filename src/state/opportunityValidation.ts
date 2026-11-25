@@ -84,8 +84,19 @@ export function validateOpportunityConsequences(
       : entry.holder.kind === 'institution' ? !!context.world.institutions[entry.holder.id] : false;
     const subjectExists = entry.subject.kind === 'event' ? !!context.world.events[entry.subject.id] || createdEvents.has(entry.subject.id)
       : entry.subject.kind === 'record' ? !!context.records.entries[entry.subject.id] || createdRecords.has(entry.subject.id) : false;
+    const assertion = entry.assertion;
+    const validAssertion = !!assertion && ['fact','observation','remembered_tendency'].includes(assertion.kind)
+      && typeof assertion.text === 'string' && !!assertion.text.trim()
+      && (assertion.aboutPersonId === undefined || !!context.world.people[assertion.aboutPersonId])
+      && (assertion.situationKey === undefined || !!assertion.situationKey.trim())
+      && (assertion.kind !== 'remembered_tendency' || (!!assertion.aboutPersonId && !!assertion.situationKey))
+      && (assertion.recordAssertion === undefined || (createdRecords.has(assertion.recordAssertion.recordId)
+        || !!context.records.entries[assertion.recordAssertion.recordId]));
     if (!holderExists || !subjectExists || (entry.sourcePersonId && !context.world.people[entry.sourcePersonId])
-      || !['direct-involvement','testimony','received-copy','consulted-record','public-disclosure','other'].includes(entry.basis)) return 'Knowledge entry references an unavailable holder, subject, or source.';
+      || !['direct-involvement','testimony','received-copy','consulted-record','public-disclosure','other'].includes(entry.basis)
+      || entry.legacy === true || !validAssertion || !Array.isArray(entry.assessments) || entry.assessments.length !== 0) {
+      return 'New Knowledge requires an available holder and source, an explicit assertion, and an empty assessment history.';
+    }
     createdKnowledge.add(entry.id);
   }
   return null;
