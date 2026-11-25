@@ -419,11 +419,13 @@ The South-Court +1 Provision correction is merged. Responsibility claims remain 
 
 - PR #114 closed without merge: its Open Design Register snapshot was stale against current rulings and merged work. Reconcile the register against current `main`; do not revive that branch as authority.
 - PR #116 closed without merge: its status-only branch conflicted with current `main`. Faithful Recall design work remains independent; closure does not cancel it.
-- PR #120 remains open as the Relationship Familiarity technical plan. Its earlier review/authorization gate is superseded by the Game Director's explicit BUILD directive. Production is authorized to implement the approved contract; runtime implementation is not yet recorded as started or complete.
-- Use existing `feat/relationship-familiarity-episodes` branch if viable. Do not create a duplicate branch.
+- PR #120 closed after its technical proposal was committed to `main` at `698b99494813bd5b2defc558da02775534a2eefc` as `docs/production/GD-RELATIONSHIP-FAMILIARITY-001-TECHNICAL-PROPOSAL.md`. The proposal now records implementation authorization and Production-owned technical decisions.
+- Existing `feat/relationship-familiarity-episodes` was fast-forwarded from `f7a10849d890c4367cbb352dbdac815545a8a15b` to current `main` at `698b99494813bd5b2defc558da02775534a2eefc`. Issue #107 now carries the active BUILD directive. No duplicate branch or PR is needed.
+- Runtime implementation has not yet been committed; the branch is prepared and authorized.
 
 ### Current verified state
 
 - Production execution rules are committed on `main` at `262d429d4cbec11dbafbcae39d647dfec4e9f376`; the production documentation index links to them at `17505239ced6cc1da083a462f25665e574cf6e30`.
 - PR #120's documentation-only head passed Pull Request Validation #603 and CodeQL #487. These results do not validate future runtime implementation.
-- No Relationship Familiarity runtime code, schema-v4 migration, or save rewrite has been committed by this update.
+- Open PR count was reduced to zero. PRs #114, #116, and #120 were closed; #115, #117, #118, and #119 were merged. Closed branches are retained as historical references.
+- No Relationship Familiarity runtime code, schema-v4 migration, or save rewrite has been committed yet.
