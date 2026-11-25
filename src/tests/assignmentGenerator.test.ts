@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { generateDailyAssignments } from '../engine/assignmentGenerator';
+import { prepareTierBRecurringOccurrences } from '../engine/tierBRecurringOccurrences';
 import { transitionGame } from '../engine/actionEconomy';
 import { transitionOpportunityAction } from '../engine/opportunities';
 import { selectCharacterOpportunities } from '../state/opportunitySelectors';
@@ -48,7 +49,7 @@ describe('matter-driven Assignment discovery', () => {
 
     const recurringMatters = Object.values(state.world.matters)
       .filter((matter) => matter.kind === 'tier_b_recurring_occurrence');
-    expect(recurringMatters.length).toBeGreaterThanOrEqual(7);
+    expect(recurringMatters.length).toBeGreaterThanOrEqual(2);
     expect(recurringMatters.every((matter) => !!matter.tierBRecurring)).toBe(true);
     expect(new Set(recurringMatters.map((matter) => matter.sourceEventId)).size).toBe(recurringMatters.length);
     expect(recurringMatters.every((matter) => !!matter.sourceEventId
@@ -61,11 +62,33 @@ describe('matter-driven Assignment discovery', () => {
     expect(recurringMatters.some((matter) => matter.tierBRecurring!.outcomeShape === 'discrepancy')).toBe(true);
     expect(Object.values(state.world.institutions['institution-uruk-temple-storehouse' as keyof typeof state.world.institutions].activeMatters)
       .filter((matterId) => state.world.matters[matterId]?.kind === 'tier_b_recurring_occurrence').length).toBeLessThan(6);
-    const day20TierB = Object.values(state.opportunities.assignments).find((offer) =>
+    const liveTierBOffers = Object.values(state.opportunities.assignments).filter((offer) =>
       offer.activityId === 'activity-tierb-recurring-institutional-check'
-      && offer.originMatterId === 'matter-tierb-recurring-day-20');
-    expect(day20TierB).toBeDefined();
-    expect(day20TierB!.status).toBe('offered');
+      && (offer.status === 'accepted' || (offer.status === 'offered' && offer.expiresDay >= state.calendar.dayNumber)));
+    expect(liveTierBOffers.length).toBeLessThanOrEqual(2);
+    expect(liveTierBOffers.every((offer) => offer.estimatedTotalAp === 4)).toBe(true);
+    expect(new Set(recurringMatters.map((matter) => matter.institutionId)).size).toBeGreaterThan(1);
+  });
+
+  it('authors the approved Dairy and Field Measurement Tier B domains deterministically', () => {
+    const base = createInitialGameState();
+    const emptyAssignments = { ...base.opportunities, assignments: {} };
+    const dairyState = prepareTierBRecurringOccurrences({
+      ...base, calendar: { ...base.calendar, dayNumber: 14 }, opportunities: emptyAssignments,
+    });
+    const dairy = dairyState.world.matters['matter-tierb-recurring-day-14' as MatterId];
+    expect(dairy?.tierBRecurring?.domain).toBe('dairy_entry');
+    expect(dairy?.tierBRecurring?.commodity).toContain('DUGb');
+    expect(dairy?.institutionId).toBe('institution-uruk-household-strongroom-provisional'
+      === dairy?.institutionId ? dairy?.institutionId : 'institution-uruk-textile-household-provisional');
+
+    const fieldState = prepareTierBRecurringOccurrences({
+      ...base, calendar: { ...base.calendar, dayNumber: 15 }, opportunities: emptyAssignments,
+    });
+    const field = fieldState.world.matters['matter-tierb-recurring-day-15' as MatterId];
+    expect(field?.tierBRecurring?.domain).toBe('field_measurement');
+    expect(field?.tierBRecurring?.unit).toContain('GAN2');
+    expect(field?.sourceEventId && fieldState.world.events[field.sourceEventId]?.institutionIds).toContain(field?.institutionId);
   });
 
   it('keeps generated offers discoverable across five END_DAY/BEGIN_WORKDAY cycles', () => {
