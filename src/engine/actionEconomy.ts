@@ -59,6 +59,7 @@ function handoffPreservedWork(state: GameState, workId: WorkId, workCatalog: Rea
   if (!person || !scribal || !preserved || preserved.successorCharacterId !== person.id
     || !institutionId || !state.world.institutions[institutionId]
     || !definition || definition.kind !== 'work' || !isValidWorkDefinition(definition)
+    || (definition.institutionId !== undefined && definition.institutionId !== institutionId)
     || !progress || progress.status !== 'active' || state.works.activeWorkId !== null
     || (preserved.invitation && !acceptingInvitation)
     || (preserved.invitationResponse === 'declined')
@@ -130,6 +131,9 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
       if (!preserved || !preserved.invitation || !definition || definition.kind !== 'work' || !isValidWorkDefinition(definition)
         || !invitation || !person || !scribal || preserved.successorCharacterId !== person.id
         || preserved.invitationResponse !== undefined || !institution || !institutionId
+        || (definition.institutionId !== undefined && definition.institutionId !== institutionId)
+        || invitation.authorityScope !== preserved.invitation.authorityScope
+        || invitation.basis !== preserved.invitation.basis || invitation.remainingRemit !== preserved.invitation.remainingRemit
         || !invitation.connectionTiers.includes(preserved.invitation.connectionTier)) {
         return { state, feedback: feedback('error', 'work-succession-invitation-unavailable', 'There is no valid pending institutional invitation for this character.') };
       }
