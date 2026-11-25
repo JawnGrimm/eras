@@ -31,17 +31,17 @@ const humanReactions = (who: string, subject: string) => ({
 const rationales = (complete: string, defensible: string, incomplete: string, overreach: string) => ({
   Thorough: complete, Defensible: defensible, Incomplete: incomplete, Overreached: overreach,
 });
-export const sealedVesselTextileConsignment = activity({
+export const legacySealedVesselTextileConsignment = activity({
   id: 'activity-era1-com-01-sealed-consignment',
   title: 'Sealed Vessel and Textile Consignment',
   submissionApCost: 1,
   participants: [people.steward, people.receiver, people.carrier, people.senior],
   discoveries: [
-    { id: 'com01-request', title: 'The receiving request', text: 'Utu-mansum asks for the consignment to be checked before the receiving court closes. Enlil-kisu wants the goods accepted so his crew can leave; the receiving official wants the tag and custody note kept together.' },
-    { id: 'com01-tag', title: 'Tag transcription', text: 'The tag identifies vessel lot V-17 and textile lot T-04. Keep the vessel and textile counts on separate lines; they are different goods.' },
-    { id: 'com01-seal', title: 'Seal and custody observation', text: 'The seal impression on one vessel container is incomplete. No one can tell from the damaged impression when it happened, whether the contents changed, or who handled the vessel afterward.' },
-    { id: 'com01-quantity', title: 'Quantity record', text: 'The dispatch account lists 8 vessels and 3 textile bundles under their separate identifiers.' },
-    { id: 'com01-receipt', title: 'Receiving entry', text: 'The receiving entry lists 7 vessels and 3 textile bundles. The vessel count differs by one; the textile count agrees.' },
+    { id: 'com01-request', title: 'The receiving request', text: 'Utu-mansum asks for the consignment to be checked before the receiving court closes. Enlil-kisu wants the goods accepted so his crew can leave; the receiving official wants the tag and custody note kept together.', provenance: { classification: 'REPORTED', explanation: 'The receiving official and carrier describe their requests and positions; this is not a direct observation of the handover.' } },
+    { id: 'com01-tag', title: 'Tag transcription', text: 'The tag identifies vessel lot V-17 and textile lot T-04. Keep the vessel and textile counts on separate lines; they are different goods.', provenance: { classification: 'COPIED', explanation: 'A transcription of the tag is examined; the physical tag itself is not directly available in this legacy packet.' } },
+    { id: 'com01-seal', title: 'Seal and custody observation', text: 'The seal impression on one vessel container is incomplete. No one can tell from the damaged impression when it happened, whether the contents changed, or who handled the vessel afterward.', provenance: { classification: 'PHYSICAL', explanation: 'The seal impression on the container is directly observed; its history and cause remain unknown.' } },
+    { id: 'com01-quantity', title: 'Quantity record', text: 'The dispatch account lists 8 vessels and 3 textile bundles under their separate identifiers.', provenance: { classification: 'COPIED', explanation: 'Dispatch account copy examined; the original record is not directly available in this legacy packet.' } },
+    { id: 'com01-receipt', title: 'Receiving entry', text: 'The receiving entry lists 7 vessels and 3 textile bundles. The vessel count differs by one; the textile count agrees.', provenance: { classification: 'COPIED', explanation: 'Receiving-entry copy examined; the original record is not directly available in this legacy packet.' } },
   ],
   actions: [
     { id: 'com01-consult-receiver', family: 'consult', label: 'Ask Utu-mansum what crossed the threshold', description: 'Hear what the receiving official actually counted before the court closes.', apCost: 1, discoveryIds: ['com01-request'], consultedPersonId: people.receiver },
@@ -88,7 +88,84 @@ export const sealedVesselTextileConsignment = activity({
       'The report certifies clearance or assigns responsibility beyond what the tag, seal, and counts establish.'),
     reactions: humanReactions('Utu-mansum', 'He keeps the receiving tally beside the dispatch copy.'),
   },
+  provenanceDisclosureRequired: true,
+  historicalContextNote: 'Legacy COM-01 content retained only for assignments already offered or accepted before the provenance revision. Its specific counts and discrepancy are fictional teaching content, not a transcription of one attested Uruk delivery. The source classifications describe how the player accesses these items, not their reliability.',
   submissionNote: 'The receiving official decides whether to recount or proceed. The report itself does not release the goods.',
+});
+
+export const sealedVesselTextileConsignment = activity({
+  id: 'activity-era1-com-01-provenance-v2',
+  title: 'Receiving-Tag and Handover Comparison',
+  submissionApCost: 1,
+  participants: [people.steward, people.receiver, people.carrier, people.senior],
+  discoveries: [
+    { id: 'com01-request', title: 'The receiving request',
+      text: 'Utu-mansum asks for a careful comparison before the receiving work moves on. He wants the tag, the receiving entry, and any account of the handover kept distinct.',
+      provenance: { classification: 'REPORTED', explanation: 'The receiving official explains what he needs; this is his request, not an observation of the handover.' } },
+    { id: 'com01-tag', title: 'Physical receiving tag',
+      text: 'A small baked-clay tag, pierced lengthwise, is present for direct examination. It bears signs. The marks are not transcribed or interpreted in this exercise; do not infer a commodity, quantity, or transaction from them.',
+      provenance: { classification: 'PHYSICAL', explanation: 'The clay object itself is available for direct examination.' } },
+    { id: 'com01-receipt', title: 'Copied receiving entry',
+      text: 'This documentary copy describes an accompanying tag as a pierced clay piece bearing signs. The original entry is not available for direct examination. The copy records that description; it does not establish what happened after the entry was made.',
+      provenance: { classification: 'COPIED', explanation: 'Documentary copy examined; the original receiving entry is not directly available.' } },
+    { id: 'com01-handover-account', title: 'Carrier’s handover account',
+      text: 'Enlil-kisu says the tag remained with the consignment until it reached the receiving place. He gives the carrier’s account of the handover; the player did not witness it, and his statement alone does not independently establish whether the tag remained attached at receipt.',
+      sourcePersonId: people.carrier,
+      provenance: { classification: 'REPORTED', explanation: 'Information supplied by the carrier; not independently witnessed by the player.' } },
+  ],
+  actions: [
+    { id: 'com01-consult-receiver', family: 'consult', label: 'Hear Utu-mansum’s request', description: 'Establish the purpose of the comparison and keep the sources together.', apCost: 1, discoveryIds: ['com01-request'], consultedPersonId: people.receiver },
+    { id: 'com01-examine-tag', family: 'observe', label: 'Examine the physical tag', description: 'Inspect the tag itself without inventing a reading or inferring its contents.', apCost: 1, prerequisites: ['com01-consult-receiver'], discoveryIds: ['com01-tag'] },
+    { id: 'com01-review-entry', family: 'observe', label: 'Review the copied receiving entry', description: 'Read what the documentary copy says and note that its original is unavailable.', apCost: 1, prerequisites: ['com01-examine-tag'], discoveryIds: ['com01-receipt'] },
+    { id: 'com01-consult-carrier', family: 'consult', label: 'Ask Enlil-kisu about the handover', description: 'Hear the carrier’s account without treating it as an independently witnessed event.', apCost: 1, prerequisites: ['com01-review-entry'], discoveryIds: ['com01-handover-account'], consultedPersonId: people.carrier },
+  ],
+  interpretationRules: [],
+  reportSchema: {
+    title: 'Receiving-tag comparison report', responsibilityLabel: 'Responsibility',
+    findings: [
+      { id: 'bounded_tag_comparison', label: 'The physical tag’s visible form agrees with the description in the copied receiving entry; later custody is not established' },
+      { id: 'comparison_not_established', label: 'The available sources have not been compared sufficiently' },
+      { id: 'delivery_verified', label: 'The tag proves the consignment remained intact through receipt' },
+    ],
+    responsibilityClaims: [
+      { id: 'none', label: 'No individual responsibility assigned' },
+      { id: 'carrier_blame', label: 'Assign responsibility to the carrier' },
+    ],
+    recommendations: [
+      { id: 'preserve_sources', label: 'Keep the physical tag, copied entry, and handover account together' },
+      { id: 'request_further_check', label: 'Ask the responsible official to arrange a further check of the original entry or custody' },
+    ],
+    limitationsLabel: 'What the evidence cannot establish',
+    limitationOptions: [
+      { id: 'original_entry_unavailable', label: 'The original receiving entry is not available; only the documentary copy can be examined' },
+      { id: 'handover_not_witnessed', label: 'The carrier’s account of the handover was not independently witnessed by the player' },
+      { id: 'no_release_authority', label: 'This report does not decide acceptance, release, or responsibility; those remain with the responsible official' },
+    ],
+  },
+  evaluation: {
+    requiredEvidenceIds: ['com01-tag','com01-receipt'],
+    requiredLimitationIds: ['original_entry_unavailable','handover_not_witnessed','no_release_authority'],
+    relevantEvidenceIds: ['com01-handover-account'],
+    relevantLimitationIds: [],
+    unsupportedFindingIds: ['delivery_verified'],
+    incompleteFindingIds: ['comparison_not_established'],
+    unsupportedResponsibilityClaimIds: ['carrier_blame'],
+    receiverPersonId: people.receiver,
+    rationales: rationales(
+      'The physical tag and copied entry are compared by their visible description, the carrier’s account is cited separately, and the report preserves the unavailable original, unwitnessed handover, and official decision boundary.',
+      'The central comparison is correct and properly bounded, but a relevant secondary detail from the handover account is omitted; the report does not claim that the account is witnessed.',
+      'The tag and copied entry are not both compared, or a material source/authority limitation is missing, so the report cannot be carried forward safely.',
+      'The report treats the carrier’s account as direct verification, asserts that the delivery was settled, or assigns responsibility beyond the available evidence.'),
+    reactions: {
+      Thorough: 'Utu-mansum reads the comparison again, then sets the copied entry beside the tag. “Good. You have shown me what agrees, and you have not turned the handover account into something you witnessed. I can take this forward and ask for the point still in question to be checked. Keep these sources together. We do not yet know what happened beyond what these sources show.”',
+      Defensible: 'Utu-mansum reads the note twice, then nods. “The comparison is useful. Keep the account with the tag and copy; I will see that the remaining point is checked.”',
+      Incomplete: 'Utu-mansum sets the copy aside. “I can see what you checked. I still need the missing comparison or qualification before I can use this.”',
+      Overreached: 'Utu-mansum goes quiet at the unsupported claim. “You have written more than these sources can carry. We will correct that before it travels.”',
+    },
+  },
+  provenanceDisclosureRequired: true,
+  historicalContextNote: 'Reconstructed historical context — Attested: perforated clay tags are documented in Uruk IV–III contexts; a published Uruk IV example is catalogued as containing an administrator’s name. Inferred: pierced tags may have been attached to goods, but the function of an individual object depends on its context. Reconstructed: this assignment’s tag, copied entry, handover account, and participants are fictional teaching material, not a transcription or claim about a specific excavated object or transaction. “Receiving tag” is a player-facing description for this case, not a translated or attested Uruk administrative category. Unknown: no sign reading, commodity, quantity, original receiving entry, or historical custody chain is represented.',
+  submissionNote: 'The report records a bounded comparison. Utu-mansum may arrange a further check; the report itself does not accept or release goods, settle the delivery, or assign responsibility.',
 });
 
 export const brewingIngredientAccount = activity({

@@ -13,7 +13,10 @@ export function assignmentReportForCloseout(assignment?: AssignmentOffer) {
   return {
     finding: label(definition.reportSchema.findings, draft.finding),
     responsibility: label(definition.reportSchema.responsibilityClaims, draft.responsibilityClaim),
-    citedDiscoveries: draft.citedDiscoveryIds.map((id) => definition.discoveries.find((item) => item.id === id)?.title ?? id),
+    citedEvidence: draft.citedDiscoveryIds.map((id) => {
+      const item = definition.discoveries.find((discovery) => discovery.id === id);
+      return item ? { id, title: item.title, content: item.text, provenance: item.provenance } : { id, title: id, content: '', provenance: undefined };
+    }),
     limitations: [
       ...(draft.selectedLimitationIds ?? []).map((id) => definition.reportSchema.limitationOptions?.find((item) => item.id === id)?.label ?? id),
       ...(draft.limitationNotes?.trim() ? [draft.limitationNotes.trim()] : []),
@@ -66,7 +69,15 @@ export function ClosingReceiptScreen({ receipt, kind, onReturn, assignment, empl
       <dl className="mt-3 space-y-3 text-sm">
         <div><dt className="font-semibold text-stone-600">Finding</dt><dd className="mt-1 text-stone-800">{report.finding}</dd></div>
         <div><dt className="font-semibold text-stone-600">Responsibility</dt><dd className="mt-1 text-stone-800">{report.responsibility}</dd></div>
-        <div><dt className="font-semibold text-stone-600">Cited evidence</dt><dd className="mt-1 text-stone-800">{report.citedDiscoveries.length ? report.citedDiscoveries.join('; ') : 'No discoveries cited'}</dd></div>
+        <div><dt className="font-semibold text-stone-600">Cited evidence</dt><dd className="mt-1 text-stone-800">
+          {report.citedEvidence.length ? <ul className="space-y-3">
+            {report.citedEvidence.map((item) => <li key={item.id} className="rounded border border-stone-200 bg-stone-50 p-3">
+              <p className="font-semibold">{item.title}</p>
+              {item.content && <p className="mt-1 leading-6">{item.content}</p>}
+              {item.provenance && <p className="mt-2 text-sm leading-5"><strong>{item.provenance.classification}</strong> · Provenance: {item.provenance.explanation}</p>}
+            </li>)}
+          </ul> : 'No discoveries cited'}
+        </dd></div>
         <div><dt className="font-semibold text-stone-600">Limitations</dt><dd className="mt-1 text-stone-800">{report.limitations.length ? report.limitations.join('; ') : 'No limitations recorded'}</dd></div>
         <div><dt className="font-semibold text-stone-600">Recommendations</dt><dd className="mt-1 text-stone-800">{report.recommendations.length ? report.recommendations.join('; ') : 'No recommendations made'}</dd></div>
       </dl>

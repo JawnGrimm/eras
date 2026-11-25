@@ -1,7 +1,7 @@
 # GD-ERA1-COM-01 — Provenance Disclosure and Supervisory Assessment
 
 **Provenance disclosure:** APPROVED · Design direction by Game Director  
-**Supervisory assessment:** PROPOSED · Design HQ specification for Game Director review  
+**Supervisory assessment:** APPROVED · READY FOR IMPLEMENTATION · Game Director approval, 25 Nov 2026  
 **Scope:** First Assignment instructional sequence; Utu-mansum's assessment of the submitted comparison  
 **Authority:** Game Director direction supplied 25 November 2026; canonical boundaries in `docs/GDD.md`, especially §§2.9, 3.5, 5, and 22  
 **Handoff:** Production owns the evidence metadata schema, UI implementation, deterministic evaluation integration, persistence, and tests. This document does not prescribe TypeScript interfaces or save structure.
@@ -57,7 +57,7 @@ The sequence teaches source discipline through use. The player should not be ask
 
 **Content constraint:** Do not introduce invented quantities, counts, dates, measurements, or numeral-system assumptions into the evidence packet. Any quantity or notation that is present must be source-grounded, historically reviewed, and represented without silently converting unlike systems. This Assignment's comparison can be taught through identifying information without manufacturing numerical discrepancies.
 
-## 4. Supervisory assessment — proposed behavior
+## 4. Supervisory assessment — approved behavior
 
 Utu-mansum assesses the quality and limits of the player's submitted work. He is the receiving official and instructional supervisor for this task; his assessment is not a declaration that the underlying delivery matter is closed.
 
@@ -65,7 +65,7 @@ A correct bounded finding should be recognized as professionally useful. It is n
 
 ### 4.1 Correct, deliberately bounded finding
 
-**Expected assessment:** Defensible at minimum; Thorough when the player has also completed and cited the full relevant comparison and disclosed the material provenance/verification limits.
+**Expected assessment:** Thorough when the comparison is materially complete against the Assignment's authored requirements, correctly bounded, cites the relevant sources, distinguishes their provenance, and preserves what remains unverified. Defensible when the central comparison is correct and properly bounded but omits a relevant secondary detail that would improve completeness without changing the supported conclusion.
 
 Utu-mansum's response:
 
@@ -85,9 +85,9 @@ Use the existing Assignment assessment vocabulary and deterministic authored rub
 
 | Assessment | Player work | Supervisory response |
 |---|---|---|
-| **Thorough** | Correctly compares all relevant identifying information, cites the material sources, distinguishes their provenance, and explicitly preserves the limits of what is not verified. | Utu-mansum acknowledges the complete, usable comparison and says he can carry it into the next check. |
-| **Defensible** | Reaches the correct bounded comparison and avoids unsupported claims, but omits a relevant detail or secondary source that would make the report more complete. | Utu-mansum accepts the useful finding and identifies the specific remaining check without treating the report as wrong. |
-| **Incomplete** | Does not make the comparison usable: a required source is absent, the identifying information is not actually compared, or a material limitation is omitted. | He explains what is missing and why he cannot yet carry the report forward. His response is instructional, not punitive. |
+| **Thorough** | Examines and compares all material identifying information available in the required sources, cites those sources, distinguishes their provenance, and states the limits of what remains unverified. | Utu-mansum acknowledges the materially complete, usable comparison and says he can carry it into the next check. |
+| **Defensible** | The central comparison is correct and properly bounded, but the report omits a relevant secondary detail that would improve completeness without changing the supported conclusion. | Utu-mansum accepts the useful finding and identifies the specific remaining check without treating the report as wrong. |
+| **Incomplete** | An omission prevents the report from establishing a usable comparison, a required source is absent, or a material limitation is omitted. A missing material source/detail is not downgraded to Defensible. | He explains what is missing and why he cannot yet carry the report forward. His response is instructional, not punitive. |
 | **Overreached** | Treats a copied or reported statement as direct physical verification, claims an unobserved event as fact, or assigns responsibility/intent not established by the evidence. | He points to the unsupported step and asks for correction. He does not accuse the player of dishonesty or invent a culprit. |
 
 **Important:** A player who correctly says “the copied entry agrees/disagrees with the identifying information on the tag” has not claimed to verify the original record or the whole delivery. Do not mark that conclusion incomplete merely because direct access to the original is unavailable.
@@ -120,17 +120,25 @@ The report becomes a Record that can inform subsequent institutional work. A lat
 
 ## 6. Historical and authoring controls
 
-### 6.1 Current COM-01 content mismatch — resolve before acceptance
+### 6.1 COM-01 content alignment — IMPLEMENTED IN BRANCH; historical review recorded
 
-The current live definition in `src/content/assignments/eraIAnchors.ts` does not yet match the approved instructional packet:
+The initial COM-01 packet has been reauthored in `src/content/assignments/eraIAnchors.ts` to match the approved instructional sequence:
 
-- The discovery is titled **“Tag transcription”**, not a physical receiving tag examined directly.
-- The current packet contains authored vessel and textile quantities and a numerical discrepancy. These do not satisfy the approved constraint against authored quantities or numeral-system assumptions.
-- The current packet does not present the distinct handover account as REPORTED information in the requested sequence.
+- **PHYSICAL:** a small baked-clay tag, pierced lengthwise and bearing signs, is directly available for examination. No sign reading, commodity, quantity, or transaction is invented.
+- **COPIED:** the player examines a documentary copy describing the tag; the original receiving entry is explicitly unavailable.
+- **REPORTED:** Enlil-kisu gives the carrier's account that the tag remained with the consignment through handover. The player did not witness this and the account is not treated as independent verification.
+- The player compares the tag's visible form with the description in the copied entry. The comparison does not establish later custody, the contents of the consignment, or the outcome of delivery.
+- The authored quantities and numerical discrepancy have been removed from all newly generated COM-01 offers. Pre-existing offers/saves retain the legacy activity definition under its original activity ID so accepted work and completed records remain valid; that compatibility-only definition now also displays provenance labels. It is not used to generate new offers, and no save migration is required.
 
-These are content/behavioral mismatches, not merely missing UI labels. Production must not treat the existing discoveries as a completed implementation of GD-ERA1-COM-01. Design HQ and Historical Research must align the authored packet with the approved sequence: a physical tag, a copied receiving entry, and a separately identified reported handover account; compare only identifying information supported by those sources. Remove the authored quantities from this instructional evidence packet. Do not invent replacement numbers, readings, dates, or a numerical discrepancy.
+The historical framing is deliberately disclosed in a separate **Reconstructed historical context** note. The University of Chicago's ISAC catalog documents a perforated Uruk IV tag from Uruk, dated ca. 3200 BCE, and describes tags as small rectangular objects that could be attached to goods; the cataloged example contains an administrator's name. A recent archaeological synthesis likewise describes Late Chalcolithic clay tags as pierced objects bearing a small number of proto-cuneiform signs, while noting contextual and terminological distinctions among different clay administrative devices. These sources support the general plausibility of the teaching prop, not the fictional tag's exact wording, custody history, or transaction.
 
-This audit note does not authorize Production to fabricate a physical artifact, source history, or historical procedure. The historical status of each represented item and the exact wording of the handover account must be reviewed before the content is accepted.
+Sources:
+- Christopher Woods (ed.), *Visible Language: Inventions of Writing in the Ancient Middle East and Beyond*, Oriental Institute Museum Publications 32, object 41, “Perforated Tag” (University of Chicago ISAC): https://oi.uchicago.edu/sites/default/files/uploads/shared/docs/oimp32.pdf
+- “Information Revolutions and Information Transitions: Counting, Sealing, Writing in Iran 10,000–300 BC,” *Journal of Ancient Near Eastern History* (2025): https://doi.org/10.1515/janeh-2024-0027
+
+The scenario remains fictional and does not reproduce a named excavated object or tablet. The historical/context note is not another ancient evidence item. The COM-01 activity now requires explicit provenance metadata on every discovery; the shared UI renders each classification and explanation at examination.
+
+**Historical Research review — COMPLETED for this content slice:** the physical tag's general form is supported by published Late Chalcolithic/Uruk IV–III evidence. The specific tag, copied receiving entry, carrier's statement, participants' interaction, and custody relationship are explicitly fictional. “Receiving tag” is player-facing wording only; no attested Uruk category, standardized receiving procedure, or historical transaction is claimed. The Assignment still requires implementation CI and normal in-game/manual playtesting before it can be marked VERIFIED.
 
 
 - Historical Research validates the terms used for tags, receiving entries, handover accounts, copies, and any contextual reconstruction.
@@ -144,39 +152,42 @@ This audit note does not authorize Production to fabricate a physical artifact, 
 
 ### Provenance disclosure — approved
 
-- [ ] Every presented evidence item identifies PHYSICAL, COPIED, or REPORTED at the point of examination.
-- [ ] The explanation is readable and accessible without skill checks or hover discovery.
-- [ ] RECONSTRUCTED material is disclosed in a separate historical/context note.
-- [ ] The four labels are not used as reliability or quality ratings.
-- [ ] Provenance labels do not automatically determine assessment or outcome.
-- [ ] No invented quantities or numeral-system assumptions enter the evidence packet.
+- [x] Every COM-01 evidence item identifies PHYSICAL, COPIED, or REPORTED at the point of examination; broader catalogue rollout remains tracked separately.
+- [x] The explanation is readable and accessible without skill checks or hover discovery.
+- [x] RECONSTRUCTED material is disclosed in a separate historical/context note.
+- [x] The four labels are not used as reliability or quality ratings.
+- [x] Provenance labels do not automatically determine assessment or outcome.
+- [x] No invented quantities or numeral-system assumptions enter the new evidence packet.
 
-### Supervisory assessment — proposed
+### Supervisory assessment — approved
 
-- [ ] A correct, bounded comparison receives Defensible or Thorough, never Incomplete solely for declining to claim physical verification.
-- [ ] Thorough versus Defensible depends on authored completeness requirements, not how bold or expansive the conclusion sounds.
-- [ ] Assessment explains evidence content, provenance, conclusion, and remaining uncertainty separately.
-- [ ] Utu-mansum's positive reaction recognizes the usefulness of the bounded finding.
-- [ ] The player is not penalized for refusing unsupported certainty or responsibility claims.
-- [ ] An incomplete report identifies the missing source/comparison/limitation.
-- [ ] An overreached report identifies the unsupported inference and offers a correction path.
-- [ ] Completing the player's Assignment does not imply that the underlying matter is closed.
-- [ ] No assessment category invents a delivery outcome, culprit, or institutional decision.
+- [x] A correct, bounded comparison receives Defensible or Thorough, never Incomplete solely for declining to claim physical verification.
+- [x] Thorough requires material completeness against authored requirements; Defensible is reserved for a correct bounded comparison with a non-material secondary omission; a material omission is Incomplete.
+- [x] Utu-mansum's response assesses report usefulness and does not certify the underlying delivery or authorize release, acceptance, or blame.
+- [x] Assessment explains evidence content, provenance, conclusion, and remaining uncertainty separately.
+- [x] Utu-mansum's positive reaction recognizes the usefulness of the bounded finding.
+- [x] The player is not penalized for refusing unsupported certainty or responsibility claims.
+- [x] An incomplete report identifies the missing source/comparison/limitation.
+- [x] An overreached report identifies the unsupported inference and offers a correction path.
+- [x] Completing the player's Assignment does not imply that the underlying matter is closed.
+- [x] No assessment category invents a delivery outcome, culprit, or institutional decision.
 
 ## 8. Production handoff boundary
 
-### 8.1 Provenance disclosure — APPROVED · READY FOR IMPLEMENTATION
+### 8.1 Provenance disclosure — APPROVED · IMPLEMENTED IN PR #131
 
-The Game Director has approved the provenance disclosure direction. Production is authorized to implement the approved classification and point-of-examination presentation without waiting for the supervisory-assessment proposal to be approved.
+The Game Director approved provenance disclosure independently of the supervisory-assessment decision. Production has implemented explicit PHYSICAL, COPIED, and REPORTED metadata and point-of-examination explanations for the new COM-01 activity and its compatibility-only legacy definition. Reconstructed context is displayed separately. Provenance is also retained in submitted Record source descriptions and shown alongside cited evidence content in the Closing Receipt.
 
-Production determines:
-- the evidence metadata type and compatibility strategy;
-- where provenance is rendered in the examination UI;
-- persistence and migration behavior, if any; and
-- automated tests for visibility, classification neutrality, and reconstructed-context separation.
+Production implementation decisions:
+- Optional authored discovery metadata plus a per-activity completeness validation flag.
+- Visible provenance label and explanation in the evidence examination UI.
+- No persisted state or save-envelope schema change. The old activity definition remains registered under its original ID for existing offers/saves; new offers use the revised activity ID. No migration is required.
+- Automated coverage for provenance completeness, classification neutrality, reconstructed-context separation, closeout disclosure, and legacy-save validation.
 
-### 8.2 Supervisory assessment — PROPOSED
+### 8.2 Supervisory assessment — APPROVED · IMPLEMENTED IN PR #131
 
-The assessment section is not yet an approved behavioral contract. After Game Director approval, it becomes **READY FOR IMPLEMENTATION**. Production may then integrate the rubric with the existing deterministic assessment and Closing Receipt, and test correct bounded findings, incomplete work, overreach, and matter continuity.
+The Game Director approved the supervisory-assessment behavior on 25 November 2026, including the material-completeness clarification: a complete, correctly bounded comparison is Thorough; a correct bounded comparison with a non-material secondary omission is Defensible; an omission that prevents a usable comparison or loses a material limitation is Incomplete. Production has integrated these thresholds with the existing deterministic assessment and Closing Receipt. Focused tests cover all four categories, the Thorough/Defensible/Incomplete boundary, provenance neutrality, and the official's authority limits.
+
+Utu-mansum assesses the report's usefulness, not the truth or final disposition of the underlying delivery. He may receive and preserve the comparison and initiate/request a further check within his established authority. The report alone does not authorize acceptance/release, settle the delivery, or assign blame. Tests must verify that no assessment category silently performs those decisions.
 
 No new balance values, AP rules, tracked resources, autonomous NPC scheduler, or generative runtime system are authorized by this specification.

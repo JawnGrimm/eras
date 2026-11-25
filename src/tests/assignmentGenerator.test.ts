@@ -298,10 +298,10 @@ describe('matter-driven Assignment discovery', () => {
       },
     };
     const generated = generateDailyAssignments(state);
-    const anchor = Object.values(generated.opportunities.assignments).find((offer) => offer.activityId === 'activity-era1-com-01-sealed-consignment');
-    expect(anchor).toMatchObject({ title: 'Sealed Vessel and Textile Consignment', estimatedTotalAp: 5,
+    const anchor = Object.values(generated.opportunities.assignments).find((offer) => offer.activityId === 'activity-era1-com-01-provenance-v2');
+    expect(anchor).toMatchObject({ title: 'Receiving-Tag and Handover Comparison', estimatedTotalAp: 5,
       compensation: { money: 10, provisions: 0 }, careerXpReward: 12, originMatterId: matterId });
-    expect(generated.opportunities.occurrenceLedger.some((entry) => entry.scenarioId === 'activity-era1-com-01-sealed-consignment'
+    expect(generated.opportunities.occurrenceLedger.some((entry) => entry.scenarioId === 'activity-era1-com-01-provenance-v2'
       && entry.primarySourceFact?.id === eventId && entry.requiredSourceFactIds.includes(eventId))).toBe(true);
   });
 

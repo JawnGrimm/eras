@@ -114,10 +114,18 @@ export function AssignmentActivityScreen({ assignmentId, onBack }: { assignmentI
       <div className="mt-3 space-y-3">
         {definition.discoveries.filter((item) => progress.discoveryIds.includes(item.id)).map((item) => <article key={item.id} className="rounded-lg bg-stone-50 p-3">
           <h3 className="font-semibold">{item.title}</h3><p className="mt-1 text-sm leading-6 text-stone-700">{item.text}</p>
+          {item.provenance && <p className="mt-2 rounded border border-stone-300 bg-white px-3 py-2 text-sm leading-5 text-stone-700">
+            <strong>{item.provenance.classification}</strong>
+            <span className="ml-2">Provenance: {item.provenance.explanation}</span>
+          </p>}
           {annotations.filter((annotation) => annotation.evidenceId === item.id).map((annotation) => <p key={annotation.id} className="mt-2 border-l-2 border-amber-700 pl-3 text-sm italic text-stone-600">{annotation.text}</p>)}
         </article>)}
         {progress.discoveryIds.length === 0 && <p className="text-sm text-stone-500">No findings recorded yet.</p>}
       </div>
+      {definition.historicalContextNote && <aside className="mt-4 rounded-lg border border-dashed border-stone-400 bg-amber-50/50 p-3">
+        <p className="text-xs font-semibold uppercase tracking-wider text-stone-600">Reconstructed historical context</p>
+        <p className="mt-1 text-sm leading-6 text-stone-700">{definition.historicalContextNote}</p>
+      </aside>}
     </section>
     <section className="rounded-xl border border-stone-300 bg-white p-5">
       <h2 className="font-serif text-xl font-semibold">Draft {definition.reportSchema.title.toLowerCase()}</h2>

@@ -48,8 +48,8 @@ const ERA_I_ANCHOR_MATTER_SEEDS = [
     dayNumber: 2, matterId: 'matter-era1-com-01-consignment' as MatterId,
     eventId: 'event-era1-com-01-consignment-source' as EventId,
     kind: 'era1_com_01_consignment' as const,
-    summary: 'A consignment is presented for comparison before its receiving entry is accepted.',
-    eventSummary: 'A vessel and textile consignment is presented at the Eanna receiving court. The tag and custody note are beside the dispatch and receiving entries; Utu-mansum needs the figures compared before closing the receipt.',
+    summary: 'A physical tag, a receiving-entry copy, and a carrier’s handover account are brought together for comparison.',
+    eventSummary: 'A pierced clay tag is presented with a copy of a receiving entry that describes a tag of that form. Enlil-kisu says it remained with the goods through handover; Utu-mansum asks for the sources to be compared without treating the account as witnessed.',
     personIds: [PEOPLE.receivingOfficial, PEOPLE.carrierForeman, PEOPLE.steward, PEOPLE.seniorScribe],
     locationId: ERA1_COM_F01_LOCATION_ID,
     provenance: [

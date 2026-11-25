@@ -7,8 +7,9 @@ import { INITIAL_WORK_CATALOG } from '../state/newGameState';
 import { ERA1_COM_F02_F04_PEOPLE } from '../content/assignments/eraICommercialFamilies';
 import type { AssignmentOffer, GameState } from '../state/types';
 import type { AssignmentId } from '../state/ids';
-import { NORTH_BAY_ACTIVITY_ID, NORTH_BAY_ASSIGNMENT_ID, NORTH_BAY_DISCOVERIES, northBayRoofInspection, validateAssignmentActivityDefinition } from '../content/assignments/northBayRoofInspection';
-import { ERA_I_ANCHOR_ACTIVITY_CATALOG } from '../content/assignments/eraIAnchors';
+import { NORTH_BAY_ACTIVITY_ID, NORTH_BAY_ASSIGNMENT_ID, NORTH_BAY_DISCOVERIES, northBayRoofInspection, validateAssignmentActivityDefinition, validateAssignmentActivityProgress, ASSIGNMENT_ACTIVITY_CATALOG } from '../content/assignments/northBayRoofInspection';
+import { ERA_I_ANCHOR_ACTIVITY_CATALOG, sealedVesselTextileConsignment, legacySealedVesselTextileConsignment } from '../content/assignments/eraIAnchors';
+import { evaluateAssignmentAssessment } from '../engine/eraIAnchorSubmission';
 import { ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS } from '../content/assignments/eraIAnchorOpportunities';
 
 const baseline = { kind: 'baseline_reach' as const, explanation: 'The Senior Scribe directed the inspection after reviewing the prior record.' };
@@ -217,4 +218,83 @@ describe('North-Bay Roof Inspection activity definition and engine', () => {
     expect(returned.state.opportunities.assignments[NORTH_BAY_ASSIGNMENT_ID].receiptAcknowledged).toBe(true);
     expect(transitionGame(returned.state, { type: 'END_DAY', expectedDayNumber: 1 }).feedback?.code).not.toBe('closing-receipt-pending');
   });
+  it('discloses COM-01 provenance and keeps reconstructed context separate from ancient evidence', () => {
+    const activity = sealedVesselTextileConsignment;
+    expect(activity.provenanceDisclosureRequired).toBe(true);
+    expect(activity.discoveries.map((item) => item.provenance?.classification)).toEqual(['REPORTED','PHYSICAL','COPIED','REPORTED']);
+    expect(activity.discoveries.every((item) => !!item.provenance?.explanation.trim())).toBe(true);
+    expect(activity.historicalContextNote).toContain('fictional teaching material');
+    expect(activity.discoveries.map((item) => item.text).join(' ')).not.toMatch(/\b(?:vessels?|bundles?|measures?)\s+\d+|\d+\s+(?:vessels?|bundles?|measures?)\b/i);
+    expect(validateAssignmentActivityDefinition(activity)).toEqual([]);
+    const invalidRubric = { ...activity, evaluation: { ...activity.evaluation!, incompleteFindingIds: ['missing-finding'] } };
+    expect(validateAssignmentActivityDefinition(invalidRubric).some((issue) => issue.includes('unknown incomplete finding'))).toBe(true);
+  });
+
+  it('preserves the legacy COM-01 activity definition for already accepted saves', () => {
+    const legacy = legacySealedVesselTextileConsignment;
+    expect(ASSIGNMENT_ACTIVITY_CATALOG[legacy.id]).toBe(legacy);
+    expect(legacy.provenanceDisclosureRequired).toBe(true);
+    expect(validateAssignmentActivityDefinition(legacy)).toEqual([]);
+    const progress = legacy.createInitialProgress();
+    progress.completedActionIds = ['com01-consult-receiver'];
+    progress.discoveryIds = ['com01-request'];
+    progress.consultedPersonIds = ['person-utu-mansum' as never];
+    expect(validateAssignmentActivityProgress(legacy, progress)).toBe(true);
+
+    const base = createInitialGameState();
+    const offer = {
+      ...ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS[0].offer,
+      id: 'assignment-legacy-com01' as AssignmentId,
+      activityId: legacy.id,
+      offeredDay: 1,
+      expiresDay: 4,
+      status: 'accepted' as const,
+      assigneePersonId: base.player.currentCharacterId,
+      activityProgress: progress,
+    };
+    const state = { ...base, opportunities: { ...base.opportunities,
+      assignments: { ...base.opportunities.assignments, [offer.id]: offer } } };
+    expect(isValidSaveEnvelope(createSaveEnvelope(state, 1), INITIAL_WORK_CATALOG)).toBe(true);
+  });
+
+  it('grades COM-01 by material completeness, not by the expansiveness of the conclusion', () => {
+    const activity = sealedVesselTextileConsignment;
+    const complete = activity.createInitialProgress();
+    complete.discoveryIds = ['com01-tag','com01-receipt','com01-handover-account'];
+    complete.draft.finding = 'bounded_tag_comparison';
+    complete.draft.citedDiscoveryIds = ['com01-tag','com01-receipt','com01-handover-account'];
+    complete.draft.selectedLimitationIds = ['original_entry_unavailable','handover_not_witnessed','no_release_authority'];
+    expect(evaluateAssignmentAssessment(activity, complete)).toBe('Thorough');
+    const reclassified = { ...activity, discoveries: activity.discoveries.map((item) => ({
+      ...item, provenance: { ...item.provenance!, classification: 'REPORTED' as const },
+    })) };
+    expect(evaluateAssignmentAssessment(reclassified, complete)).toBe('Thorough');
+    expect(activity.evaluation?.reactions.Thorough).toContain('We do not yet know what happened');
+    expect(activity.evaluation?.reactions.Incomplete).toContain('missing comparison or qualification');
+    expect(activity.evaluation?.reactions.Overreached).toContain('We will correct that');
+    expect(activity.submissionNote).toContain('does not accept or release goods');
+
+    const secondaryOmission = {
+      ...complete,
+      discoveryIds: [...complete.discoveryIds],
+      draft: { ...complete.draft, citedDiscoveryIds: ['com01-tag','com01-receipt'] },
+    };
+    expect(evaluateAssignmentAssessment(activity, secondaryOmission)).toBe('Defensible');
+
+    const materialOmission = {
+      ...complete,
+      draft: { ...complete.draft, selectedLimitationIds: ['original_entry_unavailable','no_release_authority'] },
+    };
+    expect(evaluateAssignmentAssessment(activity, materialOmission)).toBe('Incomplete');
+
+    const noUsableComparison = { ...complete, draft: { ...complete.draft, finding: 'comparison_not_established' } };
+    expect(evaluateAssignmentAssessment(activity, noUsableComparison)).toBe('Incomplete');
+
+    const unsupportedCertainty = { ...complete, draft: { ...complete.draft, finding: 'delivery_verified' } };
+    expect(evaluateAssignmentAssessment(activity, unsupportedCertainty)).toBe('Overreached');
+
+    const unsupportedBlame = { ...complete, draft: { ...complete.draft, responsibilityClaim: 'carrier_blame' } };
+    expect(evaluateAssignmentAssessment(activity, unsupportedBlame)).toBe('Overreached');
+  });
+
 });

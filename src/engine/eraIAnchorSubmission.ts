@@ -21,7 +21,8 @@ export function evaluateAssignmentAssessment(definition: AssignmentActivityDefin
     || rubric.unsupportedResponsibilityClaimIds.includes(progress.draft.responsibilityClaim)
     || (rubric.unsupportedRecommendationIds ?? []).some((id) => progress.draft.recommendations.includes(id));
   if (overreached) return 'Overreached' as const;
-  const incomplete = rubric.requiredEvidenceIds.some((id) => !cited.has(id))
+  const incomplete = (rubric.incompleteFindingIds ?? []).includes(progress.draft.finding)
+    || rubric.requiredEvidenceIds.some((id) => !cited.has(id))
     || rubric.requiredLimitationIds.some((id) => !selectedLimitations.has(id));
   if (incomplete) return 'Incomplete' as const;
   const thorough = rubric.relevantEvidenceIds.every((id) => !progress.discoveryIds.includes(id) || cited.has(id))
@@ -82,7 +83,7 @@ export function submitRubricAssignmentActivity(
         ...(sourcePersonId ? { sourceId: sourcePersonId }
           : sourceEventId ? { sourceId: sourceEventId }
           : sourceRecordId ? { sourceId: sourceRecordId } : {}),
-        description: `${item.title}: ${item.text}`,
+        description: `${item.title}${item.provenance ? ` [${item.provenance.classification}]` : ''}: ${item.text}${item.provenance ? ` Provenance: ${item.provenance.explanation}` : ''}`,
       };
     }),
   ];
