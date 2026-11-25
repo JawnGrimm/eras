@@ -41,6 +41,7 @@ export function EannaWorkScreen({ onBack }: { onBack: () => void }) {
   const late = state.calendar.dayNumber > 38;
   const officialReview = state.calendar.dayNumber > 42;
   const summaryRecord = state.records.entries[EANNA_SUMMARY_RECORD_ID];
+  const officialAllocationText = summaryRecord?.assertions.find((assertion) => assertion.id === 'eanna-official-allocation')?.text;
 
   if (!progress) return <div className="mx-auto max-w-5xl space-y-4">
     <button onClick={onBack} className="text-sm text-amber-800 hover:underline">← Workday</button>
@@ -153,7 +154,9 @@ export function EannaWorkScreen({ onBack }: { onBack: () => void }) {
         <TabletFace title="Reverse · Totals and proposal">
           <p>Barley available · 18 capacity measures</p><p>Barley requested · 29 capacity measures</p><p>Barley shortfall · 11 capacity measures</p>
           <p>Beer vessels requested · 6</p><p>Beer vessels prepared · 4</p>
-          <p>Proposal · Nin-kasi {p.ninKasiBarley} · Bread {p.breadGroupBarley} · Geme-Inana {p.gemeInanaBarley}</p><p>Beer vessels · {p.offeringBeerVessels}</p>
+          {progress.status === 'completed' && officialAllocationText
+            ? <><p>{officialAllocationText}</p><p>Official seal impression · Lu-Nanshe</p></>
+            : <><p>Provisional proposal · Nin-kasi {p.ninKasiBarley} · Bread {p.breadGroupBarley} · Geme-Inana {p.gemeInanaBarley}</p><p>Beer vessels · {p.offeringBeerVessels}</p></>}
         </TabletFace>
       </div>
       <button disabled={!active || done('final-check') || !done('consolidate-reverse') || state.actionEconomy.apRemaining < 1} onClick={() => finishStage('final-check',4)} className="mt-3 rounded-lg bg-stone-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40">{done('final-check') ? 'Final check complete' : 'Complete final check · 1 AP'}</button>
