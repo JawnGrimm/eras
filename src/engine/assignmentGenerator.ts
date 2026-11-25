@@ -34,21 +34,7 @@ export function generateDailyAssignments(state: GameState): GameState {
   const prepared = prepareTierBRecurringOccurrences(state);
   const ledger = prepared.opportunities.assignmentGeneratorLedger ?? { sequence: 0, lastPresentedDayByActivity: {} };
   let next: GameState = { ...prepared, opportunities: { ...prepared.opportunities, assignmentGeneratorLedger: ledger } };
-  const definitions = [...URUK_ASSIGNMENT_OPPORTUNITY_DEFINITIONS, ...ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS, ...ERA_I_COMMERCIAL_MARTIAL_OPPORTUNITY_DEFINITIONS, {
-    matterKind: 'tier_b_recurring_occurrence' as const, slug: 'tierb-recurring',
-    offer: {
-      activityId: 'activity-tierb-recurring-institutional-check', title: 'Recurring Institutional Check',
-      description: 'Compare the dated source and receiving/check records, preserving the actual commodity, unit, and result.',
-      employer: { kind: 'institution' as const, id: 'institution-uruk-temple-storehouse' as import('../state/ids').InstitutionId },
-      category: 'tier_b_institutional_check',
-      context: { what: 'Compare a distinct dated Tier B occurrence.', who: ['Ur-Nanna, Storehouse Steward', 'Utu-mansum, Receiving Official', 'Shuruppak-ilu, Senior Scribe'],
-        quantity: 'See the dated occurrence dossier.', when: 'During the current workday.', where: 'Temple Storehouse, Uruk.', from: 'A distinct dated Event and source Records.', to: 'Shuruppak-ilu for qualified review.', purpose: 'Reconcile clean records or document a bounded difference without inventing a cause.',
-        responsibility: ['The scribe compares and reports; officials retain account and custody authority.'], authority: 'Reporting and recommendation only.', provenance: ['A deterministic Tier B occurrence grounded in source facts.'] },
-      requiredSkills: {}, difficulty: 'routine', estimatedTotalAp: 3,
-      compensation: { money: 5, provisions: 0 }, careerXpReward: 6,
-      deliveryChannels: [{ kind: 'baseline_reach' as const, explanation: 'A dated storehouse source occurrence requires a bounded comparison.' }],
-    },
-  }];
+  const definitions = [...URUK_ASSIGNMENT_OPPORTUNITY_DEFINITIONS, ...ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS, ...ERA_I_COMMERCIAL_MARTIAL_OPPORTUNITY_DEFINITIONS];
   const offset = ledger.sequence % definitions.length;
   const rotated = [...definitions.slice(offset), ...definitions.slice(0, offset)];
   let sequence = ledger.sequence;
