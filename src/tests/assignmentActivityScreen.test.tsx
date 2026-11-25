@@ -1,6 +1,25 @@
 import { describe, expect, it } from 'vitest';
+import { responsibilityClaimPreviewLabel } from '../components/AssignmentActivityScreen';
 import { assignmentReportForCloseout } from '../components/ClosingReceiptScreen';
 import type { AssignmentOffer } from '../state/types';
+
+describe('authored responsibility-claim preview', () => {
+  const options = [
+    { id: 'none', label: 'No individual responsibility assigned' },
+    { id: 'dudu', label: 'Attributes unresolved work to Dudu' },
+    { id: 'carrier_blame', label: 'Assign the discrepancy to the carrier' },
+  ];
+
+  it('uses authored labels for default and non-default claim selections', () => {
+    expect(responsibilityClaimPreviewLabel(options, 'none')).toBe('No individual responsibility assigned');
+    expect(responsibilityClaimPreviewLabel(options, 'carrier_blame')).toBe('Assign the discrepancy to the carrier');
+  });
+
+  it('falls back to an authored neutral label when a saved selection is unavailable', () => {
+    expect(responsibilityClaimPreviewLabel(options, 'removed_legacy_claim')).toBe('No individual responsibility assigned');
+    expect(responsibilityClaimPreviewLabel([], 'removed_legacy_claim')).toBe('No responsibility claim recorded');
+  });
+});
 
 describe('Assignment closeout report summary', () => {
   it('presents authored report labels and cited discoveries instead of internal option IDs', () => {
