@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { generateDailyAssignments } from '../engine/assignmentGenerator';
+import { transitionGame } from '../engine/actionEconomy';
 import { transitionOpportunityAction } from '../engine/opportunities';
 import { selectCharacterOpportunities } from '../state/opportunitySelectors';
 import { createInitialGameState } from '../state/initialState';
@@ -7,6 +8,45 @@ import type { GameState } from '../state/types';
 import type { EventId, MatterId } from '../state/ids';
 
 describe('matter-driven Assignment discovery', () => {
+  it('sustains assignment discovery and bounded opportunity state through twenty workdays', () => {
+    let state = generateDailyAssignments(createInitialGameState());
+    const dailyOfferCounts: number[] = [];
+    const dailyLedgerCounts: number[] = [];
+    const dailyAssignmentCounts: number[] = [];
+    const serializedLengths: number[] = [];
+
+    for (let day = 1; day <= 20; day += 1) {
+      expect(state.calendar.dayNumber).toBe(day);
+      dailyOfferCounts.push(selectCharacterOpportunities(state).offeredAssignments.length);
+      dailyLedgerCounts.push(state.opportunities.occurrenceLedger.length);
+      dailyAssignmentCounts.push(Object.keys(state.opportunities.assignments).length);
+
+      const serialized = JSON.stringify(state);
+      expect(() => JSON.parse(serialized)).not.toThrow();
+      serializedLengths.push(serialized.length);
+      expect(serialized.length).toBeLessThan(1_000_000);
+      expect(state.opportunities.occurrenceLedger.length).toBeLessThan(500);
+      expect(Object.keys(state.opportunities.assignments).length).toBeLessThan(500);
+
+      if (day === 20) break;
+      const closed = transitionGame(state, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber });
+      expect(closed.state.dayClose.phase).toBe('interlude_open');
+      expect(closed.state.dayClose.pendingSettlementId).toBeTruthy();
+      const begun = transitionGame(closed.state, {
+        type: 'BEGIN_WORKDAY',
+        expectedSettlementId: closed.state.dayClose.pendingSettlementId!,
+      });
+      expect(begun.feedback?.code).toBe('workday-begun');
+      state = begun.state;
+    }
+
+    expect(dailyOfferCounts.slice(13).some((count) => count > 0)).toBe(true);
+    expect(dailyOfferCounts[19]).toBeGreaterThan(0);
+    expect(Math.max(...dailyLedgerCounts)).toBeLessThan(500);
+    expect(Math.max(...dailyAssignmentCounts)).toBeLessThan(500);
+    expect(Math.max(...serializedLengths)).toBeLessThan(1_000_000);
+  });
+
   it('keeps generated offers discoverable across five END_DAY/BEGIN_WORKDAY cycles', () => {
     let state = generateDailyAssignments(createInitialGameState());
     const offeredCounts: number[] = [];
