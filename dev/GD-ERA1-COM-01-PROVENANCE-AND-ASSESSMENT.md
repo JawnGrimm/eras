@@ -1,7 +1,7 @@
 # GD-ERA1-COM-01 — Provenance Disclosure and Supervisory Assessment
 
 **Provenance disclosure:** APPROVED · Design direction by Game Director  
-**Supervisory assessment:** PROPOSED · Design HQ specification for Game Director review  
+**Supervisory assessment:** APPROVED · READY FOR IMPLEMENTATION · Game Director approval, 25 Nov 2026  
 **Scope:** First Assignment instructional sequence; Utu-mansum's assessment of the submitted comparison  
 **Authority:** Game Director direction supplied 25 November 2026; canonical boundaries in `docs/GDD.md`, especially §§2.9, 3.5, 5, and 22  
 **Handoff:** Production owns the evidence metadata schema, UI implementation, deterministic evaluation integration, persistence, and tests. This document does not prescribe TypeScript interfaces or save structure.
@@ -57,7 +57,7 @@ The sequence teaches source discipline through use. The player should not be ask
 
 **Content constraint:** Do not introduce invented quantities, counts, dates, measurements, or numeral-system assumptions into the evidence packet. Any quantity or notation that is present must be source-grounded, historically reviewed, and represented without silently converting unlike systems. This Assignment's comparison can be taught through identifying information without manufacturing numerical discrepancies.
 
-## 4. Supervisory assessment — proposed behavior
+## 4. Supervisory assessment — approved behavior
 
 Utu-mansum assesses the quality and limits of the player's submitted work. He is the receiving official and instructional supervisor for this task; his assessment is not a declaration that the underlying delivery matter is closed.
 
@@ -65,7 +65,7 @@ A correct bounded finding should be recognized as professionally useful. It is n
 
 ### 4.1 Correct, deliberately bounded finding
 
-**Expected assessment:** Defensible at minimum; Thorough when the player has also completed and cited the full relevant comparison and disclosed the material provenance/verification limits.
+**Expected assessment:** Thorough when the comparison is materially complete against the Assignment's authored requirements, correctly bounded, cites the relevant sources, distinguishes their provenance, and preserves what remains unverified. Defensible when the central comparison is correct and properly bounded but omits a relevant secondary detail that would improve completeness without changing the supported conclusion.
 
 Utu-mansum's response:
 
@@ -85,9 +85,9 @@ Use the existing Assignment assessment vocabulary and deterministic authored rub
 
 | Assessment | Player work | Supervisory response |
 |---|---|---|
-| **Thorough** | Correctly compares all relevant identifying information, cites the material sources, distinguishes their provenance, and explicitly preserves the limits of what is not verified. | Utu-mansum acknowledges the complete, usable comparison and says he can carry it into the next check. |
-| **Defensible** | Reaches the correct bounded comparison and avoids unsupported claims, but omits a relevant detail or secondary source that would make the report more complete. | Utu-mansum accepts the useful finding and identifies the specific remaining check without treating the report as wrong. |
-| **Incomplete** | Does not make the comparison usable: a required source is absent, the identifying information is not actually compared, or a material limitation is omitted. | He explains what is missing and why he cannot yet carry the report forward. His response is instructional, not punitive. |
+| **Thorough** | Examines and compares all material identifying information available in the required sources, cites those sources, distinguishes their provenance, and states the limits of what remains unverified. | Utu-mansum acknowledges the materially complete, usable comparison and says he can carry it into the next check. |
+| **Defensible** | The central comparison is correct and properly bounded, but the report omits a relevant secondary detail that would improve completeness without changing the supported conclusion. | Utu-mansum accepts the useful finding and identifies the specific remaining check without treating the report as wrong. |
+| **Incomplete** | An omission prevents the report from establishing a usable comparison, a required source is absent, or a material limitation is omitted. A missing material source/detail is not downgraded to Defensible. | He explains what is missing and why he cannot yet carry the report forward. His response is instructional, not punitive. |
 | **Overreached** | Treats a copied or reported statement as direct physical verification, claims an unobserved event as fact, or assigns responsibility/intent not established by the evidence. | He points to the unsupported step and asks for correction. He does not accuse the player of dishonesty or invent a culprit. |
 
 **Important:** A player who correctly says “the copied entry agrees/disagrees with the identifying information on the tag” has not claimed to verify the original record or the whole delivery. Do not mark that conclusion incomplete merely because direct access to the original is unavailable.
@@ -151,10 +151,11 @@ This audit note does not authorize Production to fabricate a physical artifact, 
 - [ ] Provenance labels do not automatically determine assessment or outcome.
 - [ ] No invented quantities or numeral-system assumptions enter the evidence packet.
 
-### Supervisory assessment — proposed
+### Supervisory assessment — approved
 
 - [ ] A correct, bounded comparison receives Defensible or Thorough, never Incomplete solely for declining to claim physical verification.
-- [ ] Thorough versus Defensible depends on authored completeness requirements, not how bold or expansive the conclusion sounds.
+- [ ] Thorough requires material completeness against authored requirements; Defensible is reserved for a correct bounded comparison with a non-material secondary omission; a material omission is Incomplete.
+- [ ] Utu-mansum's response assesses report usefulness and does not certify the underlying delivery or authorize release, acceptance, or blame.
 - [ ] Assessment explains evidence content, provenance, conclusion, and remaining uncertainty separately.
 - [ ] Utu-mansum's positive reaction recognizes the usefulness of the bounded finding.
 - [ ] The player is not penalized for refusing unsupported certainty or responsibility claims.
@@ -175,8 +176,10 @@ Production determines:
 - persistence and migration behavior, if any; and
 - automated tests for visibility, classification neutrality, and reconstructed-context separation.
 
-### 8.2 Supervisory assessment — PROPOSED
+### 8.2 Supervisory assessment — APPROVED · READY FOR IMPLEMENTATION
 
-The assessment section is not yet an approved behavioral contract. After Game Director approval, it becomes **READY FOR IMPLEMENTATION**. Production may then integrate the rubric with the existing deterministic assessment and Closing Receipt, and test correct bounded findings, incomplete work, overreach, and matter continuity.
+The Game Director approved the supervisory-assessment behavior on 25 November 2026, including the material-completeness clarification: a complete, correctly bounded comparison is Thorough; a correct bounded comparison with a non-material secondary omission is Defensible; an omission that prevents a usable comparison or loses a material limitation is Incomplete. Production may integrate the rubric with the existing deterministic assessment and Closing Receipt, and test all four categories, including the boundary between Thorough, Defensible, and Incomplete.
+
+Utu-mansum assesses the report's usefulness, not the truth or final disposition of the underlying delivery. He may receive and preserve the comparison and initiate/request a further check within his established authority. The report alone does not authorize acceptance/release, settle the delivery, or assign blame. Tests must verify that no assessment category silently performs those decisions.
 
 No new balance values, AP rules, tracked resources, autonomous NPC scheduler, or generative runtime system are authorized by this specification.
