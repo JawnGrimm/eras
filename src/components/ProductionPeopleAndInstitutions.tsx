@@ -4,7 +4,7 @@ import { useGame } from '../state/GameProvider';
 import type { InstitutionId, PersonId, RecordId } from '../state/ids';
 import type { Appointment, Institution, InstitutionalMatter, Person, PersonRelationship, RecordEntry, WorldEvent } from '../state/types';
 import { PersonHistoryPanel } from './PersonHistoryPanel';
-import { deriveRelationshipFamiliarityStage, relationshipFamiliarityEpisodesFor } from '../state/relationshipFamiliarity';
+import { deriveRelationshipFamiliarityStage, relationshipFamiliarityEpisodesFor, type RelationshipFamiliarityEpisodeMap } from '../state/relationshipFamiliarity';
 
 export type PeopleInstitutionSection = 'people' | 'institutions';
 type PersonLifeFilter = 'all' | 'living' | 'deceased';
@@ -72,12 +72,13 @@ function PersonIndexRow({ person, context, selected, onSelect }: {
   </button>;
 }
 
-function PersonDetail({ person, people, institutions, relationships, appointments, isCurrentCharacter }: {
+function PersonDetail({ person, people, institutions, relationships, appointments, familiarityEpisodes, isCurrentCharacter }: {
   person: Person;
   people: Readonly<Record<string, Person>>;
   institutions: Readonly<Record<InstitutionId, Institution>>;
   relationships: Array<{ from: Person; to: Person; relationship: PersonRelationship }>;
   appointments: Appointment[];
+  familiarityEpisodes: Readonly<RelationshipFamiliarityEpisodeMap>;
   isCurrentCharacter: boolean;
 }) {
   const scribal = getInitializedScribal(person);
@@ -173,8 +174,8 @@ function PersonDetail({ person, people, institutions, relationships, appointment
       {relationships.length
         ? <div className="mt-2 space-y-2">{relationships.map(({ from, to, relationship }) =>
           <RelationshipCard key={`${from.id}-${to.id}`} fromName={from.name} toName={to.name} relationship={relationship}
-              familiarityStage={deriveRelationshipFamiliarityStage(state.world.relationshipFamiliarityEpisodes ?? {}, from.id, to.id)}
-              familiarityEpisodes={relationshipFamiliarityEpisodesFor(state.world.relationshipFamiliarityEpisodes ?? {}, from.id, to.id)} />)}</div>
+              familiarityStage={deriveRelationshipFamiliarityStage(familiarityEpisodes, from.id, to.id)}
+              familiarityEpisodes={relationshipFamiliarityEpisodesFor(familiarityEpisodes, from.id, to.id)} />)}</div>
         : <p className="mt-2 text-xs text-stone-500">No directional relationship entries are recorded for this person.</p>}
     </section>
   </article>;
@@ -444,6 +445,7 @@ export function ProductionPeopleAndInstitutions({ initialSection = 'people', ini
           {selectedPerson
             ? <PersonDetail person={selectedPerson} people={state.world.people} institutions={state.world.institutions}
               relationships={relationshipRows} appointments={selectedPersonAppointments}
+              familiarityEpisodes={state.world.relationshipFamiliarityEpisodes ?? {}}
               isCurrentCharacter={selectedPerson.id === state.player.currentCharacterId} />
             : <p className="rounded-lg border border-stone-300 bg-white p-4 text-sm text-stone-500">Select a person to view recorded detail.</p>}
         </div>
