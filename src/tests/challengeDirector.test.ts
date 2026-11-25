@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import type { ChallengeId, EventId, PersonId } from '../state/ids';
+import type { ChallengeId, EventId, PersonId, RecordId } from '../state/ids';
 import type { ChallengeInstance, GameState } from '../state/types';
 import { createInitialGameState } from '../state/initialState';
 import { isValidSaveEnvelope, createSaveEnvelope } from '../state/saveEnvelope';
-import { resolveChallengeTrigger, selectWeightedChallengeCandidate } from '../engine/challengeDirector';
-import { transitionOpportunityAction } from '../engine/opportunities';
+import { CHALLENGE_TRIGGER_RULES, resolveChallengeTrigger, selectWeightedChallengeCandidate } from '../engine/challengeDirector';
+import { addActivity, transitionOpportunityAction } from '../engine/opportunities';
 import { generateDailyAssignments } from '../engine/assignmentGenerator';
 import { MATTER_IDS } from '../engine/institutionalMatters';
 
@@ -119,6 +119,106 @@ describe('Challenge candidate selection and occurrence lifecycle', () => {
       toId,
       deliveryChannels: channels,
     })).toBeNull();
+  });
+
+  it('resolves player-action outcomes only from a completed Assignment with a valid causal matter event', () => {
+    const generated = generateDailyAssignments(createInitialGameState());
+    const offer = Object.values(generated.opportunities.assignments)
+      .find((item) => item.activityId === 'activity-south-court-delivery-reconciliation')!;
+    const completedOffer = { ...offer, status: 'completed' as const };
+    const withCompletedOffer = {
+      ...generated,
+      opportunities: {
+        ...generated.opportunities,
+        assignments: { ...generated.opportunities.assignments, [offer.id]: completedOffer },
+      },
+    };
+    const state = addActivity(withCompletedOffer, completedOffer, 'completed');
+    const trigger = {
+      domain: 'player_action_outcome' as const,
+      activityId: 'activity-south-court-delivery-reconciliation',
+      matterId: MATTER_IDS.southCourtDelivery,
+      activityKinds: ['completed'] as const,
+    };
+
+    const resolved = resolveChallengeTrigger(state, trigger);
+    expect(resolved?.primarySourceFact).toEqual({
+      kind: 'event',
+      id: state.world.matters[MATTER_IDS.southCourtDelivery].sourceEventId,
+    });
+
+    const noActivity = {
+      ...state,
+      opportunities: { ...state.opportunities, recentActivity: [] },
+    };
+    expect(resolveChallengeTrigger(noActivity, trigger)).toBeNull();
+
+    const matter = state.world.matters[MATTER_IDS.southCourtDelivery];
+    const noSourceEvent = {
+      ...state,
+      world: {
+        ...state.world,
+        matters: { ...state.world.matters, [matter.id]: { ...matter, sourceEventId: undefined } },
+      },
+    };
+    expect(resolveChallengeTrigger(noSourceEvent, trigger)).toBeNull();
+  });
+
+  it('resolves professional-behavior patterns only when the aggregate, recent activity, report, and source facts agree', () => {
+    const generated = generateDailyAssignments(createInitialGameState());
+    const offer = Object.values(generated.opportunities.assignments)
+      .find((item) => item.activityId === 'activity-south-court-delivery-reconciliation')!;
+    const completedOffer = { ...offer, status: 'completed' as const };
+    const withCompletedOffer = {
+      ...generated,
+      opportunities: {
+        ...generated.opportunities,
+        assignments: { ...generated.opportunities.assignments, [offer.id]: completedOffer },
+      },
+    };
+    const state = addActivity(withCompletedOffer, completedOffer, 'completed');
+    const activity = state.opportunities.recentActivity[state.opportunities.recentActivity.length - 1];
+    const recordId = `record-${offer.id}-day-${activity.dayNumber}` as RecordId;
+    const report = {
+      id: recordId,
+      createdDay: activity.dayNumber,
+      authorPersonId: state.player.currentCharacterId,
+      title: 'South-Court Delivery Reconciliation',
+      sources: [],
+      assertions: [],
+      uncertaintyLimits: [],
+      amendments: [],
+    };
+    const withReport = {
+      ...state,
+      records: {
+        ...state.records,
+        entries: { ...state.records.entries, [recordId]: report },
+      },
+    };
+    const trigger = {
+      domain: 'professional_behavior_pattern' as const,
+      rule: CHALLENGE_TRIGGER_RULES[0],
+      activityId: 'activity-south-court-delivery-reconciliation',
+      matterId: MATTER_IDS.southCourtDelivery,
+      activityKinds: ['completed'] as const,
+      reportTitle: report.title,
+    };
+
+    const resolved = resolveChallengeTrigger(withReport, trigger);
+    expect(resolved?.primarySourceFact).toEqual({ kind: 'record', id: recordId });
+
+    expect(resolveChallengeTrigger(state, trigger)).toBeNull();
+
+    const noPattern = {
+      ...withReport,
+      opportunities: {
+        ...withReport.opportunities,
+        assignmentAggregates: {},
+        recentActivity: [],
+      },
+    };
+    expect(resolveChallengeTrigger(noPattern, trigger)).toBeNull();
   });
 
   it('rejects invalid candidate weights rather than falling back to nondeterministic choice', () => {
