@@ -155,38 +155,38 @@ The scenario remains fictional and does not reproduce a named excavated object o
 - [x] Every COM-01 evidence item identifies PHYSICAL, COPIED, or REPORTED at the point of examination; broader catalogue rollout remains tracked separately.
 - [x] The explanation is readable and accessible without skill checks or hover discovery.
 - [x] RECONSTRUCTED material is disclosed in a separate historical/context note.
-- [ ] The four labels are not used as reliability or quality ratings.
-- [ ] Provenance labels do not automatically determine assessment or outcome.
-- [ ] No invented quantities or numeral-system assumptions enter the evidence packet.
+- [x] The four labels are not used as reliability or quality ratings.
+- [x] Provenance labels do not automatically determine assessment or outcome.
+- [x] No invented quantities or numeral-system assumptions enter the new evidence packet.
 
 ### Supervisory assessment — approved
 
-- [ ] A correct, bounded comparison receives Defensible or Thorough, never Incomplete solely for declining to claim physical verification.
-- [ ] Thorough requires material completeness against authored requirements; Defensible is reserved for a correct bounded comparison with a non-material secondary omission; a material omission is Incomplete.
-- [ ] Utu-mansum's response assesses report usefulness and does not certify the underlying delivery or authorize release, acceptance, or blame.
-- [ ] Assessment explains evidence content, provenance, conclusion, and remaining uncertainty separately.
+- [x] A correct, bounded comparison receives Defensible or Thorough, never Incomplete solely for declining to claim physical verification.
+- [x] Thorough requires material completeness against authored requirements; Defensible is reserved for a correct bounded comparison with a non-material secondary omission; a material omission is Incomplete.
+- [x] Utu-mansum's response assesses report usefulness and does not certify the underlying delivery or authorize release, acceptance, or blame.
+- [x] Assessment explains evidence content, provenance, conclusion, and remaining uncertainty separately.
 - [x] Utu-mansum's positive reaction recognizes the usefulness of the bounded finding.
 - [x] The player is not penalized for refusing unsupported certainty or responsibility claims.
-- [ ] An incomplete report identifies the missing source/comparison/limitation.
-- [ ] An overreached report identifies the unsupported inference and offers a correction path.
+- [x] An incomplete report identifies the missing source/comparison/limitation.
+- [x] An overreached report identifies the unsupported inference and offers a correction path.
 - [x] Completing the player's Assignment does not imply that the underlying matter is closed.
-- [ ] No assessment category invents a delivery outcome, culprit, or institutional decision.
+- [x] No assessment category invents a delivery outcome, culprit, or institutional decision.
 
 ## 8. Production handoff boundary
 
-### 8.1 Provenance disclosure — APPROVED · READY FOR IMPLEMENTATION
+### 8.1 Provenance disclosure — APPROVED · IMPLEMENTED IN PR #131
 
-The Game Director has approved the provenance disclosure direction. Production is authorized to implement the approved classification and point-of-examination presentation without waiting for the supervisory-assessment proposal to be approved.
+The Game Director approved provenance disclosure independently of the supervisory-assessment decision. Production has implemented explicit PHYSICAL, COPIED, and REPORTED metadata and point-of-examination explanations for the new COM-01 activity and its compatibility-only legacy definition. Reconstructed context is displayed separately. Provenance is also retained in submitted Record source descriptions and shown alongside cited evidence content in the Closing Receipt.
 
-Production determines:
-- the evidence metadata type and compatibility strategy;
-- where provenance is rendered in the examination UI;
-- persistence and migration behavior, if any; and
-- automated tests for visibility, classification neutrality, and reconstructed-context separation.
+Production implementation decisions:
+- Optional authored discovery metadata plus a per-activity completeness validation flag.
+- Visible provenance label and explanation in the evidence examination UI.
+- No persisted state or save-envelope schema change. The old activity definition remains registered under its original ID for existing offers/saves; new offers use the revised activity ID. No migration is required.
+- Automated coverage for provenance completeness, classification neutrality, reconstructed-context separation, closeout disclosure, and legacy-save validation.
 
-### 8.2 Supervisory assessment — APPROVED · READY FOR IMPLEMENTATION
+### 8.2 Supervisory assessment — APPROVED · IMPLEMENTED IN PR #131
 
-The Game Director approved the supervisory-assessment behavior on 25 November 2026, including the material-completeness clarification: a complete, correctly bounded comparison is Thorough; a correct bounded comparison with a non-material secondary omission is Defensible; an omission that prevents a usable comparison or loses a material limitation is Incomplete. Production may integrate the rubric with the existing deterministic assessment and Closing Receipt, and test all four categories, including the boundary between Thorough, Defensible, and Incomplete.
+The Game Director approved the supervisory-assessment behavior on 25 November 2026, including the material-completeness clarification: a complete, correctly bounded comparison is Thorough; a correct bounded comparison with a non-material secondary omission is Defensible; an omission that prevents a usable comparison or loses a material limitation is Incomplete. Production has integrated these thresholds with the existing deterministic assessment and Closing Receipt. Focused tests cover all four categories, the Thorough/Defensible/Incomplete boundary, provenance neutrality, and the official's authority limits.
 
 Utu-mansum assesses the report's usefulness, not the truth or final disposition of the underlying delivery. He may receive and preserve the comparison and initiate/request a further check within his established authority. The report alone does not authorize acceptance/release, settle the delivery, or assign blame. Tests must verify that no assessment category silently performs those decisions.
 
