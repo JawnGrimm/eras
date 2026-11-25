@@ -223,7 +223,7 @@ describe('North-Bay Roof Inspection activity definition and engine', () => {
     expect(activity.provenanceDisclosureRequired).toBe(true);
     expect(activity.discoveries.map((item) => item.provenance?.classification)).toEqual(['REPORTED','PHYSICAL','COPIED','REPORTED']);
     expect(activity.discoveries.every((item) => !!item.provenance?.explanation.trim())).toBe(true);
-    expect(activity.historicalContextNote).toContain('fictional teaching reconstruction');
+    expect(activity.historicalContextNote).toContain('fictional teaching material');
     expect(activity.discoveries.map((item) => item.text).join(' ')).not.toMatch(/\b(?:vessels?|bundles?|measures?)\s+\d+|\d+\s+(?:vessels?|bundles?|measures?)\b/i);
     expect(validateAssignmentActivityDefinition(activity)).toEqual([]);
   });
