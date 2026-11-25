@@ -135,6 +135,7 @@ export function submitRubricAssignmentActivity(
       holder: { kind: 'person' as const, id: holder },
       subject: { kind: 'record' as const, id: recordId },
       basis: 'received-copy' as const, learnedDay: state.calendar.dayNumber, sourcePersonId: person.id,
+      assertion: { kind: 'fact' as const, text: 'Received a copy of the submitted assignment report.' }, assessments: [],
     })),
     {
       id: `knowledge-${offer.id}-day-${state.calendar.dayNumber}-institution` as KnowledgeEntryId,
