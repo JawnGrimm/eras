@@ -6,6 +6,8 @@ These records explain how the approved game is built and verified. They do not i
 
 ## Current records
 
+- [Production Execution Rules](PRODUCTION-EXECUTION-RULES.md) — build authority, escalation boundaries, branch discipline, test-and-integrate expectations, and concise reporting.
+
 - [Work Contribution Behavior Specification](WORK_CONTRIBUTION_BEHAVIOR_SPEC.md) — observable engineering requirements and acceptance scenarios for the owner-accepted contribution framework. This is not a schema or implementation decision.
 - [Work Contribution Architecture Decision](WORK_CONTRIBUTION_ARCHITECTURE_DECISION.md) — records the approved separate undertaking-owned ledger principle and compares it against the alternative; final schema and implementation details remain open.
 - [Work Contribution Step 1 Proposal](WORK_CONTRIBUTION_STEP_1_PROPOSAL.md) — proposed concrete identity/ledger types, registration transition, validation, save/restore behavior, migration alternatives, and acceptance tests; owner review pending, no runtime code.
