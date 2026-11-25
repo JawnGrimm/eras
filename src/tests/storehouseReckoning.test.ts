@@ -309,6 +309,7 @@ describe('Storehouse Reckoning introductory tutorial', () => {
     legacyEnvelope.schemaVersion = 2;
     delete legacyEnvelope.state.world.relationshipFamiliarityEpisodes;
     for (const targets of Object.values(legacyEnvelope.state.world.relationships as Record<string, any>)) for (const relationship of Object.values(targets as Record<string, any>) as any[]) relationship.dimensions.familiarity = 0;
+    for (const entry of Object.values(legacyEnvelope.state.world.knowledge) as any[]) { delete entry.assertion; delete entry.assessments; delete entry.legacy; }
     delete legacyEnvelope.state.dayClose;
     delete legacyEnvelope.state.opportunities.selectionSeed;
     delete legacyEnvelope.state.opportunities.occurrenceLedger;
