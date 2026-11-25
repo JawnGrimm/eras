@@ -76,7 +76,8 @@ export function isRelationshipFamiliarityEpisode(
     episode.interactionKind as string,
   )) return false;
   if (refs?.people && (!refs.people[episode.observerPersonId] || !refs.people[episode.subjectPersonId])) return false;
-  if (episode.matterId !== undefined && refs?.matters && !refs.matters[String(episode.matterId)]) return false;
+  if (episode.matterId !== undefined && (typeof episode.matterId !== 'string' || !episode.matterId.trim())) return false;
+  if (episode.matterId !== undefined && refs?.matters && !refs.matters[episode.matterId]) return false;
   const seen = new Set<string>();
   for (const source of episode.provenance) {
     if (!source || typeof source !== 'object' || Array.isArray(source)) return false;
