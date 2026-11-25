@@ -135,7 +135,6 @@ describe('character departure and succession lifecycle', () => {
     const institution = { id: institutionId, name: 'Eanna Precinct', responsibilities: [], authority: [authorityScope], standing: 50, activeMatters: [] };
     const former = initial.world.people[INITIAL_PERSON_ID];
     const candidate = initial.world.people[apprenticeId];
-    const formerScribal = getInitializedScribal(former)!;
     const candidateScribal = getInitializedScribal(candidate)!;
     const people = {
       ...initial.world.people,
