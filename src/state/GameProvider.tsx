@@ -77,7 +77,12 @@ export function initializeProductionSession(
       try {
         // Preserve the exact validated original bytes before replacing the primary slot.
         storage.setItem(ROLLBACK_SAVE_KEY, raw);
-        storage.setItem(SAVE_KEY, JSON.stringify(restored));
+        const migratedBytes = JSON.stringify(restored);
+        storage.setItem(SAVE_KEY, migratedBytes);
+        const confirmedBytes = storage.getItem(SAVE_KEY);
+        if (confirmedBytes !== migratedBytes || !restoreSave(confirmedBytes, workCatalog)) {
+          throw new Error('The migrated save could not be read back as a valid v4 envelope.');
+        }
       } catch {
         return {
           state: placeholderState(), loadStatus: 'read_error', revision: restored.revision,
