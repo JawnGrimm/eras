@@ -94,7 +94,7 @@ export function prepareTierBRecurringOccurrences(input: GameState): GameState {
       const occurrence = authoredOccurrence(day);
       const dispatchId = `record-tierb-recurring-day-${day}-dispatch` as RecordId;
       const receivingId = `record-tierb-recurring-day-${day}-receiving` as RecordId;
-      const summary = `Tier B ${occurrence.domain.replaceAll('_', ' ')}: ${occurrence.sourceSummary}`;
+      const summary = `Tier B ${occurrence.domain.replaceAll('_', ' ')} with ${occurrence.counterpartyName}: ${occurrence.quantitySummary} ${occurrence.sourceSummary}`;
       const event: WorldEvent = {
         id: eventId, dayNumber: day, summary,
         personIds: [STEWARD, RECEIVER, CARRIER, SENIOR, occurrence.counterpartyPersonId],
