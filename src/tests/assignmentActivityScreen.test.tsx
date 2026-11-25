@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { responsibilityClaimPreviewLabel } from '../components/AssignmentActivityScreen';
 import { assignmentReportForCloseout } from '../components/ClosingReceiptScreen';
+import { sealedVesselTextileConsignment } from '../content/assignments/eraIAnchors';
 import type { AssignmentOffer } from '../state/types';
 
 describe('authored responsibility-claim preview', () => {
@@ -43,7 +44,10 @@ describe('Assignment closeout report summary', () => {
     expect(assignmentReportForCloseout(offer)).toEqual({
       finding: 'The present impression differs from the household’s known sealing',
       responsibility: 'No accusation or individual fault assigned',
-      citedDiscoveries: ['Present closure impression', 'Sealing owner’s account'],
+      citedEvidence: [
+        { id: 'mar01-closure-impression', title: 'Present closure impression', content: '', provenance: undefined },
+        { id: 'mar01-owner-account', title: 'Sealing owner’s account', content: '', provenance: undefined },
+      ],
       limitations: [
         'The household recognizes the seal, but still needs to ask whether the person who showed it was sent',
         'No authorization copy was brought.',
@@ -56,4 +60,23 @@ describe('Assignment closeout report summary', () => {
     expect(assignmentReportForCloseout(undefined)).toBeNull();
     expect(assignmentReportForCloseout({ title: 'Legacy', activityId: 'missing' } as unknown as AssignmentOffer)).toBeNull();
   });
+  it('keeps COM-01 evidence content, provenance, conclusion, and limitations distinct in closeout', () => {
+    const report = assignmentReportForCloseout({
+      activityId: sealedVesselTextileConsignment.id,
+      activityProgress: { draft: {
+        finding: 'bounded_tag_comparison',
+        responsibilityClaim: 'none',
+        citedDiscoveryIds: ['com01-tag','com01-receipt','com01-handover-account'],
+        limitations: [],
+        selectedLimitationIds: ['original_entry_unavailable','handover_not_witnessed','no_release_authority'],
+        recommendations: [],
+      } },
+    } as unknown as AssignmentOffer);
+    expect(report?.citedEvidence.map((item) => item.provenance?.classification)).toEqual(['PHYSICAL','COPIED','REPORTED']);
+    expect(report?.citedEvidence[0].content).toContain('pierced lengthwise');
+    expect(report?.citedEvidence[1].provenance?.explanation).toContain('original receiving entry');
+    expect(report?.finding).toContain('later custody is not established');
+    expect(report?.limitations.join(' ')).toContain('not independently witnessed');
+  });
+
 });
