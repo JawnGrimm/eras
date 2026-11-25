@@ -746,7 +746,7 @@ function migrateV2Envelope(value: Record<string, unknown>, raw: string): import(
       legacy: true as const,
     })),
   ];
-  const state: GameState = {
+  const state = {
     ...legacyState,
     dayClose: {
       phase: 'workday_open',
