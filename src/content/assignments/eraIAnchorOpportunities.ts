@@ -34,7 +34,7 @@ export const ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS: readonly AssignmentOpportunit
       purpose:'Establish which entries agree, identify any limited discrepancy, and preserve what the seal observation cannot establish.',
       responsibility:['The apprentice compares and reports; the receiving official or steward decides whether to recount or proceed.'],
       authority:'The report does not accuse the carrier, decide ownership, or authorize release.',
-      provenance:['Uruk IV tags, sealing, warehouse entries/exits, and vessel/textile movement are attested; the specific lot and discrepancy are PROVISIONAL authored reconstruction.'],
+      provenance:['Uruk IV records include tags, sealings, entries and exits, and movement of vessels and textiles. The figures and discrepancy in this consignment are the case before you.'],
     },
     requiredSkills:{},difficulty:'demanding',
     estimatedTotalAp:tierA.estimatedTotalAp['ERA1-COM-01'],
