@@ -140,7 +140,7 @@ describe('world, relationships, institutions and records', () => {
     const invalidKnowledge = transitionGame(state, { type: 'GRANT_KNOWLEDGE', knowledge: {
       id: 'knowledge-missing' as KnowledgeEntryId, holder: { kind: 'person', id: INITIAL_PERSON_ID },
       subject: { kind: 'event', id: 'event-not-created' as EventId }, basis: 'testimony', learnedDay: 1,
-    } });
+    } as any });
     expect(invalidKnowledge.state).toBe(state);
     expect(invalidKnowledge.feedback?.code).toBe('knowledge-invalid');
     const malformed = structuredClone(state);
