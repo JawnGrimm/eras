@@ -124,7 +124,7 @@ The report becomes a Record that can inform subsequent institutional work. A lat
 
 The initial COM-01 packet has been reauthored in `src/content/assignments/eraIAnchors.ts` to match the approved instructional sequence:
 
-- **PHYSICAL:** a small baked-clay tag, pierced lengthwise and bearing a small number of signs, is directly available for examination. No sign reading, commodity, quantity, or transaction is invented.
+- **PHYSICAL:** a small baked-clay tag, pierced lengthwise and bearing signs, is directly available for examination. No sign reading, commodity, quantity, or transaction is invented.
 - **COPIED:** the player examines a documentary copy describing the tag; the original receiving entry is explicitly unavailable.
 - **REPORTED:** Enlil-kisu gives the carrier's account that the tag remained with the consignment through handover. The player did not witness this and the account is not treated as independent verification.
 - The player compares the tag's visible form with the description in the copied entry. The comparison does not establish later custody, the contents of the consignment, or the outcome of delivery.
