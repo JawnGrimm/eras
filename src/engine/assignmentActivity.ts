@@ -157,6 +157,7 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
     id: `knowledge-${offer.id}-day-${state.calendar.dayNumber}-${holder.kind}-${holder.id}` as KnowledgeEntryId,
     holder, subject: { kind: 'record' as const, id: recordId }, basis: 'received-copy' as const,
     learnedDay: state.calendar.dayNumber, sourcePersonId: state.player.currentCharacterId,
+    assertion: { kind: 'fact' as const, text: 'Received a copy of the submitted roof inspection report.' }, assessments: [],
   }));
   const institution = state.world.institutions[STOREHOUSE];
   const person = state.world.people[state.player.currentCharacterId];
