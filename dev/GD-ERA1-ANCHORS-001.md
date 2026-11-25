@@ -39,57 +39,49 @@ Production schema mapping is pending. The headings below are semantic authoring 
 
 ---
 
-## 3. Commercial — Sealed Vessel and Textile Consignment
+## 3. Commercial — Receiving-Tag and Handover Comparison
 
 **Anchor ID:** ERA1-COM-01  
-**Core situation:** A consignment is being received or checked within an institutionally mediated movement of goods. The evidence may reconcile, reveal a limited custody discrepancy, or leave a material gap. A receiving foreman wants the goods cleared before the day's work closes; a recorder wants a defensible account before accepting responsibility. Their urgency is real, but neither person's preferred conclusion substitutes for the evidence.
+**Core situation:** Utu-mansum needs a source-bounded comparison before the receiving work moves on. A physical clay tag is available; a documentary copy describes a tag of that form; Enlil-kisu gives the carrier's account that the tag remained with the goods through handover. The player's task is to compare what can be examined and preserve what remains reported or unknown. The assignment does not establish the contents, complete custody, or final disposition of a delivery.
 
 ### Historical grounding and confidence
-- **ATTESTED:** Uruk IV administrative records include commodity quantities, warehouse entries/exits, tags, and sealing. Archaeological and textual evidence supports movement of textiles and vessels within and between cities.
-- **INFERRED:** An institutionally mediated receipt/custody review is a defensible playable setting.
-- **PROVISIONAL:** A broken-seal or tag/quantity discrepancy is the authored incident; the exact junior-scribe procedure and escalation path are game reconstruction.
-- **Not established:** The sources do not authorize a universal consignment form, a private merchant house, a standardized carrier contract, or the apprentice's authority to release or detain goods.
+- **ATTESTED:** Perforated clay tags are documented in Uruk IV–III contexts. Published Uruk examples include small tags bearing signs; one Uruk IV example is catalogued as containing an administrator's name. Tags could be attached to goods. The exact function and interpretation of individual examples remain object- and context-specific.
+- **INFERRED:** A tag, a receiving-entry copy, and a carrier's reported account can form a plausible teaching situation for distinguishing physical examination, documentary copying, and testimony.
+- **FICTIONAL RECONSTRUCTION:** The specific tag, receiving-entry copy, handover statement, and participants' interaction are authored for play. They are not a transcription of a named excavated object or a claim about a documented Uruk transaction.
+- **Not established:** The sources do not establish this exact receiving workflow, a standardized consignment form, a universal carrier contract, the exact custody chain, or the apprentice's authority to accept/release goods.
 
 ### Situation and participants
-Goods arrive or are presented for receipt. A receiving worker or responsible recorder asks that the tablet/tag information be checked against the physical or reported consignment. The named counterparty and location must come from the active matter/content instance; do not invent a permanent trade network or assume a long-distance origin.
+Utu-mansum asks for the tag and receiving-entry copy to be compared before the receiving work proceeds. Enlil-kisu says the tag remained with the consignment until it reached the receiving court. His account is presented as reported information; the player did not witness the handover. Neither urgency nor the carrier's account changes what the physical object and copy establish.
 
 ### Player access and authority
-The apprentice is assigned the comparison because they can read/compare the relevant entries under supervision. They may inspect the presented tag/seal evidence, compare recorded quantities and entries, identify what agrees or conflicts, and report uncertainty. They may not accuse the carrier, decide ownership, authorize release, or alter the authoritative record.
+The player directly examines the physical tag, examines a documentary copy of the receiving entry, and may ask Enlil-kisu for his handover account. The original receiving entry is not available. The player compares only the visible features and description present in those sources. No sign is transcribed or interpreted, and no commodity, quantity, or transaction is inferred. The player does not independently verify the handover, accept or release goods, amend an authoritative record, or assign responsibility.
 
 ### Evidence packet
-- The relevant tag or tag transcription, with source identity.
-- The associated seal/custody observation, if the authored occurrence has one.
-- The quantity/commodity record.
-- The receiving or warehouse entry used for comparison.
-- A short provenance note identifying which evidence is physical, copied, reported, or reconstructed.
+1. **PHYSICAL:** a small baked-clay tag pierced lengthwise and bearing signs, directly available for examination. No sign reading is supplied.
+2. **COPIED:** a documentary copy describing an accompanying pierced clay tag bearing signs. The original receiving entry is not available for direct examination.
+3. **REPORTED:** Enlil-kisu's statement that the tag remained with the consignment through handover. The player did not witness this.
+4. **RECONSTRUCTED context:** a separate historical note explains that the authored tag and transaction are a fictional teaching reconstruction. It is not another ancient evidence item.
 
-Do not guarantee that every instance contains all four evidence types. Missing evidence is meaningful only when the authored matter explicitly identifies the expected source.
+No authored commodity quantities, counts, dates, measurements, numeral-system assumptions, or invented sign readings enter this instructional evidence packet.
 
 ### Playable work and choices
-1. Identify the commodity and quantity notation actually used; do not convert unlike systems.
-2. Compare tag identity and recorded quantity with the receiving entry.
-3. Compare seal/custody evidence only to the extent the instance supplies it.
-4. Classify the result as consistent, inconsistent, or insufficient evidence.
-5. Submit a concise receipt note: confirm a clean match, identify a specific discrepancy, or state why the evidence cannot yet support clearance.
+1. Examine the physical tag and see its PHYSICAL provenance disclosure.
+2. Examine the receiving-entry copy and see its COPIED disclosure.
+3. Review the handover account and see its REPORTED disclosure.
+4. Compare the physical tag's visible form with the description in the copy.
+5. Record a bounded finding, cite the sources, and state what cannot be verified.
+6. Submit the report for Utu-mansum's supervisory assessment.
 
-Judgment choices:
-- Confirm the receipt when the tag, custody evidence, and quantity entry genuinely agree.
-- Record a limited mismatch and recommend the specific check still needed.
-- Recommend holding the decision because a key source is absent, while explaining the cost of delay.
-- Certify clearance under pressure despite a visible conflict, or accuse the carrier without evidence.
-
-The instance should support at least one clean-reconciliation outcome and one pressured-discrepancy outcome across its authored variants. The foreman's request to clear the goods before dusk should be presented as human pressure, not proof of wrongdoing.
+A correct, materially complete comparison is **Thorough** even though it does not claim that the handover was witnessed or the delivery settled. A correct bounded comparison that omits the non-material secondary handover detail is **Defensible**. A missing comparison or material limitation is **Incomplete**. Treating the report as proof of complete delivery or assigning blame is **Overreached**.
 
 ### Deliverable and evaluation
-**Deliverable:** A comparison report linking each relevant source and stating the agreement, mismatch, or missing evidence.
+**Deliverable:** A comparison report that links the physical tag and copied receiving entry, distinguishes the carrier's report, and preserves the unavailable original and unwitnessed handover as limitations.
 
-Careful work can produce either a justified clean receipt or a precise exception report; accuracy is not synonymous with finding fault. Partial work reaches a plausible conclusion but omits provenance or leaves a source unexamined. Careless work invents a quantity, treats a broken seal as proof of theft, or certifies a conflict away.
-
-### Outcomes and recovery
-A responsible recorder or custodian reviews the report and decides whether to verify the goods, seek another record, request a recount, or proceed. The player's report may prevent an unsupported certification; it does not itself decide release or liability. If the apprentice overstates the evidence, a supervisor may require a corrected report or additional review. Do not force a punishment or presume guilt.
+Utu-mansum assesses whether the report is useful and properly bounded. He may retain the sources and initiate/request a further check within his authority. His positive response does not certify the underlying event, authorize acceptance/release, settle the delivery, or assign blame. Completing the player's Assignment completes only the player's current task.
 
 ### Recurrence boundary
-A new occurrence requires a materially new consignment/custody matter with its own source evidence, counterparty, commodity-compatible quantity notation, and receiving context. Varying only a name or number is not new content. Do not combine unrelated tags, seals, commodities, or institutions.
+A later occurrence requires a materially new matter and its own source evidence. Do not create apparent novelty by changing a tag description, inventing sign readings or quantities, or repeating this tutorial sequence as a generic template. Other commercial Assignments may use quantity records where historically supported and explicitly authored; this COM-01 instructional packet does not.
+
 
 ---
 
