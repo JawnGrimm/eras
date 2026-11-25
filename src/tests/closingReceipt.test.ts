@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { applyClosingAssessment, CLOSING_RECEIPT_SCHEDULE } from '../engine/closingReceipt';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
 import { getInitializedScribal } from '../state/scribalState';
+import { deriveRelationshipFamiliarityStage } from '../state/relationshipFamiliarity';
+import { createSaveEnvelope, isValidSaveEnvelope } from '../state/saveEnvelope';
 import type { AssignmentAssessmentCategory } from '../state/types';
 
 const institutionId = 'institution-uruk-temple-storehouse' as never;
@@ -36,6 +38,13 @@ describe('shared Closing Receipt assessment schedule', () => {
     expect(getInitializedScribal(thorough.state.world.people[INITIAL_PERSON_ID])?.institutionalStanding[institutionId]).toBe(51);
     expect(thorough.state.world.relationships[receiverId]?.[INITIAL_PERSON_ID]?.dimensions).toMatchObject({ trust: 52, respect: 51 });
     expect(thorough.state.world.relationships[INITIAL_PERSON_ID]?.[receiverId]).toBeUndefined();
+    const episodeId = Object.keys(thorough.state.world.relationshipFamiliarityEpisodes ?? {})[0];
+    expect(episodeId).toBeDefined();
+    expect(deriveRelationshipFamiliarityStage(thorough.state.world.relationshipFamiliarityEpisodes ?? {}, INITIAL_PERSON_ID, receiverId)).toBe('acquainted');
+    expect(deriveRelationshipFamiliarityStage(thorough.state.world.relationshipFamiliarityEpisodes ?? {}, receiverId, INITIAL_PERSON_ID)).toBeNull();
+    const interactionEvent = Object.values(thorough.state.world.events).find((event) => event.summary.includes('Closing Receipt was returned'));
+    expect(interactionEvent?.personIds).toEqual([INITIAL_PERSON_ID, receiverId]);
+    expect(isValidSaveEnvelope(createSaveEnvelope(thorough.state, 1))).toBe(true);
     expect(thorough.receipt.deltas).toEqual({
       currency: 10, provisions: 1, careerXp: 12, judgment: 3,
       institutionalStanding: 1, trust: 2, respect: 1,
@@ -45,12 +54,13 @@ describe('shared Closing Receipt assessment schedule', () => {
     expect(thorough.receipt.institutionName).toBe('Temple Storehouse');
   });
 
-  it('does not alter quality or create a relationship for an Incomplete assessment', () => {
+  it('keeps sentiment unchanged for an Incomplete assessment while recording the substantive interaction', () => {
     const incomplete = apply('Incomplete');
     const scribal = getInitializedScribal(incomplete.state.world.people[INITIAL_PERSON_ID])!;
     expect(scribal.professionalReputation.judgment).toBe(50);
     expect(scribal.institutionalStanding[institutionId]).toBeUndefined();
     expect(incomplete.state.world.relationships[receiverId]?.[INITIAL_PERSON_ID]).toBeUndefined();
+    expect(deriveRelationshipFamiliarityStage(incomplete.state.world.relationshipFamiliarityEpisodes ?? {}, INITIAL_PERSON_ID, receiverId)).toBe('acquainted');
     expect(incomplete.receipt.deltas).toMatchObject({ careerXp: 6, judgment: 0, institutionalStanding: 0, trust: 0, respect: 0 });
   });
 
