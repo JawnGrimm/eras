@@ -152,6 +152,7 @@ export function submitNorthBayPostExecutionInspection(
     basis: 'received-copy' as const,
     learnedDay: state.calendar.dayNumber,
     sourcePersonId: playerId,
+    assertion: { kind: 'fact' as const, text: 'Received a copy of the independent post-execution inspection report.' }, assessments: [],
   }));
   const institution = state.world.institutions[STOREHOUSE];
   const person = state.world.people[playerId];
