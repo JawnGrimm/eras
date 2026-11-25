@@ -692,7 +692,6 @@ function isValidV3GameState(value: unknown, workCatalog: Readonly<Record<string,
 }
 
 function isValidV4GameState(value: unknown, workCatalog: Readonly<Record<string, WorkDefinition<any>>>): value is GameState {
-  if (!isValidGameState(value, workCatalog, 4) || !isObject(value)) return false;
   return isValidV3GameState(value, workCatalog, 4);
 }
 
