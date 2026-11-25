@@ -773,8 +773,7 @@ function migrateV3Envelope(value: import('./types').LegacySaveEnvelopeV3): SaveE
     fromId,
     Object.fromEntries(Object.entries(targets).map(([toId, relationship]) => {
       if (!relationship) return [toId, relationship];
-      const dimensions = { ...relationship.dimensions } as Record<string, number>;
-      delete dimensions.familiarity;
+      const { familiarity: _legacyFamiliarity, ...dimensions } = relationship.dimensions as typeof relationship.dimensions & { familiarity?: number };
       return [toId, { ...relationship, dimensions }];
     })),
   ]));
@@ -1081,7 +1080,7 @@ export function restoreSave(raw: string | null, workCatalog: Readonly<Record<str
     }
     if (parsed.schemaVersion === 3) {
       if (!isValidV3SaveEnvelope(parsed, workCatalog)) return null;
-      const migratedV4 = migrateV3Envelope(parsed as import('./types').LegacySaveEnvelopeV3);
+      const migratedV4 = migrateV3Envelope(parsed as unknown as import('./types').LegacySaveEnvelopeV3);
       return isValidSaveEnvelope(migratedV4, workCatalog) ? migratedV4 : null;
     }
     return isValidSaveEnvelope(parsed, workCatalog) ? parsed : null;
