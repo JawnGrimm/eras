@@ -13,10 +13,12 @@ class MemoryStorage implements ProductionStorage {
   values = new Map<string, string>();
   failWrites = false;
   corruptSaveWrites = false;
+  corruptRollbackWrites = false;
   getItem(key: string): string | null { return this.values.get(key) ?? null; }
   setItem(key: string, value: string): void {
     if (this.failWrites) throw new Error('Quota exceeded');
-    this.values.set(key, this.corruptSaveWrites && key === SAVE_KEY ? '{"schemaVersion":4}' : value);
+    this.values.set(key, this.corruptSaveWrites && key === SAVE_KEY ? '{"schemaVersion":4}'
+      : this.corruptRollbackWrites && key === ROLLBACK_SAVE_KEY ? 'corrupted rollback bytes' : value);
   }
 }
 
@@ -155,6 +157,26 @@ describe('GameProvider production persistence', () => {
     expect(game.needsCharacterCreation).toBe(false);
     expect(result.feedback?.code).toBe('save-load-confirmation-required');
     expect(storage.getItem(SAVE_KEY)).toBe(legacyRaw);
+  });
+
+  it('does not overwrite a legacy primary save unless the exact rollback bytes are confirmed', () => {
+    const storage = new MemoryStorage();
+    const state = validSavedState();
+    const legacyState = structuredClone(state) as unknown as Record<string, any>;
+    delete legacyState.world.relationshipFamiliarityEpisodes;
+    for (const targets of Object.values(legacyState.world.relationships) as any[]) for (const relationship of Object.values(targets) as any[]) relationship.dimensions.familiarity = 0;
+    const legacyRaw = JSON.stringify({
+      schemaVersion: 3, gameVersion: '0.1.0', revision: 11,
+      savedAt: '2026-11-22T12:00:00.000Z', state: legacyState,
+    });
+    storage.setItem(SAVE_KEY, legacyRaw);
+    storage.corruptRollbackWrites = true;
+
+    const game = renderProvider(storage);
+
+    expect(game.loadStatus).toBe('read_error');
+    expect(storage.getItem(SAVE_KEY)).toBe(legacyRaw);
+    expect(storage.getItem(ROLLBACK_SAVE_KEY)).not.toBe(legacyRaw);
   });
 
   it('keeps the exact legacy rollback when the v4 write cannot be confirmed by readback', () => {
