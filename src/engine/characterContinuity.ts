@@ -153,10 +153,20 @@ export function transitionCharacterContinuity(state: GameState, action: Continui
         ? { ...offer, assigneePersonId: formerId }
         : offer,
     ]));
+    const activeWorkId = state.works.activeWorkId;
+    const activeWorkDefinition = activeWorkId ? workCatalog[activeWorkId] : undefined;
+    const activeWorkProgress = activeWorkId ? state.works.progress[activeWorkId] : undefined;
+    const closesPersonalWorkSegment = action.departureKind === 'death' && !!activeWorkId
+      && activeWorkDefinition?.kind === 'work' && activeWorkProgress?.status === 'active';
     const departed: GameState = {
       ...state,
       world: { ...state.world, people },
       opportunities: { ...state.opportunities, assignments },
+      works: closesPersonalWorkSegment ? { ...state.works,
+        contributionSegments: (state.works.contributionSegments ?? []).map((segment) =>
+          segment.workId === activeWorkId && segment.personId === formerId && segment.status === 'open'
+            ? { ...segment, status: 'closed' as const, endedDay: state.calendar.dayNumber, closureReason: 'death' as const } : segment) }
+        : state.works,
     };
     const candidates = rankSuccessorCandidates(departed);
     let status: 'awaiting_selection' | 'no_successor' = 'awaiting_selection';
