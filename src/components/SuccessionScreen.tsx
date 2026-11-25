@@ -30,7 +30,12 @@ function RelationshipView({ relationship, fromName, toName, familiarityStage, fa
       </div>)}
       {familiarityStage && <div><dt className="text-xs text-stone-500">Personal familiarity</dt><dd className="text-sm font-semibold capitalize">{familiarityStage}</dd></div>}
     </dl>
-    {familiarityEpisodes.length > 0 && <p className="mt-2 text-xs text-stone-600">{familiarityEpisodes.length} provenanced familiarity {familiarityEpisodes.length === 1 ? 'episode' : 'episodes'} recorded for this direction.</p>}
+    {familiarityEpisodes.length > 0 && <details className="mt-2 border-t border-stone-200 pt-2">
+      <summary className="cursor-pointer text-xs font-semibold text-stone-600">Familiarity evidence ({familiarityEpisodes.length})</summary>
+      <ol className="mt-2 space-y-1 text-xs text-stone-600">{familiarityEpisodes.map((episode) => <li key={episode.id}>
+        Day {episode.dayNumber} · {episode.stageContribution} · {episode.acquisitionMode.replace(/_/g, ' ')} · {episode.provenance.map((source) => `${source.kind} ${source.id}`).join('; ')}
+      </li>)}</ol>
+    </details>}
     {relationship.history.length > 0 && <div className="mt-3 border-t border-stone-200 pt-2">
       <p className="text-xs font-semibold text-stone-600">Relationship history</p>
       <ul className="mt-1 space-y-1 text-xs text-stone-600">{relationship.history.map((entry) =>
