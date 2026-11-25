@@ -165,7 +165,7 @@ describe('Eanna Provisioning Undertaking', () => {
       events: Object.fromEntries(Object.entries(withoutWork.world.events).filter(([id]) => id !== EANNA_ALLOCATION_EVENT_ID)),
       matters: Object.fromEntries(Object.entries(withoutWork.world.matters).filter(([id]) => id !== EANNA_PROVISIONING_MATTER_ID)),
       institutions: Object.fromEntries(Object.entries(withoutWork.world.institutions).map(([id, institution]) => [id, { ...institution, activeMatters: institution.activeMatters.filter((matterId) => matterId !== EANNA_PROVISIONING_MATTER_ID) }])),
-    }), records: { ...withoutWork.records, entries: Object.fromEntries(Object.entries(withoutWork.records.entries).filter(([id]) => id !== EANNA_SUMMARY_RECORD_ID)) } };
+    }, records: { ...withoutWork.records, entries: Object.fromEntries(Object.entries(withoutWork.records.entries).filter(([id]) => id !== EANNA_SUMMARY_RECORD_ID)) } };
     console.log('EANNA_SAVE_DIAGNOSTIC', {
       withoutWork: isValidGameState(withoutWork, INITIAL_WORK_CATALOG),
       withoutAllEanna: isValidGameState(withoutAllEanna, INITIAL_WORK_CATALOG),
