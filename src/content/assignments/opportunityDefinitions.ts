@@ -114,4 +114,35 @@ export const URUK_ASSIGNMENT_OPPORTUNITY_DEFINITIONS: readonly AssignmentOpportu
       deliveryChannels: [{ kind: 'baseline_reach', explanation: 'Ur-Nanna has asked a storehouse scribe to document the awning before further loading.' }],
     },
   },
-];
+
+  {
+    matterKind: 'tier_b_recurring_occurrence',
+    slug: 'tierb-recurring',
+    offer: {
+      activityId: 'activity-tierb-recurring-institutional-check',
+      title: 'Recurring Institutional Check',
+      description: 'Compare a newly dated institutional occurrence with its source and receiving records. Preserve the actual commodity, unit, and result; do not assume a discrepancy or assign responsibility.',
+      employer: { kind: 'institution', id: 'institution-uruk-temple-storehouse' as import('../../state/ids').InstitutionId },
+      category: 'tier_b_institutional_check',
+      context: {
+        what: 'Compare the source and receiving/check records for a distinct, dated Tier B institutional occurrence.',
+        who: ['Ur-Nanna, Storehouse Steward', 'Utu-mansum, Receiving Official', 'Shuruppak-ilu, Senior Scribe'],
+        quantity: 'The dated source facts and compatible commodity/unit are shown in the occurrence dossier.',
+        when: 'During the current storehouse workday, following the recorded occurrence.',
+        where: 'Temple Storehouse, Uruk; use the location attached to the source event.',
+        from: 'A distinct dated source event and its source/dispatch and receiving/check records.',
+        to: 'Shuruppak-ilu for review and qualified carry-forward.',
+        purpose: 'Reconcile clean records or document a bounded difference/condition without inventing a cause.',
+        responsibility: ['The scribe compares and reports; institutional officials retain account, custody, and disposition authority.'],
+        authority: 'Reporting and recommendation only. No authority to amend the institutional account, alter custody, or assign liability.',
+        provenance: ['A deterministic Tier B occurrence grounded in a dated Event and distinct source Records.'],
+      },
+      requiredSkills: {},
+      difficulty: 'routine',
+      estimatedTotalAp: ERA_I_ASSIGNMENT_PARAMETERS.tierB.estimatedTotalAp.southCourtDelivery,
+      compensation: { money: ERA_I_ASSIGNMENT_PARAMETERS.tierB.currency, provisions: ERA_I_ASSIGNMENT_PARAMETERS.tierB.defaultProvisions },
+      careerXpReward: ERA_I_ASSIGNMENT_PARAMETERS.tierB.baseCareerXp,
+      deliveryChannels: [{ kind: 'baseline_reach', explanation: 'The Storehouse has a dated source occurrence requiring a bounded comparison; this is ordinary shared-pool institutional work.' }],
+    },
+  },
+];\n
