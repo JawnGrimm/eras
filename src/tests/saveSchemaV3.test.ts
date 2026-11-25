@@ -144,14 +144,19 @@ describe('schema v4 migration and state validation', () => {
 
   it('requires a canonical active settlement identity and valid occurrence provenance in v3', () => {
     const state = createInitialGameState();
+    const legacyV3State = structuredClone(state) as unknown as Record<string, any>;
+    for (const targets of Object.values(legacyV3State.world.relationships) as any[]) {
+      for (const relationship of Object.values(targets) as any[]) relationship.dimensions.familiarity = 0;
+    }
+    delete legacyV3State.world.relationshipFamiliarityEpisodes;
     const envelope = {
       schemaVersion: 3,
       gameVersion: '0.1.0',
       revision: 0,
       savedAt: '2026-11-24T12:00:00.000Z',
       state: {
-        ...state,
-        dayClose: { ...state.dayClose, phase: 'interlude_open', pendingSettlementId: 'era-1:2' },
+        ...legacyV3State,
+        dayClose: { ...legacyV3State.dayClose, phase: 'interlude_open', pendingSettlementId: 'era-1:2' },
       },
     };
     expect(isValidV3SaveEnvelope(envelope)).toBe(false);
@@ -159,9 +164,9 @@ describe('schema v4 migration and state validation', () => {
     const invalidOccurrence = {
       ...envelope,
       state: {
-        ...state,
+        ...legacyV3State,
         opportunities: {
-          ...state.opportunities,
+          ...legacyV3State.opportunities,
           occurrenceLedger: [{
             scenarioId: 'scenario-without-source',
             occurrenceKey: 'occurrence-without-source',
