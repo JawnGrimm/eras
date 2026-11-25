@@ -176,6 +176,7 @@ describe('world, relationships, institutions and records', () => {
         id: id as KnowledgeEntryId, holder: { kind: 'person', id: holderId },
         subject: { kind: 'record', id: report.id }, basis: 'received-copy', learnedDay: 1,
         sourcePersonId: INITIAL_PERSON_ID,
+        assertion: { kind: 'fact' as const, text: 'Received a copy of the relevant maintenance report.' }, assessments: [],
       } });
       expect(granted.feedback?.code).toBe('knowledge-granted');
       state = granted.state;
@@ -376,6 +377,7 @@ describe('world, relationships, institutions and records', () => {
       id: 'knowledge-referral-report' as KnowledgeEntryId,
       holder: { kind: 'person', id: actorId }, subject: { kind: 'record', id: report.id },
       basis: 'received-copy', learnedDay: 1, sourcePersonId: INITIAL_PERSON_ID,
+        assertion: { kind: 'fact' as const, text: 'Received a copy of the relevant maintenance report.' }, assessments: [],
     } });
     expect(knowledge.feedback?.code).toBe('knowledge-granted');
     state = knowledge.state;
@@ -428,6 +430,7 @@ describe('world, relationships, institutions and records', () => {
       id: 'knowledge-delivery-report-utu' as KnowledgeEntryId,
       holder: { kind: 'person', id: actorId }, subject: { kind: 'record', id: report.id },
       basis: 'received-copy', learnedDay: 1, sourcePersonId: INITIAL_PERSON_ID,
+        assertion: { kind: 'fact' as const, text: 'Received a copy of the relevant maintenance report.' }, assessments: [],
     } });
     expect(knowledge.feedback?.code).toBe('knowledge-granted');
     state = knowledge.state;
