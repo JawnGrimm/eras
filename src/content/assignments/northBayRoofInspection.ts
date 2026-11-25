@@ -319,11 +319,11 @@ export function validateAssignmentActivityDefinition(definition: AssignmentActiv
   }
   return issues;
 }
-import { ERA_I_ANCHOR_ACTIVITY_CATALOG } from './eraIAnchors';
+import { ERA_I_ANCHOR_ACTIVITY_CATALOG, legacySealedVesselTextileConsignment } from './eraIAnchors';
 import { ERA_I_COMMERCIAL_FAMILY_ACTIVITY_CATALOG } from './eraICommercialFamilies';
 import { materialNotAsDescribed } from './eraICommercialMartial';
 
-export const ASSIGNMENT_ACTIVITY_CATALOG: Record<string, AssignmentActivityDefinition> = { [NORTH_BAY_ACTIVITY_ID]: northBayRoofInspection, [NORTH_BAY_POST_EXECUTION_ACTIVITY_ID]: northBayPostExecutionInspection, ...URUK_ASSIGNMENT_ACTIVITY_CATALOG, ...ERA_I_ANCHOR_ACTIVITY_CATALOG, ...ERA_I_COMMERCIAL_FAMILY_ACTIVITY_CATALOG, ...ERA_I_MARTIAL_FAMILY_ACTIVITY_CATALOG, [materialNotAsDescribed.id]: materialNotAsDescribed } as const;
+export const ASSIGNMENT_ACTIVITY_CATALOG: Record<string, AssignmentActivityDefinition> = { [NORTH_BAY_ACTIVITY_ID]: northBayRoofInspection, [NORTH_BAY_POST_EXECUTION_ACTIVITY_ID]: northBayPostExecutionInspection, ...URUK_ASSIGNMENT_ACTIVITY_CATALOG, ...ERA_I_ANCHOR_ACTIVITY_CATALOG, [legacySealedVesselTextileConsignment.id]: legacySealedVesselTextileConsignment, ...ERA_I_COMMERCIAL_FAMILY_ACTIVITY_CATALOG, ...ERA_I_MARTIAL_FAMILY_ACTIVITY_CATALOG, [materialNotAsDescribed.id]: materialNotAsDescribed } as const;
 
 export function validateAssignmentActivityProgress(definition: AssignmentActivityDefinition, value: unknown): value is AssignmentActivityProgress {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
