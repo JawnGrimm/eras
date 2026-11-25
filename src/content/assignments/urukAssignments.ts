@@ -237,7 +237,7 @@ export const southLoadingAwningInspection = activity({
 
 export const tierBRecurringInstitutionalCheck = activity({
   id: 'activity-tierb-recurring-institutional-check',
-  title: 'Recurring Institutional Check',
+  title: 'Dated Tally Check',
   submissionApCost: 1,
   participants: [people.steward, people.receiver, people.senior, people.carrier],
   discoveries: [
@@ -252,7 +252,7 @@ export const tierBRecurringInstitutionalCheck = activity({
   ],
   interpretationRules: [],
   reportSchema: {
-    title: 'Recurring institutional check',
+    title: 'Dated tally comparison',
     responsibilityLabel: 'Responsibility claim',
     findings: [
       { id: 'records_reconcile', label: 'The figures agree when each commodity and unit is kept separate' },
@@ -296,7 +296,7 @@ export const tierBRecurringInstitutionalCheck = activity({
       Overreached: 'Shuruppak-ilu sets the note aside. “The records do not name a culprit. We will not write one into them.”',
     },
   },
-  submissionNote: 'This dated check concerns one institutional occurrence. The apprentice compares and reports; the responsible official decides whether to change an account or the custody of goods.',
+  submissionNote: 'This report concerns the dated records before you. You compare and report; the responsible official decides whether to change the account or the custody of goods.',
 });
 
 export const URUK_ASSIGNMENT_ACTIVITY_CATALOG = {
