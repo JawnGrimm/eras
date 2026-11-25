@@ -54,7 +54,7 @@ describe('ranked character continuity candidates', () => {
         relationships: {
           [INITIAL_PERSON_ID]: {
             [personalId]: {
-              dimensions: { trust: 70, respect: 60, affection: 50, resentment: 0, rivalry: 0, familiarity: 80 },
+              dimensions: { trust: 70, respect: 60, affection: 50, resentment: 0, rivalry: 0 },
               history: [],
             },
           },
@@ -82,7 +82,7 @@ describe('ranked character continuity candidates', () => {
         relationships: {
           [personalId]: {
             [INITIAL_PERSON_ID]: {
-              dimensions: { trust: 40, respect: 40, affection: 20, resentment: 0, rivalry: 0, familiarity: 30 },
+              dimensions: { trust: 40, respect: 40, affection: 20, resentment: 0, rivalry: 0 },
               history: [],
             },
           },
@@ -107,7 +107,7 @@ describe('ranked character continuity candidates', () => {
         relationships: {
           [INITIAL_PERSON_ID]: {
             [intermediaryId]: {
-              dimensions: { trust: 40, respect: 40, affection: 20, resentment: 0, rivalry: 0, familiarity: 30 },
+              dimensions: { trust: 40, respect: 40, affection: 20, resentment: 0, rivalry: 0 },
               history: [],
             },
           },
@@ -140,11 +140,11 @@ describe('ranked character continuity candidates', () => {
         relationships: {
           [INITIAL_PERSON_ID]: {
             [personalId]: {
-              dimensions: { trust: 40, respect: 40, affection: 20, resentment: 0, rivalry: 0, familiarity: 30 },
+              dimensions: { trust: 40, respect: 40, affection: 20, resentment: 0, rivalry: 0 },
               history: [],
             },
             [professionalId]: {
-              dimensions: { trust: 40, respect: 40, affection: 20, resentment: 0, rivalry: 0, familiarity: 30 },
+              dimensions: { trust: 40, respect: 40, affection: 20, resentment: 0, rivalry: 0 },
               history: [],
             },
           },
