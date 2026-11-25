@@ -135,7 +135,7 @@ export const URUK_ASSIGNMENT_OPPORTUNITY_DEFINITIONS: readonly AssignmentOpportu
         purpose: 'Reconcile clean records or document a bounded difference/condition without inventing a cause.',
         responsibility: ['The scribe compares and reports; institutional officials retain account, custody, and disposition authority.'],
         authority: 'Reporting and recommendation only. No authority to amend the institutional account, alter custody, or assign liability.',
-        provenance: ['A deterministic Tier B occurrence grounded in a dated Event and distinct source Records.'],
+        provenance: ['A dated institutional occurrence grounded in a source Event and separate Records.'],
       },
       requiredSkills: {},
       difficulty: 'routine',
