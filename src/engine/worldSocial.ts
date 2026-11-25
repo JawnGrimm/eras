@@ -145,7 +145,9 @@ export function transitionWorldAction(state: GameState, action: WorldAction): Tr
       const prior = entry.assessments ?? [];
       const lastDay = prior.at(-1)?.dayNumber ?? entry.learnedDay;
       const sourceExists = assessment?.source?.kind === 'event' ? !!w.events[assessment.source.id]
-        : assessment?.source?.kind === 'record' ? !!state.records.entries[assessment.source.id] : false;
+        && w.events[assessment.source.id].dayNumber <= assessment.dayNumber
+        : assessment?.source?.kind === 'record' ? !!state.records.entries[assessment.source.id]
+          && state.records.entries[assessment.source.id].createdDay <= assessment.dayNumber : false;
       if (!assessment || !['verified','contradicted','obsolete'].includes(assessment.status) || !sourceExists
         || !Number.isInteger(assessment.dayNumber) || assessment.dayNumber < lastDay || assessment.dayNumber > state.calendar.dayNumber
         || !assessment.rationale?.trim()) return fail(state, 'knowledge-assessment-invalid', 'A Knowledge assessment needs a valid status, existing source, non-decreasing date, and rationale.');
