@@ -223,7 +223,7 @@ export function createInitialGameState(player?: Person, opportunitySeed = 'era1-
         [TEXTILE_HOUSEHOLD_LOCATION_ID]: { id: TEXTILE_HOUSEHOLD_LOCATION_ID, name: 'Textile household work space, Uruk' },
         [RIVER_LANDING_LOCATION_ID]: { id: RIVER_LANDING_LOCATION_ID, name: 'River landing, Uruk' },
       },
-      appointments: Object.fromEntries(appointments.map((appointment) => [appointment.id, appointment])), events: { [deliveryEventId]: deliveryEvent, [awningEventId]: awningEvent }, knowledge: {},
+      appointments: Object.fromEntries(appointments.map((appointment) => [appointment.id, appointment])), events: { [deliveryEventId]: deliveryEvent, [awningEventId]: awningEvent }, knowledge: {}, relationshipFamiliarityEpisodes: {},
       matters: {
         [MATTER_IDS.tutorial]: { id: MATTER_IDS.tutorial, institutionId: STOREHOUSE_INSTITUTION_ID, kind: 'tutorial', summary: 'The Storehouse Reckoning introductory tutorial.', status: 'active', createdDay: 1 },
         [deliveryMatterId]: deliveryMatter,
