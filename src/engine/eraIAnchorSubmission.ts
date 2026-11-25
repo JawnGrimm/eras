@@ -215,7 +215,7 @@ export function submitRubricAssignmentActivity(
   const relationshipEventIdFor = (affectedPersonId: PersonId): EventId | undefined => {
     if (f01Event && f01Event.personIds.includes(person.id) && f01Event.personIds.includes(affectedPersonId)) return f01Event.id;
     const consultationAction = definition.actions.find((item) =>
-      item.consultedPersonId === affectedPersonId && progress.completedActionIds.includes(item.id),
+      item.family === 'consult' && item.consultedPersonId === affectedPersonId && progress.completedActionIds.includes(item.id),
     );
     if (!consultationAction) return undefined;
     const eventId = `event-assignment-consultation-${offer.id}-${consultationAction.id}` as EventId;

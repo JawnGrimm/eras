@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ERA1_COM_F01_ACTIVITY_ID, ERA1_COM_F01_PEOPLE } from '../content/assignments/eraICommercialMartial';
+import { ERA1_MAR_F03_OPPORTUNITY_DEFINITION, ERA1_MAR_PEOPLE } from '../content/assignments/eraIMartialFamilies';
 import { ASSIGNMENT_ACTIVITY_CATALOG } from '../content/assignments/northBayRoofInspection';
 import { advanceInstitutionalMatters } from '../engine/institutionalMatters';
 import { generateDailyAssignments } from '../engine/assignmentGenerator';
@@ -8,6 +9,7 @@ import { resolveChallengeTrigger } from '../engine/challengeDirector';
 import { createInitialGameState } from '../state/initialState';
 import { createSaveEnvelope, isValidSaveEnvelope } from '../state/saveEnvelope';
 import { deriveRelationshipFamiliarityStage } from '../state/relationshipFamiliarity';
+import type { AssignmentId } from '../state/ids';
 import type { AssignmentOffer, GameState } from '../state/types';
 
 function acceptedF01State(): { state: GameState; offer: AssignmentOffer } {
@@ -96,6 +98,39 @@ describe('assignment consultation familiarity', () => {
     });
     expect(trigger?.primarySourceFact).toEqual({ kind: 'event', id: dispositionEvent?.id });
     expect(isValidSaveEnvelope(createSaveEnvelope(submitted.state, 1))).toBe(true);
+  });
+
+  it('does not treat a compare action source attribution as a direct consultation', () => {
+    let state = createInitialGameState();
+    state = advanceInstitutionalMatters(state, 13);
+    state = { ...state, calendar: { ...state.calendar, dayNumber: 13 } };
+    state = generateDailyAssignments(state);
+    const activityId = ERA1_MAR_F03_OPPORTUNITY_DEFINITION.offer.activityId;
+    const definition = ASSIGNMENT_ACTIVITY_CATALOG[activityId];
+    expect(state.world.people[ERA1_MAR_PEOPLE.sigAna]).toBeDefined();
+    const base = Object.values(state.opportunities.assignments)[0];
+    if (!base) throw new Error('Expected an Assignment offer fixture.');
+    const offer: AssignmentOffer = {
+      ...base, id: 'assignment-mar03-source-test' as AssignmentId,
+      activityId, title: ERA1_MAR_F03_OPPORTUNITY_DEFINITION.offer.title,
+      employer: ERA1_MAR_F03_OPPORTUNITY_DEFINITION.offer.employer,
+      originMatterId: undefined, status: 'accepted', assigneePersonId: state.player.currentCharacterId,
+      activityProgress: definition.createInitialProgress(),
+    };
+    state = { ...state, opportunities: { ...state.opportunities, assignments: {
+      ...state.opportunities.assignments, [offer.id]: offer,
+    } } };
+    const reviewed = transitionAssignmentActivityAction(state, {
+      type: 'PERFORM_ASSIGNMENT_ACTIVITY_ACTION', assignmentId: offer.id, actionId: 'mar03-review-dispatch',
+    });
+    expect(reviewed.feedback?.kind).toBe('success');
+    const compared = transitionAssignmentActivityAction(reviewed.state, {
+      type: 'PERFORM_ASSIGNMENT_ACTIVITY_ACTION', assignmentId: offer.id, actionId: 'mar03-check-landing-message',
+    });
+    expect(compared.feedback?.kind).toBe('success');
+    expect(compared.state.world.events).toEqual(reviewed.state.world.events);
+    expect(compared.state.world.relationshipFamiliarityEpisodes).toEqual(reviewed.state.world.relationshipFamiliarityEpisodes);
+    expect(compared.state.opportunities.assignments[offer.id].activityProgress?.consultedPersonIds).toContain(ERA1_MAR_PEOPLE.sigAna);
   });
 
   it('does not create an Event or familiarity episode for an action without a consultation subject', () => {

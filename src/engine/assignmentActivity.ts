@@ -44,10 +44,10 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
 
     let events = state.world.events;
     let familiarityEpisodes = state.world.relationshipFamiliarityEpisodes;
-    if (activityAction.consultedPersonId) {
+    if (activityAction.consultedPersonId && activityAction.family === 'consult') {
       const consultedPerson = state.world.people[activityAction.consultedPersonId];
       const currentPerson = state.world.people[state.player.currentCharacterId];
-      if (activityAction.family !== 'consult' || !consultedPerson || !currentPerson || consultedPerson.id === currentPerson.id) {
+      if (!consultedPerson || !currentPerson || consultedPerson.id === currentPerson.id) {
         return fail(state, 'assignment-activity-consultation-invalid', 'The authored consultation does not identify a valid other participant.');
       }
       const eventId = `event-assignment-consultation-${offer.id}-${activityAction.id}` as EventId;
