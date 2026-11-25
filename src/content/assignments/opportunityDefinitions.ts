@@ -6,7 +6,7 @@ const steward = 'person-ur-nanna' as PersonId;
 const carrier = 'person-enlil-kisu' as PersonId;
 
 type AuthoredOfferContent = Pick<AssignmentOffer,
-  'title' | 'description' | 'employer' | 'category' | 'context' | 'requiredSkills' |
+  'title' | 'description' | 'employer' | 'category' | 'commodity' | 'context' | 'requiredSkills' |
   'difficulty' | 'estimatedTotalAp' | 'activityId' | 'compensation' | 'careerXpReward' | 'deliveryChannels' | 'compensationDisclosure'
 > & { activityId: string; estimatedTotalAp: number };
 
