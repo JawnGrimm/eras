@@ -1,6 +1,6 @@
 # Era I Milestone Work Brief — The Eanna Provisioning Undertaking
 
-**Status:** Detailed design brief for Game Director review; portfolio direction approved, Work content and mechanics remain proposed  
+**Status:** Historical/design background only; its heavier six-stage/logistics scope is SUPERSEDED for the Era I milestone by approved PR #133. Portfolio direction remains as recorded here.  
 **Date:** 2026-11-23  
 **Authority:** `docs/GDD.md` remains canonical. This brief does not revise the GDD or lock implementation.  
 **Portfolio decision:** Owner-approved Option 1 — one required milestone Work, followed by one required career-scale Work selected from two alternatives. The Ordered List remains a candidate; the second career-scale candidate remains open between The Long Delivery and The Work Group Account.
@@ -118,7 +118,7 @@ A person may hold more than one role. Every role must have an explicit basis in 
 
 The four starting professional orientations (Civic, Religious, Commercial, Martial) should shape the protagonist's initial context, contacts, responsibilities, and plausible approaches. They should not create four separate Works or make any orientation the sole eligible route. Martial involvement, if present, remains limited to historically restrained security, custody, protection, or organized movement contexts.
 
-## 7. Work structure: candidate stages
+## 7. Work structure: candidate stages (historical proposal; superseded for the Eanna milestone by PR #133)
 
 These stages are a design scaffold, not a locked action list. Each stage must present a decision or useful judgment, not just a form to fill.
 
