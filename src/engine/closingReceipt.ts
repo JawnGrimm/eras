@@ -44,7 +44,7 @@ export function applyClosingAssessment(state: GameState, input: {
   let trustDelta = 0, respectDelta = 0;
   if (receiver && receiver.id !== person.id) {
     const current = relationships[receiver.id]?.[person.id];
-    const dimensions = { trust: 50, respect: 50, affection: 50, resentment: 0, rivalry: 0, familiarity: 0, ...current?.dimensions };
+    const dimensions = { trust: 50, respect: 50, affection: 50, resentment: 0, rivalry: 0, ...current?.dimensions };
     const nextTrust = clamp(dimensions.trust + schedule.trust);
     const nextRespect = clamp(dimensions.respect + schedule.respect);
     trustDelta = nextTrust - dimensions.trust;
