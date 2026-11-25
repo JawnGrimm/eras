@@ -481,6 +481,16 @@ export interface WorkHandoffRecord {
   dayNumber: number;
   eventId: EventId;
 }
+/** Append-only actor attribution for a character's personal contribution interval. */
+export interface WorkContributionSegment {
+  id: string;
+  workId: WorkId;
+  personId: PersonId;
+  startedDay: number;
+  endedDay?: number;
+  status: 'open' | 'closed';
+  closureReason?: 'death' | 'handoff' | 'completed' | 'abandoned';
+}
 
 export interface GameState {
   calendar: CalendarState; actionEconomy: ActionEconomyState; player: { currentCharacterId: PersonId };
@@ -504,7 +514,7 @@ export interface GameState {
   historicalProgression: { historicalXp: number; completedWorks: WorkId[] };
   dayClose: DayCloseState;
   opportunities: { assignments: Record<AssignmentId, AssignmentOffer>; challenges: Record<ChallengeId, ChallengeInstance>; challengeOutcomes: ChallengeOutcome[]; assignmentAggregates: Record<string, AssignmentActivityAggregate>; recentActivity: OpportunityActivity[]; selectionSeed: string; occurrenceLedger: OpportunityOccurrenceLedgerEntry[]; assignmentGeneratorLedger?: { sequence: number; lastPresentedDayByActivity: Record<string, number> } };
-  works: { activeWorkId: WorkId | null; progress: Record<WorkId, WorkProgress>; preservedUndertakings?: PreservedWorkUndertaking[]; handoffHistory?: WorkHandoffRecord[] };
+  works: { activeWorkId: WorkId | null; progress: Record<WorkId, WorkProgress>; preservedUndertakings?: PreservedWorkUndertaking[]; handoffHistory?: WorkHandoffRecord[]; contributionSegments?: WorkContributionSegment[] };
   records: {
     entries: Record<RecordId, RecordEntry>;
     /** Legacy prototype outcomes retained until the later persistence/content port. */
