@@ -146,7 +146,7 @@ describe('character departure and succession lifecycle', () => {
       ...eannaProvisioningWork,
       successionInvitation: {
         qualification: { kind: 'skillAtLeast' as const, skillId: 'recordkeeping_accounts' as const, level: 3 },
-        connectionTiers: ['direct_professional' as const],
+        connectionTiers: ['direct_personal' as const, 'direct_professional' as const],
         basis: 'The successor is affiliated with the responsible precinct and has the required account skill.',
         remainingRemit: 'Complete the remaining consolidated account and submit it for senior disposition.',
         availableRecords: ['The originating household tallies and physical count packet.'],
@@ -180,7 +180,7 @@ describe('character departure and succession lifecycle', () => {
     const preserved = selected.state.works.preservedUndertakings?.[0];
     expect(selected.state.works.contributionSegments).toContainEqual({ id: 'eanna-segment-predecessor', workId: EANNA_PROVISIONING_WORK_ID,
       personId: INITIAL_PERSON_ID, startedDay: initial.calendar.dayNumber, status: 'closed', endedDay: initial.calendar.dayNumber, closureReason: 'death' });
-    expect(preserved?.invitation).toMatchObject({ authorityScope, connectionTier: 'direct_professional' });
+    expect(preserved?.invitation).toMatchObject({ authorityScope, connectionTier: 'direct_personal' });
     expect(selected.state.journal.notices.at(-1)?.message).toContain('invites you to take up the remaining remit');
     const accepted = transitionGame(selected.state, { type: 'RESPOND_PRESERVED_WORK_INVITATION', workId: EANNA_PROVISIONING_WORK_ID, response: 'accept' }, undefined, catalog);
     expect(accepted.feedback?.code).toBe('preserved-work-taken-up');
