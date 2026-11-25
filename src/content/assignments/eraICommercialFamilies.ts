@@ -127,8 +127,8 @@ export const era1ComF02TwoClaims = activity({
     ],
     limitationsLabel: 'Evidence and authority limits',
     limitationOptions: [
-      { id: 'sealing_not_authority', label: 'The sealing proves an impression, not the holder’s authority to commit the load' },
-      { id: 'records_not_entitlement', label: 'The requests and delivery record do not themselves establish entitlement' },
+      { id: 'sealing_not_authority', label: 'The seal impression is clear, but Lu-Nanshe still needs to know whether the person carrying it was sent' },
+      { id: 'records_not_entitlement', label: 'Both claims are recorded; Lu-Nanshe must decide priority after hearing each claimant' },
       { id: 'no_allocation_authority', label: 'Lu-Nanshe decides which claimant receives the load; the apprentice summarizes both claims' },
     ],
   },
@@ -215,8 +215,8 @@ export const era1ComF03PartialReturn = activity({
     ],
     limitationsLabel: 'Written, spoken, and authority limits',
     limitationOptions: [
-      { id: 'no_written_equivalence', label: 'No written equivalence between sent and returned goods is available' },
-      { id: 'oral_agreement_unverified', label: 'The agreement is described orally and is not independently established by a record' },
+      { id: 'no_written_equivalence', label: 'The outbound and return tallies record different goods; neither copy gives a conversion between them' },
+      { id: 'oral_agreement_unverified', label: 'Geme-Inana and Kuli describe the promise differently; no copy of the agreement is available' },
       { id: 'no_default_or_liability', label: 'The partial return is recorded; Geme-Inana decides her next step, and the account does not name a person at fault' },
     ],
   },
@@ -305,9 +305,9 @@ export const era1ComF04CustodyChain = activity({
     ],
     limitationsLabel: 'Custody and condition limits',
     limitationOptions: [
-      { id: 'tallies_show_counts_only', label: 'The tallies show what was counted at each handover, not what happened between them' },
+      { id: 'tallies_show_counts_only', label: 'The three counts are 12, 12, and 11; the records do not show when the vessel was cracked or where the count changed' },
       { id: 'condition_not_cause', label: 'The vessel was cracked when received; the record gives no earlier condition to compare' },
-      { id: 'no_individual_fault', label: 'The available sources do not establish individual fault or negligence' },
+      { id: 'no_individual_fault', label: 'Utu-mansum records the cracked vessel at receipt; the tallies do not name who caused the damage' },
     ],
   },
   evaluation: {
