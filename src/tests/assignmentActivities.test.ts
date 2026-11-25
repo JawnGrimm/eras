@@ -265,6 +265,14 @@ describe('North-Bay Roof Inspection activity definition and engine', () => {
     complete.draft.citedDiscoveryIds = ['com01-tag','com01-receipt','com01-handover-account'];
     complete.draft.selectedLimitationIds = ['original_entry_unavailable','handover_not_witnessed','no_release_authority'];
     expect(evaluateAssignmentAssessment(activity, complete)).toBe('Thorough');
+    const reclassified = { ...activity, discoveries: activity.discoveries.map((item) => ({
+      ...item, provenance: { ...item.provenance!, classification: 'REPORTED' as const },
+    })) };
+    expect(evaluateAssignmentAssessment(reclassified, complete)).toBe('Thorough');
+    expect(activity.evaluation?.reactions.Thorough).toContain('We do not yet know what happened');
+    expect(activity.evaluation?.reactions.Incomplete).toContain('missing comparison or qualification');
+    expect(activity.evaluation?.reactions.Overreached).toContain('We will correct that');
+    expect(activity.submissionNote).toContain('does not accept or release goods');
 
     const secondaryOmission = {
       ...complete,
