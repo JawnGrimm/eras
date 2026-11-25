@@ -5,6 +5,7 @@ import { URUK_ASSIGNMENT_OPPORTUNITY_DEFINITIONS } from '../content/assignments/
 import { ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS } from '../content/assignments/eraIAnchorOpportunities';
 import { ERA_I_COMMERCIAL_MARTIAL_OPPORTUNITY_DEFINITIONS } from '../content/assignments/eraICommercialMartial';
 import { transitionOpportunityAction } from './opportunities';
+import { prepareTierBRecurringOccurrences } from './tierBRecurringOccurrences';
 
 function occurrenceSourceFacts(state: GameState, matter: InstitutionalMatter): string[] {
   // A report filed in response to a matter is derivative evidence, not a new
@@ -30,9 +31,24 @@ function occurrenceSourceFacts(state: GameState, matter: InstitutionalMatter): s
  * ~8 AP/day target is a multi-Workday pacing measure, never a hard daily cap.
  */
 export function generateDailyAssignments(state: GameState): GameState {
-  const ledger = state.opportunities.assignmentGeneratorLedger ?? { sequence: 0, lastPresentedDayByActivity: {} };
-  let next: GameState = { ...state, opportunities: { ...state.opportunities, assignmentGeneratorLedger: ledger } };
-  const definitions = [...URUK_ASSIGNMENT_OPPORTUNITY_DEFINITIONS, ...ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS, ...ERA_I_COMMERCIAL_MARTIAL_OPPORTUNITY_DEFINITIONS];
+  const prepared = prepareTierBRecurringOccurrences(state);
+  const ledger = prepared.opportunities.assignmentGeneratorLedger ?? { sequence: 0, lastPresentedDayByActivity: {} };
+  let next: GameState = { ...prepared, opportunities: { ...prepared.opportunities, assignmentGeneratorLedger: ledger } };
+  const definitions = [...URUK_ASSIGNMENT_OPPORTUNITY_DEFINITIONS, ...ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS, ...ERA_I_COMMERCIAL_MARTIAL_OPPORTUNITY_DEFINITIONS, {
+    matterKind: 'tier_b_recurring_occurrence' as const, slug: 'tierb-recurring',
+    offer: {
+      activityId: 'activity-tierb-recurring-institutional-check', title: 'Recurring Institutional Check',
+      description: 'Compare the dated source and receiving/check records, preserving the actual commodity, unit, and result.',
+      employer: { kind: 'institution' as const, id: 'institution-uruk-temple-storehouse' as import('../state/ids').InstitutionId },
+      category: 'tier_b_institutional_check',
+      context: { what: 'Compare a distinct dated Tier B occurrence.', who: ['Ur-Nanna, Storehouse Steward', 'Utu-mansum, Receiving Official', 'Shuruppak-ilu, Senior Scribe'],
+        quantity: 'See the dated occurrence dossier.', when: 'During the current workday.', where: 'Temple Storehouse, Uruk.', from: 'A distinct dated Event and source Records.', to: 'Shuruppak-ilu for qualified review.', purpose: 'Reconcile clean records or document a bounded difference without inventing a cause.',
+        responsibility: ['The scribe compares and reports; officials retain account and custody authority.'], authority: 'Reporting and recommendation only.', provenance: ['A deterministic Tier B occurrence grounded in source facts.'] },
+      requiredSkills: {}, difficulty: 'routine', estimatedTotalAp: 3,
+      compensation: { money: 5, provisions: 0 }, careerXpReward: 6,
+      deliveryChannels: [{ kind: 'baseline_reach' as const, explanation: 'A dated storehouse source occurrence requires a bounded comparison.' }],
+    },
+  }];
   const offset = ledger.sequence % definitions.length;
   const rotated = [...definitions.slice(offset), ...definitions.slice(0, offset)];
   let sequence = ledger.sequence;
@@ -158,8 +174,40 @@ export function generateDailyAssignments(state: GameState): GameState {
       const occurrenceSuffix = requiredSourceFactIds.map((factId) => factId.replace(/[^a-zA-Z0-9-]/g, '-')).join('-');
       const id = `assignment-auto-${definition.slug}-${sourceMatter.id}-${occurrenceSuffix}` as AssignmentId;
       if (next.opportunities.assignments[id]) continue;
-      const offer: Omit<AssignmentOffer, 'offeredDay' | 'expiresDay' | 'status' | 'lapsedDuringMandatoryWork'> = {
+      const recurring = sourceMatter.tierBRecurring;
+      const recurringTitle = recurring ? ({
+        grain_delivery: 'Periodic Grain Delivery Check',
+        textile_receipt: 'Textile Bundle Receipt',
+        vessel_count: 'Vessel Count Reconciliation',
+        container_check: 'Storage-Container Check',
+        grain_account: 'Groats Account Reconciliation',
+        fish_entry: 'Fish-Category Account Check',
+      } as const)[recurring.domain] : undefined;
+      const authoredOffer = recurring ? {
         ...definition.offer,
+        title: recurringTitle!,
+        description: sourceMatter.summary,
+        employer: { kind: 'institution' as const, id: sourceMatter.institutionId },
+        category: 'tier_b_institutional_check',
+        commodity: recurring.commodity,
+        context: {
+          ...definition.offer.context,
+          what: sourceMatter.summary,
+          who: [recurring.counterpartyName, 'Ur-Nanna, Storehouse Steward', 'Shuruppak-ilu, Senior Scribe'],
+          quantity: recurring.quantitySummary,
+          when: `Recorded on Day ${sourceMatter.createdDay}; review during the current workday.`,
+          where: 'Temple Storehouse, Uruk; see the source event location.',
+          from: `Event ${sourceMatter.sourceEventId} and the dated source/dispatch and receiving/check records.`,
+          to: 'Shuruppak-ilu for qualified review and carry-forward.',
+          purpose: recurring.sourceSummary,
+          responsibility: ['The scribe compares and reports; institutional officials retain account, custody, and disposition authority.'],
+          authority: 'Reporting and recommendation only; no authority to amend the institutional account or assign liability.',
+          provenance: [`Source Event: ${sourceMatter.sourceEventId}`, ...requiredSourceFactIds.map((factId) => `Source fact: ${factId}`)],
+        },
+        deliveryChannels: [{ kind: 'baseline_reach' as const, explanation: `The Storehouse has a dated ${recurring.domain.replaceAll('_', ' ')} occurrence requiring a bounded check.` }],
+      } : definition.offer;
+      const offer: Omit<AssignmentOffer, 'offeredDay' | 'expiresDay' | 'status' | 'lapsedDuringMandatoryWork'> = {
+        ...authoredOffer,
         id,
         originMatterId: sourceMatter.id,
         occurrenceKey,
