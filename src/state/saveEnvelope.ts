@@ -692,7 +692,22 @@ function isValidV3GameState(value: unknown, workCatalog: Readonly<Record<string,
 }
 
 function isValidV4GameState(value: unknown, workCatalog: Readonly<Record<string, WorkDefinition<any>>>): value is GameState {
-  return isValidV3GameState(value, workCatalog, 4);
+  if (!isValidV3GameState(value, workCatalog, 4) || !isObject(value)) return false;
+  const works = value.works;
+  if (works.preservedUndertakings !== undefined && (!Array.isArray(works.preservedUndertakings)
+    || works.preservedUndertakings.some((item) => !isObject(item) || !nonEmptyString(item.workId)
+      || !nonEmptyString(item.title) || !nonEmptyString(item.deceasedCharacterId) || !nonEmptyString(item.successorCharacterId)
+      || !Number.isInteger(item.deathDay) || (item.deathDay as number) < 1 || (item.deathDay as number) > value.calendar.dayNumber
+      || (item.institutionId !== undefined && !nonEmptyString(item.institutionId))
+      || !['waiting','taken_up'].includes(String(item.status))
+      || (item.takenUpDay !== undefined && (!Number.isInteger(item.takenUpDay) || (item.takenUpDay as number) < (item.deathDay as number) || (item.takenUpDay as number) > value.calendar.dayNumber))))) return false;
+  if (works.handoffHistory !== undefined && (!Array.isArray(works.handoffHistory)
+    || works.handoffHistory.some((item) => !isObject(item) || !nonEmptyString(item.workId)
+      || !nonEmptyString(item.institutionId) || !nonEmptyString(item.formerCharacterId)
+      || !nonEmptyString(item.successorCharacterId) || !nonEmptyString(item.eventId)
+      || !Number.isInteger(item.dayNumber) || (item.dayNumber as number) < 1 || (item.dayNumber as number) > value.calendar.dayNumber
+      || !isObject(value.world.events[item.eventId]) || !isObject(value.world.institutions[item.institutionId]))))) return false;
+  return true;
 }
 
 export function createSaveEnvelope(state: GameState, revision: number, savedAt = new Date().toISOString()): SaveEnvelope {
