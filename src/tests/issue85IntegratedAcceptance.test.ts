@@ -7,7 +7,7 @@ import { TEST_CHARACTER_CREATION } from './fixtures/newGameCharacter';
 
 const orientations: CareerPathId[] = ['government', 'religious', 'merchant', 'military'];
 
-describe('GD-OPPORTUNITY-001 integrated multi-day acceptance', () => {
+describe('GD-OPPORTUNITY-001 multi-day Day-Close and save/load regression', () => {
   it.each(orientations)('preserves the shared Assignment and Day-Close loop across the %s orientation', (careerPath) => {
     let state = createNewGameState({ ...TEST_CHARACTER_CREATION, careerPath });
     expect(state.world.people[state.player.currentCharacterId].scribal?.careerPath).toBe(careerPath);
