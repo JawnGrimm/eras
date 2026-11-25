@@ -135,6 +135,8 @@ describe('GameProvider production persistence', () => {
     const storage = new MemoryStorage();
     const state = validSavedState();
     const legacyState = structuredClone(state) as unknown as Record<string, any>;
+    delete legacyState.world.relationshipFamiliarityEpisodes;
+    for (const targets of Object.values(legacyState.world.relationships) as any[]) for (const relationship of Object.values(targets) as any[]) relationship.dimensions.familiarity = 0;
     delete legacyState.dayClose;
     delete legacyState.opportunities.selectionSeed;
     delete legacyState.opportunities.occurrenceLedger;
