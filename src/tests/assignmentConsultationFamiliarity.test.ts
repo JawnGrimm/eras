@@ -4,6 +4,7 @@ import { ASSIGNMENT_ACTIVITY_CATALOG } from '../content/assignments/northBayRoof
 import { advanceInstitutionalMatters } from '../engine/institutionalMatters';
 import { generateDailyAssignments } from '../engine/assignmentGenerator';
 import { transitionAssignmentActivityAction } from '../engine/assignmentActivity';
+import { ERA1_COM_F01_PEOPLE } from '../content/assignments/eraICommercialMartial';
 import { createInitialGameState } from '../state/initialState';
 import { createSaveEnvelope, isValidSaveEnvelope } from '../state/saveEnvelope';
 import { deriveRelationshipFamiliarityStage } from '../state/relationshipFamiliarity';
@@ -52,6 +53,44 @@ describe('assignment consultation familiarity', () => {
     expect(episode.provenance).toEqual([{ kind: 'event', id: event?.id }]);
     expect(episode.matterId).toBe(offer.originMatterId);
     expect(isValidSaveEnvelope(createSaveEnvelope(result.state, 1))).toBe(true);
+  });
+
+  it('links anchor relationship history to the actual disposition Event', () => {
+    const { state: initial, offer } = acceptedF01State();
+    let state = initial;
+    for (const actionId of [
+      'comf01-consult-receiver', 'comf01-consult-carrier',
+      'comf01-compare-request-tag', 'comf01-inspect-load',
+    ]) {
+      const action = transitionAssignmentActivityAction(state, {
+        type: 'PERFORM_ASSIGNMENT_ACTIVITY_ACTION', assignmentId: offer.id, actionId,
+      });
+      expect(action.feedback?.kind).toBe('success');
+      state = action.state;
+    }
+    const draft = transitionAssignmentActivityAction(state, {
+      type: 'UPDATE_ASSIGNMENT_ACTIVITY_DRAFT', assignmentId: offer.id,
+      draft: {
+        finding: 'tag_observation_differ', responsibilityClaim: 'none',
+        citedDiscoveryIds: ['comf01-request', 'comf01-tag', 'comf01-observation', 'comf01-carrier-account'],
+        limitations: [], recommendations: ['hold_for_craft_examination'],
+        selectedLimitationIds: ['material_not_identified', 'no_intent_or_liability', 'no_acceptance_authority'],
+      },
+    });
+    expect(draft.feedback?.kind).toBe('success');
+    const submitted = transitionAssignmentActivityAction(draft.state, {
+      type: 'SUBMIT_ASSIGNMENT_ACTIVITY', assignmentId: offer.id,
+    });
+    expect(submitted.feedback?.kind).toBe('success');
+
+    const playerId = initial.player.currentCharacterId;
+    const relationship = submitted.state.world.relationships[ERA1_COM_F01_PEOPLE.workshopOverseer]?.[playerId];
+    const dispositionEvent = Object.values(submitted.state.world.events).find((event) =>
+      event.summary.includes('Utu-mansum’s receiving response to the submitted report'),
+    );
+    expect(dispositionEvent).toBeDefined();
+    expect(relationship?.history.at(-1)?.eventId).toBe(dispositionEvent?.id);
+    expect(isValidSaveEnvelope(createSaveEnvelope(submitted.state, 1))).toBe(true);
   });
 
   it('does not create an Event or familiarity episode for an action without a consultation subject', () => {
