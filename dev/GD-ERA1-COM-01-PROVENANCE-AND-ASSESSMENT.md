@@ -120,17 +120,25 @@ The report becomes a Record that can inform subsequent institutional work. A lat
 
 ## 6. Historical and authoring controls
 
-### 6.1 Current COM-01 content mismatch — resolve before acceptance
+### 6.1 COM-01 content alignment — IMPLEMENTED IN BRANCH; historical review recorded
 
-The current live definition in `src/content/assignments/eraIAnchors.ts` does not yet match the approved instructional packet:
+The initial COM-01 packet has been reauthored in `src/content/assignments/eraIAnchors.ts` to match the approved instructional sequence:
 
-- The discovery is titled **“Tag transcription”**, not a physical receiving tag examined directly.
-- The current packet contains authored vessel and textile quantities and a numerical discrepancy. These do not satisfy the approved constraint against authored quantities or numeral-system assumptions.
-- The current packet does not present the distinct handover account as REPORTED information in the requested sequence.
+- **PHYSICAL:** a small baked-clay tag, pierced lengthwise and bearing a small number of signs, is directly available for examination. No sign reading, commodity, quantity, or transaction is invented.
+- **COPIED:** the player examines a documentary copy describing the tag; the original receiving entry is explicitly unavailable.
+- **REPORTED:** Enlil-kisu gives the carrier's account that the tag remained with the consignment through handover. The player did not witness this and the account is not treated as independent verification.
+- The player compares the tag's visible form with the description in the copied entry. The comparison does not establish later custody, the contents of the consignment, or the outcome of delivery.
+- The authored quantities and numerical discrepancy have been removed.
 
-These are content/behavioral mismatches, not merely missing UI labels. Production must not treat the existing discoveries as a completed implementation of GD-ERA1-COM-01. Design HQ and Historical Research must align the authored packet with the approved sequence: a physical tag, a copied receiving entry, and a separately identified reported handover account; compare only identifying information supported by those sources. Remove the authored quantities from this instructional evidence packet. Do not invent replacement numbers, readings, dates, or a numerical discrepancy.
+The historical framing is deliberately disclosed in a separate **Reconstructed historical context** note. The University of Chicago's ISAC catalog documents a perforated Uruk IV tag from Uruk, dated ca. 3200 BCE, and describes tags as small rectangular objects that could be attached to goods; the cataloged example contains an administrator's name. A recent archaeological synthesis likewise describes Late Chalcolithic clay tags as pierced objects bearing a small number of proto-cuneiform signs, while noting contextual and terminological distinctions among different clay administrative devices. These sources support the general plausibility of the teaching prop, not the fictional tag's exact wording, custody history, or transaction.
 
-This audit note does not authorize Production to fabricate a physical artifact, source history, or historical procedure. The historical status of each represented item and the exact wording of the handover account must be reviewed before the content is accepted.
+Sources:
+- Christopher Woods (ed.), *Visible Language: Inventions of Writing in the Ancient Middle East and Beyond*, Oriental Institute Museum Publications 32, object 41, “Perforated Tag” (University of Chicago ISAC): https://oi.uchicago.edu/sites/default/files/uploads/shared/docs/oimp32.pdf
+- “Information Revolutions and Information Transitions: Counting, Sealing, Writing in Iran 10,000–300 BC,” *Journal of Ancient Near Eastern History* (2025): https://doi.org/10.1515/janeh-2024-0027
+
+The scenario remains fictional and does not reproduce a named excavated object or tablet. The historical/context note is not another ancient evidence item. The COM-01 activity now requires explicit provenance metadata on every discovery; the shared UI renders each classification and explanation at examination.
+
+**Remaining content review:** historical terminology and the fictional handover scenario should receive the normal Historical Research content review before the Assignment is considered fully VERIFIED.
 
 
 - Historical Research validates the terms used for tags, receiving entries, handover accounts, copies, and any contextual reconstruction.
@@ -144,9 +152,9 @@ This audit note does not authorize Production to fabricate a physical artifact, 
 
 ### Provenance disclosure — approved
 
-- [ ] Every presented evidence item identifies PHYSICAL, COPIED, or REPORTED at the point of examination.
-- [ ] The explanation is readable and accessible without skill checks or hover discovery.
-- [ ] RECONSTRUCTED material is disclosed in a separate historical/context note.
+- [x] Every COM-01 evidence item identifies PHYSICAL, COPIED, or REPORTED at the point of examination; broader catalogue rollout remains tracked separately.
+- [x] The explanation is readable and accessible without skill checks or hover discovery.
+- [x] RECONSTRUCTED material is disclosed in a separate historical/context note.
 - [ ] The four labels are not used as reliability or quality ratings.
 - [ ] Provenance labels do not automatically determine assessment or outcome.
 - [ ] No invented quantities or numeral-system assumptions enter the evidence packet.
@@ -157,11 +165,11 @@ This audit note does not authorize Production to fabricate a physical artifact, 
 - [ ] Thorough requires material completeness against authored requirements; Defensible is reserved for a correct bounded comparison with a non-material secondary omission; a material omission is Incomplete.
 - [ ] Utu-mansum's response assesses report usefulness and does not certify the underlying delivery or authorize release, acceptance, or blame.
 - [ ] Assessment explains evidence content, provenance, conclusion, and remaining uncertainty separately.
-- [ ] Utu-mansum's positive reaction recognizes the usefulness of the bounded finding.
-- [ ] The player is not penalized for refusing unsupported certainty or responsibility claims.
+- [x] Utu-mansum's positive reaction recognizes the usefulness of the bounded finding.
+- [x] The player is not penalized for refusing unsupported certainty or responsibility claims.
 - [ ] An incomplete report identifies the missing source/comparison/limitation.
 - [ ] An overreached report identifies the unsupported inference and offers a correction path.
-- [ ] Completing the player's Assignment does not imply that the underlying matter is closed.
+- [x] Completing the player's Assignment does not imply that the underlying matter is closed.
 - [ ] No assessment category invents a delivery outcome, culprit, or institutional decision.
 
 ## 8. Production handoff boundary
