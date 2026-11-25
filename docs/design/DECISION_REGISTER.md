@@ -2,7 +2,7 @@
 
 **Authority:** Records owner-approved decisions and their maturity. The [GDD](../GDD.md) remains the canonical source for core design authority.  
 **Owner:** Game Director / Lead Designer.  
-**Last updated:** 24 November 2026.
+**Last updated:** 25 November 2026.
 
 ## Decision maturity
 
@@ -25,6 +25,7 @@
 | Provisions shortage | LOCKED | Trigger on third consecutive Workday without provisions; +2 Stress per affected Workday, maximum +10 cumulative shortage-attributed Stress per character; recoverable Underfed condition; concrete recovery routes ship in the same milestone. | Economy Specification |
 | Situated knowledge | APPROVED PRINCIPLE | Distinguish Event, Record, and Knowledge. Objective evidence is not hidden or falsified by character interpretation. | GDD §2.9; Activity and Work Specification |
 | Evidence provenance disclosure | APPROVED PRINCIPLE | At the point of examination, each evidence item visibly identifies PHYSICAL, COPIED, or REPORTED provenance; RECONSTRUCTED material is disclosed in a separate historical/context note. These labels describe access/origin, not reliability, and do not determine assessment. | Game Director approval, 25 Nov 2026; GD-ERA1-COM-01 §2 |
+| Assignment supervisory assessment | APPROVED PRINCIPLE | Assess the completeness of the comparison, not the expansiveness of the claim. Thorough requires a materially complete, correctly bounded comparison against authored requirements, with sources/provenance and unverified limits preserved. Defensible is a correct bounded comparison with a non-material secondary omission. Incomplete applies when an omission prevents a usable comparison or loses a material limitation. Overreached applies to unsupported verification, event, or responsibility claims. The receiving official assesses report usefulness; the report does not itself settle the matter or authorize release/acceptance/blame. | Game Director approval, 25 Nov 2026; GD-ERA1-COM-01 §§4–5 |
 | Deterministic evaluation | APPROVED PRINCIPLE | Evaluation uses authored evidence and rules; no runtime generative AI for assignment generation, record validation, or outcomes. Multiple defensible judgments are possible where evidence permits. | GDD §§2.9, 22; Activity and Work Specification |
 | Continuity | LOCKED | Player continues through an existing connected scribal NPC in the same period; no inherited skills/rank and no era restart. | GDD §3.2; Character and Career Specification |
 | Assignment orientation and institutional context | APPROVED PRINCIPLE | Professional orientation influences both the Assignments a character encounters and the circumstances under which they perform them. Shared administrative responsibilities create common ground; institutional specialization creates meaningful differences. Author shared, contextual, and specialized work through institution-anchored definitions or lightweight framing/contact hooks by default—not a four-way variant engine. Keep access, qualification, authority, and interpretation distinct; cross-institutional access requires a supported route. | Owner approval, 23 Nov 2026; [Assignment Orientation and Institutional Context Specification](../../dev/ASSIGNMENT_ORIENTATION_AND_INSTITUTIONAL_CONTEXT_SPEC.md) |
