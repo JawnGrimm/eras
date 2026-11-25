@@ -6,6 +6,7 @@ import type { DaySettlement } from '../state/types';
 import type { InstitutionId, PersonId } from '../state/ids';
 import { UR_GIR_PERSON_ID } from '../state/ids';
 import { STOREHOUSE_WORK_ID } from '../works/storehouseReckoning';
+import { EANNA_WORK_ID } from '../works/eannaProvisioning';
 import { selectCharacterOpportunities } from '../state/opportunitySelectors';
 import { characterQualifiesForAssignment } from '../engine/opportunities';
 import { getOvertimeApForfeitPrompt } from './overtimeApForfeit';
@@ -47,8 +48,8 @@ function SettlementSummary({ settlement }: { settlement: DaySettlement }) {
   </section>;
 }
 
-export function ProductionWorkdayHub({ onOpenWork, onOpenActivity, settlement, onSettlement }: {
-  onOpenWork: () => void; onOpenActivity: (assignmentId: string) => void; settlement: DaySettlement | null; onSettlement: (settlement: DaySettlement) => void;
+export function ProductionWorkdayHub({ onOpenWork, onOpenEannaWork, onOpenActivity, settlement, onSettlement }: {
+  onOpenWork: () => void; onOpenEannaWork: () => void; onOpenActivity: (assignmentId: string) => void; settlement: DaySettlement | null; onSettlement: (settlement: DaySettlement) => void;
 }) {
   const game = useGame();
   const state = game.state;
@@ -63,6 +64,7 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenActivity, settlement, o
   }
   const wallet = scribal.wallet;
   const activeWork = state.works.progress[STOREHOUSE_WORK_ID];
+  const eannaProgress = state.works.progress[EANNA_WORK_ID];
   const unavailableWorks = Object.entries(state.works.progress).filter(([, progress]) => progress.status === 'suspended');
   const shortageActive = wallet.shortageWorkdays >= 3;
   const tutorialComplete = state.works.progress[STOREHOUSE_WORK_ID]?.status === 'completed';
@@ -172,6 +174,20 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenActivity, settlement, o
         <span><strong className="font-mono">{state.historicalProgression.historicalXp.toLocaleString()}</strong> Historical Progress XP</span>
       </div>
     </section>
+    {tutorialComplete && <section className="rounded-xl border border-amber-300 bg-[#fbf9f4] p-5 shadow-sm">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wider text-amber-800">Required Era I milestone Work</p>
+          <h2 className="mt-1 font-serif text-2xl font-semibold text-stone-900">The Eanna Provisioning Undertaking</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-stone-600">Compile the household and offering tallies into one Consolidated Summary Tablet. The apprentice prepares the allocation; Lu-Nanshe retains disposition and sealing authority.</p>
+          <p className="mt-3 text-xs text-stone-500">{eannaProgress?.status === 'completed' ? 'Completed' : eannaProgress?.status === 'active' ? 'In progress' : state.calendar.dayNumber >= 35 ? 'Available' : 'Available on Day 35'} · 9 AP normal path · +1 Provision per qualified Workday · 100 Historical Progress XP once</p>
+        </div>
+        <button disabled={state.calendar.dayNumber < 35 || (state.works.activeWorkId !== null && state.works.activeWorkId !== EANNA_WORK_ID) || eannaProgress?.status === 'suspended'}
+          onClick={onOpenEannaWork} className="rounded-lg bg-amber-900 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-40">
+          {eannaProgress?.status === 'completed' ? 'Review Record' : eannaProgress?.status === 'active' ? 'Continue Work' : 'Open Work'}
+        </button>
+      </div>
+    </section>}
 
     <div className="grid gap-5 lg:grid-cols-2">
       <section className="rounded-xl border border-stone-300 bg-white p-5">

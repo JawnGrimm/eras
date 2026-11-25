@@ -9,6 +9,8 @@ import type { WorkDefinition } from '../works/workDefinition';
 import { INITIAL_WORK_CATALOG } from '../state/newGameState';
 import { ProductionWorkdayHub } from './ProductionWorkdayHub';
 import { StorehouseWorkScreen } from './StorehouseWorkScreen';
+import { EannaWorkScreen } from './EannaWorkScreen';
+import { EANNA_WORK_ID } from '../works/eannaProvisioning';
 import { ProductionAssignmentBoard } from './ProductionAssignmentBoard';
 import { AssignmentActivityScreen } from './AssignmentActivityScreen';
 import { ProductionChallengeJournal } from './ProductionChallengeJournal';
@@ -20,7 +22,7 @@ import { CharacterCreator } from './CharacterCreator';
 import { EveningInterlude } from './EveningInterlude';
 import { ClosingReceiptScreen } from './ClosingReceiptScreen';
 
-type Screen = 'workday' | 'storehouse' | 'assignments' | 'activity' | 'challenges' | 'people' | 'records' | 'help';
+type Screen = 'workday' | 'storehouse' | 'eanna' | 'assignments' | 'activity' | 'challenges' | 'people' | 'records' | 'help';
 
 export function ProductionSaveResetConfirmation({
   onCancel,
@@ -204,6 +206,7 @@ export function ProductionShellContent() {
         <nav className="space-y-1">
           <button onClick={() => setScreen('workday')} aria-current={screen === 'workday' ? 'page' : undefined} className={`w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium ${screen === 'workday' ? 'bg-stone-900 text-white' : 'text-stone-700 hover:bg-white/70'}`}>Workday Hub</button>
           <button onClick={() => setScreen('storehouse')} aria-current={screen === 'storehouse' ? 'page' : undefined} className={`w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium ${screen === 'storehouse' ? 'bg-stone-900 text-white' : 'text-stone-700 hover:bg-white/70'}`}>Introductory Tutorial · Storehouse</button>
+          {(game.state.calendar.dayNumber >= 35 || game.state.works.progress[EANNA_WORK_ID]) && <button onClick={() => setScreen('eanna')} aria-current={screen === 'eanna' ? 'page' : undefined} className={`w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium ${screen === 'eanna' ? 'bg-stone-900 text-white' : 'text-stone-700 hover:bg-white/70'}`}>Eanna Provisioning Work</button>}
           <button onClick={() => setScreen('assignments')} aria-current={screen === 'assignments' ? 'page' : undefined} className={`w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium ${screen === 'assignments' ? 'bg-stone-900 text-white' : 'text-stone-700 hover:bg-white/70'}`}>Assignment Board</button>
           <button onClick={() => setScreen('challenges')} aria-current={screen === 'challenges' ? 'page' : undefined} className={`w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium ${screen === 'challenges' ? 'bg-stone-900 text-white' : 'text-stone-700 hover:bg-white/70'}`}>Challenge Journal</button>
           <button onClick={() => setScreen('people')} aria-current={screen === 'people' ? 'page' : undefined} className={`w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium ${screen === 'people' ? 'bg-stone-900 text-white' : 'text-stone-700 hover:bg-white/70'}`}>People & Institutions</button>
@@ -223,10 +226,12 @@ export function ProductionShellContent() {
       <main className="min-w-0 space-y-4">
         {alerts}
         {screen === 'workday'
-          ? <ProductionWorkdayHub onOpenWork={() => setScreen('storehouse')} onOpenActivity={openActivity} settlement={settlement} onSettlement={setSettlement} />
-          : screen === 'storehouse'
+          ? <ProductionWorkdayHub onOpenWork={() => setScreen('storehouse')} onOpenEannaWork={() => setScreen('eanna')} onOpenActivity={openActivity} settlement={settlement} onSettlement={setSettlement} />
+           : screen === 'storehouse'
             ? <StorehouseWorkScreen onBack={() => setScreen('workday')} />
-            : screen === 'assignments'
+            : screen === 'eanna'
+              ? <EannaWorkScreen onBack={() => setScreen('workday')} />
+              : screen === 'assignments'
               ? <ProductionAssignmentBoard onOpenActivity={openActivity} />
                : screen === 'activity' && activeActivityId
                 ? <AssignmentActivityScreen assignmentId={activeActivityId as import('../state/ids').AssignmentId} onBack={() => setScreen('assignments')} />

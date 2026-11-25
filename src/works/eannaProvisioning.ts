@@ -74,7 +74,6 @@ const obverseFields: EannaObverseField[] = [
 ];
 const allocationFields: EannaAllocationField[] = ['ninKasiBarley', 'breadPreparationBarley', 'gemeInanaBarley'];
 const sourceIds = Object.keys(EANNA_SOURCE_CLASSIFICATIONS) as EannaSourceId[];
-const numericFields = [...obverseFields, ...allocationFields];
 
 function validPartialObject<T extends string>(value: unknown, keys: readonly T[], validValue: (value: unknown) => boolean): value is Partial<Record<T, unknown>> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
