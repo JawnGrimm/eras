@@ -36,6 +36,11 @@ function isValidWorkDefinition(definition: WorkDefinition<any> | undefined): def
     && validateWorkDefinition(definition).length === 0;
 }
 
+function closeContributionSegments(segments: GameState['works']['contributionSegments'] = [], workId: WorkId, personId: string, dayNumber: number, reason: 'death' | 'handoff' | 'completed' | 'abandoned') {
+  return segments.map((segment) => segment.workId === workId && segment.personId === personId && segment.status === 'open'
+    ? { ...segment, status: 'closed' as const, endedDay: dayNumber, closureReason: reason } : segment);
+}
+
 function progressMatchesDefinition(definition: WorkDefinition<any>, progress: WorkProgress | undefined): boolean {
   return !!progress && progress.status !== 'suspended'
     && progress.definitionCompatibilityKey === definition.progressCompatibilityKey
@@ -71,8 +76,11 @@ function handoffPreservedWork(state: GameState, workId: WorkId, workCatalog: Rea
   const preservedUndertakings = (state.works.preservedUndertakings ?? []).map((item) => item.workId === workId
     ? { ...item, status: 'taken_up' as const, takenUpDay: state.calendar.dayNumber,
         ...(item.invitation ? { invitationResponse: 'accepted' as const } : {}) } : item);
+  const contributionSegments = closeContributionSegments(state.works.contributionSegments, workId, preserved.deceasedCharacterId, state.calendar.dayNumber, 'handoff');
+  contributionSegments.push({ id: `work-contribution-${String(workId)}-${String(person.id)}-${state.calendar.dayNumber}-${contributionSegments.length + 1}`,
+    workId, personId: person.id, startedDay: state.calendar.dayNumber, status: 'open' });
   return { state: { ...state, works: { ...state.works, activeWorkId: workId, preservedUndertakings,
-      handoffHistory: [...(state.works.handoffHistory ?? []), handoff] },
+      contributionSegments, handoffHistory: [...(state.works.handoffHistory ?? []), handoff] },
       world: { ...state.world, events: { ...state.world.events, [eventId]: event } } },
     feedback: feedback('success', 'preserved-work-taken-up', `${definition.title} is now an explicit undertaking of ${person.name}.`) };
 }
@@ -236,7 +244,11 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
           } } };
         }
       }
-      return { state: { ...startedState, works: { ...startedState.works, activeWorkId: action.workId, progress: { ...startedState.works.progress, [action.workId]: progress } } },
+      const contributionSegments = definition.kind === 'work'
+        ? [...(startedState.works.contributionSegments ?? []), { id: `work-contribution-${String(action.workId)}-${String(person.id)}-${state.calendar.dayNumber}-${(startedState.works.contributionSegments ?? []).length + 1}`,
+            workId: action.workId, personId: person.id, startedDay: state.calendar.dayNumber, status: 'open' as const }]
+        : startedState.works.contributionSegments ?? [];
+      return { state: { ...startedState, works: { ...startedState.works, activeWorkId: action.workId, contributionSegments, progress: { ...startedState.works.progress, [action.workId]: progress } } },
         feedback: feedback('success', 'work-started', definition.title) };
     }
     case 'ACQUIRE_WORK_EVIDENCE':
@@ -333,7 +345,9 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
         const grantReward = !progress.rewardGranted;
         const nextProgress = { ...progress, status: 'completed' as const, rewardGranted: true, pendingDisposition: false, submissionCount, workApSpentToday: apSpentAfterSubmission,
           lastAssessment: { ...assessment, assessedDay: state.calendar.dayNumber } };
-        return { state: { ...state, actionEconomy: { ...economy, apRemaining: apAfterSubmission }, works: { activeWorkId: null, progress: { ...state.works.progress, [action.workId]: nextProgress } },
+        return { state: { ...state, actionEconomy: { ...economy, apRemaining: apAfterSubmission }, works: { ...state.works, activeWorkId: null,
+          contributionSegments: closeContributionSegments(state.works.contributionSegments, action.workId, person.id, state.calendar.dayNumber, 'completed'),
+          progress: { ...state.works.progress, [action.workId]: nextProgress } },
           historicalProgression: { historicalXp: state.historicalProgression.historicalXp + (grantReward && definition.kind === 'work' ? definition.historicalXpReward : 0),
             completedWorks: definition.kind !== 'work' || state.historicalProgression.completedWorks.includes(action.workId) ? state.historicalProgression.completedWorks
               : [...state.historicalProgression.completedWorks, action.workId] } },
@@ -435,7 +449,9 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
         rewarded = careerResult.state;
       }
       return { state: { ...rewarded, actionEconomy: { ...economy, apRemaining: economy.apRemaining - cost },
-        works: { activeWorkId: null, progress: { ...rewarded.works.progress, [action.workId]: finalProgress } },
+        works: { ...rewarded.works, activeWorkId: null,
+          contributionSegments: closeContributionSegments(rewarded.works.contributionSegments, action.workId, person.id, state.calendar.dayNumber, 'completed'),
+          progress: { ...rewarded.works.progress, [action.workId]: finalProgress } },
         historicalProgression: { historicalXp: next.historicalProgression.historicalXp + (grantReward && definition.kind === 'work' ? definition.historicalXpReward : 0),
           completedWorks: definition.kind !== 'work' || next.historicalProgression.completedWorks.includes(action.workId) ? next.historicalProgression.completedWorks : [...next.historicalProgression.completedWorks, action.workId] } },
         feedback: feedback('success', 'work-completed', progress.lastAssessment.summary) };
