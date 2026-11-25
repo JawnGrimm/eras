@@ -337,6 +337,8 @@ export function applyInstitutionalResponseEvent(state: GameState, event: WorldEv
             basis: 'received-copy',
             learnedDay: event.dayNumber,
             sourcePersonId: response.actorPersonId,
+            assertion: { kind: 'fact', text: 'Received the maintenance report for the assigned matter.' },
+            assessments: [],
           },
         },
       },
