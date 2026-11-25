@@ -175,7 +175,10 @@ describe('production continuity and social screens', () => {
     expect(restoredScribal.wallet).toMatchObject({ money: 7, provisions: 3 });
     expect(restoredScribal.obligations[0].description).toContain('one silver');
     const markup = renderScreen(restored!.state, createElement(ProductionWorkdayHub, {
-      onOpenWork: () => undefined, onOpenActivity: () => undefined, settlement: null, onSettlement: () => undefined,
+      onOpenWork: () => undefined,
+      onOpenEannaWork: () => undefined,
+      onOpenEannaWork: () => undefined,
+      onOpenEannaWork: () => undefined, onOpenActivity: () => undefined, settlement: null, onSettlement: () => undefined,
     }));
     expect(markup).toContain('one unit of Currency');
     expect(markup).not.toContain('silver');
