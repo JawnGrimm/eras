@@ -34,11 +34,11 @@ export const materialNotAsDescribed: AssignmentActivityDefinition = activity({
   participants: Object.values(ERA1_COM_F01_PEOPLE),
   discoveries: [
     { id: 'comf01-request', title: 'The procurement request',
-      text: 'the request asks for worked timber for a precinct craft commission. It does not specify a species or establish the origin of the material eventually delivered.' },
+      text: 'The craft worker needs timber described as worked before the commission can proceed. The request names no species or origin.' },
     { id: 'comf01-tag', title: 'The sender’s tag',
-      text: 'the tag describes the load as worked timber. This establishes the sender’s written description, not the material’s actual species, origin, or suitability.' },
+      text: 'The sender’s tag calls the load worked timber. It records the sender’s description, not the species, origin, or suitability.' },
     { id: 'comf01-observation', title: 'The receiving observation',
-      text: 'the receiving list describes the visible pieces as unworked. It records their observable state only; it does not identify the timber species, origin, or suitability for the intended work.' },
+      text: 'At intake, the visible pieces are described as unworked. The observation does not identify species, origin, or suitability for the intended work.' },
     { id: 'comf01-carrier-account', title: 'Kuli’s account',
       text: 'Kuli says he carried the covered load from the outlying counterparty to the receiving court. His account is testimony about his part in the movement; it does not independently establish the load’s contents or the custody of every earlier stage.' },
   ],
@@ -119,7 +119,7 @@ export const ERA1_COM_F01_OPPORTUNITY_DEFINITION: AssignmentOpportunityDefinitio
     context: {
       what: 'Compare the procurement request, sender’s tag, receiving observation, and carrier account for one delivered load.',
       who: ['Utu-mansum, Receiving Official','Ur-Lamma, precinct workshop overseer','Lu-Nanshe, responsible authority','Kuli, carrier'],
-      quantity: 'one load of timber; the sender’s tag describes it as worked, while the receiving observation describes the visible pieces as unworked.',
+      quantity: 'One load of timber; the sender’s tag describes it as worked, while the receiving observation describes the visible pieces as unworked.',
       when: 'After delivery and before the receiving entry is accepted.',
       where: 'Eanna receiving court, Uruk; the related craft work is at a precinct workshop yard.',
       from: 'The request, sender’s tag, receiving observation, and Kuli’s separately attributed account.',
