@@ -421,7 +421,7 @@ export const ERA1_COM_F04_OPPORTUNITY_DEFINITION = opportunity(
     quantity:'Twelve sealed vessels at dispatch and landing; eleven at receipt, with one vessel noted as cracked.',
     when:'After the receiving tally records the shortage and condition note.',
     where:'The river landing and Eanna receiving court, Uruk.',
-    from:'Three separately authored tallies, the receiving condition note, and Sig-ana’s account.',
+    from:'Three separate tallies, the receiving condition note, and Sig-ana’s account.',
     to:'Utu-mansum for the receiving exception and any decision to recount or inquire.',
     purpose:'Set the counts in sequence, locate the first recorded difference, and distinguish the interval from the cause.',
     responsibility:['Each custodian accounts for their own interval; the apprentice reports the chain; Utu-mansum decides the receiving follow-up.'],
