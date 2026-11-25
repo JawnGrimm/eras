@@ -481,7 +481,7 @@ export interface WorkHandoffRecord {
   dayNumber: number;
   eventId: EventId;
 }
-/** Append-only actor attribution for a character's personal contribution interval. */
+/** Durable actor attribution for a character's personal contribution interval. */
 export interface WorkContributionSegment {
   id: string;
   workId: WorkId;
