@@ -112,7 +112,7 @@ export const era1MarF01DoorOpened = activity({
     findings: [
       { id: 'impression_differs', label: 'The present impression differs from the household’s known sealing' },
       { id: 'contents_match_inventory', label: 'The contents checked match the inventory' },
-      { id: 'authorization_not_linked', label: 'No authorization record is linked to this opening in the records examined' },
+      { id: 'authorization_not_linked', label: 'Lu-Nanshe has no earlier authorization copy to compare with Nin-dara’s account' },
       { id: 'theft_established', label: 'The evidence establishes theft' },
     ],
     responsibilityClaims: [
@@ -131,7 +131,7 @@ export const era1MarF01DoorOpened = activity({
       { id: 'seal_not_authority', label: 'An authentic impression proves a seal was used, not that its holder was authorized' },
       { id: 'inventory_not_entrant', label: 'The inventory shows expected contents, not who entered' },
       { id: 'accounts_attributed', label: 'Nin-dara’s and the owner’s statements remain separately attributed accounts' },
-      { id: 'absence_not_proof', label: 'No linked authorization record does not prove that no authorization existed' },
+      { id: 'absence_not_proof', label: 'The missing copy leaves the household unable to say whether permission was given' },
     ],
   },
   evaluation: {
@@ -165,11 +165,11 @@ export const era1MarF02PartyReturnsShort = activity({
   submissionApCost: 1,
   participants: [p.luNanshe,p.shuruppak,p.luKala,p.partyMember,p.dudu,p.urAb,p.enlilKisu],
   discoveries: [
-    { id: 'mar02-issue-list', title: 'Task issue list', text: 'The issue list records tools and provisions handed to a party gathered for a repair. The leader needs the count settled before they disperse; the list says nothing about a standing unit.', sourceProvenanceId: 'mar02-issue-list' },
+    { id: 'mar02-issue-list', title: 'Task issue list', text: 'The issue list records tools and provisions handed to a party gathered for a repair. The leader needs the count settled before they disperse; this list covers that day's task.', sourceProvenanceId: 'mar02-issue-list' },
     { id: 'mar02-return-count', title: 'Return count', text: 'The count lists tools returned and tools still missing. The group wants to leave, but the list cannot say whether they were lost, left at the site, or kept for tomorrow.', sourceProvenanceId: 'mar02-return-count' },
     { id: 'mar02-lu-kala-account', title: 'Lu-kala’s account', text: 'Lu-kala says some tools were left at the work site for tomorrow and one person has not yet returned. The leader wants the count cleared, but his account alone cannot settle what happened.', sourceProvenanceId: 'mar02-lu-kala-account' },
     { id: 'mar02-party-member-account', title: 'Party member’s account', text: 'A member of the task party gives a different account of one missing tool and the person still away. The two accounts leave the return count unsettled.', sourceProvenanceId: 'mar02-party-member-account' },
-    { id: 'mar02-site-observation', title: 'Work-site observation', text: 'A watcher reports that tools may have been left at the site. The observation is a lead for a visit, not proof of the final count or of anyone’s conduct.', sourceProvenanceId: 'mar02-site-observation' },
+    { id: 'mar02-site-observation', title: 'Work-site observation', text: 'A watcher thinks tools may have been left at the site. Someone needs to check before the return count is closed.', sourceProvenanceId: 'mar02-site-observation' },
   ],
   actions: [
     { id: 'mar02-compare-issue-return', family: 'compare', label: 'Compare issue list and return count',
@@ -207,9 +207,9 @@ export const era1MarF02PartyReturnsShort = activity({
     ],
     limitationsLabel: 'Task and accountability limits',
     limitationOptions: [
-      { id: 'issue_not_obligation', label: 'The issue list shows what was handed out, not a universal obligation to return every item that day' },
+      { id: 'issue_not_obligation', label: 'The issue list shows what was handed out; the group needs the return count checked before they leave' },
       { id: 'count_not_reason', label: 'The return count shows a gap, not why it exists' },
-      { id: 'no_muster', label: 'This was a sponsor-gathered task party, not a formal muster or standing unit' },
+      { id: 'no_muster', label: 'This issue list covers the north-bay repair group and the tools handed out for that day's work' },
       { id: 'accounts_not_verified', label: 'The explanations are attributed accounts and have not been independently verified' },
     ],
   },
@@ -286,7 +286,7 @@ export const era1MarF03LateTurnedAside = activity({
     ],
     limitationsLabel: 'Movement and authority limits',
     limitationOptions: [
-      { id: 'dispatch_not_arrival', label: 'The dispatch records the plan, not arrival at the destination' },
+      { id: 'dispatch_not_arrival', label: 'The recipient is still waiting; the dispatch has no receiving tally' },
       { id: 'accounts_not_cause', label: 'The accounts do not independently establish the cause of the halt' },
       { id: 'message_unconfirmed', label: 'The claimed message has no confirming record or confirmed recipient' },
       { id: 'no_judgment_or_payment', label: 'The scribe has no authority to judge the carrier or release payment' },
@@ -323,8 +323,8 @@ export const era1MarF04ValuedObjectTrail = activity({
   submissionApCost: 1,
   participants: [p.luNanshe,p.shuruppak,p.urLamma,p.urNanna,p.urAb,p.enlilKisu],
   discoveries: [
-    { id: 'mar04-removal-note', title: 'Removal note', text: 'The removal note records a carved stone vessel taken from storage for repair or cleaning. The household wants it returned before the next ceremony; the note does not establish its exact use.', sourceProvenanceId: 'mar04-removal-note' },
-    { id: 'mar04-workshop-receipt', title: 'Workshop receipt', text: 'The workshop receipt records the object arriving with Ur-Lamma for repair or cleaning. It establishes receipt at the workshop, not a later return handover.', sourceProvenanceId: 'mar04-workshop-receipt' },
+    { id: 'mar04-removal-note', title: 'Removal note', text: 'The removal note records a carved stone vessel taken from storage for repair or cleaning. The household wants it back before the next ceremony; the note does not say what it was used for.', sourceProvenanceId: 'mar04-removal-note' },
+    { id: 'mar04-workshop-receipt', title: 'Workshop receipt', text: 'The workshop receipt records the object arriving with Ur-Lamma for repair or cleaning. The Storehouse has no later return line.', sourceProvenanceId: 'mar04-workshop-receipt' },
     { id: 'mar04-storehouse-search', title: 'Storehouse return-entry search', text: 'The Storehouse copy has no return handover. Lu-Nanshe must ask the custodians before calling the object missing.', sourceProvenanceId: 'mar04-storehouse-search' },
     { id: 'mar04-enlil-account', title: 'Enlil-kisu’s account', text: 'Enlil-kisu says he carried the object between locations. His account gives Lu-Nanshe an interval to check, but not its present location.', sourceProvenanceId: 'mar04-enlil-account' },
     { id: 'mar04-ur-ab-account', title: 'Ur-ab’s observation', text: 'Ur-ab saw part of the movement near the yard. His observation gives the next search a starting point, not the full path or a person to blame.', sourceProvenanceId: 'mar04-ur-ab-account' },
@@ -370,9 +370,9 @@ export const era1MarF04ValuedObjectTrail = activity({
     limitationsLabel: 'Custody and authority limits',
     limitationOptions: [
       { id: 'records_show_intervals', label: 'The removal note and workshop receipt establish only their own custody intervals' },
-      { id: 'missing_entry_not_missing_handover', label: 'A missing return entry does not prove that no spoken handover occurred' },
-      { id: 'spoken_account_is_lead', label: 'A spoken account is a lead to check, not a complete custody record' },
-      { id: 'gap_not_fault', label: 'A gap in the trail does not establish individual fault or mishandling' },
+      { id: 'missing_entry_not_missing_handover', label: 'The Storehouse copy has no return line; the custodians may remember a handover' },
+      { id: 'spoken_account_is_lead', label: 'Enlil-kisu’s account gives a time to ask about, not a completed return entry' },
+      { id: 'gap_not_fault', label: 'Lu-Nanshe must ask each custodian about their interval before deciding who, if anyone, is responsible' },
     ],
   },
   evaluation: {
