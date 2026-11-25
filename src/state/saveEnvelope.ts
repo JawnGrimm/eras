@@ -710,6 +710,17 @@ function isValidV4GameState(value: unknown, workCatalog: Readonly<Record<string,
       || !value.world.institutions[item.institutionId]
       || !Number.isInteger(item.dayNumber) || item.dayNumber < 1 || item.dayNumber > value.calendar.dayNumber) return false;
   }
+  const segmentIds = new Set<string>();
+  for (const segment of works.contributionSegments ?? []) {
+    if (!nonEmptyString(segment.id) || segmentIds.has(segment.id) || !nonEmptyString(segment.workId)
+      || !nonEmptyString(segment.personId) || !value.world.people[segment.personId]
+      || !Number.isInteger(segment.startedDay) || segment.startedDay < 1 || segment.startedDay > value.calendar.dayNumber
+      || !['open','closed'].includes(segment.status)) return false;
+    segmentIds.add(segment.id);
+    if (segment.status === 'open' && (segment.endedDay !== undefined || segment.closureReason !== undefined)) return false;
+    if (segment.status === 'closed' && (!Number.isInteger(segment.endedDay) || segment.endedDay! < segment.startedDay
+      || segment.endedDay! > value.calendar.dayNumber || !['death','handoff','completed','abandoned'].includes(String(segment.closureReason)))) return false;
+  }
   return true;
 }
 
