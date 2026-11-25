@@ -77,6 +77,9 @@ export function initializeProductionSession(
       try {
         // Preserve the exact validated original bytes before replacing the primary slot.
         storage.setItem(ROLLBACK_SAVE_KEY, raw);
+        if (storage.getItem(ROLLBACK_SAVE_KEY) !== raw) {
+          throw new Error('The exact legacy rollback copy could not be confirmed.');
+        }
         const migratedBytes = JSON.stringify(restored);
         storage.setItem(SAVE_KEY, migratedBytes);
         const confirmedBytes = storage.getItem(SAVE_KEY);
