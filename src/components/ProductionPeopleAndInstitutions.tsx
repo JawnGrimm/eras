@@ -55,8 +55,8 @@ function RelationshipCard({ fromName, toName, relationship, familiarityStage, fa
     {familiarityEpisodes.length > 0 && <details className="mt-3 border-t border-stone-200 pt-3">
       <summary className="cursor-pointer text-xs font-semibold text-stone-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-700">Familiarity evidence ({familiarityEpisodes.length} qualifying {familiarityEpisodes.length === 1 ? 'episode' : 'episodes'})</summary>
       <ol className="mt-2 space-y-2">{familiarityEpisodes.map((episode) => <li key={episode.id} className="text-xs text-stone-700">
-        <p className="font-medium">Day {episode.dayNumber} · {episode.stageContribution} · {episode.acquisitionMode.replace(/_/g, ' ')}</p>
-        <p>{humanizeContextKey(episode.contextId)} · {episode.interactionKind.replace(/_/g, ' ')}</p>
+        <p className="font-medium">Day {episode.dayNumber} · {episode.stageContribution} · {humanizeContextKey(episode.acquisitionMode)}</p>
+        <p>{humanizeContextKey(episode.contextId)} · {humanizeContextKey(episode.interactionKind)}</p>
         <p className="text-stone-600">Source: {episode.provenance.map((source) => familiaritySourceLabel(source, events, records)).join('; ')}</p>
       </li>)}</ol>
     </details>}
@@ -80,8 +80,7 @@ function PersonIndexRow({ person, context, selected, onSelect }: {
   return <button type="button" onClick={onSelect} aria-pressed={selected}
     className={`w-full rounded-lg border px-3 py-3 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-700 ${selected ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-200 bg-white text-stone-900 hover:bg-stone-50'}`}>
     <span className="flex items-center justify-between gap-2">
-      {selected ? <span className="font-semibold">Viewing</span> : <span className="font-semibold">{person.name}</span>}
-      {selected && <span className="text-[10px] font-semibold uppercase tracking-wide">Selected</span>}
+      {selected ? <span className="font-semibold">Selected person</span> : <span className="font-semibold">{person.name}</span>}
     </span>
     <span className={`mt-1 block text-xs ${selected ? 'text-stone-200' : 'text-stone-500'}`}>
       {person.alive ? 'Living' : 'Deceased'}{person.lifeStage ? ` · ${person.lifeStage.replace(/_/g, ' ')}` : ''}

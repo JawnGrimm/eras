@@ -561,6 +561,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
   // Martial family identities and institutional context are introduced lazily,
   // so existing schema-v2 saves receive only the provisional participants needed
   // when the corresponding finite source events become eligible.
+  // These replaceable NPC display forms come from the approved Era I name pool. Ena-an-ru is an attested name-form with a cautious reading; DIMₐ is a reported sign sequence, not a reconstructed pronunciation. Neither implies an attested individual.
   const martialPeople = [
     [ERA1_MAR_PEOPLE.ninDara, 'Nin-dara', HOUSEHOLD_STRONGROOM_INSTITUTION_ID, HOUSEHOLD_STRONGROOM_LOCATION_ID],
     [ERA1_MAR_PEOPLE.sealingOwner, 'Ena-an-ru', HOUSEHOLD_STRONGROOM_INSTITUTION_ID, HOUSEHOLD_STRONGROOM_LOCATION_ID],

@@ -69,6 +69,16 @@ describe('production continuity and social screens', () => {
       world: {
         ...base.world,
         events: { ...base.world.events, [eventId]: event },
+        relationships: {
+          ...base.world.relationships,
+          [INITIAL_PERSON_ID]: {
+            ...base.world.relationships[INITIAL_PERSON_ID],
+            [subjectId]: {
+              dimensions: { trust: 52, respect: 51, affection: 50, resentment: 0, rivalry: 0 },
+              history: [{ id: 'history-familiarity-ui', dayNumber: 1, summary: 'The report was received with thanks.', eventId }],
+            },
+          },
+        },
         relationshipFamiliarityEpisodes: { [episode.id]: episode },
       },
     };
@@ -79,6 +89,8 @@ describe('production continuity and social screens', () => {
     expect(markup).toContain('Familiarity evidence');
     expect(markup).toContain('No separate trust, respect, affection, resentment, or rivalry dimensions are recorded for this direction.');
     expect(markup).toContain('A substantive response was returned.');
+    expect(markup).toContain('1 history entry');
+    expect(markup).toContain('The report was received with thanks.');
     expect(markup).not.toContain('event-familiarity-ui');
     expect(markup).toContain('No sentiment scores are recorded in this direction.');
   });
