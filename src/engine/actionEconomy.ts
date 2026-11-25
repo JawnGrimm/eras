@@ -285,13 +285,18 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
       } catch {
         return { state, feedback: feedback('error', 'work-finalization-error', 'The disposition could not be finalized; no AP, rewards, or records were committed.') };
       }
-      if (!finalization || (finalization.careerXpReward !== undefined && (!Number.isFinite(finalization.careerXpReward) || finalization.careerXpReward < 0)) || (finalization.knowledge !== undefined && !Array.isArray(finalization.knowledge))
+      if (!finalization || (finalization.events !== undefined && !Array.isArray(finalization.events)) || (finalization.careerXpReward !== undefined && (!Number.isFinite(finalization.careerXpReward) || finalization.careerXpReward < 0)) || (finalization.knowledge !== undefined && !Array.isArray(finalization.knowledge))
         || (finalization.retireInstitutionMatters !== undefined && (!Array.isArray(finalization.retireInstitutionMatters) || finalization.retireInstitutionMatters.some((item) => !item || typeof item.institutionId !== 'string' || !item.institutionId || typeof item.matterId !== 'string' || !item.matterId)))
         || (finalization.addInstitutionMatters !== undefined && (!Array.isArray(finalization.addInstitutionMatters) || finalization.addInstitutionMatters.some((item) => !item || typeof item.id !== 'string' || !item.id || !state.world.institutions[item.institutionId] || !item.summary || !Number.isInteger(item.createdDay) || item.createdDay < 1 || item.createdDay > state.calendar.dayNumber)))
         || (finalization.presentAssignments !== undefined && !Array.isArray(finalization.presentAssignments))) {
         return { state, feedback: feedback('error', 'work-finalization-invalid', 'The Work finalizer returned invalid rewards.') };
       }
       let next = state;
+      for (const event of finalization.events ?? []) {
+        const result = transitionWorldAction(next, { type: 'CREATE_EVENT', event });
+        if (result.feedback?.kind === 'error') return { state, feedback: feedback('error', 'work-event-invalid', result.feedback.message) };
+        next = result.state;
+      }
       if (finalization.record) {
         const result = transitionWorldAction(next, { type: 'CREATE_RECORD', record: finalization.record });
         if (result.feedback?.kind === 'error') return { state, feedback: feedback('error', 'work-record-invalid', result.feedback.message) };

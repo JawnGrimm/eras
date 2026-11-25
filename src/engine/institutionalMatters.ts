@@ -275,6 +275,66 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
     locations[RIVER_LANDING_LOCATION_ID] = { id: RIVER_LANDING_LOCATION_ID, name: 'River landing, Uruk' };
     changed = true;
   }
+  // Eanna's approved four-stage provisioning Work becomes a live institutional matter on Day 35.
+  // The named people and institutional context are existing Era I entities; the gathering and quantities are authored reconstruction.
+  const eannaProvisioningMatterId = 'matter-era1-eanna-provisioning-undertaking' as MatterId;
+  const eannaProvisioningEventId = 'event-era1-eanna-provisioning-request' as EventId;
+  const eannaGatheringEventId = 'event-era1-eanna-gathering-outcome' as EventId;
+  const eannaDispositionEventId = 'event-era1-eanna-allocation-disposition' as EventId;
+  if (nextDay >= 35 && !matters[eannaProvisioningMatterId]
+    && institutions[EANNA_INSTITUTION_ID] && locations[EANNA_TABLET_ROOM_LOCATION_ID]
+    && people[PEOPLE.responsibleAuthority] && people[PEOPLE.seniorScribe]
+    && people[PEOPLE.steward] && people[ERA1_COM_F02_F04_PEOPLE.gemeInana]) {
+    if (!events[eannaProvisioningEventId]) {
+      events[eannaProvisioningEventId] = {
+        id: eannaProvisioningEventId, dayNumber: 35,
+        summary: 'Lu-Nanshe asks for the separate household tallies and storehouse counts to be compiled into one summary before the Eanna gathering. The apprentice is assigned compilation, not allocation authority.',
+        personIds: [PEOPLE.responsibleAuthority, PEOPLE.seniorScribe, PEOPLE.steward,
+          'person-nin-kasi' as PersonId, PEOPLE.carrierForeman, ERA1_COM_F02_F04_PEOPLE.gemeInana],
+        institutionIds: [EANNA_INSTITUTION_ID],
+        locationId: EANNA_TABLET_ROOM_LOCATION_ID,
+      };
+    }
+    matters[eannaProvisioningMatterId] = {
+      id: eannaProvisioningMatterId, institutionId: EANNA_INSTITUTION_ID,
+      kind: 'era1_eanna_provisioning',
+      summary: 'Compile the separate household and offering tallies into a Consolidated Summary Tablet for Lu-Nanshe before the Day 39 Eanna gathering.',
+      status: 'active', createdDay: 35, sourceEventId: eannaProvisioningEventId,
+      locationId: EANNA_TABLET_ROOM_LOCATION_ID,
+      involvedPersonIds: [PEOPLE.responsibleAuthority, PEOPLE.seniorScribe, PEOPLE.steward,
+        'person-nin-kasi' as PersonId, PEOPLE.carrierForeman, ERA1_COM_F02_F04_PEOPLE.gemeInana],
+      provenance: [
+        { id: 'eanna-work-instruction', kind: 'instruction', sourceId: eannaProvisioningEventId, description: 'Lu-Nanshe assigns compilation and retains final allocation/disposition authority.' },
+        { id: 'eanna-work-source-context', kind: 'other', description: 'Separate household tallies, a storehouse count, an offering vessel count, and a spoken later-supply expectation.' },
+      ],
+    };
+    const institution = institutions[EANNA_INSTITUTION_ID];
+    institutions[EANNA_INSTITUTION_ID] = {
+      ...institution,
+      activeMatters: [...new Set([...institution.activeMatters, eannaProvisioningMatterId])],
+    };
+    changed = true;
+  }
+
+  // The gathering itself occurs on Day 39. A timely official disposition supports the planned scope;
+  // otherwise the gathering proceeds at reduced scope and the tablet can be compiled retrospectively.
+  if (nextDay >= 39 && !events[eannaGatheringEventId] && matters[eannaProvisioningMatterId]
+    && institutions[EANNA_INSTITUTION_ID]) {
+    const dispositionEvent = events[eannaDispositionEventId];
+    const timelyDisposition = !!dispositionEvent && dispositionEvent.dayNumber <= 38;
+    events[eannaGatheringEventId] = {
+      id: eannaGatheringEventId, dayNumber: 39,
+      summary: timelyDisposition
+        ? 'The Eanna gathering proceeds under the allocation recorded by Lu-Nanshe before the Day 39 deadline.'
+        : 'The Eanna gathering proceeds at reduced scope. No official allocation was recorded by the end of Day 38; only established resources are available for the gathering.',
+      personIds: [PEOPLE.responsibleAuthority, PEOPLE.seniorScribe, PEOPLE.steward,
+        'person-nin-kasi' as PersonId, PEOPLE.carrierForeman, ERA1_COM_F02_F04_PEOPLE.gemeInana],
+      institutionIds: [EANNA_INSTITUTION_ID],
+      locationId: EANNA_TABLET_ROOM_LOCATION_ID,
+    };
+    changed = true;
+  }
+
 
 
 
