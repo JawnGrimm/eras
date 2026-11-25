@@ -69,7 +69,7 @@ A correct bounded finding should be recognized as professionally useful. It is n
 
 Utu-mansum's response:
 
-> Utu-mansum reads the comparison again, then sets the copied entry beside the tag. “Good. You have shown me what agrees and what does not, and you have not turned the handover account into something you witnessed. I can take this forward and ask for the point still in question to be checked. Keep these sources together. We do not yet know what happened after the goods left the handover.”
+> Utu-mansum reads the comparison again, then sets the copied entry beside the tag. “Good. You have shown me what agrees and what does not, and you have not turned the handover account into something you witnessed. I can take this forward and ask for the point still in question to be checked. Keep these sources together. We do not yet know what happened beyond what these sources show.”
 
 The response must communicate four things:
 - The comparison is useful and has been understood.
