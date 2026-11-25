@@ -2,7 +2,8 @@
 
 **Status:** PROPOSED — submitted to Design HQ for review  
 **Authority:** Approved behavioral contract; technical investigation only  
-**Audited baseline:** `main` at `f7a10849d890c4367cbb352dbdac815545a8a15b` (25 November 2026 UTC)  
+**Prepared:** 24 November 2026 (the audited main commit timestamp is 25 November 2026 UTC)  
+**Audited baseline:** `main` at `f7a10849d890c4367cbb352dbdac815545a8a15b`  
 **Scope:** Relationship familiarity, Knowledge assertions and recall cues, schema compatibility  
 **Authorization boundary:** No runtime implementation, persistent-state change, migration, or save rewrite is authorized by this proposal.
 
