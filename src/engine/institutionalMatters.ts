@@ -88,7 +88,7 @@ const ERA_I_ANCHOR_MATTER_SEEDS = [
     eventId: 'event-era1-civ-02-labor-disbursement-source' as EventId,
     kind: 'era1_civ_02_labor_disbursement' as const,
     summary: 'A labor-group account and a separate grain-disbursement record are submitted for a bounded review.',
-    eventSummary: 'A labor-group account is brought for checking alongside a separately sourced grain-disbursement record. Their pairing is a provisional accountability exercise; no shared group, institution, workflow, date, or entitlement is established.',
+    eventSummary: 'A labor-group account is brought for checking alongside a separately sourced grain-disbursement record. The two copies are being checked side by side; neither names the same group or establishes an entitlement.',
     personIds: [PEOPLE.seniorScribe, PEOPLE.steward],
     locationId: EANNA_TABLET_ROOM_LOCATION_ID,
     provenance: [
@@ -101,7 +101,7 @@ const ERA_I_ANCHOR_MATTER_SEEDS = [
     eventId: 'event-era1-rel-01-inana-offering-source' as EventId,
     kind: 'era1_rel_01_inana_offering' as const,
     summary: 'Inana-associated offering entries and a separate commodity record are submitted for review.',
-    eventSummary: 'A participant in offering preparations asks for an Inana-associated offering copy and a separate commodity record to be reviewed before preparations continue. Their combined use as one supply schedule is provisional gameplay fiction.',
+    eventSummary: 'A participant in offering preparations asks for an Inana-associated offering copy and a separate commodity record to be reviewed before preparations continue. She wants the two entries checked before preparations continue; the records do not say they belong to one supply schedule.',
     personIds: [PEOPLE.seniorScribe, 'person-nin-kasi' as PersonId],
     locationId: EANNA_TABLET_ROOM_LOCATION_ID,
     provenance: [
@@ -212,7 +212,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
       id: ERA1_COM_F02_F04_PEOPLE.gemeInana, name: 'Geme-Inana', alive: true,
       affiliations: [TEXTILE_HOUSEHOLD_INSTITUTION_ID], currentLocationId: TEXTILE_HOUSEHOLD_LOCATION_ID,
       lifeStage: 'craft_practitioner',
-      socialIdentity: { occupation: 'Textile household organizer', summary: 'A provisional authored participant who coordinates textile work and exchange obligations within her household.' },
+      socialIdentity: { occupation: 'Textile household organizer', summary: 'A household member who coordinates textile work and exchange obligations.' },
       objectives: [
         { id: 'objective-geme-inana-workframes', horizon: 'immediate', summary: 'Secure timber for household work-frames.', motivation: 'The household has work waiting that depends on the timber request.', createdDay: nextDay, status: 'active', visibility: 'public' },
         { id: 'objective-geme-inana-exchange', horizon: 'immediate', summary: 'Receive the goods expected from an earlier outbound exchange.', motivation: 'People in the household are waiting on the return before the next dispatch is sent.', createdDay: nextDay, status: 'active', visibility: 'public' },
@@ -228,7 +228,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
     people[ERA1_COM_F02_F04_PEOPLE.amaGi] = {
       id: ERA1_COM_F02_F04_PEOPLE.amaGi, name: 'Ama-gi', alive: true, affiliations: [],
       currentLocationId: RIVER_LANDING_LOCATION_ID, lifeStage: 'craft_practitioner',
-      socialIdentity: { occupation: 'Landing agent (provisional)', summary: 'A provisional authored participant associated with a consignment handover at the river landing.' },
+      socialIdentity: { occupation: 'Landing worker', summary: 'A participant in a consignment handover at the river landing.' },
     } satisfies Person;
     changed = true;
   }
@@ -236,7 +236,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
     people[ERA1_COM_F02_F04_PEOPLE.sigAna] = {
       id: ERA1_COM_F02_F04_PEOPLE.sigAna, name: 'Sig-ana', alive: true, affiliations: [],
       currentLocationId: RIVER_LANDING_LOCATION_ID, lifeStage: 'craft_practitioner',
-      socialIdentity: { occupation: 'Witness (provisional)', summary: 'A provisional authored participant who observed part of a consignment handover.' },
+      socialIdentity: { occupation: 'Witness (provisional)', summary: 'A witness who observed part of a consignment handover.' },
     } satisfies Person;
     changed = true;
   }
@@ -533,7 +533,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
     events[eventId] = {
       id: eventId,
       dayNumber: nextDay,
-      summary: 'A provisional procurement request calls for worked timber; the sender’s tag describes the load as worked, while the receiving observation describes the visible pieces as unworked. The difference is documented but not explained.',
+      summary: 'The craft worker needs timber described as worked. The tag says worked; the receiving list describes the visible pieces as unworked. The difference is recorded, but its cause is not known.',
       personIds: [PEOPLE.receivingOfficial, PEOPLE.workshopOverseer, PEOPLE.responsibleAuthority, PEOPLE.carrier],
       institutionIds: [STOREHOUSE_INSTITUTION_ID],
       locationId: ERA1_COM_F01_LOCATION_ID,
@@ -577,7 +577,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
     if (!institutions[HOUSEHOLD_STRONGROOM_INSTITUTION_ID]) {
       institutions[HOUSEHOLD_STRONGROOM_INSTITUTION_ID] = {
         id: HOUSEHOLD_STRONGROOM_INSTITUTION_ID,
-        name: 'Household strongroom (provisional authored context)',
+        name: 'Household strongroom',
         locationId: HOUSEHOLD_STRONGROOM_LOCATION_ID,
         responsibilities: ['Maintain household custody of a sealed storage space'],
         authority: ['Household members determine access and authorize any inquiry'],
@@ -587,7 +587,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
       changed = true;
     }
     if (!locations[HOUSEHOLD_STRONGROOM_LOCATION_ID]) {
-      locations[HOUSEHOLD_STRONGROOM_LOCATION_ID] = { id: HOUSEHOLD_STRONGROOM_LOCATION_ID, name: 'Household strongroom, Uruk (provisional authored context)' };
+      locations[HOUSEHOLD_STRONGROOM_LOCATION_ID] = { id: HOUSEHOLD_STRONGROOM_LOCATION_ID, name: 'Household strongroom, Uruk' };
       changed = true;
     }
   }
@@ -956,7 +956,7 @@ export function createMaterialNotAsDescribedMatter(dayNumber: number): Instituti
       PEOPLE.carrier,
     ],
     provenance: [
-      { id: 'comf01-procurement-request', kind: 'instruction', description: 'A provisional request calls for worked timber for a precinct craft commission.' },
+      { id: 'comf01-procurement-request', kind: 'instruction', description: 'A craft worker requests timber described as worked for a precinct commission.' },
       { id: 'comf01-sender-tag', kind: 'record_copy', description: 'A provisional sender tag describes the delivered load as worked timber.' },
       { id: 'comf01-receiving-observation', kind: 'observation', description: 'The receiving observation describes the visible pieces as unworked without identifying species or origin.' },
       { id: 'comf01-carrier-account', kind: 'testimony', description: 'Kuli gives a separate account of carrying the covered load to the receiving court.' },
