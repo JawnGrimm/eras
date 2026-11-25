@@ -211,7 +211,7 @@ export function submitRubricAssignmentActivity(
   if (f01 && f01Supported) {
     const affected = ERA1_COM_F01_PEOPLE.workshopOverseer;
     const current = outcomeRelationships[affected]?.[person.id];
-    const dimensions = { trust: 50, respect: 50, affection: 50, resentment: 0, rivalry: 0, familiarity: 0, ...current?.dimensions };
+    const dimensions = { trust: 50, respect: 50, affection: 50, resentment: 0, rivalry: 0, ...current?.dimensions };
     const trustDelta = assessment === 'Thorough' ? 2 : 1;
     outcomeRelationships = {
       ...outcomeRelationships,
@@ -235,7 +235,7 @@ export function submitRubricAssignmentActivity(
     const affectedPerson = state.world.people[affectedPersonId];
     if (!affectedPerson) continue;
     const current = outcomeRelationships[affectedPersonId]?.[person.id];
-    const dimensions = { trust: 50, respect: 50, affection: 50, resentment: 0, rivalry: 0, familiarity: 0, ...current?.dimensions };
+    const dimensions = { trust: 50, respect: 50, affection: 50, resentment: 0, rivalry: 0, ...current?.dimensions };
     const schedule = CLOSING_RECEIPT_SCHEDULE[assessment];
     const trust = Math.max(0, Math.min(100, dimensions.trust + schedule.trust));
     const respect = Math.max(0, Math.min(100, dimensions.respect + schedule.respect));
