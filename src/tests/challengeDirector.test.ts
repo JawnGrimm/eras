@@ -4,6 +4,7 @@ import type { ChallengeInstance, GameState } from '../state/types';
 import { createInitialGameState } from '../state/initialState';
 import { isValidSaveEnvelope, createSaveEnvelope } from '../state/saveEnvelope';
 import { CHALLENGE_TRIGGER_RULES, resolveChallengeTrigger, selectWeightedChallengeCandidate } from '../engine/challengeDirector';
+import type { ChallengeTriggerDescriptor } from '../engine/challengeDirector';
 import { addActivity, transitionOpportunityAction } from '../engine/opportunities';
 import { generateDailyAssignments } from '../engine/assignmentGenerator';
 import { MATTER_IDS } from '../engine/institutionalMatters';
@@ -134,11 +135,11 @@ describe('Challenge candidate selection and occurrence lifecycle', () => {
       },
     };
     const state = addActivity(withCompletedOffer, completedOffer, 'completed');
-    const trigger = {
-      domain: 'player_action_outcome' as const,
+    const trigger: ChallengeTriggerDescriptor = {
+      domain: 'player_action_outcome',
       activityId: 'activity-south-court-delivery-reconciliation',
       matterId: MATTER_IDS.southCourtDelivery,
-      activityKinds: ['completed'] as const,
+      activityKinds: ['completed'],
     };
 
     const resolved = resolveChallengeTrigger(state, trigger);
@@ -196,12 +197,12 @@ describe('Challenge candidate selection and occurrence lifecycle', () => {
         entries: { ...state.records.entries, [recordId]: report },
       },
     };
-    const trigger = {
-      domain: 'professional_behavior_pattern' as const,
+    const trigger: ChallengeTriggerDescriptor = {
+      domain: 'professional_behavior_pattern',
       rule: CHALLENGE_TRIGGER_RULES[0],
       activityId: 'activity-south-court-delivery-reconciliation',
       matterId: MATTER_IDS.southCourtDelivery,
-      activityKinds: ['completed'] as const,
+      activityKinds: ['completed'],
       reportTitle: report.title,
     };
 
