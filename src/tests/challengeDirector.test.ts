@@ -63,6 +63,23 @@ describe('Challenge candidate selection and occurrence lifecycle', () => {
     expect(matterOccurrence?.matterId).toBe(MATTER_IDS.southCourtDelivery);
     expect(matterOccurrence?.primarySourceFact.kind).toBe('event');
 
+    const southCourtMatter = generated.world.matters[MATTER_IDS.southCourtDelivery];
+    const matterWithoutSource = {
+      ...generated,
+      world: {
+        ...generated.world,
+        matters: { ...generated.world.matters, [southCourtMatter.id]: { ...southCourtMatter, sourceEventId: undefined } },
+      },
+    };
+    expect(resolveChallengeTrigger(matterWithoutSource, {
+      domain: 'institutional_matter_update',
+      matterId: MATTER_IDS.southCourtDelivery,
+      statuses: ['active'],
+      minimumAgeDays: 0,
+      deliveryActivityId: 'activity-south-court-delivery-reconciliation',
+      deliveryKinds: ['presented'],
+    })).toBeNull();
+
     const eventId = Object.keys(base.world.events)[0] as EventId;
     const eventOccurrence = resolveChallengeTrigger(base, {
       domain: 'authored_world_event',
@@ -70,6 +87,16 @@ describe('Challenge candidate selection and occurrence lifecycle', () => {
       deliveryChannels: channels,
     });
     expect(eventOccurrence?.primarySourceFact).toEqual({ kind: 'event', id: eventId });
+    expect(resolveChallengeTrigger(base, {
+      domain: 'authored_world_event',
+      eventId: 'event-not-present' as EventId,
+      deliveryChannels: channels,
+    })).toBeNull();
+    expect(resolveChallengeTrigger(base, {
+      domain: 'authored_world_event',
+      eventId,
+      deliveryChannels: [],
+    })).toBeNull();
 
     const people = Object.keys(base.world.people);
     const fromId = people[0] as PersonId;
