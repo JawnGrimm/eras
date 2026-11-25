@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ERA1_COM_F01_ACTIVITY_ID, ERA1_COM_F01_PEOPLE } from '../content/assignments/eraICommercialMartial';
+import { ASSIGNMENT_ACTIVITY_CATALOG } from '../content/assignments/northBayRoofInspection';
 import { advanceInstitutionalMatters } from '../engine/institutionalMatters';
 import { generateDailyAssignments } from '../engine/assignmentGenerator';
 import { transitionAssignmentActivityAction } from '../engine/assignmentActivity';
@@ -15,7 +16,7 @@ function acceptedF01State(): { state: GameState; offer: AssignmentOffer } {
   state = generateDailyAssignments(state);
   const offer = Object.values(state.opportunities.assignments).find((item) => item.activityId === ERA1_COM_F01_ACTIVITY_ID);
   if (!offer) throw new Error('Expected the F01 anchor Assignment to be generated.');
-  const definition = (awaitlessCatalog())[ERA1_COM_F01_ACTIVITY_ID];
+  const definition = ASSIGNMENT_ACTIVITY_CATALOG[ERA1_COM_F01_ACTIVITY_ID];
   const accepted: AssignmentOffer = {
     ...offer, status: 'accepted', assigneePersonId: state.player.currentCharacterId,
     activityProgress: definition.createInitialProgress(),
@@ -25,13 +26,6 @@ function acceptedF01State(): { state: GameState; offer: AssignmentOffer } {
   } } };
   return { state, offer: accepted };
 }
-
-function awaitlessCatalog() {
-  return requireCatalog;
-}
-
-import { ASSIGNMENT_ACTIVITY_CATALOG } from '../content/assignments/northBayRoofInspection';
-const requireCatalog = ASSIGNMENT_ACTIVITY_CATALOG;
 
 describe('assignment consultation familiarity', () => {
   it('records a directional, Event-provenanced episode for a substantive authored consultation', () => {
