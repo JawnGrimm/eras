@@ -81,8 +81,7 @@ export function EannaWorkScreen({ onBack }: { onBack: () => void }) {
   const obverseComplete = obverseIds.every((id) => scenario.obverseEntries.includes(id));
   const submitCost = 1;
   const canSubmit = active && done('final-check') && !(progress.pendingDisposition
-    && progress.lastAssessment?.outcome === 'accepted'
-    && progress.lastAssessment.dimensions.every((item) => item.status === 'meets'));
+    && progress.lastAssessment?.outcome === 'accepted');
   const submit = () => game.dispatch({ type: 'SUBMIT_WORK', workId });
   const dispose = (value: 'ratify_proposal' | 'adjust_to_default' | 'carry_forward') =>
     game.dispatch({ type: 'DISPOSE_WORK', workId, disposition: value });
