@@ -242,8 +242,8 @@ export const tierBRecurringInstitutionalCheck = activity({
   participants: [people.steward, people.receiver, people.senior, people.carrier],
   discoveries: [
     { id: 'tierb-source-records', title: 'Dated source copies', text: 'Compare the dated source and receiving records. Keep each commodity, unit, category, and figure as recorded; the people waiting on the tally need an answer that does not change what the records say.' },
-    { id: 'tierb-counterparty-account', title: 'Attributed account', text: 'The counterparty’s account is attributed testimony. It may explain what that person recorded or observed, but it does not independently locate a discrepancy or establish responsibility.' },
-    { id: 'tierb-authority-boundary', title: 'Institutional review boundary', text: 'The scribe may compare, document, and recommend a bounded follow-up. The receiving official or Storehouse Steward retains authority to amend an institutional account, alter custody, or authorize disposition.' },
+    { id: 'tierb-counterparty-account', title: 'Attributed account', text: 'The counterparty says what they recorded or saw. Keep that account beside the tally; it cannot tell where the difference arose by itself.' },
+    { id: 'tierb-authority-boundary', title: 'Who decides what happens next', text: 'You can compare the figures and ask for a recount. Ur-Nanna or the receiving official decides whether to change the account, move goods, or release them.' },
   ],
   actions: [
     { id: 'tierb-compare-records', family: 'compare', label: 'Compare the dated records', description: 'Set the source copy and receiving/check record beside one another.', apCost: 1, discoveryIds: ['tierb-source-records'] },
@@ -255,9 +255,9 @@ export const tierBRecurringInstitutionalCheck = activity({
     title: 'Recurring institutional check',
     responsibilityLabel: 'Responsibility claim',
     findings: [
-      { id: 'records_reconcile', label: 'The cited records reconcile within their stated categories and units' },
-      { id: 'bounded_difference', label: 'A bounded difference or condition is recorded; its cause is not established' },
-      { id: 'qualified_incomplete', label: 'Qualified report; further source checking is required' },
+      { id: 'records_reconcile', label: 'The figures agree when each commodity and unit is kept separate' },
+      { id: 'bounded_difference', label: 'The records differ or show a condition that needs follow-up; the cause is still unknown' },
+      { id: 'qualified_incomplete', label: 'I could not settle the figures from the records available; another source is needed' },
       { id: 'assign_responsibility', label: 'Assign responsibility to the counterparty' },
     ],
     responsibilityClaims: [
@@ -268,11 +268,11 @@ export const tierBRecurringInstitutionalCheck = activity({
       { id: 'retain_sources', label: 'Retain both source records and carry the result forward with its limits' },
       { id: 'request_followup', label: 'Request a further source copy, recount, or authorized physical check' },
     ],
-    limitationsLabel: 'Source and responsibility limits',
+    limitationsLabel: 'What the tally cannot settle',
     limitationOptions: [
-      { id: 'source_scope', label: 'Each source establishes only its own recorded count or observation' },
-      { id: 'cause_unlocated', label: 'The available records do not locate the cause of a difference' },
-      { id: 'no_individual_blame', label: 'No individual responsibility is established by the source facts' },
+      { id: 'source_scope', label: 'The dispatch records what left; the receiving copy records what was counted at intake' },
+      { id: 'cause_unlocated', label: 'The two counts differ, but neither copy shows where the difference arose' },
+      { id: 'no_individual_blame', label: 'Neither tally names someone who caused the difference' },
     ],
   },
   evaluation: {
