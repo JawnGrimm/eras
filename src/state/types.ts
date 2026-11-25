@@ -229,19 +229,27 @@ export interface KnowledgeAssessment {
   source: { kind: 'event'; id: EventId } | { kind: 'record'; id: RecordId };
   rationale: string;
 }
-export interface KnowledgeEntry {
+export interface KnowledgeEntryBase {
   id: KnowledgeEntryId;
   holder: { kind: 'person'; id: PersonId } | { kind: 'institution'; id: InstitutionId };
   subject: { kind: 'event'; id: EventId } | { kind: 'record'; id: RecordId };
   basis: 'direct-involvement' | 'testimony' | 'received-copy' | 'consulted-record' | 'public-disclosure' | 'other';
   learnedDay: number;
   sourcePersonId?: PersonId;
-  /** Explicit legacy source-access reference; it has no invented assertion and creates no cue. */
-  legacy?: true;
-  assertion?: KnowledgeAssertion;
-  /** Append-only; current status is derived from the last assessment. */
-  assessments?: KnowledgeAssessment[];
 }
+/** Old source-access history is preserved without an invented assertion. */
+export type LegacyKnowledgeEntry = KnowledgeEntryBase & {
+  legacy: true;
+  assertion?: never;
+  assessments?: never;
+};
+/** New Knowledge always carries the exact remembered assertion and append-only assessments. */
+export type CurrentKnowledgeEntry = KnowledgeEntryBase & {
+  legacy?: false;
+  assertion: KnowledgeAssertion;
+  assessments: KnowledgeAssessment[];
+};
+export type KnowledgeEntry = LegacyKnowledgeEntry | CurrentKnowledgeEntry;
 
 export interface CalendarState { eraId: EraId; dayNumber: number; displayDate: string; }
 export interface ActionEconomyState { dailyApAllocation: 5 | 6; apRemaining: number; overtimeUsedToday: boolean; nextDayApPenalty: boolean; recoveryLaborUsedToday: boolean; }
@@ -467,8 +475,17 @@ export interface GameState {
   };
   journal: { notices: DurableNotice[] };
 }
+export type LegacyRelationshipDimensionsV3 = RelationshipDimensions & { familiarity: number };
+export type LegacyPersonRelationshipV3 = Omit<PersonRelationship, 'dimensions'> & { dimensions: LegacyRelationshipDimensionsV3 };
+export type LegacyGameStateV3 = Omit<GameState, 'world'> & {
+  world: Omit<GameState['world'], 'relationships' | 'knowledge' | 'relationshipFamiliarityEpisodes'> & {
+    relationships: Record<PersonId, Partial<Record<PersonId, LegacyPersonRelationshipV3>>>;
+    knowledge: Record<KnowledgeEntryId, LegacyKnowledgeEntry>;
+    relationshipFamiliarityEpisodes?: never;
+  };
+};
 export interface SaveEnvelope { schemaVersion: 4; gameVersion: string; revision: number; savedAt: string; state: GameState; }
-export interface LegacySaveEnvelopeV3 { schemaVersion: 3; gameVersion: string; revision: number; savedAt: string; state: GameState; }
+export interface LegacySaveEnvelopeV3 { schemaVersion: 3; gameVersion: string; revision: number; savedAt: string; state: LegacyGameStateV3; }
 export interface LegacySaveEnvelopeV2 { schemaVersion: 2; gameVersion: string; revision: number; savedAt: string; state: GameState; }
 export interface SkillAdvancementRule { requiredSkillXp: number; careerXpCost: number; }
 export type TargetSkillLevel = 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
