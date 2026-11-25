@@ -87,12 +87,32 @@ export function isRelationshipFamiliarityEpisode(
     if (seen.has(key)) return false;
     seen.add(key);
     if (item.kind === 'event' && refs?.events) {
-      const event = refs.events[item.id] as { dayNumber?: number } | undefined;
-      if (!event || typeof event.dayNumber !== 'number' || event.dayNumber > (episode.dayNumber as number)) return false;
+      const event = refs.events[item.id] as { dayNumber?: number; personIds?: string[] } | undefined;
+      if (!event || typeof event.dayNumber !== 'number' || event.dayNumber > (episode.dayNumber as number)
+        || !Array.isArray(event.personIds) || !event.personIds.includes(episode.observerPersonId as string)
+        || !event.personIds.includes(episode.subjectPersonId as string)) return false;
     }
     if (item.kind === 'record' && refs?.records) {
-      const record = refs.records[item.id] as { createdDay?: number } | undefined;
-      if (!record || typeof record.createdDay !== 'number' || record.createdDay > (episode.dayNumber as number)) return false;
+      const record = refs.records[item.id] as {
+        createdDay?: number; authorPersonId?: string;
+        sources?: Array<{ kind?: string; sourceId?: string }>;
+        amendments?: Array<{ sourcesAdded?: Array<{ kind?: string; sourceId?: string }> }>;
+      } | undefined;
+      if (!record || typeof record.createdDay !== 'number' || record.createdDay > (episode.dayNumber as number)
+        || !Array.isArray(record.sources)) return false;
+      const involvedPeople = new Set<string>([record.authorPersonId ?? '']);
+      const sources = [
+        ...record.sources,
+        ...(record.amendments ?? []).flatMap((amendment) => amendment.sourcesAdded ?? []),
+      ];
+      for (const linked of sources) {
+        if (linked.kind === 'person' && linked.sourceId) involvedPeople.add(linked.sourceId);
+        if (linked.kind === 'event' && linked.sourceId && refs.events) {
+          const linkedEvent = refs.events[linked.sourceId] as { personIds?: string[] } | undefined;
+          for (const personId of linkedEvent?.personIds ?? []) involvedPeople.add(personId);
+        }
+      }
+      if (!involvedPeople.has(episode.observerPersonId as string) || !involvedPeople.has(episode.subjectPersonId as string)) return false;
     }
   }
   return true;
