@@ -1,4 +1,4 @@
-import type { EventId, InstitutionId, PersonId, WorkId } from '../state/ids';
+import type { InstitutionId, PersonId } from '../state/ids';
 import type { WorkDefinition } from '../works/workDefinition';
 import { getInitializedScribal, isInitializedScribalState } from '../state/scribalState';
 import type { GameAction, GameState, TransitionResult } from '../state/types';
