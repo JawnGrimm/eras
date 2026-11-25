@@ -71,6 +71,13 @@ describe('relationship familiarity episodes', () => {
     expect(addRelationshipFamiliarityEpisode({}, episode({ subjectPersonId: observer }))).toEqual({ ok: false, code: 'episode-invalid' });
   });
 
+  it('rejects provenance dated after the familiarity episode', () => {
+    const first = episode();
+    expect(addRelationshipFamiliarityEpisode({}, first, {
+      events: { [eventId]: { dayNumber: first.dayNumber + 1 } },
+    })).toEqual({ ok: false, code: 'episode-invalid' });
+  });
+
   it('does not treat routine repetition or a relationship edge as a stage', () => {
     expect(deriveRelationshipFamiliarityStage({}, observer, subject)).toBeNull();
   });
