@@ -45,6 +45,27 @@ describe('matter-driven Assignment discovery', () => {
     expect(Math.max(...dailyLedgerCounts)).toBeLessThan(500);
     expect(Math.max(...dailyAssignmentCounts)).toBeLessThan(500);
     expect(Math.max(...serializedLengths)).toBeLessThan(1_000_000);
+
+    const recurringMatters = Object.values(state.world.matters)
+      .filter((matter) => matter.kind === 'tier_b_recurring_occurrence');
+    expect(recurringMatters.length).toBeGreaterThanOrEqual(7);
+    expect(recurringMatters.every((matter) => !!matter.tierBRecurring)).toBe(true);
+    expect(new Set(recurringMatters.map((matter) => matter.sourceEventId)).size).toBe(recurringMatters.length);
+    expect(recurringMatters.every((matter) => !!matter.sourceEventId
+      && !!state.world.events[matter.sourceEventId]
+      && !!matter.sourceRecordId
+      && !!state.records.entries[matter.sourceRecordId])).toBe(true);
+    expect(new Set(recurringMatters.map((matter) => matter.tierBRecurring!.counterpartyPersonId)).size).toBeGreaterThan(1);
+    expect(new Set(recurringMatters.map((matter) => matter.tierBRecurring!.commodity)).size).toBeGreaterThan(1);
+    expect(recurringMatters.some((matter) => matter.tierBRecurring!.outcomeShape === 'reconciled')).toBe(true);
+    expect(recurringMatters.some((matter) => matter.tierBRecurring!.outcomeShape === 'discrepancy')).toBe(true);
+    expect(Object.values(state.world.institutions['institution-uruk-temple-storehouse' as keyof typeof state.world.institutions].activeMatters)
+      .filter((matterId) => state.world.matters[matterId]?.kind === 'tier_b_recurring_occurrence').length).toBeLessThan(6);
+    const day20TierB = Object.values(state.opportunities.assignments).find((offer) =>
+      offer.activityId === 'activity-tierb-recurring-institutional-check'
+      && offer.originMatterId === 'matter-tierb-recurring-day-20');
+    expect(day20TierB).toBeDefined();
+    expect(day20TierB!.status).toBe('offered');
   });
 
   it('keeps generated offers discoverable across five END_DAY/BEGIN_WORKDAY cycles', () => {
