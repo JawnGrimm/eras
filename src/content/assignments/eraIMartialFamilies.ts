@@ -128,9 +128,9 @@ export const era1MarF01DoorOpened = activity({
     ],
     limitationsLabel: 'Access and evidence limits',
     limitationOptions: [
-      { id: 'seal_not_authority', label: 'An authentic impression proves a seal was used, not that its holder was authorized' },
-      { id: 'inventory_not_entrant', label: 'The inventory shows expected contents, not who entered' },
-      { id: 'accounts_attributed', label: 'Nin-dara’s and the owner’s statements remain separately attributed accounts' },
+      { id: 'seal_not_authority', label: 'The household recognizes the seal, but still needs to ask whether the person who showed it was sent' },
+      { id: 'inventory_not_entrant', label: 'All listed contents are present; the household still wants to know who entered and when' },
+      { id: 'accounts_attributed', label: 'Nin-dara remembers opening the room; the owner says no one was sent. Keep both accounts with the tally' },
       { id: 'absence_not_proof', label: 'The missing copy leaves the household unable to say whether permission was given' },
     ],
   },
@@ -208,9 +208,9 @@ export const era1MarF02PartyReturnsShort = activity({
     limitationsLabel: 'Task and accountability limits',
     limitationOptions: [
       { id: 'issue_not_obligation', label: 'The issue list shows what was handed out; the group needs the return count checked before they leave' },
-      { id: 'count_not_reason', label: 'The return count shows a gap, not why it exists' },
-      { id: 'no_muster', label: 'This issue list covers the north-bay repair group and the tools handed out for that day's work' },
-      { id: 'accounts_not_verified', label: 'The explanations are attributed accounts and have not been independently verified' },
+      { id: 'count_not_reason', label: 'The missing tool and absent worker keep the group from closing the return count' },
+      { id: 'no_muster', label: 'This list covers the tools issued for the north-bay repair that day' },
+      { id: 'accounts_not_verified', label: 'Lu-kala and the party member disagree; the site count is still needed' },
     ],
   },
   evaluation: {
@@ -287,9 +287,9 @@ export const era1MarF03LateTurnedAside = activity({
     limitationsLabel: 'Movement and authority limits',
     limitationOptions: [
       { id: 'dispatch_not_arrival', label: 'The recipient is still waiting; the dispatch has no receiving tally' },
-      { id: 'accounts_not_cause', label: 'The accounts do not independently establish the cause of the halt' },
-      { id: 'message_unconfirmed', label: 'The claimed message has no confirming record or confirmed recipient' },
-      { id: 'no_judgment_or_payment', label: 'The scribe has no authority to judge the carrier or release payment' },
+      { id: 'accounts_not_cause', label: 'The carrier says the route was unsafe; the landing shows a delay. Neither account explains why the load stopped' },
+      { id: 'message_unconfirmed', label: 'Sig-ana says word was sent; Geme-Inana has not confirmed receiving it' },
+      { id: 'no_judgment_or_payment', label: 'Lu-Nanshe decides whether to hold the carrier’s credit; the scribe records the accounts' },
     ],
   },
   evaluation: {
@@ -369,7 +369,7 @@ export const era1MarF04ValuedObjectTrail = activity({
     ],
     limitationsLabel: 'Custody and authority limits',
     limitationOptions: [
-      { id: 'records_show_intervals', label: 'The removal note and workshop receipt establish only their own custody intervals' },
+      { id: 'records_show_intervals', label: 'The removal note and workshop receipt mark two handovers; the gap between them still needs a custodian’s account' },
       { id: 'missing_entry_not_missing_handover', label: 'The Storehouse copy has no return line; the custodians may remember a handover' },
       { id: 'spoken_account_is_lead', label: 'Enlil-kisu’s account gives a time to ask about, not a completed return entry' },
       { id: 'gap_not_fault', label: 'Lu-Nanshe must ask each custodian about their interval before deciding who, if anyone, is responsible' },
