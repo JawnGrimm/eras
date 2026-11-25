@@ -12,6 +12,7 @@ import { transitionGame } from '../engine/actionEconomy';
 import { generateDailyAssignments } from '../engine/assignmentGenerator';
 import { createInitialGameState } from '../state/initialState';
 import { transitionAssignmentActivityAction } from '../engine/assignmentActivity';
+import { advanceInstitutionalMatters } from '../engine/institutionalMatters';
 import { ASSIGNMENT_ACTIVITY_CATALOG } from '../content/assignments/northBayRoofInspection';
 import { ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS } from '../content/assignments/eraIAnchorOpportunities';
 import { ERA_I_COMMERCIAL_MARTIAL_OPPORTUNITY_DEFINITIONS } from '../content/assignments/eraICommercialMartial';
@@ -155,9 +156,9 @@ describe('production opportunity screens', () => {
 
   it('keeps player-facing assignment and NPC text free of research/meta labels and museum identifiers', () => {
     const base = createInitialGameState();
-    const generated = generateDailyAssignments({
-      ...base, calendar: { ...base.calendar, dayNumber: 20 },
-    });
+    const day20 = { ...base, calendar: { ...base.calendar, dayNumber: 20 } };
+    const populated = advanceInstitutionalMatters(day20, 20);
+    const generated = generateDailyAssignments(populated);
     const collectStrings = (value: unknown): string[] => {
       if (typeof value === 'string') return [value];
       if (Array.isArray(value)) return value.flatMap(collectStrings);
