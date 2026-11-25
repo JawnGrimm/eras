@@ -125,10 +125,10 @@ export const URUK_ASSIGNMENT_OPPORTUNITY_DEFINITIONS: readonly AssignmentOpportu
       employer: { kind: 'institution', id: 'institution-uruk-temple-storehouse' as import('../../state/ids').InstitutionId },
       category: 'tier_b_institutional_check',
       context: {
-        what: 'Compare the dated source and receiving/check records for this institutional occurrence.',
+        what: 'Compare the dated source and receiving/check records before the next tally is copied.',
         who: ['Ur-Nanna, Storehouse Steward', 'Utu-mansum, Receiving Official', 'Shuruppak-ilu, Senior Scribe'],
         quantity: 'The source records show the figures and their stated commodity and unit.',
-        when: 'During the current storehouse workday, following the recorded occurrence.',
+        when: 'Before the next storehouse tally is copied forward.',
         where: 'At the storehouse work area where the two copies were brought together.',
         from: 'The dated dispatch/source copy and receiving/check record that prompted the comparison.',
         to: 'Shuruppak-ilu for review before the next tally.',
