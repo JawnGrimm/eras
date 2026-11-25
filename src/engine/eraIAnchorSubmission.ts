@@ -142,6 +142,7 @@ export function submitRubricAssignmentActivity(
       holder: { kind: 'institution' as const, id: institution.id },
       subject: { kind: 'record' as const, id: recordId },
       basis: 'received-copy' as const, learnedDay: state.calendar.dayNumber, sourcePersonId: person.id,
+      assertion: { kind: 'fact' as const, text: 'Received a copy of the submitted assignment report.' }, assessments: [],
     },
   ];
   const reaction = rubric.reactions[assessment]
