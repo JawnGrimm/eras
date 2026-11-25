@@ -54,6 +54,27 @@ describe('shared Closing Receipt assessment schedule', () => {
     expect(thorough.receipt.institutionName).toBe('Temple Storehouse');
   });
 
+  it('does not farm familiarity from a second receipt on the same authored matter', () => {
+    const state = createInitialGameState();
+    const first = applyClosingAssessment(state, {
+      receiptId: 'receipt-matter-first', title: 'First report', disposition: 'Filed',
+      assessment: 'Defensible', rationale: 'Supported by the record.', reaction: 'The report was reviewed.',
+      baseCareerXp: 12, receiverPersonId: receiverId, institutionId,
+      contextId: 'era_i_assignment', occasionId: 'matter-shared-01',
+    });
+    expect(first).not.toBeNull();
+    const second = applyClosingAssessment(first!.state, {
+      receiptId: 'receipt-matter-second', title: 'Second report', disposition: 'Filed',
+      assessment: 'Defensible', rationale: 'Supported by the record.', reaction: 'The later report was reviewed.',
+      baseCareerXp: 12, receiverPersonId: receiverId, institutionId,
+      contextId: 'era_i_assignment', occasionId: 'matter-shared-01',
+    });
+    expect(second).not.toBeNull();
+    expect(Object.keys(second!.state.world.relationshipFamiliarityEpisodes ?? {})).toHaveLength(1);
+    expect(second!.state.world.events['event-closing-receipt-receipt-matter-first']).toBeDefined();
+    expect(second!.state.world.events['event-closing-receipt-receipt-matter-second']).toBeDefined();
+  });
+
   it('keeps sentiment unchanged for an Incomplete assessment while recording the substantive interaction', () => {
     const incomplete = apply('Incomplete');
     const scribal = getInitializedScribal(incomplete.state.world.people[INITIAL_PERSON_ID])!;
