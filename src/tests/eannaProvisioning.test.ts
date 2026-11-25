@@ -96,7 +96,8 @@ describe('Eanna Provisioning Undertaking', () => {
     expect(result.feedback?.code).toBe('work-started');
     state = result.state;
     expect(state.world.matters[EANNA_PROVISIONING_MATTER_ID]?.status).toBe('active');
-    expect(state.world.institutions[eannaProvisioningWork.id as never]).toBeUndefined();
+    const originMatter = state.world.matters[EANNA_PROVISIONING_MATTER_ID];
+    expect(state.world.institutions[originMatter.institutionId].activeMatters).toContain(EANNA_PROVISIONING_MATTER_ID);
 
     const scenario = completeScenario();
     for (const [actionId, stage] of [
