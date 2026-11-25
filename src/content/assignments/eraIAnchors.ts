@@ -214,8 +214,8 @@ export const laborGroupDisbursement = activity({
   discoveries: [
     { id: 'civ02-request', title: 'The reviewer’s request', text: 'The group leader wants the figures settled so people can leave. Shuruppak-ilu asks for two separate checks and keeps the grain copy apart from their tally.' },
     { id: 'civ02-labor-account', title: 'Labor-group account', text: 'The labor-group tally gives entries 6, 8, and 5; they add to the written total of 19.' },
-    { id: 'civ02-disbursement', title: 'Separate grain-disbursement record', text: 'The grain entry names high-ranking officials. The group leader cannot use it to claim a ration for his people.' },
-    { id: 'civ02-provenance', title: 'Why the copies stay separate', text: 'The group leader wants the grain included, but the two copies name different entries. No shared transaction is recorded.' },
+    { id: 'civ02-disbursement', title: 'Separate grain-disbursement record', text: 'The group leader points to the grain entry and asks whether it covers his people. The names belong to officials in another account; his own group still needs its tally checked.' },
+    { id: 'civ02-provenance', title: 'Two copies, two questions', text: 'The group leader wants the grain included before the tally is closed. The names in that copy belong to a different account; he still needs his own total checked.' },
   ],
   actions: [
     { id: 'civ02-review-request', family: 'consult', label: 'Consult the reviewer', description: 'Clarify the two-part report and the group’s need for a timely answer.', apCost: 1, discoveryIds: ['civ02-request'], consultedPersonId: people.senior },
