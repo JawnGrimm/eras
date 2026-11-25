@@ -48,8 +48,8 @@ export const ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS: readonly AssignmentOpportunit
     employer:{kind:'person',id:people.senior},category:'commercial_account',
     context:{
       what:'Recalculate grain-product and malt entries without combining their separate categories.',
-      who:['Shuruppak-ilu, Senior Scribe','A brewer involved in the account a brewer'],
-      quantity:'groats entries 4, 3, and 2; written subtotal 8; separate malt total 7.',
+      who:['Shuruppak-ilu, Senior Scribe','A brewer involved in the account'],
+      quantity:'Groats entries 4, 3, and 2; written subtotal 8; separate malt total 7.',
       when:'Before the working account is copied forward.',
       where:'A tablet room used for supervised account review.',
       from:'A dated account copy with separate groats and malt entries, totals, and subtotals.',
@@ -72,7 +72,7 @@ export const ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS: readonly AssignmentOpportunit
     context:{
       what:'Check a readable parcel-area transcription and its written subtotal.',
       who:['Shuruppak-ilu, Senior Scribe','The responsible recorder who supplied the working copy'],
-      quantity:'parcel areas 2, 3, and 4; written subtotal 8.',
+      quantity:'Parcel areas 2, 3, and 4; written subtotal 8.',
       when:'Before the figures are copied into a working summary.',
       where:'A supervised tablet room; no precise field location is inferred.',
       from:'An older field-area copy whose origin is unrecorded.',
@@ -95,7 +95,7 @@ export const ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS: readonly AssignmentOpportunit
     context:{
       what:'Check a labor-group total and separately summarize a grain-disbursement record.',
       who:['Shuruppak-ilu, Senior Scribe','An unnamed labor-group leader','The officials named by the separate disbursement record'],
-      quantity:'labor-group entries 6, 8, and 5; written total 19. The separate record has no asserted link to this group.',
+      quantity:'Labor-group entries 6, 8, and 5; written total 19. The separate record has no asserted link to this group.',
       when:'Before the labor group is released from its current obligation.',
       where:'A supervised review setting; the two source records retain separate provenance.',
       from:'A labor-group tally and a separate grain-disbursement copy, kept distinct in this review.',
