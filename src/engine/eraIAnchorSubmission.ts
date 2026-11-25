@@ -212,8 +212,18 @@ export function submitRubricAssignmentActivity(
     ],
   } : undefined;
   let outcomeRelationships = evaluated.state.world.relationships;
+  const relationshipEventIdFor = (affectedPersonId: PersonId): EventId | undefined => {
+    if (f01Event && f01Event.personIds.includes(person.id) && f01Event.personIds.includes(affectedPersonId)) return f01Event.id;
+    const consultationAction = definition.actions.find((item) =>
+      item.consultedPersonId === affectedPersonId && progress.completedActionIds.includes(item.id),
+    );
+    if (!consultationAction) return undefined;
+    const eventId = `event-assignment-consultation-${offer.id}-${consultationAction.id}` as EventId;
+    return evaluated.state.world.events[eventId] ? eventId : undefined;
+  };
   if (f01 && f01Supported) {
     const affected = ERA1_COM_F01_PEOPLE.workshopOverseer;
+    const relationshipEventId = relationshipEventIdFor(affected);
     const current = outcomeRelationships[affected]?.[person.id];
     const dimensions = { trust: 50, respect: 50, affection: 50, resentment: 0, rivalry: 0, ...current?.dimensions };
     const trustDelta = assessment === 'Thorough' ? 2 : 1;
@@ -229,6 +239,7 @@ export function submitRubricAssignmentActivity(
             summary: assessment === 'Thorough'
               ? 'Ur-Lamma regards the scribe as reliable after a thorough report supports the documented description difference.'
               : 'Ur-Lamma regards the scribe as reliable after a defensible report supports the documented description difference.',
+          ...(relationshipEventId ? { eventId: relationshipEventId } : {}),
           }],
         },
       },
@@ -238,6 +249,7 @@ export function submitRubricAssignmentActivity(
     if (affectedPersonId === receiverId || affectedPersonId === person.id) continue;
     const affectedPerson = state.world.people[affectedPersonId];
     if (!affectedPerson) continue;
+    const relationshipEventId = relationshipEventIdFor(affectedPersonId);
     const current = outcomeRelationships[affectedPersonId]?.[person.id];
     const dimensions = { trust: 50, respect: 50, affection: 50, resentment: 0, rivalry: 0, ...current?.dimensions };
     const schedule = CLOSING_RECEIPT_SCHEDULE[assessment];
@@ -256,6 +268,7 @@ export function submitRubricAssignmentActivity(
             id: `assignment-receipt-${offer.id}-day-${state.calendar.dayNumber}:relationship-${affectedPersonId}`,
             dayNumber: state.calendar.dayNumber,
             summary: `After ${person.name} submitted "${record.title}" on Day ${record.createdDay}, ${affectedPerson.name}'s trust toward ${person.name} ${trustChange} and respect toward ${person.name} ${respectChange}.`,
+          ...(relationshipEventId ? { eventId: relationshipEventId } : {}),
           }],
         },
       },

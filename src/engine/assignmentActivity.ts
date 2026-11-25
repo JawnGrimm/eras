@@ -1,7 +1,8 @@
 import type { GameAction, GameState, TransitionResult, AssignmentOffer, RecordAssertion, RecordEntry } from '../state/types';
 import { getInitializedScribal } from '../state/scribalState';
 import { addActivity } from './opportunities';
-import type { AssignmentId, KnowledgeEntryId, RecordId, InstitutionId } from '../state/ids';
+import type { AssignmentId, EventId, KnowledgeEntryId, RecordId, InstitutionId } from '../state/ids';
+import { addRelationshipFamiliarityEpisode, relationshipFamiliarityEpisodeId } from '../state/relationshipFamiliarity';
 import { NORTH_BAY_ACTIVITY_ID, NORTH_BAY_POST_EXECUTION_ACTIVITY_ID, NORTH_BAY_PEOPLE, ASSIGNMENT_ACTIVITY_CATALOG, validateAssignmentActivityProgress, normalizeActivityDraft } from '../content/assignments/northBayRoofInspection';
 import { submitNorthBayPostExecutionInspection } from './northBayPostExecutionSubmission';
 import { submitUrukAssignmentActivity } from './urukAssignmentSubmission';
@@ -40,9 +41,52 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
         : progress.consultedPersonIds,
     };
     if (!validateAssignmentActivityProgress(definition, nextProgress)) return fail(state, 'assignment-activity-progress-invalid', 'The action produced invalid activity progress.');
-    return succeed({ ...state, actionEconomy: { ...state.actionEconomy, apRemaining: state.actionEconomy.apRemaining - activityAction.apCost },
+
+    let events = state.world.events;
+    let familiarityEpisodes = state.world.relationshipFamiliarityEpisodes;
+    if (activityAction.consultedPersonId) {
+      const consultedPerson = state.world.people[activityAction.consultedPersonId];
+      const currentPerson = state.world.people[state.player.currentCharacterId];
+      if (activityAction.family !== 'consult' || !consultedPerson || !currentPerson || consultedPerson.id === currentPerson.id) {
+        return fail(state, 'assignment-activity-consultation-invalid', 'The authored consultation does not identify a valid other participant.');
+      }
+      const eventId = `event-assignment-consultation-${offer.id}-${activityAction.id}` as EventId;
+      if (events[eventId]) return fail(state, 'assignment-activity-consultation-duplicate', 'This consultation Event has already been recorded.');
+      const event = {
+        id: eventId, dayNumber: state.calendar.dayNumber,
+        summary: `${currentPerson.name} consulted ${consultedPerson.name} during ${offer.title}.`,
+        personIds: [currentPerson.id, consultedPerson.id],
+        institutionIds: offer.employer.kind === 'institution' && state.world.institutions[offer.employer.id as InstitutionId]
+          ? [offer.employer.id as InstitutionId] : [],
+      };
+      events = { ...events, [eventId]: event };
+      const contextId = offer.activityId ?? offer.category;
+      const matterId = offer.originMatterId && state.world.matters[offer.originMatterId] ? offer.originMatterId : undefined;
+      const occasionId = matterId ? `${matterId}:${contextId}` : offer.id;
+      const episodeId = relationshipFamiliarityEpisodeId(currentPerson.id, consultedPerson.id, occasionId, 'assignment_consultation');
+      if (!familiarityEpisodes[episodeId]) {
+        const recorded = addRelationshipFamiliarityEpisode(familiarityEpisodes, {
+          id: episodeId, observerPersonId: currentPerson.id, subjectPersonId: consultedPerson.id,
+          acquisitionMode: 'direct_interaction', interactionKind: 'assignment_consultation',
+          occasionId, ...(matterId ? { matterId } : {}), contextId,
+          stageContribution: 'acquainted', dayNumber: state.calendar.dayNumber,
+          provenance: [{ kind: 'event', id: eventId }],
+        }, {
+          people: state.world.people, events, records: state.records.entries,
+          matters: state.world.matters, currentDay: state.calendar.dayNumber,
+        });
+        if (!recorded.ok) return fail(state, 'assignment-activity-consultation-provenance-invalid', 'The consultation lacks valid person or Event provenance.');
+        familiarityEpisodes = recorded.episodes;
+      }
+    }
+
+    return succeed({
+      ...state,
+      actionEconomy: { ...state.actionEconomy, apRemaining: state.actionEconomy.apRemaining - activityAction.apCost },
+      world: { ...state.world, events, relationshipFamiliarityEpisodes: familiarityEpisodes },
       opportunities: { ...state.opportunities, assignments: { ...state.opportunities.assignments,
-        [offer.id]: { ...offer, activityProgress: nextProgress } } } }, 'assignment-activity-action-completed', activityAction.successMessage ?? activityAction.label + ' completed.');
+        [offer.id]: { ...offer, activityProgress: nextProgress } } },
+    }, 'assignment-activity-action-completed', activityAction.successMessage ?? activityAction.label + ' completed.');
   }
   if (action.type === 'UPDATE_ASSIGNMENT_ACTIVITY_DRAFT') {
     const draft = normalizeActivityDraft(action.draft);
