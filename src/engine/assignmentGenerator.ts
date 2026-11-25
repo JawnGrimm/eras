@@ -175,6 +175,7 @@ export function generateDailyAssignments(state: GameState): GameState {
         description: sourceMatter.summary,
         employer: { kind: 'institution' as const, id: sourceMatter.institutionId },
         category: 'tier_b_institutional_check',
+        estimatedTotalAp: 4,
         commodity: recurring.commodity,
         context: {
           ...definition.offer.context,
