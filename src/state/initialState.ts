@@ -187,14 +187,14 @@ export function createInitialGameState(player?: Person, opportunitySeed = 'era1-
       people,
       relationships: player ? {} : {
         [INITIAL_PERSON_ID]: {
-          [apprenticeId]: { dimensions: { trust: 65, respect: 55, affection: 45, resentment: 0, rivalry: 5, familiarity: 60 }, history: [{ id: 'rel-enlil-nin-aya-1', dayNumber: 1, summary: 'Nin-aya has learned routine tablet preparation alongside Enlil-barni.' }] },
-          [enlilKisuId]: { dimensions: { trust: 52, respect: 55, affection: 20, resentment: 0, rivalry: 0, familiarity: 18 }, history: [{ id: 'rel-enlil-barni-enlil-kisu-1', dayNumber: 1, summary: 'Enlil-barni knows Carrier Foreman Enlil-kisu through the Temple Storehouse dispatch and receiving work.' }] },
+          [apprenticeId]: { dimensions: { trust: 65, respect: 55, affection: 45, resentment: 0, rivalry: 5 }, history: [{ id: 'rel-enlil-nin-aya-1', dayNumber: 1, summary: 'Nin-aya has learned routine tablet preparation alongside Enlil-barni.' }] },
+          [enlilKisuId]: { dimensions: { trust: 52, respect: 55, affection: 20, resentment: 0, rivalry: 0 }, history: [{ id: 'rel-enlil-barni-enlil-kisu-1', dayNumber: 1, summary: 'Enlil-barni knows Carrier Foreman Enlil-kisu through the Temple Storehouse dispatch and receiving work.' }] },
         },
         [colleagueId]: {
-          [INITIAL_PERSON_ID]: { dimensions: { trust: 50, respect: 62, affection: 20, resentment: 0, rivalry: 10, familiarity: 45 }, history: [{ id: 'rel-ur-gir-enlil-1', dayNumber: 1, summary: 'Ur-gir has worked alongside Enlil-barni on storehouse accounts.' }] },
+          [INITIAL_PERSON_ID]: { dimensions: { trust: 50, respect: 62, affection: 20, resentment: 0, rivalry: 10 }, history: [{ id: 'rel-ur-gir-enlil-1', dayNumber: 1, summary: 'Ur-gir has worked alongside Enlil-barni on storehouse accounts.' }] },
         },
         [enlilKisuId]: {
-          [INITIAL_PERSON_ID]: { dimensions: { trust: 55, respect: 52, affection: 20, resentment: 0, rivalry: 0, familiarity: 18 }, history: [{ id: 'rel-enlil-kisu-enlil-barni-1', dayNumber: 1, summary: 'Enlil-kisu knows Enlil-barni as a junior scribe who handles receiving and dispatch records.' }] },
+          [INITIAL_PERSON_ID]: { dimensions: { trust: 55, respect: 52, affection: 20, resentment: 0, rivalry: 0 }, history: [{ id: 'rel-enlil-kisu-enlil-barni-1', dayNumber: 1, summary: 'Enlil-kisu knows Enlil-barni as a junior scribe who handles receiving and dispatch records.' }] },
         },
       },
       institutions: {
@@ -223,7 +223,7 @@ export function createInitialGameState(player?: Person, opportunitySeed = 'era1-
         [TEXTILE_HOUSEHOLD_LOCATION_ID]: { id: TEXTILE_HOUSEHOLD_LOCATION_ID, name: 'Textile household work space, Uruk' },
         [RIVER_LANDING_LOCATION_ID]: { id: RIVER_LANDING_LOCATION_ID, name: 'River landing, Uruk' },
       },
-      appointments: Object.fromEntries(appointments.map((appointment) => [appointment.id, appointment])), events: { [deliveryEventId]: deliveryEvent, [awningEventId]: awningEvent }, knowledge: {},
+      appointments: Object.fromEntries(appointments.map((appointment) => [appointment.id, appointment])), events: { [deliveryEventId]: deliveryEvent, [awningEventId]: awningEvent }, knowledge: {}, relationshipFamiliarityEpisodes: {},
       matters: {
         [MATTER_IDS.tutorial]: { id: MATTER_IDS.tutorial, institutionId: STOREHOUSE_INSTITUTION_ID, kind: 'tutorial', summary: 'The Storehouse Reckoning introductory tutorial.', status: 'active', createdDay: 1 },
         [deliveryMatterId]: deliveryMatter,

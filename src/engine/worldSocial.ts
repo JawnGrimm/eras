@@ -1,14 +1,16 @@
 import type { EventId, InstitutionId, PersonId } from '../state/ids';
 import { getInitializedScribal } from '../state/scribalState';
 import type { GameAction, GameState, PersonRelationship, RecordEntry, TransitionResult } from '../state/types';
+import { addRelationshipFamiliarityEpisode } from '../state/relationshipFamiliarity';
 import { applyInstitutionalResponseEvent, validateInstitutionalResponseEvent } from './institutionalResponseValidation';
-type WorldAction = Extract<GameAction, { type: 'SET_RELATIONSHIP' | 'SET_INSTITUTIONAL_STANDING' | 'CREATE_INSTITUTION' | 'CREATE_APPOINTMENT' | 'END_APPOINTMENT' | 'CREATE_EVENT' | 'CREATE_RECORD' | 'AMEND_RECORD' | 'GRANT_KNOWLEDGE' }>;
+type WorldAction = Extract<GameAction, { type: 'SET_RELATIONSHIP' | 'SET_INSTITUTIONAL_STANDING' | 'CREATE_INSTITUTION' | 'CREATE_APPOINTMENT' | 'END_APPOINTMENT' | 'CREATE_EVENT' | 'CREATE_RECORD' | 'AMEND_RECORD' | 'GRANT_KNOWLEDGE' | 'ASSESS_KNOWLEDGE' | 'RECORD_RELATIONSHIP_FAMILIARITY_EPISODE' }>;
 function fail(state: GameState, code: string, message: string): TransitionResult { return { state, feedback: { kind: 'error', code, message } }; }
 function succeed(state: GameState, code: string, message: string): TransitionResult { return { state, feedback: { kind: 'success', code, message } }; }
 const validScore = (n: number) => Number.isFinite(n) && n >= 0 && n <= 100;
 function validRelationship(r: PersonRelationship) {
   return !!r && typeof r === 'object' && !!r.dimensions && typeof r.dimensions === 'object'
-    && Object.values(r.dimensions).every(validScore) && Array.isArray(r.history)
+    && Object.keys(r.dimensions).length === 5 && ['trust','respect','affection','resentment','rivalry'].every((key) => validScore(r.dimensions[key as keyof typeof r.dimensions]))
+    && Array.isArray(r.history)
     && r.history.every((h) => !!h.id && !!h.summary && Number.isInteger(h.dayNumber) && h.dayNumber >= 1);
 }
 function sourceIds(record: RecordEntry) {
@@ -119,8 +121,49 @@ export function transitionWorldAction(state: GameState, action: WorldAction): Tr
       if (w.knowledge[k.id]) return fail(state, 'knowledge-exists', 'This knowledge entry already exists.');
       const holder = k.holder.kind === 'person' ? !!w.people[k.holder.id] : k.holder.kind === 'institution' ? !!w.institutions[k.holder.id] : false;
       const subject = k.subject.kind === 'event' ? !!w.events[k.subject.id] : k.subject.kind === 'record' ? !!state.records.entries[k.subject.id] : false;
-      if (!k.id || !holder || !subject || !['direct-involvement','testimony','received-copy','consulted-record','public-disclosure','other'].includes(k.basis) || !Number.isInteger(k.learnedDay) || k.learnedDay < 1 || k.learnedDay > state.calendar.dayNumber || (k.sourcePersonId && !w.people[k.sourcePersonId])) return fail(state, 'knowledge-invalid', 'Knowledge must identify an existing holder and subject, a plausible basis, and a valid date.');
-      return succeed({ ...state, world: { ...w, knowledge: { ...w.knowledge, [k.id]: k } } }, 'knowledge-granted', 'The information was added only to the specified holder’s knowledge.');
+      const assertion = k.assertion;
+      const validAssertion = !!assertion && ['fact','observation','remembered_tendency'].includes(assertion.kind)
+        && typeof assertion.text === 'string' && !!assertion.text.trim()
+        && (assertion.aboutPersonId === undefined || !!w.people[assertion.aboutPersonId])
+        && (assertion.situationKey === undefined || !!assertion.situationKey.trim())
+        && (assertion.kind !== 'remembered_tendency' || (!!assertion.aboutPersonId && !!assertion.situationKey))
+        && (assertion.recordAssertion === undefined || (!!state.records.entries[assertion.recordAssertion.recordId]
+          && [...state.records.entries[assertion.recordAssertion.recordId].assertions,
+            ...state.records.entries[assertion.recordAssertion.recordId].amendments.flatMap((item) => item.assertionsAdded)]
+            .some((item) => item.id === assertion.recordAssertion?.assertionId)));
+      if (!k.id || !holder || !subject || !['direct-involvement','testimony','received-copy','consulted-record','public-disclosure','other'].includes(k.basis)
+        || !Number.isInteger(k.learnedDay) || k.learnedDay < 1 || k.learnedDay > state.calendar.dayNumber
+        || (k.sourcePersonId && !w.people[k.sourcePersonId]) || k.legacy === true || !validAssertion || !Array.isArray(k.assessments) || k.assessments.length !== 0) {
+        return fail(state, 'knowledge-invalid', 'New Knowledge must identify an existing holder and source, a specific assertion, and an empty assessment history.');
+      }
+      return succeed({ ...state, world: { ...w, knowledge: { ...w.knowledge, [k.id]: k } } }, 'knowledge-granted', 'The specific information was added only to the named holder’s knowledge.');
+    }
+    case 'ASSESS_KNOWLEDGE': {
+      const entry = w.knowledge[action.knowledgeId];
+      const assessment = action.assessment;
+      if (!entry || entry.legacy === true || !entry.assertion) return fail(state, 'knowledge-missing', 'Only current assertion-bearing Knowledge can be assessed.');
+      const prior = entry.assessments ?? [];
+      const lastDay = prior.at(-1)?.dayNumber ?? entry.learnedDay;
+      const sourceExists = assessment?.source?.kind === 'event' ? !!w.events[assessment.source.id]
+        && w.events[assessment.source.id].dayNumber <= assessment.dayNumber
+        : assessment?.source?.kind === 'record' ? !!state.records.entries[assessment.source.id]
+          && state.records.entries[assessment.source.id].createdDay <= assessment.dayNumber : false;
+      if (!assessment || !['verified','contradicted','obsolete'].includes(assessment.status) || !sourceExists
+        || !Number.isInteger(assessment.dayNumber) || assessment.dayNumber < lastDay || assessment.dayNumber > state.calendar.dayNumber
+        || !assessment.rationale?.trim()) return fail(state, 'knowledge-assessment-invalid', 'A Knowledge assessment needs a valid status, existing source, non-decreasing date, and rationale.');
+      return succeed({ ...state, world: { ...w, knowledge: { ...w.knowledge, [entry.id]: { ...entry, assessments: [...prior, assessment] } } } },
+        'knowledge-assessed', 'A new assessment was appended; the remembered assertion remains unchanged.');
+    }
+    case 'RECORD_RELATIONSHIP_FAMILIARITY_EPISODE': {
+      const result = addRelationshipFamiliarityEpisode(w.relationshipFamiliarityEpisodes ?? {}, action.episode, {
+        people: w.people, events: w.events, records: state.records.entries, matters: w.matters, currentDay: state.calendar.dayNumber,
+      });
+      if (!result.ok) return fail(state, result.code, result.code === 'episode-conflict'
+        ? 'This familiarity occasion already exists with conflicting details.'
+        : 'A familiarity episode needs a distinct pair, valid typed provenance, and a supported date.');
+      if (!result.inserted) return succeed(state, 'familiarity-episode-already-recorded', 'This directional familiarity episode was already recorded.');
+      return succeed({ ...state, world: { ...w, relationshipFamiliarityEpisodes: result.episodes } },
+        'familiarity-episode-recorded', 'A provenanced directional familiarity episode was recorded.');
     }
   }
 }

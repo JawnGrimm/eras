@@ -94,6 +94,7 @@ function stateWithExecution(includeEvidence = true): GameState {
         holder: { kind: 'person', id: verifierId },
         subject: { kind: 'record', id: inspectionRecordId },
         basis: 'received-copy', learnedDay: 1, sourcePersonId: INITIAL_PERSON_ID,
+        assertion: { kind: 'fact', text: 'Received a copy of the inspection report.' }, assessments: [],
       } } : base.world.knowledge,
     },
     records: { ...base.records, entries: {

@@ -50,7 +50,7 @@ function relationship(
   summary: string,
 ): GameState['world']['relationships'] {
   const current = state.world.relationships[fromId]?.[toId];
-  const dimensions = { trust: 50, respect: 50, affection: 50, resentment: 0, rivalry: 0, familiarity: 0, ...current?.dimensions };
+  const dimensions = { trust: 50, respect: 50, affection: 50, resentment: 0, rivalry: 0, ...current?.dimensions };
   dimensions.trust = Math.max(0, Math.min(100, dimensions.trust + trust));
   dimensions.respect = Math.max(0, Math.min(100, dimensions.respect + respect));
   return {
@@ -191,6 +191,7 @@ export function submitUrukAssignmentActivity(
     holder: holder === STOREHOUSE ? { kind: 'institution' as const, id: STOREHOUSE } : { kind: 'person' as const, id: holder as PersonId },
     subject: { kind: 'record' as const, id: recordId }, basis: 'received-copy' as const,
     learnedDay: state.calendar.dayNumber, sourcePersonId: person.id,
+    assertion: { kind: 'fact' as const, text: 'Received a copy of the submitted storehouse report.' }, assessments: [],
   }));
 
   let relationships = state.world.relationships;

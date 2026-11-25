@@ -30,7 +30,7 @@ export function validateOpportunityConsequences(
   if (effects.careerXp !== undefined && (!Number.isFinite(effects.careerXp) || effects.careerXp < 0)) return 'Career XP consequence is invalid.';
   if (effects.relationships !== undefined && (!Array.isArray(effects.relationships) || effects.relationships.some((x) =>
     !x || !context.world.people[x.fromId] || !context.world.people[x.toId] || x.fromId === x.toId || !x.summary
-      || !x.changes || typeof x.changes !== 'object' || Object.entries(x.changes).some(([key, n]) => !['trust','respect','affection','resentment','rivalry','familiarity'].includes(key) || typeof n !== 'number' || !Number.isFinite(n))))) return 'Relationship consequence has invalid people or values.';
+      || !x.changes || typeof x.changes !== 'object' || Object.entries(x.changes).some(([key, n]) => !['trust','respect','affection','resentment','rivalry'].includes(key) || typeof n !== 'number' || !Number.isFinite(n))))) return 'Relationship consequence has invalid people or values.';
   if (effects.institutionalStanding !== undefined && (!Array.isArray(effects.institutionalStanding) || effects.institutionalStanding.some((x) =>
     !x || !context.world.institutions[x.institutionId] || typeof x.delta !== 'number' || !Number.isFinite(x.delta)))) return 'Institutional-standing consequence has invalid references or values.';
 
@@ -84,8 +84,24 @@ export function validateOpportunityConsequences(
       : entry.holder.kind === 'institution' ? !!context.world.institutions[entry.holder.id] : false;
     const subjectExists = entry.subject.kind === 'event' ? !!context.world.events[entry.subject.id] || createdEvents.has(entry.subject.id)
       : entry.subject.kind === 'record' ? !!context.records.entries[entry.subject.id] || createdRecords.has(entry.subject.id) : false;
+    const assertion = entry.assertion;
+    const assertionRecord = assertion?.recordAssertion
+      ? (effects.record?.id === assertion.recordAssertion.recordId ? effects.record : context.records.entries[assertion.recordAssertion.recordId])
+      : undefined;
+    const assertionRecordExists = !!assertionRecord && !!assertion?.recordAssertion
+      && [...assertionRecord.assertions, ...assertionRecord.amendments.flatMap((amendment) => amendment.assertionsAdded)]
+        .some((item) => item.id === assertion?.recordAssertion?.assertionId);
+    const validAssertion = !!assertion && ['fact','observation','remembered_tendency'].includes(assertion.kind)
+      && typeof assertion.text === 'string' && !!assertion.text.trim()
+      && (assertion.aboutPersonId === undefined || !!context.world.people[assertion.aboutPersonId])
+      && (assertion.situationKey === undefined || !!assertion.situationKey.trim())
+      && (assertion.kind !== 'remembered_tendency' || (!!assertion.aboutPersonId && !!assertion.situationKey))
+      && (assertion.recordAssertion === undefined || assertionRecordExists);
     if (!holderExists || !subjectExists || (entry.sourcePersonId && !context.world.people[entry.sourcePersonId])
-      || !['direct-involvement','testimony','received-copy','consulted-record','public-disclosure','other'].includes(entry.basis)) return 'Knowledge entry references an unavailable holder, subject, or source.';
+      || !['direct-involvement','testimony','received-copy','consulted-record','public-disclosure','other'].includes(entry.basis)
+      || entry.legacy === true || !validAssertion || !Array.isArray(entry.assessments) || entry.assessments.length !== 0) {
+      return 'New Knowledge requires an available holder and source, an explicit assertion, and an empty assessment history.';
+    }
     createdKnowledge.add(entry.id);
   }
   return null;

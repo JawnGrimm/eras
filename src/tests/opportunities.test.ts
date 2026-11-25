@@ -192,7 +192,8 @@ describe('Assignment and Challenge foundations', () => {
         assertions: [{ id: 'assertion-arrival', text: 'The shipment arrived.', classification: 'observed' as const, sourceIds: ['source-event'] }],
         uncertaintyLimits: [], amendments: [] },
       knowledge: [{ id: 'knowledge-authored' as KnowledgeEntryId, holder: { kind: 'person' as const, id: INITIAL_PERSON_ID },
-        subject: { kind: 'record' as const, id: 'record-authored' as RecordId }, basis: 'consulted-record' as const, learnedDay: 99 }],
+        subject: { kind: 'record' as const, id: 'record-authored' as RecordId }, basis: 'consulted-record' as const, learnedDay: 99,
+        assertion: { kind: 'fact' as const, text: 'Consulted the arrival tally.' }, assessments: [] }],
       datePolicies: { event: { kind: 'fixed' as const, dayNumber: 1 }, record: { kind: 'resolution_day' as const },
         knowledge: { 'knowledge-authored': { kind: 'fixed' as const, dayNumber: 2 } } },
     } };

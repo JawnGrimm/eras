@@ -157,6 +157,7 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
     id: `knowledge-${offer.id}-day-${state.calendar.dayNumber}-${holder.kind}-${holder.id}` as KnowledgeEntryId,
     holder, subject: { kind: 'record' as const, id: recordId }, basis: 'received-copy' as const,
     learnedDay: state.calendar.dayNumber, sourcePersonId: state.player.currentCharacterId,
+    assertion: { kind: 'fact' as const, text: 'Received a copy of the submitted roof inspection report.' }, assessments: [],
   }));
   const institution = state.world.institutions[STOREHOUSE];
   const person = state.world.people[state.player.currentCharacterId];
@@ -178,6 +179,8 @@ export function transitionAssignmentActivityAction(state: GameState, action: Act
     rationale: definition.evaluation.rationales[assessment], reaction,
     baseCareerXp: offer.careerXpReward, institutionId: STOREHOUSE,
     receiverPersonId: definition.evaluation.receiverPersonId,
+    contextId: offer.activityId ?? offer.category, occasionId: state.world.matters[MATTER_IDS.roofRepair] ? `${MATTER_IDS.roofRepair}:${offer.activityId ?? offer.category}` : offer.id,
+    ...(state.world.matters[MATTER_IDS.roofRepair] ? { matterId: MATTER_IDS.roofRepair } : {}),
     currencyDelta: offer.compensation.money, provisionsDelta: offer.compensation.provisions,
     ...(offer.compensation.money || offer.compensation.provisions
       ? { compensationTiming: 'Contracted compensation is payable in full at preliminary Day-Close, regardless of assessment.' } : {}),

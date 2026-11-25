@@ -152,6 +152,7 @@ export function submitNorthBayPostExecutionInspection(
     basis: 'received-copy' as const,
     learnedDay: state.calendar.dayNumber,
     sourcePersonId: playerId,
+    assertion: { kind: 'fact' as const, text: 'Received a copy of the independent post-execution inspection report.' }, assessments: [],
   }));
   const institution = state.world.institutions[STOREHOUSE];
   const person = state.world.people[playerId];
@@ -185,6 +186,7 @@ export function submitNorthBayPostExecutionInspection(
     rationale: definition.evaluation.rationales[assessment], reaction,
     baseCareerXp: offer.careerXpReward, institutionId: STOREHOUSE,
     receiverPersonId: definition.evaluation.receiverPersonId,
+    contextId: offer.activityId ?? offer.category, occasionId: `${matter.id}:${offer.activityId ?? offer.category}`, matterId: matter.id,
     currencyDelta: offer.compensation.money, provisionsDelta: offer.compensation.provisions,
     ...(offer.compensation.money || offer.compensation.provisions
       ? { compensationTiming: 'Contracted compensation is payable in full at preliminary Day-Close, regardless of assessment.' } : {}),

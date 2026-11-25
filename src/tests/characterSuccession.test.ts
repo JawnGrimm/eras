@@ -186,8 +186,8 @@ describe('character departure and succession lifecycle', () => {
           ...state.world.relationships,
           [INITIAL_PERSON_ID]: {
             ...state.world.relationships[INITIAL_PERSON_ID],
-            [deadId]: { dimensions: { trust: 40, respect: 40, affection: 20, resentment: 0, rivalry: 0, familiarity: 30 }, history: [] },
-            [nonScribeId]: { dimensions: { trust: 40, respect: 40, affection: 20, resentment: 0, rivalry: 0, familiarity: 30 }, history: [] },
+            [deadId]: { dimensions: { trust: 40, respect: 40, affection: 20, resentment: 0, rivalry: 0 }, history: [] },
+            [nonScribeId]: { dimensions: { trust: 40, respect: 40, affection: 20, resentment: 0, rivalry: 0 }, history: [] },
           },
         },
       },
@@ -214,7 +214,7 @@ describe('character departure and succession lifecycle', () => {
           ...state.world.relationships,
           [INITIAL_PERSON_ID]: {
             ...state.world.relationships[INITIAL_PERSON_ID],
-            [identityId]: { dimensions: { trust: 60, respect: 50, affection: 20, resentment: 0, rivalry: 0, familiarity: 20 }, history: [] },
+            [identityId]: { dimensions: { trust: 60, respect: 50, affection: 20, resentment: 0, rivalry: 0 }, history: [] },
           },
         },
       },

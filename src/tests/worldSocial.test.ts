@@ -3,6 +3,7 @@ import { getInitializedScribal } from '../state/scribalState';
 import { transitionGame } from '../engine/actionEconomy';
 import { validateInstitutionalResponseEvent } from '../engine/institutionalResponseValidation';
 import { deriveProfessionalRank } from '../engine/professionalRank';
+import { deriveRelationshipFamiliarityStage, relationshipFamiliarityEpisodeId } from '../state/relationshipFamiliarity';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
 import { createSaveEnvelope, isValidGameState, restoreSave } from '../state/saveEnvelope';
 import { createRoofRepairMatter, MATTER_IDS, STOREHOUSE_INSTITUTION_ID, NORTH_BAY_LOCATION_ID } from '../engine/institutionalMatters';
@@ -40,7 +41,7 @@ const base = (): GameState => {
 describe('world, relationships, institutions and records', () => {
   it('stores personal relationships by ordered person pair and keeps dimensions separate', () => {
     const state = base();
-    const relationship = { dimensions: { trust: 75, respect: 60, affection: 20, resentment: 5, rivalry: 10, familiarity: 40 }, history: [] };
+    const relationship = { dimensions: { trust: 75, respect: 60, affection: 20, resentment: 5, rivalry: 10 }, history: [] };
     const result = transitionGame(state, { type: 'SET_RELATIONSHIP', fromId: INITIAL_PERSON_ID, toId: otherId, relationship });
     expect(result.feedback?.code).toBe('relationship-updated');
     expect(result.state.world.relationships[INITIAL_PERSON_ID]?.[otherId]?.dimensions.trust).toBe(75);
@@ -48,7 +49,7 @@ describe('world, relationships, institutions and records', () => {
     expect(getInitializedScribal(result.state.world.people[INITIAL_PERSON_ID])?.professionalReputation).toEqual(getInitializedScribal(state.world.people[INITIAL_PERSON_ID])?.professionalReputation);
     expect(getInitializedScribal(result.state.world.people[INITIAL_PERSON_ID])?.institutionalStanding).toEqual({});
     const reverse = transitionGame(result.state, { type: 'SET_RELATIONSHIP', fromId: otherId, toId: INITIAL_PERSON_ID,
-      relationship: { dimensions: { trust: 15, respect: 25, affection: 0, resentment: 70, rivalry: 55, familiarity: 10 }, history: [] } });
+      relationship: { dimensions: { trust: 15, respect: 25, affection: 0, resentment: 70, rivalry: 55 }, history: [] } });
     expect(reverse.state.world.relationships[otherId]?.[INITIAL_PERSON_ID]?.dimensions.trust).toBe(15);
     expect(reverse.state.world.relationships[INITIAL_PERSON_ID]?.[otherId]?.dimensions.trust).toBe(75);
   });
@@ -75,7 +76,7 @@ describe('world, relationships, institutions and records', () => {
   it('keeps event facts, authored records, append-only amendments, and knowledge holdings distinct', () => {
     let state: GameState = base();
     const event = { id: 'event-delivery' as EventId, dayNumber: 1, summary: 'A delivery arrived at the storehouse.',
-      personIds: [INITIAL_PERSON_ID], institutionIds: [], };
+      personIds: [INITIAL_PERSON_ID, otherId], institutionIds: [], };
     state = transitionGame(state, { type: 'CREATE_EVENT', event }).state;
     const record = { id: 'record-delivery' as RecordId, createdDay: 1, authorPersonId: INITIAL_PERSON_ID,
       title: 'Delivery account', sources: [{ id: 'source-event', kind: 'event' as const, sourceId: event.id, description: 'Observed delivery event' }],
@@ -93,29 +94,61 @@ describe('world, relationships, institutions and records', () => {
     expect(amended.state.records.entries[record.id].amendments).toHaveLength(1);
     state = amended.state;
     const knowledge = { id: 'knowledge-enlil' as KnowledgeEntryId, holder: { kind: 'person' as const, id: INITIAL_PERSON_ID },
-      subject: { kind: 'record' as const, id: record.id }, basis: 'received-copy' as const, learnedDay: 1, sourcePersonId: otherId };
+      subject: { kind: 'record' as const, id: record.id }, basis: 'received-copy' as const, learnedDay: 1, sourcePersonId: otherId,
+      assertion: { kind: 'fact' as const, text: 'Received a copy of the delivery account.' }, assessments: [] };
     const informed = transitionGame(state, { type: 'GRANT_KNOWLEDGE', knowledge });
     expect(informed.feedback?.code).toBe('knowledge-granted');
     expect(informed.state.world.knowledge[knowledge.id]).toEqual(knowledge);
     expect(Object.values(informed.state.world.knowledge).some((entry) => entry.holder.kind === 'person' && entry.holder.id === otherId)).toBe(false);
-    expect(isValidGameState(informed.state)).toBe(true);
+
+    const episode = {
+      id: relationshipFamiliarityEpisodeId(INITIAL_PERSON_ID, otherId, 'matter-delivery-01', 'observed-delivery-dispute'),
+      observerPersonId: INITIAL_PERSON_ID, subjectPersonId: otherId,
+      acquisitionMode: 'observation' as const, interactionKind: 'observed-delivery-dispute',
+      occasionId: 'matter-delivery-01', contextId: 'storehouse-delivery',
+      stageContribution: 'familiar' as const, dayNumber: 1,
+      provenance: [{ kind: 'event' as const, id: event.id }],
+    };
+    const experienced = transitionGame(informed.state, { type: 'RECORD_RELATIONSHIP_FAMILIARITY_EPISODE', episode });
+    expect(experienced.feedback?.code).toBe('familiarity-episode-recorded');
+    expect(deriveRelationshipFamiliarityStage(experienced.state.world.relationshipFamiliarityEpisodes ?? {}, INITIAL_PERSON_ID, otherId)).toBe('familiar');
+    expect(deriveRelationshipFamiliarityStage(experienced.state.world.relationshipFamiliarityEpisodes ?? {}, otherId, INITIAL_PERSON_ID)).toBeNull();
+    const repeated = transitionGame(experienced.state, { type: 'RECORD_RELATIONSHIP_FAMILIARITY_EPISODE', episode });
+    expect(repeated.feedback?.code).toBe('familiarity-episode-already-recorded');
+    expect(Object.keys(repeated.state.world.relationshipFamiliarityEpisodes ?? {})).toHaveLength(1);
+
+    const assessed = transitionGame(experienced.state, {
+      type: 'ASSESS_KNOWLEDGE', knowledgeId: knowledge.id,
+      assessment: { status: 'contradicted', dayNumber: 1, source: { kind: 'event', id: event.id }, rationale: 'The later comparison did not support the remembered statement.' },
+    });
+    expect(assessed.feedback?.code).toBe('knowledge-assessed');
+    expect(assessed.state.world.knowledge[knowledge.id].assertion).toEqual(knowledge.assertion);
+    expect(assessed.state.world.knowledge[knowledge.id].assessments).toHaveLength(1);
+    expect(isValidGameState(assessed.state)).toBe(true);
   });
 
   it('rejects invalid relationship scores, dangling institutional references, and unsupported knowledge', () => {
     const state = base();
     const invalidRelationship = transitionGame(state, { type: 'SET_RELATIONSHIP', fromId: INITIAL_PERSON_ID, toId: otherId,
-      relationship: { dimensions: { trust: 101, respect: 0, affection: 0, resentment: 0, rivalry: 0, familiarity: 0 }, history: [] } });
+      relationship: { dimensions: { trust: 101, respect: 0, affection: 0, resentment: 0, rivalry: 0 }, history: [] } });
     expect(invalidRelationship.state).toBe(state);
     expect(invalidRelationship.feedback?.code).toBe('relationship-invalid');
+    const legacyFamiliarity = transitionGame(state, { type: 'SET_RELATIONSHIP', fromId: INITIAL_PERSON_ID, toId: otherId,
+      relationship: { dimensions: { trust: 50, respect: 50, affection: 50, resentment: 0, rivalry: 0, familiarity: 0 }, history: [] } as any });
+    expect(legacyFamiliarity.state).toBe(state);
+    expect(legacyFamiliarity.feedback?.code).toBe('relationship-invalid');
     const invalidKnowledge = transitionGame(state, { type: 'GRANT_KNOWLEDGE', knowledge: {
       id: 'knowledge-missing' as KnowledgeEntryId, holder: { kind: 'person', id: INITIAL_PERSON_ID },
       subject: { kind: 'event', id: 'event-not-created' as EventId }, basis: 'testimony', learnedDay: 1,
-    } });
+    } as any });
     expect(invalidKnowledge.state).toBe(state);
     expect(invalidKnowledge.feedback?.code).toBe('knowledge-invalid');
     const malformed = structuredClone(state);
-    malformed.world.relationships[INITIAL_PERSON_ID] = { [otherId]: { dimensions: { trust: 101, respect: 0, affection: 0, resentment: 0, rivalry: 0, familiarity: 0 }, history: [] } };
+    malformed.world.relationships[INITIAL_PERSON_ID] = { [otherId]: { dimensions: { trust: 101, respect: 0, affection: 0, resentment: 0, rivalry: 0 }, history: [] } };
     expect(isValidGameState(malformed)).toBe(false);
+    const legacyDimension = structuredClone(state);
+    legacyDimension.world.relationships[INITIAL_PERSON_ID] = { [otherId]: { dimensions: { trust: 50, respect: 50, affection: 50, resentment: 0, rivalry: 0, familiarity: 0 } as any, history: [] } };
+    expect(isValidGameState(legacyDimension)).toBe(false);
   });
 
   it('records institutional assessment and maintenance authorization against evidence and active office authority', () => {
@@ -150,6 +183,7 @@ describe('world, relationships, institutions and records', () => {
         id: id as KnowledgeEntryId, holder: { kind: 'person', id: holderId },
         subject: { kind: 'record', id: report.id }, basis: 'received-copy', learnedDay: 1,
         sourcePersonId: INITIAL_PERSON_ID,
+        assertion: { kind: 'fact' as const, text: 'Received a copy of the relevant maintenance report.' }, assessments: [],
       } });
       expect(granted.feedback?.code).toBe('knowledge-granted');
       state = granted.state;
@@ -350,6 +384,7 @@ describe('world, relationships, institutions and records', () => {
       id: 'knowledge-referral-report' as KnowledgeEntryId,
       holder: { kind: 'person', id: actorId }, subject: { kind: 'record', id: report.id },
       basis: 'received-copy', learnedDay: 1, sourcePersonId: INITIAL_PERSON_ID,
+        assertion: { kind: 'fact' as const, text: 'Received a copy of the relevant maintenance report.' }, assessments: [],
     } });
     expect(knowledge.feedback?.code).toBe('knowledge-granted');
     state = knowledge.state;
@@ -402,6 +437,7 @@ describe('world, relationships, institutions and records', () => {
       id: 'knowledge-delivery-report-utu' as KnowledgeEntryId,
       holder: { kind: 'person', id: actorId }, subject: { kind: 'record', id: report.id },
       basis: 'received-copy', learnedDay: 1, sourcePersonId: INITIAL_PERSON_ID,
+        assertion: { kind: 'fact' as const, text: 'Received a copy of the relevant maintenance report.' }, assessments: [],
     } });
     expect(knowledge.feedback?.code).toBe('knowledge-granted');
     state = knowledge.state;

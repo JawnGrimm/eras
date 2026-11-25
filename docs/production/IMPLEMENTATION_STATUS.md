@@ -429,3 +429,40 @@ The South-Court +1 Provision correction is merged. Responsibility claims remain 
 - PR #120's documentation-only head passed Pull Request Validation #603 and CodeQL #487. These results do not validate future runtime implementation.
 - Open PR count was reduced to zero. PRs #114, #116, and #120 were closed; #115, #117, #118, and #119 were merged. Closed branches are retained as historical references.
 - No Relationship Familiarity runtime code, schema-v4 migration, or save rewrite has been committed yet.
+
+
+## Production execution update — 24 November 2026
+
+### GD-RELATIONSHIP-FAMILIARITY-001 — runtime implementation in review
+
+**PR #121 — DRAFT / OPEN:** [feat: implement directional familiarity and schema v4 migration](https://github.com/JawnGrimm/eras/pull/121)  
+**Branch:** `feat/relationship-familiarity-episodes`  
+**Last fully validated code head:** `2202f1371d9c08e42c94cd06e37e8e3126de431f`  
+**Current PR head:** `175d9839ccf9619a270efddb0f9c8991766b17ad` (status-document-only change after the validated code head)
+
+Implemented in the current draft:
+
+- Schema v4 is active. The v2 → v3 transform remains the first migration leg; v3 → v4 removes only the retired numeric relationship dimension, initializes an empty episode map, and wraps old Knowledge as explicit legacy source-access entries. No legacy familiarity values, summaries, biographies, Event participants, or PersonFamiliarity data are converted into episodes.
+- Exact original v2/v3 bytes are backed up before the v4 write. The primary v4 bytes are read back and revalidated before the session opens. Failed backup/write/readback leaves the session paused with the original bytes retained for recovery.
+- Relationship dimensions now contain trust, respect, affection, resentment, and rivalry only. PersonFamiliarity and its domain/scope/exposure semantics are unchanged.
+- Directional episode identity, validation, idempotent insertion, conflict rejection, provenance checks, and qualitative stage derivation are implemented in `src/state/relationshipFamiliarity.ts`. No score or count threshold exists.
+- A substantive Closing Receipt with an identified receiver records an objective response Event and one explicitly directional player → receiver episode. The Event also supports any receiver → player relationship-history entry by exact Event ID. It does not infer the reverse familiarity direction from Event co-presence. Repeat receipts on the same authored matter/context remain Events but do not add another familiarity episode. A missing receiver creates neither event nor episode.
+- Current Knowledge requires an explicit assertion and append-only assessment history. Existing v2/v3 Knowledge is preserved as `legacy: true` without invented assertion text. Assessment status is derived from the latest chronological assessment.
+- The remembered-tendency resolver matches holder, subject Person, and authored situation key before any estimate outcome; contradicted/obsolete memories remain available with their status. No current Era I estimate content has an authored remembered-tendency assertion, so no tendency cue or historical claim has been invented.
+- People and Succession detail surfaces show qualitative familiarity and typed episode evidence; numeric personal familiarity is no longer presented.
+
+**Validation:** Pull Request Validation run **#665** (`45534787752`) and CodeQL run **#558** (`45534787766`) passed on code head `2202f1371d9c08e42c94cd06e37e8e3126de431f`: TypeScript check passed, **41 test files / 305 tests passed**, production build passed, CodeQL passed. The current PR head is a status-document-only change; exact-head Pull Request Validation **#666** (`45534957546`) and CodeQL **#559** (`45534957543`) are queued. No local test execution is claimed.
+
+**Still outstanding:** CodeQL on the exact head; review/merge; deployment and deployed-build verification; manual browser, keyboard-only, screen-reader, 200% zoom, and narrow-viewport acceptance. No Day-13 save/export or transaction trace has been supplied, so the WP6 display fixture still does not claim to reconcile actual balances or archived-record count.
+
+### GD-OPPORTUNITY-001 — integrated acceptance progress
+
+PR #121 also adds `src/tests/issue85IntegratedAcceptance.test.ts`: a Day 1–3 save/load and Day-Close / Evening Interlude loop exercised across government, religious, merchant, and military orientations. This supplements the existing Challenge Director tests for deterministic selection, trigger domains, recurrence identity, declined occurrences, unresolved caps, and lifecycle transitions, plus succession save/load coverage.
+
+Issue #85 remains OPEN / IN PROGRESS. The integrated browser playthrough, manual smoke checks, succession continuity during an actual multi-day run, and deployed-build verification are not claimed complete. The South-Court Responsibility follow-up remains **CLOSED — NO CHANGE AUTHORIZED**; the +1 Provision correction is already merged separately.
+
+### GD-STATE-INTEGRITY-001 — remaining acceptance
+
+WP0–WP4 implementation remains merged on main. WP5 requires no material historical research based on the completed source audit. WP6 still requires the actual Day-13 save/transaction trace and manual accessibility/browser acceptance. The Day-13 display-projection fixture is not a substitute for the missing save-level reconciliation.
+
+The earlier queue-cleanup and pre-implementation status statements above are historical snapshots; this dated addendum records the current authorized runtime implementation and verification state.

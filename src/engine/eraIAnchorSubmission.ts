@@ -135,12 +135,14 @@ export function submitRubricAssignmentActivity(
       holder: { kind: 'person' as const, id: holder },
       subject: { kind: 'record' as const, id: recordId },
       basis: 'received-copy' as const, learnedDay: state.calendar.dayNumber, sourcePersonId: person.id,
+      assertion: { kind: 'fact' as const, text: 'Received a copy of the submitted assignment report.' }, assessments: [],
     })),
     {
       id: `knowledge-${offer.id}-day-${state.calendar.dayNumber}-institution` as KnowledgeEntryId,
       holder: { kind: 'institution' as const, id: institution.id },
       subject: { kind: 'record' as const, id: recordId },
       basis: 'received-copy' as const, learnedDay: state.calendar.dayNumber, sourcePersonId: person.id,
+      assertion: { kind: 'fact' as const, text: 'Received a copy of the submitted assignment report.' }, assessments: [],
     },
   ];
   const reaction = rubric.reactions[assessment]
@@ -156,6 +158,8 @@ export function submitRubricAssignmentActivity(
     baseCareerXp: offer.careerXpReward,
     institutionId: institution.id,
     receiverPersonId: receiverId,
+    contextId: offer.activityId ?? offer.category, occasionId: offer.originMatterId ? `${offer.originMatterId}:${offer.activityId ?? offer.category}` : offer.id,
+    ...(offer.originMatterId && state.world.matters[offer.originMatterId] ? { matterId: offer.originMatterId } : {}),
     currencyDelta: offer.compensation.money,
     provisionsDelta: offer.compensation.provisions,
     ...(offer.compensation.money || offer.compensation.provisions
@@ -211,7 +215,7 @@ export function submitRubricAssignmentActivity(
   if (f01 && f01Supported) {
     const affected = ERA1_COM_F01_PEOPLE.workshopOverseer;
     const current = outcomeRelationships[affected]?.[person.id];
-    const dimensions = { trust: 50, respect: 50, affection: 50, resentment: 0, rivalry: 0, familiarity: 0, ...current?.dimensions };
+    const dimensions = { trust: 50, respect: 50, affection: 50, resentment: 0, rivalry: 0, ...current?.dimensions };
     const trustDelta = assessment === 'Thorough' ? 2 : 1;
     outcomeRelationships = {
       ...outcomeRelationships,
@@ -235,7 +239,7 @@ export function submitRubricAssignmentActivity(
     const affectedPerson = state.world.people[affectedPersonId];
     if (!affectedPerson) continue;
     const current = outcomeRelationships[affectedPersonId]?.[person.id];
-    const dimensions = { trust: 50, respect: 50, affection: 50, resentment: 0, rivalry: 0, familiarity: 0, ...current?.dimensions };
+    const dimensions = { trust: 50, respect: 50, affection: 50, resentment: 0, rivalry: 0, ...current?.dimensions };
     const schedule = CLOSING_RECEIPT_SCHEDULE[assessment];
     const trust = Math.max(0, Math.min(100, dimensions.trust + schedule.trust));
     const respect = Math.max(0, Math.min(100, dimensions.respect + schedule.respect));

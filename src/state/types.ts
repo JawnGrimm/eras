@@ -1,4 +1,5 @@
 import type { EvidenceId, AssignmentId, ChallengeId, AttributeId, AppointmentId, CareerPathId, ConditionId, EraId, EventId, InstitutionId, MatterId, KnowledgeEntryId, LocationId, PersonId, RecordId, SkillId, TraitId, WorkId, SpecializationId } from './ids';
+import type { RelationshipFamiliarityEpisode } from './relationshipFamiliarity';
 
 export interface WalletState { money: number; provisions: number; shortageWorkdays: number; }
 export interface SkillState { level: number; skillXp: number; }
@@ -48,7 +49,7 @@ export type PersonScribalState = InitializedScribalCharacterState | ScribalIdent
 /** Backward-compatible name for APIs that specifically require initialized career capability. */
 export type ScribalCharacterState = InitializedScribalCharacterState;
 
-export interface RelationshipDimensions { trust: number; respect: number; affection: number; resentment: number; rivalry: number; familiarity: number; }
+export interface RelationshipDimensions { trust: number; respect: number; affection: number; resentment: number; rivalry: number; }
 export interface RelationshipHistoryEntry { id: string; dayNumber: number; summary: string; eventId?: EventId; }
 /** relationships[fromId][toId] is directional; the reverse perspective is stored separately. */
 export interface PersonRelationship { dimensions: RelationshipDimensions; history: RelationshipHistoryEntry[]; }
@@ -214,13 +215,41 @@ export interface RecordEntry {
   readonly title: string; readonly sources: readonly RecordSource[]; readonly assertions: readonly RecordAssertion[];
   readonly uncertaintyLimits: readonly string[]; readonly amendments: readonly RecordAmendment[];
 }
-export interface KnowledgeEntry {
+export type KnowledgeAssertionKind = 'fact' | 'observation' | 'remembered_tendency';
+export interface KnowledgeAssertion {
+  kind: KnowledgeAssertionKind;
+  text: string;
+  aboutPersonId?: PersonId;
+  situationKey?: string;
+  recordAssertion?: { recordId: RecordId; assertionId: string };
+}
+export interface KnowledgeAssessment {
+  status: 'verified' | 'contradicted' | 'obsolete';
+  dayNumber: number;
+  source: { kind: 'event'; id: EventId } | { kind: 'record'; id: RecordId };
+  rationale: string;
+}
+export interface KnowledgeEntryBase {
   id: KnowledgeEntryId;
   holder: { kind: 'person'; id: PersonId } | { kind: 'institution'; id: InstitutionId };
   subject: { kind: 'event'; id: EventId } | { kind: 'record'; id: RecordId };
   basis: 'direct-involvement' | 'testimony' | 'received-copy' | 'consulted-record' | 'public-disclosure' | 'other';
-  learnedDay: number; sourcePersonId?: PersonId;
+  learnedDay: number;
+  sourcePersonId?: PersonId;
 }
+/** Old source-access history is preserved without an invented assertion. */
+export type LegacyKnowledgeEntry = KnowledgeEntryBase & {
+  legacy: true;
+  assertion?: never;
+  assessments?: never;
+};
+/** New Knowledge always carries the exact remembered assertion and append-only assessments. */
+export type CurrentKnowledgeEntry = KnowledgeEntryBase & {
+  legacy?: false;
+  assertion: KnowledgeAssertion;
+  assessments: KnowledgeAssessment[];
+};
+export type KnowledgeEntry = LegacyKnowledgeEntry | CurrentKnowledgeEntry;
 
 export interface CalendarState { eraId: EraId; dayNumber: number; displayDate: string; }
 export interface ActionEconomyState { dailyApAllocation: 5 | 6; apRemaining: number; overtimeUsedToday: boolean; nextDayApPenalty: boolean; recoveryLaborUsedToday: boolean; }
@@ -431,6 +460,8 @@ export interface GameState {
     appointments: Record<AppointmentId, Appointment>;
     events: Record<EventId, WorldEvent>;
     knowledge: Record<KnowledgeEntryId, KnowledgeEntry>;
+    /** Current-schema directional experience; legacy v2/v3 envelopes have no episode map. */
+    relationshipFamiliarityEpisodes: Record<string, RelationshipFamiliarityEpisode>;
     matters: Record<MatterId, InstitutionalMatter>;
   };
   historicalProgression: { historicalXp: number; completedWorks: WorkId[] };
@@ -444,7 +475,17 @@ export interface GameState {
   };
   journal: { notices: DurableNotice[] };
 }
-export interface SaveEnvelope { schemaVersion: 3; gameVersion: string; revision: number; savedAt: string; state: GameState; }
+export type LegacyRelationshipDimensionsV3 = RelationshipDimensions & { familiarity: number };
+export type LegacyPersonRelationshipV3 = Omit<PersonRelationship, 'dimensions'> & { dimensions: LegacyRelationshipDimensionsV3 };
+export type LegacyGameStateV3 = Omit<GameState, 'world'> & {
+  world: Omit<GameState['world'], 'relationships' | 'knowledge' | 'relationshipFamiliarityEpisodes'> & {
+    relationships: Record<PersonId, Partial<Record<PersonId, LegacyPersonRelationshipV3>>>;
+    knowledge: Record<KnowledgeEntryId, LegacyKnowledgeEntry>;
+    relationshipFamiliarityEpisodes?: never;
+  };
+};
+export interface SaveEnvelope { schemaVersion: 4; gameVersion: string; revision: number; savedAt: string; state: GameState; }
+export interface LegacySaveEnvelopeV3 { schemaVersion: 3; gameVersion: string; revision: number; savedAt: string; state: LegacyGameStateV3; }
 export interface LegacySaveEnvelopeV2 { schemaVersion: 2; gameVersion: string; revision: number; savedAt: string; state: GameState; }
 export interface SkillAdvancementRule { requiredSkillXp: number; careerXpCost: number; }
 export type TargetSkillLevel = 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
@@ -482,6 +523,8 @@ export type GameAction =
   | { type: 'CREATE_RECORD'; record: RecordEntry }
   | { type: 'AMEND_RECORD'; recordId: RecordId; amendment: RecordAmendment }
   | { type: 'GRANT_KNOWLEDGE'; knowledge: KnowledgeEntry }
+  | { type: 'ASSESS_KNOWLEDGE'; knowledgeId: KnowledgeEntryId; assessment: KnowledgeAssessment }
+  | { type: 'RECORD_RELATIONSHIP_FAMILIARITY_EPISODE'; episode: RelationshipFamiliarityEpisode }
   | { type: 'PRESENT_ASSIGNMENT'; offer: Omit<AssignmentOffer, 'offeredDay' | 'expiresDay' | 'status' | 'lapsedDuringMandatoryWork'> & { expiresDay?: number } }
   | { type: 'ACCEPT_ASSIGNMENT'; assignmentId: AssignmentId }
   | { type: 'DECLINE_ASSIGNMENT'; assignmentId: AssignmentId }

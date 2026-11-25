@@ -5,6 +5,7 @@ import { deriveProfessionalRank } from '../engine/professionalRank';
 import { CORE_SKILL_IDS } from '../state/ids';
 import type { GameState, PersonRelationship } from '../state/types';
 import { useGame } from '../state/GameProvider';
+import { deriveRelationshipFamiliarityStage, relationshipFamiliarityEpisodesFor } from '../state/relationshipFamiliarity';
 
 const SKILL_LABELS: Record<(typeof CORE_SKILL_IDS)[number], string> = {
   reading_scripts: 'Reading scripts',
@@ -15,8 +16,10 @@ const SKILL_LABELS: Record<(typeof CORE_SKILL_IDS)[number], string> = {
   communication_instruction: 'Communication & instruction',
 };
 
-function RelationshipView({ relationship, fromName, toName }: {
+function RelationshipView({ relationship, fromName, toName, familiarityStage, familiarityEpisodes }: {
   relationship: PersonRelationship; fromName: string; toName: string;
+  familiarityStage: 'recognized' | 'acquainted' | 'familiar' | null;
+  familiarityEpisodes: ReturnType<typeof relationshipFamiliarityEpisodesFor>;
 }) {
   const dimensions = relationship.dimensions;
   return <div className="rounded-md border border-stone-200 bg-white p-3">
@@ -25,7 +28,14 @@ function RelationshipView({ relationship, fromName, toName }: {
       {Object.entries(dimensions).map(([key, value]) => <div key={key}>
         <dt className="text-xs capitalize text-stone-500">{key}</dt><dd className="font-mono text-sm">{value}/100</dd>
       </div>)}
+      {familiarityStage && <div><dt className="text-xs text-stone-500">Personal familiarity</dt><dd className="text-sm font-semibold capitalize">{familiarityStage}</dd></div>}
     </dl>
+    {familiarityEpisodes.length > 0 && <details className="mt-2 border-t border-stone-200 pt-2">
+      <summary className="cursor-pointer text-xs font-semibold text-stone-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-700">Familiarity evidence ({familiarityEpisodes.length})</summary>
+      <ol className="mt-2 space-y-1 text-xs text-stone-600">{familiarityEpisodes.map((episode) => <li key={episode.id}>
+        Day {episode.dayNumber} · {episode.stageContribution} · {episode.acquisitionMode.replace(/_/g, ' ')} · {episode.provenance.map((source) => `${source.kind} ${source.id}`).join('; ')}
+      </li>)}</ol>
+    </details>}
     {relationship.history.length > 0 && <div className="mt-3 border-t border-stone-200 pt-2">
       <p className="text-xs font-semibold text-stone-600">Relationship history</p>
       <ul className="mt-1 space-y-1 text-xs text-stone-600">{relationship.history.map((entry) =>
@@ -51,7 +61,9 @@ function ConnectionReasons({ state, candidateId }: { state: GameState; candidate
         const to = state.world.people[reason.toId];
         const relationship = state.world.relationships[reason.fromId]?.[reason.toId];
         return <div key={index}>
-          {relationship ? <RelationshipView relationship={relationship} fromName={from?.name ?? 'Unknown person'} toName={to?.name ?? 'Unknown person'} />
+          {relationship ? <RelationshipView relationship={relationship} fromName={from?.name ?? 'Unknown person'} toName={to?.name ?? 'Unknown person'}
+              familiarityStage={deriveRelationshipFamiliarityStage(state.world.relationshipFamiliarityEpisodes ?? {}, reason.fromId, reason.toId)}
+              familiarityEpisodes={relationshipFamiliarityEpisodesFor(state.world.relationshipFamiliarityEpisodes ?? {}, reason.fromId, reason.toId)} />
             : <p className="text-xs text-stone-600">Direct relationship recorded between {from?.name} and {to?.name}.</p>}
         </div>;
       }

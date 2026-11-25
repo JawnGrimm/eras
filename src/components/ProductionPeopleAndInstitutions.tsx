@@ -4,6 +4,7 @@ import { useGame } from '../state/GameProvider';
 import type { InstitutionId, PersonId, RecordId } from '../state/ids';
 import type { Appointment, Institution, InstitutionalMatter, Person, PersonRelationship, RecordEntry, WorldEvent } from '../state/types';
 import { PersonHistoryPanel } from './PersonHistoryPanel';
+import { deriveRelationshipFamiliarityStage, relationshipFamiliarityEpisodesFor, type RelationshipFamiliarityEpisodeMap } from '../state/relationshipFamiliarity';
 
 export type PeopleInstitutionSection = 'people' | 'institutions';
 type PersonLifeFilter = 'all' | 'living' | 'deceased';
@@ -13,22 +14,36 @@ function matchesQuery(values: Array<string | undefined>, query: string): boolean
   return !normalized || values.some((value) => value?.toLocaleLowerCase().includes(normalized));
 }
 
-function RelationshipCard({ fromName, toName, relationship }: {
-  fromName: string; toName: string; relationship: PersonRelationship;
+function RelationshipCard({ fromName, toName, relationship, familiarityStage, familiarityEpisodes }: {
+  fromName: string; toName: string; relationship: PersonRelationship | null;
+  familiarityStage: 'recognized' | 'acquainted' | 'familiar' | null;
+  familiarityEpisodes: ReturnType<typeof relationshipFamiliarityEpisodesFor>;
 }) {
   return <details className="rounded-lg border border-stone-200 bg-stone-50 p-3">
     <summary className="cursor-pointer rounded text-sm font-semibold text-stone-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-700">
       {fromName} → {toName}
-      <span className="ml-2 text-xs font-normal text-stone-500">{relationship.history.length} history entries</span>
+      <span className="ml-2 text-xs font-normal text-stone-500">{relationship?.history.length ?? 0} history entries</span>
     </summary>
     <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
-      {Object.entries(relationship.dimensions).map(([dimension, score]) => <div key={dimension}>
-        <dt className="text-xs capitalize text-stone-500">{dimension === 'familiarity' ? 'Personal familiarity' : dimension}</dt>
+      {relationship && Object.entries(relationship.dimensions).map(([dimension, score]) => <div key={dimension}>
+        <dt className="text-xs capitalize text-stone-500">{dimension}</dt>
         <dd className="font-mono text-base">{score}<span className="text-xs text-stone-400">/100</span></dd>
       </div>)}
+      {!relationship && <p className="col-span-full text-xs text-stone-600">No separate trust, respect, affection, resentment, or rivalry dimensions are recorded for this direction.</p>}
+      {familiarityStage && <div>
+        <dt className="text-xs text-stone-500">Personal familiarity</dt>
+        <dd className="text-sm font-semibold capitalize">{familiarityStage}</dd>
+      </div>}
     </div>
-    {relationship.dimensions.familiarity !== undefined && <p className="mt-2 text-xs text-stone-500">Personal familiarity is a relationship measure; recorded domain familiarity is separate and appears under Personal history.</p>}
-    <details className="mt-3 border-t border-stone-200 pt-3">
+    {familiarityEpisodes.length > 0 && <details className="mt-3 border-t border-stone-200 pt-3">
+      <summary className="cursor-pointer text-xs font-semibold text-stone-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-700">Familiarity evidence ({familiarityEpisodes.length} qualifying {familiarityEpisodes.length === 1 ? 'episode' : 'episodes'})</summary>
+      <ol className="mt-2 space-y-2">{familiarityEpisodes.map((episode) => <li key={episode.id} className="text-xs text-stone-700">
+        <p className="font-medium">Day {episode.dayNumber} · {episode.stageContribution} · {episode.acquisitionMode.replace(/_/g, ' ')}</p>
+        <p>{episode.contextId.replace(/[-_]/g, ' ')} · {episode.interactionKind.replace(/[-_]/g, ' ')}</p>
+        <p className="text-stone-600">Source: {episode.provenance.map((source) => `${source.kind} ${source.id}`).join('; ')}</p>
+      </li>)}</ol>
+    </details>}
+    {relationship && relationship.history.length > 0 && <details className="mt-3 border-t border-stone-200 pt-3">
       <summary className="cursor-pointer text-xs font-semibold text-stone-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-700">
         History from this perspective ({relationship.history.length})
       </summary>
@@ -38,7 +53,7 @@ function RelationshipCard({ fromName, toName, relationship }: {
           <span className="mr-2 font-mono text-xs text-stone-500">Day {entry.dayNumber}</span>{entry.summary}
           {entry.eventId && <span className="ml-1 text-xs text-stone-500">(Event: {entry.eventId})</span>}
         </li>)}</ol>}
-    </details>
+    </details>}
   </details>;
 }
 
@@ -58,12 +73,13 @@ function PersonIndexRow({ person, context, selected, onSelect }: {
   </button>;
 }
 
-function PersonDetail({ person, people, institutions, relationships, appointments, isCurrentCharacter }: {
+function PersonDetail({ person, people, institutions, relationships, appointments, familiarityEpisodes, isCurrentCharacter }: {
   person: Person;
   people: Readonly<Record<string, Person>>;
   institutions: Readonly<Record<InstitutionId, Institution>>;
-  relationships: Array<{ from: Person; to: Person; relationship: PersonRelationship }>;
+  relationships: Array<{ from: Person; to: Person; relationship: PersonRelationship | null }>;
   appointments: Appointment[];
+  familiarityEpisodes: Readonly<RelationshipFamiliarityEpisodeMap>;
   isCurrentCharacter: boolean;
 }) {
   const scribal = getInitializedScribal(person);
@@ -158,7 +174,9 @@ function PersonDetail({ person, people, institutions, relationships, appointment
       <p className="mt-1 text-xs text-stone-500">Each arrow is one person's perspective. A reverse relationship appears only when separately recorded.</p>
       {relationships.length
         ? <div className="mt-2 space-y-2">{relationships.map(({ from, to, relationship }) =>
-          <RelationshipCard key={`${from.id}-${to.id}`} fromName={from.name} toName={to.name} relationship={relationship} />)}</div>
+          <RelationshipCard key={`${from.id}-${to.id}`} fromName={from.name} toName={to.name} relationship={relationship}
+              familiarityStage={deriveRelationshipFamiliarityStage(familiarityEpisodes, from.id, to.id)}
+              familiarityEpisodes={relationshipFamiliarityEpisodesFor(familiarityEpisodes, from.id, to.id)} />)}</div>
         : <p className="mt-2 text-xs text-stone-500">No directional relationship entries are recorded for this person.</p>}
     </section>
   </article>;
@@ -345,13 +363,25 @@ export function ProductionPeopleAndInstitutions({ initialSection = 'people', ini
   const selectedPerson = matchingPeople.find((person) => person.id === selectedPersonId)
     ?? matchingPeople.find((person) => person.id === state.player.currentCharacterId)
     ?? matchingPeople[0];
-  const relationshipRows = selectedPerson ? Object.entries(state.world.relationships).flatMap(([fromId, targets]) =>
-    Object.entries(targets).flatMap(([toId, relationship]) => {
-      if (fromId !== selectedPerson.id && toId !== selectedPerson.id) return [];
-      const from = state.world.people[fromId as PersonId];
-      const to = state.world.people[toId as PersonId];
-      return from && to && relationship ? [{ from, to, relationship }] : [];
-    })) : [];
+  const relationshipRowMap = new Map<string, { from: Person; to: Person; relationship: PersonRelationship | null }>();
+  if (selectedPerson) {
+    for (const [fromId, targets] of Object.entries(state.world.relationships)) {
+      for (const [toId, relationship] of Object.entries(targets)) {
+        if ((fromId === selectedPerson.id || toId === selectedPerson.id) && relationship) {
+          const from = state.world.people[fromId as PersonId], to = state.world.people[toId as PersonId];
+          if (from && to) relationshipRowMap.set(`${fromId}:${toId}`, { from, to, relationship });
+        }
+      }
+    }
+    for (const episode of Object.values(state.world.relationshipFamiliarityEpisodes ?? {})) {
+      if (episode.observerPersonId !== selectedPerson.id && episode.subjectPersonId !== selectedPerson.id) continue;
+      const key = `${episode.observerPersonId}:${episode.subjectPersonId}`;
+      if (relationshipRowMap.has(key)) continue;
+      const from = state.world.people[episode.observerPersonId], to = state.world.people[episode.subjectPersonId];
+      if (from && to) relationshipRowMap.set(key, { from, to, relationship: null });
+    }
+  }
+  const relationshipRows = [...relationshipRowMap.values()];
   const selectedPersonAppointments = selectedPerson
     ? Object.values(state.world.appointments).filter((item) => item.personId === selectedPerson.id)
     : [];
@@ -428,6 +458,7 @@ export function ProductionPeopleAndInstitutions({ initialSection = 'people', ini
           {selectedPerson
             ? <PersonDetail person={selectedPerson} people={state.world.people} institutions={state.world.institutions}
               relationships={relationshipRows} appointments={selectedPersonAppointments}
+              familiarityEpisodes={state.world.relationshipFamiliarityEpisodes ?? {}}
               isCurrentCharacter={selectedPerson.id === state.player.currentCharacterId} />
             : <p className="rounded-lg border border-stone-300 bg-white p-4 text-sm text-stone-500">Select a person to view recorded detail.</p>}
         </div>

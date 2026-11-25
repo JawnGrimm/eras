@@ -110,7 +110,7 @@ describe('Challenge candidate selection and occurrence lifecycle', () => {
           [fromId]: {
             ...base.world.relationships[fromId],
             [toId]: {
-              dimensions: { trust: 50, respect: 50, affection: 50, resentment: 0, rivalry: 0, familiarity: 0 },
+              dimensions: { trust: 50, respect: 50, affection: 50, resentment: 0, rivalry: 0 },
               history: [{ id: 'relationship-trigger-test', dayNumber: 1, summary: 'A recorded directional relationship change.', eventId }],
             },
           },

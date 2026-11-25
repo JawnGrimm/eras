@@ -105,6 +105,8 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
     case 'CREATE_RECORD':
     case 'AMEND_RECORD':
     case 'GRANT_KNOWLEDGE':
+    case 'ASSESS_KNOWLEDGE':
+    case 'RECORD_RELATIONSHIP_FAMILIARITY_EPISODE':
       return transitionWorldAction(state, action);
     case 'START_WORK': {
       const definition = workCatalog[action.workId];

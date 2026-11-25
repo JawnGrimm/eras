@@ -1,7 +1,7 @@
 import { CORE_SKILL_IDS } from './ids';
 import { MATTER_IDS, SOUTH_COURT_LOCATION_ID, SOUTH_LOADING_LOCATION_ID, STOREHOUSE_INSTITUTION_ID } from '../engine/institutionalMatters';
 import type { AttributeId, SkillId } from './ids';
-import type { ClosingReceiptPayload, GameState, Institution, OpportunityConsequences, SaveEnvelope, PersonScribalState, WorkProgress } from './types';
+import type { ClosingReceiptPayload, GameState, Institution, LegacyGameStateV3, LegacySaveEnvelopeV3, OpportunityConsequences, SaveEnvelope, PersonScribalState, WorkProgress } from './types';
 import { validateOpportunityConsequences } from './opportunityValidation';
 import type { WorkDefinition } from '../works/workDefinition';
 import { validateWorkDefinition } from '../works/workDefinition';
@@ -9,11 +9,12 @@ import { rankSuccessorCandidates } from '../engine/characterContinuity';
 import { validateInstitutionalResponseEvent } from '../engine/institutionalResponseValidation';
 import { isInitializedScribalState } from './scribalState';
 import { NORTH_BAY_PEOPLE, NORTH_BAY_LOCATION_ID, ASSIGNMENT_ACTIVITY_CATALOG, validateAssignmentActivityProgress } from '../content/assignments/northBayRoofInspection';
+import { isRelationshipFamiliarityEpisode } from './relationshipFamiliarity';
 
-// Keep the physical key stable: v2-only clients read this slot and reject a v3 envelope by version.
+// Keep the physical key stable; older clients reject a newer schema version.
 export const SAVE_KEY = 'scribe_game_v2';
 export const ROLLBACK_SAVE_KEY = 'scribe_game_v2_rollback';
-export const SAVE_SCHEMA_VERSION = 3 as const;
+export const SAVE_SCHEMA_VERSION = 4 as const;
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -46,7 +47,8 @@ function stringArray(value: unknown): value is string[] {
 }
 const ATTRIBUTE_IDS: readonly AttributeId[] = ['precision','perception','reasoning','expression','endurance','composure'];
 const SPECIALIZATION_LEVELS = ['practitioner','specialist','master'] as const;
-const RELATIONSHIP_DIMENSIONS = ['trust','respect','affection','resentment','rivalry','familiarity'] as const;
+const LEGACY_RELATIONSHIP_DIMENSIONS = ['trust','respect','affection','resentment','rivalry','familiarity'] as const;
+const RELATIONSHIP_DIMENSIONS = ['trust','respect','affection','resentment','rivalry'] as const;
 const RECORD_CLASSES = ['observed','reported','inferred','disputed'] as const;
 const SOURCE_KINDS = ['person','institution','event','material','other'] as const;
 const KNOWLEDGE_BASES = ['direct-involvement','testimony','received-copy','consulted-record','public-disclosure','other'] as const;
@@ -103,9 +105,11 @@ function isScribal(value: unknown, institutionIds: Set<string>): value is Person
   for (const d of ['competence','reliability','discretion','judgment'] as const) if (!score(value.professionalReputation[d])) return false;
   return true;
 }
-function isRelationship(value: unknown): boolean {
+function isRelationship(value: unknown, schemaVersion: 2 | 3 | 4): boolean {
   if (!isObject(value) || !isObject(value.dimensions) || !Array.isArray(value.history)) return false;
-  for (const d of RELATIONSHIP_DIMENSIONS) if (!score(value.dimensions[d])) return false;
+  const dimensions = schemaVersion === 4 ? RELATIONSHIP_DIMENSIONS : LEGACY_RELATIONSHIP_DIMENSIONS;
+  if (Object.keys(value.dimensions).length !== dimensions.length) return false;
+  for (const d of dimensions) if (!score(value.dimensions[d])) return false;
   return value.history.every((h) => isObject(h) && typeof h.id === 'string' && !!h.id
     && finiteNonNegative(h.dayNumber) && Number.isInteger(h.dayNumber) && typeof h.summary === 'string' && !!h.summary
     && (h.eventId === undefined || typeof h.eventId === 'string'));
@@ -218,6 +222,13 @@ function isAssertion(value: unknown, sourceIds: Set<string>): boolean {
     && RECORD_CLASSES.includes(value.classification as typeof RECORD_CLASSES[number])
     && Array.isArray(value.sourceIds) && value.sourceIds.every((id) => typeof id === 'string' && sourceIds.has(id));
 }
+function hasRecordAssertion(records: Record<string, unknown>, recordId: string, assertionId: string): boolean {
+  const record = records[recordId];
+  if (!isObject(record) || !Array.isArray(record.assertions) || !Array.isArray(record.amendments)) return false;
+  if (record.assertions.some((item) => isObject(item) && item.id === assertionId)) return true;
+  return record.amendments.some((amendment) => isObject(amendment) && Array.isArray(amendment.assertionsAdded)
+    && amendment.assertionsAdded.some((item) => isObject(item) && item.id === assertionId));
+}
 
 function isWorkAssessmentDimensions(value: unknown): boolean {
   if (!Array.isArray(value) || value.length === 0) return false;
@@ -300,7 +311,7 @@ function isCompatibleWorkProgress(id: string, value: unknown, workCatalog: Reado
   return value.status === 'suspended' || matchesWorkDefinition(id, value, workCatalog);
 }
 
-export function isValidGameState(value: unknown, workCatalog: Readonly<Record<string, WorkDefinition<any>>> = {}): value is GameState {
+export function isValidGameState(value: unknown, workCatalog: Readonly<Record<string, WorkDefinition<any>>> = {}, schemaVersion: 2 | 3 | 4 = 4): value is GameState {
   if (!isObject(value) || !isObject(value.calendar) || !isObject(value.actionEconomy) || !isObject(value.player)
     || !isObject(value.world) || !isObject(value.historicalProgression) || !isObject(value.opportunities)
     || !isObject(value.works) || !isObject(value.records) || !isObject(value.journal)) return false;
@@ -423,7 +434,7 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
   for (const [fromId, targets] of Object.entries(world.relationships)) {
     if (!isObject(people[fromId]) || !isObject(targets)) return false;
     for (const [toId, rel] of Object.entries(targets)) {
-      if (fromId === toId || !isObject(people[toId]) || !isObject(rel) || !isRelationship(rel)
+      if (fromId === toId || !isObject(people[toId]) || !isObject(rel) || !isRelationship(rel, schemaVersion)
         || !Array.isArray(rel.history)
         || rel.history.some((h) => isObject(h) && h.eventId !== undefined && !isObject(events[h.eventId as string]))) return false;
     }
@@ -476,14 +487,54 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
   for (const [id, k] of Object.entries(world.knowledge)) {
     if (!isObject(k) || k.id !== id || !isObject(k.holder) || !isObject(k.subject)
       || !KNOWLEDGE_BASES.includes(k.basis as typeof KNOWLEDGE_BASES[number])
-      || !finiteNonNegative(k.learnedDay) || !Number.isInteger(k.learnedDay) || k.learnedDay < 1
+      || !finiteNonNegative(k.learnedDay) || !Number.isInteger(k.learnedDay) || k.learnedDay < 1 || k.learnedDay > (calendar.dayNumber as number)
       || (k.sourcePersonId !== undefined && (typeof k.sourcePersonId !== 'string' || !isObject(people[k.sourcePersonId])))) return false;
     const holder = k.holder.kind === 'person' ? typeof k.holder.id === 'string' && isObject(people[k.holder.id])
       : k.holder.kind === 'institution' && typeof k.holder.id === 'string' && isObject(institutions[k.holder.id]);
     const subject = k.subject.kind === 'event' ? typeof k.subject.id === 'string' && isObject(events[k.subject.id])
       : k.subject.kind === 'record' && typeof k.subject.id === 'string' && isObject(records[k.subject.id]);
     if (!holder || !subject) return false;
+    if (schemaVersion < 4) {
+      if (k.legacy !== undefined || k.assertion !== undefined || k.assessments !== undefined) return false;
+      continue;
+    }
+    if (k.legacy === true) {
+      if (k.assertion !== undefined || k.assessments !== undefined) return false;
+      continue;
+    }
+    const assertion = k.assertion;
+    if (!isObject(assertion) || !['fact','observation','remembered_tendency'].includes(String(assertion.kind))
+      || !nonEmptyString(assertion.text)
+      || (assertion.aboutPersonId !== undefined && (typeof assertion.aboutPersonId !== 'string' || !isObject(people[assertion.aboutPersonId])))
+      || (assertion.situationKey !== undefined && !nonEmptyString(assertion.situationKey))
+      || (assertion.kind === 'remembered_tendency' && (!assertion.aboutPersonId || !assertion.situationKey))
+      || (assertion.recordAssertion !== undefined && (!isObject(assertion.recordAssertion)
+        || typeof assertion.recordAssertion.recordId !== 'string'
+        || typeof assertion.recordAssertion.assertionId !== 'string'
+        || !hasRecordAssertion(records, assertion.recordAssertion.recordId, assertion.recordAssertion.assertionId)))
+      || !Array.isArray(k.assessments)) return false;
+    let priorAssessmentDay = k.learnedDay as number;
+    for (const assessment of k.assessments) {
+      if (!isObject(assessment) || !['verified','contradicted','obsolete'].includes(String(assessment.status))
+        || !Number.isInteger(assessment.dayNumber) || (assessment.dayNumber as number) < priorAssessmentDay
+        || (assessment.dayNumber as number) > (calendar.dayNumber as number)
+        || !isObject(assessment.source) || !['event','record'].includes(String(assessment.source.kind))
+        || !nonEmptyString(assessment.source.id)
+        || (assessment.source.kind === 'event' && (!isObject(events[assessment.source.id]) || (events[assessment.source.id] as any).dayNumber > (assessment.dayNumber as number)))
+        || (assessment.source.kind === 'record' && (!isObject(records[assessment.source.id]) || (records[assessment.source.id] as any).createdDay > (assessment.dayNumber as number)))
+        || !nonEmptyString(assessment.rationale)) return false;
+      priorAssessmentDay = assessment.dayNumber as number;
+    }
   }
+  if (schemaVersion === 4) {
+    if (!isObject(world.relationshipFamiliarityEpisodes)) return false;
+    const canonicalIds = new Set<string>();
+    for (const [id, episode] of Object.entries(world.relationshipFamiliarityEpisodes)) {
+      if (!isRelationshipFamiliarityEpisode(episode, { people, events, records, matters: world.matters as Record<string, unknown>, currentDay: calendar.dayNumber as number })
+        || episode.id !== id || canonicalIds.has(id)) return false;
+      canonicalIds.add(id);
+    }
+  } else if (world.relationshipFamiliarityEpisodes !== undefined) return false;
 
   if (!isObject(value.opportunities.assignments) || !isObject(value.opportunities.challenges)
     || !isObject(value.opportunities.assignmentAggregates) || !Array.isArray(value.opportunities.challengeOutcomes)
@@ -564,8 +615,8 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
     && Array.isArray(value.records.permanentOutcomes)
     && Array.isArray(value.journal.notices);
 }
-function isValidV3GameState(value: unknown, workCatalog: Readonly<Record<string, WorkDefinition<any>>>): value is GameState {
-  if (!isValidGameState(value, workCatalog) || !isObject(value)) return false;
+function isValidV3GameState(value: unknown, workCatalog: Readonly<Record<string, WorkDefinition<any>>>, schemaVersion: 3 | 4 = 3): value is GameState {
+  if (!isValidGameState(value, workCatalog, schemaVersion) || !isObject(value)) return false;
   const dayClose = value.dayClose;
   const opportunities = value.opportunities;
   if (!isObject(dayClose) || !['workday_open','interlude_open'].includes(String(dayClose.phase))
@@ -640,20 +691,29 @@ function isValidV3GameState(value: unknown, workCatalog: Readonly<Record<string,
   return true;
 }
 
+function isValidV4GameState(value: unknown, workCatalog: Readonly<Record<string, WorkDefinition<any>>>): value is GameState {
+  return isValidV3GameState(value, workCatalog, 4);
+}
+
 export function createSaveEnvelope(state: GameState, revision: number, savedAt = new Date().toISOString()): SaveEnvelope {
   return { schemaVersion: SAVE_SCHEMA_VERSION, gameVersion: '0.1.0', revision, savedAt, state };
 }
 
-/** Kept for migration tests and explicit proof that v2-only readers reject v3. */
+/** Legacy validators deliberately retain their version-specific relationship shape. */
 export function isValidV2SaveEnvelope(value: unknown, workCatalog: Readonly<Record<string, WorkDefinition<any>>> = {}): boolean {
   return isObject(value) && value.schemaVersion === 2 && typeof value.gameVersion === 'string'
     && finiteNonNegative(value.revision) && Number.isInteger(value.revision) && typeof value.savedAt === 'string'
-    && Number.isFinite(Date.parse(value.savedAt)) && isValidGameState(value.state, workCatalog);
+    && Number.isFinite(Date.parse(value.savedAt)) && isValidGameState(value.state, workCatalog, 2);
+}
+export function isValidV3SaveEnvelope(value: unknown, workCatalog: Readonly<Record<string, WorkDefinition<any>>> = {}): boolean {
+  return isObject(value) && value.schemaVersion === 3 && typeof value.gameVersion === 'string'
+    && finiteNonNegative(value.revision) && Number.isInteger(value.revision) && typeof value.savedAt === 'string'
+    && Number.isFinite(Date.parse(value.savedAt)) && isValidV3GameState(value.state, workCatalog);
 }
 export function isValidSaveEnvelope(value: unknown, workCatalog: Readonly<Record<string, WorkDefinition<any>>> = {}): value is SaveEnvelope {
   return isObject(value) && value.schemaVersion === SAVE_SCHEMA_VERSION && typeof value.gameVersion === 'string'
     && finiteNonNegative(value.revision) && Number.isInteger(value.revision) && typeof value.savedAt === 'string'
-    && Number.isFinite(Date.parse(value.savedAt)) && isValidV3GameState(value.state, workCatalog);
+    && Number.isFinite(Date.parse(value.savedAt)) && isValidV4GameState(value.state, workCatalog);
 }
 
 function digestLegacyV2Save(raw: string): string {
@@ -663,7 +723,7 @@ function digestLegacyV2Save(raw: string): string {
   return `legacy-v2-fnv1a32-${hash.toString(16).padStart(8, '0')}`;
 }
 
-function migrateV2Envelope(value: Record<string, unknown>, raw: string): SaveEnvelope {
+function migrateV2Envelope(value: Record<string, unknown>, raw: string): import('./types').LegacySaveEnvelopeV3 {
   const legacyState = value.state as GameState;
   const opportunities = legacyState.opportunities;
   const occurrenceLedger = [
@@ -686,7 +746,7 @@ function migrateV2Envelope(value: Record<string, unknown>, raw: string): SaveEnv
       legacy: true as const,
     })),
   ];
-  const state: GameState = {
+  const state = {
     ...legacyState,
     dayClose: {
       phase: 'workday_open',
@@ -705,12 +765,47 @@ function migrateV2Envelope(value: Record<string, unknown>, raw: string): SaveEnv
     gameVersion: String(value.gameVersion),
     revision: Number(value.revision),
     savedAt: String(value.savedAt),
+    state: state as unknown as LegacyGameStateV3,
+  };
+}
+
+function migrateV3Envelope(value: LegacySaveEnvelopeV3): SaveEnvelope {
+  const legacyState = value.state;
+  const relationships = Object.fromEntries(Object.entries(legacyState.world.relationships).map(([fromId, targets]) => [
+    fromId,
+    Object.fromEntries(Object.entries(targets).map(([toId, relationship]) => {
+      if (!relationship) return [toId, relationship];
+      const { familiarity: _legacyFamiliarity, ...dimensions } = relationship.dimensions as typeof relationship.dimensions & { familiarity?: number };
+      return [toId, { ...relationship, dimensions }];
+    })),
+  ]));
+  const knowledge = Object.fromEntries(Object.entries(legacyState.world.knowledge).map(([id, entry]) => [
+    id, { ...entry, legacy: true as const },
+  ]));
+  const state: GameState = {
+    ...legacyState,
+    world: {
+      ...legacyState.world,
+      relationships,
+      knowledge,
+      relationshipFamiliarityEpisodes: {},
+    },
+  };
+  return {
+    schemaVersion: 4,
+    gameVersion: String(value.gameVersion),
+    revision: Number(value.revision),
+    savedAt: String(value.savedAt),
     state,
   };
 }
 
 export function isLegacyV2Save(raw: string): boolean {
   try { const parsed: unknown = JSON.parse(raw); return isObject(parsed) && parsed.schemaVersion === 2; }
+  catch { return false; }
+}
+export function isLegacyV3Save(raw: string): boolean {
+  try { const parsed: unknown = JSON.parse(raw); return isObject(parsed) && parsed.schemaVersion === 3; }
   catch { return false; }
 }
 function normalizeNorthBayWorldBaseline(parsed: unknown): unknown {
@@ -980,8 +1075,15 @@ export function restoreSave(raw: string | null, workCatalog: Readonly<Record<str
     if (!isObject(parsed)) return null;
     if (parsed.schemaVersion === 2) {
       if (!isValidV2SaveEnvelope(parsed, workCatalog)) return null;
-      const migrated = migrateV2Envelope(parsed, raw);
-      return isValidSaveEnvelope(migrated, workCatalog) ? migrated : null;
+      const migratedV3 = migrateV2Envelope(parsed, raw);
+      if (!isValidV3SaveEnvelope(migratedV3, workCatalog)) return null;
+      const migratedV4 = migrateV3Envelope(migratedV3);
+      return isValidSaveEnvelope(migratedV4, workCatalog) ? migratedV4 : null;
+    }
+    if (parsed.schemaVersion === 3) {
+      if (!isValidV3SaveEnvelope(parsed, workCatalog)) return null;
+      const migratedV4 = migrateV3Envelope(parsed as unknown as LegacySaveEnvelopeV3);
+      return isValidSaveEnvelope(migratedV4, workCatalog) ? migratedV4 : null;
     }
     return isValidSaveEnvelope(parsed, workCatalog) ? parsed : null;
   } catch { return null; }

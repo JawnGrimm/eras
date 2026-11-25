@@ -12,10 +12,13 @@ import type { GameState } from '../state/types';
 class MemoryStorage implements ProductionStorage {
   values = new Map<string, string>();
   failWrites = false;
+  corruptSaveWrites = false;
+  corruptRollbackWrites = false;
   getItem(key: string): string | null { return this.values.get(key) ?? null; }
   setItem(key: string, value: string): void {
     if (this.failWrites) throw new Error('Quota exceeded');
-    this.values.set(key, value);
+    this.values.set(key, this.corruptSaveWrites && key === SAVE_KEY ? '{"schemaVersion":4}'
+      : this.corruptRollbackWrites && key === ROLLBACK_SAVE_KEY ? 'corrupted rollback bytes' : value);
   }
 }
 
@@ -59,7 +62,7 @@ describe('GameProvider production persistence', () => {
     expect(saved?.state.calendar.dayNumber).toBe(1);
   });
 
-  it('restores a valid v3 save using the registered Work catalog', () => {
+  it('restores a valid v4 save using the registered Work catalog', () => {
     const storage = new MemoryStorage();
     const state = transitionGame(validSavedState(), { type: 'SPEND_AP', amount: 2, reason: 'Test saved AP' }).state;
     storage.setItem(SAVE_KEY, JSON.stringify(createSaveEnvelope(state, 7, '2026-11-22T12:00:00.000Z')));
@@ -71,10 +74,12 @@ describe('GameProvider production persistence', () => {
     expect(game.state.works.activeWorkId).toBe(validSavedState().works.activeWorkId);
   });
 
-  it('backs up exact v2 bytes and durably rewrites the migrated v3 envelope before opening play', () => {
+  it('backs up exact v2 bytes and durably rewrites the migrated v4 envelope before opening play', () => {
     const storage = new MemoryStorage();
     const state = validSavedState();
     const legacyState = structuredClone(state) as unknown as Record<string, any>;
+    delete legacyState.world.relationshipFamiliarityEpisodes;
+    for (const targets of Object.values(legacyState.world.relationships) as any[]) for (const relationship of Object.values(targets) as any[]) relationship.dimensions.familiarity = 0;
     delete legacyState.dayClose;
     delete legacyState.opportunities.selectionSeed;
     delete legacyState.opportunities.occurrenceLedger;
@@ -90,16 +95,51 @@ describe('GameProvider production persistence', () => {
     expect(game.loadStatus).toBe('ready');
     expect(game.needsCharacterCreation).toBe(false);
     expect(storage.getItem(ROLLBACK_SAVE_KEY)).toBe(legacyRaw);
-    expect(persisted.schemaVersion).toBe(3);
+    expect(persisted.schemaVersion).toBe(4);
     expect(persisted.revision).toBe(6);
     expect(game.state.dayClose.phase).toBe('workday_open');
     expect(game.state.opportunities.selectionSeed).toMatch(/^legacy-v2-fnv1a32-/);
   });
 
-  it('does not expose a migrated v2 save as playable when the rollback or v3 write fails', () => {
+  it('backs up exact v3 bytes before rewriting a v4 envelope and retires only the numeric field', () => {
     const storage = new MemoryStorage();
     const state = validSavedState();
     const legacyState = structuredClone(state) as unknown as Record<string, any>;
+    const personIds = Object.keys(legacyState.world.people);
+    const fromId = legacyState.player.currentCharacterId;
+    const toId = personIds.find((id) => id !== fromId)!;
+    legacyState.world.relationships = {
+      [fromId]: {
+        [toId]: {
+          dimensions: { trust: 51, respect: 52, affection: 20, resentment: 0, rivalry: 0, familiarity: 68 },
+          history: [{ id: 'legacy-history', dayNumber: 1, summary: 'Legacy history remains unchanged.' }],
+        },
+      },
+    };
+    delete legacyState.world.relationshipFamiliarityEpisodes;
+    const legacyRaw = JSON.stringify({
+      schemaVersion: 3, gameVersion: '0.1.0', revision: 8,
+      savedAt: '2026-11-22T12:00:00.000Z', state: legacyState,
+    });
+    storage.setItem(SAVE_KEY, legacyRaw);
+
+    const game = renderProvider(storage);
+    const persisted = JSON.parse(storage.getItem(SAVE_KEY) ?? 'null');
+
+    expect(game.loadStatus).toBe('ready');
+    expect(storage.getItem(ROLLBACK_SAVE_KEY)).toBe(legacyRaw);
+    expect(persisted.schemaVersion).toBe(4);
+    expect(persisted.state.world.relationshipFamiliarityEpisodes).toEqual({});
+    expect(persisted.state.world.relationships[fromId][toId].dimensions).not.toHaveProperty('familiarity');
+    expect(persisted.state.world.relationships[fromId][toId].history).toEqual(legacyState.world.relationships[fromId][toId].history);
+  });
+
+  it('does not expose a migrated legacy save as playable when the rollback or v4 write fails', () => {
+    const storage = new MemoryStorage();
+    const state = validSavedState();
+    const legacyState = structuredClone(state) as unknown as Record<string, any>;
+    delete legacyState.world.relationshipFamiliarityEpisodes;
+    for (const targets of Object.values(legacyState.world.relationships) as any[]) for (const relationship of Object.values(targets) as any[]) relationship.dimensions.familiarity = 0;
     delete legacyState.dayClose;
     delete legacyState.opportunities.selectionSeed;
     delete legacyState.opportunities.occurrenceLedger;
@@ -117,6 +157,50 @@ describe('GameProvider production persistence', () => {
     expect(game.needsCharacterCreation).toBe(false);
     expect(result.feedback?.code).toBe('save-load-confirmation-required');
     expect(storage.getItem(SAVE_KEY)).toBe(legacyRaw);
+  });
+
+  it('does not overwrite a legacy primary save unless the exact rollback bytes are confirmed', () => {
+    const storage = new MemoryStorage();
+    const state = validSavedState();
+    const legacyState = structuredClone(state) as unknown as Record<string, any>;
+    delete legacyState.world.relationshipFamiliarityEpisodes;
+    for (const targets of Object.values(legacyState.world.relationships) as any[]) for (const relationship of Object.values(targets) as any[]) relationship.dimensions.familiarity = 0;
+    const legacyRaw = JSON.stringify({
+      schemaVersion: 3, gameVersion: '0.1.0', revision: 11,
+      savedAt: '2026-11-22T12:00:00.000Z', state: legacyState,
+    });
+    storage.setItem(SAVE_KEY, legacyRaw);
+    storage.corruptRollbackWrites = true;
+
+    const game = renderProvider(storage);
+
+    expect(game.loadStatus).toBe('read_error');
+    expect(storage.getItem(SAVE_KEY)).toBe(legacyRaw);
+    expect(storage.getItem(ROLLBACK_SAVE_KEY)).not.toBe(legacyRaw);
+  });
+
+  it('keeps the exact legacy rollback when the v4 write cannot be confirmed by readback', () => {
+    const storage = new MemoryStorage();
+    const state = validSavedState();
+    const legacyState = structuredClone(state) as unknown as Record<string, any>;
+    delete legacyState.world.relationshipFamiliarityEpisodes;
+    for (const targets of Object.values(legacyState.world.relationships) as any[]) for (const relationship of Object.values(targets) as any[]) relationship.dimensions.familiarity = 0;
+    delete legacyState.dayClose;
+    delete legacyState.opportunities.selectionSeed;
+    delete legacyState.opportunities.occurrenceLedger;
+    const legacyRaw = JSON.stringify({
+      schemaVersion: 2, gameVersion: '0.1.0', revision: 10,
+      savedAt: '2026-11-22T12:00:00.000Z', state: legacyState,
+    });
+    storage.setItem(SAVE_KEY, legacyRaw);
+    storage.corruptSaveWrites = true;
+
+    const game = renderProvider(storage);
+
+    expect(game.loadStatus).toBe('read_error');
+    expect(game.needsCharacterCreation).toBe(false);
+    expect(storage.getItem(ROLLBACK_SAVE_KEY)).toBe(legacyRaw);
+    expect(restoreSave(storage.getItem(ROLLBACK_SAVE_KEY), INITIAL_WORK_CATALOG)).not.toBeNull();
   });
 
   it('rolls back a Day-Close transition when its durable save write fails', () => {

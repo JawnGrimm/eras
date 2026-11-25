@@ -115,7 +115,7 @@ function applyConsequences(state: GameState, effects: OpportunityConsequences | 
     if (!next.world.people[change.fromId] || !next.world.people[change.toId] || change.fromId === change.toId
       || !change.summary || Object.values(change.changes).some((n) => !Number.isFinite(n))) return null;
     const current = next.world.relationships[change.fromId]?.[change.toId];
-    const dimensions = { trust: 50, respect: 50, affection: 50, resentment: 0, rivalry: 0, familiarity: 0, ...current?.dimensions };
+    const dimensions = { trust: 50, respect: 50, affection: 50, resentment: 0, rivalry: 0, ...current?.dimensions };
     for (const [key, delta] of Object.entries(change.changes)) {
       const k = key as keyof typeof dimensions;
       dimensions[k] = Math.max(0, Math.min(100, dimensions[k] + delta));
@@ -350,6 +350,7 @@ export function transitionOpportunityAction(state: GameState, action: Opportunit
           baseCareerXp: choice.consequences.careerXp ?? 0,
           institutionId: choice.evaluation.institutionId,
           receiverPersonId: choice.evaluation.receiverPersonId,
+          contextId: challenge.category, occasionId: challenge.id,
           currencyDelta: after && before ? after.wallet.money - before.wallet.money : 0,
           provisionsDelta: after && before ? after.wallet.provisions - before.wallet.provisions : 0,
         });
