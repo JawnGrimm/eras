@@ -111,13 +111,12 @@ export function prepareTierBRecurringOccurrences(input: GameState): GameState {
   const entries = { ...state.records.entries };
   let changed = false;
 
-  // Routine matters are closed by institutional staff after the visible offer
-  // window when they remain unaccepted; accepted player commitments stay open.
-  const storehouse = institutions[STOREHOUSE];
-  if (storehouse) {
-    const activeMatters = [...storehouse.activeMatters];
+  // Close stale routine occurrences through the institution that owns each matter.
+  for (const institution of Object.values(institutions)) {
+    const activeMatters = [...institution.activeMatters];
     for (const matter of Object.values(matters)) {
-      if (matter.kind !== 'tier_b_recurring_occurrence' || matter.status !== 'active' || day < matter.createdDay + 3) continue;
+      if (matter.institutionId !== institution.id || matter.kind !== 'tier_b_recurring_occurrence'
+        || matter.status !== 'active' || day < matter.createdDay + 3) continue;
       const offer = Object.values(state.opportunities.assignments).find((item) => item.originMatterId === matter.id && item.activityId === activityId);
       if (offer?.status === 'accepted') continue;
       if (offer?.status === 'offered' && day <= offer.expiresDay) continue;
@@ -126,48 +125,62 @@ export function prepareTierBRecurringOccurrences(input: GameState): GameState {
       if (index >= 0) activeMatters.splice(index, 1);
       changed = true;
     }
-    if (activeMatters.length !== storehouse.activeMatters.length) institutions[STOREHOUSE] = { ...storehouse, activeMatters };
+    if (activeMatters.length !== institution.activeMatters.length) institutions[institution.id] = { ...institution, activeMatters };
   }
 
-  // A fresh occurrence is authored from the date/cadence and a bounded
-  // compatible domain. IDs are date-scoped, so repeated evaluation is idempotent.
-  if (day >= 14) {
+  // Maintain a small board supply only while currently active offers remain below
+  // the approved soft ~8 AP pacing target. No autonomous NPC scheduler or stock ledger.
+  const activeOffers = Object.values(state.opportunities.assignments).filter((offer) =>
+    offer.status === 'accepted' || (offer.status === 'offered' && offer.expiresDay >= day));
+  const activeTierBOffers = activeOffers.filter((offer) => offer.activityId === activityId).length;
+  const activeOfferAp = activeOffers.reduce((sum, offer) => sum + (offer.estimatedTotalAp ?? 0), 0);
+  if (day >= 14 && activeTierBOffers < 2 && activeOfferAp < 8) {
     const eventId = `event-tierb-recurring-day-${day}` as EventId;
     const matterId = `matter-tierb-recurring-day-${day}` as MatterId;
-    if (!events[eventId] && !matters[matterId] && institutions[STOREHOUSE]) {
-      const occurrence = authoredOccurrence(day);
+    const institutionIndex = day % 3;
+    const institutionId = (institutionIndex === 0 ? STOREHOUSE
+      : institutionIndex === 1 ? EANNA_INSTITUTION_ID : TEXTILE_HOUSEHOLD_INSTITUTION_ID) as InstitutionId;
+    const locationId = (institutionIndex === 0 ? NORTH_BAY_LOCATION_ID
+      : institutionIndex === 1 ? EANNA_TABLET_ROOM_LOCATION_ID : TEXTILE_HOUSEHOLD_LOCATION_ID) as LocationId;
+    const institution = institutions[institutionId];
+    const counterpartyPersonId = [CARRIER, KULI, AMA_GI, DUDU, ARU][day % 5] as PersonId;
+    const counterpartyName = operationalNames[counterpartyPersonId];
+    const receivingPersonId = [RECEIVER, STEWARD, GEME_INANA][day % 3] as PersonId;
+    const receivingName = receivingNames[receivingPersonId];
+    const reviewerPersonId = [SENIOR, LU_NANSHE][day % 2] as PersonId;
+    const reviewerName = reviewerNames[reviewerPersonId];
+    if (!events[eventId] && !matters[matterId] && institution) {
+      const occurrence = authoredOccurrence(day, counterpartyPersonId, counterpartyName);
       const dispatchId = `record-tierb-recurring-day-${day}-dispatch` as RecordId;
       const receivingId = `record-tierb-recurring-day-${day}-receiving` as RecordId;
-      const summary = `Tier B ${occurrence.domain.replaceAll('_', ' ')} with ${occurrence.counterpartyName}: ${occurrence.quantitySummary} ${occurrence.sourceSummary}`;
+      const summary = `Tier B ${occurrence.domain.replaceAll('_', ' ')} at ${institution.name}: ${occurrence.commodity}; ${occurrence.outcomeShape === 'reconciled' ? 'the cited figures reconcile' : 'a bounded difference or condition is recorded'}.`;
+      const participants = [counterpartyPersonId, receivingPersonId, reviewerPersonId];
       const event: WorldEvent = {
-        id: eventId, dayNumber: day, summary,
-        personIds: [STEWARD, RECEIVER, CARRIER, SENIOR, occurrence.counterpartyPersonId],
-        institutionIds: [STOREHOUSE], locationId: LOCATION as import('../state/ids').LocationId,
+        id: eventId, dayNumber: day, summary, personIds: participants,
+        institutionIds: [institutionId], locationId,
       };
-      const dispatch = makeRecord(dispatchId, day, `Day ${day} ${occurrence.commodity} dispatch/source copy`,
-        occurrence.quantitySummary, SENIOR, occurrence.counterpartyPersonId, eventId);
+      const dispatch = makeRecord(dispatchId, day, `Day ${day} ${occurrence.commodity} source/dispatch copy`,
+        occurrence.quantitySummary, reviewerPersonId, counterpartyPersonId, eventId, institutionId);
       const receipt = makeRecord(receivingId, day, `Day ${day} ${occurrence.commodity} receiving/check copy`,
-        occurrence.sourceSummary, SENIOR, RECEIVER, eventId);
+        occurrence.sourceSummary, receivingPersonId, receivingPersonId, eventId, institutionId);
       const matter: InstitutionalMatter = {
-        id: matterId, institutionId: STOREHOUSE, kind: 'tier_b_recurring_occurrence',
+        id: matterId, institutionId, kind: 'tier_b_recurring_occurrence',
         summary, status: 'active', createdDay: day, sourceEventId: eventId, sourceRecordId: dispatchId,
-        locationId: LOCATION as import('../state/ids').LocationId,
-        involvedPersonIds: [STEWARD, RECEIVER, CARRIER, SENIOR, occurrence.counterpartyPersonId],
-        tierBRecurring: occurrence,
+        locationId, involvedPersonIds: participants, tierBRecurring: occurrence,
         provenance: [
           { id: `tierb-${day}-event`, kind: 'event', sourceId: eventId, description: 'Distinct dated institutional occurrence.' },
           { id: `tierb-${day}-dispatch`, kind: 'other', sourceId: dispatchId, description: 'Dated source/dispatch record.' },
           { id: `tierb-${day}-receipt`, kind: 'other', sourceId: receivingId, description: 'Dated receiving/check record.' },
-          { id: `tierb-${day}-instruction`, kind: 'instruction', description: 'Routine storehouse cadence calls for a bounded check; this does not imply a fixed daily player quota.' },
+          { id: `tierb-${day}-instruction`, kind: 'instruction', description: 'A bounded institutional comparison; no fixed player quota or executive authority.' },
         ],
       };
       events[eventId] = event;
       entries[dispatchId] = dispatch;
       entries[receivingId] = receipt;
       matters[matterId] = matter;
-      institutions[STOREHOUSE] = {
-        ...institutions[STOREHOUSE],
-        activeMatters: [...new Set([...institutions[STOREHOUSE].activeMatters, matterId])],
+      institutions[institutionId] = {
+        ...institution,
+        activeMatters: [...new Set([...institution.activeMatters, matterId])],
       };
       changed = true;
     }
