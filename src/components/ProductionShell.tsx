@@ -125,8 +125,8 @@ export function ProductionShellContent() {
         <ClosingReceiptScreen receipt={pendingAssignmentReceipt.closingReceipt} kind="assignment"
           assignment={pendingAssignmentReceipt}
           employerName={pendingAssignmentReceipt.employer.kind === 'institution'
-            ? game.state.world.institutions[pendingAssignmentReceipt.employer.id]?.name
-            : game.state.world.people[pendingAssignmentReceipt.employer.id]?.name}
+            ? game.state.world.institutions[pendingAssignmentReceipt.employer.id as import('../state/ids').InstitutionId]?.name
+            : game.state.world.people[pendingAssignmentReceipt.employer.id as import('../state/ids').PersonId]?.name}
           matter={pendingAssignmentReceipt.originMatterId
             ? game.state.world.matters[pendingAssignmentReceipt.originMatterId]
             : undefined}
