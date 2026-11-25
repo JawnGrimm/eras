@@ -188,7 +188,7 @@ export interface MatterProvenance {
   sourceId?: string;
 }
 export interface TierBRecurringOccurrence {
-  domain: 'grain_delivery' | 'textile_receipt' | 'vessel_count' | 'container_check' | 'grain_account' | 'fish_entry';
+  domain: 'grain_delivery' | 'textile_receipt' | 'vessel_count' | 'container_check' | 'grain_account' | 'fish_entry' | 'dairy_entry' | 'field_measurement';
   commodity: string; unit: string; counterpartyPersonId: PersonId; counterpartyName: string;
   quantitySummary: string; sourceSummary: string; outcomeShape: 'reconciled' | 'discrepancy';
 }

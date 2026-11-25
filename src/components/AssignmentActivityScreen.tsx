@@ -45,6 +45,19 @@ export function AssignmentActivityScreen({ assignmentId, onBack }: { assignmentI
     rules: definition.interpretationRules,
   }));
   const draft = progress.draft;
+  const tierBLinkedRecords = offer.activityId === 'activity-tierb-recurring-institutional-check' && offer.originMatterId
+    ? (() => {
+      const matter = game.state.world.matters[offer.originMatterId];
+      const recordIds = [...new Set([
+        matter?.sourceRecordId,
+        ...(matter?.provenance ?? []).filter((source) => source.kind === 'other').map((source) => source.sourceId),
+      ].filter((id): id is string => !!id))];
+      return recordIds.flatMap((id) => {
+        const record = game.state.records.entries[id as import('../state/ids').RecordId];
+        return record ? [record] : [];
+      });
+    })()
+    : [];
   return <div className="mx-auto max-w-5xl space-y-5">
     <header className="rounded-xl border border-stone-300 bg-white p-5">
       <button onClick={onBack} className="text-xs font-semibold text-amber-900 underline">Back to Assignment Board</button>
@@ -53,6 +66,19 @@ export function AssignmentActivityScreen({ assignmentId, onBack }: { assignmentI
       <p className="mt-2 text-sm leading-6 text-stone-600">{offer.description}</p>
       <p className="mt-3 text-sm"><strong>{game.state.actionEconomy.apRemaining} AP</strong> remaining today · estimated {offer.estimatedTotalAp} AP total · submission {definition.submissionApCost} AP</p>
     </header>
+    {tierBLinkedRecords.length > 0 && <section className="rounded-xl border border-stone-300 bg-white p-5">
+      <h2 className="font-serif text-xl font-semibold">Dated source records</h2>
+      <p className="mt-1 text-sm text-stone-600">Read the actual assertions in each linked record. Keep the source copy and receiving/check copy distinct; each records only what its source establishes.</p>
+      <div className="mt-3 space-y-3">
+        {tierBLinkedRecords.map((record) => <article key={record.id} className="rounded-lg bg-stone-50 p-3">
+          <h3 className="font-semibold">{record.title}</h3>
+          <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-6 text-stone-700">
+            {record.assertions.map((assertion) => <li key={assertion.id}>{assertion.text}</li>)}
+          </ul>
+          {record.uncertaintyLimits.length > 0 && <p className="mt-2 text-xs text-stone-500">{record.uncertaintyLimits.join(' ')}</p>}
+        </article>)}
+      </div>
+    </section>}
     <section className="rounded-xl border border-stone-300 bg-white p-5">
       <h2 className="font-serif text-xl font-semibold">Investigative actions</h2>
       <p className="mt-1 text-sm text-stone-600">Actions are optional and may be completed in any available order. You can submit a qualified incomplete report without exhausting the activity.</p>

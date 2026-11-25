@@ -1,56 +1,90 @@
-import type { EventId, InstitutionId, MatterId, PersonId, RecordId } from '../state/ids';
+import type { EventId, InstitutionId, LocationId, MatterId, PersonId, RecordId } from '../state/ids';
+import { EANNA_INSTITUTION_ID, EANNA_TABLET_ROOM_LOCATION_ID, TEXTILE_HOUSEHOLD_INSTITUTION_ID, TEXTILE_HOUSEHOLD_LOCATION_ID } from './institutionalMatters';
+import { NORTH_BAY_LOCATION_ID } from '../content/assignments/northBayRoofInspection';
 import type { GameState, InstitutionalMatter, RecordEntry, TierBRecurringOccurrence, WorldEvent } from '../state/types';
 
 const STOREHOUSE = 'institution-uruk-temple-storehouse' as InstitutionId;
-const LOCATION = 'location-uruk-south-receiving-court';
 const STEWARD = 'person-ur-nanna' as PersonId;
 const RECEIVER = 'person-utu-mansum' as PersonId;
 const CARRIER = 'person-enlil-kisu' as PersonId;
 const SENIOR = 'person-shuruppak-ilu' as PersonId;
+const KULI = 'person-kuli' as PersonId;
+const AMA_GI = 'person-ama-gi-provisional' as PersonId;
+const DUDU = 'person-dudu' as PersonId;
+const ARU = 'person-aru' as PersonId;
+const GEME_INANA = 'person-geme-inana-provisional' as PersonId;
+const LU_NANSHE = 'person-lu-nanshe' as PersonId;
 const activityId = 'activity-tierb-recurring-institutional-check';
 
-const counterpartyByDay = [CARRIER, RECEIVER, STEWARD, SENIOR] as const;
-const names: Record<string, string> = {
+const operationalNames: Record<string, string> = {
   [CARRIER]: 'Enlil-kisu, Carrier Foreman',
-  [RECEIVER]: 'Utu-mansum, Receiving Official',
-  [STEWARD]: 'Ur-Nanna, Storehouse Steward',
-  [SENIOR]: 'Shuruppak-ilu, Senior Scribe',
+  [KULI]: 'Kuli, Carrier',
+  [AMA_GI]: 'Ama-gi, Household Participant',
+  [DUDU]: 'Dudu, Repairer',
+  [ARU]: 'Aru, Maintenance Worker',
 };
-
-function authoredOccurrence(day: number): TierBRecurringOccurrence {
-  const counterpartyPersonId = counterpartyByDay[day % counterpartyByDay.length] as PersonId;
-  const counterpartyName = names[counterpartyPersonId];
-  const index = day % 6;
-  const data: TierBRecurringOccurrence[] = [
-    { domain: 'grain_delivery', commodity: 'barley', unit: 'capacity measures', counterpartyPersonId, counterpartyName,
-      quantitySummary: 'Dispatch: 8 capacity measures of barley; intake: 8 capacity measures.',
-      sourceSummary: 'The dated dispatch and receiving records agree at eight capacity measures; the tally reconciles.' , outcomeShape: 'reconciled' },
-    { domain: 'textile_receipt', commodity: 'textile bundles', unit: 'bundles', counterpartyPersonId, counterpartyName,
-      quantitySummary: 'Dispatch: 6 textile bundles; intake: 5 bundles. One bundle is not accounted for at receipt.',
-      sourceSummary: 'The dispatch and receiving records differ by one textile bundle; the point of difference is not established.', outcomeShape: 'discrepancy' },
-    { domain: 'vessel_count', commodity: 'sealed vessels', unit: 'vessels', counterpartyPersonId, counterpartyName,
-      quantitySummary: 'Dispatch: 9 sealed vessels; landing and receipt: 9 vessels.',
-      sourceSummary: 'The dated tallies agree at nine vessels. Agreement of counts does not establish the condition of the contents.', outcomeShape: 'reconciled' },
-    { domain: 'container_check', commodity: 'storage jars', unit: 'jar exteriors', counterpartyPersonId, counterpartyName,
-      quantitySummary: 'Five storage jars were checked externally; four are surface-dry and one bears damp-staining.',
-      sourceSummary: 'The container check records one damp-stained exterior. It does not establish the condition of the contents.', outcomeShape: 'discrepancy' },
-    { domain: 'grain_account', commodity: 'groats entries', unit: 'recorded entries', counterpartyPersonId, counterpartyName,
-      quantitySummary: 'Entries: 2, 3, and 4; recalculated sum: 9; written subtotal: 9.',
-      sourceSummary: 'The three recorded groats entries sum to the written subtotal of nine; the arithmetic reconciles.', outcomeShape: 'reconciled' },
-    { domain: 'fish_entry', commodity: 'KU6 fish category', unit: 'recorded category entries (not a universal fish measure)', counterpartyPersonId, counterpartyName,
-      quantitySummary: 'Three KU6 category entries appear in the source copy; the carried-forward account lists two.',
-      sourceSummary: 'The source copy and carried-forward account differ by one KU6 category entry. No universal fish unit is inferred.', outcomeShape: 'discrepancy' },
+function authoredOccurrence(day: number, counterpartyPersonId: PersonId, counterpartyName: string): TierBRecurringOccurrence {
+  const n = day;
+  const patterns: TierBRecurringOccurrence[] = [
+    (() => { const sent = 5 + n % 7; const received = sent - (n % 3 === 0 ? 0 : 1); return {
+      domain: 'grain_delivery', commodity: 'barley', unit: 'capacity measures', counterpartyPersonId, counterpartyName,
+      quantitySummary: `Dispatch: ${sent} capacity measures of barley; intake: ${received} capacity measures.`,
+      sourceSummary: received === sent ? `The dated dispatch and receiving records agree at ${sent} capacity measures; the tally reconciles.` : `The receiving record is short by ${sent - received} capacity measure; the cause is not established.`,
+      outcomeShape: received === sent ? 'reconciled' : 'discrepancy',
+    }; })(),
+    (() => { const sent = 4 + n % 6; const received = sent - (n % 4 === 1 ? 0 : 1 + n % 2); return {
+      domain: 'textile_receipt', commodity: 'textile bundles', unit: 'bundles', counterpartyPersonId, counterpartyName,
+      quantitySummary: `Dispatch: ${sent} textile bundles; intake: ${received} bundles.`,
+      sourceSummary: received === sent ? `The textile dispatch and intake tallies agree at ${sent} bundles.` : `The textile records differ by ${sent - received} bundle(s); the point of difference is not established.`,
+      outcomeShape: received === sent ? 'reconciled' : 'discrepancy',
+    }; })(),
+    (() => { const sent = 6 + n % 5; const received = sent - (n % 3 === 2 ? 1 : 0); return {
+      domain: 'vessel_count', commodity: 'sealed vessels', unit: 'vessels', counterpartyPersonId, counterpartyName,
+      quantitySummary: `Dispatch: ${sent} sealed vessels; landing and receipt: ${received} vessels.`,
+      sourceSummary: received === sent ? `The dated tallies agree at ${sent} vessels; contents are not established by the count.` : `The tallies differ by ${sent - received} vessel; the cause is not established.`,
+      outcomeShape: received === sent ? 'reconciled' : 'discrepancy',
+    }; })(),
+    (() => { const checked = 4 + n % 5; const damp = n % 4; return {
+      domain: 'container_check', commodity: 'storage jars', unit: 'jar exteriors', counterpartyPersonId, counterpartyName,
+      quantitySummary: `${checked} storage jars were checked externally; ${checked - damp} are surface-dry and ${damp} bear damp-staining.`,
+      sourceSummary: damp === 0 ? `The external check records ${checked} surface-dry jar exteriors; contents were not inspected.` : `The external check records ${damp} damp-stained jar exterior(s); contents were not inspected.`,
+      outcomeShape: damp === 0 ? 'reconciled' : 'discrepancy',
+    }; })(),
+    (() => { const a = 1 + n % 4, b = 2 + n % 3, c = 2 + n % 5, sum = a + b + c, written = sum + (n % 4 === 0 ? 0 : n % 2 ? 1 : -1); return {
+      domain: 'grain_account', commodity: 'groats entries', unit: 'recorded entries', counterpartyPersonId, counterpartyName,
+      quantitySummary: `Entries: ${a}, ${b}, and ${c}; recalculated sum: ${sum}; written subtotal: ${written}.`,
+      sourceSummary: written === sum ? `The groats entries sum to the written subtotal of ${sum}; the arithmetic reconciles.` : `The groats entries differ from the written subtotal by ${Math.abs(written-sum)}; no cause is established.`,
+      outcomeShape: written === sum ? 'reconciled' : 'discrepancy',
+    }; })(),
+    (() => { const source = 2 + n % 5, carried = source - (n % 3 === 0 ? 0 : 1); return {
+      domain: 'fish_entry', commodity: 'KU6 fish category', unit: 'recorded category entries (not a universal fish measure)', counterpartyPersonId, counterpartyName,
+      quantitySummary: `${source} KU6 category entries appear in the source copy; the carried-forward account lists ${carried}.`,
+      sourceSummary: source === carried ? `The KU6 category entries agree at ${source}; no universal fish measure is inferred.` : `The KU6 category records differ by ${source-carried} entry; no universal fish measure or cause is inferred.`,
+      outcomeShape: source === carried ? 'reconciled' : 'discrepancy',
+    }; })(),
+    (() => { const source = 2 + n % 4, carried = source - (n % 3 === 1 ? 1 : 0); return {
+      domain: 'dairy_entry', commodity: n % 2 ? 'DUGb dairy category' : 'cheese category', unit: 'recorded category entries', counterpartyPersonId, counterpartyName,
+      quantitySummary: `The source copy records ${source} ${n % 2 ? 'DUGb dairy' : 'cheese'} category entries; the receiving copy lists ${carried}.`,
+      sourceSummary: source === carried ? `The identified dairy category entries agree at ${source}; category identity is retained.` : `The identified dairy category copies differ by ${source-carried} entry; no conversion or cause is inferred.`,
+      outcomeShape: source === carried ? 'reconciled' : 'discrepancy',
+    }; })(),
+    (() => { const a = 3 + n % 6, b = 2 + n % 5, sum = a + b, written = sum + (n % 3 === 0 ? 0 : n % 2 ? 1 : -1); return {
+      domain: 'field_measurement', commodity: 'field notation', unit: 'GAN2 source-specific notation', counterpartyPersonId, counterpartyName,
+      quantitySummary: `The cited field copy gives parcel subtotals ${a} and ${b} GAN2; recalculated total: ${sum}; written total: ${written}.`,
+      sourceSummary: written === sum ? `The supplied parcel subtotals reconcile to the written GAN2 total of ${sum}; no boundary or yield conclusion follows.` : `The recalculated GAN2 total differs from the written total by ${Math.abs(written-sum)}; source notation and provenance qualification remain attached.`,
+      outcomeShape: written === sum ? 'reconciled' : 'discrepancy',
+    }; })(),
   ];
-  return data[index];
+  return patterns[day % patterns.length];
 }
 
-function makeRecord(id: RecordId, day: number, title: string, assertion: string, author: PersonId, reportedBy: PersonId, eventId: EventId): RecordEntry {
+function makeRecord(id: RecordId, day: number, title: string, assertion: string, author: PersonId, reportedBy: PersonId, eventId: EventId, institutionId: InstitutionId): RecordEntry {
   const sources = [
     { id: `source-${id}-reporter`, kind: 'person' as const, sourceId: reportedBy, description: 'The named institutional participant is the source of this reported tally.' },
     { id: `source-${id}-event`, kind: 'event' as const, sourceId: eventId, description: 'The dated occurrence to which this tally belongs.' },
   ];
   return {
-    id, createdDay: day, authorPersonId: author, institutionId: STOREHOUSE, title, sources,
+    id, createdDay: day, authorPersonId: author, institutionId, title, sources,
     assertions: [{ id: `assertion-${id}`, text: assertion, classification: 'reported', sourceIds: sources.map((source) => source.id) }],
     uncertaintyLimits: ['This source records its own count or observation only; it does not locate a discrepancy or establish individual responsibility.'],
     amendments: [],
@@ -67,13 +101,12 @@ export function prepareTierBRecurringOccurrences(input: GameState): GameState {
   const entries = { ...state.records.entries };
   let changed = false;
 
-  // Routine matters are closed by institutional staff after the visible offer
-  // window when they remain unaccepted; accepted player commitments stay open.
-  const storehouse = institutions[STOREHOUSE];
-  if (storehouse) {
-    const activeMatters = [...storehouse.activeMatters];
+  // Close stale routine occurrences through the institution that owns each matter.
+  for (const institution of Object.values(institutions)) {
+    const activeMatters = [...institution.activeMatters];
     for (const matter of Object.values(matters)) {
-      if (matter.kind !== 'tier_b_recurring_occurrence' || matter.status !== 'active' || day < matter.createdDay + 3) continue;
+      if (matter.institutionId !== institution.id || matter.kind !== 'tier_b_recurring_occurrence'
+        || matter.status !== 'active' || day < matter.createdDay + 3) continue;
       const offer = Object.values(state.opportunities.assignments).find((item) => item.originMatterId === matter.id && item.activityId === activityId);
       if (offer?.status === 'accepted') continue;
       if (offer?.status === 'offered' && day <= offer.expiresDay) continue;
@@ -82,48 +115,60 @@ export function prepareTierBRecurringOccurrences(input: GameState): GameState {
       if (index >= 0) activeMatters.splice(index, 1);
       changed = true;
     }
-    if (activeMatters.length !== storehouse.activeMatters.length) institutions[STOREHOUSE] = { ...storehouse, activeMatters };
+    if (activeMatters.length !== institution.activeMatters.length) institutions[institution.id] = { ...institution, activeMatters };
   }
 
-  // A fresh occurrence is authored from the date/cadence and a bounded
-  // compatible domain. IDs are date-scoped, so repeated evaluation is idempotent.
-  if (day >= 14) {
+  // Maintain a small board supply only while currently active offers remain below
+  // the approved soft ~8 AP pacing target. No autonomous NPC scheduler or stock ledger.
+  const activeOffers = Object.values(state.opportunities.assignments).filter((offer) =>
+    offer.status === 'accepted' || (offer.status === 'offered' && offer.expiresDay >= day));
+  const activeTierBOffers = activeOffers.filter((offer) => offer.activityId === activityId).length;
+  const activeOfferAp = activeOffers.reduce((sum, offer) => sum + (offer.estimatedTotalAp ?? 0), 0);
+  if (day >= 14 && activeTierBOffers < 2 && activeOfferAp < 8) {
     const eventId = `event-tierb-recurring-day-${day}` as EventId;
     const matterId = `matter-tierb-recurring-day-${day}` as MatterId;
-    if (!events[eventId] && !matters[matterId] && institutions[STOREHOUSE]) {
-      const occurrence = authoredOccurrence(day);
+    const institutionIndex = day % 3;
+    const institutionId = (institutionIndex === 0 ? STOREHOUSE
+      : institutionIndex === 1 ? EANNA_INSTITUTION_ID : TEXTILE_HOUSEHOLD_INSTITUTION_ID) as InstitutionId;
+    const locationId = (institutionIndex === 0 ? NORTH_BAY_LOCATION_ID
+      : institutionIndex === 1 ? EANNA_TABLET_ROOM_LOCATION_ID : TEXTILE_HOUSEHOLD_LOCATION_ID) as LocationId;
+    const institution = institutions[institutionId];
+    const counterpartyPersonId = [CARRIER, KULI, AMA_GI, DUDU, ARU][day % 5] as PersonId;
+    const counterpartyName = operationalNames[counterpartyPersonId];
+    const receivingPersonId = [RECEIVER, STEWARD, GEME_INANA][day % 3] as PersonId;
+    const reviewerPersonId = [SENIOR, LU_NANSHE][day % 2] as PersonId;
+    if (!events[eventId] && !matters[matterId] && institution) {
+      const occurrence = authoredOccurrence(day, counterpartyPersonId, counterpartyName);
       const dispatchId = `record-tierb-recurring-day-${day}-dispatch` as RecordId;
       const receivingId = `record-tierb-recurring-day-${day}-receiving` as RecordId;
-      const summary = `Tier B ${occurrence.domain.replaceAll('_', ' ')} with ${occurrence.counterpartyName}: ${occurrence.quantitySummary} ${occurrence.sourceSummary}`;
+      const summary = `Tier B ${occurrence.domain.replaceAll('_', ' ')} at ${institution.name}: ${occurrence.commodity}; ${occurrence.outcomeShape === 'reconciled' ? 'the cited figures reconcile' : 'a bounded difference or condition is recorded'}.`;
+      const participants = [counterpartyPersonId, receivingPersonId, reviewerPersonId];
       const event: WorldEvent = {
-        id: eventId, dayNumber: day, summary,
-        personIds: [STEWARD, RECEIVER, CARRIER, SENIOR, occurrence.counterpartyPersonId],
-        institutionIds: [STOREHOUSE], locationId: LOCATION as import('../state/ids').LocationId,
+        id: eventId, dayNumber: day, summary, personIds: participants,
+        institutionIds: [institutionId], locationId,
       };
-      const dispatch = makeRecord(dispatchId, day, `Day ${day} ${occurrence.commodity} dispatch/source copy`,
-        occurrence.quantitySummary, SENIOR, occurrence.counterpartyPersonId, eventId);
+      const dispatch = makeRecord(dispatchId, day, `Day ${day} ${occurrence.commodity} source/dispatch copy`,
+        occurrence.quantitySummary, reviewerPersonId, counterpartyPersonId, eventId, institutionId);
       const receipt = makeRecord(receivingId, day, `Day ${day} ${occurrence.commodity} receiving/check copy`,
-        occurrence.sourceSummary, SENIOR, RECEIVER, eventId);
+        occurrence.sourceSummary, receivingPersonId, receivingPersonId, eventId, institutionId);
       const matter: InstitutionalMatter = {
-        id: matterId, institutionId: STOREHOUSE, kind: 'tier_b_recurring_occurrence',
+        id: matterId, institutionId, kind: 'tier_b_recurring_occurrence',
         summary, status: 'active', createdDay: day, sourceEventId: eventId, sourceRecordId: dispatchId,
-        locationId: LOCATION as import('../state/ids').LocationId,
-        involvedPersonIds: [STEWARD, RECEIVER, CARRIER, SENIOR, occurrence.counterpartyPersonId],
-        tierBRecurring: occurrence,
+        locationId, involvedPersonIds: participants, tierBRecurring: occurrence,
         provenance: [
           { id: `tierb-${day}-event`, kind: 'event', sourceId: eventId, description: 'Distinct dated institutional occurrence.' },
           { id: `tierb-${day}-dispatch`, kind: 'other', sourceId: dispatchId, description: 'Dated source/dispatch record.' },
           { id: `tierb-${day}-receipt`, kind: 'other', sourceId: receivingId, description: 'Dated receiving/check record.' },
-          { id: `tierb-${day}-instruction`, kind: 'instruction', description: 'Routine storehouse cadence calls for a bounded check; this does not imply a fixed daily player quota.' },
+          { id: `tierb-${day}-instruction`, kind: 'instruction', description: 'A bounded institutional comparison; no fixed player quota or executive authority.' },
         ],
       };
       events[eventId] = event;
       entries[dispatchId] = dispatch;
       entries[receivingId] = receipt;
       matters[matterId] = matter;
-      institutions[STOREHOUSE] = {
-        ...institutions[STOREHOUSE],
-        activeMatters: [...new Set([...institutions[STOREHOUSE].activeMatters, matterId])],
+      institutions[institutionId] = {
+        ...institution,
+        activeMatters: [...new Set([...institution.activeMatters, matterId])],
       };
       changed = true;
     }
