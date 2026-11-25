@@ -19,7 +19,7 @@ const tierA = ERA_I_ASSIGNMENT_PARAMETERS.tierA;
 
 export const ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS: readonly AssignmentOpportunityDefinition[] = [
   offer('era1_com_01_consignment','era1-com-01',{
-    activityId:'activity-era1-com-01-sealed-consignment',
+    activityId:'activity-era1-com-01-provenance-v2',
     title:'Receiving-Tag and Handover Comparison',
     description:'Utu-mansum wants the physical tag compared with the receiving-entry copy before the work moves on. Enlil-kisu says the tag stayed with the goods; that handover account has not been independently witnessed.',
     employer:{kind:'person',id:people.receiver}, category:'commercial_consignment',
