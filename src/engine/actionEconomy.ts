@@ -1,6 +1,6 @@
 import type { CareerProgressionPolicy, GameAction, GameState, TransitionResult, WorkProgress } from '../state/types';
 import { getInitializedScribal } from '../state/scribalState';
-import type { ConditionId, EventId, InstitutionId, WorkId } from '../state/ids';
+import type { ConditionId, EventId, InstitutionId } from '../state/ids';
 import { UR_GIR_PERSON_ID } from '../state/ids';
 import { transitionCareerAction } from './careerProgression';
 import { transitionWorldAction } from './worldSocial';
@@ -188,7 +188,7 @@ export function transitionGame(state: GameState, action: GameAction, careerPolic
           } } };
         }
       }
-      return { state: { ...startedState, works: { activeWorkId: action.workId, progress: { ...startedState.works.progress, [action.workId]: progress } } },
+      return { state: { ...startedState, works: { ...startedState.works, activeWorkId: action.workId, progress: { ...startedState.works.progress, [action.workId]: progress } } },
         feedback: feedback('success', 'work-started', definition.title) };
     }
     case 'ACQUIRE_WORK_EVIDENCE':
