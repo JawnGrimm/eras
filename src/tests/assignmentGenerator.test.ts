@@ -7,6 +7,29 @@ import type { GameState } from '../state/types';
 import type { EventId, MatterId } from '../state/ids';
 
 describe('matter-driven Assignment discovery', () => {
+  it('keeps generated offers discoverable across five END_DAY/BEGIN_WORKDAY cycles', () => {
+    let state = generateDailyAssignments(createInitialGameState());
+    const offeredCounts: number[] = [];
+
+    for (let day = 1; day <= 5; day += 1) {
+      const generatedOffers = Object.values(state.opportunities.assignments)
+        .filter((offer) => offer.status === 'offered');
+      const selectedOffers = selectCharacterOpportunities(state).offeredAssignments;
+      expect(selectedOffers.map((offer) => offer.id)).toEqual(generatedOffers.map((offer) => offer.id));
+      offeredCounts.push(selectedOffers.length);
+
+      if (day === 5) break;
+      const closed = transitionGame(state, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber });
+      expect(closed.state.dayClose.phase).toBe('interlude_open');
+      const settlementId = closed.state.dayClose.pendingSettlementId;
+      expect(settlementId).toBeTruthy();
+      state = transitionGame(closed.state, { type: 'BEGIN_WORKDAY', expectedSettlementId: settlementId! }).state;
+      expect(state.calendar.dayNumber).toBe(day + 1);
+    }
+
+    expect(offeredCounts.every((count) => count > 0)).toBe(true);
+  });
+
   it('exposes newly generated offers through the character opportunity selector', () => {
     const generated = generateDailyAssignments(createInitialGameState());
     const offers = Object.values(generated.opportunities.assignments)
