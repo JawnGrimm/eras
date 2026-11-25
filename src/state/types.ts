@@ -451,6 +451,26 @@ export interface CharacterTransitionRecord {
   departureKind: 'death' | 'departure';
   dayNumber: number;
 }
+/** An unfinished Work retained by its institution after the contributor's death. */
+export interface PreservedWorkUndertaking {
+  workId: WorkId;
+  title: string;
+  institutionId?: InstitutionId;
+  deceasedCharacterId: PersonId;
+  successorCharacterId: PersonId;
+  deathDay: number;
+  status: 'waiting' | 'taken_up';
+  takenUpDay?: number;
+}
+/** Durable record of an explicit successor acceptance and institutional handoff. */
+export interface WorkHandoffRecord {
+  workId: WorkId;
+  institutionId: InstitutionId;
+  formerCharacterId: PersonId;
+  successorCharacterId: PersonId;
+  dayNumber: number;
+  eventId: EventId;
+}
 
 export interface GameState {
   calendar: CalendarState; actionEconomy: ActionEconomyState; player: { currentCharacterId: PersonId };
@@ -474,7 +494,7 @@ export interface GameState {
   historicalProgression: { historicalXp: number; completedWorks: WorkId[] };
   dayClose: DayCloseState;
   opportunities: { assignments: Record<AssignmentId, AssignmentOffer>; challenges: Record<ChallengeId, ChallengeInstance>; challengeOutcomes: ChallengeOutcome[]; assignmentAggregates: Record<string, AssignmentActivityAggregate>; recentActivity: OpportunityActivity[]; selectionSeed: string; occurrenceLedger: OpportunityOccurrenceLedgerEntry[]; assignmentGeneratorLedger?: { sequence: number; lastPresentedDayByActivity: Record<string, number> } };
-  works: { activeWorkId: WorkId | null; progress: Record<WorkId, WorkProgress> };
+  works: { activeWorkId: WorkId | null; progress: Record<WorkId, WorkProgress>; preservedUndertakings?: PreservedWorkUndertaking[]; handoffHistory?: WorkHandoffRecord[] };
   records: {
     entries: Record<RecordId, RecordEntry>;
     /** Legacy prototype outcomes retained until the later persistence/content port. */
@@ -501,6 +521,7 @@ export interface CareerProgressionPolicy { skillAdvancementByTargetLevel: Partia
 export type GameAction =
   | { type: 'BEGIN_CHARACTER_DEPARTURE'; departureKind: 'death' | 'departure' }
   | { type: 'SELECT_SUCCESSOR'; nextCharacterId: PersonId }
+  | { type: 'TAKE_UP_PRESERVED_WORK'; workId: WorkId }
   | { type: 'SPEND_AP'; amount: number; reason: string; workId?: WorkId }
   | { type: 'START_WORK'; workId: WorkId }
   | { type: 'ACQUIRE_WORK_EVIDENCE'; workId: WorkId; actionId: string }
