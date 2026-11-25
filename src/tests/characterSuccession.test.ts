@@ -85,6 +85,9 @@ describe('character departure and succession lifecycle', () => {
 
   it('requires explicit take-up to resume a preserved institutional Work and records the handoff', () => {
     const initial = createInitialGameState();
+    const institutionId = eannaProvisioningWork.institutionId!;
+    const institution = { id: institutionId, name: 'Eanna Precinct', responsibilities: [], authority: [], standing: 50, activeMatters: [] };
+    const initialWithInstitution: GameState = { ...initial, world: { ...initial.world, institutions: { ...initial.world.institutions, [institutionId]: institution } } };
     const scenarioData = eannaProvisioningWork.createInitialProgress();
     const progress = {
       status: 'active' as const,
@@ -99,7 +102,7 @@ describe('character departure and succession lifecycle', () => {
       submissionCount: 0,
     };
     const state: GameState = {
-      ...initial,
+      ...initialWithInstitution,
       player: { currentCharacterId: apprenticeId },
       works: {
         activeWorkId: null,
