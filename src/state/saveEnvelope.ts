@@ -517,8 +517,8 @@ export function isValidGameState(value: unknown, workCatalog: Readonly<Record<st
         || (assessment.dayNumber as number) > (calendar.dayNumber as number)
         || !isObject(assessment.source) || !['event','record'].includes(String(assessment.source.kind))
         || !nonEmptyString(assessment.source.id)
-        || (assessment.source.kind === 'event' && !isObject(events[assessment.source.id]))
-        || (assessment.source.kind === 'record' && !isObject(records[assessment.source.id]))
+        || (assessment.source.kind === 'event' && (!isObject(events[assessment.source.id]) || (events[assessment.source.id] as any).dayNumber > assessment.dayNumber))
+        || (assessment.source.kind === 'record' && (!isObject(records[assessment.source.id]) || (records[assessment.source.id] as any).createdDay > assessment.dayNumber))
         || !nonEmptyString(assessment.rationale)) return false;
       priorAssessmentDay = assessment.dayNumber as number;
     }
