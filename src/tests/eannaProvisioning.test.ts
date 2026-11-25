@@ -5,7 +5,7 @@ import { validateWorkDefinition } from '../works/workDefinition';
 import {
   EANNA_ALLOCATION_EVENT_ID, EANNA_ALLOCATION_FOLLOWUP_MATTER_ID,
   EANNA_PROVISIONING_MATTER_ID, EANNA_SOURCE_PACKET, EANNA_SUMMARY_RECORD_ID,
-  createEannaScenario, eannaProvisioningWork,
+  createEannaScenario, eannaProvisioningWork, isEraICareerScaleWorkChoiceEligible,
 } from '../works/eannaProvisioning';
 
 function completeScenario() {
@@ -76,6 +76,12 @@ describe('Eanna Provisioning Undertaking', () => {
     }]);
     expect(finalization?.addInstitutionMatters?.[0].id).toBe(EANNA_ALLOCATION_FOLLOWUP_MATTER_ID);
     expect(finalization?.record?.assertions.some((assertion) => assertion.text.includes('not counted, received'))).toBe(true);
+  });
+
+  it('unlocks the next career-scale Work choice only after Eanna is in completedWorks', () => {
+    expect(isEraICareerScaleWorkChoiceEligible([])).toBe(false);
+    expect(isEraICareerScaleWorkChoiceEligible([EANNA_PROVISIONING_MATTER_ID as never])).toBe(false);
+    expect(isEraICareerScaleWorkChoiceEligible([eannaProvisioningWork.id])).toBe(true);
   });
 
   it('does not create a carry-forward matter when Lu-Nanshe closes with the recorded shortfall', () => {

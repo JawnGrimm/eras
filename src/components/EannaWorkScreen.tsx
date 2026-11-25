@@ -37,7 +37,6 @@ export function EannaWorkScreen({ onBack }: { onBack: () => void }) {
     type: 'COMPLETE_WORK_ACTION', workId, actionId, scenarioData: { ...scenario, stage },
   });
   const late = state.calendar.dayNumber > 38;
-  const officialReview = state.calendar.dayNumber > 42;
 
   if (!progress) return <div className="mx-auto max-w-5xl space-y-4">
     <button onClick={onBack} className="text-sm text-amber-800 hover:underline">← Workday</button>
@@ -95,7 +94,7 @@ export function EannaWorkScreen({ onBack }: { onBack: () => void }) {
         <p className="text-xs text-stone-500">2 AP on this Workday earns +1 Provision at settlement</p>
       </div>
     </header>
-    {late && <p role="status" className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950">{officialReview ? 'The retrospective window (Days 39–42) has passed. Lu-Nanshe can now review the surviving source records and accept a qualified retrospective account. Record today’s review; do not backdate the tablet or imply that the full gathering was supplied.' : 'The full window has passed. The gathering proceeded at reduced scope on Day 39. Complete the retrospective compilation by Day 42; do not backdate the tablet or imply that the full gathering was supplied.'}</p>}
+    {late && <p role="status" className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950">The full window has passed. The gathering proceeded at reduced scope on Day 39. Continue with a retrospective compilation; do not backdate the tablet.</p>}
     <section className="rounded-xl border border-stone-300 bg-white p-4">
       <h2 className="font-serif text-xl font-semibold">The people around the work</h2>
       <div className="mt-3 grid gap-2 md:grid-cols-2 text-sm text-stone-700">

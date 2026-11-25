@@ -69,6 +69,7 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenEannaWork, onOpenActivi
   const tutorialComplete = state.works.progress[STOREHOUSE_WORK_ID]?.status === 'completed';
   const eannaProgress = state.works.progress[EANNA_PROVISIONING_WORK_ID];
   const eannaAvailable = tutorialComplete && (state.calendar.dayNumber >= 35 || !!eannaProgress);
+  const careerScaleChoiceUnlocked = isEraICareerScaleWorkChoiceEligible(state.historicalProgression.completedWorks);
   const hardshipVisible = tutorialComplete || wallet.provisions <= 1 || wallet.shortageWorkdays >= 1;
   const storehouse = state.world.institutions['institution-uruk-temple-storehouse' as InstitutionId];
   const laborAvailable = !!storehouse?.locationId && !!state.world.locations[storehouse.locationId];
@@ -185,6 +186,11 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenEannaWork, onOpenActivi
         </div>
         <button onClick={onOpenEannaWork} className="rounded-lg bg-stone-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-amber-800">{eannaProgress?.status === 'completed' ? 'Review Work' : eannaProgress ? 'Resume Work' : 'Open Work'}</button>
       </div>
+    </section>}
+    {careerScaleChoiceUnlocked && <section role="status" className="rounded-xl border border-emerald-300 bg-emerald-50 p-5">
+      <p className="text-xs font-semibold uppercase tracking-wider text-emerald-800">Era I progression · Unlocked</p>
+      <h2 className="mt-1 font-serif text-xl font-semibold text-stone-900">Your next career-scale Work choice is eligible</h2>
+      <p className="mt-2 text-sm leading-6 text-stone-700">The Eanna milestone has been accepted. The next required Work will be chosen from the Era I career-scale portfolio when its approved alternatives are registered. The unchosen alternative will not count as a declined obligation.</p>
     </section>}
     <div className="grid gap-5 lg:grid-cols-2">
       <section className="rounded-xl border border-stone-300 bg-white p-5">

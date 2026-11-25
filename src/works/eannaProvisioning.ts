@@ -258,3 +258,8 @@ export function eannaInstitutionId(): InstitutionId {
 export function eannaLocationId(): LocationId {
   return EANNA_TABLET_ROOM_LOCATION_ID;
 }
+
+/** The milestone's accepted Work completion is the sole eligibility gate for the next Era I career-scale Work choice. */
+export function isEraICareerScaleWorkChoiceEligible(completedWorkIds: readonly WorkId[]): boolean {
+  return completedWorkIds.includes(EANNA_PROVISIONING_WORK_ID);
+}
