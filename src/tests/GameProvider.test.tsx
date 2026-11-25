@@ -12,10 +12,11 @@ import type { GameState } from '../state/types';
 class MemoryStorage implements ProductionStorage {
   values = new Map<string, string>();
   failWrites = false;
+  corruptSaveWrites = false;
   getItem(key: string): string | null { return this.values.get(key) ?? null; }
   setItem(key: string, value: string): void {
     if (this.failWrites) throw new Error('Quota exceeded');
-    this.values.set(key, value);
+    this.values.set(key, this.corruptSaveWrites && key === SAVE_KEY ? '{"schemaVersion":4}' : value);
   }
 }
 
@@ -154,6 +155,30 @@ describe('GameProvider production persistence', () => {
     expect(game.needsCharacterCreation).toBe(false);
     expect(result.feedback?.code).toBe('save-load-confirmation-required');
     expect(storage.getItem(SAVE_KEY)).toBe(legacyRaw);
+  });
+
+  it('keeps the exact legacy rollback when the v4 write cannot be confirmed by readback', () => {
+    const storage = new MemoryStorage();
+    const state = validSavedState();
+    const legacyState = structuredClone(state) as unknown as Record<string, any>;
+    delete legacyState.world.relationshipFamiliarityEpisodes;
+    for (const targets of Object.values(legacyState.world.relationships) as any[]) for (const relationship of Object.values(targets) as any[]) relationship.dimensions.familiarity = 0;
+    delete legacyState.dayClose;
+    delete legacyState.opportunities.selectionSeed;
+    delete legacyState.opportunities.occurrenceLedger;
+    const legacyRaw = JSON.stringify({
+      schemaVersion: 2, gameVersion: '0.1.0', revision: 10,
+      savedAt: '2026-11-22T12:00:00.000Z', state: legacyState,
+    });
+    storage.setItem(SAVE_KEY, legacyRaw);
+    storage.corruptSaveWrites = true;
+
+    const game = renderProvider(storage);
+
+    expect(game.loadStatus).toBe('read_error');
+    expect(game.needsCharacterCreation).toBe(false);
+    expect(storage.getItem(ROLLBACK_SAVE_KEY)).toBe(legacyRaw);
+    expect(restoreSave(storage.getItem(ROLLBACK_SAVE_KEY), INITIAL_WORK_CATALOG)).not.toBeNull();
   });
 
   it('rolls back a Day-Close transition when its durable save write fails', () => {
