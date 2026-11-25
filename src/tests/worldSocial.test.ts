@@ -133,6 +133,10 @@ describe('world, relationships, institutions and records', () => {
       relationship: { dimensions: { trust: 101, respect: 0, affection: 0, resentment: 0, rivalry: 0 }, history: [] } });
     expect(invalidRelationship.state).toBe(state);
     expect(invalidRelationship.feedback?.code).toBe('relationship-invalid');
+    const legacyFamiliarity = transitionGame(state, { type: 'SET_RELATIONSHIP', fromId: INITIAL_PERSON_ID, toId: otherId,
+      relationship: { dimensions: { trust: 50, respect: 50, affection: 50, resentment: 0, rivalry: 0, familiarity: 0 }, history: [] } as any });
+    expect(legacyFamiliarity.state).toBe(state);
+    expect(legacyFamiliarity.feedback?.code).toBe('relationship-invalid');
     const invalidKnowledge = transitionGame(state, { type: 'GRANT_KNOWLEDGE', knowledge: {
       id: 'knowledge-missing' as KnowledgeEntryId, holder: { kind: 'person', id: INITIAL_PERSON_ID },
       subject: { kind: 'event', id: 'event-not-created' as EventId }, basis: 'testimony', learnedDay: 1,
@@ -142,6 +146,9 @@ describe('world, relationships, institutions and records', () => {
     const malformed = structuredClone(state);
     malformed.world.relationships[INITIAL_PERSON_ID] = { [otherId]: { dimensions: { trust: 101, respect: 0, affection: 0, resentment: 0, rivalry: 0 }, history: [] } };
     expect(isValidGameState(malformed)).toBe(false);
+    const legacyDimension = structuredClone(state);
+    legacyDimension.world.relationships[INITIAL_PERSON_ID] = { [otherId]: { dimensions: { trust: 50, respect: 50, affection: 50, resentment: 0, rivalry: 0, familiarity: 0 } as any, history: [] } };
+    expect(isValidGameState(legacyDimension)).toBe(false);
   });
 
   it('records institutional assessment and maintenance authorization against evidence and active office authority', () => {
