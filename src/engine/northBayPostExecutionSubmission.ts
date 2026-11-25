@@ -186,6 +186,7 @@ export function submitNorthBayPostExecutionInspection(
     rationale: definition.evaluation.rationales[assessment], reaction,
     baseCareerXp: offer.careerXpReward, institutionId: STOREHOUSE,
     receiverPersonId: definition.evaluation.receiverPersonId,
+    contextId: offer.activityId ?? offer.category, occasionId: offer.id, matterId: matter.id,
     currencyDelta: offer.compensation.money, provisionsDelta: offer.compensation.provisions,
     ...(offer.compensation.money || offer.compensation.provisions
       ? { compensationTiming: 'Contracted compensation is payable in full at preliminary Day-Close, regardless of assessment.' } : {}),
