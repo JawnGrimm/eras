@@ -437,7 +437,7 @@ The South-Court +1 Provision correction is merged. Responsibility claims remain 
 
 **PR #121 — DRAFT / OPEN:** [feat: implement directional familiarity and schema v4 migration](https://github.com/JawnGrimm/eras/pull/121)  
 **Branch:** `feat/relationship-familiarity-episodes`  
-**Exact validated head:** `49aaf9060d52435ef8dbdef1ca180d712853f9b4`
+**Code head validated:** `27ef6b2f0f7e4c7a3d2c31e4b5c64f7b9d4f6a12`
 
 Implemented in the current draft:
 
@@ -445,12 +445,12 @@ Implemented in the current draft:
 - Exact original v2/v3 bytes are backed up before the v4 write. The primary v4 bytes are read back and revalidated before the session opens. Failed backup/write/readback leaves the session paused with the original bytes retained for recovery.
 - Relationship dimensions now contain trust, respect, affection, resentment, and rivalry only. PersonFamiliarity and its domain/scope/exposure semantics are unchanged.
 - Directional episode identity, validation, idempotent insertion, conflict rejection, provenance checks, and qualitative stage derivation are implemented in `src/state/relationshipFamiliarity.ts`. No score or count threshold exists.
-- A substantive Closing Receipt with an identified receiver records an objective response Event and one explicitly directional player → receiver episode. It does not infer the reverse direction from Event co-presence. A missing receiver creates neither event nor episode.
+- A substantive Closing Receipt with an identified receiver records an objective response Event and one explicitly directional player → receiver episode. The Event also supports any receiver → player relationship-history entry by exact Event ID. It does not infer the reverse familiarity direction from Event co-presence. Repeat receipts on the same authored matter/context remain Events but do not add another familiarity episode. A missing receiver creates neither event nor episode.
 - Current Knowledge requires an explicit assertion and append-only assessment history. Existing v2/v3 Knowledge is preserved as `legacy: true` without invented assertion text. Assessment status is derived from the latest chronological assessment.
 - The remembered-tendency resolver matches holder, subject Person, and authored situation key before any estimate outcome; contradicted/obsolete memories remain available with their status. No current Era I estimate content has an authored remembered-tendency assertion, so no tendency cue or historical claim has been invented.
 - People and Succession detail surfaces show qualitative familiarity and typed episode evidence; numeric personal familiarity is no longer presented.
 
-**Exact-head validation:** Pull Request Validation run **#634** (`45533318677`) passed on `49aaf9060d52435ef8dbdef1ca180d712853f9b4`: TypeScript check passed, **41 test files / 299 tests passed**, production build passed. CodeQL run **#527** (`45533318612`) is still in progress at this status snapshot. No local test execution is claimed.
+**Validation:** Pull Request Validation run **#664** (`45534771276`) passed on code head `27ef6b2f0f7e4c7a3d2c31e4b5c64f7b9d4f6a12`: TypeScript check passed, **41 test files / 305 tests passed**, production build passed. CodeQL run **#557** (`45534771279`) is still in progress at this status snapshot. No local test execution is claimed.
 
 **Still outstanding:** CodeQL on the exact head; review/merge; deployment and deployed-build verification; manual browser, keyboard-only, screen-reader, 200% zoom, and narrow-viewport acceptance. No Day-13 save/export or transaction trace has been supplied, so the WP6 display fixture still does not claim to reconcile actual balances or archived-record count.
 
