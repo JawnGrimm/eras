@@ -27,8 +27,11 @@ export const ERA_I_CURATED_SAMPLE_NAMES = [
  * notation marker in the current curated set; this does not rename or delete
  * the underlying source entry.
  */
+/** Active Era I NPC names are not offered as player-character samples. */
+export const ERA_I_ACTIVE_NPC_NAME_FORMS = ['Ena-an-ru', 'DIMₐ'] as const;
+
 export const ERA_I_AVAILABLE_SAMPLE_NAMES = ERA_I_CURATED_SAMPLE_NAMES.filter(
-  (item) => !item.name.includes('×'),
+  (item) => !item.name.includes('×') && !ERA_I_ACTIVE_NPC_NAME_FORMS.includes(item.name as typeof ERA_I_ACTIVE_NPC_NAME_FORMS[number]),
 );
 
 const INVISIBLE_CONTROL_CHARACTERS = /[\u0000-\u001F\u007F-\u009F\u202A-\u202E\u2066-\u2069]/u;

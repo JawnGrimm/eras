@@ -563,15 +563,30 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
   // when the corresponding finite source events become eligible.
   const martialPeople = [
     [ERA1_MAR_PEOPLE.ninDara, 'Nin-dara', HOUSEHOLD_STRONGROOM_INSTITUTION_ID, HOUSEHOLD_STRONGROOM_LOCATION_ID],
-    [ERA1_MAR_PEOPLE.sealingOwner, 'The sealing owner', HOUSEHOLD_STRONGROOM_INSTITUTION_ID, HOUSEHOLD_STRONGROOM_LOCATION_ID],
+    [ERA1_MAR_PEOPLE.sealingOwner, 'Ena-an-ru', HOUSEHOLD_STRONGROOM_INSTITUTION_ID, HOUSEHOLD_STRONGROOM_LOCATION_ID],
     [ERA1_MAR_PEOPLE.luKala, 'Lu-kala', STOREHOUSE_INSTITUTION_ID, NORTH_BAY_LOCATION_ID],
-    [ERA1_MAR_PEOPLE.partyMember, 'A task-party member', STOREHOUSE_INSTITUTION_ID, NORTH_BAY_LOCATION_ID],
+    [ERA1_MAR_PEOPLE.partyMember, 'DIMₐ', STOREHOUSE_INSTITUTION_ID, NORTH_BAY_LOCATION_ID],
     [ERA1_MAR_PEOPLE.urAb, 'Ur-ab', EANNA_INSTITUTION_ID, EANNA_TABLET_ROOM_LOCATION_ID],
   ] as const;
   if (nextDay >= 11) {
     for (const [id, name, affiliation, locationId] of martialPeople) {
-      if (people[id]) continue;
-      people[id] = { id, name, alive: true, affiliations: [affiliation], currentLocationId: locationId, lifeStage: 'craft_practitioner' };
+      const existing = people[id];
+      const socialIdentity = id === ERA1_MAR_PEOPLE.sealingOwner
+        ? { occupation: 'Household sealing holder', summary: 'The person responsible for the household sealing and the strongroom’s contents.' }
+        : id === ERA1_MAR_PEOPLE.partyMember
+          ? { occupation: 'Member of the repair party', summary: 'A participant in the repair party who gives an account of the tools and the person still away.' }
+          : undefined;
+      if (existing) {
+        const legacyPlaceholder = (id === ERA1_MAR_PEOPLE.sealingOwner && existing.name === 'The sealing owner')
+          || (id === ERA1_MAR_PEOPLE.partyMember && existing.name === 'A task-party member');
+        if (legacyPlaceholder || (socialIdentity && !existing.socialIdentity)) {
+          people[id] = { ...existing, ...(legacyPlaceholder ? { name } : {}), ...(socialIdentity ? { socialIdentity } : {}) };
+          changed = true;
+        }
+        continue;
+      }
+      people[id] = { id, name, alive: true, affiliations: [affiliation], currentLocationId: locationId,
+        lifeStage: 'craft_practitioner', ...(socialIdentity ? { socialIdentity } : {}) };
       changed = true;
     }
     if (!institutions[HOUSEHOLD_STRONGROOM_INSTITUTION_ID]) {

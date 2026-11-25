@@ -78,7 +78,9 @@ describe('production continuity and social screens', () => {
     expect(markup).toContain('acquainted');
     expect(markup).toContain('Familiarity evidence');
     expect(markup).toContain('No separate trust, respect, affection, resentment, or rivalry dimensions are recorded for this direction.');
-    expect(markup).toContain('event-familiarity-ui');
+    expect(markup).toContain('A substantive response was returned.');
+    expect(markup).not.toContain('event-familiarity-ui');
+    expect(markup).toContain('No sentiment scores are recorded in this direction.');
   });
 
   it('renders a terminal no-successor state without inventing a replacement or resetting the era', () => {
