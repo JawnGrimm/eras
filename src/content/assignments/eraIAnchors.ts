@@ -164,7 +164,7 @@ export const sealedVesselTextileConsignment = activity({
     },
   },
   provenanceDisclosureRequired: true,
-  historicalContextNote: 'Reconstructed historical context — Attested: perforated clay tags are documented in Uruk IV–III contexts; a published Uruk IV example is catalogued as containing an administrator’s name. Inferred: pierced tags may have been attached to goods, but the function of an individual object depends on its context. Reconstructed: this assignment’s tag, copied entry, handover account, and participants are fictional teaching material, not a transcription or claim about a specific excavated object or transaction. Unknown: no sign reading, commodity, quantity, original receiving entry, or historical custody chain is represented.',
+  historicalContextNote: 'Reconstructed historical context — Attested: perforated clay tags are documented in Uruk IV–III contexts; a published Uruk IV example is catalogued as containing an administrator’s name. Inferred: pierced tags may have been attached to goods, but the function of an individual object depends on its context. Reconstructed: this assignment’s tag, copied entry, handover account, and participants are fictional teaching material, not a transcription or claim about a specific excavated object or transaction. “Receiving tag” is a player-facing description for this case, not a translated or attested Uruk administrative category. Unknown: no sign reading, commodity, quantity, original receiving entry, or historical custody chain is represented.',
   submissionNote: 'The report records a bounded comparison. Utu-mansum may arrange a further check; the report itself does not accept or release goods, settle the delivery, or assign responsibility.',
 });
 
