@@ -25,7 +25,7 @@ export const ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS: readonly AssignmentOpportunit
     employer:{kind:'person',id:people.receiver}, category:'commercial_consignment',
     context:{
       what:'Compare a physical clay tag with a copied receiving entry and review the carrier’s reported handover account.',
-      who:['Utu-mansum, Receiving Official','Enlil-kisu, Carrier','Ur-Nanna, Storehouse Steward'],
+      who:['Utu-mansum, Receiving Official','Enlil-kisu, Carrier Foreman','Ur-Nanna, Storehouse Steward'],
       quantity:'No commodity quantity is supplied or assessed in this comparison.',
       when:'Before the receiving work moves on.',
       where:'At the place where the goods are being received in Uruk.',
