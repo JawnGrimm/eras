@@ -239,6 +239,7 @@ export function submitRubricAssignmentActivity(
             summary: assessment === 'Thorough'
               ? 'Ur-Lamma regards the scribe as reliable after a thorough report supports the documented description difference.'
               : 'Ur-Lamma regards the scribe as reliable after a defensible report supports the documented description difference.',
+          ...(relationshipEventId ? { eventId: relationshipEventId } : {}),
           }],
         },
       },
@@ -267,6 +268,7 @@ export function submitRubricAssignmentActivity(
             id: `assignment-receipt-${offer.id}-day-${state.calendar.dayNumber}:relationship-${affectedPersonId}`,
             dayNumber: state.calendar.dayNumber,
             summary: `After ${person.name} submitted "${record.title}" on Day ${record.createdDay}, ${affectedPerson.name}'s trust toward ${person.name} ${trustChange} and respect toward ${person.name} ${respectChange}.`,
+          ...(relationshipEventId ? { eventId: relationshipEventId } : {}),
           }],
         },
       },
