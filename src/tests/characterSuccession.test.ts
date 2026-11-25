@@ -188,6 +188,10 @@ describe('character departure and succession lifecycle', () => {
     expect(declined.state.works.activeWorkId).toBeNull();
     expect(declined.state.works.handoffHistory ?? []).toHaveLength(0);
     expect(declined.state.works.progress[EANNA_PROVISIONING_WORK_ID].status).toBe('active');
+    const laterState: GameState = { ...declined.state, calendar: { ...declined.state.calendar, dayNumber: initial.calendar.dayNumber + 1 } };
+    const laterTakeup = transitionGame(laterState, { type: 'TAKE_UP_PRESERVED_WORK', workId: EANNA_PROVISIONING_WORK_ID }, undefined, catalog);
+    expect(laterTakeup.feedback?.code).toBe('preserved-work-taken-up');
+    expect(laterTakeup.state.works.handoffHistory).toHaveLength(1);
     const accepted = transitionGame(selected.state, { type: 'RESPOND_PRESERVED_WORK_INVITATION', workId: EANNA_PROVISIONING_WORK_ID, response: 'accept' }, undefined, catalog);
     expect(accepted.feedback?.code).toBe('preserved-work-taken-up');
     expect(accepted.state.works.activeWorkId).toBe(EANNA_PROVISIONING_WORK_ID);
