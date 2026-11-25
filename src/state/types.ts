@@ -452,6 +452,14 @@ export interface CharacterTransitionRecord {
   dayNumber: number;
 }
 /** An unfinished Work retained by its institution after the contributor's death. */
+export interface PreservedWorkInvitationSnapshot {
+  connectionTier: 'direct_personal' | 'direct_professional' | 'wider_network';
+  basis: string;
+  remainingRemit: string;
+  availableRecords: string[];
+  authorityScope: string;
+  limits: string[];
+}
 export interface PreservedWorkUndertaking {
   workId: WorkId;
   title: string;
@@ -461,6 +469,8 @@ export interface PreservedWorkUndertaking {
   deathDay: number;
   status: 'waiting' | 'taken_up';
   takenUpDay?: number;
+  invitation?: PreservedWorkInvitationSnapshot;
+  invitationResponse?: 'accepted' | 'declined';
 }
 /** Durable record of an explicit successor acceptance and institutional handoff. */
 export interface WorkHandoffRecord {
@@ -522,6 +532,7 @@ export type GameAction =
   | { type: 'BEGIN_CHARACTER_DEPARTURE'; departureKind: 'death' | 'departure' }
   | { type: 'SELECT_SUCCESSOR'; nextCharacterId: PersonId }
   | { type: 'TAKE_UP_PRESERVED_WORK'; workId: WorkId }
+  | { type: 'RESPOND_PRESERVED_WORK_INVITATION'; workId: WorkId; response: 'accept' | 'decline' }
   | { type: 'SPEND_AP'; amount: number; reason: string; workId?: WorkId }
   | { type: 'START_WORK'; workId: WorkId }
   | { type: 'ACQUIRE_WORK_EVIDENCE'; workId: WorkId; actionId: string }
