@@ -66,6 +66,8 @@ export interface AssignmentActivityDefinition {
   evaluation?: AssignmentActivityEvaluation;
   /** Modern editorial/reconstruction note; displayed separately from ancient evidence. */
   historicalContextNote?: string;
+  /** When enabled, every discovery in this activity must carry explicit provenance metadata. */
+  provenanceDisclosureRequired?: boolean;
   createInitialProgress(): AssignmentActivityProgress;
 }
 const interpretationRules: InterpretationRule[] = [
@@ -252,6 +254,7 @@ export function validateAssignmentActivityDefinition(definition: AssignmentActiv
   if (definition.discoveries.some((item) => item.provenance && (!['PHYSICAL','COPIED','REPORTED'].includes(item.provenance.classification)
     || !item.provenance.explanation.trim()))) issues.push('Discovery provenance must use a supported classification and non-empty explanation.');
   if (definition.historicalContextNote !== undefined && !definition.historicalContextNote.trim()) issues.push('Historical context note must be non-empty when supplied.');
+  if (definition.provenanceDisclosureRequired && definition.discoveries.some((item) => !item.provenance)) issues.push('Every discovery in this activity requires explicit provenance disclosure.');
   if (definition.discoveries.some((item) => item.sourcePersonId && !definition.participants.includes(item.sourcePersonId))) issues.push('Discovery source PersonId must be an activity participant.');
   if (definition.discoveries.some((item) => item.sourceProvenanceId !== undefined && !item.sourceProvenanceId.trim())) issues.push('Discovery source provenance ID must be non-empty.');
   if (!definition.id || !definition.title || !Number.isInteger(definition.submissionApCost) || definition.submissionApCost < 1 || definition.submissionApCost > 6) issues.push('Activity identity and submission AP (1..6) are required.');
