@@ -49,7 +49,7 @@ const ERA_I_ANCHOR_MATTER_SEEDS = [
     eventId: 'event-era1-com-01-consignment-source' as EventId,
     kind: 'era1_com_01_consignment' as const,
     summary: 'A consignment is presented for comparison before its receiving entry is accepted.',
-    eventSummary: 'A vessel and textile consignment is presented at the Eanna receiving court. Its tag, custody observation, dispatch account, and receiving entry are available for a bounded comparison; the authored occurrence does not establish loss or responsibility.',
+    eventSummary: 'A vessel and textile consignment is presented at the Eanna receiving court. The tag and custody note are beside the dispatch and receiving entries; Utu-mansum needs the figures compared before closing the receipt.',
     personIds: [PEOPLE.receivingOfficial, PEOPLE.carrierForeman, PEOPLE.steward, PEOPLE.seniorScribe],
     locationId: ERA1_COM_F01_LOCATION_ID,
     provenance: [
@@ -106,7 +106,7 @@ const ERA_I_ANCHOR_MATTER_SEEDS = [
     locationId: EANNA_TABLET_ROOM_LOCATION_ID,
     provenance: [
       { id: 'rel01-request', kind: 'instruction' as const, description: 'A participant in offering preparations requests a bounded review of the entries.' },
-      { id: 'rel01-event', kind: 'event' as const, sourceId: 'event-era1-rel-01-inana-offering-source', description: 'A distinct offering-record review is initiated; no ritual outcome is implied.' },
+      { id: 'rel01-event', kind: 'event' as const, sourceId: 'event-era1-rel-01-inana-offering-source', description: 'Nin-kasi asks for the missing entry to be found before preparations continue.' },
     ],
   },
 ] as const;
@@ -299,7 +299,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
         id: ERA1_COM_F02_RECORD_IDS.storehouseRequest, createdDay: nextDay,
         authorPersonId: ERA1_COM_F02_F04_PEOPLE.shuruppak, reportedByPersonId: ERA1_COM_F02_F04_PEOPLE.urNanna, institutionId: STOREHOUSE_INSTITUTION_ID,
         title: 'Storehouse request for timber', assertion: 'The Storehouse requests timber for the north-bay repair.',
-        uncertaintyLimit: 'The request records the Storehouse need; it does not establish priority over another claimant.',
+        uncertaintyLimit: 'The Storehouse needs the timber for repair, while the household has work waiting; Lu-Nanshe must decide which request takes priority.',
       });
       records[ERA1_COM_F02_RECORD_IDS.householdRequest] = createAuthoredSourceRecord({
         id: ERA1_COM_F02_RECORD_IDS.householdRequest, createdDay: nextDay,
@@ -317,7 +317,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
         id: ERA1_COM_F02_RECORD_IDS.carrierAccount, createdDay: nextDay,
         authorPersonId: ERA1_COM_F02_F04_PEOPLE.shuruppak, reportedByPersonId: ERA1_COM_F02_F04_PEOPLE.kuli, institutionId: EANNA_INSTITUTION_ID,
         title: 'Carrier account of delivery instruction', assertion: 'Kuli gives his account of the instruction he received for the delivery.',
-        uncertaintyLimit: 'The carrier account is attributed testimony and does not establish either claimant’s authority or good faith.',
+        uncertaintyLimit: 'Kuli can say what instruction he heard, but both claimants still need their own accounts compared.',
       });
       events[eventId] = {
         id: eventId, dayNumber: nextDay,
@@ -386,7 +386,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
       id: ERA1_COM_F03_RECORD_IDS.partialReturn, createdDay: nextDay,
       authorPersonId: ERA1_COM_F02_F04_PEOPLE.utuMansum, institutionId: EANNA_INSTITUTION_ID,
       title: 'Partial return receipt', assertion: 'The first return is received and recorded as partial against the earlier outbound dispatch.',
-      uncertaintyLimit: 'The receipt establishes what arrived; it does not establish what the counterparty owes under the spoken understanding.',
+      uncertaintyLimit: 'The receipt shows what came back; Geme-Inana still needs the earlier agreement checked before deciding what is owed.',
     });
     events[eventId] = {
       id: eventId, dayNumber: nextDay,
@@ -603,33 +603,33 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
       id: ERA1_MAR_F01_RECORD_IDS.closureImpression, createdDay: nextDay, authorPersonId: author,
       institutionId: HOUSEHOLD_STRONGROOM_INSTITUTION_ID, title: 'Present strongroom closure impression',
       assertion: 'The present closure bears an impression different from the household sealing available for comparison.',
-      uncertaintyLimit: 'The impression identifies the seal used; it does not establish who was authorized to open the strongroom.',
+      uncertaintyLimit: 'The household knows which seal was pressed, but still needs to ask who gave permission to open the room.',
     });
     records[ERA1_MAR_F01_RECORD_IDS.inventory] = createAuthoredSourceRecord({
       id: ERA1_MAR_F01_RECORD_IDS.inventory, createdDay: nextDay, authorPersonId: author,
       institutionId: HOUSEHOLD_STRONGROOM_INSTITUTION_ID, title: 'Strongroom contents inventory',
       assertion: 'The contents checked are present and match the listed inventory.',
-      uncertaintyLimit: 'The inventory does not identify who entered the room or when the opening occurred.',
+      uncertaintyLimit: 'The contents are present; the household still needs the accounts to learn who entered and when.',
     });
     records[ERA1_MAR_F01_RECORD_IDS.ninDaraAccount] = createAuthoredSourceRecord({
       id: ERA1_MAR_F01_RECORD_IDS.ninDaraAccount, createdDay: nextDay, authorPersonId: author,
       reportedByPersonId: ERA1_MAR_PEOPLE.ninDara, institutionId: HOUSEHOLD_STRONGROOM_INSTITUTION_ID,
       title: 'Nin-dara account of the opening',
       assertion: 'Nin-dara says she opened the door for a man who showed a sealing.',
-      uncertaintyLimit: 'This is an attributed account; it does not establish the identity or authority of the person who showed the sealing.',
+      uncertaintyLimit: 'Nin-dara describes the man and sealing she saw, but not who sent him.',
     });
     records[ERA1_MAR_F01_RECORD_IDS.ownerAccount] = createAuthoredSourceRecord({
       id: ERA1_MAR_F01_RECORD_IDS.ownerAccount, createdDay: nextDay, authorPersonId: author,
       reportedByPersonId: ERA1_MAR_PEOPLE.sealingOwner, institutionId: HOUSEHOLD_STRONGROOM_INSTITUTION_ID,
       title: 'Sealing owner account',
       assertion: 'The sealing owner says no one was sent to open the strongroom.',
-      uncertaintyLimit: 'The owner’s statement is attributed testimony and does not by itself establish who entered.',
+      uncertaintyLimit: 'The owner says no one was sent; the household must compare that account with Nin-dara’s.',
     });
     records[ERA1_MAR_F01_RECORD_IDS.authorizationSearch] = createAuthoredSourceRecord({
       id: ERA1_MAR_F01_RECORD_IDS.authorizationSearch, createdDay: nextDay, authorPersonId: author,
       institutionId: HOUSEHOLD_STRONGROOM_INSTITUTION_ID, title: 'Search for an earlier authorization record',
       assertion: 'No earlier authorization record is linked to this opening in the records examined.',
-      uncertaintyLimit: 'The absence of a linked record does not prove that no authorization was given.',
+      uncertaintyLimit: 'No earlier copy was found; Lu-Nanshe must ask the people involved before deciding whether permission was given.',
     });
     events[eventId] = {
       id: eventId, dayNumber: nextDay,
@@ -693,28 +693,28 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
       id: ERA1_MAR_F02_RECORD_IDS.returnCount, createdDay: nextDay, authorPersonId: ERA1_MAR_PEOPLE.shuruppak,
       institutionId: STOREHOUSE_INSTITUTION_ID, title: 'Task-party return count',
       assertion: 'The return count lists tools returned and tools not yet accounted for.',
-      uncertaintyLimit: 'The count records a gap but does not establish whether tools were lost, left at the site, or retained for another workday.',
+      uncertaintyLimit: 'The tools missing from the count may be at the site or kept for tomorrow; someone needs to check before closing it.',
     });
     records[ERA1_MAR_F02_RECORD_IDS.luKalaAccount] = createAuthoredSourceRecord({
       id: ERA1_MAR_F02_RECORD_IDS.luKalaAccount, createdDay: nextDay, authorPersonId: ERA1_MAR_PEOPLE.shuruppak,
       reportedByPersonId: ERA1_MAR_PEOPLE.luKala, institutionId: STOREHOUSE_INSTITUTION_ID,
       title: 'Lu-kala account of the task-party return',
       assertion: 'Lu-kala says some tools were left at the work site for the next day and one person has not yet returned.',
-      uncertaintyLimit: 'This is an attributed account and does not prove deliberate retention or neglect.',
+      uncertaintyLimit: 'Lu-kala says tools were left for tomorrow; the return count still needs the site checked.',
     });
     records[ERA1_MAR_F02_RECORD_IDS.partyMemberAccount] = createAuthoredSourceRecord({
       id: ERA1_MAR_F02_RECORD_IDS.partyMemberAccount, createdDay: nextDay, authorPersonId: ERA1_MAR_PEOPLE.shuruppak,
       reportedByPersonId: ERA1_MAR_PEOPLE.partyMember, institutionId: STOREHOUSE_INSTITUTION_ID,
       title: 'Task-party member account',
       assertion: 'A returning party member gives a different account of one missing tool and the person still away.',
-      uncertaintyLimit: 'This is attributed testimony, not a disciplinary finding or independently verified count.',
+      uncertaintyLimit: 'The party member gives a different account; the missing tool’s location remains unsettled.',
     });
     records[ERA1_MAR_F02_RECORD_IDS.siteObservation] = createAuthoredSourceRecord({
       id: ERA1_MAR_F02_RECORD_IDS.siteObservation, createdDay: nextDay, authorPersonId: ERA1_MAR_PEOPLE.shuruppak,
       reportedByPersonId: ERA1_MAR_PEOPLE.urAb, institutionId: STOREHOUSE_INSTITUTION_ID,
       title: 'Work-site observation',
       assertion: 'A watcher reports that tools may have been left at the repair site.',
-      uncertaintyLimit: 'The observation is a lead for a site visit, not proof of the final count or anyone’s conduct.',
+      uncertaintyLimit: 'The watcher thinks tools may be at the site; a visit is needed before the count is closed.',
     });
     events[eventId] = {
       id: eventId, dayNumber: nextDay,
@@ -755,7 +755,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
       reportedByPersonId: ERA1_MAR_PEOPLE.gemeInana, institutionId: TEXTILE_HOUSEHOLD_INSTITUTION_ID,
       title: 'Household outbound dispatch and expected arrival',
       assertion: 'A valued load is dispatched with an expected arrival recorded.',
-      uncertaintyLimit: 'The dispatch establishes the plan, not arrival at the destination or the cause of any later delay.',
+      uncertaintyLimit: 'The load was expected; the recipient has no arrival tally yet.',
     });
     events[mar03DispatchEventId] = {
       id: mar03DispatchEventId, dayNumber: nextDay,
@@ -773,7 +773,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
       reportedByPersonId: ERA1_MAR_PEOPLE.enlilKisu, institutionId: TEXTILE_HOUSEHOLD_INSTITUTION_ID,
       title: 'Carrier account of the halt',
       assertion: 'Enlil-kisu says the carrying party halted at a landing because the approach route was unsafe.',
-      uncertaintyLimit: 'The carrier’s account does not independently establish danger on the route or the cause of the delay.',
+      uncertaintyLimit: 'Enlil-kisu says the route was unsafe; the delay remains unexplained until the receiving side is heard.',
     });
     records[ERA1_MAR_F03_RECORD_IDS.landingObservation] = createAuthoredSourceRecord({
       id: ERA1_MAR_F03_RECORD_IDS.landingObservation, createdDay: nextDay, authorPersonId: ERA1_MAR_PEOPLE.shuruppak,
@@ -797,7 +797,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
     };
     const matter: InstitutionalMatter = {
       id: mar03MatterId, institutionId: TEXTILE_HOUSEHOLD_INSTITUTION_ID, kind: 'era1_mar_f03_late_turned_aside',
-      summary: 'A valued load has not arrived by its expected day; the carrier account, landing observation, and claimed message do not establish the cause of delay.',
+      summary: 'A valued load is late. The carrier, landing witness, and message claim give different parts of the story, but no one has confirmed why it stopped.',
       status: 'active', createdDay: nextDay, sourceEventId: eventId,
       sourceRecordId: ERA1_MAR_F03_RECORD_IDS.dispatch, locationId: RIVER_LANDING_LOCATION_ID,
       involvedPersonIds: [ERA1_MAR_PEOPLE.gemeInana, ERA1_MAR_PEOPLE.enlilKisu, ERA1_MAR_PEOPLE.amaGi, ERA1_MAR_PEOPLE.sigAna, ERA1_MAR_PEOPLE.kuli],
@@ -834,7 +834,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
       reportedByPersonId: ERA1_MAR_PEOPLE.urLamma, institutionId: EANNA_INSTITUTION_ID,
       title: 'Workshop receipt for valued object',
       assertion: 'The workshop receipt records the object arriving with Ur-Lamma for repair or cleaning.',
-      uncertaintyLimit: 'The receipt establishes workshop arrival, not a later return handover.',
+      uncertaintyLimit: 'The workshop received the object; the Storehouse has no later return line.',
     });
     events[mar04RemovalEventId] = {
       id: mar04RemovalEventId, dayNumber: nextDay,
@@ -851,21 +851,21 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
       id: ERA1_MAR_F04_RECORD_IDS.storehouseSearch, createdDay: nextDay, authorPersonId: ERA1_MAR_PEOPLE.shuruppak,
       institutionId: STOREHOUSE_INSTITUTION_ID, title: 'Storehouse return-entry search',
       assertion: 'No return handover entry is located in the Storehouse record examined.',
-      uncertaintyLimit: 'The absence of a located entry does not prove that a spoken handover did not occur.',
+      uncertaintyLimit: 'No return line was found; Lu-Nanshe must ask the custodians before calling it missing.',
     });
     records[ERA1_MAR_F04_RECORD_IDS.enlilAccount] = createAuthoredSourceRecord({
       id: ERA1_MAR_F04_RECORD_IDS.enlilAccount, createdDay: nextDay, authorPersonId: ERA1_MAR_PEOPLE.shuruppak,
       reportedByPersonId: ERA1_MAR_PEOPLE.enlilKisu, institutionId: EANNA_INSTITUTION_ID,
       title: 'Enlil-kisu account of the object movement',
       assertion: 'Enlil-kisu gives an account of carrying the object between locations.',
-      uncertaintyLimit: 'The account may identify an interval to check but does not establish where the object is now.',
+      uncertaintyLimit: 'Enlil-kisu’s account gives an interval to check, but not where the vessel is now.',
     });
     records[ERA1_MAR_F04_RECORD_IDS.urAbAccount] = createAuthoredSourceRecord({
       id: ERA1_MAR_F04_RECORD_IDS.urAbAccount, createdDay: nextDay, authorPersonId: ERA1_MAR_PEOPLE.shuruppak,
       reportedByPersonId: ERA1_MAR_PEOPLE.urAb, institutionId: EANNA_INSTITUTION_ID,
       title: 'Ur-ab observation near the yard',
       assertion: 'Ur-ab reports seeing part of the movement near the yard.',
-      uncertaintyLimit: 'This attributed observation does not establish the complete custody chain or individual fault.',
+      uncertaintyLimit: 'Ur-ab saw part of the movement; the rest of the route still needs a custodian’s account.',
     });
     events[eventId] = {
       id: eventId, dayNumber: nextDay,
