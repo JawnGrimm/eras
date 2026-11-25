@@ -109,6 +109,9 @@ describe('schema v4 migration and state validation', () => {
     const relationship = state.world.relationships[fromId]?.[toId];
     expect(relationship).toBeDefined();
     const legacyState = structuredClone(state) as unknown as Record<string, any>;
+    for (const targets of Object.values(legacyState.world.relationships) as any[]) {
+      for (const item of Object.values(targets) as any[]) item.dimensions.familiarity = 0;
+    }
     legacyState.world.relationships[fromId][toId].dimensions.familiarity = 73;
     delete legacyState.world.relationshipFamiliarityEpisodes;
     const legacy = {
