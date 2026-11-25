@@ -38,9 +38,9 @@ export const materialNotAsDescribed: AssignmentActivityDefinition = activity({
     { id: 'comf01-tag', title: 'The sender’s tag',
       text: 'The sender’s tag calls the load worked timber. It records the sender’s description, not the species, origin, or suitability.' },
     { id: 'comf01-observation', title: 'The receiving observation',
-      text: 'At intake, the visible pieces are described as unworked. The observation does not identify species, origin, or suitability for the intended work.' },
+      text: 'At intake, the visible pieces are described as unworked. The receiving official can describe what arrived, but the craft worker still needs a separate judgment of species, origin, and suitability.' },
     { id: 'comf01-carrier-account', title: 'Kuli’s account',
-      text: 'Kuli says he carried the covered load from the outlying counterparty to the receiving court. His account is testimony about his part in the movement; it does not independently establish the load’s contents or the custody of every earlier stage.' },
+      text: 'Kuli says he carried the covered load from the outlying counterparty to the receiving court. His account covers his part of the journey; the receiving note cannot confirm what was under cover or who held it earlier.' },
   ],
   actions: [
     { id: 'comf01-consult-receiver', family: 'consult', label: 'Consult Utu-mansum',
@@ -79,8 +79,8 @@ export const materialNotAsDescribed: AssignmentActivityDefinition = activity({
     limitationsLabel: 'Description, evidence, and authority limits',
     limitationOptions: [
       { id: 'material_not_identified', label: 'The available sources do not identify the material’s species or origin' },
-      { id: 'no_intent_or_liability', label: 'The discrepancy does not establish deliberate substitution or individual responsibility' },
-      { id: 'no_acceptance_authority', label: 'The scribe may report the difference but cannot accept, reject, or request replacement' },
+      { id: 'no_intent_or_liability', label: 'The receiving official has a difference to record, but no account names who caused it' },
+      { id: 'no_acceptance_authority', label: 'The scribe can report the difference; Utu-mansum records receipt and Lu-Nanshe decides acceptance or replacement' },
     ],
   },
   evaluation: {
@@ -130,7 +130,7 @@ export const ERA1_COM_F01_OPPORTUNITY_DEFINITION: AssignmentOpportunityDefinitio
         'Utu-mansum owns the receiving entry.',
         'Lu-Nanshe decides acceptance or a replacement request.',
         'Ur-Lamma judges whether the material is suitable for the workshop.',
-        'Kuli supplies testimony about his part in the movement, not proof of earlier custody.',
+        'Kuli can describe his part of the journey; the earlier custody still needs its own record.',
       ],
       authority: 'The Assignment authorizes comparison and reporting only. It does not authorize acceptance, rejection, replacement, material identification, or assignment of liability.',
       provenance: [
