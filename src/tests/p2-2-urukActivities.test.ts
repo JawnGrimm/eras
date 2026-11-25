@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { getInitializedScribal } from '../state/scribalState';
 import type { AssignmentId, EventId, InstitutionId, MatterId } from '../state/ids';
 import { createInitialGameState } from '../state/initialState';
 import { transitionGame } from '../engine/actionEconomy';
