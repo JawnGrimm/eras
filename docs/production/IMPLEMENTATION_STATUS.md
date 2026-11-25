@@ -526,3 +526,16 @@ No additional historical research is required by the completed source audit. No 
 Authored Assignment consultation actions now create objective consultation Events and directional player → consulted-person familiarity episodes. Repeated consultations in the same matter/context do not create additional familiarity episodes. Anchor relationship-history entries link only to an existing disposition Event or a consultation Event when that person was explicitly consulted. The regression confirms the Event-backed relationship update resolves through the Challenge Director. Entries without supporting Events remain unlinked; no synthetic Events are created.
 
 The remaining Issue #85 and #107 acceptance items are unchanged: manual integrated playthrough and succession/Challenge smoke testing; actual Day-13 save/transaction reconciliation; and manual browser/accessibility checks. WP5 remains “No material research required.” No GDD or Decision Register changes.
+
+
+## Accessibility and authored-action compatibility update — 24 November 2026
+
+**PR #124 merged:** `66f1074350f6b153559862a0de421f92486ac28e`  
+**PR #123 merged:** `bb0de8ec882821ab91649e58e809246a5c288578`
+
+- PR #124 validation #678 passed: TypeScript, 42 test files / 309 tests, production build; CodeQL #576 passed. Only authored `consult` actions create consultation Events/episodes. Compare actions carrying `consultedPersonId` as source attribution continue without synthetic interactions.
+- PR #123 validation #677 passed: TypeScript, 42 test files / 309 tests, production build; CodeQL #575 passed. Native save-reset confirmation is replaced by an accessible dialog with focus management and Escape cancellation.
+- Main CodeQL #578 passed on `bb0de8ec882821ab91649e58e809246a5c288578`.
+- Build and Deploy #205 passed on the same main commit; GitHub Pages deployment succeeded.
+
+No open PRs remain at this snapshot. Issues #85 and #107 remain open for manual integrated playthrough/accessibility acceptance and the actual Day-13 save/transaction reconciliation. No GDD or Decision Register changes were made.
