@@ -31,7 +31,7 @@ function RelationshipView({ relationship, fromName, toName, familiarityStage, fa
       {familiarityStage && <div><dt className="text-xs text-stone-500">Personal familiarity</dt><dd className="text-sm font-semibold capitalize">{familiarityStage}</dd></div>}
     </dl>
     {familiarityEpisodes.length > 0 && <details className="mt-2 border-t border-stone-200 pt-2">
-      <summary className="cursor-pointer text-xs font-semibold text-stone-600">Familiarity evidence ({familiarityEpisodes.length})</summary>
+      <summary className="cursor-pointer text-xs font-semibold text-stone-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-700">Familiarity evidence ({familiarityEpisodes.length})</summary>
       <ol className="mt-2 space-y-1 text-xs text-stone-600">{familiarityEpisodes.map((episode) => <li key={episode.id}>
         Day {episode.dayNumber} · {episode.stageContribution} · {episode.acquisitionMode.replace(/_/g, ' ')} · {episode.provenance.map((source) => `${source.kind} ${source.id}`).join('; ')}
       </li>)}</ol>
