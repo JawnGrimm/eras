@@ -47,6 +47,10 @@ export function submitRubricAssignmentActivity(
   const assessment = evaluateAssignmentAssessment(definition, progress);
   if (!assessment) return fail(state, 'assignment-activity-rubric-invalid', 'The anchor report has no valid assessment.');
   const finding = definition.reportSchema.findings.find((option) => option.id === progress.draft.finding);
+  if (matter?.tierBRecurring && progress.draft.finding !== 'qualified_incomplete') {
+    const expectedFinding = matter.tierBRecurring.outcomeShape === 'reconciled' ? 'records_reconcile' : 'bounded_difference';
+    if (progress.draft.finding !== expectedFinding) return fail(state, 'tierb-finding-outcome-mismatch', 'The selected finding does not match the dated source records. Recheck the figures or submit a qualified incomplete report.');
+  }
   const responsibility = definition.reportSchema.responsibilityClaims.find((option) => option.id === progress.draft.responsibilityClaim);
   const selectedLimitations = (progress.draft.selectedLimitationIds ?? []).flatMap((id) => {
     const option = definition.reportSchema.limitationOptions?.find((item) => item.id === id);
