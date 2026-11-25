@@ -1,5 +1,5 @@
-import type { EvidenceId, InstitutionId, MatterId, PersonId, WorkId, SkillId, AttributeId } from '../state/ids';
-import type { AssignmentOffer, InstitutionalMatter, KnowledgeEntry, RecordEntry, ScribalCharacterState, WorkAssessmentDimensionResult } from '../state/types';
+import type { EvidenceId, EventId, InstitutionId, MatterId, PersonId, WorkId, SkillId, AttributeId } from '../state/ids';
+import type { AssignmentOffer, InstitutionalMatter, KnowledgeEntry, RecordEntry, ScribalCharacterState, WorkAssessmentDimensionResult, WorldEvent } from '../state/types';
 import type { InterpretationRule, Predicate } from './evidenceInterpretation';
 
 export interface WorkEvidenceDefinition {
@@ -31,6 +31,8 @@ export interface WorkAssessment {
 }
 export interface WorkFinalization {
   careerXpReward?: number;
+  /** Deterministic world events committed with this official disposition. */
+  events?: WorldEvent[];
   record?: RecordEntry;
   knowledge?: KnowledgeEntry[];
   /** Institutional matters that are explicitly resolved by this final disposition. */
