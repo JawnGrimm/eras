@@ -236,7 +236,7 @@ export function advanceInstitutionalMatters(state: GameState, nextDay: number): 
     people[ERA1_COM_F02_F04_PEOPLE.sigAna] = {
       id: ERA1_COM_F02_F04_PEOPLE.sigAna, name: 'Sig-ana', alive: true, affiliations: [],
       currentLocationId: RIVER_LANDING_LOCATION_ID, lifeStage: 'craft_practitioner',
-      socialIdentity: { occupation: 'Witness (provisional)', summary: 'A witness who observed part of a consignment handover.' },
+      socialIdentity: { occupation: 'Witness', summary: 'A witness who observed part of a consignment handover.' },
     } satisfies Person;
     changed = true;
   }
@@ -957,7 +957,7 @@ export function createMaterialNotAsDescribedMatter(dayNumber: number): Instituti
     ],
     provenance: [
       { id: 'comf01-procurement-request', kind: 'instruction', description: 'A craft worker requests timber described as worked for a precinct commission.' },
-      { id: 'comf01-sender-tag', kind: 'record_copy', description: 'A provisional sender tag describes the delivered load as worked timber.' },
+      { id: 'comf01-sender-tag', kind: 'record_copy', description: 'The sender’s tag describes the delivered load as worked timber.' },
       { id: 'comf01-receiving-observation', kind: 'observation', description: 'The receiving observation describes the visible pieces as unworked without identifying species or origin.' },
       { id: 'comf01-carrier-account', kind: 'testimony', description: 'Kuli gives a separate account of carrying the covered load to the receiving court.' },
       { id: 'comf01-authority-boundary', kind: 'other', description: 'The scribe reports; the receiving official records, the responsible authority decides acceptance, and the workshop overseer judges suitability.' },
