@@ -14,6 +14,9 @@ import { createInitialGameState } from '../state/initialState';
 import { transitionAssignmentActivityAction } from '../engine/assignmentActivity';
 import { advanceInstitutionalMatters } from '../engine/institutionalMatters';
 import { ASSIGNMENT_ACTIVITY_CATALOG } from '../content/assignments/northBayRoofInspection';
+import { ERA_I_ANCHOR_ACTIVITY_CATALOG } from '../content/assignments/eraIAnchors';
+import { ERA_I_MARTIAL_FAMILY_ACTIVITY_CATALOG } from '../content/assignments/eraIMartialFamilies';
+import { materialNotAsDescribed } from '../content/assignments/eraICommercialMartial';
 import { ERA_I_ANCHOR_OPPORTUNITY_DEFINITIONS } from '../content/assignments/eraIAnchorOpportunities';
 import { ERA_I_COMMERCIAL_MARTIAL_OPPORTUNITY_DEFINITIONS } from '../content/assignments/eraICommercialMartial';
 import { URUK_ASSIGNMENT_OPPORTUNITY_DEFINITIONS } from '../content/assignments/opportunityDefinitions';
@@ -174,7 +177,13 @@ describe('production opportunity screens', () => {
     const offerText = authoredOffers.flatMap((offer) => [
       offer.title, offer.description, ...collectStrings(offer.context),
     ]);
-    const activityText = Object.values(ASSIGNMENT_ACTIVITY_CATALOG).flatMap((definition) => [
+    const activityDefinitions = [
+      ...Object.values(ASSIGNMENT_ACTIVITY_CATALOG),
+      ...Object.values(ERA_I_ANCHOR_ACTIVITY_CATALOG),
+      ...Object.values(ERA_I_MARTIAL_FAMILY_ACTIVITY_CATALOG),
+      materialNotAsDescribed,
+    ];
+    const activityText = activityDefinitions.flatMap((definition) => [
       definition.title, ...definition.discoveries.map((discovery) => discovery.text),
       ...(definition.reportSchema.limitationOptions ?? []).map((option) => option.label),
     ]);
