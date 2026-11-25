@@ -220,6 +220,7 @@ describe('North-Bay Roof Inspection activity definition and engine', () => {
   });
   it('discloses COM-01 provenance and keeps reconstructed context separate from ancient evidence', () => {
     const activity = sealedVesselTextileConsignment;
+    expect(activity.provenanceDisclosureRequired).toBe(true);
     expect(activity.discoveries.map((item) => item.provenance?.classification)).toEqual(['REPORTED','PHYSICAL','COPIED','REPORTED']);
     expect(activity.discoveries.every((item) => !!item.provenance?.explanation.trim())).toBe(true);
     expect(activity.historicalContextNote).toContain('fictional teaching reconstruction');
