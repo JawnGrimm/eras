@@ -118,10 +118,28 @@ export function ProductionWorkdayHub({ onOpenWork, onOpenEannaWork, onOpenActivi
       return <section key={item.workId} aria-labelledby={`preserved-work-${item.workId}`} className="rounded-xl border border-stone-300 bg-[#eee8dc] p-5">
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-stone-600">Institutional condolences</p>
         <h2 id={`preserved-work-${item.workId}`} className="mt-1 font-serif text-xl font-semibold text-stone-900">{institution?.name ?? 'The responsible institution'} · {item.title}</h2>
-        <p className="mt-2 text-sm leading-6 text-stone-700">The institution remembers {state.world.people[item.deceasedCharacterId]?.name ?? 'the former contributor'} and sends its condolences. The Work and its completed progress will be waiting if you later choose to take it up. No handoff has occurred; the undertaking remains in institutional custody.</p>
-        <button disabled={state.works.activeWorkId !== null || !item.institutionId || !state.works.progress[item.workId]}
-          onClick={() => game.dispatch({ type: 'TAKE_UP_PRESERVED_WORK', workId: item.workId })}
-          className="mt-3 rounded-md bg-stone-900 px-3 py-2 text-sm font-semibold text-white disabled:opacity-40">Take up preserved Work</button>
+        <p className="mt-2 text-sm leading-6 text-stone-700">The institution remembers {state.world.people[item.deceasedCharacterId]?.name ?? 'the former contributor'} and sends its condolences. The Work and its completed progress remain in institutional custody.</p>
+        {item.invitation && item.invitationResponse === undefined && <div className="mt-3 rounded-lg border border-amber-200 bg-white p-3">
+          <h3 className="font-semibold text-stone-900">Invitation to take up the remaining Work</h3>
+          <dl className="mt-2 space-y-2 text-sm text-stone-700">
+            <div><dt className="font-semibold">Basis</dt><dd>{item.invitation.basis}</dd></div>
+            <div><dt className="font-semibold">Remaining remit</dt><dd>{item.invitation.remainingRemit}</dd></div>
+            <div><dt className="font-semibold">Available records</dt><dd>{item.invitation.availableRecords.join('; ')}</dd></div>
+            <div><dt className="font-semibold">Authority</dt><dd>{item.invitation.authorityScope}</dd></div>
+            <div><dt className="font-semibold">Limits</dt><dd>{item.invitation.limits.join('; ')}</dd></div>
+          </dl>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button disabled={state.works.activeWorkId !== null} onClick={() => game.dispatch({ type: 'RESPOND_PRESERVED_WORK_INVITATION', workId: item.workId, response: 'accept' })}
+              className="rounded-md bg-stone-900 px-3 py-2 text-sm font-semibold text-white disabled:opacity-40">Accept and take up Work</button>
+            <button onClick={() => game.dispatch({ type: 'RESPOND_PRESERVED_WORK_INVITATION', workId: item.workId, response: 'decline' })}
+              className="rounded-md border border-stone-300 px-3 py-2 text-sm font-medium">Decline invitation</button>
+          </div>
+        </div>}
+        {item.invitationResponse === 'declined' && <p className="mt-3 text-sm text-stone-700">The invitation was declined. The undertaking and progress remain preserved; no handoff occurred.</p>}
+        {!item.invitation && <><p className="mt-2 text-sm text-stone-700">The Work and its completed progress will be waiting if you later choose to take it up. No handoff has occurred.</p>
+          <button disabled={state.works.activeWorkId !== null || !item.institutionId || !state.works.progress[item.workId]}
+            onClick={() => game.dispatch({ type: 'TAKE_UP_PRESERVED_WORK', workId: item.workId })}
+            className="mt-3 rounded-md bg-stone-900 px-3 py-2 text-sm font-semibold text-white disabled:opacity-40">Take up preserved Work</button></>}
       </section>;
     })}
     {unavailableWorks.length > 0 && <section role="status" aria-labelledby="unavailable-work-heading" className="rounded-xl border border-amber-300 bg-amber-50 p-5">
