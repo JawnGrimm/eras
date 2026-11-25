@@ -48,7 +48,7 @@ function SettlementSummary({ settlement }: { settlement: DaySettlement }) {
   </section>;
 }
 
-export function ProductionWorkdayHub({ onOpenWork, onOpenActivity, settlement, onSettlement }: {
+export function ProductionWorkdayHub({ onOpenWork, onOpenEannaWork, onOpenActivity, settlement, onSettlement }: {
   onOpenWork: () => void; onOpenEannaWork: () => void; onOpenActivity: (assignmentId: string) => void; settlement: DaySettlement | null; onSettlement: (settlement: DaySettlement) => void;
 }) {
   const game = useGame();
