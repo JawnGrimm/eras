@@ -19,6 +19,10 @@ describe('matter-driven Assignment discovery', () => {
     expect(offers.every((offer) => generated.world.matters[offer.originMatterId!]?.status === 'active')).toBe(true);
     expect(offers.every((offer) => generated.world.institutions[generated.world.matters[offer.originMatterId!]!.institutionId]
       .activeMatters.includes(offer.originMatterId!))).toBe(true);
+    const southCourt = offers.find((offer) => offer.activityId === 'activity-south-court-delivery-reconciliation')!;
+    const awning = offers.find((offer) => offer.activityId === 'activity-south-loading-awning-inspection')!;
+    expect(southCourt.compensation.provisions).toBe(1);
+    expect(awning.compensation.provisions).toBe(0);
   });
 
   it('does not discover opportunities from developed or institutionally inactive matters', () => {
