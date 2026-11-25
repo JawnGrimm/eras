@@ -145,4 +145,4 @@ export const URUK_ASSIGNMENT_OPPORTUNITY_DEFINITIONS: readonly AssignmentOpportu
       deliveryChannels: [{ kind: 'baseline_reach', explanation: 'The Storehouse has a dated source occurrence requiring a bounded comparison; this is ordinary shared-pool institutional work.' }],
     },
   },
-];\n
+];
