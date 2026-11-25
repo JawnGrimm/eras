@@ -47,7 +47,7 @@ function withPriorHistory(state: GameState): GameState {
 
 const priorWorkCatalog = {
   [priorWorkId]: {
-    id: priorWorkId, evidence: [], actions: [],
+    id: priorWorkId, kind: 'work', title: 'Earlier institutional account', institutionId: 'institution-uruk-temple-storehouse', evidence: [], actions: [],
     validateScenarioData: (value: unknown): value is Record<string, unknown> =>
       typeof value === 'object' && value !== null && !Array.isArray(value),
   },
@@ -67,6 +67,20 @@ function offer(id: string, state: GameState) {
 }
 
 describe('character departure and succession lifecycle', () => {
+  it('preserves an unfinished personal Work in institutional custody after death and requires an explicit later take-up', () => {
+    let state = withPriorHistory(createInitialGameState());
+    state = { ...state, works: { activeWorkId: priorWorkId, progress: { [priorWorkId]: {
+      status: 'active', acquiredEvidence: [], examinedEvidence: [], workApSpentToday: 1,
+      rewardGranted: false, completedActionIds: [], scenarioData: {}, submissionCount: 0,
+    } } } };
+    const death = transitionGame(state, { type: 'BEGIN_CHARACTER_DEPARTURE', departureKind: 'death' }, undefined, priorWorkCatalog);
+    const selected = transitionGame(death.state, { type: 'SELECT_SUCCESSOR', nextCharacterId: apprenticeId }, undefined, priorWorkCatalog);
+    expect(selected.state.works.activeWorkId).toBeNull();
+    expect(selected.state.works.progress[priorWorkId].status).toBe('active');
+    expect(selected.state.works.preservedUndertakings).toMatchObject([{ workId: priorWorkId, status: 'waiting', successorCharacterId: apprenticeId }]);
+    expect(selected.state.journal.notices.at(-1)?.message).toContain('will be waiting if you later choose to take it up');
+  });
+
   it('discovers connected scribes, persists a pending death, selects without inheritance, and round-trips the save', () => {
     let state = withPriorHistory(createInitialGameState());
     expect(rankSuccessorCandidates(state).map((candidate) => candidate.personId)).toEqual([apprenticeId, colleagueId]);
