@@ -152,12 +152,18 @@ The report becomes a Record that can inform subsequent institutional work. A lat
 
 ## 8. Production handoff boundary
 
-Once the Game Director approves the proposed supervisory assessment, this document is **READY FOR IMPLEMENTATION**. Production may then determine:
+### 8.1 Provenance disclosure — APPROVED · READY FOR IMPLEMENTATION
+
+The Game Director has approved the provenance disclosure direction. Production is authorized to implement the approved classification and point-of-examination presentation without waiting for the supervisory-assessment proposal to be approved.
+
+Production determines:
 - the evidence metadata type and compatibility strategy;
 - where provenance is rendered in the examination UI;
-- how the assessment rubric is represented and validated;
-- how the existing Closing Receipt presents Utu-mansum's response;
 - persistence and migration behavior, if any; and
-- automated tests for visibility, classification neutrality, correct bounded findings, incomplete work, overreach, and matter continuity.
+- automated tests for visibility, classification neutrality, and reconstructed-context separation.
+
+### 8.2 Supervisory assessment — PROPOSED
+
+The assessment section is not yet an approved behavioral contract. After Game Director approval, it becomes **READY FOR IMPLEMENTATION**. Production may then integrate the rubric with the existing deterministic assessment and Closing Receipt, and test correct bounded findings, incomplete work, overreach, and matter continuity.
 
 No new balance values, AP rules, tracked resources, autonomous NPC scheduler, or generative runtime system are authorized by this specification.
