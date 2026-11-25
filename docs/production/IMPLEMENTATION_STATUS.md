@@ -492,3 +492,21 @@ South-Court Responsibility remains CLOSED — NO CHANGE AUTHORIZED. The separate
 The familiarity runtime slice is merged. WP0–WP4 remain implemented. WP5 remains “No material research required.” WP6 is still open: the actual Day-13 save/transaction trace has not been supplied, so balances and archived-record count are not reconciled to a real save; the display-projection fixture remains projection-only. Manual browser and accessibility acceptance are also outstanding.
 
 This update supersedes the earlier draft-PR and pending-CodeQL snapshots above.
+
+
+## Final verification snapshot — 24 November 2026
+
+**Main:** `e3267985412ad23a1414db6e6148e256c03509b2`  
+**Familiarity merge:** PR #121, `95b38ed2e94b185f162e44d4e34bc1e053ec42ea`
+
+- PR Validation #669: TypeScript passed; 41 test files / 305 tests passed; production build passed.
+- PR CodeQL #562 passed on the exact PR head.
+- Main CodeQL #564 passed on the main verification commit.
+- Build and Deploy #200 passed on the main verification commit; GitHub Pages deployment succeeded.
+- Deployment is VERIFIED for the code at this main revision.
+
+The two production issues remain open for acceptance rather than implementation:
+- **Issue #85:** integrated manual multi-day playthrough, including actual Challenge arrival/decline/recurrence and succession continuity, plus player-facing smoke verification.
+- **Issue #107:** actual Day-13 save/transaction trace for balance and archived-record reconciliation, plus manual browser, keyboard-only, screen-reader, 200% zoom, and narrow-viewport checks.
+
+No additional historical research is required by the completed source audit. No GDD or Decision Register changes were made.
