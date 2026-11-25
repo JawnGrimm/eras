@@ -180,7 +180,7 @@ export type InstitutionalMatterKind = 'tutorial' | 'roof_repair_verification' | 
   | 'era1_com_01_consignment' | 'era1_com_02_brewing_account' | 'era1_civ_01_field_measurement'
   | 'era1_civ_02_labor_disbursement' | 'era1_rel_01_inana_offering'
   | 'era1_com_f01_material_description' | 'era1_com_f02_two_claims' | 'era1_com_f03_partial_return' | 'era1_com_f04_custody_chain'
-  | 'era1_mar_f01_door_opened' | 'era1_mar_f02_party_returns_short' | 'era1_mar_f03_late_turned_aside' | 'era1_mar_f04_valued_object_trail' | 'tier_b_recurring_occurrence' | 'general';
+  | 'era1_mar_f01_door_opened' | 'era1_mar_f02_party_returns_short' | 'era1_mar_f03_late_turned_aside' | 'era1_mar_f04_valued_object_trail' | 'era1_eanna_provisioning_undertaking' | 'era1_eanna_allocation_follow_up' | 'tier_b_recurring_occurrence' | 'general';
 export interface MatterProvenance {
   id: string;
   kind: 'record_copy' | 'instruction' | 'agreement' | 'observation' | 'testimony' | 'event' | 'other';
