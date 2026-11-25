@@ -44,6 +44,7 @@ describe('shared Closing Receipt assessment schedule', () => {
     expect(deriveRelationshipFamiliarityStage(thorough.state.world.relationshipFamiliarityEpisodes ?? {}, receiverId, INITIAL_PERSON_ID)).toBeNull();
     const interactionEvent = Object.values(thorough.state.world.events).find((event) => event.summary.includes('Closing Receipt was returned'));
     expect(interactionEvent?.personIds).toEqual([INITIAL_PERSON_ID, receiverId]);
+    expect(thorough.state.world.relationships[receiverId]?.[INITIAL_PERSON_ID]?.history.at(-1)?.eventId).toBe(interactionEvent?.id);
     expect(isValidSaveEnvelope(createSaveEnvelope(thorough.state, 1))).toBe(true);
     expect(thorough.receipt.deltas).toEqual({
       currency: 10, provisions: 1, careerXp: 12, judgment: 3,
