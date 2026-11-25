@@ -64,6 +64,26 @@ describe('shared Closing Receipt assessment schedule', () => {
     expect(incomplete.receipt.deltas).toMatchObject({ careerXp: 6, judgment: 0, institutionalStanding: 0, trust: 0, respect: 0 });
   });
 
+  it('does not invent a familiarity episode without an identified receiver and rejects duplicate receipt identity', () => {
+    const state = createInitialGameState();
+    const noReceiver = applyClosingAssessment(state, {
+      receiptId: 'receipt-no-receiver', title: 'Unassigned report', disposition: 'Filed',
+      assessment: 'Defensible', rationale: 'No receiving person is identified.', reaction: 'No personal response.',
+      baseCareerXp: 0,
+    });
+    expect(noReceiver?.state.world.relationshipFamiliarityEpisodes).toEqual({});
+    expect(Object.keys(noReceiver?.state.world.events ?? {})).toEqual(Object.keys(state.world.events));
+
+    const first = apply('Thorough');
+    const repeated = applyClosingAssessment(first.state, {
+      receiptId: 'receipt-Thorough', title: 'Test report', disposition: 'Qualified finding',
+      assessment: 'Thorough', rationale: 'Authored rationale.', reaction: 'Authored receiver reaction.',
+      baseCareerXp: 12, institutionId, receiverPersonId: receiverId,
+    });
+    expect(repeated).toBeNull();
+    expect(Object.keys(first.state.world.relationshipFamiliarityEpisodes ?? {})).toHaveLength(1);
+  });
+
   it('keeps contracted resources visible without crediting them through the assessment helper', () => {
     const result = apply('Overreached');
     const scribal = getInitializedScribal(result.state.world.people[INITIAL_PERSON_ID])!;
