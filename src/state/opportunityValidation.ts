@@ -88,9 +88,9 @@ export function validateOpportunityConsequences(
     const assertionRecord = assertion?.recordAssertion
       ? (effects.record?.id === assertion.recordAssertion.recordId ? effects.record : context.records.entries[assertion.recordAssertion.recordId])
       : undefined;
-    const assertionRecordExists = !!assertionRecord && !!assertion.recordAssertion
+    const assertionRecordExists = !!assertionRecord && !!assertion?.recordAssertion
       && [...assertionRecord.assertions, ...assertionRecord.amendments.flatMap((amendment) => amendment.assertionsAdded)]
-        .some((item) => item.id === assertion.recordAssertion?.assertionId);
+        .some((item) => item.id === assertion?.recordAssertion?.assertionId);
     const validAssertion = !!assertion && ['fact','observation','remembered_tendency'].includes(assertion.kind)
       && typeof assertion.text === 'string' && !!assertion.text.trim()
       && (assertion.aboutPersonId === undefined || !!context.world.people[assertion.aboutPersonId])
