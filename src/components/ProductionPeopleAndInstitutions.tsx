@@ -77,7 +77,7 @@ function RelationshipCard({ fromName, toName, relationship, familiarityStage, fa
 function PersonIndexRow({ person, context, selected, onSelect }: {
   person: Person; context?: string; selected: boolean; onSelect: () => void;
 }) {
-  return <button type="button" onClick={onSelect} aria-pressed={selected}
+  return <button type="button" onClick={onSelect} aria-pressed={selected} aria-label={selected ? person.name : undefined}
     className={`w-full rounded-lg border px-3 py-3 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-700 ${selected ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-200 bg-white text-stone-900 hover:bg-stone-50'}`}>
     <span className="flex items-center justify-between gap-2">
       {selected ? <span className="font-semibold">Selected person</span> : <span className="font-semibold">{person.name}</span>}

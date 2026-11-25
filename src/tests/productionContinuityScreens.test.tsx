@@ -87,7 +87,7 @@ describe('production continuity and social screens', () => {
     expect(markup).toContain('Personal familiarity');
     expect(markup).toContain('acquainted');
     expect(markup).toContain('Familiarity evidence');
-    expect(markup).toContain('No separate trust, respect, affection, resentment, or rivalry dimensions are recorded for this direction.');
+    expect(markup).toContain('No sentiment scores are recorded in this direction.');
     expect(markup).toContain('A substantive response was returned.');
     expect(markup).toContain('1 history entry');
     expect(markup).toContain('The report was received with thanks.');
