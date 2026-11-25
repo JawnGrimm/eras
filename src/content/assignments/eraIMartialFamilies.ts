@@ -165,7 +165,7 @@ export const era1MarF02PartyReturnsShort = activity({
   submissionApCost: 1,
   participants: [p.luNanshe,p.shuruppak,p.luKala,p.partyMember,p.dudu,p.urAb,p.enlilKisu],
   discoveries: [
-    { id: 'mar02-issue-list', title: 'Task issue list', text: 'The issue list records tools and provisions handed to a party gathered for a repair. The leader needs the count settled before they disperse; this list covers that day's task.', sourceProvenanceId: 'mar02-issue-list' },
+    { id: 'mar02-issue-list', title: 'Task issue list', text: 'The issue list records tools and provisions handed to a party gathered for a repair. The leader needs the count settled before they disperse; this list covers that day’s task.', sourceProvenanceId: 'mar02-issue-list' },
     { id: 'mar02-return-count', title: 'Return count', text: 'The count lists tools returned and tools still missing. The group wants to leave, but the list cannot say whether they were lost, left at the site, or kept for tomorrow.', sourceProvenanceId: 'mar02-return-count' },
     { id: 'mar02-lu-kala-account', title: 'Lu-kala’s account', text: 'Lu-kala says some tools were left at the work site for tomorrow and one person has not yet returned. The leader wants the count cleared, but his account alone cannot settle what happened.', sourceProvenanceId: 'mar02-lu-kala-account' },
     { id: 'mar02-party-member-account', title: 'Party member’s account', text: 'A member of the task party gives a different account of one missing tool and the person still away. The two accounts leave the return count unsettled.', sourceProvenanceId: 'mar02-party-member-account' },
