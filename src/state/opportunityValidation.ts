@@ -30,7 +30,7 @@ export function validateOpportunityConsequences(
   if (effects.careerXp !== undefined && (!Number.isFinite(effects.careerXp) || effects.careerXp < 0)) return 'Career XP consequence is invalid.';
   if (effects.relationships !== undefined && (!Array.isArray(effects.relationships) || effects.relationships.some((x) =>
     !x || !context.world.people[x.fromId] || !context.world.people[x.toId] || x.fromId === x.toId || !x.summary
-      || !x.changes || typeof x.changes !== 'object' || Object.entries(x.changes).some(([key, n]) => !['trust','respect','affection','resentment','rivalry','familiarity'].includes(key) || typeof n !== 'number' || !Number.isFinite(n))))) return 'Relationship consequence has invalid people or values.';
+      || !x.changes || typeof x.changes !== 'object' || Object.entries(x.changes).some(([key, n]) => !['trust','respect','affection','resentment','rivalry'].includes(key) || typeof n !== 'number' || !Number.isFinite(n))))) return 'Relationship consequence has invalid people or values.';
   if (effects.institutionalStanding !== undefined && (!Array.isArray(effects.institutionalStanding) || effects.institutionalStanding.some((x) =>
     !x || !context.world.institutions[x.institutionId] || typeof x.delta !== 'number' || !Number.isFinite(x.delta)))) return 'Institutional-standing consequence has invalid references or values.';
 
