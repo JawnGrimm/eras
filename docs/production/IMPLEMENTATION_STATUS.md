@@ -383,3 +383,31 @@ These are estimates for the bounded assessment only, not runtime implementation 
 This record is queue planning only. It does not mark Faithful Recall implemented, tested, verified, or ready for implementation. No runtime files, GDD, Decision Register, Open Design Register, save schema, migration, or existing record semantics were changed by this entry.
 
 **Next action:** Design HQ completes and reconciles the supporting behavioral contract. After Issue #85 priority protection and contract readiness, Production conducts FR-A through FR-E and returns the technical assessment to Design HQ. A separate approved **READY FOR IMPLEMENTATION** handoff is required before runtime work.
+
+
+## GD-RELATIONSHIP-FAMILIARITY-001 — compatibility and migration technical proposal — 25 November 2026
+
+**Authority:** Game Director handoff; approved behavioral contract.  
+**Audited baseline:** `main` at `f7a10849d890c4367cbb352dbdac815545a8a15b`.  
+**Production status:** **TECHNICAL PROPOSAL PREPARED — DESIGN HQ REVIEW REQUIRED.**  
+**Authorization boundary:** No runtime implementation, persistent-state change, migration, or save rewrite is authorized.
+
+- Deliverable: `docs/production/GD-RELATIONSHIP-FAMILIARITY-001-TECHNICAL-PROPOSAL.md`.
+- Recommendation: retain numeric relationship familiarity only as inert v3 compatibility data; remove it from the active relationship shape in schema v4. Add typed, directional, deduplicated familiarity episodes with explicit observer/subject and Event/Record provenance. Derive qualitative stages from authored episode contributions, not counts or numeric thresholds.
+- Knowledge remains separate. Preserve legacy Knowledge entries as source references without inventing assertions; require new entries to carry a specific assertion and append-only verification/contradiction/obsolescence assessments.
+- Existing v2→v3 migration remains the first leg of a v2→v3→v4 chain. Preserve exact raw v2/v3 bytes before a validated v4 write. Do not synthesize episodes from numeric values, relationship summaries, biography, Life Events, PersonFamiliarity, or Event participant lists.
+- `PersonFamiliarity` semantics and consumers remain unchanged.
+- QA coverage is specified in the proposal. No tests were written or executed for this documentation-only task.
+- **Next gate:** Design HQ review of episode authoring vocabulary, stage-contribution mapping, no-episode presentation, situation-key ownership, and legacy Knowledge presentation. A separate implementation authorization is required before runtime or migration work.
+
+### South-Court Responsibility — CLOSED / NO CHANGE AUTHORIZED
+
+**Game Director direction, 24 November 2026:** leave selectable responsibility claims unchanged. This closes and supersedes the earlier proposed second origin-side claim follow-up recorded in the Issue #85 / Challenge Director status snapshot.
+
+- Do not add an origin-side or receiver-side selectable claim.
+- Do not revise the existing Enlil-kisu claim or its evaluation.
+- Preserve the neutral/no-individual-responsibility option and the existing recommendation to retain both recorded figures and request the origin copy.
+- No content or runtime implementation is authorized or required. This item is removed from the implementation-ready queue.
+- The South-Court +1 Provision compensation correction remains a separate locked workstream and is unaffected.
+
+This closure changes no Issue #85 runtime scope and does not close Issue #85 as a whole. Earlier status text is retained as decision history; this dated direction is the current controlling production status.
