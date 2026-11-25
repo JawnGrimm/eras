@@ -31,6 +31,66 @@ const humanReactions = (who: string, subject: string) => ({
 const rationales = (complete: string, defensible: string, incomplete: string, overreach: string) => ({
   Thorough: complete, Defensible: defensible, Incomplete: incomplete, Overreached: overreach,
 });
+export const legacySealedVesselTextileConsignment = activity({
+  id: 'activity-era1-com-01-provenance-v2',
+  title: 'Sealed Vessel and Textile Consignment',
+  submissionApCost: 1,
+  participants: [people.steward, people.receiver, people.carrier, people.senior],
+  discoveries: [
+    { id: 'com01-request', title: 'The receiving request', text: 'Utu-mansum asks for the consignment to be checked before the receiving court closes. Enlil-kisu wants the goods accepted so his crew can leave; the receiving official wants the tag and custody note kept together.' },
+    { id: 'com01-tag', title: 'Tag transcription', text: 'The tag identifies vessel lot V-17 and textile lot T-04. Keep the vessel and textile counts on separate lines; they are different goods.' },
+    { id: 'com01-seal', title: 'Seal and custody observation', text: 'The seal impression on one vessel container is incomplete. No one can tell from the damaged impression when it happened, whether the contents changed, or who handled the vessel afterward.' },
+    { id: 'com01-quantity', title: 'Quantity record', text: 'The dispatch account lists 8 vessels and 3 textile bundles under their separate identifiers.' },
+    { id: 'com01-receipt', title: 'Receiving entry', text: 'The receiving entry lists 7 vessels and 3 textile bundles. The vessel count differs by one; the textile count agrees.' },
+  ],
+  actions: [
+    { id: 'com01-consult-receiver', family: 'consult', label: 'Ask Utu-mansum what crossed the threshold', description: 'Hear what the receiving official actually counted before the court closes.', apCost: 1, discoveryIds: ['com01-request'], consultedPersonId: people.receiver },
+    { id: 'com01-compare-tag', family: 'compare', label: 'Compare tag and dispatch account', description: 'Keep vessel and textile identifiers and counts separate.', apCost: 1, prerequisites: ['com01-consult-receiver'], discoveryIds: ['com01-tag','com01-quantity'] },
+    { id: 'com01-check-seal', family: 'observe', label: 'Examine the seal impression', description: 'Record the visible condition without inferring when or why it changed.', apCost: 1, discoveryIds: ['com01-seal'] },
+    { id: 'com01-compare-receipt', family: 'compare', label: 'Compare the receiving entry', description: 'Identify which commodity count agrees and which differs.', apCost: 1, discoveryIds: ['com01-receipt'] },
+  ],
+  interpretationRules: [],
+  reportSchema: {
+    title: 'Consignment comparison report', responsibilityLabel: 'Responsibility',
+    findings: [
+      { id: 'vessel_count_differs', label: 'Vessel count differs; textile count agrees' },
+      { id: 'receipt_consistent', label: 'The supplied entries agree' },
+      { id: 'insufficient_custody_evidence', label: 'Custody evidence is insufficient to clear the consignment' },
+      { id: 'certify_or_accuse', label: 'Certify clearance or assign blame without support' },
+    ],
+    responsibilityClaims: [
+      { id: 'none', label: 'No individual responsibility assigned' },
+      { id: 'carrier_blame', label: 'Assign the discrepancy to the carrier' },
+    ],
+    recommendations: [
+      { id: 'request_recount', label: 'Request a recount of the vessel lot' },
+      { id: 'preserve_both_counts', label: 'Preserve dispatch and receiving counts pending review' },
+      { id: 'accept_textiles', label: 'Record the textile count as reconciled' },
+    ],
+    limitationsLabel: 'What the evidence cannot establish',
+    limitationOptions: [
+      { id: 'seal_timing_unknown', label: 'The receiving official still cannot tell when the seal was damaged or who handled the vessel afterward' },
+      { id: 'count_difference_unlocated', label: 'Dispatch lists eight vessels; receipt lists seven. Neither copy shows where the missing vessel went' },
+      { id: 'no_release_authority', label: 'Utu-mansum must decide whether the goods are released; this report carries the comparison' },
+    ],
+  },
+  evaluation: {
+    requiredEvidenceIds: ['com01-tag','com01-quantity','com01-receipt'],
+    requiredLimitationIds: ['count_difference_unlocated','no_release_authority'],
+    relevantEvidenceIds: ['com01-request','com01-seal'],
+    relevantLimitationIds: ['seal_timing_unknown'],
+    unsupportedFindingIds: ['certify_or_accuse'],
+    unsupportedResponsibilityClaimIds: ['carrier_blame'],
+    receiverPersonId: people.receiver,
+    rationales: rationales('Both commodity groups are compared separately, the count difference is precisely located, and custody limits are explicit.',
+      'The dispatch and receiving entries are compared correctly and the report stays within the apprentice’s authority.',
+      'A required source or limitation is missing, so the receiving official cannot safely carry the report forward.',
+      'The report certifies clearance or assigns responsibility beyond what the tag, seal, and counts establish.'),
+    reactions: humanReactions('Utu-mansum', 'He keeps the receiving tally beside the dispatch copy.'),
+  },
+  submissionNote: 'The receiving official decides whether to recount or proceed. The report itself does not release the goods.',
+});
+
 export const sealedVesselTextileConsignment = activity({
   id: 'activity-era1-com-01-sealed-consignment',
   title: 'Receiving-Tag and Handover Comparison',
