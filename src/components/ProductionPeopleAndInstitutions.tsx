@@ -22,7 +22,7 @@ function RelationshipCard({ fromName, toName, relationship, familiarityStage, fa
   return <details className="rounded-lg border border-stone-200 bg-stone-50 p-3">
     <summary className="cursor-pointer rounded text-sm font-semibold text-stone-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-700">
       {fromName} → {toName}
-      <span className="ml-2 text-xs font-normal text-stone-500">{relationship.history.length} history entries</span>
+      <span className="ml-2 text-xs font-normal text-stone-500">{relationship?.history.length ?? 0} history entries</span>
     </summary>
     <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
       {relationship && Object.entries(relationship.dimensions).map(([dimension, score]) => <div key={dimension}>
