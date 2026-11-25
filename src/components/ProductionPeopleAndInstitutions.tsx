@@ -40,7 +40,7 @@ function RelationshipCard({ fromName, toName, relationship, familiarityStage, fa
       <ol className="mt-2 space-y-2">{familiarityEpisodes.map((episode) => <li key={episode.id} className="text-xs text-stone-700">
         <p className="font-medium">Day {episode.dayNumber} · {episode.stageContribution} · {episode.acquisitionMode.replace(/_/g, ' ')}</p>
         <p>{episode.contextId.replace(/[-_]/g, ' ')} · {episode.interactionKind.replace(/[-_]/g, ' ')}</p>
-        <p className="text-stone-500">Source: {episode.provenance.map((source) => `${source.kind} ${source.id}`).join('; ')}</p>
+        <p className="text-stone-600">Source: {episode.provenance.map((source) => `${source.kind} ${source.id}`).join('; ')}</p>
       </li>)}</ol>
     </details>}
     {relationship && relationship.history.length > 0 && <details className="mt-3 border-t border-stone-200 pt-3">
