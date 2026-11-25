@@ -214,8 +214,8 @@ export const laborGroupDisbursement = activity({
   discoveries: [
     { id: 'civ02-request', title: 'The reviewer’s request', text: 'The group leader wants the figures settled so people can leave. Shuruppak-ilu asks for two separate checks; he does not claim the grain record belongs to this group.' },
     { id: 'civ02-labor-account', title: 'Labor-group account', text: 'The labor-group tally gives entries 6, 8, and 5; the written total is 19. The displayed values reconcile.' },
-    { id: 'civ02-disbursement', title: 'Separate grain-disbursement record', text: 'A separate grain-disbursement copy records grain for high-ranking officials. It is not a record of this work group or its entitlement.' },
-    { id: 'civ02-provenance', title: 'Separate provenance notes', text: 'The two copies remain separate. They have been brought together for this check, but no shared transaction is recorded.' },
+    { id: 'civ02-disbursement', title: 'Separate grain-disbursement record', text: 'The grain entry names high-ranking officials. The group leader cannot use it to claim a ration for his people.' },
+    { id: 'civ02-provenance', title: 'Separate provenance notes', text: 'The group leader wants the grain included, but the two copies name different entries. No shared transaction is recorded.' },
   ],
   actions: [
     { id: 'civ02-review-request', family: 'consult', label: 'Consult the reviewer', description: 'Clarify the two-part report and the group’s need for a timely answer.', apCost: 1, discoveryIds: ['civ02-request'], consultedPersonId: people.senior },
@@ -272,9 +272,9 @@ export const inanaOfferingRecords = activity({
   participants: [people.offeringParticipant, people.senior],
   discoveries: [
     { id: 'rel01-request', title: 'A request before preparations', text: 'Nin-kasi asks for the entries to be checked before preparations continue. She would rather not reopen the account late in the day; the senior recorder wants the source distinction preserved.' },
-    { id: 'rel01-offering-record', title: 'Inana-associated offering record', text: 'The cited archaic Uruk offering record is associated with Inana. the supplied copy contains two same-category offering entries and a copied summary that omits one entry.' },
-    { id: 'rel01-commodity-record', title: 'Separate commodity record', text: 'A separate broader-corpus record contains a fish-category entry. It is not asserted to belong to the offering record, the same kitchen, or the same supply schedule.' },
-    { id: 'rel01-provenance', title: 'Provenance and category note', text: 'The offering record and broader commodity record have separate provenance. Fish categories such as KU6 and SUḪUR remain distinct; no shared unit or direct link is supplied.' },
+    { id: 'rel01-offering-record', title: 'Inana-associated offering record', text: 'The offering record is associated with Inana. The copy before you contains two same-category entries; its summary leaves one out.' },
+    { id: 'rel01-commodity-record', title: 'Separate commodity record', text: 'A separate copy contains a fish-category entry. Nin-kasi asks whether it can fill the missing offering entry, but the copies provide no link.' },
+    { id: 'rel01-provenance', title: 'Provenance and category note', text: 'Nin-kasi needs an answer before preparations continue. The copies use separate fish categories, and no shared unit or direct link is recorded.' },
   ],
   actions: [
     { id: 'rel01-consult-participant', family: 'consult', label: 'Consult Nin-kasi', description: 'Establish which offering entries she is asking to have checked.', apCost: 1, discoveryIds: ['rel01-request'], consultedPersonId: people.offeringParticipant },
