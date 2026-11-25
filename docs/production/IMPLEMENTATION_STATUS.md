@@ -383,3 +383,18 @@ These are estimates for the bounded assessment only, not runtime implementation 
 This record is queue planning only. It does not mark Faithful Recall implemented, tested, verified, or ready for implementation. No runtime files, GDD, Decision Register, Open Design Register, save schema, migration, or existing record semantics were changed by this entry.
 
 **Next action:** Design HQ completes and reconciles the supporting behavioral contract. After Issue #85 priority protection and contract readiness, Production conducts FR-A through FR-E and returns the technical assessment to Design HQ. A separate approved **READY FOR IMPLEMENTATION** handoff is required before runtime work.
+
+## GD-OPPORTUNITY-001 — South-Court compensation correction — 25 November 2026
+
+**Authority:** Game Director explicitly directed Production to preserve the observed +1 Provision as the intended South-Court Assignment compensation and correct the authored offer/settlement path. This is an authorized, scenario-specific content correction. The proposed second Responsibility claim remains **PROPOSED — NOT APPROVED FOR RUNTIME IMPLEMENTATION** and is not included.
+
+- **PR #118 — OPEN / NOT MERGED:** `fix/issue85-south-court-provision-contract`, head `2f6f792c430592a723c8e8e057059fc0bba86315`.
+- **Authored offer:** South-Court now reads `ERA_I_ASSIGNMENT_PARAMETERS.explicitProvisionContract.provisions` (1) rather than the tier-wide `tierB.defaultProvisions` (0). The global tier-B default remains 0; South Loading-Awning remains 0.
+- **Generation and disclosure:** generator coverage checks the actual generated offer. The pre-acceptance Workday Hub test no longer mutates the offer fixture; it verifies the actual generated +1 contract is disclosed as `+1 Provision in kind`.
+- **Acceptance and submission:** the activity integration test checks that the generated +1 contract survives acceptance and submission, queues exactly one pending Assignment credit for +1 Provision, and preserves the existing report/matter behavior.
+- **Day-Close settlement:** the integration test checks the Day-Close breakdown credits +1 Assignment Provision, Begin Workday marks that credit against the settlement ID, and duplicate Begin Workday does not credit it again. With the fixture's initial 5 Provisions and one unit of sustenance, the resulting wallet remains 5.
+- **Persistence:** no schema or save-shape change. The existing pending-credit and settlementId exactly-once path is reused.
+- **Validation on exact PR head:** Pull Request Validation run 596 completed successfully: TypeScript passed, 38 test files / 279 tests passed, production build passed. CodeQL run 480 was still in progress at the time of this status entry. No local execution is claimed.
+- **Review / merge / deployment:** no review recorded; PR not merged; deployment not performed or verified. Issue #85 remains OPEN / IN PROGRESS and integrated acceptance remains outstanding.
+
+**Next:** complete CodeQL and review PR #118. Separately, Design HQ's qualified origin-side dispatch-count/handling Responsibility proposal requires design review and explicit approval before any runtime claim/evaluation changes. No Dudu option, Enlil-kisu default blame, Utu-mansum blame, institutional matter resolution, or account adjustment was introduced.
