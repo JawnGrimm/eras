@@ -226,6 +226,8 @@ describe('North-Bay Roof Inspection activity definition and engine', () => {
     expect(activity.historicalContextNote).toContain('fictional teaching material');
     expect(activity.discoveries.map((item) => item.text).join(' ')).not.toMatch(/\b(?:vessels?|bundles?|measures?)\s+\d+|\d+\s+(?:vessels?|bundles?|measures?)\b/i);
     expect(validateAssignmentActivityDefinition(activity)).toEqual([]);
+    const invalidRubric = { ...activity, evaluation: { ...activity.evaluation!, incompleteFindingIds: ['missing-finding'] } };
+    expect(validateAssignmentActivityDefinition(invalidRubric).some((issue) => issue.includes('unknown incomplete finding'))).toBe(true);
   });
 
   it('grades COM-01 by material completeness, not by the expansiveness of the conclusion', () => {
