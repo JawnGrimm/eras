@@ -3,6 +3,7 @@ import { getInitializedScribal } from '../state/scribalState';
 import { transitionGame } from '../engine/actionEconomy';
 import { validateInstitutionalResponseEvent } from '../engine/institutionalResponseValidation';
 import { deriveProfessionalRank } from '../engine/professionalRank';
+import { deriveRelationshipFamiliarityStage, relationshipFamiliarityEpisodeId } from '../state/relationshipFamiliarity';
 import { createInitialGameState, INITIAL_PERSON_ID } from '../state/initialState';
 import { createSaveEnvelope, isValidGameState, restoreSave } from '../state/saveEnvelope';
 import { createRoofRepairMatter, MATTER_IDS, STOREHOUSE_INSTITUTION_ID, NORTH_BAY_LOCATION_ID } from '../engine/institutionalMatters';
@@ -75,7 +76,7 @@ describe('world, relationships, institutions and records', () => {
   it('keeps event facts, authored records, append-only amendments, and knowledge holdings distinct', () => {
     let state: GameState = base();
     const event = { id: 'event-delivery' as EventId, dayNumber: 1, summary: 'A delivery arrived at the storehouse.',
-      personIds: [INITIAL_PERSON_ID], institutionIds: [], };
+      personIds: [INITIAL_PERSON_ID, otherId], institutionIds: [], };
     state = transitionGame(state, { type: 'CREATE_EVENT', event }).state;
     const record = { id: 'record-delivery' as RecordId, createdDay: 1, authorPersonId: INITIAL_PERSON_ID,
       title: 'Delivery account', sources: [{ id: 'source-event', kind: 'event' as const, sourceId: event.id, description: 'Observed delivery event' }],
@@ -99,7 +100,31 @@ describe('world, relationships, institutions and records', () => {
     expect(informed.feedback?.code).toBe('knowledge-granted');
     expect(informed.state.world.knowledge[knowledge.id]).toEqual(knowledge);
     expect(Object.values(informed.state.world.knowledge).some((entry) => entry.holder.kind === 'person' && entry.holder.id === otherId)).toBe(false);
-    expect(isValidGameState(informed.state)).toBe(true);
+
+    const episode = {
+      id: relationshipFamiliarityEpisodeId(INITIAL_PERSON_ID, otherId, 'matter-delivery-01', 'observed-delivery-dispute'),
+      observerPersonId: INITIAL_PERSON_ID, subjectPersonId: otherId,
+      acquisitionMode: 'observation' as const, interactionKind: 'observed-delivery-dispute',
+      occasionId: 'matter-delivery-01', contextId: 'storehouse-delivery',
+      stageContribution: 'familiar' as const, dayNumber: 1,
+      provenance: [{ kind: 'event' as const, id: event.id }],
+    };
+    const experienced = transitionGame(informed.state, { type: 'RECORD_RELATIONSHIP_FAMILIARITY_EPISODE', episode });
+    expect(experienced.feedback?.code).toBe('familiarity-episode-recorded');
+    expect(deriveRelationshipFamiliarityStage(experienced.state.world.relationshipFamiliarityEpisodes ?? {}, INITIAL_PERSON_ID, otherId)).toBe('familiar');
+    expect(deriveRelationshipFamiliarityStage(experienced.state.world.relationshipFamiliarityEpisodes ?? {}, otherId, INITIAL_PERSON_ID)).toBeNull();
+    const repeated = transitionGame(experienced.state, { type: 'RECORD_RELATIONSHIP_FAMILIARITY_EPISODE', episode });
+    expect(repeated.feedback?.code).toBe('familiarity-episode-already-recorded');
+    expect(Object.keys(repeated.state.world.relationshipFamiliarityEpisodes ?? {})).toHaveLength(1);
+
+    const assessed = transitionGame(experienced.state, {
+      type: 'ASSESS_KNOWLEDGE', knowledgeId: knowledge.id,
+      assessment: { status: 'contradicted', dayNumber: 1, source: { kind: 'event', id: event.id }, rationale: 'The later comparison did not support the remembered statement.' },
+    });
+    expect(assessed.feedback?.code).toBe('knowledge-assessed');
+    expect(assessed.state.world.knowledge[knowledge.id].assertion).toEqual(knowledge.assertion);
+    expect(assessed.state.world.knowledge[knowledge.id].assessments).toHaveLength(1);
+    expect(isValidGameState(assessed.state)).toBe(true);
   });
 
   it('rejects invalid relationship scores, dangling institutional references, and unsupported knowledge', () => {
