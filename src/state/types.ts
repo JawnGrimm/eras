@@ -180,15 +180,22 @@ export type InstitutionalMatterKind = 'tutorial' | 'roof_repair_verification' | 
   | 'era1_com_01_consignment' | 'era1_com_02_brewing_account' | 'era1_civ_01_field_measurement'
   | 'era1_civ_02_labor_disbursement' | 'era1_rel_01_inana_offering'
   | 'era1_com_f01_material_description' | 'era1_com_f02_two_claims' | 'era1_com_f03_partial_return' | 'era1_com_f04_custody_chain'
-  | 'era1_mar_f01_door_opened' | 'era1_mar_f02_party_returns_short' | 'era1_mar_f03_late_turned_aside' | 'era1_mar_f04_valued_object_trail' | 'general';
+  | 'era1_mar_f01_door_opened' | 'era1_mar_f02_party_returns_short' | 'era1_mar_f03_late_turned_aside' | 'era1_mar_f04_valued_object_trail' | 'tier_b_recurring_occurrence' | 'general';
 export interface MatterProvenance {
   id: string;
   kind: 'record_copy' | 'instruction' | 'agreement' | 'observation' | 'testimony' | 'event' | 'other';
   description: string;
   sourceId?: string;
 }
+export interface TierBRecurringOccurrence {
+  domain: 'grain_delivery' | 'textile_receipt' | 'vessel_count' | 'container_check' | 'grain_account' | 'fish_entry';
+  commodity: string; unit: string; counterpartyPersonId: PersonId; counterpartyName: string;
+  quantitySummary: string; sourceSummary: string; outcomeShape: 'reconciled' | 'discrepancy';
+}
 export interface InstitutionalMatter {
   id: MatterId; institutionId: InstitutionId; kind: InstitutionalMatterKind; summary: string;
+  /** Optional, deterministic Tier B instance data; absent on legacy and bespoke matters. */
+  tierBRecurring?: TierBRecurringOccurrence;
   status: 'active' | 'resolved' | 'developed'; createdDay: number; sourceRecordId?: RecordId;
   locationId?: LocationId; scheduledDevelopment?: { kind: 'rain'; dayNumber: number }; developedDay?: number; sourceEventId?: EventId;
   /** Participants and provenance are optional for compatibility with earlier schema-v2 matter records. */

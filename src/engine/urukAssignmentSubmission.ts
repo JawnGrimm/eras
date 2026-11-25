@@ -16,10 +16,11 @@ const REPAIRER = 'person-dudu' as PersonId;
 const fail = (state: GameState, code: string, message: string): TransitionResult => ({ state, feedback: { kind: 'error', code, message } });
 const succeed = (state: GameState, message: string): TransitionResult => ({ state, feedback: { kind: 'success', code: 'assignment-activity-submitted', message } });
 
-type ScenarioId = 'activity-held-barley-inspection' | 'activity-south-court-delivery-reconciliation' | 'activity-south-loading-awning-inspection';
+type ScenarioId = 'activity-held-barley-inspection' | 'activity-south-court-delivery-reconciliation' | 'activity-south-loading-awning-inspection' | 'activity-tierb-recurring-institutional-check';
 
 function sourceFor(activityId: ScenarioId, discoveryId: string): RecordSource {
   const personSources: Record<string, PersonId> = {
+    'tierb-authority-boundary': SENIOR,
     'held-steward-briefing': STEWARD, 'held-senior-authority': SENIOR,
     'delivery-dispatch-copy': CARRIER, 'delivery-arrival-tally': RECEIVER,
     'delivery-utu-testimony': RECEIVER, 'delivery-enlil-testimony': CARRIER,
@@ -76,7 +77,7 @@ export function submitUrukAssignmentActivity(
   progress: AssignmentActivityProgress,
 ): TransitionResult | null {
   const id = offer.activityId as ScenarioId | undefined;
-  if (id !== 'activity-held-barley-inspection' && id !== 'activity-south-court-delivery-reconciliation' && id !== 'activity-south-loading-awning-inspection') return null;
+  if (id !== 'activity-held-barley-inspection' && id !== 'activity-south-court-delivery-reconciliation' && id !== 'activity-south-loading-awning-inspection' && id !== 'activity-tierb-recurring-institutional-check') return null;
   const cost = definition.submissionApCost;
   if (state.actionEconomy.apRemaining < cost) return fail(state, 'insufficient-ap', `Submission costs ${cost} AP.`);
   const person = state.world.people[state.player.currentCharacterId];
@@ -91,6 +92,14 @@ export function submitUrukAssignmentActivity(
     { id: 'source-player-report', kind: 'other', description: 'Submitted finding and recommendation by the current scribe' },
     ...discoveries.filter((item) => cited.has(item.id)).map((item) => sourceFor(id, item.id)),
   ];
+  if (id === 'activity-tierb-recurring-institutional-check' && offer.originMatterId && cited.has('tierb-counterparty-account')) {
+    const counterpartyId = state.world.matters[offer.originMatterId]?.tierBRecurring?.counterpartyPersonId;
+    const sourceIndex = sources.findIndex((item) => item.id === 'source-tierb-counterparty-account');
+    if (counterpartyId && sourceIndex >= 0) sources[sourceIndex] = {
+      ...sources[sourceIndex], kind: 'person', sourceId: counterpartyId,
+      description: 'The actual counterparty named in this dated Tier B occurrence.',
+    };
+  }
   const assertions: RecordAssertion[] = discoveries.filter((item) => cited.has(item.id)).map((item) => ({
     id: `assertion-${item.id}`,
     text: item.text,
@@ -158,6 +167,37 @@ export function submitUrukAssignmentActivity(
       summary: blamed ? 'Enlil-kisu resented an unsupported attribution in the reconciliation.' : 'Enlil-kisu recognized that his dispatch account was recorded separately from the receiving tally.',
     });
     judgmentDelta = blamed ? -4 : 3;
+  } else if (id === 'activity-tierb-recurring-institutional-check') {
+    matterId = offer.originMatterId;
+    if (!matterId) return fail(state, 'tierb-matter-missing', 'This recurring Assignment has no source matter.');
+    const recurringMatter = state.world.matters[matterId];
+    const recurring = recurringMatter?.tierBRecurring;
+    if (!recurringMatter || !recurring) return fail(state, 'tierb-source-missing', 'The dated Tier B source facts are unavailable.');
+    title = `${offer.title} report`;
+    matterSummary = recurringMatter.summary;
+    const assignsBlame = draft.responsibilityClaim === 'assign_responsibility' || draft.finding === 'assign_responsibility';
+    overclaim = assignsBlame;
+    limitations.push('The source and receiving/check records establish only their own dated count or observation.');
+    limitations.push('The occurrence does not establish individual responsibility; any difference remains bounded to the cited records.');
+    if (assignsBlame) assertions.push({
+      id: 'assertion-tierb-unsupported-responsibility',
+      text: `The report assigns responsibility to ${recurring.counterpartyName}, although the dated source facts do not establish individual responsibility.`,
+      classification: 'disputed', sourceIds: [playerSource],
+    });
+    else assertions.push({
+      id: 'assertion-tierb-recorded-outcome',
+      text: recurring.outcomeShape === 'reconciled'
+        ? `The cited dated records reconcile: ${recurring.quantitySummary} The source categories and units are preserved.`
+        : `The cited dated records show a bounded difference or condition: ${recurring.quantitySummary} Its cause and individual responsibility are not established.`,
+      classification: 'inferred',
+      sourceIds: [...cited].map((discoveryId) => `source-${discoveryId}`),
+    });
+    if (progress.consultedPersonIds.includes(recurring.counterpartyPersonId)) relationshipChanges.push({
+      from: state.player.currentCharacterId, to: recurring.counterpartyPersonId,
+      trust: assignsBlame ? -4 : 2, respect: assignsBlame ? -3 : 1,
+      summary: assignsBlame ? 'The scribe assigned responsibility beyond the dated source facts.' : 'The scribe preserved the counterparty’s dated account without assigning unsupported blame.',
+    });
+    judgmentDelta = assignsBlame ? -4 : 3;
   } else {
     title = 'South Loading-Awning Condition Report';
     matterId = MATTER_IDS.southLoadingAwning;

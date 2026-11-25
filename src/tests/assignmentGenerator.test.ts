@@ -1,11 +1,106 @@
 import { describe, expect, it } from 'vitest';
 import { generateDailyAssignments } from '../engine/assignmentGenerator';
+import { transitionGame } from '../engine/actionEconomy';
 import { transitionOpportunityAction } from '../engine/opportunities';
+import { selectCharacterOpportunities } from '../state/opportunitySelectors';
 import { createInitialGameState } from '../state/initialState';
 import type { GameState } from '../state/types';
 import type { EventId, MatterId } from '../state/ids';
 
 describe('matter-driven Assignment discovery', () => {
+  it('sustains assignment discovery and bounded opportunity state through twenty workdays', () => {
+    let state = generateDailyAssignments(createInitialGameState());
+    const dailyOfferCounts: number[] = [];
+    const dailyLedgerCounts: number[] = [];
+    const dailyAssignmentCounts: number[] = [];
+    const serializedLengths: number[] = [];
+
+    for (let day = 1; day <= 20; day += 1) {
+      expect(state.calendar.dayNumber).toBe(day);
+      dailyOfferCounts.push(selectCharacterOpportunities(state).offeredAssignments.length);
+      dailyLedgerCounts.push(state.opportunities.occurrenceLedger.length);
+      dailyAssignmentCounts.push(Object.keys(state.opportunities.assignments).length);
+
+      const serialized = JSON.stringify(state);
+      expect(() => JSON.parse(serialized)).not.toThrow();
+      serializedLengths.push(serialized.length);
+      expect(serialized.length).toBeLessThan(1_000_000);
+      expect(state.opportunities.occurrenceLedger.length).toBeLessThan(500);
+      expect(Object.keys(state.opportunities.assignments).length).toBeLessThan(500);
+
+      if (day === 20) break;
+      const closed = transitionGame(state, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber });
+      expect(closed.state.dayClose.phase).toBe('interlude_open');
+      expect(closed.state.dayClose.pendingSettlementId).toBeTruthy();
+      const begun = transitionGame(closed.state, {
+        type: 'BEGIN_WORKDAY',
+        expectedSettlementId: closed.state.dayClose.pendingSettlementId!,
+      });
+      expect(begun.feedback?.code).toBe('workday-begun');
+      state = begun.state;
+    }
+
+    expect(dailyOfferCounts.slice(13).some((count) => count > 0)).toBe(true);
+    expect(dailyOfferCounts[19]).toBeGreaterThan(0);
+    expect(Math.max(...dailyLedgerCounts)).toBeLessThan(500);
+    expect(Math.max(...dailyAssignmentCounts)).toBeLessThan(500);
+    expect(Math.max(...serializedLengths)).toBeLessThan(1_000_000);
+
+    const recurringMatters = Object.values(state.world.matters)
+      .filter((matter) => matter.kind === 'tier_b_recurring_occurrence');
+    expect(recurringMatters.length).toBeGreaterThanOrEqual(7);
+    expect(recurringMatters.every((matter) => !!matter.tierBRecurring)).toBe(true);
+    expect(new Set(recurringMatters.map((matter) => matter.sourceEventId)).size).toBe(recurringMatters.length);
+    expect(recurringMatters.every((matter) => !!matter.sourceEventId
+      && !!state.world.events[matter.sourceEventId]
+      && !!matter.sourceRecordId
+      && !!state.records.entries[matter.sourceRecordId])).toBe(true);
+    expect(new Set(recurringMatters.map((matter) => matter.tierBRecurring!.counterpartyPersonId)).size).toBeGreaterThan(1);
+    expect(new Set(recurringMatters.map((matter) => matter.tierBRecurring!.commodity)).size).toBeGreaterThan(1);
+    expect(recurringMatters.some((matter) => matter.tierBRecurring!.outcomeShape === 'reconciled')).toBe(true);
+    expect(recurringMatters.some((matter) => matter.tierBRecurring!.outcomeShape === 'discrepancy')).toBe(true);
+    expect(Object.values(state.world.institutions['institution-uruk-temple-storehouse' as keyof typeof state.world.institutions].activeMatters)
+      .filter((matterId) => state.world.matters[matterId]?.kind === 'tier_b_recurring_occurrence').length).toBeLessThan(6);
+    const day20TierB = Object.values(state.opportunities.assignments).find((offer) =>
+      offer.activityId === 'activity-tierb-recurring-institutional-check'
+      && offer.originMatterId === 'matter-tierb-recurring-day-20');
+    expect(day20TierB).toBeDefined();
+    expect(day20TierB!.status).toBe('offered');
+  });
+
+  it('keeps generated offers discoverable across five END_DAY/BEGIN_WORKDAY cycles', () => {
+    let state = generateDailyAssignments(createInitialGameState());
+    const offeredCounts: number[] = [];
+
+    for (let day = 1; day <= 5; day += 1) {
+      const generatedOffers = Object.values(state.opportunities.assignments)
+        .filter((offer) => offer.status === 'offered');
+      const selectedOffers = selectCharacterOpportunities(state).offeredAssignments;
+      expect(selectedOffers.map((offer) => offer.id)).toEqual(generatedOffers.map((offer) => offer.id));
+      offeredCounts.push(selectedOffers.length);
+
+      if (day === 5) break;
+      const closed = transitionGame(state, { type: 'END_DAY', expectedDayNumber: state.calendar.dayNumber });
+      expect(closed.state.dayClose.phase).toBe('interlude_open');
+      const settlementId = closed.state.dayClose.pendingSettlementId;
+      expect(settlementId).toBeTruthy();
+      state = transitionGame(closed.state, { type: 'BEGIN_WORKDAY', expectedSettlementId: settlementId! }).state;
+      expect(state.calendar.dayNumber).toBe(day + 1);
+    }
+
+    expect(offeredCounts.every((count) => count > 0)).toBe(true);
+  });
+
+  it('exposes newly generated offers through the character opportunity selector', () => {
+    const generated = generateDailyAssignments(createInitialGameState());
+    const offers = Object.values(generated.opportunities.assignments)
+      .filter((offer) => offer.status === 'offered');
+
+    expect(offers.length).toBeGreaterThan(0);
+    expect(selectCharacterOpportunities(generated).offeredAssignments.map((offer) => offer.id))
+      .toEqual(offers.map((offer) => offer.id));
+  });
+
   it('discovers authored activities only from active matters listed by their institution', () => {
     const state = createInitialGameState();
     const generated = generateDailyAssignments(state);
