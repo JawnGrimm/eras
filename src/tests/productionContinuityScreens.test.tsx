@@ -19,6 +19,7 @@ import { getInitializedScribal } from '../state/scribalState';
 import { createSaveEnvelope, restoreSave } from '../state/saveEnvelope';
 import { INITIAL_WORK_CATALOG } from '../state/newGameState';
 import { STOREHOUSE_WORK_ID } from '../works/storehouseReckoning';
+import { relationshipFamiliarityEpisodeId } from '../state/relationshipFamiliarity';
 
 function renderScreen(state: GameState, screen: React.ReactElement) {
   return renderToStaticMarkup(createElement(GameProvider, { initialState: state }, screen));
@@ -43,6 +44,39 @@ describe('production continuity and social screens', () => {
     expect(markup).toContain('Enlil-barni → Nin-aya');
     expect(markup).toContain('Ur-gir → Enlil-barni');
     expect(markup).toContain('Relationship history');
+  });
+
+  it('shows a provenanced familiarity-only direction without fabricating sentiment dimensions', () => {
+    const base = createInitialGameState();
+    const subjectId = Object.keys(base.world.people).find((id) => id !== INITIAL_PERSON_ID)! as PersonId;
+    const eventId = 'event-familiarity-ui' as EventId;
+    const event: WorldEvent = {
+      id: eventId, dayNumber: 1, summary: 'A substantive response was returned.',
+      personIds: [INITIAL_PERSON_ID, subjectId], institutionIds: [],
+    };
+    const episode = {
+      id: relationshipFamiliarityEpisodeId(INITIAL_PERSON_ID, subjectId, 'assignment-ui-01', 'closing_receipt_assessment'),
+      observerPersonId: INITIAL_PERSON_ID, subjectPersonId: subjectId,
+      acquisitionMode: 'direct_interaction' as const, interactionKind: 'closing_receipt_assessment',
+      occasionId: 'assignment-ui-01', contextId: 'era_i_assignment',
+      stageContribution: 'acquainted' as const, dayNumber: 1,
+      provenance: [{ kind: 'event' as const, id: eventId }],
+    };
+    const state: GameState = {
+      ...base,
+      world: {
+        ...base.world,
+        events: { ...base.world.events, [eventId]: event },
+        relationshipFamiliarityEpisodes: { [episode.id]: episode },
+      },
+    };
+    expect(state.world.relationships[INITIAL_PERSON_ID]?.[subjectId]).toBeUndefined();
+    const markup = renderScreen(state, createElement(ProductionPeopleAndInstitutions));
+    expect(markup).toContain('Personal familiarity');
+    expect(markup).toContain('acquainted');
+    expect(markup).toContain('Familiarity evidence');
+    expect(markup).toContain('No separate trust, respect, affection, resentment, or rivalry dimensions are recorded for this direction.');
+    expect(markup).toContain('event-familiarity-ui');
   });
 
   it('renders a terminal no-successor state without inventing a replacement or resetting the era', () => {
