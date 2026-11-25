@@ -38,8 +38,8 @@ export const sealedVesselTextileConsignment = activity({
   participants: [people.steward, people.receiver, people.carrier, people.senior],
   discoveries: [
     { id: 'com01-request', title: 'The receiving request', text: 'Utu-mansum asks for the consignment to be checked before the receiving court closes. Enlil-kisu wants the goods accepted so his crew can leave; the receiving official wants the tag and custody note kept together.' },
-    { id: 'com01-tag', title: 'Tag transcription', text: 'The tag identifies vessel lot V-17 and textile lot T-04. The two commodity groups remain separately identified; no conversion between their counts is implied.' },
-    { id: 'com01-seal', title: 'Seal and custody observation', text: 'The seal impression on one vessel container is incomplete. The observation does not establish when the seal was damaged, whether the contents changed, or who was responsible.' },
+    { id: 'com01-tag', title: 'Tag transcription', text: 'The tag identifies vessel lot V-17 and textile lot T-04. The two commodity groups remain separately identified; Keep the vessel and textile counts on separate lines; they are different goods.' },
+    { id: 'com01-seal', title: 'Seal and custody observation', text: 'The seal impression on one vessel container is incomplete. No one can tell from the damaged impression when it happened, whether the contents changed, or who handled the vessel afterward.' },
     { id: 'com01-quantity', title: 'Quantity record', text: 'The dispatch account lists 8 vessels and 3 textile bundles under their separate identifiers.' },
     { id: 'com01-receipt', title: 'Receiving entry', text: 'The receiving entry lists 7 vessels and 3 textile bundles. The vessel count differs by one; the textile count agrees.' },
   ],
@@ -69,9 +69,9 @@ export const sealedVesselTextileConsignment = activity({
     ],
     limitationsLabel: 'What the evidence cannot establish',
     limitationOptions: [
-      { id: 'seal_timing_unknown', label: 'The incomplete seal does not establish when or by whom it was damaged' },
-      { id: 'count_difference_unlocated', label: 'The one-vessel difference is not located by the available records' },
-      { id: 'no_release_authority', label: 'This report does not authorize release or establish ownership' },
+      { id: 'seal_timing_unknown', label: 'The receiving official still cannot tell when the seal was damaged or who handled the vessel afterward' },
+      { id: 'count_difference_unlocated', label: 'Dispatch lists eight vessels; receipt lists seven. Neither copy shows where the missing vessel went' },
+      { id: 'no_release_authority', label: 'Utu-mansum must decide whether the goods are released; this report carries the comparison' },
     ],
   },
   evaluation: {
@@ -128,8 +128,8 @@ export const brewingIngredientAccount = activity({
     limitationsLabel: 'Reading and category limits',
     limitationOptions: [
       { id: 'no_shared_unit', label: 'Groats and malt totals are not combined or converted' },
-      { id: 'uncertain_destination', label: 'The uncertain sign does not establish the goods’ destination' },
-      { id: 'no_authority_to_amend', label: 'The apprentice cannot alter the authoritative account' },
+      { id: 'uncertain_destination', label: 'The brewer still needs the destination checked; the uncertain sign cannot settle it' },
+      { id: 'no_authority_to_amend', label: 'Only the responsible recorder can change the account; the apprentice’s report leaves the original entry intact' },
     ],
   },
   evaluation: {
@@ -186,7 +186,7 @@ export const fieldMeasurementReconciliation = activity({
     limitationOptions: [
       { id: 'provenance_uncertain', label: 'Chronology and provenience remain qualified' },
       { id: 'transcription_simplified', label: 'The standard-measure display is a gameplay transcription' },
-      { id: 'no_land_authority', label: 'The arithmetic does not establish boundary, ownership, or yield rights' },
+      { id: 'no_land_authority', label: 'The people waiting on the field summary still need an authorized measurement before any boundary or allocation is decided' },
     ],
   },
   evaluation: {
@@ -245,7 +245,7 @@ export const laborGroupDisbursement = activity({
     limitationOptions: [
       { id: 'no_group_link', label: 'The grain-disbursement record is not linked to this labor group' },
       { id: 'source_records_separate', label: 'The two source records have separate provenance' },
-      { id: 'no_redistribution_authority', label: 'The apprentice cannot authorize redistribution or assign liability' },
+      { id: 'no_redistribution_authority', label: 'This report cannot reassign the grain; the officials named in the separate copy retain their own account' },
     ],
   },
   evaluation: {
@@ -274,7 +274,7 @@ export const inanaOfferingRecords = activity({
     { id: 'rel01-request', title: 'A request before preparations', text: 'Nin-kasi asks for the entries to be checked before preparations continue. She would rather not reopen the account late in the day; the senior recorder wants the source distinction preserved.' },
     { id: 'rel01-offering-record', title: 'Inana-associated offering record', text: 'The offering record is associated with Inana. The copy before you contains two same-category entries; its summary leaves one out.' },
     { id: 'rel01-commodity-record', title: 'Separate commodity record', text: 'A separate copy contains a fish-category entry. Nin-kasi asks whether it can fill the missing offering entry, but the copies provide no link.' },
-    { id: 'rel01-provenance', title: 'Provenance and category note', text: 'Nin-kasi needs an answer before preparations continue. The copies use separate fish categories, and no shared unit or direct link is recorded.' },
+    { id: 'rel01-provenance', title: 'Provenance and category note', text: 'Nin-kasi needs an answer before preparations continue. The copies use different fish categories, and neither tells her whether the separate entry can fill the gap.' },
   ],
   actions: [
     { id: 'rel01-consult-participant', family: 'consult', label: 'Consult Nin-kasi', description: 'Establish which offering entries she is asking to have checked.', apCost: 1, discoveryIds: ['rel01-request'], consultedPersonId: people.offeringParticipant },
